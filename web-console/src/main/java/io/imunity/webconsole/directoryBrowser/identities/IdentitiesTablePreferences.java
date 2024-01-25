@@ -4,15 +4,10 @@
  */
 package io.imunity.webconsole.directoryBrowser.identities;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -21,6 +16,10 @@ import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * User's preferences for the IdentitiesTable .
@@ -42,14 +41,14 @@ class IdentitiesTablePreferences
 	@JsonCreator
 	IdentitiesTablePreferences(ObjectNode main) throws InternalException
 	{
-		ObjectNode spSettingsNodeC = main.with("colSettings");
+		ObjectNode spSettingsNodeC = main.withObjectProperty("colSettings");
 		Iterator<String> keys = spSettingsNodeC.fieldNames();
 		for (String key; keys.hasNext();)
 		{
 			key = keys.next();
-			colSettings.put(key, deserializeSingle(spSettingsNodeC.with(key)));
+			colSettings.put(key, deserializeSingle(spSettingsNodeC.withObjectProperty(key)));
 		}
-		ObjectNode spSettingsNodeB = main.with("checkBoxSettings");
+		ObjectNode spSettingsNodeB = main.withObjectProperty("checkBoxSettings");
 		groupbyEntitiesSetting = spSettingsNodeB.get("groupByEntities").asBoolean();
 		if (spSettingsNodeB.has("showTargeted"))
 			showTargetedSetting = spSettingsNodeB.get("showTargeted").asBoolean();
@@ -71,10 +70,10 @@ class IdentitiesTablePreferences
 	ObjectNode serializeToJson()
 	{
 		ObjectNode main = mapper.createObjectNode();
-		ObjectNode settingsN = main.with("colSettings");
+		ObjectNode settingsN = main.withObjectProperty("colSettings");
 		for (Map.Entry<String, ColumnSettings> entry : colSettings.entrySet())
 			settingsN.set(entry.getKey(), serializeSingle(entry.getValue()));
-		ObjectNode settingC = main.with("checkBoxSettings");
+		ObjectNode settingC = main.withObjectProperty("checkBoxSettings");
 		settingC.put("groupByEntities", groupbyEntitiesSetting);
 		settingC.put("showTargeted", showTargetedSetting);
 		return main;

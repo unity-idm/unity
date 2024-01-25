@@ -21,6 +21,7 @@ import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
@@ -103,7 +104,13 @@ class UnityAppLayoutComponentsHolder
 					if(tab instanceof TabComponent tabComponent)
 					{
 						if(tabComponent.componentClass.contains(component.getClass()))
+						{
 							tabs.setSelectedTab(tabComponent);
+							tabComponent.getElement().setAttribute("selection", true);
+						}
+						else
+							tabComponent.getElement().removeAttribute("selection");
+
 					}
 					if(tab instanceof MultiTabComponent multiTabComponent)
 					{
@@ -177,7 +184,14 @@ class UnityAppLayoutComponentsHolder
 
 	private Tabs createLeftMenuTabs(List<MenuComponent> menuContent)
 	{
-		Tabs tabs = new Tabs();
+		AtomicInteger selectedTab = new AtomicInteger(-1);
+		Tabs tabs = new Tabs(){
+			@Override
+			public int getSelectedIndex()
+			{
+				return selectedTab.get();
+			}
+		};
 		tabs.addClassName("u-menu-tabs");
 		tabs.setOrientation(Tabs.Orientation.VERTICAL);
 		tabs.addThemeVariants(TabsVariant.LUMO_MINIMAL);
@@ -185,7 +199,11 @@ class UnityAppLayoutComponentsHolder
 				.map(menu ->
 				{
 					if(menu.subTabs.isEmpty())
-						return new TabComponent(menu);
+					{
+						TabComponent tabComponent = new TabComponent(menu);
+						tabComponent.addClickListener(event -> selectedTab.set(menuContent.indexOf(menu)));
+						return tabComponent;
+					}
 					else
 						return new MultiTabComponent(menu);
 				})

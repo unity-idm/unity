@@ -6,9 +6,6 @@
 
 package io.imunity.console.views.services.base;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.endpoint.common.api.services.ServiceControllerBaseInt;
@@ -20,6 +17,9 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Common part for idp and standard service controllers
  * @author P.Piernik
@@ -29,9 +29,9 @@ public class ServiceControllerBase
 {
 	private final MessageSource msg;
 	private final EndpointManagement endpointMan;
-	private final TypesRegistryBase<? extends ServiceControllerBaseInt> controllersRegistry;		
-	private final NotificationPresenter notificationPresenter;		
-	
+	private final TypesRegistryBase<? extends ServiceControllerBaseInt> controllersRegistry;
+	private final NotificationPresenter notificationPresenter;
+
 	public ServiceControllerBase(MessageSource msg, EndpointManagement endpointMan,
 			TypesRegistryBase< ? extends ServiceControllerBaseInt> controllersRegistry, NotificationPresenter notificationPresenter)
 	{

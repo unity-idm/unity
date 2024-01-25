@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class ContactEmailMetadataHandler implements WebAttributeMetadataHandler
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	
 	public ContactEmailMetadataHandler(MessageSource msg)
 	{

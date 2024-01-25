@@ -35,7 +35,7 @@ class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEd
 {
 	private final MessageSource msg;
 
-	private AttributeType original;
+	private final AttributeType original;
 	private TextField name;
 	private LocalizedTextFieldDetails displayedName;
 	private LocalizedTextAreaDetails typeDescription;

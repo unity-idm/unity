@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class LogoutProcessorsManager
 {
-	private List<LogoutProcessor> processors;
+	private final List<LogoutProcessor> processors;
 	
 	@Autowired(required=false)
 	public LogoutProcessorsManager(List<LogoutProcessorFactory> factories)

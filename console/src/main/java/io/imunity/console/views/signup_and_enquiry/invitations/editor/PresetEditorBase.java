@@ -4,13 +4,10 @@
  */
 package io.imunity.console.views.signup_and_enquiry.invitations.editor;
 
-import java.util.Optional;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasEnabled;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-
 import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.elements.EnumComboBox;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
@@ -19,6 +16,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import java.util.Optional;
 
 
 /**
@@ -100,7 +99,7 @@ public abstract class PresetEditorBase <T> implements Editor<PrefilledEntry<T>>
 		if (active.getValue())
 		{
 			Optional<T> value = getValueInternal();
-			return value.isPresent() ? new PrefilledEntry<>(value.get(), mode.getValue()) : null;	
+			return value.map(t -> new PrefilledEntry<>(t, mode.getValue())).orElse(null);
 		}
 		return null;
 	}

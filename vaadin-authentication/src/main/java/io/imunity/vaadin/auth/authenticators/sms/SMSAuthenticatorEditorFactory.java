@@ -23,8 +23,8 @@ import pl.edu.icm.unity.stdext.credential.sms.SMSVerificator;
 @Component
 class SMSAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private MessageSource msg;
-	private CredentialManagement credMan;
+	private final MessageSource msg;
+	private final CredentialManagement credMan;
 
 	@Autowired
 	SMSAuthenticatorEditorFactory(MessageSource msg,

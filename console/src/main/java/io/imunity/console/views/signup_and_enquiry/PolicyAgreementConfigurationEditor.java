@@ -35,10 +35,9 @@ import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 public class PolicyAgreementConfigurationEditor extends CollapsableGrid.Editor<PolicyAgreementConfiguration>
 {
-	private MessageSource msg;
-	private Collection<PolicyDocumentWithRevision> policyDocuments;
+	private final MessageSource msg;
+	private final Collection<PolicyDocumentWithRevision> policyDocuments;
 	private Binder<PolicyAgreementConfigurationVaadinBean> binder;
-	private FormLayout main;
 	private MultiSelectComboBox<PolicyDocumentWithRevision> policyToAccept;
 	private final FocusedField focussedField = new FocusedField();
 	private List<Button> buttons;
@@ -55,7 +54,7 @@ public class PolicyAgreementConfigurationEditor extends CollapsableGrid.Editor<P
 	{
 		binder = new Binder<>(PolicyAgreementConfigurationVaadinBean.class);
 		buttons = new ArrayList<>();
-		main = new FormLayout();
+		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		main.addFormItem(new Span(msg.getMessage("PolicyAgreementConfigEditor.noPolicyDocuments")),

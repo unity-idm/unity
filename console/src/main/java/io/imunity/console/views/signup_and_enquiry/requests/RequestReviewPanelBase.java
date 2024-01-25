@@ -79,7 +79,7 @@ class RequestReviewPanelBase extends VerticalLayout
 	private Panel policyAgreementsP;
 	private Panel commentP;
 	private Panel identitiesP;
-	private IdentityFormatter idFormatter;
+	private final IdentityFormatter idFormatter;
 
 	RequestReviewPanelBase(MessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan,

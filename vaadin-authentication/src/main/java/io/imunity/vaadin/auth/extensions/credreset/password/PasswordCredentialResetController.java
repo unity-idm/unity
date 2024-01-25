@@ -46,7 +46,7 @@ public class PasswordCredentialResetController
 	private CredentialResetScreen mainWrapper;
 	private final CredentialResetFlowConfig credResetUIConfig;
 	private Optional<AuthenticationSubject> presetEntity;
-	private NotificationPresenter notificationPresenter;
+	private final NotificationPresenter notificationPresenter;
 
 	public PasswordCredentialResetController(MessageSource msg, CredentialReset backend,
 	                                         CredentialEditor credEditor, CredentialResetLauncher.CredentialResetUIConfig credResetConfig,

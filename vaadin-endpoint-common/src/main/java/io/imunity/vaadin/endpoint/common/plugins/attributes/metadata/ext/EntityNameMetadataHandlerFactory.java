@@ -20,7 +20,7 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 @Component
 public class EntityNameMetadataHandlerFactory implements WebAttributeMetadataHandlerFactory
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	
 	@Autowired
 	public EntityNameMetadataHandlerFactory(MessageSource msg)

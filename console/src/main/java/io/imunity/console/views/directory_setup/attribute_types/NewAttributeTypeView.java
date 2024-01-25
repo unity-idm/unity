@@ -38,8 +38,8 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Route(value = "/attribute-type/new", layout = ConsoleMenu.class)
 class NewAttributeTypeView extends ConsoleViewComponent
 {
-	private AttributeTypeController controller;
-	private MessageSource msg;
+	private final AttributeTypeController controller;
+	private final MessageSource msg;
 	private RegularAttributeTypeEditor editor;
 	private final NotificationPresenter notificationPresenter;
 

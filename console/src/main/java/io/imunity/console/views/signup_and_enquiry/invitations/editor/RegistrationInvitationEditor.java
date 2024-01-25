@@ -194,7 +194,7 @@ class RegistrationInvitationEditor extends VerticalLayout implements InvitationP
 	@org.springframework.stereotype.Component
 	public static class RegistrationInvitationEditorFactory
 	{
-		private ObjectFactory<RegistrationInvitationEditor> editorFactory;
+		private final ObjectFactory<RegistrationInvitationEditor> editorFactory;
 
 		public RegistrationInvitationEditorFactory(ObjectFactory<RegistrationInvitationEditor> editor)
 		{

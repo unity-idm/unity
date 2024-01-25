@@ -47,6 +47,21 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(value.getImage());
 		StreamResource streamResource = new StreamResource("imgattribute-" + UUID.randomUUID() + "." + value.getType().toExt(), () -> byteArrayInputStream);
+		Image image = getImage(context, streamResource);
+		if(context.getBorderRadius() != null && context.getBorderUnit() != null)
+			image.getStyle().set("border-radius", context.getBorderRadius() + context.getBorderUnit().getSymbol());
+		if (linkURL != null && context.isScaleImage())
+		{
+			Image externalImage = new Image(linkURL, "");
+			Anchor anchor = new Anchor(linkURL, externalImage);
+			anchor.setTarget("_blank");
+			return anchor;
+		}
+			return image;
+	}
+
+	private static Image getImage(AttributeViewerContext context, StreamResource streamResource)
+	{
 		Image image = new Image(streamResource, "");
 		if (context.isCustomWidth() && !context.isScaleImage())
 		{
@@ -68,16 +83,7 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 				image.setHeight("unset");
 			}
 		}
-		if(context.getBorderRadius() != null && context.getBorderUnit() != null)
-			image.getStyle().set("border-radius", context.getBorderRadius() + context.getBorderUnit().getSymbol());
-		if (linkURL != null && context.isScaleImage())
-		{
-			Image externalImage = new Image(linkURL, "");
-			Anchor anchor = new Anchor(linkURL, externalImage);
-			anchor.setTarget("_blank");
-			return anchor;
-		}
-			return image;
+		return image;
 	}
 
 	@Override

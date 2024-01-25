@@ -19,13 +19,13 @@ import java.util.List;
 
 public class AttributeViewer
 {
-	private MessageSource msg;
-	private AttributeHandlerRegistry registry;
-	private AttributeType attributeType;
-	private Attribute attribute;
-	private LabelContext labelContext;
-	private ComponentsGroup group;
-	private AttributeViewerContext context;
+	private final MessageSource msg;
+	private final AttributeHandlerRegistry registry;
+	private final AttributeType attributeType;
+	private final Attribute attribute;
+	private final LabelContext labelContext;
+	private final ComponentsGroup group;
+	private final AttributeViewerContext context;
 	
 	public AttributeViewer(MessageSource msg, AttributeHandlerRegistry registry,
 	                       AttributeType attributeType, Attribute attribute, LabelContext labelContext,

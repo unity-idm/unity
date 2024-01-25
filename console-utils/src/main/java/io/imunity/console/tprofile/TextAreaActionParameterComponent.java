@@ -15,7 +15,7 @@ import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 public class TextAreaActionParameterComponent extends TextArea implements ActionParameterComponent
 {
-	private Binder<StringValueBean> binder;
+	private final Binder<StringValueBean> binder;
 	private String label;
 
 	public TextAreaActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)

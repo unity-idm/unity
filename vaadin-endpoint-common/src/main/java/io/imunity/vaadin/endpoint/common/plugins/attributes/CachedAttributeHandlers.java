@@ -17,8 +17,8 @@ import java.util.Map;
  */
 public class CachedAttributeHandlers
 {
-	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private Map<String, WebAttributeHandler> handlersByAttrName = new HashMap<>();
+	private final AttributeHandlerRegistry attributeHandlerRegistry;
+	private final Map<String, WebAttributeHandler> handlersByAttrName = new HashMap<>();
 	
 	public CachedAttributeHandlers(AttributeHandlerRegistry attributeHandlerRegistry)
 	{

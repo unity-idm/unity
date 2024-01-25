@@ -18,13 +18,12 @@ public class PasswordEditorComponent extends VerticalLayout implements Focusable
 {
 
 	private final PasswordFieldsComponent fieldsComponent;
-	private final PasswordQualityComponent qualityComponent;
 	private int tabIndex;
 	
 	public PasswordEditorComponent(MessageSource msg, CredentialEditorContext context, PasswordCredential config,
 	                               NotificationPresenter notificationPresenter)
 	{
-		qualityComponent = new PasswordQualityComponent(msg, config, context);
+		PasswordQualityComponent qualityComponent = new PasswordQualityComponent(msg, config, context);
 		fieldsComponent = new PasswordFieldsComponent(msg, context, config, qualityComponent::onNewPassword, notificationPresenter);
 		
 		HorizontalLayout root = new HorizontalLayout();

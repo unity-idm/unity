@@ -44,7 +44,7 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 	private Grid<Editor<T>> grid;
 	private GridListDataView<Editor<T>> gridListDataView;
 	private Editor<T> draggedItem;
-	private boolean readOnly;
+	private final boolean readOnly;
 
 	public CollapsableGrid(MessageSource msg, Supplier<Editor<T>> editorProvider, Supplier<T> getter, String caption)
 	{

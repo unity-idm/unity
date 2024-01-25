@@ -24,15 +24,15 @@ import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 public class ListOfEmbeddedElementsStub<T>
 {
-	private MessageSource msg;
-	private EditorProvider<T> editorProvider;
-	private int min;
-	private int max;
-	private boolean showLine;
-	private HorizontalLayout lonelyBar;
-	private Button lonelyAdd = new Button();
-	private List<Entry> components;
-	private ComponentsGroup group;
+	private final MessageSource msg;
+	private final EditorProvider<T> editorProvider;
+	private final int min;
+	private final int max;
+	private final boolean showLine;
+	private final HorizontalLayout lonelyBar;
+	private final Button lonelyAdd = new Button();
+	private final List<Entry> components;
+	private final ComponentsGroup group;
 	private Runnable valueChangeListener;
 	
 	
@@ -182,12 +182,12 @@ public class ListOfEmbeddedElementsStub<T>
 	
 	public class Entry
 	{
-		private Icon add;
-		private Icon remove;
+		private final Icon add;
+		private final Icon remove;
 		private Hr hr;
-		private Editor<T> editor;
-		private ComponentsContainer cc;
-		private HorizontalLayout addRemoveBar;
+		private final Editor<T> editor;
+		private final ComponentsContainer cc;
+		private final HorizontalLayout addRemoveBar;
 		
 		public Entry(T elementV, int position)
 		{

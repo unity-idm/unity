@@ -76,7 +76,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private RegistrationFormLayoutSettingsEditor layoutSettingsEditor;
 	private Checkbox byInvitationOnly;
 
-	private RegistrationActionsRegistry actionsRegistry;
+	private final RegistrationActionsRegistry actionsRegistry;
 	private RegistrationTranslationProfileEditor profileEditor;
 	private EnquiryFormLayoutEditorTab layoutEditor;
 	private final VaadinLogoImageLoader imageAccessService;

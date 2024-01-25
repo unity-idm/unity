@@ -15,7 +15,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
  */
 public class ComponentWithToolbar extends VerticalLayout
 {
-	private Toolbar<?> toolbar;
+	private final Toolbar<?> toolbar;
 	
 	public ComponentWithToolbar(Component main, Toolbar<?> toolbar)
 	{

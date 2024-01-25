@@ -59,7 +59,7 @@ class ImportAttributeTypeEditor extends VerticalLayout
 	private GenericElementsTable<AttributeType> selectionTable;
 	private Checkbox filterExisting;
 	private MemoryBuffer memoryBuffer;
-	private Collection<AttributeType> existing;
+	private final Collection<AttributeType> existing;
 	private Upload upload;
 
 	ImportAttributeTypeEditor(MessageSource msg, Collection<AttributeType> existing,

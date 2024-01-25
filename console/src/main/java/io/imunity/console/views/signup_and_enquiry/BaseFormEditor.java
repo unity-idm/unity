@@ -51,14 +51,14 @@ import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 public class BaseFormEditor extends VerticalLayout
 {
 	private static final int COMBO_WIDTH_EM = 18;
-	private MessageSource msg;
-	private PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory;
+	private final MessageSource msg;
+	private final PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory;
 	private final Map<String, IdentityTypeDefinition> allowedIdentitiesByName;
 	private final AttributeTypeSupport attributeTypeSupport;
 	protected ActionParameterComponentProvider actionComponentProvider;
-	private Collection<AttributeType> attributeTypes;
+	private final Collection<AttributeType> attributeTypes;
 	private List<String> groups;
-	private List<String> credentialTypes;
+	private final List<String> credentialTypes;
 	protected boolean copyMode;
 	
 	protected TextField name;
@@ -706,7 +706,7 @@ public class BaseFormEditor extends VerticalLayout
 	private class WrapupConfigEditorAndProvider implements EditorProvider<RegistrationWrapUpConfig>, Editor<RegistrationWrapUpConfig>
 	{
 		private RegistrationWrapUpConfigEditor editor;
-		private Predicate<TriggeringState> filter;
+		private final Predicate<TriggeringState> filter;
 		
 		WrapupConfigEditorAndProvider(Predicate<TriggeringState> filter)
 		{

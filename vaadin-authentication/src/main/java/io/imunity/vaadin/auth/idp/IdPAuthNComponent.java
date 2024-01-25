@@ -18,11 +18,10 @@ import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
  */
 public class IdPAuthNComponent extends VerticalLayout
 {
-	private final Button providerB;
 
 	public IdPAuthNComponent(String id, Image logo, String name)
 	{
-		providerB = new Button();
+		Button providerB = new Button();
 		providerB.addClassName("u-idpAuthentication-" + AuthenticationOptionKeyUtils.encodeToCSS(id));
 		providerB.setText(name);
 		providerB.setWidthFull();

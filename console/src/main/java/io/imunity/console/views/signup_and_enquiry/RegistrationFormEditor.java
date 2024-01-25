@@ -68,7 +68,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private final RealmsManagement realmsManagement;
 	private final FileStorageService fileStorageService;
 	private final VaadinLogoImageLoader imageAccessService;
-	private final URIAccessService uriAccessService;
 	private final UnityServerConfiguration serverConfig;
 	private final NotificationPresenter notificationPresenter;
 	private final HtmlTooltipFactory htmlTooltipFactory;
@@ -95,7 +94,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private Checkbox remoteAuthnGridSearchable;
 
 	private NotEmptyComboBox<String> credentialRequirementAssignment;
-	private RegistrationActionsRegistry actionsRegistry;
+	private final RegistrationActionsRegistry actionsRegistry;
 	private RegistrationTranslationProfileEditor profileEditor;
 	private RegistrationFormLayoutSettingsEditor layoutSettingsEditor;
 	private RegistrationFormLayoutEditor layoutEditor;
@@ -123,7 +122,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 		this.notificationsMan = notificationsMan;
 		this.msgTempMan = msgTempMan;
 		this.credReqMan = credReqMan;
-		this.uriAccessService = uriAccessService;
 		this.authenticatorSupport = authenticatorSupport;
 		this.realmsManagement = realmsManagement;
 		this.fileStorageService = fileStorageService;

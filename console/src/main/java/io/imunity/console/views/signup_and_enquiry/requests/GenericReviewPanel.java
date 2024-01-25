@@ -24,8 +24,8 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 @PrototypeComponent
 class GenericReviewPanel extends VerticalLayout
 {
-	private EnquiryReviewPanel enquiryPanel;
-	private RegistrationReviewPanel registrationPanel;
+	private final EnquiryReviewPanel enquiryPanel;
+	private final RegistrationReviewPanel registrationPanel;
 
 	@Autowired
 	GenericReviewPanel(EnquiryReviewPanel enquiryPanel,

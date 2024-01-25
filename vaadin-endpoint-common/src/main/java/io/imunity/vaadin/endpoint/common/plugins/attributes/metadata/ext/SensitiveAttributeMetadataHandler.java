@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 
 public class SensitiveAttributeMetadataHandler implements WebAttributeMetadataHandler
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	
 	public SensitiveAttributeMetadataHandler(MessageSource msg)
 	{

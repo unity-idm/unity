@@ -51,7 +51,7 @@ public class InvitationEditor extends VerticalLayout
 	private ComboBox<InvitationType> type;
 	private InvitationParamEditor editor;
 	private ComboBox<Long> inviter;
-	private String entityNameAttr;
+	private final String entityNameAttr;
 
 	public InvitationEditor(MessageSource msg, RegistrationInvitationEditor registrationInvitationEditor,
 			EnquiryInvitationEditorFactory enquiryInvitationEditorFactory, ComboInvitationEditor comboInvitationEditor,
@@ -191,7 +191,7 @@ public class InvitationEditor extends VerticalLayout
 	@org.springframework.stereotype.Component
 	public static class InvitationEditorFactory
 	{
-		private ObjectFactory<InvitationEditor> editorFactory;
+		private final ObjectFactory<InvitationEditor> editorFactory;
 
 		public InvitationEditorFactory(ObjectFactory<InvitationEditor> editor)
 		{

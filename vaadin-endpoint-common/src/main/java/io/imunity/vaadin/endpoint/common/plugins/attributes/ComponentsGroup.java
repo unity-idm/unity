@@ -19,7 +19,7 @@ import java.util.function.Consumer;
  */
 public class ComponentsGroup implements CompositeLayoutAdapter.ComposableComponents
 {
-	private List<Component> components = new ArrayList<>();
+	private final List<Component> components = new ArrayList<>();
 	private BiConsumer<Component, Integer> componentInsertionListener;
 	private BiConsumer<Component, Component> afterComponentInsertionListener;
 	private Consumer<Component> componentRemovalListener;

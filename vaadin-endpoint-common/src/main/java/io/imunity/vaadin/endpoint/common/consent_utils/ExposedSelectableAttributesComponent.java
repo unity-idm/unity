@@ -112,7 +112,7 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 		attributesInfo.setWidthFull();
 
 		Span credInfo = new Span(msg.getMessage("ExposedAttributesComponent.credInfo"));
-		setContent(new VerticalLayout(getIdentity(), attributesInfo, getAttributesListComponent(), credInfo));
+		add(new VerticalLayout(getIdentity(), attributesInfo, getAttributesListComponent(), credInfo));
 	}
 	
 	private Component getIdentity()

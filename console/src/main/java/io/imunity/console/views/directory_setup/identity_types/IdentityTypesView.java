@@ -5,10 +5,6 @@
 
 package io.imunity.console.views.directory_setup.identity_types;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
@@ -18,7 +14,6 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
@@ -30,6 +25,10 @@ import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.directorySetup.identityTypes", parent = "WebConsoleMenu.directorySetup")
 @Route(value = "/identity-types", layout = ConsoleMenu.class)
@@ -38,8 +37,6 @@ public class IdentityTypesView extends ConsoleViewComponent
 	private final MessageSource msg;
 	private final IdentityTypesController controller;
 	private final NotificationPresenter notificationPresenter;
-
-	private GridWithActionColumn<IdentityTypeEntry> identityTypesGrid;
 
 	IdentityTypesView(MessageSource msg, IdentityTypesController controller,
 			NotificationPresenter notificationPresenter)
@@ -52,7 +49,8 @@ public class IdentityTypesView extends ConsoleViewComponent
 
 	private void init()
 	{
-		identityTypesGrid = new GridWithActionColumn<IdentityTypeEntry>(msg::getMessage, getActionsHandlers());
+		GridWithActionColumn<IdentityTypeEntry> identityTypesGrid = new GridWithActionColumn<IdentityTypeEntry>(
+				msg::getMessage, getActionsHandlers());
 		identityTypesGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
 		identityTypesGrid.setMultiSelect(false);
 		

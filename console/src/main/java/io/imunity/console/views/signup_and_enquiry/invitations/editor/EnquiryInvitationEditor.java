@@ -64,7 +64,7 @@ class EnquiryInvitationEditor extends VerticalLayout implements InvitationParamE
 
 	private String entityNameAttr;
 	private Map<Long, EntityInGroupData> allEntities;
-	private Map<Long, String> availableEntities;
+	private final Map<Long, String> availableEntities;
 
 	@Autowired
 	EnquiryInvitationEditor(MessageSource msg, MessageTemplateManagement messageTemplateManagement,
@@ -290,7 +290,7 @@ class EnquiryInvitationEditor extends VerticalLayout implements InvitationParamE
 	@org.springframework.stereotype.Component
 	public static class EnquiryInvitationEditorFactory
 	{
-		private ObjectFactory<EnquiryInvitationEditor> editorFactory;
+		private final ObjectFactory<EnquiryInvitationEditor> editorFactory;
 
 		public EnquiryInvitationEditorFactory(ObjectFactory<EnquiryInvitationEditor> editor)
 		{

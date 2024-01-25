@@ -123,7 +123,7 @@ public class SingleActionHandler<T>
 	
 	public static class Builder<T>
 	{
-		private SingleActionHandler<T> obj;
+		private final SingleActionHandler<T> obj;
 
 		public Builder()
 		{

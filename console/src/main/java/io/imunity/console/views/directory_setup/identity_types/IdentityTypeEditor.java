@@ -4,9 +4,6 @@
  */
 package io.imunity.console.views.directory_setup.identity_types;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
-
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.NativeLabel;
@@ -15,7 +12,6 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
-
 import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.endpoint.common.confirmations.EmailConfirmationConfigurationEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
@@ -27,6 +23,9 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 /**
  * Allows to edit an identity type. It is only possible to edit description and
@@ -41,8 +40,6 @@ class IdentityTypeEditor extends FormLayout
 	private final IdentityTypeSupport idTypeSupport;
 	private final MessageTemplateManagement msgTemplateMan;
 
-	private TextField name;
-	private TextArea description;
 	private Checkbox selfModifiable;
 	private IntegerField min;
 	private IntegerField minVerified;
@@ -67,12 +64,12 @@ class IdentityTypeEditor extends FormLayout
 		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
-		name = new TextField();
+		TextField name = new TextField();
 		name.setReadOnly(true);
 		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		addFormItem(name, msg.getMessage("IdentityType.name"));
 
-		description = new TextArea();
+		TextArea description = new TextArea();
 		description.setWidthFull();
 		addFormItem(description, msg.getMessage("IdentityType.description"));
 

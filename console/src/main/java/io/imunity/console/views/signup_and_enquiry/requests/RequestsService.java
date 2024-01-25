@@ -38,10 +38,10 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 class RequestsService
 {
-	private EntityManagement idMan;
-	private RegistrationsManagement regMan;
-	private EnquiryManagement enqMan;
-	private MessageSource msg;
+	private final EntityManagement idMan;
+	private final RegistrationsManagement regMan;
+	private final EnquiryManagement enqMan;
+	private final MessageSource msg;
 
 	@Autowired
 	RequestsService(EntityManagement idMan, RegistrationsManagement regMan, EnquiryManagement enqMan,

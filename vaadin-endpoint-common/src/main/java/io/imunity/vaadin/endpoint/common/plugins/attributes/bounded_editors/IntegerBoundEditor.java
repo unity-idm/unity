@@ -24,8 +24,8 @@ public class IntegerBoundEditor extends CustomField<Integer>
 	protected Integer max;
 	protected Integer bound;
 
-	private Checkbox unlimited;
-	private IntegerField limit;
+	private final Checkbox unlimited;
+	private final IntegerField limit;
 	
 	public IntegerBoundEditor(MessageSource msg, String labelUnlimited,
 			Integer bound, Integer min, Integer max)

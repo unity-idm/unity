@@ -23,8 +23,8 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 @Component
 class PasswordAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-	private MessageSource msg;
-	private CredentialManagement credMan;
+	private final MessageSource msg;
+	private final CredentialManagement credMan;
 	
 	@Autowired
 	PasswordAuthenticatorEditorFactory(MessageSource msg, CredentialManagement credMan)

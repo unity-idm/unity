@@ -16,7 +16,7 @@ import io.imunity.vaadin.elements.MenuButton;
 public class ActionMenuWithHandlerSupport<T> extends ActionMenu
 {
 	private Set<T> target;
-	private Map<MenuItem, SingleActionHandler<T>> items;
+	private final Map<MenuItem, SingleActionHandler<T>> items;
 
 	public ActionMenuWithHandlerSupport()
 	{

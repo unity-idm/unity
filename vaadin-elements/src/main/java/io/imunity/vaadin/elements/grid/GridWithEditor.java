@@ -5,12 +5,6 @@
 
 package io.imunity.vaadin.elements.grid;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.customfield.CustomField;
@@ -26,8 +20,13 @@ import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.function.ValueProvider;
-
 import io.imunity.vaadin.elements.ActionIconBuilder;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Grid with row editor. By default action column with delete button is added as
@@ -42,7 +41,6 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	private GridWithActionColumn<T> grid;
 	private T newElement;
 	private final Function<String, String> msg;
-	private Button add;
 
 	public GridWithEditor(Function<String, String> msg, Class<T> type)
 	{
@@ -66,7 +64,7 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 	{
 		this.msg = msg;
 
-		add = new Button(addCaption);
+		Button add = new Button(addCaption);
 		if (addAsActionButton)
 			add.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		add.setIcon(new Icon(VaadinIcon.PLUS_CIRCLE_O));

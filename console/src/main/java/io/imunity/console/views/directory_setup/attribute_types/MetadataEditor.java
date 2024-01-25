@@ -122,7 +122,7 @@ class MetadataEditor extends VerticalLayout
 	
 	private class SingleMetadataEditor extends HorizontalLayout 
 	{
-		private String value;
+		private final String value;
 		
 		public SingleMetadataEditor(final String key, String value, WebAttributeMetadataHandler handler)
 		{

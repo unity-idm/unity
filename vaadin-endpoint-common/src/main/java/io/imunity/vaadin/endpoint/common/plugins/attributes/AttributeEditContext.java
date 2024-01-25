@@ -84,7 +84,7 @@ public class AttributeEditContext
 
 	public static class Builder
 	{
-		private AttributeEditContext obj;
+		private final AttributeEditContext obj;
 
 		public Builder()
 		{

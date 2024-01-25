@@ -80,7 +80,7 @@ public class MainInvitationViewer extends VerticalLayout
 	@org.springframework.stereotype.Component
 	public static class InvitationViewerFactory
 	{
-		private ObjectFactory<MainInvitationViewer> viewerFactory;
+		private final ObjectFactory<MainInvitationViewer> viewerFactory;
 
 		public InvitationViewerFactory(ObjectFactory<MainInvitationViewer> editor)
 		{

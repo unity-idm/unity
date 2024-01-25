@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class EntityNameMetadataHandler implements WebAttributeMetadataHandler
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	
 	public EntityNameMetadataHandler(MessageSource msg)
 	{

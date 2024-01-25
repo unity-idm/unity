@@ -29,10 +29,10 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class EmailConfirmationConfigurationEditor extends FormLayout
 {
-	private MessageSource msg;
-	private MessageTemplateManagement msgTemplateMan;
+	private final MessageSource msg;
+	private final MessageTemplateManagement msgTemplateMan;
 	private Binder<EmailConfirmationConfiguration> binder;
-	private EmailConfirmationConfiguration initial;
+	private final EmailConfirmationConfiguration initial;
 	private CompatibleTemplatesComboBox msgTemplate;
 	private IntegerField validityTime;
 

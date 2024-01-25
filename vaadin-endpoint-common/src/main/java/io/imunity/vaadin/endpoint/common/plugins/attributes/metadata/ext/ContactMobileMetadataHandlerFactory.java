@@ -17,7 +17,7 @@ import pl.edu.icm.unity.stdext.utils.ContactMobileMetadataProvider;
 @Component
 public class ContactMobileMetadataHandlerFactory implements WebAttributeMetadataHandlerFactory
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	
 	@Autowired
 	public ContactMobileMetadataHandlerFactory(MessageSource msg)

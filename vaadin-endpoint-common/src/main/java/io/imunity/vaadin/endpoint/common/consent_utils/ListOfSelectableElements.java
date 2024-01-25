@@ -29,8 +29,8 @@ public class ListOfSelectableElements extends VerticalLayout
 	protected List<Checkbox> selects;
 	public enum DisableMode {NONE, WHEN_SELECTED, WHEN_DESELECTED};
 	protected DisableMode disableMode;
-	private List<Component> elements;
-	private List<Component> headers;
+	private final List<Component> elements;
+	private final List<Component> headers;
 	
 	public ListOfSelectableElements(Component firstHeader, Component secondHeader, DisableMode disableMode)
 	{

@@ -15,7 +15,7 @@ import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
  */
 class FormParameterElementEditor extends VerticalLayout implements FormElementEditor<FormParameterElement>
 {
-	private FormParameterElement element;
+	private final FormParameterElement element;
 	private Span label;
 	
 	FormParameterElementEditor(FormParameterElement element)

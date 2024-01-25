@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class AttributeMetadataHandlerRegistry
 {
-	private Map<String, WebAttributeMetadataHandlerFactory> factoriesByType = 
+	private final Map<String, WebAttributeMetadataHandlerFactory> factoriesByType =
 			new HashMap<String, WebAttributeMetadataHandlerFactory>();
 	
 	@Autowired

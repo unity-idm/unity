@@ -27,9 +27,9 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 {
-	private List<GroupRegistrationParam> formParams;
+	private final List<GroupRegistrationParam> formParams;
 	private GroupMultiComboBox selection;
-	private List<Group> allGroups;
+	private final List<Group> allGroups;
 	private FormLayout wrapper;
 	private GroupRegistrationParam groupRegistrationParam;
 	

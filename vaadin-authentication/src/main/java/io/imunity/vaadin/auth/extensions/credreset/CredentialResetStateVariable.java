@@ -73,6 +73,6 @@ public class CredentialResetStateVariable
 	
 	private static class CredentialResetSessionData
 	{
-		private Set<ResetPrerequisite> fullfilledChecks = new HashSet<>();
+		private final Set<ResetPrerequisite> fullfilledChecks = new HashSet<>();
 	}
 }

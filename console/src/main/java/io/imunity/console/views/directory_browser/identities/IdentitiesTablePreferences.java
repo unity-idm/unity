@@ -25,7 +25,7 @@ class IdentitiesTablePreferences
 {
 	static final String ID = IdentitiesTablePreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
-	private Map<String, ColumnSettings> colSettings = new HashMap<>();
+	private final Map<String, ColumnSettings> colSettings = new HashMap<>();
 	private boolean groupbyEntitiesSetting = true;
 	private boolean showTargetedSetting = false;
 
@@ -36,14 +36,14 @@ class IdentitiesTablePreferences
 	@JsonCreator
 	IdentitiesTablePreferences(ObjectNode main) throws InternalException
 	{
-		ObjectNode spSettingsNodeC = main.with("colSettings");
+		ObjectNode spSettingsNodeC = main.withObjectProperty("colSettings");
 		Iterator<String> keys = spSettingsNodeC.fieldNames();
 		for (String key; keys.hasNext();)
 		{
 			key = keys.next();
-			colSettings.put(key, deserializeSingle(spSettingsNodeC.with(key)));
+			colSettings.put(key, deserializeSingle(spSettingsNodeC.withObjectProperty(key)));
 		}
-		ObjectNode spSettingsNodeB = main.with("checkBoxSettings");
+		ObjectNode spSettingsNodeB = main.withObjectProperty("checkBoxSettings");
 		groupbyEntitiesSetting = spSettingsNodeB.get("groupByEntities").asBoolean();
 		if (spSettingsNodeB.has("showTargeted"))
 			showTargetedSetting = spSettingsNodeB.get("showTargeted").asBoolean();
@@ -65,10 +65,10 @@ class IdentitiesTablePreferences
 	ObjectNode serializeToJson()
 	{
 		ObjectNode main = mapper.createObjectNode();
-		ObjectNode settingsN = main.with("colSettings");
+		ObjectNode settingsN = main.withObjectProperty("colSettings");
 		for (Map.Entry<String, ColumnSettings> entry : colSettings.entrySet())
 			settingsN.set(entry.getKey(), serializeSingle(entry.getValue()));
-		ObjectNode settingC = main.with("checkBoxSettings");
+		ObjectNode settingC = main.withObjectProperty("checkBoxSettings");
 		settingC.put("groupByEntities", groupbyEntitiesSetting);
 		settingC.put("showTargeted", showTargetedSetting);
 		return main;

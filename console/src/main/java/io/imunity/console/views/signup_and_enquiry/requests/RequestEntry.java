@@ -37,8 +37,8 @@ class RequestEntry implements FilterableEntry
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, RequestEntry.class);
 	
 	final UserRequestState<?> request;
-	private MessageSource msg;
-	private String identity;
+	private final MessageSource msg;
+	private final String identity;
 
 	public RequestEntry(UserRequestState<?> request, MessageSource msg, EntityManagement idMan)
 	{

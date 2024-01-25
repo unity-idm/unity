@@ -4,8 +4,6 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors;
 
-import java.util.Optional;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.customfield.CustomField;
@@ -13,8 +11,9 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
-
 import pl.edu.icm.unity.base.message.MessageSource;
+
+import java.util.Optional;
 
 public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrapper>
 {
@@ -25,7 +24,7 @@ public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrap
 
 	private final Checkbox unlimited;
 	private final TextField limit;
-	private Binder<ValueWrapper> binder;
+	private final Binder<ValueWrapper> binder;
 	
 	public AbstractBoundEditor(MessageSource msg, String labelUnlimited, Optional<String> labelLimit,
 			T bound, T min, T max)
@@ -34,10 +33,7 @@ public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrap
 		this.bound = bound;
 		this.min = min;
 		this.max = max;
-		if (labelLimit.isPresent())
-		{
-			setLabel(labelLimit.get());
-		}
+		labelLimit.ifPresent(this::setLabel);
 		unlimited = new Checkbox();
 		unlimited.setLabel(labelUnlimited);
 		limit = new TextField();

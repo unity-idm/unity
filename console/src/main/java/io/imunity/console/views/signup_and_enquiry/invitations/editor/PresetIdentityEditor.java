@@ -31,8 +31,8 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class PresetIdentityEditor extends PresetEditorBase<IdentityParam>
 {
-	private IdentityEditorRegistry identityEditorRegistry;
-	private List<IdentityRegistrationParam> formParameters;
+	private final IdentityEditorRegistry identityEditorRegistry;
+	private final List<IdentityRegistrationParam> formParameters;
 	private IdentityRegistrationParam selectedParam;
 	
 	private FormLayout container;

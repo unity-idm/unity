@@ -49,7 +49,7 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 	private final AuthenticatorEditorFactoriesRegistry editorsRegistry;
 	private final NotificationPresenter notificationPresenter;
 
-	private Collection<AuthenticatorTypeDescription> autnTypes;
+	private final Collection<AuthenticatorTypeDescription> autnTypes;
 	private AuthenticatorEditor editor;
 	private boolean edit;
 	private BreadCrumbParameter breadCrumbParameter;

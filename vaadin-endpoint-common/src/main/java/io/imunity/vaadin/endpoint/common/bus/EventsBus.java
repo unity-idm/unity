@@ -19,7 +19,7 @@ import java.util.Map;
 public class EventsBus 
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EventsBus.class);
-	private Map<Class<?>, List<EventListener<?>>> listeners = new HashMap<Class<?>, List<EventListener<?>>>();
+	private final Map<Class<?>, List<EventListener<?>>> listeners = new HashMap<Class<?>, List<EventListener<?>>>();
 	
 	
 	public synchronized <T extends Event> void addListener(EventListener<T> listener, Class<T> eventType)

@@ -58,7 +58,7 @@ class PrefillEntryEditor extends TabSheet
 	private final IdentityEditorRegistry identityEditorRegistry;
 	private final AttributeHandlerRegistry attrHandlersRegistry;
 	private final Map<String, AttributeType> attrTypes;
-	private Set<Tab> tabs;
+	private final Set<Tab> tabs;
 
 	@Autowired
 	PrefillEntryEditor(MessageSource msg, IdentityEditorRegistry identityEditorRegistry,
@@ -144,11 +144,11 @@ class PrefillEntryEditor extends TabSheet
 	private  class PresetMembershipEditorWithAllowedGroups implements Editor<GroupSelectionPair>
 	{
 
-		private PresetMembershipEditor memberEditor;
-		private GroupMultiComboBox allowedGroupSelection;
-		private List<Group> allGroups;
-		private List<GroupRegistrationParam> formParams;
-		private FormLayout wrapper;
+		private final PresetMembershipEditor memberEditor;
+		private final GroupMultiComboBox allowedGroupSelection;
+		private final List<Group> allGroups;
+		private final List<GroupRegistrationParam> formParams;
+		private final FormLayout wrapper;
 		public PresetMembershipEditorWithAllowedGroups(MessageSource msg, List<Group> allGroups,
 				List<GroupRegistrationParam> formParams)
 		{
@@ -209,7 +209,7 @@ class PrefillEntryEditor extends TabSheet
 	@org.springframework.stereotype.Component
 	public static class PrefillEntryEditorFactory
 	{
-		private ObjectFactory<PrefillEntryEditor> editorFactory;
+		private final ObjectFactory<PrefillEntryEditor> editorFactory;
 
 		public PrefillEntryEditorFactory(ObjectFactory<PrefillEntryEditor> editor)
 		{

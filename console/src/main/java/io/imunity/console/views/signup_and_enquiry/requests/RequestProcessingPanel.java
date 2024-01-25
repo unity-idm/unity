@@ -4,44 +4,34 @@
  */
 package io.imunity.console.views.signup_and_enquiry.requests;
 
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
-
-import java.text.SimpleDateFormat;
-import java.util.List;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
-
 import io.imunity.console.views.directory_browser.group_browser.GroupChangedEvent;
 import io.imunity.console.views.signup_and_enquiry.EnquiryResponsesChangedEvent;
 import io.imunity.console.views.signup_and_enquiry.RegistrationRequestsChangedEvent;
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.WebSession;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.registration.BaseForm;
-import pl.edu.icm.unity.base.registration.BaseRegistrationInput;
-import pl.edu.icm.unity.base.registration.EnquiryForm;
-import pl.edu.icm.unity.base.registration.EnquiryResponseState;
-import pl.edu.icm.unity.base.registration.RegistrationForm;
-import pl.edu.icm.unity.base.registration.RegistrationRequestAction;
-import pl.edu.icm.unity.base.registration.RegistrationRequestState;
-import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.base.registration.UserRequestState;
+import pl.edu.icm.unity.base.registration.*;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 /**
  * Responsible for displaying a submitted request
@@ -64,7 +54,6 @@ class RequestProcessingPanel extends VerticalLayout
 	private UserRequestState<?> requestState;
 	private Button accept;
 	private Button reject;
-	private Button delete;
 	private NativeLabel requestType;
 	private NativeLabel requestForm;
 	private NativeLabel requestId;
@@ -114,7 +103,7 @@ class RequestProcessingPanel extends VerticalLayout
 		accept.addClickListener(e -> process(RegistrationRequestAction.accept));
 		reject = new Button(msg.getMessage("RequestProcessingPanel.reject"));
 		reject.addClickListener(e -> process(RegistrationRequestAction.reject));
-		delete = new Button(msg.getMessage("RequestProcessingPanel.drop"));
+		Button delete = new Button(msg.getMessage("RequestProcessingPanel.drop"));
 		delete.addClickListener(e -> process(RegistrationRequestAction.drop));
 		
 		HorizontalLayout buttonsBar = new HorizontalLayout();

@@ -36,10 +36,10 @@ public class InvocationContextSetupFilter implements Filter
 			InvocationContextSetupFilter.class);
 	public static final String LANGUAGE_COOKIE = "language";
 	
-	private UnityServerConfiguration config;
-	private AuthenticationRealm realm;
-	private String baseAddress;
-	private List<AuthenticationFlow> authenticationFlows;
+	private final UnityServerConfiguration config;
+	private final AuthenticationRealm realm;
+	private final String baseAddress;
+	private final List<AuthenticationFlow> authenticationFlows;
 	
 	/**
 	 * @param baseAddress public address of the server with scheme and port, with empty path.

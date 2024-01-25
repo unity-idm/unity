@@ -19,7 +19,7 @@ import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
  */
 public class AttributeActionParameterComponent extends AttributeSelectionComboBox implements ActionParameterComponent
 {
-	private Binder<StringValueBean> binder;
+	private final Binder<StringValueBean> binder;
 	private String label;
 
 	

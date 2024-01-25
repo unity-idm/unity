@@ -18,14 +18,13 @@ import java.util.function.Supplier;
 
 public class RegistrationFormLayoutEditor extends VerticalLayout
 {
-	private MessageSource msg;
-	private Supplier<RegistrationForm> formProvider;
+	private final MessageSource msg;
+	private final Supplier<RegistrationForm> formProvider;
 	private Checkbox enableCustomLayout;
 	private FormLayoutEditor primaryLayoutEditor;
 	private FormLayoutEditor secondaryLayoutEditor;
 	private VerticalLayout layouts;
 	private boolean isInitialValueSet = false;
-	private Panel secondaryLayoutPanel;
 
 	public RegistrationFormLayoutEditor(MessageSource msg, Supplier<RegistrationForm> formProvider)
 	{
@@ -48,7 +47,7 @@ public class RegistrationFormLayoutEditor extends VerticalLayout
 		primaryLayoutPanel.add(primaryLayoutEditor);
 		primaryLayoutPanel.setSizeUndefined();
 		primaryLayoutPanel.setMargin(false);
-		secondaryLayoutPanel = new Panel(msg.getMessage("RegistrationFormEditor.secondaryLayout"));
+		Panel secondaryLayoutPanel = new Panel(msg.getMessage("RegistrationFormEditor.secondaryLayout"));
 		secondaryLayoutPanel.add(secondaryLayoutEditor);
 		secondaryLayoutPanel.setSizeUndefined();
 		secondaryLayoutPanel.setMargin(false);

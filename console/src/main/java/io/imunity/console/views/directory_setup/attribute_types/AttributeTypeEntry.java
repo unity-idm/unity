@@ -5,12 +5,12 @@
 
 package io.imunity.console.views.directory_setup.attribute_types;
 
-import java.util.function.Function;
-
 import io.imunity.vaadin.elements.grid.FilterableEntry;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
+
+import java.util.function.Function;
 
 /**
  * Represent grid attribute type entry.
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 class AttributeTypeEntry implements FilterableEntry
 {
 	public final AttributeType attributeType;
-	private MessageSource msg;
+	private final MessageSource msg;
 
 	AttributeTypeEntry(MessageSource msg, AttributeType attributeType)
 	{

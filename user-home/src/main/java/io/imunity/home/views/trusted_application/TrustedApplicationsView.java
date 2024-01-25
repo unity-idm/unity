@@ -116,7 +116,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 		summaryLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 		summaryLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 		accordionPanel.setSummary(summaryLayout);
-		accordionPanel.setContent(getContent(application));
+		accordionPanel.add(getContent(application));
 
 		return accordionPanel;
 	}

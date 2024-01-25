@@ -20,7 +20,6 @@ import java.util.List;
 
 public class RemoteAuthnProvidersMultiSelection extends MultiSelectComboBox<AuthenticationOptionsSelector>
 {
-	private ComboBoxListDataView<AuthenticationOptionsSelector> dataView;
 
 	public RemoteAuthnProvidersMultiSelection(MessageSource msg, AuthenticatorSupportService authenticatorSupport) throws EngineException
 	{
@@ -52,15 +51,6 @@ public class RemoteAuthnProvidersMultiSelection extends MultiSelectComboBox<Auth
 	public ComboBoxListDataView<AuthenticationOptionsSelector> setItems(
 			Collection<AuthenticationOptionsSelector> authenticationOptionsSelectors)
 	{
-		dataView = super.setItems(authenticationOptionsSelectors);
-		return dataView;
+		return super.setItems(authenticationOptionsSelectors);
 	}
-
-//	@Override
-//	public void setValue(Set<AuthenticationOptionsSelector> items)
-//	{
-//		super.setValue(items == null ? null
-//				: items.stream().map(i -> dataView.getItems().filter(i::equals).findFirst().orElse(i))
-//						.collect(Collectors.toList()));
-//	}
 }

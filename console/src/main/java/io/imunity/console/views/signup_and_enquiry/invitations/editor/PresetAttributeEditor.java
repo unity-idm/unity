@@ -32,9 +32,9 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 {
-	private List<AttributeRegistrationParam> formParams;
-	private AttributeHandlerRegistry attrHandlersRegistry;
-	private Map<String, AttributeType> attrTypes;
+	private final List<AttributeRegistrationParam> formParams;
+	private final AttributeHandlerRegistry attrHandlersRegistry;
+	private final Map<String, AttributeType> attrTypes;
 
 	private FixedAttributeEditor fixedAttributeEditor;
 	private FormLayout wrapper;

@@ -23,7 +23,7 @@ public class CompositeLayoutAdapter
 {
 	private final HasComponents layout;
 	
-	private List<Element> elements = new ArrayList<>();
+	private final List<Element> elements = new ArrayList<>();
 
 	private int offset = 0;
 	

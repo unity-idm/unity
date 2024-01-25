@@ -222,7 +222,7 @@ class ComboInvitationEditor extends VerticalLayout implements InvitationParamEdi
 	@org.springframework.stereotype.Component
 	public static class ComboInvitationEditorFactory
 	{
-		private ObjectFactory<ComboInvitationEditor> editorFactory;
+		private final ObjectFactory<ComboInvitationEditor> editorFactory;
 
 		public ComboInvitationEditorFactory(ObjectFactory<ComboInvitationEditor> editor)
 		{

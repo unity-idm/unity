@@ -48,10 +48,7 @@ class RedirectedAuthnResultProcessor
 		String clientIp = HTTPRequestContext.getCurrent().getClientIP();
 		switch (postAuthnStepDecision.getDecision())
 		{
-			case COMPLETED ->
-			{
-				log.trace("Authentication completed");
-			}
+			case COMPLETED -> log.trace("Authentication completed");
 			case ERROR ->
 			{
 				log.trace("Authentication failed ");

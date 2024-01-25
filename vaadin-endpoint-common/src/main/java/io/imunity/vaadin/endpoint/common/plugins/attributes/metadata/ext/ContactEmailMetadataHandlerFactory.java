@@ -20,7 +20,7 @@ import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 @Component
 public class ContactEmailMetadataHandlerFactory implements WebAttributeMetadataHandlerFactory
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	
 	@Autowired
 	public ContactEmailMetadataHandlerFactory(MessageSource msg)

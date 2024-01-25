@@ -22,8 +22,8 @@ public abstract class AbstractRedirectRequestHandler implements RequestHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AbstractRedirectRequestHandler.class);
 	public static final String TRIGGERING_PARAMETER = "redirectToIdP";
-	private String uniqueId;
-	private String contextKey;
+	private final String uniqueId;
+	private final String contextKey;
 	
 	public AbstractRedirectRequestHandler(String contextKey)
 	{

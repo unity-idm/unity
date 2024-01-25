@@ -4,29 +4,24 @@
  */
 package io.imunity.perfromance;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.NoSuchElementException;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Cookie;
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.NoSuchElementException;
+import java.util.function.Supplier;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 {
@@ -64,7 +59,7 @@ public class SingleLoginLogoutOperation implements PerformanceTestRunnable
 			chromeOptions.addArguments(opts);
 		}
 		driver = new ChromeDriver(chromeOptions);
-		driver.manage().timeouts().implicitlyWait(WAIT_TIME_S, TimeUnit.SECONDS);
+		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(WAIT_TIME_S));
 	}
 
 	@Override

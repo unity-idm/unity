@@ -51,7 +51,7 @@ public class AdminEnquiryFormLauncher
 	private final NotificationPresenter notificationPresenter;
 
 	
-	private IdPLoginController idpLoginController;
+	private final IdPLoginController idpLoginController;
 	
 	@Autowired
 	public AdminEnquiryFormLauncher(MessageSource msg,

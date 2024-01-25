@@ -28,7 +28,7 @@ import java.util.function.Consumer;
 public class Toolbar<T> extends HorizontalLayout
 {
 	private Set<T> target;
-	private Map<Button, SingleActionHandler<T>> buttons;
+	private final Map<Button, SingleActionHandler<T>> buttons;
 	
 	
 	public Toolbar()

@@ -38,21 +38,21 @@ import java.util.Collection;
 @PrototypeComponent
 public class OutdatedCredentialController
 {
-	private CredentialManagement credMan;
-	private EntityCredentialManagement ecredMan;
-	private EntityManagement entityMan;
-	private CredentialEditorRegistry credEditorReg;
+	private final CredentialManagement credMan;
+	private final EntityCredentialManagement ecredMan;
+	private final EntityManagement entityMan;
+	private final CredentialEditorRegistry credEditorReg;
 	private final AdditionalAuthnHandler additionalAuthnHandler;
-	private VaadinLogoImageLoader imageAccessService;
+	private final VaadinLogoImageLoader imageAccessService;
 	
 	private long entityId;
 	private String credentialId;
 	private CredentialChangePanel ui;
 	private CredentialChangeConfiguration uiConfig;
-	private MessageSource msg;
+	private final MessageSource msg;
 	private VaddinWebLogoutHandler authnProcessor;
 	private Runnable finishHandler;
-	private NotificationPresenter notificationPresenter;
+	private final NotificationPresenter notificationPresenter;
 
 	@Autowired
 	public OutdatedCredentialController(AdditionalAuthnHandler additionalAuthnHandler,

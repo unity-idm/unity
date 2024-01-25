@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class ContactMobileMetadataHandler implements WebAttributeMetadataHandler
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	
 	public ContactMobileMetadataHandler(MessageSource msg)
 	{

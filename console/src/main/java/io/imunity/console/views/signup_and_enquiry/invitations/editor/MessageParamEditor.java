@@ -119,7 +119,7 @@ class MessageParamEditor extends GridWithEditor<MessageParam>
 
 	public static class MessageVariableNameTextField extends TextField
 	{
-		private Set<String> notEditableNames;
+		private final Set<String> notEditableNames;
 
 		public MessageVariableNameTextField()
 		{

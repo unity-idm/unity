@@ -23,7 +23,7 @@ import pl.edu.icm.unity.engine.api.utils.TimeUtil;
  */
 class InvitationEntry implements FilterableEntry
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	final InvitationWithCode invitationWithCode;
 	final InvitationParam invitation;
 

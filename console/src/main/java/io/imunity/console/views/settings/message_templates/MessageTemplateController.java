@@ -25,7 +25,6 @@ class MessageTemplateController
 	private final MessageSource msg;
 	private final MessageTemplateManagement msgMan;
 	private final MessageTemplateConsumersRegistry consumersRegistry;
-	private final NotificationsManagement notChannelsMan;
 	private final NotificationPresenter notificationPresenter;
 
 	MessageTemplateController(MessageSource msg, MessageTemplateManagement msgMan, NotificationsManagement notChannelsMan,
@@ -34,7 +33,6 @@ class MessageTemplateController
 		this.msg = msg;
 		this.msgMan = msgMan;
 		this.consumersRegistry = consumersRegistry;
-		this.notChannelsMan = notChannelsMan;
 		this.notificationPresenter = notificationPresenter;
 	}
 	

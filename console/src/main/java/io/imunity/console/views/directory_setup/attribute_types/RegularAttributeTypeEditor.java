@@ -53,18 +53,11 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 	private Binder<AttributeType> binder;
 
 	private TextField name;
-	private LocalizedTextFieldDetails displayedName;
-	private LocalizedTextAreaDetails typeDescription;
-	private IntegerField min;
-	private IntegerBoundEditor max;
-	private Checkbox uniqueVals;
-	private Checkbox selfModificable;
-	private Checkbox global;
 	private ComboBox<String> syntax;
 	private VerticalLayout syntaxPanelContent;
 	private AttributeSyntaxEditor<?> editor;
 	private MetadataEditor metaEditor;
-	private AttributeTypeSupport atSupport;
+	private final AttributeTypeSupport atSupport;
 	private FormItem sytaxPanelFormItem;
 
 	RegularAttributeTypeEditor(MessageSource msg, AttributeHandlerRegistry registry,
@@ -97,32 +90,34 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		addFormItem(name, msg.getMessage("AttributeType.name"));
 
-		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
+		LocalizedTextFieldDetails displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales()
 				.values()), msg.getLocale());
 		displayedName.setWidth(TEXT_FIELD_MEDIUM.value());
 		addFormItem(displayedName, msg.getMessage("AttributeType.displayedName"));
 
-		typeDescription = new LocalizedTextAreaDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		LocalizedTextAreaDetails typeDescription = new LocalizedTextAreaDetails(msg.getEnabledLocales().values(),
+				msg.getLocale());
 		typeDescription.setWidthFull();
 
 		addFormItem(typeDescription, msg.getMessage("AttributeType.description"));
 
-		min = new IntegerFieldWithDefaultOutOfRangeError(msg);
+		IntegerField min = new IntegerFieldWithDefaultOutOfRangeError(msg);
 		min.setStepButtonsVisible(true);
 		addFormItem(min, msg.getMessage("AttributeType.min"));
 		min.setWidth(CSSVars.FIELD_MEDIUM.value());
-		
-		max = new IntegerBoundEditor(msg, msg.getMessage("AttributeType.maxUnlimited"), Integer.MAX_VALUE, 0, null);
+
+		IntegerBoundEditor max = new IntegerBoundEditor(msg, msg.getMessage("AttributeType.maxUnlimited"),
+				Integer.MAX_VALUE, 0, null);
 		addFormItem(max, msg.getMessage("AttributeType.max"));
 		max.setWidth(CSSVars.FIELD_MEDIUM.value());
-		
-		uniqueVals = new Checkbox(msg.getMessage("AttributeType.uniqueValuesCheck"));
+
+		Checkbox uniqueVals = new Checkbox(msg.getMessage("AttributeType.uniqueValuesCheck"));
 		addFormItem(uniqueVals, "");
 
-		selfModificable = new Checkbox(msg.getMessage("AttributeType.selfModificableCheck"));
+		Checkbox selfModificable = new Checkbox(msg.getMessage("AttributeType.selfModificableCheck"));
 		addFormItem(selfModificable, "");
 
-		global = new Checkbox(msg.getMessage("AttributeType.global"));
+		Checkbox global = new Checkbox(msg.getMessage("AttributeType.global"));
 		addFormItem(global, "");
 
 		syntax = new ComboBox<>();

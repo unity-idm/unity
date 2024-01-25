@@ -26,7 +26,7 @@ public class CompatibleTemplatesComboBox extends ComboBox<String>
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, CompatibleTemplatesComboBox.class);
 	
 	private Collection<String> values; 
-	private MessageTemplateManagement msgTplMan;
+	private final MessageTemplateManagement msgTplMan;
 	 
 	public CompatibleTemplatesComboBox(String definitionName, MessageTemplateManagement msgTplMan) 
 	{

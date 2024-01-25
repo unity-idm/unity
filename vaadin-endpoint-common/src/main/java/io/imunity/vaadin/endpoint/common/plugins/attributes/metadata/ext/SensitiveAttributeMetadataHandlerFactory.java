@@ -16,7 +16,7 @@ import pl.edu.icm.unity.stdext.utils.SensitiveAttributeMetadataProvider;
 @Component
 public class SensitiveAttributeMetadataHandlerFactory implements WebAttributeMetadataHandlerFactory
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	
 	@Autowired
 	public SensitiveAttributeMetadataHandlerFactory(MessageSource msg)

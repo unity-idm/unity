@@ -103,7 +103,7 @@ public class AttributeViewerContext
 
 	public static class Builder
 	{
-		private AttributeViewerContext obj;
+		private final AttributeViewerContext obj;
 
 		public Builder()
 		{

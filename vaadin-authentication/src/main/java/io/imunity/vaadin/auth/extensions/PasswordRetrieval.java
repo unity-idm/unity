@@ -61,7 +61,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	private boolean enableAssociation;
 	private final CredentialEditorRegistry credEditorReg;
 	private String configuration;
-	private NotificationPresenter notificationPresenter;
+	private final NotificationPresenter notificationPresenter;
 
 	@Autowired
 	public PasswordRetrieval(MessageSource msg, CredentialEditorRegistry credEditorReg, NotificationPresenter notificationPresenter)

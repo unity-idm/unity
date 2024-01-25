@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class ListOfEmbeddedElements<T> extends FormLayout
 {
-	private ListOfEmbeddedElementsStub<T> stub;
+	private final ListOfEmbeddedElementsStub<T> stub;
 	
 	public ListOfEmbeddedElements(MessageSource msg, EditorProvider<T> editorProvider,
 			int min, int max, boolean showLine)

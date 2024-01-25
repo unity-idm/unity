@@ -42,7 +42,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 @PrototypeComponent
 public class ActionParameterComponentProvider
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	
 	private List<String> groups;
 	private Collection<String> credReqs;

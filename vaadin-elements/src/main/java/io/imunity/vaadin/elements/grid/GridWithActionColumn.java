@@ -42,9 +42,9 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private Column<T> actionColumn;
 	private T draggedItem;
 
-	private Collection<SerializablePredicate<T>> filters;
-	private List<SingleActionHandler<T>> actionHandlers;
-	private List<SingleActionHandler<T>> hamburgerActionHandlers;
+	private final Collection<SerializablePredicate<T>> filters;
+	private final List<SingleActionHandler<T>> actionHandlers;
+	private final List<SingleActionHandler<T>> hamburgerActionHandlers;
 	
 	
 	public GridWithActionColumn(Function<String, String> msg, List<SingleActionHandler<T>> actionHandlers)

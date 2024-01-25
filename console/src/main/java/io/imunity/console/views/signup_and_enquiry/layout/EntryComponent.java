@@ -22,13 +22,12 @@ import pl.edu.icm.unity.base.registration.layout.FormElement;
  */
 class EntryComponent extends VerticalLayout
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	private int position;
 	private Icon up;
 	private Icon down;
-	private Icon remove;
-	private Callback callback;
-	private FormElementEditor<?> elementEditor;
+	private final Callback callback;
+	private final FormElementEditor<?> elementEditor;
 	
 	
 	EntryComponent(int position, MessageSource msg,
@@ -52,8 +51,8 @@ class EntryComponent extends VerticalLayout
 		down = VaadinIcon.ANGLE_DOWN.create();
 		down.setTooltipText(msg.getMessage("TranslationProfileEditor.moveDown"));
 		down.addClickListener(event -> move(1));
-		
-		remove = VaadinIcon.TRASH.create();
+
+		Icon remove = VaadinIcon.TRASH.create();
 		remove.setTooltipText(msg.getMessage("TranslationProfileEditor.remove"));
 		remove.addClickListener(event -> callback.remove(position));
 		remove.setVisible(!elementEditor.getComponent().isFormContentsRelated());
