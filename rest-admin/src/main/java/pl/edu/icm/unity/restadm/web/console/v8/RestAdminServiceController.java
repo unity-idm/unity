@@ -3,16 +3,12 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.restadm.web.console;
+package pl.edu.icm.unity.restadm.web.console.v8;
 
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServicesControllerBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceController;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
@@ -22,7 +18,10 @@ import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
-
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.console.services.ServiceController;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 
 /**
  * Rest admin service controller. 
@@ -30,13 +29,13 @@ import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
  * @author P.Piernik
  *
  */
-@Component
+@Component("RestAdminServiceControllerV8")
 class RestAdminServiceController extends DefaultServicesControllerBase implements ServiceController
 {
-	private final RealmsManagement realmsMan;
-	private final AuthenticationFlowManagement flowsMan;
-	private final AuthenticatorManagement authMan;
-	private final NetworkServer networkServer;
+	private RealmsManagement realmsMan;
+	private AuthenticationFlowManagement flowsMan;
+	private AuthenticatorManagement authMan;
+	private NetworkServer networkServer;
 
 	RestAdminServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,

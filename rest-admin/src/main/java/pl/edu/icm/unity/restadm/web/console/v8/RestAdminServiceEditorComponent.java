@@ -3,19 +3,17 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.restadm.web.console;
+package pl.edu.icm.unity.restadm.web.console.v8;
 
+import com.vaadin.data.Binder;
 
-import com.vaadin.flow.data.binder.Binder;
-
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 /**
  * Rest admin service editor component
@@ -65,5 +63,4 @@ class RestAdminServiceEditorComponent extends ServiceEditorBase
 		service.setConfiguration(restBinder.getBean().toProperties());
 		return service;
 	}
-
 }

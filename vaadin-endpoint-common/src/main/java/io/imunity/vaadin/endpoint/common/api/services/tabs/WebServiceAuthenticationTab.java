@@ -150,7 +150,6 @@ public class WebServiceAuthenticationTab extends VerticalLayout implements Edito
 		labels.put(msg.getMessage("ServiceEditorBase.authenticators"), authenticators);
 		authAndFlows = new GroupedValuesChipsWithDropdown(labels);
 		authAndFlows.setWidth(50, Unit.EM);	
-//		authAndFlows.setOverlayClassName(CssClassNames.HIDDEN_COMBO_CHECKMARK.getName());
 		binder.forField(authAndFlows)
 		.withConverter(List::copyOf, l -> new HashSet<>(l == null ? new ArrayList<>() : l))
 		.withValidator((v, c) -> {

@@ -5,19 +5,24 @@
 
 package pl.edu.icm.unity.restadm.web.console;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.data.binder.Binder;
 
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
+import io.imunity.vaadin.endpoint.common.api.services.tabs.GeneralTab;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 
 /**
  * REST Admin service editor general tab
@@ -27,7 +32,6 @@ import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
  */
 public class RestAdminServiceEditorGeneralTab extends GeneralTab
 {
-
 	private Binder<RestAdminServiceConfiguration> restBinder;
 
 	public RestAdminServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type,
@@ -36,32 +40,35 @@ public class RestAdminServiceEditorGeneralTab extends GeneralTab
 		super(msg, type, usedEndpointsPaths, serverContextPaths);
 	}
 
-	public void initUI(Binder<DefaultServiceDefinition> serviceBinder,
-			Binder<RestAdminServiceConfiguration> restBinder, boolean editMode)
+	public void initUI(Binder<DefaultServiceDefinition> serviceBinder, Binder<RestAdminServiceConfiguration> restBinder,
+			boolean editMode)
 	{
 		super.initUI(serviceBinder, editMode);
 		this.restBinder = restBinder;
-		mainLayout.addComponent(buildCorsSection());
+		add(buildCorsSection());
 	}
 
 	private Component buildCorsSection()
 	{
 
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
-
-		ChipsWithTextfield allowedCORSheaders = new ChipsWithTextfield(msg);
-		allowedCORSheaders.setCaption(msg.getMessage("RestAdminServiceEditorComponent.allowedCORSheaders"));
-		restBinder.forField(allowedCORSheaders).bind("allowedCORSheaders");
-		main.addComponent(allowedCORSheaders);
-
-		ChipsWithTextfield allowedCORSorigins = new ChipsWithTextfield(msg);
-		allowedCORSorigins.setCaption(msg.getMessage("RestAdminServiceEditorComponent.allowedCORSorigins"));
-		main.addComponent(allowedCORSorigins);
-		restBinder.forField(allowedCORSorigins).bind("allowedCORSorigins");
-
-		CollapsibleLayout corsSection = new CollapsibleLayout(
-				msg.getMessage("RestAdminServiceEditorComponent.cors"), main);
+		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		MultiSelectComboBox<String> allowedCORSheaders = new CustomValuesMultiSelectComboBox();
+		allowedCORSheaders.setWidth(TEXT_FIELD_BIG.value());
+		allowedCORSheaders.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		main.addFormItem(allowedCORSheaders, msg.getMessage("RestAdminServiceEditorComponent.allowedCORSheaders"));
+		restBinder.forField(allowedCORSheaders)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind("allowedCORSheaders");
+		MultiSelectComboBox<String> allowedCORSorigins = new CustomValuesMultiSelectComboBox();
+		allowedCORSorigins.setWidth(TEXT_FIELD_BIG.value());
+		allowedCORSorigins.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		main.addFormItem(allowedCORSorigins, msg.getMessage("RestAdminServiceEditorComponent.allowedCORSorigins"));
+		restBinder.forField(allowedCORSorigins)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind("allowedCORSorigins");
+		AccordionPanel corsSection = new AccordionPanel(msg.getMessage("RestAdminServiceEditorComponent.cors"), main);
 		return corsSection;
 	}
 }
