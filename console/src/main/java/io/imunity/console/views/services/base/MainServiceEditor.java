@@ -13,9 +13,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -29,6 +32,7 @@ import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.Ser
 import io.imunity.vaadin.endpoint.common.api.services.ServiceTypeInfoHelper;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
@@ -39,6 +43,9 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 public class MainServiceEditor extends VerticalLayout
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, MainServiceEditor.class);
+
+	
 	private final NotificationPresenter notificationPresenter;
 	private final MessageSource msg;
 	private final TypesRegistryBase<? extends ServiceControllerBaseInt> editorsRegistry;
@@ -75,7 +82,6 @@ public class MainServiceEditor extends VerticalLayout
 						LinkedHashMap::new))
 				.keySet();
 		serviceTypeCombo = new ComboBox<String>();
-		serviceTypeCombo.setLabel(msg.getMessage("MainServiceEditor.typeComboCaption"));
 		serviceTypeCombo.addValueChangeListener(e -> reloadEditor());
 		
 		serviceTypeCombo.setItemLabelGenerator(i -> servicesTypesSorted.get(i));
@@ -92,21 +98,21 @@ public class MainServiceEditor extends VerticalLayout
 		FormLayout typeWrapper = new FormLayout();
 		typeWrapper.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		typeWrapper.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
-		typeWrapper.addFormItem(serviceTypeCombo, msg.getMessage("MainServiceEditor.typeComboCaption"));
-		typeWrapper.addFormItem(serviceTypeLabel, msg.getMessage("MainServiceEditor.typeLabelCaption"));
+		FormItem typeCombo = typeWrapper.addFormItem(serviceTypeCombo, msg.getMessage("MainServiceEditor.typeComboCaption"));
+		FormItem typeLabel = typeWrapper.addFormItem(serviceTypeLabel, msg.getMessage("MainServiceEditor.typeLabelCaption"));
 		add(typeWrapper);
 
 
 		if (toEdit != null)
 		{
 			serviceTypeCombo.setValue(toEdit.getType());
-			serviceTypeCombo.setVisible(false);
+			typeCombo.setVisible(false);
 			serviceTypeLabel.setValue(ServiceTypeInfoHelper.getType(msg, toEdit.getType()));
-			serviceTypeLabel.setVisible(true);
+			typeLabel.setVisible(true);
 		} else
 		{
-			serviceTypeCombo.setVisible(true);
-			serviceTypeLabel.setVisible(false);
+			typeCombo.setVisible(true);
+			typeLabel.setVisible(false);
 			serviceTypeCombo.setValue(sorted.iterator().next());
 
 		}
@@ -124,7 +130,7 @@ public class MainServiceEditor extends VerticalLayout
 		String type = serviceTypeCombo.getValue();
 		if (editorComponent != null)
 		{
-			remove(editorComponent);
+			remove(editorComponent.getComponent());
 		}
 
 		try
@@ -133,9 +139,10 @@ public class MainServiceEditor extends VerticalLayout
 			editorComponent = editor.getEditor(toEdit);
 			editorComponent.setActiveTab(initTab.toString());
 
-			add(editorComponent);
+			add(editorComponent.getComponent());
 		} catch (Exception e)
 		{
+			log.error("Can not create service editor", e);
 			notificationPresenter.showError(msg.getMessage("MainServiceEditor.createSingleAuthenticatorEditorError"), e.getMessage());
 		}
 	}

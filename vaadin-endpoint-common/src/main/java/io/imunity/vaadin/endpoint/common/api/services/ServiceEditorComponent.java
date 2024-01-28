@@ -13,7 +13,7 @@ import com.vaadin.flow.component.Component;
  * @author P.Piernik
  *
  */
-public abstract class ServiceEditorComponent extends Component
+public interface ServiceEditorComponent 
 {
 	public enum ServiceEditorTab
 	{
@@ -21,4 +21,6 @@ public abstract class ServiceEditorComponent extends Component
 	}
 
 	public abstract void setActiveTab(String tab);
+	
+	public Component getComponent();
 }

@@ -205,4 +205,11 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 	{
 		return defaultField.getLabel();
 	}
+
+	public void setPlaceholder(String message)
+	{
+		defaultField.setPlaceholder(message);
+		
+	}
+	
 }

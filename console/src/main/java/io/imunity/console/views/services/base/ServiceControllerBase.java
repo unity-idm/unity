@@ -6,6 +6,11 @@
 
 package io.imunity.console.views.services.base;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.logging.log4j.Logger;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.endpoint.common.api.services.ServiceControllerBaseInt;
@@ -13,12 +18,10 @@ import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
 import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Common part for idp and standard service controllers
@@ -27,6 +30,9 @@ import java.util.List;
  */
 public class ServiceControllerBase
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ServiceControllerBase.class);
+
+	
 	private final MessageSource msg;
 	private final EndpointManagement endpointMan;
 	private final TypesRegistryBase<? extends ServiceControllerBaseInt> controllersRegistry;
@@ -96,6 +102,7 @@ public class ServiceControllerBase
 					initTab, subViewSwitcher, notificationPresenter);
 		} catch (EngineException e)
 		{
+			log.error("Can not create service editor", e);
 			throw new ControllerException(msg.getMessage("ServicesController.createEditorError"), e);
 		}
 	}

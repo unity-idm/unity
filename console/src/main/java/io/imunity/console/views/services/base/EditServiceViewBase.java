@@ -100,6 +100,7 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 		main.setMargin(false);
 		main.add(editor);
 		main.add(EditViewActionLayoutFactory.createActionLayout(msg, true, mainServicesViewName, () -> onConfirm()));
+		getContent().removeAll();
 		getContent().add(main);
 	}
 

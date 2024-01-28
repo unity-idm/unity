@@ -482,8 +482,8 @@ vaadin-details.u-multi-tab-details {
 }
 
 .u-small-icon {
-	width: 1.25em;
-	height: 1.25em;
+	width: 1em;
+	height: 1em;
 }
 
 .u-error-label {
@@ -759,6 +759,32 @@ vaadin-tab.u-tabsheet-full {
 
 .u-space-pre {
     white-space: pre;
+}
+
+.u-border {
+	border: 1px solid #d4d4d4;
+}
+
+.u-columnHeader {
+	border-bottom: 1px solid #d4d4d4;
+	background-color: #E0E0E0;
+}
+
+.u-horizontalBar {
+	width: 100%;
+	height: 0px;
+	border-top: 1px solid;
+	color: #d4d4d4;
+	margin: 7px 0px;
+	padding: 0px 0px 1px 0px;
+}
+
+.u-dropOn {
+ 	background-color: var(--lumo-primary-color);
+ }
+ 
+ .u-marginLeftMinus7{
+	margin-left: -7em;
 }
 
 

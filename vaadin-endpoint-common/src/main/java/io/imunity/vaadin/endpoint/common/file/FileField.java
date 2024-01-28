@@ -25,6 +25,8 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.server.AbstractStreamResource;
 import com.vaadin.flow.server.StreamResource;
+
+import io.imunity.vaadin.elements.CssClassNames;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 
@@ -96,6 +98,7 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 
 		tab = new TabSheet();
 		tab.addThemeVariants(TabSheetVariant.LUMO_TABS_MINIMAL, TabSheetVariant.LUMO_TABS_HIDE_SCROLL_BUTTONS);
+		tab.addClassName(CssClassNames.TABSHEET_FULL.getName());
 		localTab = new Tab(msg.getMessage("FileField.local"));
 		remoteTab = new Tab(msg.getMessage("FileField.remote"));
 		tab.add(localTab, local);
@@ -103,6 +106,7 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 
 		main = new VerticalLayout();
 		main.setMargin(false);
+		main.setPadding(false);
 		main.setSpacing(false);
 		main.add(remoteOnly ? remoteUrl : tab);
 		add(main);

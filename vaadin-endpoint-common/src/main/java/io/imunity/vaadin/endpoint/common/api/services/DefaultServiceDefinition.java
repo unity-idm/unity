@@ -7,8 +7,8 @@ package io.imunity.vaadin.endpoint.common.api.services;
 
 import java.util.List;
 
-import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
+import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.i18n.I18nString;
 
 /**
