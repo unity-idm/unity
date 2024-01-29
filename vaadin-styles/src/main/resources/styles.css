@@ -204,6 +204,10 @@ vaadin-grid-cell-content > vaadin-checkbox {
     margin-right: -0.5em;
 }
 
+vaadin-form-item:has(vaadin-checkbox) {
+    align-items: center;
+}
+
 /*
     Styling based on part selector
 */
