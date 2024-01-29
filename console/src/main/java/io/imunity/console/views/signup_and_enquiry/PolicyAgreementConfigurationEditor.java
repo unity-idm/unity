@@ -67,6 +67,7 @@ public class PolicyAgreementConfigurationEditor extends CollapsableGrid.Editor<P
 		policyToAccept.setWidth(TEXT_FIELD_BIG.value());
 		main.addFormItem(policyToAccept, msg.getMessage("PolicyAgreementConfigEditor.documentsToAccept"))
 				.setVisible(!policyDocuments.isEmpty());
+		policyToAccept.addValueChangeListener(e -> fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), false)));
 
 		Select<PolicyAgreementPresentationType> presentationType = new Select<>();
 		presentationType.setItemLabelGenerator(item -> msg.getMessage("PolicyAgreementPresentationType." + item));
@@ -139,12 +140,10 @@ public class PolicyAgreementConfigurationEditor extends CollapsableGrid.Editor<P
 
 	private ValidationResult validatePolicyToAccept(List<PolicyDocumentWithRevision> value)
 	{
-		if (value != null && !value.isEmpty() && !value.stream().map(sv -> sv.mandatory)
-				.allMatch(Boolean.valueOf(value.get(0).mandatory)::equals))
-		{
-			return ValidationResult
-					.error(msg.getMessage("PolicyAgreementConfigEditor.mixedDocumentObliatory"));
-		}
+		if (value != null && !value.isEmpty() && !value.stream().map(sv -> sv.mandatory).allMatch(Boolean.valueOf(value.get(0).mandatory)::equals))
+			return ValidationResult.error(msg.getMessage("PolicyAgreementConfigEditor.mixedDocumentObliatory"));
+		if(value == null || value.isEmpty())
+			return ValidationResult.error(msg.getMessage("PolicyAgreementConfigEditor.invalidConfiguration"));
 		return ValidationResult.ok();
 	}
 

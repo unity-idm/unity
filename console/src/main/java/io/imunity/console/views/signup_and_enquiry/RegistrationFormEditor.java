@@ -10,6 +10,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
@@ -50,6 +51,7 @@ import java.util.stream.Collectors;
 
 import static io.imunity.console.tprofile.Constants.FORM_PROFILE;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
@@ -237,9 +239,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		showGotoSignin.setValue(toEdit.isShowSignInLink());
 		signInUrl.setValue(toEdit.getSignInLink() == null ? "" : toEdit.getSignInLink());
 		signInUrl.setEnabled(showGotoSignin.getValue());
-		if (!copyMode) {
+		if (!copyMode)
 			ignoreRequestsAndInvitation.setVisible(true);
-		}
 
 		remoteAuthnSelections.setValue(toEdit.getExternalSignupSpec().getSpecs());
 		remoteAuthnGridSelections.setItems(remoteAuthnSelections.getSelectedItems());
@@ -291,7 +292,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addFormItem(realmNames, msg.getMessage("RegistrationFormEditor.autoLoginAutoAcceptedToRealm"))
 				.add(TooltipFactory.get(msg.getMessage("RegistrationFormEditor.autoLoginAutoAcceptedToRealm.description")));
 
-		captcha = new IntegerField();
+		captcha = new NotEmptyIntegerField();
 		captcha.setMin(0);
 		captcha.setMax(RegistrationForm.MAX_CAPTCHA_LENGTH);
 		captcha.setStepButtonsVisible(true);
@@ -310,6 +311,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	{
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		collectComments = new Checkbox(msg.getMessage("RegistrationFormEditor.collectComments"));
 		registrationCode = new TextField();
 		main.addFormItem(registrationCode, msg.getMessage("RegistrationFormViewer.registrationCode"));
@@ -333,6 +335,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		initCommonDisplayedFields();
 		title2ndStage = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		title2ndStage.setWidth(TEXT_FIELD_MEDIUM.value());
 		formInformation.setWidth(TEXT_FIELD_BIG.value());
 		formInformation2ndStage = new LocalizedTextAreaDetails(msg.getEnabledLocales().values(), msg.getLocale());
 		formInformation2ndStage.setWidth(TEXT_FIELD_BIG.value());
@@ -351,8 +354,10 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addFormItem(title2ndStage, msg.getMessage("RegistrationFormViewer.title2ndStage"));
 		main.addFormItem(formInformation, msg.getMessage("RegistrationFormViewer.formInformation"));
 		main.addFormItem(formInformation2ndStage, msg.getMessage("RegistrationFormViewer.formInformation2ndStage"));
+		Icon icon = TooltipFactory.get(msg.getMessage("RegistrationFormEditor.switchToEnquiryInfo.tip"));
+		icon.getStyle().set("margin-top", CSSVars.BASE_MARGIN.value());
 		main.addFormItem(switchToEnquiryInfo, msg.getMessage("RegistrationFormEditor.switchToEnquiryInfo"))
-				.add(TooltipFactory.get(msg.getMessage("RegistrationFormEditor.switchToEnquiryInfo.tip")));
+				.add(icon);
 		main.addFormItem(pageTitle, msg.getMessage("RegistrationFormEditor.registrationPageTitle"));
 		main.addFormItem(showGotoSignin, "");
 		main.addFormItem(signInUrl, msg.getMessage("RegistrationFormEditor.signinURL"));
@@ -388,7 +393,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		remoteAuthnGridSelections.addSelectionListener(e -> refreshRemoteAuthGridSettingsControls());
 
 		remoteAuthnGridSearchable = new Checkbox(msg.getMessage("RegistrationFormEditor.remoteAuthEnableGridSearch"));
-		remoteAuthnGridHeight = new IntegerField();
+		remoteAuthnGridHeight = new NotEmptyIntegerField();
 		remoteAuthnGridHeight.setValue(5);
 		remoteAuthnGridHeight.setMin(1);
 		remoteAuthnGridHeight.setStepButtonsVisible(true);

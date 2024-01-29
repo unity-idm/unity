@@ -5,6 +5,8 @@
 package io.imunity.console.tprofile;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasLabel;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
@@ -57,9 +59,20 @@ public class FormLayoutEmbeddable
 			components.add(layout.addFormItem(new Div(), label));
 			return;
 		}
-		FormLayout.FormItem item = layout.addFormItem(component, component.getElement().getProperty("label"));
+
+		FormLayout.FormItem item;
+		if(component instanceof Checkbox checkbox)
+		{
+			item = layout.addFormItem(checkbox, "");
+		}
+		else if(component instanceof HasLabel hasLabel)
+		{
+			item = layout.addFormItem(component, hasLabel.getLabel());
+			hasLabel.setLabel("");
+		}
+		else
+			item = layout.addFormItem(component, "");
 		components.add(item);
-		component.getElement().setProperty("label", "");
 		if(component instanceof HasTooltip hasTooltip)
 		{
 			String text = hasTooltip.getTooltip().getText();
@@ -70,9 +83,7 @@ public class FormLayoutEmbeddable
 				item.add(tooltip);
 				if (component instanceof SelectWithDynamicTooltip<?> select)
 				{
-					select.setTooltipChangeListener(t -> {
-						tooltip.setTooltipText(t);
-					});
+					select.setTooltipChangeListener(tooltip::setTooltipText);
 				}
 			}
 		}

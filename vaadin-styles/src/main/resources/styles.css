@@ -154,6 +154,7 @@ vaadin-icon {
 
 vaadin-form-item {
     --vaadin-form-item-label-width: 11em;
+    white-space: nowrap;
 }
 
 vaadin-text-field > label {
@@ -226,6 +227,10 @@ vaadin-tooltip-overlay[position=end-top]::part(overlay) {
 
 vaadin-tooltip-overlay::part(overlay) {
     font-size: var(--lumo-font-size-s);
+}
+
+vaadin-tabsheet[theme="minimal hide-scroll-buttons"]::part(content) {
+    padding-left: 0;
 }
 
 vaadin-combo-box.disable-required-indicator::part(required-indicator)::after {

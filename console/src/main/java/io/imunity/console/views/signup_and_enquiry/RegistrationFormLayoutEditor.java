@@ -28,7 +28,6 @@ public class RegistrationFormLayoutEditor extends VerticalLayout
 
 	public RegistrationFormLayoutEditor(MessageSource msg, Supplier<RegistrationForm> formProvider)
 	{
-		super();
 		this.msg = msg;
 		this.formProvider = formProvider;
 

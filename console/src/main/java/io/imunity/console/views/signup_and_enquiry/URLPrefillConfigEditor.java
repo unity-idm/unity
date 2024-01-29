@@ -17,6 +17,7 @@ import com.vaadin.flow.data.binder.Validator;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
@@ -55,6 +56,8 @@ class URLPrefillConfigEditor extends CustomField<URLQueryPrefillConfig> implemen
 
 	public URLQueryPrefillConfig getValue()
 	{
+		if(!enabled.getValue())
+			return null;
 		URLQueryPrefillConfig domainType = binder.getBean().toDomainType();
 		if(domainType.paramName == null)
 			return null;
@@ -64,7 +67,8 @@ class URLPrefillConfigEditor extends CustomField<URLQueryPrefillConfig> implemen
 	public void setValue(URLQueryPrefillConfig value)
 	{
 		enabled.setValue(value != null);
-		binder.setBean(value == null ? new DataBean() : new DataBean(value));
+		if(value != null)
+			binder.setBean(new DataBean(value));
 	}
 
 	@Override
@@ -77,6 +81,12 @@ class URLPrefillConfigEditor extends CustomField<URLQueryPrefillConfig> implemen
 	protected void setPresentationValue(URLQueryPrefillConfig urlQueryPrefillConfig)
 	{
 		setValue(urlQueryPrefillConfig);
+	}
+
+	public void valid() throws FormValidationException
+	{
+		if (enabled.getValue() && binder.validate().hasErrors())
+			throw new FormValidationException();
 	}
 
 	@Override

@@ -6,7 +6,6 @@ package io.imunity.console.views.signup_and_enquiry;
 
 import com.google.common.collect.Streams;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -46,11 +45,11 @@ import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
 public class BaseFormEditor extends VerticalLayout
 {
-	private static final int COMBO_WIDTH_EM = 18;
 	private final MessageSource msg;
 	private final PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory;
 	private final Map<String, IdentityTypeDefinition> allowedIdentitiesByName;
@@ -166,6 +165,7 @@ public class BaseFormEditor extends VerticalLayout
 	{
 		name = new TextField();
 		name.setValue(defaultName);
+		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		description = new TextField();
 		description.setWidth(TEXT_FIELD_BIG.value());
 		
@@ -175,8 +175,10 @@ public class BaseFormEditor extends VerticalLayout
 	protected void initCommonDisplayedFields()
 	{
 		displayedName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		displayedName.setWidth(TEXT_FIELD_MEDIUM.value());
 		formInformation = new LocalizedTextAreaDetails(msg.getEnabledLocales().values(), msg.getLocale());
 		pageTitle =  new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		displayedName.setWidth(TEXT_FIELD_MEDIUM.value());
 	}
 	
 	protected void setNameFieldValue(String initialValue)
@@ -204,7 +206,7 @@ public class BaseFormEditor extends VerticalLayout
 			identityEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		identityParams = new ListOfEmbeddedElements<>(
 				msg, identityEditorAndProvider, 0, 20, true);
-		
+		identityParams.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		Component localSignupMethods = createLocalSignupMethodsTab(forceInteractiveRetrieval);
 		
 		GroupEditorAndProvider groupEditorAndProvider = new GroupEditorAndProvider();
@@ -213,16 +215,18 @@ public class BaseFormEditor extends VerticalLayout
 		groupParams = new ListOfEmbeddedElements<>(
 				msg, groupEditorAndProvider, 0, 20, true);
 		groupParams.setValueChangeListener(this::onGroupChanges);
-		
+		groupParams.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+
 		AttributeEditorAndProvider attributeEditorAndProvider = new AttributeEditorAndProvider();
 		if (forceInteractiveRetrieval)
 			attributeEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		attributeParams = new ListOfEmbeddedElements<>(
 				msg, attributeEditorAndProvider, 0, 20, true);
-			
+		attributeParams.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+
 		policyAgreements = policyAgreementConfigurationListFactory.getInstance();
 
-		collectedParamsTabSheet.add(msg.getMessage("RegistrationFormEditor.identityParams"),identityParams);
+		collectedParamsTabSheet.add(msg.getMessage("RegistrationFormEditor.identityParams"), identityParams);
 		collectedParamsTabSheet.add(msg.getMessage("RegistrationFormEditor.localSignupMethods"), localSignupMethods);
 		collectedParamsTabSheet.add(msg.getMessage("RegistrationFormEditor.groupParams"), groupParams);
 		collectedParamsTabSheet.add(msg.getMessage("RegistrationFormEditor.attributeParams"), attributeParams);
@@ -402,6 +406,7 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public IdentityRegistrationParam getValue() throws FormValidationException
 		{
+			urlPrefillEditor.valid();
 			IdentityRegistrationParam ret = new IdentityRegistrationParam();
 			ret.setIdentityType(identityType.getValue());
 			ret.setConfirmationMode(confirmationMode.getValue());
@@ -436,11 +441,11 @@ public class BaseFormEditor extends VerticalLayout
 		{
 			attributeType = new AttributeSelectionComboBox(
 					msg.getMessage("RegistrationFormViewer.paramAttribute"), attributeTypes);
-			attributeType.setWidth(COMBO_WIDTH_EM, Unit.EM);
+			attributeType.setWidth(TEXT_FIELD_MEDIUM.value());
 			group = new FormAttributeGroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), 
 					msg, groups, getDynamicGroups());
 			group.updateDynamicGroups(getDynamicGroups());
-			group.setWidth(COMBO_WIDTH_EM, Unit.EM);
+			group.setWidth(TEXT_FIELD_MEDIUM.value());
 			showGroups = new Checkbox(msg.getMessage("RegistrationFormViewer.paramShowGroup"));
 			confirmationMode = new EnumComboBox<>(
 					msg.getMessage("RegistrationFormViewer.paramConfirmationMode"), 
@@ -449,7 +454,7 @@ public class BaseFormEditor extends VerticalLayout
 					ConfirmationMode.class, 
 					ConfirmationMode.ON_SUBMIT);
 			confirmationMode.setTooltipText(msg.getMessage("RegistrationFormEditor.confirmationModeDesc"));
-			confirmationMode.setWidth(COMBO_WIDTH_EM, Unit.EM);
+			confirmationMode.setWidth(TEXT_FIELD_MEDIUM.value());
 			urlPrefillEditor = new URLPrefillConfigEditor(msg);
 			main.add(attributeType, group, showGroups, confirmationMode);
 			
@@ -478,6 +483,7 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public AttributeRegistrationParam getValue() throws FormValidationException
 		{
+			urlPrefillEditor.valid();
 			AttributeRegistrationParam ret = new AttributeRegistrationParam();
 			ret.setAttributeType(attributeType.getValue().getName());
 			ret.setGroup(group.getValue());
@@ -599,7 +605,7 @@ public class BaseFormEditor extends VerticalLayout
 		}
 
 		@Override
-		public CredentialRegistrationParam getValue() throws FormValidationException
+		public CredentialRegistrationParam getValue()
 		{
 			CredentialRegistrationParam ret = new CredentialRegistrationParam();
 			ret.setCredentialName(credential.getValue());

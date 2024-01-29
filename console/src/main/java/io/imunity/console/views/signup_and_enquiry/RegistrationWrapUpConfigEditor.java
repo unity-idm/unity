@@ -59,10 +59,12 @@ public class RegistrationWrapUpConfigEditor extends VerticalLayout
 		});
 		redirectAfter.setValue(0);
 		redirectCaption = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		redirectCaption.setWidth(TEXT_FIELD_MEDIUM.value());
 		automatic = new Checkbox(msg.getMessage("RegistrationFormEditor.automaticRedirect"));
 		trigger = new EnumComboBox<>(
 				null, msg::getMessage, null,
 				TriggeringState.class, TriggeringState.DEFAULT, filter);
+		trigger.setWidth(TEXT_FIELD_MEDIUM.value());
 		automatic.addValueChangeListener(e -> setState());
 		layout.addFormItem(trigger, msg.getMessage("RegistrationFormEditor.wrapupWhen"));
 		layout.addFormItem(title, msg.getMessage("RegistrationFormEditor.wrapupTitle"));

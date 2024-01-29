@@ -64,6 +64,7 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 	private void initUI(String caption, String addButtonCaption)
 	{
 		setWidthFull();
+		getStyle().set("overflow-y", "hidden");
 		VerticalLayout main = new VerticalLayout();
 		main.setPadding(false);
 
@@ -86,6 +87,7 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 
 		grid = new Grid<>();
 		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
+		grid.setAllRowsVisible(true);
 		grid.addComponentColumn(e -> createNameWithDetailsArrow(grid, e));
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(e -> e));
 		grid.addComponentColumn(this::createRowActionMenu)
@@ -162,7 +164,9 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 		closeIcon.setVisible(grid.isDetailsVisible(entry));
 		openIcon.addClickListener(e -> grid.setDetailsVisible(entry, true));
 		closeIcon.addClickListener(e -> grid.setDetailsVisible(entry, false));
-		return new HorizontalLayout(openIcon, closeIcon, new Span(entry.getHeaderText()));
+		Span header = new Span(entry.getHeaderText());
+		entry.addValueChangeListener(event -> header.setText(entry.getHeaderText()));
+		return new HorizontalLayout(openIcon, closeIcon, header);
 	}
 
 	private Component createRowActionMenu(Editor<T> entry)

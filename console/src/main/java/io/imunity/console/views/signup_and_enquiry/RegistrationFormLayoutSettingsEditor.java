@@ -23,6 +23,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 import java.util.stream.Stream;
 
@@ -58,7 +59,7 @@ public class RegistrationFormLayoutSettingsEditor extends VerticalLayout
 		FormLayout main = new FormLayout();
 		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		Checkbox compactInputs = new Checkbox();
+		Checkbox compactInputs = new Checkbox(msg.getMessage("FormLayoutEditor.compactInputs"));
 
 		FileField logo = new FileField(msg, "image/*", "logo.jpg", serverConfig.getFileSizeLimit());
 		logo.setEnabled(true);
@@ -71,7 +72,7 @@ public class RegistrationFormLayoutSettingsEditor extends VerticalLayout
 				.add(TooltipFactory.get(msg.getMessage("FormLayoutEditor.logoDesc")));
 		main.addFormItem(columnWidth, msg.getMessage("FormLayoutEditor.columnWidth"));
 		main.addFormItem(columnWidthUnit, msg.getMessage("FormLayoutEditor.columnWidthUnit"));
-		main.addFormItem(compactInputs, msg.getMessage("FormLayoutEditor.compactInputs"));
+		main.addFormItem(compactInputs, "");
 		add(main);
 
 		binder = new Binder<>(FormLayoutSettingsWithLogo.class);
@@ -90,8 +91,10 @@ public class RegistrationFormLayoutSettingsEditor extends VerticalLayout
 		binder.setBean(new FormLayoutSettingsWithLogo(FormLayoutSettings.DEFAULT, imageAccessService));
 	}
 
-	public FormLayoutSettings getSettings(String formName)
+	public FormLayoutSettings getSettings(String formName) throws FormValidationException
 	{
+		if(binder.validate().hasErrors())
+			throw new FormValidationException();
 		return binder.getBean().toFormLayoutSettings(fileStorageService, formName);
 	}
 
@@ -103,10 +106,6 @@ public class RegistrationFormLayoutSettingsEditor extends VerticalLayout
 	public static class FormLayoutSettingsWithLogo extends FormLayoutSettings
 	{
 		private LocalOrRemoteResource logo;
-
-		public FormLayoutSettingsWithLogo()
-		{
-		}
 
 		public FormLayoutSettingsWithLogo(FormLayoutSettings org, VaadinLogoImageLoader imageAccessService)
 		{

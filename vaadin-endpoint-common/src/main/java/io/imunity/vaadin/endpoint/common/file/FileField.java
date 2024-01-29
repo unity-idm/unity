@@ -25,7 +25,6 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.server.AbstractStreamResource;
 import com.vaadin.flow.server.StreamResource;
-
 import io.imunity.vaadin.elements.CssClassNames;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
@@ -70,7 +69,6 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 			remoteUrl.clear();
 			byte[] byteArray = ((ByteArrayOutputStream) fileData.getOutputBuffer()).toByteArray();
 			value = new LocalOrRemoteResource(new StreamResource("logo", () -> new ByteArrayInputStream(byteArray)), "", byteArray);
-			setPreview();
 			updateValue();
 		});
 
@@ -91,6 +89,7 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 				updateValue();
 			}
 			value.setSrc(e.getValue());
+			add(value);
 			setPreview();
 			fireEvent(new ComponentValueChangeEvent<>(this, this, value, true));
 		});
@@ -105,7 +104,7 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 		tab.add(remoteTab, remote);
 
 		main = new VerticalLayout();
-		main.setMargin(false);
+		main.setPadding(false);
 		main.setPadding(false);
 		main.setSpacing(false);
 		main.add(remoteOnly ? remoteUrl : tab);
@@ -125,6 +124,7 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 		clear.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		clear.addClickListener(e -> {
 			setPresentationValue(null);
+			upload.setVisible(true);
 			fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), false));
 		});
 		clear.setVisible(false);
@@ -132,11 +132,13 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 		tab.addSelectedChangeListener(e ->
 		{
 			if (tab.getSelectedTab().equals(remoteTab))
-				downloader.setVisible(false);
-			else if (getValue()!= null && getValue().getLocal()!=null)
-				downloader.setVisible(true);
+				tab.getStyle().set("margin-bottom", "-0.5em");
+
 			if(tab.getSelectedTab().equals(localTab))
+			{
 				upload.setMaxFiles(1);
+				tab.getStyle().remove("margin-bottom");
+			}
 		});
 
 		HorizontalLayout wrapper = new HorizontalLayout();
@@ -158,21 +160,17 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 	public void configureBinding(Binder<?> binder, String fieldName,
 			Optional<Validator<LocalOrRemoteResource>> additionalValidator)
 	{
-		binder.forField(this).withValidator((v, c) -> {
-
+		binder.forField(this).withValidator((v, c) ->
+		{
 			if (v != null)
 			{
-				if (v.getLocal() == null
-						&& (!URIHelper.isWebReady(v.getSrc())))
+				if (v.getLocal() == null && !URIHelper.isWebReady(v.getSrc()))
 				{
+					v.setVisible(false);
 					return ValidationResult.error(msg.getMessage("FileField.notWebUri"));
 				}
-				if (v.getSrc() != null && (v.getLocal() == null || v.getLocal().length == 0))
-				{
-					return ValidationResult.error(msg.getMessage("FileField.invalidFile", v.getSrc()));
-				}
+				v.setVisible(true);
 			}
-
 			return ValidationResult.ok();
 
 		}).withValidator(additionalValidator.orElse((v, c) -> ValidationResult.ok())).bind(fieldName);
@@ -197,29 +195,40 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 	}
 
 	@Override
-	protected void setPresentationValue(LocalOrRemoteResource localOrRemoteResource)
+	public void setPresentationValue(LocalOrRemoteResource localOrRemoteResource)
 	{
-		this.value = localOrRemoteResource;
+		 setValue(localOrRemoteResource);
+	}
 
+	@Override
+	public void setValue(LocalOrRemoteResource localOrRemoteResource)
+	{
+		if(getChildren().toList().contains(value))
+			remove(value);
+		value = localOrRemoteResource;
 		if (value == null)
 		{
 			remoteUrl.clear();
 			setPreview();
 			return;
 		}
+		add(localOrRemoteResource);
 		if (value.getLocal() != null)
 		{
 			tab.setSelectedTab(localTab);
+			upload.setVisible(false);
 			setPreview();
+			localOrRemoteResource.setVisible(false);
 		}
 		else
 		{
 			tab.setSelectedTab(remoteTab);
 			remoteUrl.setValue(value.getSrc());
+			localOrRemoteResource.setVisible(true);
 		}
 	}
 	
-	protected void setPreview()
+	private void setPreview()
 	{
 		downloader.setVisible(false);
 		clear.setVisible(false);

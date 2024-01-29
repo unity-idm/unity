@@ -11,17 +11,21 @@ import com.vaadin.flow.server.StreamResource;
 
 import java.io.ByteArrayInputStream;
 
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
+
 public class LocalOrRemoteResource extends Image
 {
 	private byte[] local;
 
 	public LocalOrRemoteResource()
 	{
+		addClassName(LOGO_IMAGE.getName());
 	}
 
 	public LocalOrRemoteResource(String src, String alt)
 	{
 		super(src, alt);
+		addClassName(LOGO_IMAGE.getName());
 	}
 
 	public LocalOrRemoteResource(AbstractStreamResource src, String alt, byte[] local)
