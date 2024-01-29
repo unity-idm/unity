@@ -4,15 +4,19 @@
  */
 package io.imunity.console.tprofile;
 
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
+import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.data.binder.Binder;
+
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 /**
  * Action parameter for boolean
  */
-public class BooleanActionParameterComponent extends Checkbox implements ActionParameterComponent
+public class BooleanActionParameterComponent extends Checkbox
+		implements ActionParameterComponent, HasValueAndElement<ComponentValueChangeEvent<Checkbox, Boolean>, Boolean>
 {	
 	private final Binder<StringValueBean> binder;
 	private String label;
@@ -69,6 +73,6 @@ public class BooleanActionParameterComponent extends Checkbox implements ActionP
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		super.setReadOnly(readOnly);
+		HasValueAndElement.super.setReadOnly(readOnly);
 	}
 }

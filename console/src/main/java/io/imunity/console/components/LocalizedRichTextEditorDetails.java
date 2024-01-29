@@ -5,7 +5,20 @@
 
 package io.imunity.console.components;
 
+import static io.imunity.vaadin.elements.CSSVars.RICH_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.HasValueAndElement;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -13,15 +26,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static io.imunity.vaadin.elements.CSSVars.RICH_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
-import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
-
-public class LocalizedRichTextEditorDetails extends CustomField<Map<Locale, String>>
+public class LocalizedRichTextEditorDetails extends CustomField<Map<Locale, String>> implements
+		HasValueAndElement<ComponentValueChangeEvent<CustomField<Map<Locale, String>>, Map<Locale, String>>, Map<Locale, String>>
 {
 	public Map<Locale, LocalizedRichTextEditor> fields = new LinkedHashMap<>();
 
@@ -105,7 +111,7 @@ public class LocalizedRichTextEditorDetails extends CustomField<Map<Locale, Stri
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		super.setReadOnly(readOnly);
+		HasValueAndElement.super.setReadOnly(readOnly);
 		fields.values().forEach(field -> field.setReadOnly(readOnly));
 	}
 

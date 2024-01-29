@@ -4,11 +4,6 @@
  */
 package io.imunity.console.tprofile;
 
-import io.imunity.vaadin.elements.NotEmptyComboBox;
-import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -16,10 +11,20 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
+import com.vaadin.flow.component.HasValueAndElement;
+import com.vaadin.flow.component.combobox.ComboBox;
+
+import io.imunity.vaadin.elements.NotEmptyComboBox;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+
 /**
  * Allows to select an attribute name
  */
-public class AttributeSelectionComboBox extends NotEmptyComboBox<AttributeType>
+public class AttributeSelectionComboBox extends NotEmptyComboBox<AttributeType> implements
+		HasValueAndElement<ComponentValueChangeEvent<ComboBox<AttributeType>, AttributeType>, AttributeType>
 {
 	protected Map<String, AttributeType> attributeTypesByName;
 	private boolean filterImmutable = true;

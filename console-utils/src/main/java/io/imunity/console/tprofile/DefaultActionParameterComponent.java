@@ -4,14 +4,18 @@
  */
 package io.imunity.console.tprofile;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
+import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-
-public class DefaultActionParameterComponent extends TextField implements ActionParameterComponent
+public class DefaultActionParameterComponent extends TextField
+		implements ActionParameterComponent, HasValueAndElement<ComponentValueChangeEvent<TextField, String>, String>
 {
 	protected Binder<StringValueBean> binder;
 	private String label;
@@ -68,7 +72,7 @@ public class DefaultActionParameterComponent extends TextField implements Action
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		super.setReadOnly(readOnly);
+		HasValueAndElement.super.setReadOnly(readOnly);
 	}
 	
 	@Override

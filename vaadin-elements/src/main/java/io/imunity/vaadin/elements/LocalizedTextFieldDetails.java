@@ -5,8 +5,21 @@
 
 package io.imunity.vaadin.elements;
 
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
+import static io.imunity.vaadin.elements.CssClassNames.DETAILS_ICON;
+import static io.imunity.vaadin.elements.CssClassNames.EMPTY_DETAILS_ICON;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.function.BiConsumer;
+
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -17,16 +30,9 @@ import com.vaadin.flow.data.binder.HasValidator;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.function.BiConsumer;
-
-import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
-import static io.imunity.vaadin.elements.CssClassNames.*;
-
-public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> implements HasValidator<Map<Locale, String>>
+public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>>
+		implements HasValidator<Map<Locale, String>>,
+		HasValueAndElement<ComponentValueChangeEvent<CustomField<Map<Locale, String>>, Map<Locale, String>>, Map<Locale, String>>
 {
 	private final Map<Locale, LocalizedTextField> fields = new LinkedHashMap<>();
 	private final Binder<Map<Locale, String>> binder = new Binder<>();
@@ -165,7 +171,7 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		super.setReadOnly(readOnly);
+		HasValueAndElement.super.setReadOnly(readOnly);
 		fields.values().forEach(field -> field.setReadOnly(readOnly));
 	}
 

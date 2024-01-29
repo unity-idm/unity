@@ -7,6 +7,8 @@ package io.imunity.vaadin.elements;
 
 import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.HasValueAndElement;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -26,7 +28,9 @@ import java.util.function.BiConsumer;
 import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
 import static io.imunity.vaadin.elements.CssClassNames.*;
 
-public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> implements HasValidator<Map<Locale, String>>
+public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>>
+		implements HasValidator<Map<Locale, String>>,
+		HasValueAndElement<ComponentValueChangeEvent<CustomField<Map<Locale, String>>, Map<Locale, String>>, Map<Locale, String>>
 {
 	private final Map<Locale, LocalizedTextArea> fields = new LinkedHashMap<>();
 	private final Binder<Map<Locale, String>> binder = new Binder<>();
@@ -157,7 +161,7 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		super.setReadOnly(readOnly);
+		HasValueAndElement.super.setReadOnly(readOnly);
 		fields.values().forEach(field -> field.setReadOnly(readOnly));
 	}
 
