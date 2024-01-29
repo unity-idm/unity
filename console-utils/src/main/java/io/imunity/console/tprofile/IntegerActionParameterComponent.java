@@ -4,16 +4,12 @@
  */
 package io.imunity.console.tprofile;
 
-import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
-import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
-public class IntegerActionParameterComponent extends IntegerField implements ActionParameterComponent,
-		HasValueAndElement<ComponentValueChangeEvent<IntegerField, Integer>, Integer>
+public class IntegerActionParameterComponent extends IntegerField implements ActionParameterComponent
 {
 	private final Binder<StringValueBean> binder;
 	private String label;
@@ -59,7 +55,7 @@ public class IntegerActionParameterComponent extends IntegerField implements Act
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		HasValueAndElement.super.setReadOnly(readOnly);
+		super.setReadOnly(readOnly);
 	}
 
 	@Override

@@ -4,26 +4,22 @@
  */
 package io.imunity.console.tprofile;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.data.binder.Binder;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
-import com.vaadin.flow.component.HasValueAndElement;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.data.binder.Binder;
-
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 /**
  * {@link ComboBox} based editor of all enumerated parameters.
  */
-public class BaseEnumActionParameterComponent extends ComboBox<String> implements ActionParameterComponent,
-		HasValueAndElement<ComponentValueChangeEvent<ComboBox<String>, String>, String>
+public class BaseEnumActionParameterComponent extends ComboBox<String> implements ActionParameterComponent
 {
 	private final List<String> values;
 	private Binder<StringValueBean> binder;
@@ -119,14 +115,14 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 	}
 
 	@Override
-	public String getLabel()
+	public void setReadOnly(boolean readOnly)
 	{
-		return label;
+		super.setReadOnly(readOnly);
 	}
 
 	@Override
-	public void setReadOnly(boolean readOnly)
+	public String getLabel()
 	{
-		HasValueAndElement.super.setReadOnly(readOnly);
+		return label;
 	}
 }

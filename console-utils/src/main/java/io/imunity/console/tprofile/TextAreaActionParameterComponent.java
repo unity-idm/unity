@@ -6,16 +6,14 @@ package io.imunity.console.tprofile;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 
-import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
-import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.Binder;
 
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
-public class TextAreaActionParameterComponent extends TextArea
-		implements ActionParameterComponent, HasValueAndElement<ComponentValueChangeEvent<TextArea, String>, String>
+
+public class TextAreaActionParameterComponent extends TextArea implements ActionParameterComponent
 {
 	private final Binder<StringValueBean> binder;
 	private String label;
@@ -65,7 +63,7 @@ public class TextAreaActionParameterComponent extends TextArea
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		HasValueAndElement.super.setReadOnly(readOnly);
+		super.setReadOnly(readOnly);
 	}
 
 	@Override
