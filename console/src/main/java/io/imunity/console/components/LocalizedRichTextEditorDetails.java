@@ -13,6 +13,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import io.imunity.vaadin.elements.VaadinElementReadOnlySetter;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -105,7 +107,7 @@ public class LocalizedRichTextEditorDetails extends CustomField<Map<Locale, Stri
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		super.setReadOnly(readOnly);
+		VaadinElementReadOnlySetter.setReadOnly(getElement(), readOnly);
 		fields.values().forEach(field -> field.setReadOnly(readOnly));
 	}
 

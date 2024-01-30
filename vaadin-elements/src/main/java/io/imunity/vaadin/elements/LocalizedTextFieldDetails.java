@@ -165,7 +165,7 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		super.setReadOnly(readOnly);
+		VaadinElementReadOnlySetter.setReadOnly(getElement(), readOnly);
 		fields.values().forEach(field -> field.setReadOnly(readOnly));
 	}
 

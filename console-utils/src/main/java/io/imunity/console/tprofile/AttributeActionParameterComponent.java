@@ -4,14 +4,16 @@
  */
 package io.imunity.console.tprofile;
 
-import com.vaadin.flow.data.binder.Binder;
-import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 import java.util.Collection;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import com.vaadin.flow.data.binder.Binder;
+
+import io.imunity.vaadin.elements.VaadinElementReadOnlySetter;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
 /**
  * {@link AttributeSelectionComboBox} based editor of attribute  parameter.
@@ -99,7 +101,7 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		super.setReadOnly(readOnly);
+		VaadinElementReadOnlySetter.setReadOnly(getElement(), readOnly);
 	}
 
 	@Override

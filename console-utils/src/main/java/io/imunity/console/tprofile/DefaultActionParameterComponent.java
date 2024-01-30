@@ -6,6 +6,8 @@ package io.imunity.console.tprofile;
 
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+
+import io.imunity.vaadin.elements.VaadinElementReadOnlySetter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
@@ -68,7 +70,7 @@ public class DefaultActionParameterComponent extends TextField implements Action
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		super.setReadOnly(readOnly);
+		VaadinElementReadOnlySetter.setReadOnly(getElement(), readOnly);
 	}
 	
 	@Override

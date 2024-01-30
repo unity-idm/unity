@@ -9,6 +9,7 @@ import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.Binder;
 
+import io.imunity.vaadin.elements.VaadinElementReadOnlySetter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
@@ -63,7 +64,7 @@ public class TextAreaActionParameterComponent extends TextArea implements Action
 	@Override
 	public void setReadOnly(boolean readOnly)
 	{
-		super.setReadOnly(readOnly);
+		VaadinElementReadOnlySetter.setReadOnly(getElement(), readOnly);
 	}
 
 	@Override
