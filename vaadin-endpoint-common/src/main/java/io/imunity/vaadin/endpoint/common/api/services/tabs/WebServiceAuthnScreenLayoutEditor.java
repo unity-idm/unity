@@ -327,34 +327,6 @@ public class WebServiceAuthnScreenLayoutEditor extends CustomField<AuthnLayoutCo
 	}
 
 	@Override
-	public void setReadOnly(boolean readOnly)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isReadOnly()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void setRequiredIndicatorVisible(boolean requiredIndicatorVisible)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isRequiredIndicatorVisible()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
 	protected AuthnLayoutConfiguration generateModelValue()
 	{
 		return AuthnLayoutConfigToUIConverter.convertFromUI(new AuthenticationLayoutContent(columns, separators));

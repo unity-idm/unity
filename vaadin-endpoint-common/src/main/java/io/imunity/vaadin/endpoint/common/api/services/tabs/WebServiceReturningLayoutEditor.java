@@ -94,35 +94,6 @@ public class WebServiceReturningLayoutEditor extends CustomField<List<AuthnEleme
 		return componentsPalette;
 	}
 
-
-	@Override
-	public void setReadOnly(boolean readOnly)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isReadOnly()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void setRequiredIndicatorVisible(boolean requiredIndicatorVisible)
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public boolean isRequiredIndicatorVisible()
-	{
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	@Override
 	protected List<AuthnElementConfiguration> generateModelValue()
 	{

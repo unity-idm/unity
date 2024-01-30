@@ -303,10 +303,13 @@ vaadin-button.u-text-left::part(label) {
     Styling based on vaadin and unity classes
 */
 
+.u-drop-layout {
+ 	background-color: var(--lumo-primary-color-10pct);
+ }
+ 
 .v-drag-over-target.u-drop-layout {
-    outline: 1px solid var(--lumo-primary-color);
-}
-
+ 	background-color: var(--lumo-primary-color-50pct);
+ }
 
 /*
     Styling based on unity classes and vaadin tags
@@ -393,6 +396,10 @@ vaadin-button.u-text-left::part(label) {
     min-width: var(--unity-icon-size);
     width: var(--unity-icon-size);
     height: var(--unity-icon-size);
+}
+
+.u-small-vaadin-form-item > vaadin-form-item {
+    --vaadin-form-item-label-width: 3em;
 }
 
 .u-medium-vaadin-form-item > vaadin-form-item {
@@ -787,13 +794,11 @@ vaadin-tab.u-tabsheet-full {
 	margin: 7px 0px;
 	padding: 0px 0px 1px 0px;
 }
-
-.u-dropOn {
- 	background-color: var(--lumo-primary-color);
- }
  
- .u-marginLeftMinus7{
+.u-marginLeftMinus7{
 	margin-left: -7em;
 }
+
+
 
 

@@ -18,12 +18,14 @@ import com.google.common.base.Objects;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.elements.AuthnElementConfiguration;
 import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.elements.GridConfig;
 import io.imunity.vaadin.endpoint.common.api.services.authnlayout.ui.ColumnComponent;
@@ -71,12 +73,12 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 				ValidationResult.ok();
 		}).bind("value");
 
-		//FormLayout wrapper = new FormLayout();
+		FormLayout wrapper = new FormLayout();
+		wrapper.addClassName(CssClassNames.SMALL_VAADIN_FORM_ITEM_LABEL.getName());
 		IntegerField rows = new IntegerField();
 		rows.setWidth(7, Unit.EM);
 		rows.setStepButtonsVisible(true);
-		rows.setLabel(msg.getMessage("GridAuthnColumnElement.rows"));
-		//wrapper.addFormItem(rows, msg.getMessage("GridAuthnColumnElement.rows"));
+		wrapper.addFormItem(rows, msg.getMessage("GridAuthnColumnElement.rows"));
 		rows.setMin(1);
 		binder.forField(rows).bind("rows");
 
@@ -86,7 +88,7 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 		main.setMargin(false);
 		main.setPadding(false);
 		main.setSpacing(false);
-		main.add(valueComboField, rows);
+		main.add(valueComboField, wrapper);
 		
 		return main;
 	}

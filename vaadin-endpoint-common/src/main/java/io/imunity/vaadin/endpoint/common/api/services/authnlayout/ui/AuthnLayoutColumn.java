@@ -133,8 +133,6 @@ public class AuthnLayoutColumn extends VerticalLayout
 		elementsLayout.setMargin(false);
 		elementsLayout.setPadding(true);
 		elementsLayout.setWidthFull();
-//		elementsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
-//		elementsLayout.setStyleName(Styles.vDropLayout.toString());
 		add(elementsLayout);
 
 
@@ -158,7 +156,7 @@ public class AuthnLayoutColumn extends VerticalLayout
 		for (Component c : dropElements)
 		{
 			c.setVisible(true);
-//			c.addStyleName("drop-on");
+			c.addClassName(CssClassNames.DROP_LAYOUT.getName());
 		}
 	}
 
@@ -167,7 +165,7 @@ public class AuthnLayoutColumn extends VerticalLayout
 		for (Component c : dropElements)
 		{
 			c.setVisible(false);
-//			c.removeStyleName("drop-on");
+			c.removeClassName(CssClassNames.DROP_LAYOUT.getName());
 		}
 	}
 
@@ -223,7 +221,7 @@ public class AuthnLayoutColumn extends VerticalLayout
 	private HorizontalLayout getDropElement(int pos)
 	{
 		HorizontalLayout drop = new HorizontalLayout();
-		drop.setClassName("u-dropOn");
+		//drop.setClassName("u-dropOn");
 		drop.setWidthFull();
 		drop.setHeight(1, Unit.EM);
 		drop.setVisible(false);
