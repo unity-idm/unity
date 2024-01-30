@@ -3,22 +3,21 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.rest.web.console;
+package pl.edu.icm.unity.rest.web.console.v8;
 
 import java.util.List;
 import java.util.Set;
 
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 /**
  * JWT service service editor
@@ -28,14 +27,14 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
  */
 class JWTServiceEditor implements ServiceEditor
 {
-	private final MessageSource msg;
-	private final List<String> allRealms;
-	private final List<AuthenticationFlowDefinition> flows;
-	private final List<AuthenticatorInfo> authenticators;
-	private final Set<String> credentials;
-	private final List<String> usedEndpointsPaths;
-	private final Set<String> serverContextPaths;
+	private MessageSource msg;
+	private List<String> allRealms;
+	private List<AuthenticationFlowDefinition> flows;
+	private List<AuthenticatorInfo> authenticators;
+	private Set<String> credentials;
 	private JWTServiceEditorComponent editor;
+	private List<String> usedEndpointsPaths;
+	private Set<String> serverContextPaths;
 
 	JWTServiceEditor(MessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, Set<String> credentials, List<String> usedPaths, Set<String> serverContextPaths)

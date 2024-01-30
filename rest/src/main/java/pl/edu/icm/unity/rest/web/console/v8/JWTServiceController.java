@@ -3,16 +3,12 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.rest.web.console;
+package pl.edu.icm.unity.rest.web.console.v8;
 
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServicesControllerBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceController;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
@@ -23,7 +19,10 @@ import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
-
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.console.services.ServiceController;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 
 /**
  * Controller for JWT service. 
@@ -31,14 +30,14 @@ import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
  * @author P.Piernik
  *
  */
-@Component
+@Component("JWTServiceControllerV8")
 class JWTServiceController extends DefaultServicesControllerBase implements ServiceController
 {
-	private final RealmsManagement realmsMan;
-	private final AuthenticationFlowManagement flowsMan;
-	private final AuthenticatorManagement authMan;
-	private final PKIManagement pkiMan;
-	private final NetworkServer networkServer;
+	private RealmsManagement realmsMan;
+	private AuthenticationFlowManagement flowsMan;
+	private AuthenticatorManagement authMan;
+	private PKIManagement pkiMan;
+	private NetworkServer networkServer;
 
 	JWTServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, PKIManagement pkiMan, NetworkServer networkServer,

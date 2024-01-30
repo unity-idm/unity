@@ -5,23 +5,26 @@
 
 package pl.edu.icm.unity.rest.web.console;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.converter.StringToIntegerConverter;
-import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.TextField;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.data.binder.Binder;
 
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
+import io.imunity.vaadin.endpoint.common.api.services.tabs.GeneralTab;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
+
 
 /**
  * JWT service editor general tab
@@ -47,55 +50,58 @@ class JWTServiceEditorGeneralTab extends GeneralTab
 		super.initUI(serviceBinder, editMode);
 		this.jwtBinder = jwtBinder;
 
-		mainLayout.addComponent(buildCorsSection());
-		mainLayout.addComponent(buildJWTSection());
+		add(buildCorsSection());
+		add(buildJWTSection());
 	}
 
-	private Component buildCorsSection()
+	private AccordionPanel buildCorsSection()
 	{
 
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
-
-		ChipsWithTextfield allowedCORSheaders = new ChipsWithTextfield(msg);
-		allowedCORSheaders.setCaption(msg.getMessage("JWTServiceEditorComponent.allowedCORSheaders"));
-		jwtBinder.forField(allowedCORSheaders).bind("allowedCORSheaders");
-		main.addComponent(allowedCORSheaders);
-
-		ChipsWithTextfield allowedCORSorigins = new ChipsWithTextfield(msg);
-		allowedCORSorigins.setCaption(msg.getMessage("JWTServiceEditorComponent.allowedCORSorigins"));
-		main.addComponent(allowedCORSorigins);
-		jwtBinder.forField(allowedCORSorigins).bind("allowedCORSorigins");
-
-		CollapsibleLayout corsSection = new CollapsibleLayout(msg.getMessage("JWTServiceEditorComponent.cors"),
-				main);
+		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		MultiSelectComboBox<String> allowedCORSheaders = new CustomValuesMultiSelectComboBox();
+		allowedCORSheaders.setWidth(TEXT_FIELD_BIG.value());
+		allowedCORSheaders.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		main.addFormItem(allowedCORSheaders, msg.getMessage("JWTServiceEditorComponent.allowedCORSheaders"));
+		jwtBinder.forField(allowedCORSheaders)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind("allowedCORSheaders");
+		MultiSelectComboBox<String> allowedCORSorigins = new CustomValuesMultiSelectComboBox();
+		allowedCORSorigins.setWidth(TEXT_FIELD_BIG.value());
+		allowedCORSorigins.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		main.addFormItem(allowedCORSorigins, msg.getMessage("JWTServiceEditorComponent.allowedCORSorigins"));
+		jwtBinder.forField(allowedCORSorigins)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind("allowedCORSorigins");
+		AccordionPanel corsSection = new AccordionPanel(msg.getMessage("JWTServiceEditorComponent.cors"), main);
+		corsSection.setWidthFull();
 		return corsSection;
 	}
 
-	private Component buildJWTSection()
+	private AccordionPanel buildJWTSection()
 	{
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
+		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
 		ComboBox<String> credential = new ComboBox<>();
 		credential.setId("cre");
-		credential.setCaption(msg.getMessage("JWTServiceEditorComponent.signingCredential"));
-		credential.setEmptySelectionAllowed(false);
 		credential.setItems(credentials);
 		jwtBinder.forField(credential).asRequired(msg.getMessage("fieldRequired")).bind("credential");
-		main.addComponent(credential);
+		main.addFormItem(credential, msg.getMessage("JWTServiceEditorComponent.signingCredential"));
 
-		TextField ttl = new TextField();
-		ttl.setCaption(msg.getMessage("JWTServiceEditorComponent.tokenTTL"));
+		IntegerField ttl = new IntegerField();
+		ttl.setStepButtonsVisible(true);
+		ttl.setMin(0);
 		jwtBinder.forField(ttl).asRequired(msg.getMessage("fieldRequired"))
-				.withConverter(new StringToIntegerConverter(msg.getMessage("notAPositiveNumber")))
-				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
 				.bind("ttl");
-		main.addComponent(ttl);
+		main.addFormItem(ttl, msg.getMessage("JWTServiceEditorComponent.tokenTTL"));
 
-		CollapsibleLayout jwtSection = new CollapsibleLayout(msg.getMessage("JWTServiceEditorComponent.jwt"),
-				main);
-		jwtSection.expand();
+		
+		AccordionPanel jwtSection = new AccordionPanel(msg.getMessage("JWTServiceEditorComponent.jwt"), main);
+		jwtSection.setOpened(true);
+		jwtSection.setWidthFull();
 		return jwtSection;
 	}
 }

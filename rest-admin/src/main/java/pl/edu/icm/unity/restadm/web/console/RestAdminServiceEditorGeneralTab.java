@@ -69,6 +69,7 @@ public class RestAdminServiceEditorGeneralTab extends GeneralTab
 				.withConverter(List::copyOf, HashSet::new)
 				.bind("allowedCORSorigins");
 		AccordionPanel corsSection = new AccordionPanel(msg.getMessage("RestAdminServiceEditorComponent.cors"), main);
+		corsSection.setWidthFull();
 		return corsSection;
 	}
 }
