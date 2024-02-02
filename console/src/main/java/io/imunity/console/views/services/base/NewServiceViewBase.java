@@ -56,8 +56,9 @@ public abstract class NewServiceViewBase extends ConsoleViewComponent
 	public void setParameter(BeforeEvent event, @OptionalParameter String param)
 	{
 		breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
-
-		
+		getContent().removeAll();
+		mainView = new VerticalLayout();
+		unsavedInfoBanner = new InfoBanner(msg::getMessage);
 		try
 		{
 			editor = controller.getEditor(null, ServiceEditorTab.GENERAL, createSubViewSwitcher());
@@ -67,12 +68,9 @@ public abstract class NewServiceViewBase extends ConsoleViewComponent
 			UI.getCurrent().navigate(mainServicesViewName);
 			return;
 		}
-		mainView = new VerticalLayout();
-		unsavedInfoBanner = new InfoBanner(msg::getMessage);
 		mainView.setMargin(false);
 		mainView.add(editor);
-		mainView.add(EditViewActionLayoutFactory.createActionLayout(msg, false, mainServicesViewName, () -> onConfirm()));
-		getContent().removeAll();
+		mainView.add(EditViewActionLayoutFactory.createActionLayout(msg, false, mainServicesViewName, this::onConfirm));
 		getContent().add(unsavedInfoBanner);
 		getContent().add(mainView);
 	}

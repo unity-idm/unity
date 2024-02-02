@@ -88,7 +88,9 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 			UI.getCurrent().navigate(mainServicesViewName);
 			return;
 		}
-
+		getContent().removeAll();
+		mainView = new VerticalLayout();
+		unsavedInfoBanner = new InfoBanner(msg::getMessage);
 		try
 		{
 			editor = controller.getEditor(service, activeTab, createSubViewSwitcher());
@@ -98,13 +100,9 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 			UI.getCurrent().navigate(mainServicesViewName);
 			return;
 		}
-
-		mainView = new VerticalLayout();
-		unsavedInfoBanner = new InfoBanner(msg::getMessage);
 		mainView.setMargin(false);
 		mainView.add(editor);
-		mainView.add(EditViewActionLayoutFactory.createActionLayout(msg, true, mainServicesViewName, () -> onConfirm()));
-		getContent().removeAll();
+		mainView.add(EditViewActionLayoutFactory.createActionLayout(msg, true, mainServicesViewName, this::onConfirm));
 		getContent().add(unsavedInfoBanner);
 		getContent().add(mainView);
 	}
