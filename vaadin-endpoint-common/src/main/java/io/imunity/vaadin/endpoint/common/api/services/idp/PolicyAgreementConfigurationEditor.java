@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.signup_and_enquiry;
+package io.imunity.vaadin.endpoint.common.api.services.idp;
 
 
 import com.vaadin.flow.component.button.Button;
@@ -18,13 +18,13 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import io.imunity.vaadin.elements.FocusedField;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementConfigTextParser;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 import java.util.*;
 import java.util.stream.Collectors;

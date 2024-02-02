@@ -3,20 +3,19 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console;
-
-import io.imunity.vaadin.elements.grid.FilterableEntry;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.saml.metadata.cfg.MetaToConfigConverterHelper;
-import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.SPSSODescriptorType;
-import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
+package pl.edu.icm.unity.saml.idp.console.v8;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.saml.metadata.cfg.MetaToConfigConverterHelper;
+import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
+import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
+import xmlbeans.org.oasis.saml2.metadata.SPSSODescriptorType;
+import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
 
 /**
  * Converts SAML IDP metadata to list of {@link SAMLEntity} It is
@@ -106,7 +105,7 @@ class SimpleIDPMetaConverter
 		}
 
 		@Override
-		public boolean anyFieldContains(String searched, Function<String, String> msg)
+		public boolean anyFieldContains(String searched, MessageSource msg)
 		{
 			String textLower = searched.toLowerCase();
 

@@ -3,33 +3,41 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console;
+package pl.edu.icm.unity.saml.idp.console.v8;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.accordion.AccordionPanel;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.binder.Binder;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.grid.GridWithActionColumn;
-import io.imunity.vaadin.elements.grid.SingleActionHandler;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import com.vaadin.data.Binder;
+import com.vaadin.data.HasValue.ValueChangeListener;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.CustomField;
+import com.vaadin.ui.VerticalLayout;
+
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 
 /**
  * SAML service editor clients tab
@@ -37,21 +45,20 @@ import java.util.stream.Collectors;
  * @author P.Piernik
  *
  */
-public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEditorBase.EditorTab
+public class SAMLEditorClientsTab extends CustomComponent implements EditorTab
 {
-	private final MessageSource msg;
+	private MessageSource msg;
 	private Binder<SAMLServiceConfiguration> configBinder;
-	private final SubViewSwitcher subViewSwitcher;
-	private final PKIManagement pkiMan;
-	private final UnityServerConfiguration serverConfig;
-	private final URIAccessService uriAccessService;
-	private final FileStorageService fileStorageService;
+	private SubViewSwitcher subViewSwitcher;
+	private PKIManagement pkiMan;
+	private UnityServerConfiguration serverConfig;
+	private URIAccessService uriAccessService;
+	private FileStorageService fileStorageService;
 	private IndividualTrustedSPComponent trustedSPs;
-	private NotificationPresenter notificationPresenter;
-
+	
 	public SAMLEditorClientsTab(MessageSource msg, PKIManagement pkiMan, UnityServerConfiguration serverConfig,
 			URIAccessService uriAccessService, FileStorageService fileStorageService,
-			SubViewSwitcher subViewSwitcher, NotificationPresenter notificationPresenter)
+			SubViewSwitcher subViewSwitcher)
 	{
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
@@ -59,78 +66,61 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 		this.subViewSwitcher = subViewSwitcher;
 		this.pkiMan = pkiMan;
 		this.serverConfig = serverConfig;
-		this.notificationPresenter = notificationPresenter;
 	}
 
 	public void initUI(Binder<SAMLServiceConfiguration> configBinder)
 	{
 		this.configBinder = configBinder;
-		setPadding(false);
+		setCaption(msg.getMessage("IdpServiceEditorBase.clients"));
+		setIcon(Images.bullets.getResource());
 		VerticalLayout mainLayout = new VerticalLayout();
-		mainLayout.setPadding(false);
-		AccordionPanel sps = buildIndividualTrustedSPsSection();
-		sps.setWidthFull();
-		sps.setOpened(true);
-
-		AccordionPanel federations = buildTrustedFederationsSection();
-		federations.setWidthFull();
-		federations.setOpened(true);
-
-		mainLayout.add(federations);
-		mainLayout.add(sps);
-		add(mainLayout);
+		mainLayout.setMargin(false);
+		CollapsibleLayout sps = buildIndividualTrustedSPsSection();
+		sps.expand();
+		
+		CollapsibleLayout federations = buildTrustedFederationsSection();
+		federations.expand();
+		federations.setMargin(new MarginInfo(true, false));
+		
+		mainLayout.addComponent(federations);
+		mainLayout.addComponent(sps);
+		setCompositionRoot(mainLayout);
 	}
 
-	private AccordionPanel buildTrustedFederationsSection()
+	private CollapsibleLayout buildTrustedFederationsSection()
 	{
 		VerticalLayout trustedFederations = new VerticalLayout();
 		trustedFederations.setMargin(false);
 		TrustedFederationComponent federations = new TrustedFederationComponent();
-		federations.setWidthFull();
-		configBinder.forField(federations)
-				.bind(SAMLServiceConfiguration::getTrustedFederations, SAMLServiceConfiguration::setTrustedFederations);
-		trustedFederations.add(federations);
+		configBinder.forField(federations).bind("trustedFederations");
+		trustedFederations.addComponent(federations);
 
-		return new AccordionPanel(msg.getMessage("SAMLEditorClientsTab.trustedFederations"),
+		return new CollapsibleLayout(msg.getMessage("SAMLEditorClientsTab.trustedFederations"),
 				trustedFederations);
 	}
 
-	private AccordionPanel buildIndividualTrustedSPsSection()
+	private CollapsibleLayout buildIndividualTrustedSPsSection()
 	{
 		VerticalLayout individualTrustedIdPs = new VerticalLayout();
 		individualTrustedIdPs.setMargin(false);
 		trustedSPs = new IndividualTrustedSPComponent();
-		trustedSPs.setWidthFull();
-		configBinder.forField(trustedSPs)
-				.bind(SAMLServiceConfiguration::getIndividualTrustedSPs, SAMLServiceConfiguration::setIndividualTrustedSPs);
-		individualTrustedIdPs.add(trustedSPs);
+		configBinder.forField(trustedSPs).bind("individualTrustedSPs");
+		individualTrustedIdPs.addComponent(trustedSPs);
 
-		return new AccordionPanel(msg.getMessage("SAMLEditorClientsTab.individualTrustedSps"),
+		return new CollapsibleLayout(msg.getMessage("SAMLEditorClientsTab.individualTrustedSps"),
 				individualTrustedIdPs);
-	}
-
-	@Override
-	public VaadinIcon getIcon()
-	{
-		return VaadinIcon.BULLETS;
 	}
 
 	@Override
 	public String getType()
 	{
-		return ServiceEditorComponent.ServiceEditorTab.CLIENTS.toString();
+		return ServiceEditorTab.CLIENTS.toString();
 	}
 
 	@Override
-	public Component getComponent()
+	public CustomComponent getComponent()
 	{
 		return this;
-	}
-
-	@Override
-	public String getCaption()
-	{
-		return msg.getMessage("IdpServiceEditorBase.clients");
 	}
 
 	private class TrustedFederationComponent extends CustomField<List<SAMLServiceTrustedFederationConfiguration>>
@@ -139,47 +129,32 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 
 		public TrustedFederationComponent()
 		{
-			federationList = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
+			federationList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
 			federationList.addComponentColumn(
-					p ->
-					{
-						Button button = new Button(p.getName(), e -> gotoEdit(p));
-						button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-						return button;
-					})
-							.setHeader(msg.getMessage("TrustedFederationComponent.name"))
-							.setAutoWidth(true);
-			initContent();
+					p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)),
+					msg.getMessage("TrustedFederationComponent.name"), 50);
 		}
 
 		@Override
-		protected List<SAMLServiceTrustedFederationConfiguration> generateModelValue()
-		{
-			return null;
-		}
-
-		@Override
-		protected void setPresentationValue(
-				List<SAMLServiceTrustedFederationConfiguration> samlServiceTrustedFederationConfigurations)
-		{
-
-		}
-
-		private void initContent()
+		protected Component initContent()
 		{
 			VerticalLayout main = new VerticalLayout();
-			main.setPadding(false);
-			Icon add = VaadinIcon.PLUS_CIRCLE_O.create();
+			main.setMargin(false);
+			main.addStyleName(Styles.narrowTable.toString());
+
+			Button add = new Button();
 			add.addClickListener(e -> gotoNew());
-			main.add(add);
-			main.add(federationList);
-			add(main);
+			add.setIcon(Images.add.getResource());
+			main.addComponent(add);
+			main.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
+			main.addComponent(federationList);
+			return main;
 		}
 
 		private List<SingleActionHandler<SAMLServiceTrustedFederationConfiguration>> getActionsHandlers()
 		{
 			SingleActionHandler<SAMLServiceTrustedFederationConfiguration> edit = SingleActionHandler
-					.builder4Edit(msg::getMessage, SAMLServiceTrustedFederationConfiguration.class).withHandler(r -> {
+					.builder4Edit(msg, SAMLServiceTrustedFederationConfiguration.class).withHandler(r -> {
 						SAMLServiceTrustedFederationConfiguration edited = r.iterator().next();
 						gotoEdit(edited);
 					}
@@ -187,7 +162,7 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 					).build();
 
 			SingleActionHandler<SAMLServiceTrustedFederationConfiguration> remove = SingleActionHandler
-					.builder4Delete(msg::getMessage, SAMLServiceTrustedFederationConfiguration.class)
+					.builder4Delete(msg, SAMLServiceTrustedFederationConfiguration.class)
 					.withHandler(r -> {
 						federationList.removeElement(r.iterator().next());
 						fireChange();
@@ -211,8 +186,8 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 		{
 			gotoEditSubView(edited,
 					federationList.getElements().stream()
-							.map(SAMLServiceTrustedFederationConfiguration::getName)
-							.filter(name -> !Objects.equals(name, edited.getName())).collect(Collectors.toSet()),
+							.filter(p -> p.getName() != edited.getName())
+							.map(p -> p.getName()).collect(Collectors.toSet()),
 					c -> {
 						federationList.replaceElement(edited, c);
 						fireChange();
@@ -233,7 +208,7 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 
 			} catch (EngineException e)
 			{
-				notificationPresenter.showError( "Can not init trusted federation editor", e.getMessage());
+				NotificationPopup.showError(msg, "Can not init trusted federation editor", e);
 				return;
 			}
 
@@ -244,7 +219,7 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 					}, () -> {
 						subViewSwitcher.exitSubView();
 						federationList.focus();
-					}, notificationPresenter);
+					});
 			subViewSwitcher.goToSubView(subView);
 
 		}
@@ -256,14 +231,14 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 		}
 
 		@Override
-		public void setValue(List<SAMLServiceTrustedFederationConfiguration> value)
+		protected void doSetValue(List<SAMLServiceTrustedFederationConfiguration> value)
 		{
 			federationList.setItems(value);
 		}
 
 		private void fireChange()
 		{
-			fireEvent(new ComponentValueChangeEvent<>(this, this,
+			fireEvent(new ValueChangeEvent<List<SAMLServiceTrustedFederationConfiguration>>(this,
 					federationList.getElements(), true));
 		}
 	}
@@ -274,28 +249,10 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 
 		public IndividualTrustedSPComponent()
 		{
-			spList = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
-			spList.addComponentColumn(p ->
-					{
-						Button button = new Button(p.getName(), e -> gotoEdit(p));
-						button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-						return button;
-					}).setHeader(msg.getMessage("IndividualTrustedSPComponent.name"))
-					.setAutoWidth(true);
-			initContent();
-		}
-
-		@Override
-		protected List<SAMLIndividualTrustedSPConfiguration> generateModelValue()
-		{
-			return null;
-		}
-
-		@Override
-		public void setPresentationValue(
-				List<SAMLIndividualTrustedSPConfiguration> samlIndividualTrustedSPConfigurations)
-		{
-			spList.setItems(samlIndividualTrustedSPConfigurations);
+			spList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
+			spList.addComponentColumn(
+					p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)),
+					msg.getMessage("IndividualTrustedSPComponent.name"), 50);
 		}
 
 		@Override
@@ -304,20 +261,26 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 			return spList.getElements();
 		}
 
-		private void initContent()
+		@Override
+		protected Component initContent()
 		{
 			VerticalLayout main = new VerticalLayout();
 			main.setMargin(false);
-			Icon add = VaadinIcon.PLUS_CIRCLE_O.create();
+			main.addStyleName(Styles.narrowTable.toString());
+
+			Button add = new Button();
 			add.addClickListener(e -> gotoNew());
-			main.add(add, spList);
-			add(main);
+			add.setIcon(Images.add.getResource());
+			main.addComponent(add);
+			main.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
+			main.addComponent(spList);
+			return main;
 		}
 
 		private List<SingleActionHandler<SAMLIndividualTrustedSPConfiguration>> getActionsHandlers()
 		{
 			SingleActionHandler<SAMLIndividualTrustedSPConfiguration> edit = SingleActionHandler
-					.builder4Edit(msg::getMessage, SAMLIndividualTrustedSPConfiguration.class)
+					.builder4Edit(msg, SAMLIndividualTrustedSPConfiguration.class)
 					.withHandler(r -> {
 						SAMLIndividualTrustedSPConfiguration edited = r.iterator().next();
 						gotoEdit(edited);
@@ -326,7 +289,7 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 					).build();
 
 			SingleActionHandler<SAMLIndividualTrustedSPConfiguration> remove = SingleActionHandler
-					.builder4Delete(msg::getMessage, SAMLIndividualTrustedSPConfiguration.class)
+					.builder4Delete(msg, SAMLIndividualTrustedSPConfiguration.class)
 					.withHandler(r -> {
 						spList.removeElement(r.iterator().next());
 						fireChange();
@@ -350,8 +313,8 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 		private void gotoEdit(SAMLIndividualTrustedSPConfiguration edited)
 		{
 			gotoEditSubView(edited,
-					spList.getElements().stream().map(SAMLIndividualTrustedSPConfiguration::getName)
-							.filter(name -> !Objects.equals(name, edited.getName())).collect(Collectors.toSet()),
+					spList.getElements().stream().filter(p -> p.getName() != edited.getName())
+							.map(p -> p.getName()).collect(Collectors.toSet()),
 					c -> {
 						spList.replaceElement(edited, c);
 						fireChange();
@@ -370,7 +333,7 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 
 			} catch (EngineException e)
 			{
-				notificationPresenter.showError("Can not init trusted SP editor", e.getMessage());
+				NotificationPopup.showError(msg, "Can not init trusted SP editor", e);
 				return;
 			}
 
@@ -381,14 +344,20 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 					}, () -> {
 						subViewSwitcher.exitSubView();
 						spList.focus();
-					}, notificationPresenter);
+					});
 			subViewSwitcher.goToSubView(subView);
 
 		}
 
+		@Override
+		protected void doSetValue(List<SAMLIndividualTrustedSPConfiguration> value)
+		{
+			spList.setItems(value);
+		}
+
 		private void fireChange()
 		{
-			fireEvent(new ComponentValueChangeEvent<>(this, this,
+			fireEvent(new ValueChangeEvent<List<SAMLIndividualTrustedSPConfiguration>>(this,
 					spList.getElements(), true));
 		}
 
@@ -399,10 +368,9 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 		return trustedSPs.getValue();
 	}
 
-	public void addClientsValueChangeListener(
-			Consumer<List<SAMLIndividualTrustedSPConfiguration>> listener)
+	public void addClientsValueChangeListener(ValueChangeListener<List<SAMLIndividualTrustedSPConfiguration>> listener)
 	{
-		trustedSPs.addValueChangeListener(e -> listener.accept(e.getValue()));
+		trustedSPs.addValueChangeListener(listener);
 		
 	}
 }

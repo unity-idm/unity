@@ -3,23 +3,22 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console;
+package pl.edu.icm.unity.saml.idp.console.v8;
 
-import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import io.imunity.vaadin.endpoint.common.file.FileFieldUtils;
-
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.stream.Collectors;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 /**
  * SAML Individual trusted sp configuration
@@ -49,7 +48,7 @@ public class SAMLIndividualTrustedSPConfiguration
 		x500Name = false;
 	}
 
-	public void fromProperties(MessageSource msg, VaadinLogoImageLoader imageAccessService, SamlIdpProperties source,
+	public void fromProperties(MessageSource msg, ImageAccessService imageAccessService, SamlIdpProperties source,
 			String name, String theme)
 	{
 		setName(name);
@@ -71,7 +70,7 @@ public class SAMLIndividualTrustedSPConfiguration
 		if (source.isSet(prefix + SamlIdpProperties.ALLOWED_SP_LOGO))
 		{
 			String logoUri = source.getValue(prefix + SamlIdpProperties.ALLOWED_SP_LOGO);
-			setLogo(imageAccessService.loadImageFromUri(logoUri).orElse(null));
+			setLogo(imageAccessService.getEditableImageResourceFromUri(logoUri, theme).orElse(null));
 		}
 
 		certificates = new ArrayList<>();

@@ -1,22 +1,38 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
 package pl.edu.icm.unity.saml.idp.console;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.data.validator.IntegerRangeValidator;
-import com.vaadin.server.Page;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.*;
-
-import io.imunity.tooltip.TooltipExtension;
-import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
-import org.vaadin.risto.stepper.IntStepper;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import io.imunity.vaadin.elements.TooltipFactory;
+import io.imunity.vaadin.elements.grid.EditableGrid;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
+import io.imunity.vaadin.endpoint.common.file.FileField;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -25,14 +41,6 @@ import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.RequestAcceptancePolicy;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.ResponseSigningPolicy;
-import pl.edu.icm.unity.webui.common.*;
-import pl.edu.icm.unity.webui.common.file.FileField;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
-import pl.edu.icm.unity.webui.common.widgets.DescriptionTextField;
-import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
-import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
 import java.io.ByteArrayInputStream;
@@ -42,33 +50,35 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
 /**
  * SAML service editor general tab
  * 
  * @author P.Piernik
  *
  */
-public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
+public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.EditorTab
 {
-	private MessageSource msg;
+	private final MessageSource msg;
 	private Binder<DefaultServiceDefinition> samlServiceBinder;
 	private Binder<SAMLServiceConfiguration> configBinder;
-	private OutputTranslationProfileFieldFactory profileFieldFactory;
-	private UnityServerConfiguration serverConfig;
-	private SubViewSwitcher subViewSwitcher;
-	private Set<String> credentials;
-	private Set<String> truststores;
-	private List<String> usedEndpointsPaths;
-	private Set<String> serverContextPaths;
-	private String serverPrefix;
-	private Collection<IdentityType> idTypes;
+	private final OutputTranslationProfileFieldFactory profileFieldFactory;
+	private final UnityServerConfiguration serverConfig;
+	private final SubViewSwitcher subViewSwitcher;
+	private final Set<String> credentials;
+	private final Set<String> truststores;
+	private final List<String> usedEndpointsPaths;
+	private final Set<String> serverContextPaths;
+	private final String serverPrefix;
+	private final Collection<IdentityType> idTypes;
 	private boolean editMode;
-	private CheckBox signMetadata;
-	private HorizontalLayout infoLayout;
+	private Checkbox signMetadata;
 	private boolean initialValidation;
 	private Button metaLinkButton;
 	private HorizontalLayout metaLinkButtonWrapper;
-	private Label metaOffInfo;
+	private Span metaOffInfo;
 	
 	public SAMLEditorGeneralTab(MessageSource msg, String serverPrefix, Set<String> serverContextPaths, UnityServerConfiguration serverConfig,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
@@ -94,67 +104,62 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		this.samlServiceBinder = samlServiceBinder;
 		this.configBinder = configBinder;
 		this.editMode = editMode;
-		
-		setCaption(msg.getMessage("ServiceEditorBase.general"));
-		setIcon(Images.cogs.getResource());
+
+		setPadding(false);
 		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
-		main.addComponent(buildHeaderSection());
-		main.addComponent(buildMetadataSection());
-		main.addComponent(buildAdvancedSection());
-		main.addComponent(buildIdenityTypeMappingSection());
-		main.addComponent(profileFieldFactory.getWrappedFieldInstance(subViewSwitcher, configBinder,
+		main.setPadding(false);
+		main.add(buildHeaderSection());
+		main.add(buildMetadataSection());
+		main.add(buildAdvancedSection());
+		main.add(buildIdenityTypeMappingSection());
+		main.add(profileFieldFactory.getWrappedFieldInstance(subViewSwitcher, configBinder,
 				"translationProfile"));
-		setCompositionRoot(main);
+		add(main);
 	}
 
 	private Component buildHeaderSection()
 	{
 		HorizontalLayout main = new HorizontalLayout();
-		main.setMargin(new MarginInfo(true, false));
 
-		FormLayoutWithFixedCaptionWidth mainGeneralLayout = new FormLayoutWithFixedCaptionWidth();
-		main.addComponent(mainGeneralLayout);
+		FormLayout mainGeneralLayout = new FormLayout();
+		mainGeneralLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		mainGeneralLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+
+		main.add(mainGeneralLayout);
 
 		metaLinkButton = new Button();
-		metaOffInfo = new Label();
-		metaOffInfo.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataOff"));
-		
-		infoLayout = new HorizontalLayout();
-		infoLayout.setMargin(new MarginInfo(false, true, false, true));
-		infoLayout.setStyleName("u-marginLeftMinus30");
-		infoLayout.addStyleName("u-border");
+		metaOffInfo = new Span();
+
+		HorizontalLayout infoLayout = new HorizontalLayout();
+		infoLayout.getStyle().set("margin-left", "-20em");
+
 		VerticalLayout wrapper = new VerticalLayout();
-		wrapper.setMargin(false);
-		infoLayout.addComponent(wrapper);
-		wrapper.addComponent(new Label(msg.getMessage("SAMLEditorGeneralTab.importantURLs")));
+		wrapper.setPadding(false);
+		infoLayout.add(wrapper);
+		wrapper.add(new Span(msg.getMessage("SAMLEditorGeneralTab.importantURLs")));
+
 		FormLayout infoLayoutWrapper = new FormLayout();
-		infoLayoutWrapper.setSpacing(false);
-		infoLayoutWrapper.setMargin(false);
-		wrapper.addComponent(infoLayoutWrapper);
+		infoLayoutWrapper.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		wrapper.add(infoLayoutWrapper);
 		metaLinkButtonWrapper = new HorizontalLayout();
-		metaLinkButtonWrapper.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataLink"));
-		metaLinkButton.setStyleName(Styles.vButtonLink.toString());
-		metaLinkButtonWrapper.addComponent(metaLinkButton);
-		infoLayoutWrapper.addComponent(metaLinkButtonWrapper);
-		infoLayoutWrapper.addComponent(metaOffInfo);
-		metaOffInfo.setVisible(false);
-		metaLinkButton.addClickListener(e -> {
-			Page.getCurrent().open(metaLinkButton.getCaption(), "_blank", false);
-		});
-		main.addComponent(infoLayout);
+		metaLinkButtonWrapper.add(metaLinkButton);
+		infoLayoutWrapper.addFormItem(metaLinkButtonWrapper, msg.getMessage("SAMLEditorGeneralTab.metadataLink"));
+		infoLayoutWrapper.addFormItem(metaOffInfo, msg.getMessage("SAMLEditorGeneralTab.metadataOff")).setVisible(false);
+
+		metaLinkButton.addClickListener(e -> UI.getCurrent().getPage().open(metaLinkButton.getText(), "_blank"));
+		metaLinkButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		main.add(infoLayout);
 		refreshMetaButton(false);
 				
 		TextField name = new TextField();
-		name.setCaption(msg.getMessage("ServiceEditorBase.name"));
 		name.setReadOnly(editMode);
-		samlServiceBinder.forField(name).asRequired().bind("name");
-		mainGeneralLayout.addComponent(name);
+		samlServiceBinder.forField(name).asRequired()
+				.bind(DefaultServiceDefinition::getName, DefaultServiceDefinition::setName);
+		mainGeneralLayout.addFormItem(name, msg.getMessage("ServiceEditorBase.name"));
 
 		TextField contextPath = new TextField();
 		contextPath.setPlaceholder("/saml-idp");
 		contextPath.setRequiredIndicatorVisible(true);
-		contextPath.setCaption(msg.getMessage("SAMLEditorGeneralTab.contextPath"));
 		contextPath.setReadOnly(editMode);
 		samlServiceBinder.forField(contextPath).withValidator((v, c) -> {			
 			ValidationResult r;
@@ -168,131 +173,128 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			
 			if (!r.isError())
 			{
-				metaLinkButton.setCaption(serverPrefix + v + "/metadata");
+				metaLinkButton.setText(serverPrefix + v + "/metadata");
 			}
 			
 			return r;
-		}).bind("address");
-		mainGeneralLayout.addComponent(contextPath);
+		}).bind(DefaultServiceDefinition::getAddress, DefaultServiceDefinition::setAddress);
+		mainGeneralLayout.addFormItem(contextPath, msg.getMessage("SAMLEditorGeneralTab.contextPath"));
 
-		I18nTextField displayedName = new I18nTextField(msg);
-		displayedName.setCaption(msg.getMessage("ServiceEditorBase.displayedName"));
-		samlServiceBinder.forField(displayedName).bind("displayedName");
-		mainGeneralLayout.addComponent(displayedName);
+		LocalizedTextFieldDetails displayedName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		samlServiceBinder.forField(displayedName)
+				.withConverter(I18nString::new, I18nString::getLocalizedMap)				.bind(DefaultServiceDefinition::getDisplayedName, DefaultServiceDefinition::setDisplayedName);
+		mainGeneralLayout.addFormItem(displayedName, msg.getMessage("ServiceEditorBase.displayedName"));
 
-		TextField description = new DescriptionTextField(msg);
-		samlServiceBinder.forField(description).bind("description");
-		mainGeneralLayout.addComponent(description);
+		TextField description = new TextField();
+		samlServiceBinder.forField(description)
+				.bind(DefaultServiceDefinition::getDescription, DefaultServiceDefinition::setDescription);
+		mainGeneralLayout.addFormItem(description, msg.getMessage("ServiceEditorBase.description"));
 
 		TextField issuerURI = new TextField();
-		issuerURI.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		issuerURI.setCaption(msg.getMessage("SAMLEditorGeneralTab.issuerURI"));
-		configBinder.forField(issuerURI).asRequired().bind("issuerURI");
-		mainGeneralLayout.addComponent(issuerURI);
+		issuerURI.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(issuerURI).asRequired()
+				.bind(SAMLServiceConfiguration::getIssuerURI, SAMLServiceConfiguration::setIssuerURI);
+		mainGeneralLayout.addFormItem(issuerURI, msg.getMessage("SAMLEditorGeneralTab.issuerURI"));
 
-		ComboBox<AssertionSigningPolicy> signAssertionPolicy = new ComboBox<>();
+		Select<AssertionSigningPolicy> signAssertionPolicy = new Select<>();
 		signAssertionPolicy.setItems(AssertionSigningPolicy.values());
-		signAssertionPolicy.setEmptySelectionAllowed(false);
-		signAssertionPolicy.setCaption(msg.getMessage("SAMLEditorGeneralTab.signAssertionPolicy"));
-		configBinder.forField(signAssertionPolicy).asRequired().bind("signAssertionPolicy");
-		mainGeneralLayout.addComponent(signAssertionPolicy);
+		configBinder.forField(signAssertionPolicy).asRequired()
+				.bind(SAMLServiceConfiguration::getSignAssertionPolicy, SAMLServiceConfiguration::setSignAssertionPolicy);
+		mainGeneralLayout.addFormItem(signAssertionPolicy, msg.getMessage("SAMLEditorGeneralTab.signAssertionPolicy"));
 
-		ComboBox<ResponseSigningPolicy> signResponcePolicy = new ComboBox<>();
+		Select<ResponseSigningPolicy> signResponcePolicy = new Select<>();
 		signResponcePolicy.setItems(ResponseSigningPolicy.values());
-		signResponcePolicy.setEmptySelectionAllowed(false);
-		signResponcePolicy.setCaption(msg.getMessage("SAMLEditorGeneralTab.signResponcePolicy"));
-		configBinder.forField(signResponcePolicy).asRequired().bind("signResponcePolicy");
-		mainGeneralLayout.addComponent(signResponcePolicy);
+		configBinder.forField(signResponcePolicy).asRequired()
+				.bind(SAMLServiceConfiguration::getSignResponcePolicy, SAMLServiceConfiguration::setSignResponcePolicy);
+		mainGeneralLayout.addFormItem(signResponcePolicy, msg.getMessage("SAMLEditorGeneralTab.signResponcePolicy"));
 
 		ComboBox<String> signResponseCredential = new ComboBox<>();
-		signResponseCredential.setCaption(msg.getMessage("SAMLEditorGeneralTab.signResponseCredential"));
 		signResponseCredential.setItems(credentials);
 		configBinder.forField(signResponseCredential)
 				.asRequired((v, c) -> ((v == null || v.isEmpty()))
 						? ValidationResult.error(msg.getMessage("fieldRequired"))
 						: ValidationResult.ok())
-				.bind("signResponseCredential");
-		mainGeneralLayout.addComponent(signResponseCredential);
+				.bind(SAMLServiceConfiguration::getSignResponseCredential, SAMLServiceConfiguration::setSignResponseCredential);
+		mainGeneralLayout.addFormItem(signResponseCredential, msg.getMessage("SAMLEditorGeneralTab.signResponseCredential"));
 
 		ComboBox<String> additionallyAdvertisedCredential = new ComboBox<>();
-		additionallyAdvertisedCredential.setCaption(msg.getMessage("SAMLEditorGeneralTab.additionallyAdvertisedCredential"));
-		additionallyAdvertisedCredential.setDescription(msg.getMessage("SAMLEditorGeneralTab.additionallyAdvertisedCredentialDesc"));
-		TooltipExtension.tooltip(additionallyAdvertisedCredential);
 		additionallyAdvertisedCredential.setItems(credentials);
 		configBinder.forField(additionallyAdvertisedCredential)
-				.bind("additionallyAdvertisedCredential");
-		mainGeneralLayout.addComponent(additionallyAdvertisedCredential);
+				.bind(SAMLServiceConfiguration::getAdditionallyAdvertisedCredential, SAMLServiceConfiguration::setAdditionallyAdvertisedCredential);
+		mainGeneralLayout.addFormItem(additionallyAdvertisedCredential, msg.getMessage("SAMLEditorGeneralTab.additionallyAdvertisedCredential"))
+				.add(TooltipFactory.get(msg.getMessage("SAMLEditorGeneralTab.additionallyAdvertisedCredentialDesc")));
 		
-		ComboBox<String> httpsTruststore = new ComboBox<>(
-				msg.getMessage("SAMLEditorGeneralTab.httpsTruststore"));
+		ComboBox<String> httpsTruststore = new ComboBox<>();
 		httpsTruststore.setItems(truststores);
-		configBinder.forField(httpsTruststore).bind("httpsTruststore");
-		mainGeneralLayout.addComponent(httpsTruststore);
+		configBinder.forField(httpsTruststore)
+				.bind(SAMLServiceConfiguration::getHttpsTruststore, SAMLServiceConfiguration::setHttpsTruststore);
+		mainGeneralLayout.addFormItem(httpsTruststore, msg.getMessage("SAMLEditorGeneralTab.httpsTruststore"));
 
-		CheckBox skipConsentScreen = new CheckBox(msg.getMessage("SAMLEditorGeneralTab.skipConsentScreen"));
-		configBinder.forField(skipConsentScreen).bind("skipConsentScreen");
-		mainGeneralLayout.addComponent(skipConsentScreen);
+		Checkbox skipConsentScreen = new Checkbox(msg.getMessage("SAMLEditorGeneralTab.skipConsentScreen"));
+		configBinder.forField(skipConsentScreen)
+				.bind(SAMLServiceConfiguration::isSkipConsentScreen, SAMLServiceConfiguration::setSkipConsentScreen);
+		mainGeneralLayout.addFormItem(skipConsentScreen, "");
 
-		CheckBox editableConsentScreen = new CheckBox(
+		Checkbox editableConsentScreen = new Checkbox(
 				msg.getMessage("SAMLEditorGeneralTab.editableConsentScreen"));
-		configBinder.forField(editableConsentScreen).bind("editableConsentScreen");
-		mainGeneralLayout.addComponent(editableConsentScreen);
+		configBinder.forField(editableConsentScreen)
+				.bind(SAMLServiceConfiguration::isEditableConsentScreen, SAMLServiceConfiguration::setEditableConsentScreen);
+		mainGeneralLayout.addFormItem(editableConsentScreen, "");
 
 		skipConsentScreen.addValueChangeListener(e -> editableConsentScreen.setEnabled(!e.getValue()));
 
-		ComboBox<RequestAcceptancePolicy> acceptPolicy = new ComboBox<>();
+		Select<RequestAcceptancePolicy> acceptPolicy = new Select<>();
 		acceptPolicy.setItems(RequestAcceptancePolicy.values());
-		acceptPolicy.setEmptySelectionAllowed(false);
-		acceptPolicy.setCaption(msg.getMessage("SAMLEditorGeneralTab.acceptPolicy"));
-		configBinder.forField(acceptPolicy).asRequired().bind("requestAcceptancePolicy");
-		mainGeneralLayout.addComponent(acceptPolicy);
+		configBinder.forField(acceptPolicy).asRequired()
+				.bind(SAMLServiceConfiguration::getRequestAcceptancePolicy, SAMLServiceConfiguration::setRequestAcceptancePolicy);
+		mainGeneralLayout.addFormItem(acceptPolicy, msg.getMessage("SAMLEditorGeneralTab.acceptPolicy"));
 
 		return main;
 	}
 
-	private CollapsibleLayout buildAdvancedSection()
+	private AccordionPanel buildAdvancedSection()
 	{
-		FormLayoutWithFixedCaptionWidth advancedLayout = new FormLayoutWithFixedCaptionWidth();
-		advancedLayout.setMargin(false);
+		FormLayout advancedLayout = new FormLayout();
+		advancedLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		advancedLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
-		IntStepper authenticationTimeout = new IntStepper();
-		authenticationTimeout.setWidth(5, Unit.EM);
-		authenticationTimeout.setCaption(msg.getMessage("SAMLEditorGeneralTab.authenticationTimeout"));
+		IntegerField authenticationTimeout = new IntegerField();
+		authenticationTimeout.setStepButtonsVisible(true);
 		configBinder.forField(authenticationTimeout).asRequired(msg.getMessage("notAPositiveNumber"))
-				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null))
-				.bind("authenticationTimeout");
-		advancedLayout.addComponent(authenticationTimeout);
+				.bind(SAMLServiceConfiguration::getAuthenticationTimeout, SAMLServiceConfiguration::setAuthenticationTimeout);
+		advancedLayout.addFormItem(authenticationTimeout, msg.getMessage("SAMLEditorGeneralTab.authenticationTimeout"));
 
-		IntStepper requestValidity = new IntStepper();
-		requestValidity.setWidth(5, Unit.EM);
-		requestValidity.setCaption(msg.getMessage("SAMLEditorGeneralTab.requestValidity"));
+		IntegerField requestValidity = new IntegerField();
+		requestValidity.setStepButtonsVisible(true);
 		configBinder.forField(requestValidity).asRequired(msg.getMessage("notAPositiveNumber"))
-				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null))
-				.bind("requestValidity");
-		advancedLayout.addComponent(requestValidity);
+				.bind(SAMLServiceConfiguration::getRequestValidity, SAMLServiceConfiguration::setRequestValidity);
+		advancedLayout.addFormItem(requestValidity, msg.getMessage("SAMLEditorGeneralTab.requestValidity"));
 
-		IntStepper attrAssertionValidity = new IntStepper();
-		attrAssertionValidity.setWidth(5, Unit.EM);
-		attrAssertionValidity.setCaption(msg.getMessage("SAMLEditorGeneralTab.attributeAssertionValidity"));
+		IntegerField attrAssertionValidity = new IntegerField();
+		attrAssertionValidity.setStepButtonsVisible(true);
 		configBinder.forField(attrAssertionValidity).asRequired(msg.getMessage("notAPositiveNumber"))
-				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null))
-				.bind("attrAssertionValidity");
-		advancedLayout.addComponent(attrAssertionValidity);
+				.bind(SAMLServiceConfiguration::getAttrAssertionValidity, SAMLServiceConfiguration::setAttrAssertionValidity);
+		advancedLayout.addFormItem(attrAssertionValidity, msg.getMessage("SAMLEditorGeneralTab.attributeAssertionValidity"));
 
-		CheckBox returnSingleAssertion = new CheckBox(
+		Checkbox returnSingleAssertion = new Checkbox(
 				msg.getMessage("SAMLEditorGeneralTab.returnSingleAssertion"));
-		configBinder.forField(returnSingleAssertion).bind("returnSingleAssertion");
-		advancedLayout.addComponent(returnSingleAssertion);
+		configBinder.forField(returnSingleAssertion)
+				.bind(SAMLServiceConfiguration::isReturnSingleAssertion, SAMLServiceConfiguration::setReturnSingleAssertion);
+		advancedLayout.addFormItem(returnSingleAssertion, "");
 
-		return new CollapsibleLayout(msg.getMessage("SAMLEditorGeneralTab.advanced"), advancedLayout);
+		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("SAMLEditorGeneralTab.advanced"),
+				advancedLayout);
+		accordionPanel.setWidthFull();
+		return accordionPanel;
 	}
 
-	private CollapsibleLayout buildMetadataSection()
+	private AccordionPanel buildMetadataSection()
 	{
-		FormLayoutWithFixedCaptionWidth metadataPublishing = new FormLayoutWithFixedCaptionWidth();
-		metadataPublishing.setMargin(false);
+		FormLayout metadataPublishing = new FormLayout();
+		metadataPublishing.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		metadataPublishing.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
-		CheckBox publishMetadata = new CheckBox(msg.getMessage("SAMLEditorGeneralTab.publishMetadata"));
+		Checkbox publishMetadata = new Checkbox(msg.getMessage("SAMLEditorGeneralTab.publishMetadata"));
 		configBinder.forField(publishMetadata).withValidator((v, c) -> {
 			if (!initialValidation)
 			{
@@ -302,32 +304,33 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			if (v)
 			{
 				metaLinkButtonWrapper.setVisible(true);
-				metaOffInfo.setVisible(false);
+				metaOffInfo.getParent().get().setVisible(false);
 			} else
 			{
 				metaLinkButtonWrapper.setVisible(false);
-				metaOffInfo.setVisible(true);
+				metaOffInfo.getParent().get().setVisible(true);
 			}
 
 			return ValidationResult.ok();
 
-		}).bind("publishMetadata");
-		metadataPublishing.addComponent(publishMetadata);
+		}).bind(SAMLServiceConfiguration::isPublishMetadata, SAMLServiceConfiguration::setPublishMetadata);
+		metadataPublishing.addFormItem(publishMetadata, "");
 
-		signMetadata = new CheckBox(msg.getMessage("SAMLEditorGeneralTab.signMetadata"));
-		configBinder.forField(signMetadata).bind("signMetadata");
+		signMetadata = new Checkbox(msg.getMessage("SAMLEditorGeneralTab.signMetadata"));
+		configBinder.forField(signMetadata)
+				.bind(SAMLServiceConfiguration::isSignMetadata, SAMLServiceConfiguration::setSignMetadata);
 		signMetadata.setEnabled(false);
-		metadataPublishing.addComponent(signMetadata);
+		metadataPublishing.addFormItem(signMetadata, "");
 
-		CheckBox autoGenerateMetadata = new CheckBox(
+		Checkbox autoGenerateMetadata = new Checkbox(
 				msg.getMessage("SAMLEditorGeneralTab.autoGenerateMetadata"));
-		configBinder.forField(autoGenerateMetadata).bind("autoGenerateMetadata");
+		configBinder.forField(autoGenerateMetadata)
+				.bind(SAMLServiceConfiguration::isAutoGenerateMetadata, SAMLServiceConfiguration::setAutoGenerateMetadata);
 		autoGenerateMetadata.setEnabled(false);
-		metadataPublishing.addComponent(autoGenerateMetadata);
+		metadataPublishing.addFormItem(autoGenerateMetadata, "");
 
 		FileField metadataSource = new FileField(msg, "text/xml", "metadata.xml",
 				serverConfig.getFileSizeLimit());
-		metadataSource.setCaption(msg.getMessage("SAMLEditorGeneralTab.metadataFile"));
 		metadataSource.configureBinding(configBinder, "metadataSource", Optional.of((value, context) -> {
 			if (value != null && value.getLocal() != null)
 			{
@@ -343,7 +346,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			}
 
 			boolean isEmpty = value == null || (value.getLocal() == null
-					&& (value.getRemote() == null || value.getRemote().isEmpty()));
+					&& (value.getSrc() == null || value.getSrc().isEmpty()));
 
 			if (publishMetadata.getValue() && (!autoGenerateMetadata.getValue() && isEmpty))
 			{
@@ -354,7 +357,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 
 		}));
 		metadataSource.setEnabled(false);
-		metadataPublishing.addComponent(metadataSource);
+		metadataPublishing.addFormItem(metadataSource, msg.getMessage("SAMLEditorGeneralTab.metadataFile"));
 		publishMetadata.addValueChangeListener(e -> {
 			boolean v = e.getValue();
 			signMetadata.setEnabled(v);
@@ -366,39 +369,38 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			metadataSource.setEnabled(!e.getValue() && publishMetadata.getValue());
 		});
 
-		return new CollapsibleLayout(msg.getMessage("SAMLEditorGeneralTab.metadata"), metadataPublishing);
+		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("SAMLEditorGeneralTab.metadata"),
+				metadataPublishing);
+		accordionPanel.setWidthFull();
+		return accordionPanel;
 	}
 	
 	private void refreshMetaButton(Boolean enabled)
 	{
 		metaLinkButton.setEnabled(enabled);
-		if (!enabled)
-		{
-			metaLinkButton.addStyleName(Styles.disabledButton.toString());
-		} else
-		{
-			metaLinkButton.removeStyleName(Styles.disabledButton.toString());
-		}
 	}
 
-	private CollapsibleLayout buildIdenityTypeMappingSection()
+	private AccordionPanel buildIdenityTypeMappingSection()
 	{
 		VerticalLayout idTypeMappingLayout = new VerticalLayout();
 		idTypeMappingLayout.setMargin(false);
 
-		GridWithEditor<SAMLIdentityMapping> idMappings = new GridWithEditor<>(msg, SAMLIdentityMapping.class);
-		idTypeMappingLayout.addComponent(idMappings);
-		idMappings.addComboColumn(s -> s.getUnityId(), (t, v) -> t.setUnityId(v),
-				msg.getMessage("SAMLEditorGeneralTab.idMappings.unityId"),
-				idTypes.stream().map(t -> t.getName()).collect(Collectors.toList()), 30, false);
-		idMappings.addTextColumn(s -> s.getSamlId(), (t, v) -> t.setSamlId(v),
-				msg.getMessage("SAMLEditorGeneralTab.idMappings.samlId"), 70, false);
+		EditableGrid<SAMLIdentityMapping> idMappings = new EditableGrid<>(msg::getMessage, SAMLIdentityMapping::new);
+		idTypeMappingLayout.add(idMappings);
+		idMappings.addComboBoxColumn(SAMLIdentityMapping::getUnityId, SAMLIdentityMapping::setUnityId,
+				idTypes.stream().map(IdentityType::getName).collect(Collectors.toList()))
+				.setHeader(msg.getMessage("SAMLEditorGeneralTab.idMappings.unityId"));
+		idMappings.addColumn(SAMLIdentityMapping::getSamlId, SAMLIdentityMapping::setSamlId, true)
+				.setHeader(msg.getMessage("SAMLEditorGeneralTab.idMappings.samlId"));
 
-		idMappings.setWidth(FieldSizeConstans.WIDE_FIELD_WIDTH, FieldSizeConstans.WIDE_FIELD_WIDTH_UNIT);
-		configBinder.forField(idMappings).bind("identityMapping");
+		idMappings.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(idMappings)
+				.bind(SAMLServiceConfiguration::getIdentityMapping, SAMLServiceConfiguration::setIdentityMapping);
 
-		return new CollapsibleLayout(msg.getMessage("SAMLEditorGeneralTab.idenityTypeMapping"),
+		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("SAMLEditorGeneralTab.idenityTypeMapping"),
 				idTypeMappingLayout);
+		accordionPanel.setWidthFull();
+		return accordionPanel;
 	}
 	
 	private ValidationResult validatePathForAdd(String path)
@@ -436,19 +438,31 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 			return ValidationResult.error(msg.getMessage("ServiceEditorBase.invalidContextPath"));
 		}
 
-		return ValidationResult.ok();	
+		return ValidationResult.ok();
+	}
+
+	@Override
+	public VaadinIcon getIcon()
+	{
+		return VaadinIcon.COGS;
 	}
 
 	@Override
 	public String getType()
 	{
-		return ServiceEditorTab.GENERAL.toString();
+		return ServiceEditorComponent.ServiceEditorTab.GENERAL.toString();
 	}
 
 	@Override
-	public CustomComponent getComponent()
+	public Component getComponent()
 	{
 		return this;
+	}
+
+	@Override
+	public String getCaption()
+	{
+		return msg.getMessage("ServiceEditorBase.general");
 	}
 
 }

@@ -4,7 +4,7 @@
  */
 
 
-package io.imunity.console.views.signup_and_enquiry;
+package io.imunity.vaadin.endpoint.common.api.services.idp;
 
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.exceptions.EngineException;

@@ -19,6 +19,7 @@ import io.imunity.vaadin.elements.EnumComboBox;
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import io.imunity.vaadin.elements.NotEmptyComboBox;
+import io.imunity.vaadin.endpoint.common.api.services.idp.PolicyAgreementConfigurationList;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ListOfEmbeddedElements;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ListOfEmbeddedElementsStub.Editor;

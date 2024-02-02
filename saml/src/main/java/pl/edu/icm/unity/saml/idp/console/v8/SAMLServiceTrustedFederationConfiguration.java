@@ -3,13 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console;
+package pl.edu.icm.unity.saml.idp.console.v8;
+
+import java.util.Properties;
 
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
-
-import java.util.Properties;
 
 /**
  * SAML service trusted federation configuration

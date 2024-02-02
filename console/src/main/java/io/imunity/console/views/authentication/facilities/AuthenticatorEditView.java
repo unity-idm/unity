@@ -6,24 +6,24 @@
 package io.imunity.console.views.authentication.facilities;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H4;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
+import io.imunity.console.components.InfoBanner;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactoriesRegistry;
-import io.imunity.vaadin.elements.*;
+import io.imunity.vaadin.elements.BreadCrumbParameter;
+import io.imunity.vaadin.elements.NotEmptyComboBox;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.UnitySubView;
+import io.imunity.vaadin.endpoint.common.sub_view_switcher.DefaultSubViewSwitcher;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
@@ -139,11 +139,7 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 			authenticatorTypeLabel.getParent().get().setVisible(false);
 			authenticatorTypeCombo.setValue(authnTypesSorted.keySet().iterator().next());
 		}
-		unsavedInfoBanner = new VerticalLayout(new H4(msg.getMessage("ViewWithSubViewBase.unsavedEdits")));
-		unsavedInfoBanner.setWidthFull();
-		unsavedInfoBanner.setAlignItems(FlexComponent.Alignment.CENTER);
-		unsavedInfoBanner.addClassName("u-unsaved-banner");
-		unsavedInfoBanner.setVisible(false);
+		unsavedInfoBanner = new InfoBanner(msg::getMessage);
 		mainView = new VerticalLayout(layout,
 				createActionLayout(msg, edit, FacilitiesView.class, this::onConfirm));
 		getContent().add(unsavedInfoBanner);
@@ -183,65 +179,12 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 
 	private SubViewSwitcher createSubViewSwitcher()
 	{
-		UnityViewComponent viewComponent = this;
-		BreadCrumbParameter original = breadCrumbParameter;
-		return new SubViewSwitcher()
-		{
-			private UnitySubView lastSubView;
-			private Component currentSubView;
+		return new DefaultSubViewSwitcher(this, mainView, unsavedInfoBanner, breadCrumbParameter, this::setBreadCrumbParameter);
+	}
 
-			@Override
-			public void exitSubView()
-			{
-				getContent().remove(currentSubView);
-				unsavedInfoBanner.setVisible(false);
-				if(lastSubView != null)
-				{
-					getContent().add((Component) lastSubView);
-					setBreadcrumb(lastSubView);
-					currentSubView = (Component) lastSubView;
-					lastSubView = null;
-				}
-				else
-				{
-					mainView.setVisible(true);
-					breadCrumbParameter = original;
-					currentSubView = null;
-				}
-				ComponentUtil.fireEvent(UI.getCurrent(), new AfterSubNavigationEvent(viewComponent, false));
-			}
-
-			@Override
-			public void exitSubViewAndShowUpdateInfo()
-			{
-				exitSubView();
-				unsavedInfoBanner.setVisible(true);
-			}
-
-			@Override
-			public void goToSubView(UnitySubView subview)
-			{
-				if(currentSubView != null)
-				{
-					getContent().remove(currentSubView);
-					lastSubView = (UnitySubView) currentSubView;
-				}
-				currentSubView = (Component)subview;
-				unsavedInfoBanner.setVisible(false);
-				mainView.setVisible(false);
-				getContent().add(currentSubView);
-				setBreadcrumb(subview);
-				ComponentUtil.fireEvent(UI.getCurrent(), new AfterSubNavigationEvent(viewComponent, false));
-			}
-
-			private void setBreadcrumb(UnitySubView subview)
-			{
-				if(subview.getBreadcrumbs().size() == 1)
-					breadCrumbParameter = new BreadCrumbParameter(subview.getBreadcrumbs().get(0), subview.getBreadcrumbs().get(0), null, true);
-				else
-					breadCrumbParameter = new BreadCrumbParameter(subview.getBreadcrumbs().get(0), subview.getBreadcrumbs().get(0), subview.getBreadcrumbs().get(1), true);
-			}
-		};
+	private void setBreadCrumbParameter(BreadCrumbParameter parameter)
+	{
+		breadCrumbParameter = parameter;
 	}
 
 	private void onConfirm()

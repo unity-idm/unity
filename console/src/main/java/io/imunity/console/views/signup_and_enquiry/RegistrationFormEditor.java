@@ -20,6 +20,7 @@ import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.console.tprofile.RegistrationTranslationProfileEditor;
 import io.imunity.vaadin.elements.*;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
+import io.imunity.vaadin.endpoint.common.api.services.idp.PolicyAgreementConfigurationList;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;

@@ -5,13 +5,11 @@
 
 package io.imunity.console.views.services.base;
 
-import java.util.Optional;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
-
+import io.imunity.console.components.InfoBanner;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.EditViewActionLayoutFactory;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
@@ -19,9 +17,12 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
 import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
+import io.imunity.vaadin.endpoint.common.sub_view_switcher.DefaultSubViewSwitcher;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.util.Optional;
 
 /**
  * 
@@ -37,8 +38,11 @@ public abstract class NewServiceViewBase extends ConsoleViewComponent
 	private final MessageSource msg;
 	private BreadCrumbParameter breadCrumbParameter;
 	private MainServiceEditor editor;
-	
-	
+	private VerticalLayout mainView;
+	private VerticalLayout unsavedInfoBanner;
+
+
+
 	public NewServiceViewBase(MessageSource msg, ServiceControllerBase controller,
 			Class<? extends ConsoleViewComponent> mainServicesViewName, NotificationPresenter notificationPresenter)
 	{
@@ -63,12 +67,14 @@ public abstract class NewServiceViewBase extends ConsoleViewComponent
 			UI.getCurrent().navigate(mainServicesViewName);
 			return;
 		}
-		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
-		main.add(editor);
-		main.add(EditViewActionLayoutFactory.createActionLayout(msg, false, mainServicesViewName, () -> onConfirm()));
+		mainView = new VerticalLayout();
+		unsavedInfoBanner = new InfoBanner(msg::getMessage);
+		mainView.setMargin(false);
+		mainView.add(editor);
+		mainView.add(EditViewActionLayoutFactory.createActionLayout(msg, false, mainServicesViewName, () -> onConfirm()));
 		getContent().removeAll();
-		getContent().add(main);
+		getContent().add(unsavedInfoBanner);
+		getContent().add(mainView);
 	}
 
 	private void onConfirm()
@@ -103,10 +109,14 @@ public abstract class NewServiceViewBase extends ConsoleViewComponent
 	{
 		return Optional.ofNullable(breadCrumbParameter);
 	}
-	
-	//TODO
+
 	private SubViewSwitcher createSubViewSwitcher()
 	{
-		return null;
+		return new DefaultSubViewSwitcher(this, mainView, unsavedInfoBanner, breadCrumbParameter, this::setBreadCrumbParameter);
 	}
+
+	private void setBreadCrumbParameter(BreadCrumbParameter parameter)
+	{
+		breadCrumbParameter = parameter;
 	}
+}

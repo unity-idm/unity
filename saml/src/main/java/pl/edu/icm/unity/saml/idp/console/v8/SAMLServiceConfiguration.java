@@ -3,16 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console;
+package pl.edu.icm.unity.saml.idp.console.v8;
 
-import com.vaadin.flow.server.StreamResource;
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.vaadin.endpoint.common.api.services.idp.ActiveValueConfig;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
-import io.imunity.vaadin.endpoint.common.file.FileFieldUtils;
-import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.file.FileData;
@@ -28,18 +23,23 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfigurationParser;
-import pl.edu.icm.unity.engine.api.idp.UserImportConfig;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
+import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.RequestAcceptancePolicy;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.ResponseSigningPolicy;
-import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
+import pl.edu.icm.unity.webui.console.services.idp.ActiveValueConfig;
+import pl.edu.icm.unity.webui.console.services.idp.UserImportConfig;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -59,8 +59,8 @@ public class SAMLServiceConfiguration
 	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLServiceConfiguration.class);
 
 	private String issuerURI;
-	private AssertionSigningPolicy signAssertionPolicy;
-	private ResponseSigningPolicy signResponcePolicy;
+	private SAMLIdPConfiguration.AssertionSigningPolicy signAssertionPolicy;
+	private SAMLIdPConfiguration.ResponseSigningPolicy signResponcePolicy;
 	private String signResponseCredential;
 	private String additionallyAdvertisedCredential;
 	private String httpsTruststore;
@@ -97,7 +97,7 @@ public class SAMLServiceConfiguration
 		signAssertionPolicy = AssertionSigningPolicy.always;
 		skipConsentScreen = false;
 		editableConsentScreen = true;
-		requestAcceptancePolicy = RequestAcceptancePolicy.validRequester;
+		requestAcceptancePolicy = SAMLIdPConfiguration.RequestAcceptancePolicy.validRequester;
 		authenticationTimeout = SamlIdpProperties.DEFAULT_AUTHENTICATION_TIMEOUT;
 		requestValidity = SamlIdpProperties.DEFAULT_SAML_REQUEST_VALIDITY;
 		attrAssertionValidity = SamlIdpProperties.DEFAULT_ATTR_ASSERTION_VALIDITY;
@@ -196,7 +196,7 @@ public class SAMLServiceConfiguration
 			throw new InternalException("Can't serialize oauth idp translation profile to JSON", e);
 		}
 
-		raw.put(SamlIdpProperties.P + SamlIdpProperties.DEFAULT_GROUP, usersGroup.group().toString());
+		raw.put(SamlIdpProperties.P + SamlIdpProperties.DEFAULT_GROUP, usersGroup.group.toString());
 
 		if (trustedFederations != null)
 		{
@@ -251,7 +251,7 @@ public class SAMLServiceConfiguration
 				raw.put(SamlIdpProperties.P + key + SamlIdpProperties.GROUP_TARGET,
 						mapping.getClientId());
 				raw.put(SamlIdpProperties.P + key + SamlIdpProperties.GROUP,
-						mapping.getGroup().group().toString());
+						mapping.getGroup().group.toString());
 			}
 		}
 		
@@ -262,9 +262,9 @@ public class SAMLServiceConfiguration
 				String key = CommonIdPProperties.USERIMPORT_PFX
 						+ (userImports.indexOf(impConfig) + 1) + ".";
 				raw.put(SamlIdpProperties.P + key + CommonIdPProperties.USERIMPORT_IMPORTER,
-						impConfig.importer);
+						impConfig.getImporter());
 				raw.put(SamlIdpProperties.P + key + CommonIdPProperties.USERIMPORT_IDENTITY_TYPE,
-						impConfig.type);
+						impConfig.getIdentityType());
 			}
 		}
 		
@@ -278,7 +278,7 @@ public class SAMLServiceConfiguration
 	}
 
 	public void fromProperties(String properties, MessageSource msg, URIAccessService uriAccessService,
-			VaadinLogoImageLoader imageAccessService,
+			ImageAccessService imageAccessService,
 			PKIManagement pkiManagement, List<Group> allGroups) throws ConfigurationException
 	{
 		Properties raw = new Properties();
@@ -333,13 +333,12 @@ public class SAMLServiceConfiguration
 				URI uri = URIHelper.parseURI(metaUri);
 				if (URIHelper.isWebReady(uri))
 				{
-					metadataSource = new LocalOrRemoteResource(uri.toString(), "");
+					metadataSource = new LocalOrRemoteResource(uri.toString());
 				} else
 				{
 					FileData fileData = uriAccessService.readURI(uri);
-					metadataSource = new LocalOrRemoteResource(new StreamResource("metadata",
-							() -> new ByteArrayInputStream(fileData.getContents())),
-							uri.toString(), fileData.getContents());
+					metadataSource = new LocalOrRemoteResource(fileData.getContents(),
+							uri.toString());
 				}
 
 			} catch (Exception e)
@@ -493,7 +492,9 @@ public class SAMLServiceConfiguration
 			String identityType = samlIdpProperties
 					.getValue(importKey + CommonIdPProperties.USERIMPORT_IDENTITY_TYPE);
 
-			UserImportConfig userImportConfig = new UserImportConfig(null, importer, identityType);
+			UserImportConfig userImportConfig = new UserImportConfig();
+			userImportConfig.setImporter(importer);
+			userImportConfig.setIdentityType(identityType);
 			userImports.add(userImportConfig);
 		}
 		

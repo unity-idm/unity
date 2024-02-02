@@ -3,13 +3,12 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console;
+package pl.edu.icm.unity.saml.idp.console.v8;
 
-import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpUsersHelper;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.*;
@@ -24,11 +23,14 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
-@Component
-class SAMLServiceController extends SAMLServiceControllerBase
+@Component("SAMLServiceControllerV8")
+public class SAMLServiceController extends SAMLServiceControllerBase
 {
-	SAMLServiceController(MessageSource msg,
+	@Autowired
+	public SAMLServiceController(MessageSource msg,
 			EndpointManagement endpointMan,
 			MessageSource msg2,
 			EndpointManagement endpointMan2,
@@ -39,7 +41,7 @@ class SAMLServiceController extends SAMLServiceControllerBase
 			BulkGroupQueryService bulkService,
 			RegistrationsManagement registrationMan,
 			URIAccessService uriAccessService,
-			VaadinLogoImageLoader imageAccessService,
+			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig,
 			AuthenticatorSupportService authenticatorSupportService,
@@ -50,14 +52,13 @@ class SAMLServiceController extends SAMLServiceControllerBase
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			IdpUsersHelper idpUserHelper,
 			PolicyDocumentManagement policyDocumentManagement, 
-			EndpointFileConfigurationManagement serviceFileConfigController,
-			NotificationPresenter notificationPresenter)
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, bulkService,
 				registrationMan, uriAccessService, fileStorageService, serverConfig,
 				authenticatorSupportService, idTypeSupport, pkiMan, advertisedAddrProvider, server,
 				outputTranslationProfileFieldFactory, idpUserHelper, imageAccessService, policyDocumentManagement,
-				serviceFileConfigController, notificationPresenter);
+				serviceFileConfigController);
 	}
 
 	@Override

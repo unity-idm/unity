@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.console.services.idp;
+package io.imunity.vaadin.endpoint.common.api.services.idp;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,11 +25,11 @@ import java.util.Map;
  * @author P.Piernik
  *
  */
-@Component("IdpUsersHelperV8")
+@Component
 public class IdpUsersHelper
 {
-	private BulkGroupQueryService bulkService;
-	private AttributeSupport atttributeSupport;
+	private final BulkGroupQueryService bulkService;
+	private final AttributeSupport atttributeSupport;
 
 	@Autowired
 	IdpUsersHelper(BulkGroupQueryService bulkService, AttributeSupport atttributeSupport)
@@ -63,7 +63,7 @@ public class IdpUsersHelper
 			EntityState state = info.entity.getState();
 			Long entity = info.entity.getId();
 			String name = "";
-			if (nameAttr != null && info.groupAttributesByName.keySet().contains(nameAttr))
+			if (nameAttr != null && info.groupAttributesByName.containsKey(nameAttr))
 			{
 				name = info.groupAttributesByName.get(nameAttr).getValues().get(0);
 			}

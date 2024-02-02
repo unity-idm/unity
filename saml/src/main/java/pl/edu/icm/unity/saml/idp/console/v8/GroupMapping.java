@@ -3,9 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console;
+package pl.edu.icm.unity.saml.idp.console.v8;
 
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
+import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 /**
  * Contains SAML group mapping information

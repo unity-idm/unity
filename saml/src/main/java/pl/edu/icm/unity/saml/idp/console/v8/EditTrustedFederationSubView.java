@@ -3,47 +3,53 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console;
+package pl.edu.icm.unity.saml.idp.console.v8;
 
-import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.accordion.AccordionPanel;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.progressbar.ProgressBar;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationResult;
-import com.vaadin.flow.data.converter.StringToIntegerConverter;
-import com.vaadin.flow.data.validator.IntegerRangeValidator;
-import io.imunity.vaadin.elements.NoSpaceValidator;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.SearchField;
-import io.imunity.vaadin.elements.grid.GridSearchFieldFactory;
-import io.imunity.vaadin.elements.grid.GridWithActionColumn;
-import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
-import io.imunity.vaadin.endpoint.common.Toolbar;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.UnitySubView;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.saml.idp.console.SimpleIDPMetaConverter.SAMLEntity;
-import pl.edu.icm.unity.saml.metadata.srv.CachedMetadataLoader;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
+
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.saml.idp.console.v8.SimpleIDPMetaConverter.SAMLEntity;
+import pl.edu.icm.unity.saml.metadata.srv.CachedMetadataLoader;
+import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
+import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SearchField;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
+import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 /**
  * View for edit SAML trusted federation
@@ -51,10 +57,9 @@ import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_L
  * @author P.Piernik
  *
  */
-class EditTrustedFederationSubView extends VerticalLayout implements UnitySubView
+class EditTrustedFederationSubView extends CustomComponent implements UnitySubView
 {
 	private MessageSource msg;
-	private NotificationPresenter notificationPresenter;
 	private Binder<SAMLServiceTrustedFederationConfiguration> binder;
 	private boolean editMode = false;
 	private Set<String> validators;
@@ -69,7 +74,7 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 			FileStorageService fileStorageService, SAMLServiceTrustedFederationConfiguration toEdit,
 			SubViewSwitcher subViewSwitcher, Set<String> usedNames, Set<String> validators,
 			Set<String> certificates, Consumer<SAMLServiceTrustedFederationConfiguration> onConfirm,
-			Runnable onCancel, NotificationPresenter notificationPresenter)
+			Runnable onCancel)
 	{
 		this.msg = msg;
 		this.uriAccessService = uriAccessService;
@@ -82,42 +87,37 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		binder = new Binder<>(SAMLServiceTrustedFederationConfiguration.class);
 		FormLayout header = buildHeaderSection();
 		binder.setBean(editMode ? toEdit.clone() : new SAMLServiceTrustedFederationConfiguration());
-		AccordionPanel fetchMeta = buildFederationFetchSection();
+		CollapsibleLayout fetchMeta = buildFederationFetchSection();
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
-		mainView.add(header);
-		mainView.add(fetchMeta);
-		Button cancelButton = new Button(msg.getMessage("cancel"), event -> onCancel.run());
-		cancelButton.setWidthFull();
-		Button updateButton = new Button(editMode ? msg.getMessage("update") :  msg.getMessage("create"), event ->
-		{
+		mainView.addComponent(header);
+		mainView.addComponent(fetchMeta);
+
+		Runnable onConfirmR = () -> {
 			try
 			{
 				onConfirm.accept(getTrustedFederation());
 			} catch (FormValidationException e)
 			{
-				notificationPresenter.showError(
-						msg.getMessage("EditTrustedFederationSubView.invalidConfiguration"), e.getMessage());
+				NotificationPopup.showError(msg,
+						msg.getMessage("EditTrustedFederationSubView.invalidConfiguration"), e);
 			}
-		});
-		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		updateButton.setWidthFull();
-		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
-		mainView.add(buttonsLayout);
+		};
+		mainView.addComponent(editMode
+				? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
+				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));
 
-		add(mainView);
+		setCompositionRoot(mainView);
 	}
 
 	private FormLayout buildHeaderSection()
 	{
-		FormLayout header = new FormLayout();
-		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
+		header.setMargin(true);
 
-		TextField name = new TextField();
+		TextField name = new TextField(msg.getMessage("EditTrustedFederationSubView.name"));
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired"))
-				.withValidator(new NoSpaceValidator(msg::getMessage)).withValidator((s, c) -> {
+				.withValidator(new NoSpaceValidator(msg)).withValidator((s, c) -> {
 					if (usedNames.contains(s))
 					{
 						return ValidationResult.error(msg
@@ -128,60 +128,62 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 					}
 
 				}).bind("name");
-		header.addFormItem(name, msg.getMessage("EditTrustedFederationSubView.name"));
+		header.addComponent(name);
 		name.focus();
 
-		url = new TextField();
-		url.setWidth(TEXT_FIELD_BIG.value());
+		url = new TextField(msg.getMessage("EditTrustedFederationSubView.url"));
+		url.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		binder.forField(url).asRequired(msg.getMessage("fieldRequired")).bind("url");
-		header.addFormItem(url, msg.getMessage("EditTrustedFederationSubView.url"));
+		header.addComponent(url);
 
 		httpsTruststore = new ComboBox<>(msg.getMessage("EditTrustedFederationSubView.httpsTruststore"));
 		httpsTruststore.setItems(validators);
 		binder.forField(httpsTruststore).bind("httpsTruststore");
-		header.addFormItem(httpsTruststore, msg.getMessage("EditTrustedFederationSubView.httpsTruststore"));
+		header.addComponent(httpsTruststore);
 
-		Checkbox ignoreSignatureVerification = new Checkbox(
+		CheckBox ignoreSignatureVerification = new CheckBox(
 				msg.getMessage("EditTrustedFederationSubView.ignoreSignatureVerification"));
 		binder.forField(ignoreSignatureVerification).bind("ignoreSignatureVerification");
-		header.addFormItem(ignoreSignatureVerification, "");
+		header.addComponent(ignoreSignatureVerification);
 
-		ComboBox<String> signatureVerificationCertificate = new ComboBox<>();
+		ComboBox<String> signatureVerificationCertificate = new ComboBox<>(
+				msg.getMessage("EditTrustedFederationSubView.signatureVerificationCertificate"));
 		signatureVerificationCertificate.setItems(certificates);
-		header.addFormItem(signatureVerificationCertificate, msg.getMessage("EditTrustedFederationSubView.signatureVerificationCertificate"));
+		header.addComponent(signatureVerificationCertificate);
 
 		TextField refreshInterval = new TextField();
+		refreshInterval.setCaption(msg.getMessage("EditTrustedFederationSubView.refreshInterval"));
 		binder.forField(refreshInterval).asRequired(msg.getMessage("fieldRequired"))
 				.withConverter(new StringToIntegerConverter(msg.getMessage("notAPositiveNumber")))
 				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
 				.bind("refreshInterval");
-		header.addFormItem(refreshInterval, msg.getMessage("EditTrustedFederationSubView.refreshInterval"));
+		header.addComponent(refreshInterval);
 
 		return header;
 	}
 
-	private AccordionPanel buildFederationFetchSection()
+	private CollapsibleLayout buildFederationFetchSection()
 	{
 		VerticalLayout federationListLayout = new VerticalLayout();
 		federationListLayout.setMargin(false);
 		ProgressBar spinner = new ProgressBar();
 		spinner.setIndeterminate(true);
 		spinner.setVisible(false);
-		federationListLayout.add(spinner);
-		GridWithActionColumn<SAMLEntity> samlEntities = new GridWithActionColumn<>(msg::getMessage,
+		federationListLayout.addComponent(spinner);
+		GridWithActionColumn<SAMLEntity> samlEntities = new GridWithActionColumn<>(msg,
 				Collections.emptyList());
-		samlEntities.addColumn(v -> v.name)
-				.setHeader(msg.getMessage("EditTrustedFederationSubView.name"))
-				.setAutoWidth(true);
-		samlEntities.addColumn(v -> v.id)
-				.setHeader(msg.getMessage("EditTrustedFederationSubView.entityIdentifier"))
-				.setAutoWidth(true);
+		samlEntities.setActionColumnHidden(true);
+		samlEntities.setHeightByRows(false);
+		samlEntities.setHeightByRows(14);
+		samlEntities.addColumn(v -> v.name, msg.getMessage("EditTrustedFederationSubView.name"), 40);
+		samlEntities.addColumn(v -> v.id, msg.getMessage("EditTrustedFederationSubView.entityIdentifier"), 40);
 
-		SearchField search = GridSearchFieldFactory.generateSearchField(samlEntities, msg::getMessage);
-		Toolbar<SAMLEntity> toolbar = new Toolbar<>();
-		toolbar.setWidthFull();
-		toolbar.addSearch(search);
-		ComponentWithToolbar samlEntitiesListWithToolbar = new ComponentWithToolbar(samlEntities, toolbar);
+		SearchField search = FilterableGridHelper.generateSearchField(samlEntities, msg);
+		Toolbar<SAMLEntity> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		toolbar.setWidth(100, Unit.PERCENTAGE);
+		toolbar.addSearch(search, Alignment.MIDDLE_RIGHT);
+		ComponentWithToolbar samlEntitiesListWithToolbar = new ComponentWithToolbar(samlEntities, toolbar,
+				Alignment.BOTTOM_LEFT);
 		samlEntitiesListWithToolbar.setSpacing(false);
 		samlEntitiesListWithToolbar.setSizeFull();
 		samlEntitiesListWithToolbar.setVisible(false);
@@ -205,7 +207,9 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		}
 		catch (Exception e)
 		{
-			ui.access(() -> notificationPresenter.showError("", e.getMessage()));
+			ui.access(() -> {
+				NotificationPopup.showError(msg, "", e);
+			});
 		}
 
 		fetch.addClickListener(e -> {
@@ -230,7 +234,7 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 				} catch (Exception e1)
 				{
 					ui.access(() -> {
-						notificationPresenter.showError("", e1.getMessage());
+						NotificationPopup.showError(msg, "", e1);
 						ui.setPollInterval(-1);
 						spinner.setVisible(false);
 					});
@@ -246,26 +250,34 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 
 		});
 
-		url.addValueChangeListener(e -> fetch.setEnabled(e.getValue() != null && !e.getValue().isEmpty()));
+		url.addValueChangeListener(e -> {
+			if (e.getValue() == null || e.getValue().isEmpty())
+			{
+				fetch.setEnabled(false);
+			} else
+			{
+				fetch.setEnabled(true);
+			}
+		});
 
 		HorizontalLayout wrapper = new HorizontalLayout();
 		wrapper.setMargin(false);
-		wrapper.add(fetch, spinner);
+		wrapper.addComponents(fetch, spinner);
 
-		federationListLayout.add(wrapper);
-		federationListLayout.add(samlEntitiesListWithToolbar);
-		return new AccordionPanel(msg.getMessage("EditTrustedFederationSubView.serviceProviders"),
+		federationListLayout.addComponent(wrapper);
+		federationListLayout.addComponent(samlEntitiesListWithToolbar);
+		return new CollapsibleLayout(msg.getMessage("EditTrustedFederationSubView.serviceProviders"),
 				federationListLayout);
 	}
 
 	@Override
-	public List<String> getBreadcrumbs()
+	public List<String> getBredcrumbs()
 	{
 		if (editMode)
 			return Arrays.asList(msg.getMessage("EditTrustedFederationSubView.trustedFederation"),
 					binder.getBean().getName());
 		else
-			return Collections.singletonList(msg.getMessage("EditTrustedFederationSubView.newTrustedFederation"));
+			return Arrays.asList(msg.getMessage("EditTrustedFederationSubView.newTrustedFederation"));
 
 	}
 

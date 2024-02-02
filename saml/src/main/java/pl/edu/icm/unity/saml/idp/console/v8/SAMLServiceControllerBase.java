@@ -3,16 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console;
+package pl.edu.icm.unity.saml.idp.console.v8;
 
-import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServicesControllerBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpServiceController;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpUsersHelper;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -27,30 +20,35 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
 import java.util.stream.Collectors;
 
 abstract class SAMLServiceControllerBase extends DefaultServicesControllerBase implements IdpServiceController
 {
-	private final RealmsManagement realmsMan;
-	private final AuthenticationFlowManagement flowsMan;
-	private final AuthenticatorManagement authMan;
-	private final AttributeTypeManagement atMan;
-	private final BulkGroupQueryService bulkService;
-	private final RegistrationsManagement registrationMan;
-	private final URIAccessService uriAccessService;
-	private final FileStorageService fileStorageService;
-	private final UnityServerConfiguration serverConfig;
-	private final AuthenticatorSupportService authenticatorSupportService;
-	private final IdentityTypeSupport idTypeSupport;
-	private final PKIManagement pkiMan;
-	private final AdvertisedAddressProvider advertisedAddrProvider;
-	private final OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
-	private final IdpUsersHelper idpUserHelper;
-	private final VaadinLogoImageLoader imageAccessService;
-	private final PolicyDocumentManagement policyDocumentManagement;
-	private final NetworkServer server;
-	private final NotificationPresenter notificationPresenter;
+	private RealmsManagement realmsMan;
+	private AuthenticationFlowManagement flowsMan;
+	private AuthenticatorManagement authMan;
+	private AttributeTypeManagement atMan;
+	private BulkGroupQueryService bulkService;
+	private RegistrationsManagement registrationMan;
+	private URIAccessService uriAccessService;
+	private FileStorageService fileStorageService;
+	private UnityServerConfiguration serverConfig;
+	private AuthenticatorSupportService authenticatorSupportService;
+	private IdentityTypeSupport idTypeSupport;
+	private PKIManagement pkiMan;
+	private AdvertisedAddressProvider advertisedAddrProvider;
+	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
+	private IdpUsersHelper idpUserHelper;
+	private ImageAccessService imageAccessService;
+	private PolicyDocumentManagement policyDocumentManagement;
+	private NetworkServer server;
 
 	public SAMLServiceControllerBase(MessageSource msg,
 			EndpointManagement endpointMan,
@@ -72,10 +70,9 @@ abstract class SAMLServiceControllerBase extends DefaultServicesControllerBase i
 			NetworkServer server,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			IdpUsersHelper idpUserHelper,
-			VaadinLogoImageLoader imageAccessService,
+			ImageAccessService imageAccessService,
 			PolicyDocumentManagement policyDocumentManagement,
-			EndpointFileConfigurationManagement serviceFileConfigController,
-			NotificationPresenter notificationPresenter)
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
@@ -96,7 +93,6 @@ abstract class SAMLServiceControllerBase extends DefaultServicesControllerBase i
 		this.idpUserHelper = idpUserHelper;
 		this.imageAccessService = imageAccessService;
 		this.policyDocumentManagement = policyDocumentManagement;
-		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
@@ -124,7 +120,7 @@ abstract class SAMLServiceControllerBase extends DefaultServicesControllerBase i
 				pkiMan.getCredentialNames(), pkiMan.getValidatorNames(), authenticatorSupportService,
 				idTypeSupport.getIdentityTypes(), endpointMan.getEndpoints().stream()
 						.map(e -> e.getContextAddress()).collect(Collectors.toList()),
-						policyDocumentManagement.getPolicyDocuments(), notificationPresenter);
+						policyDocumentManagement.getPolicyDocuments());
 	}
 
 	public abstract EndpointTypeDescription getType();

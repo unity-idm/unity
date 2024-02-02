@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.views.signup_and_enquiry;
+package io.imunity.vaadin.endpoint.common.api.services.idp;
 
 
 import com.vaadin.flow.component.AbstractField;

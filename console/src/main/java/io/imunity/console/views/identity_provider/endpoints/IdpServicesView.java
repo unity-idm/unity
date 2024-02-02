@@ -5,18 +5,12 @@
 
 package io.imunity.console.views.identity_provider.endpoints;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.router.QueryParameters;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.console.ConsoleMenu;
+import io.imunity.console.views.CommonViewParam;
 import io.imunity.console.views.identity_provider.released_profile.endpoints.spi.IdpServiceAdditionalAction;
 import io.imunity.console.views.services.base.ServicesViewBase;
 import io.imunity.vaadin.elements.Breadcrumb;
@@ -25,8 +19,16 @@ import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
 import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -40,7 +42,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 @Route(value = "/idpServices", layout = ConsoleMenu.class)
 public class IdpServicesView extends ServicesViewBase
 {
-	private IdpServiceAdditionalActionsRegistry extraActionsRegistry;
+	private final IdpServiceAdditionalActionsRegistry extraActionsRegistry;
 
 	@Autowired
 	IdpServicesView(MessageSource msg, IdpServicesController controller, NotificationPresenter notificationPresenter,
@@ -108,10 +110,10 @@ public class IdpServicesView extends ServicesViewBase
 		return additionalActions;
 	}
 	
-	//TODO
 	private void gotoExtraAction(ServiceDefinition next, String action)
 	{
-//		NavigationHelper.goToView(AdditionalActionView.VIEW_NAME + "/" + CommonViewParam.name.toString() + "="
-//				+ next.getName() + "&" + CommonViewParam.action.toString() + "=" + action);
+		UI.getCurrent()
+				.navigate(EditIdpServiceView.class, next.getName(),
+						new QueryParameters(Map.of(CommonViewParam.tab.name(), List.of(action))));
 	}
 }

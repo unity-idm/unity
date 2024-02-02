@@ -6,6 +6,7 @@
 package io.imunity.vaadin.elements.grid;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.customfield.CustomField;
@@ -126,6 +127,15 @@ public class EditableGrid<T> extends CustomField<List<T>>
 	{
 		Grid.Column<T> tColumn = grid.addColumn(get)
 				.setEditorComponent(getSelectEditorComponent(get, set, items));
+		putActionColumnToEnd(tColumn);
+		return tColumn;
+	}
+
+	public <F> Grid.Column<T> addCustomColumn(ValueProvider<T, F> get, Setter<T, F> set, HasValue<?, F> component)
+	{
+		editor.getBinder().forField(component).bind(get, set);
+		Grid.Column<T> tColumn = grid.addColumn(get)
+				.setEditorComponent((Component) component);
 		putActionColumnToEnd(tColumn);
 		return tColumn;
 	}

@@ -3,17 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.console;
+package pl.edu.icm.unity.saml.idp.console.v8;
 
-import com.vaadin.flow.data.binder.Binder;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.ServiceWebConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpEditorUsersTab;
-import io.imunity.vaadin.endpoint.common.api.services.idp.PolicyAgreementsTab;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthenticationTab;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.vaadin.data.Binder;
+
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -22,9 +18,14 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
+import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.console.services.idp.PolicyAgreementsTab;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 /**
  * SAML Service editor ui component. It consists of 4 tabs: general, clients,
@@ -45,7 +46,7 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 			SAMLEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
 			WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab, EndpointTypeDescription type, PKIManagement pkiMan,
 			URIAccessService uriAccessService,
-			VaadinLogoImageLoader imageAccessService,
+			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService,
 			ServiceDefinition toEdit, List<Group> allGroups,
 			String systemTheme)
@@ -56,14 +57,11 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 
 		boolean editMode = toEdit != null;
 
-		setWidthFull();
 		samlServiceBinder = new Binder<>(DefaultServiceDefinition.class);
 		samlConfigBinder = new Binder<>(SAMLServiceConfiguration.class);
 		webConfigBinder = new Binder<>(ServiceWebConfiguration.class);
 		
-		samlConfigBinder.forField(policyAgreementTab)
-				.asRequired()
-				.bind(SAMLServiceConfiguration::getPolicyAgreementConfig, SAMLServiceConfiguration::setPolicyAgreementConfig);
+		samlConfigBinder.forField(policyAgreementTab).asRequired().bind("policyAgreementConfig");
 		
 		generalTab.initUI(samlServiceBinder, samlConfigBinder, editMode);
 		registerTab(generalTab);
@@ -106,7 +104,9 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 						c -> c.getDisplayedName() == null || c.getDisplayedName().isEmpty()
 								? c.getName()
 								: c.getDisplayedName().getValue(msg))));
-		clientsTab.addClientsValueChangeListener(e -> refreshClients.run());
+		clientsTab.addClientsValueChangeListener(e -> {
+			refreshClients.run();
+		});
 		refreshClients.run();
 	}
 

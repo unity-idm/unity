@@ -19,6 +19,7 @@ import io.imunity.console.tprofile.RegistrationTranslationProfileEditor;
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.EnumComboBox;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.services.idp.PolicyAgreementConfigurationList;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import org.apache.logging.log4j.Logger;
