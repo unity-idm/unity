@@ -90,7 +90,8 @@
 		<module>vaadin23-endpoint-common</module>
 		<module>vaadin23-elements</module>
 		<module>unity-rest-api-docs</module>
-    </modules>
+		<module>jwt-authn</module>
+	</modules>
 
 	<developers>
 		<developer>

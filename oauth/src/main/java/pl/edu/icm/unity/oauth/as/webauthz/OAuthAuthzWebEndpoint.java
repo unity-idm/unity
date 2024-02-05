@@ -182,15 +182,15 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		context.addFilter(new FilterHolder(authnFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
+		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm(), null,
+				getAuthenticationFlows());
+		context.addFilter(new FilterHolder(contextSetupFilter), "/*",
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
+		
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows,
 				description.getEndpoint().getContextAddress(),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN), description.getRealm());
 		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
-				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
-
-		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm(), null,
-				getAuthenticationFlows());
-		context.addFilter(new FilterHolder(contextSetupFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		EndpointRegistrationConfiguration registrationConfiguration = genericEndpointProperties
