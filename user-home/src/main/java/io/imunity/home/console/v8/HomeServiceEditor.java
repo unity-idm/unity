@@ -3,18 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.home.console;
-
-import java.util.List;
-import java.util.Set;
+package io.imunity.home.console.v8;
 
 import io.imunity.home.UserHomeEndpointFactory;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthenticationTab;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -22,30 +13,41 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
+
+import java.util.List;
+import java.util.Set;
 
 class HomeServiceEditor implements ServiceEditor
 {
-	private final MessageSource msg;
-	private final List<String> allRealms;
-	private final List<AuthenticationFlowDefinition> flows;
-	private final List<AuthenticatorInfo> authenticators;
-	private final List<String> allAttributes;
-	private final List<String> allImageAttributes;
-	private final List<Group> allGroups;
-	private final List<String> upManServices;
-	private final List<String> enquiryForms;
-	private final List<String> registrationForms;
-	private final FileStorageService fileStorageService;
-	private final UnityServerConfiguration serverConfig;
-	private final AuthenticatorSupportService authenticatorSupportService;
-	private final List<String> usedEndpointsPaths;
-	private final Set<String> serverContextPaths;
-	private final VaadinLogoImageLoader imageAccessService;
+	private MessageSource msg;
+	private List<String> allRealms;
+	private List<AuthenticationFlowDefinition> flows;
+	private List<AuthenticatorInfo> authenticators;
 	private HomeServiceEditorComponent editor;
+	private List<String> allAttributes;
+	private List<String> allImageAttributes;
+	private List<Group> allGroups;
+	private List<String> upManServices;
+	private List<String> enquiryForms;
+	private List<String> registrationForms;
+	private URIAccessService uriAccessService;
+	private FileStorageService fileStorageService;
+	private UnityServerConfiguration serverConfig;
+	private AuthenticatorSupportService authenticatorSupportService;
+	private List<String> usedEndpointsPaths;
+	private Set<String> serverContextPaths;
+	private ImageAccessService imageAccessService;
 
-	HomeServiceEditor(MessageSource msg,
-			VaadinLogoImageLoader imageAccessService,
+	HomeServiceEditor(MessageSource msg, URIAccessService uriAccessService,
+			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, List<String> allAttributes,
@@ -65,6 +67,7 @@ class HomeServiceEditor implements ServiceEditor
 		this.upManServices = upManServices;
 		this.enquiryForms = enquiryForms;
 		this.registrationForms = registrationForms;
+		this.uriAccessService = uriAccessService;
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
@@ -79,7 +82,7 @@ class HomeServiceEditor implements ServiceEditor
 		HomeServiceEditorGeneralTab homeServiceEditorGeneralTab = new HomeServiceEditorGeneralTab(msg,
 				UserHomeEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths, allAttributes, allImageAttributes,
 				allGroups, upManServices, enquiryForms, registrationForms);
-		WebServiceAuthenticationTab authenticationTab = new WebServiceAuthenticationTab(msg,
+		WebServiceAuthenticationTab authenticationTab = new WebServiceAuthenticationTab(msg, uriAccessService,
 				serverConfig, authenticatorSupportService, flows, authenticators, allRealms,
 				registrationForms, UserHomeEndpointFactory.TYPE.getSupportedBinding());
 

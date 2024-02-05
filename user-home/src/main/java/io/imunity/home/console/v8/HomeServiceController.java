@@ -3,20 +3,12 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.home.console;
-
-import java.util.ArrayList;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Component;
+package io.imunity.home.console.v8;
 
 import io.imunity.home.ProjectManagementHelper;
 import io.imunity.home.UserHomeEndpointFactory;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServicesControllerBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceController;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
@@ -25,46 +17,50 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
-import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
-import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.EnquiryManagement;
-import pl.edu.icm.unity.engine.api.RealmsManagement;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.console.services.ServiceController;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 
-@Component
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+
+@Component("HomeServiceControllerV8")
 class HomeServiceController extends DefaultServicesControllerBase implements ServiceController
 {
-	private final RealmsManagement realmsMan;
-	private final AuthenticationFlowManagement flowsMan;
-	private final AuthenticatorManagement authMan;
-	private final AttributeTypeManagement atMan;
-	private final BulkGroupQueryService bulkService;
-	private final ProjectManagementHelper projectManHelper;
-	private final EnquiryManagement enquiryMan;
-	private final RegistrationsManagement registrationMan;
-	private final FileStorageService fileStorageService;
-	private final UnityServerConfiguration serverConfig;
-	private final AuthenticatorSupportService authenticatorSupportService;
-	private final NetworkServer server;
-	private final VaadinLogoImageLoader imageAccessService;
+	private RealmsManagement realmsMan;
+	private AuthenticationFlowManagement flowsMan;
+	private AuthenticatorManagement authMan;
+	private AttributeTypeManagement atMan;
+	private BulkGroupQueryService bulkService;
+	private ProjectManagementHelper projectManHelper;
+	private EnquiryManagement enquiryMan;
+	private RegistrationsManagement registrationMan;
+	private URIAccessService uriAccessService;
+	private FileStorageService fileStorageService;
+	private UnityServerConfiguration serverConfig;
+	private AuthenticatorSupportService authenticatorSupportService;
+	private NetworkServer server;
+	private ImageAccessService imageAccessService;
 
 	HomeServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 						  AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
 						  AttributeTypeManagement atMan, BulkGroupQueryService bulkService,
 						  ProjectManagementHelper projectManagementHelper, EnquiryManagement enquiryMan,
-						  RegistrationsManagement registrationMan,
+						  RegistrationsManagement registrationMan, URIAccessService uriAccessService,
 						  FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 						  AuthenticatorSupportService authenticatorSupportService, NetworkServer server,
-						  VaadinLogoImageLoader imageAccessService, EndpointFileConfigurationManagement serviceFileConfigController)
+						  ImageAccessService imageAccessService, EndpointFileConfigurationManagement serviceFileConfigController)
 			
 	{
 		super(msg, endpointMan, serviceFileConfigController);
@@ -76,6 +72,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 		this.projectManHelper = projectManagementHelper;
 		this.enquiryMan = enquiryMan;
 		this.registrationMan = registrationMan;
+		this.uriAccessService = uriAccessService;
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
@@ -93,7 +90,7 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
 
-		return new HomeServiceEditor(msg, imageAccessService, fileStorageService, serverConfig,
+		return new HomeServiceEditor(msg, uriAccessService, imageAccessService, fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(DescribedObjectROImpl::getName).collect(Collectors.toList()),
 				new ArrayList<>(flowsMan.getAuthenticationFlows()),
 				new ArrayList<>(authMan.getAuthenticators(null)),

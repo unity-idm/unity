@@ -5,10 +5,21 @@
 
 package io.imunity.vaadin.elements.grid;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -28,18 +39,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Setter;
 import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 public class EditableGrid<T> extends CustomField<List<T>>
 {
@@ -130,11 +133,36 @@ public class EditableGrid<T> extends CustomField<List<T>>
 		putActionColumnToEnd(tColumn);
 		return tColumn;
 	}
+	
+	public Grid.Column<T> addCheckboxColumn(ValueProvider<T, Boolean> get, Setter<T, Boolean> set)
+	{
+		Grid.Column<T> tColumn = grid.addColumn(get).setRenderer(new ComponentRenderer<>(c -> getReadOnlyCheckbox(get.apply(c))))
+				.setEditorComponent(getCheckboxEditorComponent(get, set));
+		putActionColumnToEnd(tColumn);
+		return tColumn;
+	}
 
+	private Checkbox getReadOnlyCheckbox(boolean val)
+	{
+		Checkbox checkbox = new Checkbox();
+		checkbox.setReadOnly(true);
+		checkbox.setValue(val);
+		return checkbox;
+	}
+	
 	public <F> Grid.Column<T> addCustomColumn(ValueProvider<T, F> get, Setter<T, F> set, HasValue<?, F> component)
 	{
 		editor.getBinder().forField(component).bind(get, set);
 		Grid.Column<T> tColumn = grid.addColumn(get)
+				.setEditorComponent((Component) component);
+		putActionColumnToEnd(tColumn);
+		return tColumn;
+	}
+	
+	public <F> Grid.Column<T> addCustomColumn(ValueProvider<T, F> get, Renderer<T> presentation, Setter<T, F> set, HasValue<?, F> component)
+	{
+		editor.getBinder().forField(component).bind(get, set);
+		Grid.Column<T> tColumn = grid.addColumn(get).setRenderer(presentation)
 				.setEditorComponent((Component) component);
 		putActionColumnToEnd(tColumn);
 		return tColumn;
@@ -178,6 +206,13 @@ public class EditableGrid<T> extends CustomField<List<T>>
 	{
 		Select<String> field = new Select<>();
 		field.setItems(items);
+		editor.getBinder().forField(field).bind(get, set);
+		return field;
+	}
+	
+	private Checkbox getCheckboxEditorComponent(ValueProvider<T, Boolean> get, Setter<T, Boolean> set)
+	{
+		Checkbox field = new Checkbox();
 		editor.getBinder().forField(field).bind(get, set);
 		return field;
 	}

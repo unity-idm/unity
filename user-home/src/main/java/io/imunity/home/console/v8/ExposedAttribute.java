@@ -4,10 +4,10 @@
  */
 
 
-package io.imunity.home.console;
+package io.imunity.home.console.v8;
 
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
 import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 public class ExposedAttribute
 {

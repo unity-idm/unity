@@ -4,14 +4,14 @@
  */
 
 
-package io.imunity.home.console;
+package io.imunity.home.console.v8;
 
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.HomeEndpointProperties.RemovalModes;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -76,7 +76,7 @@ public class HomeServiceConfiguration
 					+ HomeEndpointProperties.GWA_ATTRIBUTE, a.getName());
 			raw.put(HomeEndpointProperties.PREFIX + HomeEndpointProperties.ATTRIBUTES
 					+ (exposedAttributes.indexOf(a) + 1) + "."
-					+ HomeEndpointProperties.GWA_GROUP, a.getGroup().group().toString());
+					+ HomeEndpointProperties.GWA_GROUP, a.getGroup().group.toString());
 
 			raw.put(HomeEndpointProperties.PREFIX + HomeEndpointProperties.ATTRIBUTES
 					+ (exposedAttributes.indexOf(a) + 1) + "."
