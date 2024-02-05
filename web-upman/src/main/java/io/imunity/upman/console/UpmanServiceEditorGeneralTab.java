@@ -5,20 +5,21 @@
 
 package io.imunity.upman.console;
 
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.data.binder.Binder;
 
+import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
+import io.imunity.vaadin.endpoint.common.api.services.tabs.GeneralTab;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 
 public class UpmanServiceEditorGeneralTab extends GeneralTab
 {
@@ -37,34 +38,35 @@ public class UpmanServiceEditorGeneralTab extends GeneralTab
 	{
 		super.initUI(binder, editMode);
 		this.upmanBinder = homeBinder;
-		mainLayout.addComponent(buildContentSection());
+		add(buildContentSection());
 	}
 
-	private Component buildContentSection()
+	private AccordionPanel buildContentSection()
 	{
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
+		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
-		CheckBox enableHome = new CheckBox();
-		enableHome.setCaption(msg.getMessage("UpmanServiceEditorGeneralTab.enableHome"));
-		upmanBinder.forField(enableHome).bind("enableHome");
-		main.addComponent(enableHome);
+		Checkbox enableHome = new Checkbox();
+		upmanBinder.forField(enableHome)
+				.bind("enableHome");
+		main.addFormItem(enableHome, msg.getMessage("UpmanServiceEditorGeneralTab.enableHome"));
 
 		ComboBox<String> homeService = new ComboBox<>();
 		homeService.setEnabled(false);
-		homeService.setCaption(msg.getMessage("UpmanServiceEditorGeneralTab.homeService"));
 		homeService.setItems(homeServices);
-		homeService.setEmptySelectionAllowed(false);
-		upmanBinder.forField(homeService).bind("homeService");
-		main.addComponent(homeService);
+		upmanBinder.forField(homeService)
+				.bind("homeService");
+		main.addFormItem(homeService, msg.getMessage("UpmanServiceEditorGeneralTab.homeService"));
 
-		enableHome.addValueChangeListener(e -> {
+		enableHome.addValueChangeListener(e ->
+		{
 			homeService.setEnabled(e.getValue());
 		});
 
-		CollapsibleLayout contentSection = new CollapsibleLayout(
-				msg.getMessage("UpmanServiceEditorGeneralTab.content"), main);
-		contentSection.expand();
+		AccordionPanel contentSection = new AccordionPanel(msg.getMessage("UpmanServiceEditorGeneralTab.content"),
+				main);
+		contentSection.setWidthFull();
 		return contentSection;
 	}
 

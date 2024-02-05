@@ -3,19 +3,18 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.rest.console;
+package io.imunity.upman.rest.console.v8;
 
-
-import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.data.Binder;
 
 import io.imunity.upman.rest.RESTUpmanEndpoint;
-import io.imunity.upman.rest.console.UpmanRestServiceConfiguration.UpmanRestServiceConfigurationProvider;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
+import io.imunity.upman.rest.console.v8.UpmanRestServiceConfiguration.UpmanRestServiceConfigurationProvider;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 
 class UpmanRestServiceEditorComponent extends ServiceEditorBase

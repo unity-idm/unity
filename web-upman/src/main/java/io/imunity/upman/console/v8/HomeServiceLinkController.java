@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.console;
+package io.imunity.upman.console.v8;
 
 import io.imunity.upman.UpmanEndpointProperties;
 import org.apache.logging.log4j.Logger;
@@ -23,13 +23,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Component
+@Component("HomeServiceLinkControllerV8")
 public class HomeServiceLinkController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, HomeServiceLinkController.class);
 
-	private final EndpointManagement endpointMan;
-	private final AdvertisedAddressProvider advertisedAddrProvider;
+	private EndpointManagement endpointMan;
+	private AdvertisedAddressProvider advertisedAddrProvider;
 
 	@Autowired
 	public HomeServiceLinkController(@Qualifier("insecure") EndpointManagement endpointMan,

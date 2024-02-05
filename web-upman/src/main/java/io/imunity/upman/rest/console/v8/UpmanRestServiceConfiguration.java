@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.rest.console;
+package io.imunity.upman.rest.console.v8;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import io.imunity.upman.rest.UpmanRestEndpointProperties;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -27,6 +26,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 public class UpmanRestServiceConfiguration
 {
@@ -104,8 +104,8 @@ public class UpmanRestServiceConfiguration
 	{
 		Properties raw = new Properties();
 
-		raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.ROOT_GROUP, rootGroup.group().getPathEncoded());
-		raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.AUTHORIZATION_GROUP, authorizationGroup.group().getPathEncoded());
+		raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.ROOT_GROUP, rootGroup.group.getPathEncoded());
+		raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.AUTHORIZATION_GROUP, authorizationGroup.group.getPathEncoded());
 
 		if (!CollectionUtils.isEmpty(rootGroupAttributes))
 		{
@@ -155,7 +155,7 @@ public class UpmanRestServiceConfiguration
 		rootGroupAttributes = restAdminProp.getListOfValues(UpmanRestEndpointProperties.ROOT_GROUP_ATTRIBUTES);
 	}
 	
-	@Component
+	@Component("UpmanRestServiceConfigurationProviderV8")
 	public static class UpmanRestServiceConfigurationProvider
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_REST, UpmanRestServiceConfigurationProvider.class);

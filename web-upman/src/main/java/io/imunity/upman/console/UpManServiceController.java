@@ -5,25 +5,28 @@
 
 package io.imunity.upman.console;
 
-import io.imunity.upman.UpManEndpointFactory;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
+import io.imunity.upman.UpManEndpointFactory;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.api.services.DefaultServicesControllerBase;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceController;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.*;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
-import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
-import pl.edu.icm.unity.webui.console.services.ServiceController;
-import pl.edu.icm.unity.webui.console.services.ServiceEditor;
-
-import java.util.stream.Collectors;
 
 /**
  * Upman service controller. Based on the standard web service editor
@@ -35,24 +38,23 @@ import java.util.stream.Collectors;
 class UpManServiceController extends DefaultServicesControllerBase implements ServiceController
 {
 
-	private RealmsManagement realmsMan;
-	private AuthenticationFlowManagement flowsMan;
-	private AuthenticatorManagement authMan;
-	private RegistrationsManagement registrationMan;
-	private URIAccessService uriAccessService;
-	private FileStorageService fileStorageService;
-	private UnityServerConfiguration serverConfig;
-	private AuthenticatorSupportService authenticatorSupportService;
-	private NetworkServer server;
-	private ImageAccessService imageAccessService;
-	private HomeServiceLinkController homeServiceController;
+	private final RealmsManagement realmsMan;
+	private final AuthenticationFlowManagement flowsMan;
+	private final AuthenticatorManagement authMan;
+	private final RegistrationsManagement registrationMan;
+	private final FileStorageService fileStorageService;
+	private final UnityServerConfiguration serverConfig;
+	private final AuthenticatorSupportService authenticatorSupportService;
+	private final NetworkServer server;
+	private final VaadinLogoImageLoader imageAccessService;
+	private final HomeServiceLinkController homeServiceController;
 
 	UpManServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 			AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan,
-			RegistrationsManagement registrationMan, URIAccessService uriAccessService,
-			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
-			AuthenticatorSupportService authenticatorSupportService, NetworkServer server,
-			ImageAccessService imageAccessService, HomeServiceLinkController homeServiceController,
+			RegistrationsManagement registrationMan, FileStorageService fileStorageService,
+			UnityServerConfiguration serverConfig, AuthenticatorSupportService authenticatorSupportService,
+			NetworkServer server, VaadinLogoImageLoader imageAccessService,
+			HomeServiceLinkController homeServiceController,
 			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
@@ -60,7 +62,6 @@ class UpManServiceController extends DefaultServicesControllerBase implements Se
 		this.flowsMan = flowsMan;
 		this.authMan = authMan;
 		this.registrationMan = registrationMan;
-		this.uriAccessService = uriAccessService;
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
@@ -79,15 +80,29 @@ class UpManServiceController extends DefaultServicesControllerBase implements Se
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
 
-		return new UpmanServiceEditor(msg, uriAccessService, imageAccessService, fileStorageService,
-				serverConfig,
-				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
-				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
-				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
-				homeServiceController.getAllHomeEndpoints().stream().map(e -> e.getName()).collect(Collectors.toList()),
-				registrationMan.getForms().stream().filter(r -> r.isPubliclyAvailable())
-						.map(r -> r.getName()).collect(Collectors.toList()),
-				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress())
+		return new UpmanServiceEditor(msg, imageAccessService, fileStorageService, serverConfig,
+				realmsMan.getRealms()
+						.stream()
+						.map(r -> r.getName())
+						.collect(Collectors.toList()),
+				flowsMan.getAuthenticationFlows()
+						.stream()
+						.collect(Collectors.toList()),
+				authMan.getAuthenticators(null)
+						.stream()
+						.collect(Collectors.toList()),
+				homeServiceController.getAllHomeEndpoints()
+						.stream()
+						.map(e -> e.getName())
+						.collect(Collectors.toList()),
+				registrationMan.getForms()
+						.stream()
+						.filter(r -> r.isPubliclyAvailable())
+						.map(r -> r.getName())
+						.collect(Collectors.toList()),
+				endpointMan.getEndpoints()
+						.stream()
+						.map(e -> e.getContextAddress())
 						.collect(Collectors.toList()),
 				server.getUsedContextPaths(), authenticatorSupportService);
 	}

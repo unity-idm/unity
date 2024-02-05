@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.rest.console;
+package io.imunity.upman.rest.console.v8;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -11,11 +11,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import io.imunity.upman.rest.RESTUpmanEndpoint;
-import io.imunity.upman.rest.console.UpmanRestServiceConfiguration.UpmanRestServiceConfigurationProvider;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServicesControllerBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceController;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
+import io.imunity.upman.rest.console.v8.UpmanRestServiceConfiguration.UpmanRestServiceConfigurationProvider;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -28,9 +24,12 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.console.services.ServiceController;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 
-
-@Component
+@Component("UpmanRestServiceControllerV8")
 class UpmanRestServiceController extends DefaultServicesControllerBase implements ServiceController
 {
 	private final RealmsManagement realmsMan;

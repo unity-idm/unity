@@ -5,24 +5,25 @@
 
 package io.imunity.upman.rest.console;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.data.Binder;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.data.binder.Binder;
 
-import io.imunity.tooltip.TooltipExtension;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
+import io.imunity.vaadin.endpoint.common.api.services.idp.MandatoryGroupSelection;
+import io.imunity.vaadin.endpoint.common.api.services.tabs.GeneralTab;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
-import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 
 class UpmanRestServiceEditorGeneralTab extends GeneralTab
 {
@@ -32,87 +33,102 @@ class UpmanRestServiceEditorGeneralTab extends GeneralTab
 	private final List<String> attributes;
 
 	public UpmanRestServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type,
-	                                        List<String> usedEndpointsPaths, Set<String> serverContextPaths,
-	                                        List<Group> allGroups, List<String> attributes)
+			List<String> usedEndpointsPaths, Set<String> serverContextPaths, List<Group> allGroups,
+			List<String> attributes)
 	{
 		super(msg, type, usedEndpointsPaths, serverContextPaths);
 		this.allGroups = allGroups;
 		this.attributes = attributes;
 	}
 
-	public void initUI(Binder<DefaultServiceDefinition> serviceBinder,
-	                   Binder<UpmanRestServiceConfiguration> restBinder, boolean editMode)
+	public void initUI(Binder<DefaultServiceDefinition> serviceBinder, Binder<UpmanRestServiceConfiguration> restBinder,
+			boolean editMode)
 	{
 		super.initUI(serviceBinder, editMode);
 		this.restBinder = restBinder;
-		mainLayout.addComponent(buildGroupSection());
-		mainLayout.addComponent(buildAttributeSection());
-		mainLayout.addComponent(buildCorsSection());
+		add(buildGroupSection());
+		add(buildAttributeSection());
+		add(buildCorsSection());
 	}
 
-	
-	private Component buildAttributeSection()
+	private AccordionPanel buildAttributeSection()
 	{
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
-		ChipsWithDropdown<String> rootGroupAttributes = new ChipsWithDropdown<>();
-		rootGroupAttributes.setCaption(msg.getMessage("UpmanRestServiceEditorComponent.rootGroupAttributes"));
+		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+
+		MultiSelectComboBox<String> rootGroupAttributes = new MultiSelectComboBox<>();
+		rootGroupAttributes.setWidth(TEXT_FIELD_BIG.value());
 		rootGroupAttributes.setItems(attributes);
-		rootGroupAttributes.setDescription(msg.getMessage("UpmanRestServiceEditorComponent.rootGroupAttributesDescription"));
-		rootGroupAttributes.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
+		rootGroupAttributes
+				.setTooltipText(msg.getMessage("UpmanRestServiceEditorComponent.rootGroupAttributesDescription"));
+		main.addFormItem(rootGroupAttributes, msg.getMessage("UpmanRestServiceEditorComponent.rootGroupAttributes"));
+		restBinder.forField(rootGroupAttributes)
+				.withConverter(List::copyOf, HashSet::new)
+				.asRequired()
+				.bind("rootGroupAttributes");
 
-		TooltipExtension.tooltip(rootGroupAttributes);
-		
-		main.addComponent(rootGroupAttributes);
-		restBinder.forField(rootGroupAttributes).asRequired().bind("rootGroupAttributes");
-		CollapsibleLayout attributes = new CollapsibleLayout(msg.getMessage("UpmanRestServiceEditorComponent.attributes"), main);
-		attributes.expand();
+		AccordionPanel attributes = new AccordionPanel(msg.getMessage("UpmanRestServiceEditorComponent.attributes"),
+				main);
+		attributes.setWidthFull();
+		attributes.setOpened(true);
 		return attributes;
+
 	}
-	
-	private Component buildGroupSection()
+
+	private AccordionPanel buildGroupSection()
 	{
 
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
+		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
 		MandatoryGroupSelection rootGroup = new MandatoryGroupSelection(msg);
-		rootGroup.setCaption(msg.getMessage("UpmanRestServiceEditorComponent.rootGroup"));
-		rootGroup.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
+		rootGroup.setWidth(TEXT_FIELD_BIG.value());
 		rootGroup.setItems(allGroups);
-		main.addComponent(rootGroup);
-		restBinder.forField(rootGroup).asRequired().bind("rootGroup");
+		main.addFormItem(rootGroup, msg.getMessage("UpmanRestServiceEditorComponent.rootGroup"));
+		restBinder.forField(rootGroup)
+				.asRequired()
+				.bind("rootGroup");
 
 		MandatoryGroupSelection authorizationGroup = new MandatoryGroupSelection(msg);
-		authorizationGroup.setCaption(msg.getMessage("UpmanRestServiceEditorComponent.authorizationGroup"));
-		authorizationGroup.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
+		authorizationGroup.setWidth(TEXT_FIELD_BIG.value());
 		authorizationGroup.setItems(allGroups);
-		main.addComponent(authorizationGroup);
-		restBinder.forField(authorizationGroup).asRequired().bind("authorizationGroup");
+		main.addFormItem(authorizationGroup, msg.getMessage("UpmanRestServiceEditorComponent.authorizationGroup"));
 
-		CollapsibleLayout components = new CollapsibleLayout(msg.getMessage("UpmanRestServiceEditorComponent.groups"), main);
-		components.expand();		
+		restBinder.forField(authorizationGroup)
+				.asRequired()
+				.bind("authorizationGroup");
+
+		AccordionPanel components = new AccordionPanel(msg.getMessage("UpmanRestServiceEditorComponent.groups"), main);
+		components.setWidthFull();
+		components.setOpened(true);
 		return components;
+
 	}
 
-	private Component buildCorsSection()
+	private AccordionPanel buildCorsSection()
 	{
 
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
-
-		ChipsWithTextfield allowedCORSheaders = new ChipsWithTextfield(msg);
-		allowedCORSheaders.setCaption(msg.getMessage("RestAdminServiceEditorComponent.allowedCORSheaders"));
-		restBinder.forField(allowedCORSheaders).bind("allowedCORSheaders");
-		main.addComponent(allowedCORSheaders);
-
-		ChipsWithTextfield allowedCORSorigins = new ChipsWithTextfield(msg);
-		allowedCORSorigins.setCaption(msg.getMessage("RestAdminServiceEditorComponent.allowedCORSorigins"));
-		main.addComponent(allowedCORSorigins);
-		restBinder.forField(allowedCORSorigins).bind("allowedCORSorigins");
-
-		CollapsibleLayout corsSection = new CollapsibleLayout(
-			msg.getMessage("RestAdminServiceEditorComponent.cors"), main);
+		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		MultiSelectComboBox<String> allowedCORSheaders = new CustomValuesMultiSelectComboBox();
+		allowedCORSheaders.setWidth(TEXT_FIELD_BIG.value());
+		allowedCORSheaders.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		main.addFormItem(allowedCORSheaders, msg.getMessage("RestAdminServiceEditorComponent.allowedCORSheaders"));
+		restBinder.forField(allowedCORSheaders)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind("allowedCORSheaders");
+		MultiSelectComboBox<String> allowedCORSorigins = new CustomValuesMultiSelectComboBox();
+		allowedCORSorigins.setWidth(TEXT_FIELD_BIG.value());
+		allowedCORSorigins.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		main.addFormItem(allowedCORSorigins, msg.getMessage("RestAdminServiceEditorComponent.allowedCORSorigins"));
+		restBinder.forField(allowedCORSorigins)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind("allowedCORSorigins");
+		AccordionPanel corsSection = new AccordionPanel(msg.getMessage("RestAdminServiceEditorComponent.cors"), main);
+		corsSection.setWidthFull();
 		return corsSection;
 	}
 

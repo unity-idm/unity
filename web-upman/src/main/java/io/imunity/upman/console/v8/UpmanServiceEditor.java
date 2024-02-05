@@ -3,44 +3,45 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.console;
+package io.imunity.upman.console.v8;
 
 import java.util.List;
 import java.util.Set;
 
 import io.imunity.upman.UpManEndpointFactory;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthenticationTab;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 class UpmanServiceEditor implements ServiceEditor
 {
-	private final MessageSource msg;
-	private final List<String> allRealms;
-	private final List<AuthenticationFlowDefinition> flows;
-	private final List<AuthenticatorInfo> authenticators;
-	private final List<String> upManServices;
-	private final List<String> registrationForms;
-	private final VaadinLogoImageLoader imageAccessService;	
-	private final FileStorageService fileStorageService;
-	private final UnityServerConfiguration serverConfig;
-	private final AuthenticatorSupportService authenticatorSupportService;
-	private final List<String> usedEndpointsPaths;
-	private final Set<String> serverContextPaths;
+	private MessageSource msg;
+	private List<String> allRealms;
+	private List<AuthenticationFlowDefinition> flows;
+	private List<AuthenticatorInfo> authenticators;
 	private UpmanEditorComponent editor;
+	private List<String> upManServices;
+	private List<String> registrationForms;
+	private URIAccessService uriAccessService;
+	private FileStorageService fileStorageService;
+	private UnityServerConfiguration serverConfig;
+	private AuthenticatorSupportService authenticatorSupportService;
+	private List<String> usedEndpointsPaths;
+	private Set<String> serverContextPaths;
+	private ImageAccessService imageAccessService;
 
-	UpmanServiceEditor(MessageSource msg, VaadinLogoImageLoader imageAccessService, 
+	UpmanServiceEditor(MessageSource msg, URIAccessService uriAccessService, ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, List<String> upManServices,
@@ -48,17 +49,18 @@ class UpmanServiceEditor implements ServiceEditor
 			AuthenticatorSupportService authenticatorSupportService)
 	{
 		this.msg = msg;
+		this.imageAccessService = imageAccessService;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
 		this.upManServices = upManServices;
 		this.registrationForms = registrationForms;
+		this.uriAccessService = uriAccessService;
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.usedEndpointsPaths = usedPaths;
 		this.serverContextPaths = serverContextPaths;
-		this.imageAccessService = imageAccessService;
 	}
 
 	@Override
@@ -67,7 +69,7 @@ class UpmanServiceEditor implements ServiceEditor
 
 		UpmanServiceEditorGeneralTab homeServiceEditorGeneralTab = new UpmanServiceEditorGeneralTab(msg,
 				UpManEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths, upManServices);
-		WebServiceAuthenticationTab authenticationTab = new WebServiceAuthenticationTab(msg,
+		WebServiceAuthenticationTab authenticationTab = new WebServiceAuthenticationTab(msg, uriAccessService,
 				serverConfig, authenticatorSupportService, flows, authenticators, allRealms,
 				registrationForms, UpManEndpointFactory.TYPE.getSupportedBinding());
 

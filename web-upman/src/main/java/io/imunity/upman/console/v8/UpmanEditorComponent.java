@@ -3,24 +3,22 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.console;
+package io.imunity.upman.console.v8;
 
-
-import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.data.Binder;
 
 import io.imunity.upman.UpManEndpointFactory;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.ServiceWebConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthenticationTab;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 class UpmanEditorComponent extends ServiceEditorBase
 {
@@ -30,7 +28,7 @@ class UpmanEditorComponent extends ServiceEditorBase
 	private FileStorageService fileStorageService;
 
 	UpmanEditorComponent(MessageSource msg, UpmanServiceEditorGeneralTab generalTab,
-			WebServiceAuthenticationTab authTab, VaadinLogoImageLoader imageAccessService, 
+			WebServiceAuthenticationTab authTab, ImageAccessService imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			DefaultServiceDefinition toEdit)
 	{

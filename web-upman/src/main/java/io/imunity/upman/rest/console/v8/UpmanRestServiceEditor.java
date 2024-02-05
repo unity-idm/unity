@@ -3,25 +3,24 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman.rest.console;
+package io.imunity.upman.rest.console.v8;
 
 import java.util.List;
 import java.util.Set;
 
 import io.imunity.upman.rest.RESTUpmanEndpoint;
-import io.imunity.upman.rest.console.UpmanRestServiceConfiguration.UpmanRestServiceConfigurationProvider;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
+import io.imunity.upman.rest.console.v8.UpmanRestServiceConfiguration.UpmanRestServiceConfigurationProvider;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 class UpmanRestServiceEditor implements ServiceEditor
 {
@@ -71,6 +70,4 @@ class UpmanRestServiceEditor implements ServiceEditor
 	{
 		return editor.getServiceDefiniton();
 	}
-
-	
 }
