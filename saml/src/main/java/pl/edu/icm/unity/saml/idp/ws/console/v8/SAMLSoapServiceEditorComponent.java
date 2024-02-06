@@ -3,28 +3,29 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.ws.console;
+package pl.edu.icm.unity.saml.idp.ws.console.v8;
 
-import com.vaadin.flow.data.binder.Binder;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpEditorUsersTab;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.vaadin.data.Binder;
+
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.saml.idp.console.SAMLEditorClientsTab;
-import pl.edu.icm.unity.saml.idp.console.SAMLEditorGeneralTab;
-import pl.edu.icm.unity.saml.idp.console.SAMLServiceConfiguration;
+import pl.edu.icm.unity.saml.idp.console.v8.SAMLEditorClientsTab;
+import pl.edu.icm.unity.saml.idp.console.v8.SAMLEditorGeneralTab;
+import pl.edu.icm.unity.saml.idp.console.v8.SAMLServiceConfiguration;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import java.util.List;
-import java.util.stream.Collectors;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 /**
  * SAML SAOP Service editor ui component. It consists of 4 tabs: general,
@@ -35,16 +36,16 @@ import java.util.stream.Collectors;
  */
 class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 {
-	private final FileStorageService fileStorageService;
-	private final PKIManagement pkiMan;
-	private final Binder<SAMLServiceConfiguration> samlConfigBinder;
-	private final Binder<DefaultServiceDefinition> samlServiceBinder;
+	private FileStorageService fileStorageService;
+	private PKIManagement pkiMan;
+	private Binder<SAMLServiceConfiguration> samlConfigBinder;
+	private Binder<DefaultServiceDefinition> samlServiceBinder;
 
 	SAMLSoapServiceEditorComponent(MessageSource msg, SAMLEditorGeneralTab generalTab,
 			SAMLEditorClientsTab clientsTab, IdpEditorUsersTab usersTab,
 			AuthenticationTab authTab, EndpointTypeDescription type, PKIManagement pkiMan,
 			URIAccessService uriAccessService,
-			VaadinLogoImageLoader imageAccessService,
+			ImageAccessService imageAccessService,
 			FileStorageService fileStorageService,
 			ServiceDefinition toEdit, List<Group> allGroups)
 	{

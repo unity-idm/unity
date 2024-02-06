@@ -3,18 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.ws.console;
+package pl.edu.icm.unity.saml.idp.ws.console.v8;
 
-import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpEditorUsersTab;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpUser;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.group.Group;
@@ -25,14 +20,18 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.saml.idp.console.SAMLEditorClientsTab;
-import pl.edu.icm.unity.saml.idp.console.SAMLEditorGeneralTab;
-import pl.edu.icm.unity.saml.idp.console.SAMLUsersEditorTab;
+import pl.edu.icm.unity.saml.idp.console.v8.SAMLEditorClientsTab;
+import pl.edu.icm.unity.saml.idp.console.v8.SAMLEditorGeneralTab;
+import pl.edu.icm.unity.saml.idp.console.v8.SAMLUsersEditorTab;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 /**
  * SAML SOAP Service editor
@@ -42,41 +41,40 @@ import java.util.Set;
  */
 public class SAMLSoapServiceEditor implements ServiceEditor
 {
-	private final MessageSource msg;
-	private final EndpointTypeDescription type;
-	private final PKIManagement pkiMan;
-	private final List<String> allRealms;
-	private final List<AuthenticationFlowDefinition> flows;
-	private final List<AuthenticatorInfo> authenticators;
+	private MessageSource msg;
+	private EndpointTypeDescription type;
+	private PKIManagement pkiMan;
+	private List<String> allRealms;
+	private List<AuthenticationFlowDefinition> flows;
+	private List<AuthenticatorInfo> authenticators;
 	private SAMLSoapServiceEditorComponent editor;
-	private final List<String> allAttributes;
-	private final List<Group> allGroups;
-	private final List<IdpUser> allUsers;
-	private final Set<String> credentials;
-	private final Set<String> truststores;
-	private final URIAccessService uriAccessService;
-	private final FileStorageService fileStorageService;
-	private final UnityServerConfiguration serverConfig;
-	private final String serverPrefix;
-	private final Set<String> serverContextPaths;
-	private final Collection<IdentityType> idTypes;
-	private final SubViewSwitcher subViewSwitcher;
-	private final OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
-	private final List<String> usedPaths;
-	private final VaadinLogoImageLoader imageAccessService;
-	private final NotificationPresenter notificationPresenter;
+	private List<String> allAttributes;
+	private List<Group> allGroups;
+	private List<IdpUser> allUsers;
+	private Set<String> credentials;
+	private Set<String> truststores;
+	private URIAccessService uriAccessService;
+	private FileStorageService fileStorageService;
+	private UnityServerConfiguration serverConfig;
+	private String serverPrefix;
+	private Set<String> serverContextPaths;
+	private Collection<IdentityType> idTypes;
+	private SubViewSwitcher subViewSwitcher;
+	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
+	private List<String> usedPaths;
+	private ImageAccessService imageAccessService;
 
 	public SAMLSoapServiceEditor(MessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
 			SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, String serverPrefix,
 			Set<String> serverContextPaths,
-			URIAccessService uriAccessService, VaadinLogoImageLoader imageAccessService,
+			URIAccessService uriAccessService, ImageAccessService imageAccessService,
 			FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> allAttributes, List<Group> allGroups, List<IdpUser> allUsers,
 			Set<String> credentials, Set<String> truststores, Collection<IdentityType> idTypes,
-			List<String> usedPaths, NotificationPresenter notificationPresenter)
+			List<String> usedPaths)
 	{
 		this.msg = msg;
 		this.type = type;
@@ -99,20 +97,19 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 		this.allUsers = allUsers;
 		this.truststores = truststores;
 		this.pkiMan = pkiMan;
-		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
 		
-		SAMLEditorGeneralTab samlEditorGeneralTab = new SAMLEditorGeneralTab(msg, serverPrefix, serverContextPaths,
+		SAMLEditorGeneralTab samlEditorGeneralTab = new SAMLEditorGeneralTab(msg, serverPrefix, serverContextPaths, 
 				serverConfig, subViewSwitcher,
 				outputTranslationProfileFieldFactory,
 				usedPaths, credentials, truststores, idTypes);
 		
 		SAMLEditorClientsTab clientsTab = new SAMLEditorClientsTab(msg, pkiMan, serverConfig, uriAccessService,
-				fileStorageService, subViewSwitcher, notificationPresenter);
+				fileStorageService, subViewSwitcher);
 		
 		IdpEditorUsersTab usersTab = new SAMLUsersEditorTab(msg, allGroups, allUsers,
 				allAttributes);
@@ -121,7 +118,6 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 		
 		editor = new SAMLSoapServiceEditorComponent(msg, samlEditorGeneralTab, clientsTab, usersTab, authTab,
 				type, pkiMan, uriAccessService, imageAccessService, fileStorageService, endpoint, allGroups);
-		editor.setWidthFull();
 		return editor;
 	}
 

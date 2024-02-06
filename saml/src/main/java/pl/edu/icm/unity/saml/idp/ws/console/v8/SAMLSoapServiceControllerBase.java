@@ -3,16 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.saml.idp.ws.console;
+package pl.edu.icm.unity.saml.idp.ws.console.v8;
 
-import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServicesControllerBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpServiceController;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpUsersHelper;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -25,6 +18,12 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 
 import java.util.stream.Collectors;
 
@@ -44,18 +43,17 @@ abstract class SAMLSoapServiceControllerBase extends DefaultServicesControllerBa
 	private NetworkServer server;
 	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
 	private IdpUsersHelper idpUserHelper;
-	private VaadinLogoImageLoader imageAccessService;
+	private ImageAccessService imageAccessService;
 	private AdvertisedAddressProvider advertisedAddrProvider;
-	private NotificationPresenter notificationPresenter;
 
 	public SAMLSoapServiceControllerBase(MessageSource msg, EndpointManagement endpointMan, MessageSource msg2,
 			EndpointManagement endpointMan2, RealmsManagement realmsMan, AuthenticationFlowManagement flowsMan,
-			AuthenticatorManagement authMan, AttributeTypeManagement atMan, VaadinLogoImageLoader imageAccessService,
+			AuthenticatorManagement authMan, AttributeTypeManagement atMan, ImageAccessService imageAccessService,
 			BulkGroupQueryService bulkService, URIAccessService uriAccessService, FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, IdentityTypeSupport idTypeSupport, PKIManagement pkiMan,
 			NetworkServer server, OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			IdpUsersHelper idpUserHelper, AdvertisedAddressProvider advertisedAddrProvider,
-			EndpointFileConfigurationManagement serviceFileConfigController, NotificationPresenter notificationPresenter)
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
@@ -73,7 +71,6 @@ abstract class SAMLSoapServiceControllerBase extends DefaultServicesControllerBa
 		this.outputTranslationProfileFieldFactory = outputTranslationProfileFieldFactory;
 		this.idpUserHelper = idpUserHelper;
 		this.advertisedAddrProvider = advertisedAddrProvider;
-		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
@@ -96,7 +93,7 @@ abstract class SAMLSoapServiceControllerBase extends DefaultServicesControllerBa
 						.stream().map(g -> g.getGroup()).collect(Collectors.toList()),
 				idpUserHelper.getAllUsers(), pkiMan.getCredentialNames(), pkiMan.getValidatorNames(),
 				idTypeSupport.getIdentityTypes(), endpointMan.getEndpoints().stream()
-						.map(e -> e.getContextAddress()).collect(Collectors.toList()), notificationPresenter);
+						.map(e -> e.getContextAddress()).collect(Collectors.toList()));
 	}
 
 	public abstract EndpointTypeDescription getType();
