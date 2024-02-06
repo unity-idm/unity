@@ -5,8 +5,8 @@
 
 package io.imunity.vaadin.endpoint.common.api.services.idp;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Represent single active value configuration in idp service
@@ -17,8 +17,8 @@ import java.util.Objects;
 public class ActiveValueConfig
 {
 	private String clientId;
-	private List<String> singleSelectableAttributes;
-	private List<String> multiSelectableAttributes;
+	private List<String> singleSelectableAttributes = new ArrayList<>();
+	private List<String> multiSelectableAttributes =  new ArrayList<>();
 
 	public ActiveValueConfig()
 	{
@@ -54,38 +54,4 @@ public class ActiveValueConfig
 	{
 		this.multiSelectableAttributes = multiSelectableAttributes;
 	}
-
-	public ActiveValueConfig clone() 
-	{
-		ActiveValueConfig clone = new ActiveValueConfig();
-		clone.setClientId(clientId);
-		clone.setMultiSelectableAttributes(multiSelectableAttributes);
-		clone.setSingleSelectableAttributes(singleSelectableAttributes);
-		return clone;
-	}
-	
-	
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(clientId, multiSelectableAttributes, singleSelectableAttributes);
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ActiveValueConfig other = (ActiveValueConfig) obj;
-		return Objects.equals(clientId, other.clientId)
-				&& Objects.equals(multiSelectableAttributes, other.multiSelectableAttributes)
-				&& Objects.equals(singleSelectableAttributes, other.singleSelectableAttributes);
-	}
-	
-	
-
 }

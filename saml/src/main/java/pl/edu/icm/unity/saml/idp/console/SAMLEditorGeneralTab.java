@@ -186,6 +186,7 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 		mainGeneralLayout.addFormItem(displayedName, msg.getMessage("ServiceEditorBase.displayedName"));
 
 		TextField description = new TextField();
+		description.setWidth(TEXT_FIELD_BIG.value());
 		samlServiceBinder.forField(description)
 				.bind(DefaultServiceDefinition::getDescription, DefaultServiceDefinition::setDescription);
 		mainGeneralLayout.addFormItem(description, msg.getMessage("ServiceEditorBase.description"));
@@ -389,9 +390,13 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 		idTypeMappingLayout.add(idMappings);
 		idMappings.addComboBoxColumn(SAMLIdentityMapping::getUnityId, SAMLIdentityMapping::setUnityId,
 				idTypes.stream().map(IdentityType::getName).collect(Collectors.toList()))
-				.setHeader(msg.getMessage("SAMLEditorGeneralTab.idMappings.unityId"));
+				.setHeader(msg.getMessage("SAMLEditorGeneralTab.idMappings.unityId"))
+				.setAutoWidth(true)
+				.setFlexGrow(2);
 		idMappings.addColumn(SAMLIdentityMapping::getSamlId, SAMLIdentityMapping::setSamlId, true)
-				.setHeader(msg.getMessage("SAMLEditorGeneralTab.idMappings.samlId"));
+				.setHeader(msg.getMessage("SAMLEditorGeneralTab.idMappings.samlId"))
+				.setAutoWidth(true)
+				.setFlexGrow(2);
 
 		idMappings.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(idMappings)

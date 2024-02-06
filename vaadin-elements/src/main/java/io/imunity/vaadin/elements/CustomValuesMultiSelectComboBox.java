@@ -10,6 +10,7 @@ import com.vaadin.flow.component.combobox.dataview.ComboBoxListDataView;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +41,7 @@ public class CustomValuesMultiSelectComboBox extends MultiSelectComboBox<String>
 	public ComboBoxListDataView<String> setItems(Collection<String> items)
 	{
 		ComboBoxListDataView<String> stringComboBoxListDataView = super.setItems(items);
-		this.items = stringComboBoxListDataView.getItems().collect(Collectors.toSet());
+		this.items = stringComboBoxListDataView.getItems().collect(Collectors.toCollection(LinkedHashSet::new));
 		return stringComboBoxListDataView;
 	}
 

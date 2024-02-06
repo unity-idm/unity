@@ -164,7 +164,7 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 		{
 			if (v != null)
 			{
-				if (v.getLocal() == null && !URIHelper.isWebReady(v.getSrc()))
+				if (v.getLocal() == null && !URIHelper.isWebReady(v.getSrc()) && !URIHelper.isLocalFile(v.getSrc()))
 				{
 					v.setVisible(false);
 					return ValidationResult.error(msg.getMessage("FileField.notWebUri"));

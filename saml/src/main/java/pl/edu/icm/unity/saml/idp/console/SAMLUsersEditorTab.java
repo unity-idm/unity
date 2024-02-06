@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static java.util.Optional.ofNullable;
 
 /**
  * SAML service editor users tab
@@ -57,10 +58,13 @@ public class SAMLUsersEditorTab extends IdpEditorUsersTab
 	protected Component buildGroupMappingsSection()
 	{
 		VerticalLayout groupMappingLayout = new VerticalLayout();
-		groupMappingLayout.setMargin(false);
+		groupMappingLayout.setPadding(false);
+		groupMappingLayout.setWidthFull();
 
 		clientsCombo = new Select<>();
+		clientsCombo.setRequiredIndicatorVisible(true);
 		groupMappings = new EditableGrid<>(msg::getMessage, GroupMapping::new);
+		groupMappings.setWidthFull();
 		groupMappingLayout.add(groupMappings);
 		groupMappings.addCustomColumn(GroupMapping::getClientId, GroupMapping::setClientId, clientsCombo)
 				.setHeader(msg.getMessage("IdpEditorUsersTab.client"))
@@ -70,13 +74,17 @@ public class SAMLUsersEditorTab extends IdpEditorUsersTab
 		groupCombo.setWidth(TEXT_FIELD_BIG.value());
 		groupCombo.setItems(allGroups);
 		groupCombo.setRequiredIndicatorVisible(false);
-		groupMappings.addCustomColumn(GroupMapping::getGroup, GroupMapping::setGroup,
-				groupCombo).setHeader(msg.getMessage("SAMLUsersEditorTab.group"));
+		groupMappings.addCustomColumn(
+				groupMapping -> ofNullable(groupMapping.getGroup()).map(group -> group.group().getName()).orElse(""),
+				GroupMapping::getGroup,
+				GroupMapping::setGroup,
+				groupCombo
+		).setHeader(msg.getMessage("SAMLUsersEditorTab.group"));
 		configBinder.forField(groupMappings).bind("groupMappings");
 
 		AccordionPanel accordionPanel = new AccordionPanel(
 				msg.getMessage("SAMLUsersEditorTab.groupMapping"), groupMappingLayout);
-		accordionPanel.setWidth(TEXT_FIELD_BIG.value());
+		accordionPanel.setWidthFull();
 		return accordionPanel;
 	}
 
@@ -85,12 +93,12 @@ public class SAMLUsersEditorTab extends IdpEditorUsersTab
 	{
 		super.setAvailableClients(clients);
 		clientsCombo.setItems(clients.keySet());
-		clientsCombo.setItemLabelGenerator(clients::get);
+		clientsCombo.setItemLabelGenerator(key -> clients.getOrDefault(key, key));
 
 		List<GroupMapping> remainingConfig = new ArrayList<>();
 		for (GroupMapping ac : groupMappings.getValue())
 		{
-			if (clients.keySet().contains(ac.getClientId()))
+			if (clients.containsKey(ac.getClientId()))
 			{
 				remainingConfig.add(ac);
 			}

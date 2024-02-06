@@ -45,6 +45,8 @@ public class SAMLIndividualTrustedSPConfiguration
 
 	public SAMLIndividualTrustedSPConfiguration()
 	{
+		displayedName = new I18nString();
+		certificates = new ArrayList<>();
 		authorizedRedirectsUri = new ArrayList<>();
 		x500Name = false;
 	}

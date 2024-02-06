@@ -9,7 +9,6 @@ import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -17,6 +16,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import io.imunity.vaadin.elements.NoSpaceValidator;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -24,6 +24,7 @@ import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.endpoint.common.api.UnitySubView;
 import io.imunity.vaadin.endpoint.common.file.FileField;
 import org.bouncycastle.asn1.x500.X500Name;
+import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
@@ -65,6 +66,7 @@ class EditIndividualTrustedSPSubView extends VerticalLayout implements UnitySubV
 		configBinder = new Binder<>(SAMLIndividualTrustedSPConfiguration.class);
 		FormLayout header = buildHeaderSection();
 		AccordionPanel singleLogout = buildSingleLogoutSection();
+		singleLogout.setWidthFull();
 		configBinder.setBean(editMode ? toEdit.clone() : new SAMLIndividualTrustedSPConfiguration());
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
@@ -100,8 +102,7 @@ class EditIndividualTrustedSPSubView extends VerticalLayout implements UnitySubV
 		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
-		TextField name = new TextField(msg.getMessage("EditIndividualTrustedSPSubView.name"));
-		name.focus();
+		TextField name = new TextField();
 		configBinder.forField(name).asRequired(msg.getMessage("fieldRequired"))
 				.withValidator(new NoSpaceValidator(msg::getMessage)).withValidator((s, c) -> {
 					if (usedNames.contains(s))
@@ -113,19 +114,22 @@ class EditIndividualTrustedSPSubView extends VerticalLayout implements UnitySubV
 						return ValidationResult.ok();
 					}
 
-				}).bind("name");
-		header.add(name);
+				}).bind(SAMLIndividualTrustedSPConfiguration::getName, SAMLIndividualTrustedSPConfiguration::setName);
+		header.addFormItem(name, msg.getMessage("EditIndividualTrustedSPSubView.name"));
 
 		LocalizedTextFieldDetails displayedName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
-		configBinder.forField(displayedName).bind("displayedName");
+		configBinder.forField(displayedName)
+				.withConverter(I18nString::new, I18nString::getLocalizedMap)
+				.bind(SAMLIndividualTrustedSPConfiguration::getDisplayedName, SAMLIndividualTrustedSPConfiguration::setDisplayedName);
 		header.addFormItem(displayedName, msg.getMessage("EditIndividualTrustedSPSubView.displayedName"));
 
 		FileField logo = new FileField(msg, "image/*", "logo.jpg", serverConfig.getFileSizeLimit());
+		logo.setEnabled(true);
 		logo.configureBinding(configBinder, "logo");
-		header.addFormItem(logo, "EditIndividualTrustedSPSubView.logo");
+		header.addFormItem(logo, msg.getMessage("EditIndividualTrustedSPSubView.logo"));
 
 		Checkbox x500Name = new Checkbox(msg.getMessage("EditIndividualTrustedSPSubView.X500NameUse"));
-		configBinder.forField(x500Name).bind("x500Name");
+		configBinder.forField(x500Name).bind(SAMLIndividualTrustedSPConfiguration::isX500Name, SAMLIndividualTrustedSPConfiguration::setX500Name);
 		header.addFormItem(x500Name, "");
 
 		TextField id = new TextField();
@@ -146,20 +150,24 @@ class EditIndividualTrustedSPSubView extends VerticalLayout implements UnitySubV
 			{
 				return ValidationResult.ok();
 			}
-		}).bind("id");
+		}).bind(SAMLIndividualTrustedSPConfiguration::getId, SAMLIndividualTrustedSPConfiguration::setId);
 		header.addFormItem(id, msg.getMessage("EditIndividualTrustedSPSubView.id"));
 
 		MultiSelectComboBox<String> certificatesCombo = new MultiSelectComboBox<>();
 		certificatesCombo.setItems(new ArrayList<>(certificates));
-		configBinder.forField(certificatesCombo).bind("certificates");
-		header.addFormItem(certificatesCombo, "EditIndividualTrustedSPSubView.certificates");
+		configBinder.forField(certificatesCombo)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(SAMLIndividualTrustedSPConfiguration::getCertificates, SAMLIndividualTrustedSPConfiguration::setCertificates);
+		header.addFormItem(certificatesCombo, msg.getMessage("EditIndividualTrustedSPSubView.certificates"));
 
 		Checkbox encryptAssertions = new Checkbox(
 				msg.getMessage("EditIndividualTrustedSPSubView.encryptAssertions"));
-		configBinder.forField(encryptAssertions).bind("encryptAssertions");
+		configBinder.forField(encryptAssertions)
+				.bind(SAMLIndividualTrustedSPConfiguration::isEncryptAssertions, SAMLIndividualTrustedSPConfiguration::setEncryptAssertions);
 		header.addFormItem(encryptAssertions, "");
 
-		ComboBox<String> authorizedURIs = new ComboBox<>();
+		MultiSelectComboBox<String> authorizedURIs = new CustomValuesMultiSelectComboBox();
+		authorizedURIs.setPlaceholder(msg.getMessage("typeAndConfirm"));
 		authorizedURIs.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(authorizedURIs).withValidator((v, c) -> {
 			if (v == null || v.isEmpty())
@@ -169,7 +177,9 @@ class EditIndividualTrustedSPSubView extends VerticalLayout implements UnitySubV
 			return ValidationResult.ok();
 		}
 
-		).bind("authorizedRedirectsUri");
+		)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(SAMLIndividualTrustedSPConfiguration::getAuthorizedRedirectsUri, SAMLIndividualTrustedSPConfiguration::setAuthorizedRedirectsUri);
 		header.addFormItem(authorizedURIs, msg.getMessage("EditIndividualTrustedSPSubView.authorizedURIs"));
 
 		return header;
@@ -183,27 +193,32 @@ class EditIndividualTrustedSPSubView extends VerticalLayout implements UnitySubV
 
 		TextField postLogoutEndpoint = new TextField();
 		postLogoutEndpoint.setWidth(TEXT_FIELD_BIG.value());
-		configBinder.forField(postLogoutEndpoint).bind("postLogoutEndpoint");
+		configBinder.forField(postLogoutEndpoint)
+				.bind(SAMLIndividualTrustedSPConfiguration::getPostLogoutEndpoint, SAMLIndividualTrustedSPConfiguration::setPostLogoutEndpoint);
 		singleLogout.addFormItem(postLogoutEndpoint, msg.getMessage("EditIndividualTrustedSPSubView.postLogoutEndpoint"));
 
 		TextField postLogoutResponseEndpoint = new TextField();
 		postLogoutResponseEndpoint.setWidth(TEXT_FIELD_BIG.value());
-		configBinder.forField(postLogoutResponseEndpoint).bind("postLogoutResponseEndpoint");
+		configBinder.forField(postLogoutResponseEndpoint)
+				.bind(SAMLIndividualTrustedSPConfiguration::getPostLogoutResponseEndpoint, SAMLIndividualTrustedSPConfiguration::setPostLogoutResponseEndpoint);
 		singleLogout.addFormItem(postLogoutResponseEndpoint, msg.getMessage("EditIndividualTrustedSPSubView.postLogoutResponseEndpoint"));
 
 		TextField redirectLogoutEndpoint = new TextField();
 		redirectLogoutEndpoint.setWidth(TEXT_FIELD_BIG.value());
-		configBinder.forField(redirectLogoutEndpoint).bind("redirectLogoutEndpoint");
+		configBinder.forField(redirectLogoutEndpoint)
+				.bind(SAMLIndividualTrustedSPConfiguration::getRedirectLogoutEndpoint, SAMLIndividualTrustedSPConfiguration::setRedirectLogoutEndpoint);
 		singleLogout.addFormItem(redirectLogoutEndpoint, msg.getMessage("EditIndividualTrustedSPSubView.redirectLogoutEndpoint"));
 
 		TextField redirectLogoutResponseEndpoint = new TextField();
 		redirectLogoutResponseEndpoint.setWidth(TEXT_FIELD_BIG.value());
-		configBinder.forField(redirectLogoutResponseEndpoint).bind("redirectLogoutResponseEndpoint");
+		configBinder.forField(redirectLogoutResponseEndpoint)
+				.bind(SAMLIndividualTrustedSPConfiguration::getRedirectLogoutResponseEndpoint, SAMLIndividualTrustedSPConfiguration::setRedirectLogoutResponseEndpoint);
 		singleLogout.addFormItem(redirectLogoutResponseEndpoint, msg.getMessage("EditIndividualTrustedSPSubView.redirectLogoutResponseEndpoint"));
 
 		TextField soapLogoutEndpoint = new TextField();
 		soapLogoutEndpoint.setWidth(TEXT_FIELD_BIG.value());
-		configBinder.forField(soapLogoutEndpoint).bind("soapLogoutEndpoint");
+		configBinder.forField(soapLogoutEndpoint)
+				.bind(SAMLIndividualTrustedSPConfiguration::getSoapLogoutEndpoint, SAMLIndividualTrustedSPConfiguration::setSoapLogoutEndpoint);
 		singleLogout.addFormItem(soapLogoutEndpoint, msg.getMessage("EditIndividualTrustedSPSubView.soapLogoutEndpoint"));
 
 		return new AccordionPanel(msg.getMessage("EditIndividualTrustedSPSubView.singleLogout"),

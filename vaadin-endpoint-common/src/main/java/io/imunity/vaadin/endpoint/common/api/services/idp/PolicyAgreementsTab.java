@@ -114,6 +114,7 @@ public class PolicyAgreementsTab extends CustomField<IdpPolicyAgreementsConfigur
 			return ValidationResult.ok();
 		}).bind(IdpPolicyAgreementsConfigurationVaadinBean::getAgreements, IdpPolicyAgreementsConfigurationVaadinBean::setAgreements);
 		VerticalLayout main = new VerticalLayout();
+		main.setPadding(false);
 		FormLayout header = new FormLayout();
 		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());

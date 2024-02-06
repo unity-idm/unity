@@ -5,30 +5,25 @@
 
 package io.imunity.vaadin.endpoint.common.api.services.tabs;
 
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
-
 import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
 import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase.EditorTab;
 import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 
 /**
@@ -72,7 +67,7 @@ public class AuthenticationTab extends VerticalLayout implements EditorTab
 		labels.put(msg.getMessage("ServiceEditorBase.flows"), flows);
 		labels.put(msg.getMessage("ServiceEditorBase.authenticators"), authenticators);
 		GroupedValuesChipsWithDropdown authAndFlows = new GroupedValuesChipsWithDropdown(labels);
-		authAndFlows.setWidth(50, Unit.EM);	
+		authAndFlows.setWidth(TEXT_FIELD_BIG.value());
 		binder.forField(authAndFlows)
 		.withConverter(List::copyOf, l -> new HashSet<>(l == null ? new ArrayList<>() : l))
 		.withValidator((v, c) -> {

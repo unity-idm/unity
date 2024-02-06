@@ -5,16 +5,6 @@
 
 package io.imunity.vaadin.elements.grid;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
@@ -43,6 +33,16 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 public class EditableGrid<T> extends CustomField<List<T>>
 {
@@ -150,10 +150,27 @@ public class EditableGrid<T> extends CustomField<List<T>>
 		return checkbox;
 	}
 	
-	public <F> Grid.Column<T> addCustomColumn(ValueProvider<T, F> get, Setter<T, F> set, HasValue<?, F> component)
+	public <F> Grid.Column<T> addCustomColumn(ValueProvider<T, F> componentValueGetter, Setter<T, F> componentValueSetter,
+			HasValue<?, F> component)
 	{
-		editor.getBinder().forField(component).bind(get, set);
-		Grid.Column<T> tColumn = grid.addColumn(get)
+		Binder.BindingBuilder<T, F> bindingBuilder = editor.getBinder().forField(component);
+		if(component.isRequiredIndicatorVisible())
+			bindingBuilder.asRequired();
+		bindingBuilder.bind(componentValueGetter, componentValueSetter);
+		Grid.Column<T> tColumn = grid.addColumn(componentValueGetter)
+				.setEditorComponent((Component) component);
+		putActionColumnToEnd(tColumn);
+		return tColumn;
+	}
+
+	public <F> Grid.Column<T> addCustomColumn(ValueProvider<T, String> columnValueProvider,
+			ValueProvider<T, F> componentValueGetter, Setter<T, F> componentValueSetter, HasValue<?, F> component)
+	{
+		Binder.BindingBuilder<T, F> bindingBuilder = editor.getBinder().forField(component);
+		if(component.isRequiredIndicatorVisible())
+			bindingBuilder.asRequired();
+		bindingBuilder.bind(componentValueGetter, componentValueSetter);
+		Grid.Column<T> tColumn = grid.addColumn(columnValueProvider)
 				.setEditorComponent((Component) component);
 		putActionColumnToEnd(tColumn);
 		return tColumn;

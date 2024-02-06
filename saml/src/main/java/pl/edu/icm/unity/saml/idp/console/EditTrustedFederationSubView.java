@@ -77,6 +77,7 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		this.validators = validators;
 		this.certificates = certificates;
 		this.usedNames = usedNames;
+		this.notificationPresenter = notificationPresenter;
 
 		editMode = toEdit != null;
 		binder = new Binder<>(SAMLServiceTrustedFederationConfiguration.class);
@@ -136,7 +137,7 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		binder.forField(url).asRequired(msg.getMessage("fieldRequired")).bind("url");
 		header.addFormItem(url, msg.getMessage("EditTrustedFederationSubView.url"));
 
-		httpsTruststore = new ComboBox<>(msg.getMessage("EditTrustedFederationSubView.httpsTruststore"));
+		httpsTruststore = new ComboBox<>();
 		httpsTruststore.setItems(validators);
 		binder.forField(httpsTruststore).bind("httpsTruststore");
 		header.addFormItem(httpsTruststore, msg.getMessage("EditTrustedFederationSubView.httpsTruststore"));
@@ -167,6 +168,7 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		ProgressBar spinner = new ProgressBar();
 		spinner.setIndeterminate(true);
 		spinner.setVisible(false);
+		spinner.setWidth("1em");
 		federationListLayout.add(spinner);
 		GridWithActionColumn<SAMLEntity> samlEntities = new GridWithActionColumn<>(msg::getMessage,
 				Collections.emptyList());
@@ -176,10 +178,12 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		samlEntities.addColumn(v -> v.id)
 				.setHeader(msg.getMessage("EditTrustedFederationSubView.entityIdentifier"))
 				.setAutoWidth(true);
+		samlEntities.removeActionColumn();
 
 		SearchField search = GridSearchFieldFactory.generateSearchField(samlEntities, msg::getMessage);
 		Toolbar<SAMLEntity> toolbar = new Toolbar<>();
 		toolbar.setWidthFull();
+		toolbar.setJustifyContentMode(JustifyContentMode.END);
 		toolbar.addSearch(search);
 		ComponentWithToolbar samlEntitiesListWithToolbar = new ComponentWithToolbar(samlEntities, toolbar);
 		samlEntitiesListWithToolbar.setSpacing(false);
@@ -209,10 +213,9 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		}
 
 		fetch.addClickListener(e -> {
-			ui.setPollInterval(500);
 			spinner.setVisible(true);
-			CompletableFuture.runAsync(() -> {
-
+			CompletableFuture.runAsync(() ->
+			{
 				try
 				{
 					EntitiesDescriptorDocument entDoc = metaDownloader.getCached(url.getValue())
@@ -229,16 +232,17 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 
 				} catch (Exception e1)
 				{
-					ui.access(() -> {
-						notificationPresenter.showError("", e1.getMessage());
-						ui.setPollInterval(-1);
+					ui.access(() ->
+					{
+						notificationPresenter.showError(e1.getMessage(), e1.getCause().getMessage());
 						spinner.setVisible(false);
 					});
 					samlEntities.setItems(Collections.emptyList());
 					samlEntitiesListWithToolbar.setVisible(false);
 				}
 
-				ui.access(() -> {
+				ui.access(() ->
+				{
 					ui.setPollInterval(-1);
 					spinner.setVisible(false);
 				});
@@ -249,13 +253,17 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		url.addValueChangeListener(e -> fetch.setEnabled(e.getValue() != null && !e.getValue().isEmpty()));
 
 		HorizontalLayout wrapper = new HorizontalLayout();
+		wrapper.setAlignItems(Alignment.CENTER);
 		wrapper.setMargin(false);
 		wrapper.add(fetch, spinner);
 
 		federationListLayout.add(wrapper);
 		federationListLayout.add(samlEntitiesListWithToolbar);
-		return new AccordionPanel(msg.getMessage("EditTrustedFederationSubView.serviceProviders"),
+		AccordionPanel accordionPanel = new AccordionPanel(
+				msg.getMessage("EditTrustedFederationSubView.serviceProviders"),
 				federationListLayout);
+		accordionPanel.setWidthFull();
+		return accordionPanel;
 	}
 
 	@Override

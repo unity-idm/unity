@@ -65,17 +65,36 @@ public class URIHelper
 		return isWebReady(uri);
 	}
 
+	public static boolean isLocalFile(String rawURI)
+	{
+		URI uri;
+		try
+		{
+			uri = parseURI(rawURI);
+		} catch (IllegalURIException e)
+		{
+			return false;
+		}
+		return isLocalFile(uri);
+	}
+
 	public static boolean isWebReady(URI uri)
 	{
 		if (uri != null && uri.getScheme() != null)
 		{
 			String scheme = uri.getScheme();
-			if (SUPPORTED_URL_SCHEMES.contains(scheme))
-			{
-				return true;
-			}
+			return SUPPORTED_URL_SCHEMES.contains(scheme);
 		}
+		return false;
+	}
 
+	public static boolean isLocalFile(URI uri)
+	{
+		if (uri != null && uri.getScheme() != null)
+		{
+			String scheme = uri.getScheme();
+			return SUPPORTED_LOCAL_FILE_SCHEMES.contains(scheme);
+		}
 		return false;
 	}
 

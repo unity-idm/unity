@@ -92,8 +92,8 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 
 	public void replaceElement(T old, T newElement)
 	{
-		contents.set(contents.indexOf(old), newElement);
-		dataProvider.refreshAll();
+		dataProvider.addItemBefore(newElement, old);
+		dataProvider.removeItem(old);
 		deselectAll();
 	}
 
@@ -127,7 +127,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 
 	public List<T> getElements()
 	{
-		return contents;
+		return dataProvider.getItems().toList();
 	}
 
 	public void removeElement(T el)
@@ -165,6 +165,15 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		}
 		actionColumn = super.addComponentColumn(e -> getButtonComponent(Set.of(e))).setHeader(msg.apply("actions"))
 				.setTextAlign(ColumnTextAlign.END).setFlexGrow(1).setResizable(false);
+	}
+
+	public void removeActionColumn()
+	{
+		if (actionColumn != null)
+		{
+			removeColumn(actionColumn);
+			actionColumn = null;
+		}
 	}
 
 	public void addHamburgerActions(List<SingleActionHandler<T>> handlers)

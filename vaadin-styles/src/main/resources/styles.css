@@ -99,6 +99,14 @@ vaadin-button[theme=primary]:hover {
     background-color: var(--unity-hover-button-color);
 }
 
+vaadin-button[theme=tertiary]:hover {
+    cursor: pointer;
+}
+
+vaadin-button[theme=tertiary]:hover:before {
+    opacity: 0;
+}
+
 vaadin-icon[disabled] {
     color: var(--lumo-disabled-text-color);
 }

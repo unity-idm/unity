@@ -7,12 +7,14 @@ package io.imunity.vaadin.endpoint.common.api.services.idp;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.function.SerializablePredicate;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.SearchField;
 import io.imunity.vaadin.elements.grid.EditableGrid;
 import io.imunity.vaadin.elements.grid.GridSearchFieldFactory;
@@ -27,6 +29,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import java.util.*;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 /**
  * Common Idp service editor users tab
@@ -43,6 +46,7 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 	private final List<String> allAttrTypes;
 	private SerializablePredicate<IdpUser> searchFilter = null;
 	protected Map<String, String> availableClients;
+	protected ComboBox<String> availableClientsCombobox;
 	private EditableGrid<ActiveValueConfig> releasedAttrsGrid;
 
 	public IdpEditorUsersTab(MessageSource msg, List<Group> groups,
@@ -57,6 +61,7 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 
 	public void initUI(Binder<?> configBinder)
 	{
+		setPadding(false);
 		this.configBinder = configBinder;
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setPadding(false);
@@ -68,7 +73,7 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 	protected Component buildUsersSection()
 	{
 		VerticalLayout mainClientLayout = new VerticalLayout();
-		mainClientLayout.setMargin(false);
+		mainClientLayout.setPadding(false);
 
 		GridWithActionColumn<IdpUser> usersGrid = new GridWithActionColumn<>(msg::getMessage, Collections.emptyList());
 		usersGrid.addColumn(u -> "[" + u.entity() + "] " + (u.name() != null ? u.name() : ""))
@@ -76,7 +81,7 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 		usersGrid.addColumn(u -> u.state().toString())
 				.setHeader(msg.getMessage("IdpEditorUsersTab.status"));
 		usersGrid.setItems(allUsers);
-
+		usersGrid.removeActionColumn();
 
 		SearchField searchText = GridSearchFieldFactory.generateSearchField(usersGrid, msg::getMessage);
 		searchText.addValueChangeListener(event -> {
@@ -97,12 +102,13 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 		Toolbar<IdpUser> toolbar = new Toolbar<>();
 		toolbar.setWidthFull();
 		toolbar.addSearch(searchText);
+		toolbar.setJustifyContentMode(JustifyContentMode.END);
 		ComponentWithToolbar usersGridWithToolbar = new ComponentWithToolbar(usersGrid, toolbar);
 		usersGridWithToolbar.setSpacing(false);
 		usersGridWithToolbar.setSizeFull();
 
 		VerticalLayout usersWrapper = new VerticalLayout();
-		usersWrapper.setMargin(true);
+		usersWrapper.setPadding(false);
 		usersWrapper.add(usersGridWithToolbar);
 
 		FormLayout comboWrapper = new FormLayout();
@@ -111,6 +117,7 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 		MandatoryGroupSelection groupCombo = new MandatoryGroupSelection(msg);
 		groupCombo.setItems(allGroups);
 		groupCombo.setRequiredIndicatorVisible(false);
+		groupCombo.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(groupCombo)
 				.bind("usersGroup");
 		groupCombo.addValueChangeListener(e -> {
@@ -130,24 +137,44 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 		VerticalLayout mainAttrLayout = new VerticalLayout();
 		mainAttrLayout.setPadding(false);
 
+		availableClientsCombobox = new ComboBox<>();
+		availableClientsCombobox.setRequired(true);
 		releasedAttrsGrid = new EditableGrid<>(msg::getMessage, ActiveValueConfig::new);
-		releasedAttrsGrid.addComboBoxColumn(s -> availableClients.get(s.getClientId()), ActiveValueConfig::setClientId, availableClients.values().stream().toList())
-				.setHeader(msg.getMessage("IdpEditorUsersTab.client"))
-				.setAutoWidth(true);
-		releasedAttrsGrid.setWidth(TEXT_FIELD_BIG.value());
+		releasedAttrsGrid.addCustomColumn(ActiveValueConfig::getClientId, ActiveValueConfig::setClientId, availableClientsCombobox)
+				.setHeader(msg.getMessage("IdpEditorUsersTab.client"));
+		releasedAttrsGrid.setWidthFull();
 
-		MultiSelectComboBox<String> sattributes = new MultiSelectComboBox<>();
-		sattributes.setItems(allAttrTypes);
-		MultiSelectComboBox<String> mattributes = new MultiSelectComboBox<>();
-		mattributes.setItems(allAttrTypes);
+		List<String> sorted = allAttrTypes.stream().sorted().toList();
+		MultiSelectComboBox<String> sattributes = new CustomValuesMultiSelectComboBox();
+		sattributes.setItems(sorted);
+		sattributes.setWidth(TEXT_FIELD_MEDIUM.value());
+		sattributes.setPlaceholder(msg.getMessage("typeOrSelect"));
+		sattributes.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+		MultiSelectComboBox<String> mattributes = new CustomValuesMultiSelectComboBox();
+		mattributes.setPlaceholder(msg.getMessage("typeOrSelect"));
+		mattributes.setWidth(TEXT_FIELD_MEDIUM.value());
+		mattributes.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+		mattributes.setItems(sorted);
 
 		releasedAttrsGrid.addCustomColumn(
-				s -> new HashSet<>(s.getSingleSelectableAttributes()), (z, y) -> z.setSingleSelectableAttributes(List.of(y.toString())), sattributes)
-				.setHeader(msg.getMessage("IdpEditorUsersTab.singleActiveValueSelection"));
+				s -> String.join(",", s.getSingleSelectableAttributes()),
+				s -> new HashSet<>(s.getSingleSelectableAttributes()),
+				(z, y) -> z.setSingleSelectableAttributes(y.stream().toList()),
+				sattributes
+		)
+				.setHeader(msg.getMessage("IdpEditorUsersTab.singleActiveValueSelection"))
+				.setAutoWidth(true)
+				.setFlexGrow(2);
 
 		releasedAttrsGrid.addCustomColumn(
-				s -> new HashSet<>(s.getMultiSelectableAttributes()), (z, y) -> z.setMultiSelectableAttributes(List.of(y.toString())), mattributes
-				).setHeader(msg.getMessage("IdpEditorUsersTab.multipleActiveValueSelection"));
+				s -> String.join(",", s.getMultiSelectableAttributes()),
+				s -> new HashSet<>(s.getMultiSelectableAttributes()),
+				(z, y) -> z.setMultiSelectableAttributes(y.stream().toList()), mattributes
+		)
+				.setHeader(msg.getMessage("IdpEditorUsersTab.multipleActiveValueSelection"))
+				.setAutoWidth(true)
+				.setFlexGrow(2);
+
 
 		configBinder.forField(releasedAttrsGrid).bind("activeValueSelections");
 
@@ -186,11 +213,12 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 	public void setAvailableClients(Map<String, String> clients)
 	{
 		this.availableClients = clients;
+		availableClientsCombobox.setItems(clients.values());
 
 		List<ActiveValueConfig> remainingConfig = new ArrayList<>();
 		for (ActiveValueConfig ac : releasedAttrsGrid.getValue())
 		{
-			if (clients.keySet().contains(ac.getClientId()))
+			if (clients.containsKey(ac.getClientId()))
 			{
 				remainingConfig.add(ac);
 			}
