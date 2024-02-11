@@ -9,9 +9,10 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import io.imunity.scim.console.AttributeMappingBean;
+import io.imunity.scim.console.mapping.AttributeMappingBean;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "mappingType", defaultImpl = UndefinedMapping.class, visible=true)
 @JsonSubTypes(

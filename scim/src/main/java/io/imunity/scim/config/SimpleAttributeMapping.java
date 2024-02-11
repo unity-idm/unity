@@ -11,9 +11,9 @@ import java.util.Optional;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import io.imunity.scim.console.AttributeMappingBean;
-import io.imunity.scim.console.DataArrayBean;
-import io.imunity.scim.console.DataValueBean;
+import io.imunity.scim.console.mapping.AttributeMappingBean;
+import io.imunity.scim.console.mapping.DataArrayBean;
+import io.imunity.scim.console.mapping.DataValueBean;
 
 @JsonDeserialize(builder = SimpleAttributeMapping.Builder.class)
 public class SimpleAttributeMapping implements AttributeMapping

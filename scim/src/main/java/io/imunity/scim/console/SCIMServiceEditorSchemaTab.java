@@ -5,68 +5,68 @@
 
 package io.imunity.scim.console;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import org.vaadin.simplefiledownloader.SimpleFileDownloader;
-
-import com.vaadin.data.Binder;
-import com.vaadin.server.StreamResource;
-import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.ProgressBar;
-import com.vaadin.ui.Upload;
-import com.vaadin.ui.VerticalLayout;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.component.upload.receivers.FileBuffer;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.server.StreamResource;
 
 import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.console.EditSchemaSubView.EditSchemaSubViewFactory;
+import io.imunity.scim.console.mapping.SchemaWithMappingBean;
 import io.imunity.scim.schema.SchemaResourceDeserialaizer;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
-import pl.edu.icm.unity.webui.common.FileUploder;
-import pl.edu.icm.unity.webui.common.GridWithActionColumn;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
-import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
-class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
+class SCIMServiceEditorSchemaTab extends VerticalLayout implements EditorTab
 {
 	private final MessageSource msg;
 	private final SubViewSwitcher subViewSwitcher;
-	private final UnityServerConfiguration unityServerConfiguration;
 	private final EditSchemaSubViewFactory editSchemaSubViewFactory;
 	private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
+	private final NotificationPresenter notificationPresenter;
 
-	private SCIMServiceEditorSchemaTab(MessageSource msg, EditSchemaSubViewFactory editSchemaSubViewFactory,
+	private SCIMServiceEditorSchemaTab(MessageSource msg, NotificationPresenter notificationPresenter, EditSchemaSubViewFactory editSchemaSubViewFactory,
 			UnityServerConfiguration unityServerConfiguration, SubViewSwitcher subViewSwitcher,
 			ConfigurationVaadinBeanMapper configurationVaadinBeanMapper)
 	{
 		this.msg = msg;
-		this.unityServerConfiguration = unityServerConfiguration;
+		this.notificationPresenter = notificationPresenter;
 		this.subViewSwitcher = subViewSwitcher;
 		this.editSchemaSubViewFactory = editSchemaSubViewFactory;
 		this.configurationVaadinBeanMapper = configurationVaadinBeanMapper;
@@ -74,19 +74,24 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 
 	void initUI(Binder<SCIMServiceConfigurationBean> configBinder)
 	{
-		setIcon(Images.attributes.getResource());
-		setCaption(msg.getMessage("SCIMServiceEditorSchemaTab.schemas"));
-		VerticalLayout mainWrapper = new VerticalLayout();
-		mainWrapper.setMargin(false);
-
-		ChipsWithFreeText membershipAttributes = new ChipsWithFreeText(msg);
-		membershipAttributes.setCaption(msg.getMessage("SCIMServiceEditorSchemaTab.membershipAttributes"));
-		configBinder.forField(membershipAttributes).bind("membershipAttributes");
-		mainWrapper.addComponent(new FormLayout(membershipAttributes));
-
+		VerticalLayout mainL = new VerticalLayout();
+		mainL.setSizeFull();
+		
+		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		MultiSelectComboBox<String> membershipAttributes = new CustomValuesMultiSelectComboBox();
+		membershipAttributes.setWidth(TEXT_FIELD_BIG.value());
+		membershipAttributes.setPlaceholder(msg.getMessage("typeOrSelect"));
+		main.addFormItem(membershipAttributes, msg.getMessage("SCIMServiceEditorSchemaTab.membershipAttributes"));
+		configBinder.forField(membershipAttributes)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind("membershipAttributes");
+		mainL.add(main);
+		
 		SchemasComponent schemas = new SchemasComponent();
 		configBinder.forField(schemas).bind("schemas");
-		mainWrapper.addComponent(schemas);
+		mainL.add(schemas);
 
 		schemas.addValueChangeListener(e ->
 		{
@@ -99,8 +104,9 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 			}
 			membershipAttributes.setItems(attr);
 		});
-
-		setCompositionRoot(mainWrapper);
+		add(mainL);
+		setSizeFull();
+		
 	}
 
 	@Override
@@ -117,10 +123,22 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 
 	private class SchemasComponent extends CustomField<List<SchemaWithMappingBean>>
 	{
+		@Override
+		protected List<SchemaWithMappingBean> generateModelValue()
+		{
+			return schemasGrid.getElements();
+		}
+
+		@Override
+		protected void setPresentationValue(List<SchemaWithMappingBean> newPresentationValue)
+		{
+			schemasGrid.setItems(newPresentationValue);
+			
+		}
 		private GridWithActionColumn<SchemaWithMappingBean> schemasGrid;
 		private VerticalLayout main;
-		private FileUploder uploader;
-
+		private FileBuffer fileBuffer;
+		private Upload upload;
 		public SchemasComponent()
 		{
 			initUI();
@@ -129,51 +147,72 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 		private void initUI()
 		{
 			main = new VerticalLayout();
-			main.setMargin(new MarginInfo(true, false));
-
-			HorizontalLayout buttons = new HorizontalLayout();
-			main.addComponent(buttons);
-			main.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
-
-			Button add = new Button(msg.getMessage("create"));
-			add.addClickListener(e ->
-			{
-				setComponentError(null);
-				gotoNew();
-			});
-			add.setIcon(Images.add.getResource());
-			add.setStyleName(Styles.buttonAction.toString());
-
-			Upload upload = new Upload();
-			upload.setButtonCaption(msg.getMessage("SCIMServiceEditorSchemaTab.import"));
-			uploader = new FileUploder(upload, new ProgressBar(), new Label(), msg,
-					unityServerConfiguration.getFileValue(UnityServerConfiguration.WORKSPACE_DIRECTORY, true),
-					() -> importUserSchema());
-			uploader.register();
-			upload.setCaption(null);
-
-			buttons.addComponent(upload);
-			buttons.addComponent(add);
-
-			schemasGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-			schemasGrid.addComponentColumn(s -> StandardButtonsHelper.buildLinkButton(s.getId(), e -> gotoEdit(s)),
-					msg.getMessage("SCIMServiceEditorSchemaTab.schemaId"), 20);
-			schemasGrid.addCheckboxColumn(s -> s.isEnable(), msg.getMessage("SCIMServiceEditorSchemaTab.enabled"), 20);
+			main.setSizeFull();
+			main.setMargin(false);
+			main.setPadding(false);		
+			main.add(createHeaderActionLayout());
+			schemasGrid = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
 			schemasGrid.addComponentColumn(
-					s -> getMappingStatusLabel(!s.getType().equals(SchemaType.GROUP_CORE) && s.hasInvalidMappings()),
-					msg.getMessage("SCIMServiceEditorSchemaTab.mappingStatus"), 20);
-
-			main.addComponent(schemasGrid);
+					p ->
+					{
+						Button button = new Button(p.getName(), e -> gotoEdit(p));
+						button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+						return button;
+					})
+							.setHeader(msg.getMessage("SCIMServiceEditorSchemaTab.schemaId"))
+							.setAutoWidth(true);
+			
+			
+			
+			schemasGrid.addBooleanColumn(s -> s.isEnable()).setHeader(msg.getMessage("SCIMServiceEditorSchemaTab.enabled"));
+			schemasGrid.addComponentColumn(
+					s -> getMappingStatusLabel(!s.getType().equals(SchemaType.GROUP_CORE) && s.hasInvalidMappings())).setHeader(
+					msg.getMessage("SCIMServiceEditorSchemaTab.mappingStatus")).setAutoWidth(true);
+			schemasGrid.setWidthFull();
+			main.add(schemasGrid);
+			
+			add(main);
+			setSizeFull();
+			setMargin(false);
+			setPadding(false);
+			
 		}
-
-		private Label getMappingStatusLabel(boolean warn)
+		
+		public HorizontalLayout createHeaderActionLayout()
 		{
-			Label l = new Label();
-			l.setContentMode(ContentMode.HTML);
-			l.setValue(!warn ? Images.ok.getHtml() : Images.warn.getHtml());
-			return l;
+			HorizontalLayout headerLayout = new HorizontalLayout();
+			headerLayout.setPadding(false);
+			headerLayout.setMargin(false);
+			headerLayout.setSpacing(true);
+			headerLayout.setWidthFull();
+			Button addButton = new Button(msg.getMessage("create"), e -> gotoNew());
+			addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			addButton.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
+			Button importButton = new Button(msg.getMessage("SCIMServiceEditorSchemaTab.import"));
+			importButton.setIcon(VaadinIcon.DOWNLOAD.create());
+			fileBuffer = new FileBuffer();
+			upload = new Upload(fileBuffer);
+			upload.setAcceptedFileTypes("application/json");
+			upload.addFinishedListener(e -> importUserSchema());
+			upload.getElement()
+					.addEventListener("file-remove", e -> clear());
+			upload.addFileRejectedListener(
+					e -> notificationPresenter.showError(msg.getMessage("error"), e.getErrorMessage()));
+			upload.setDropAllowed(false);
+			upload.setVisible(true);
+			upload.setUploadButton(importButton);
+			headerLayout.add(upload);
+			headerLayout.add(addButton);
+			headerLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+			return headerLayout;
 		}
-
+		
+		private Icon getMappingStatusLabel(boolean warn)
+		{
+			return new Icon(!warn ? VaadinIcon.CHECK_CIRCLE_O : VaadinIcon.EXCLAMATION_CIRCLE_O);
+			
+		}
+		
 		private void importUserSchema()
 		{
 			try
@@ -182,28 +221,27 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 				try
 				{
 					schema = configurationVaadinBeanMapper.mapFromConfigurationSchema(
-							SchemaResourceDeserialaizer.deserializeUserSchemaFromFile(uploader.getFile()));
+							SchemaResourceDeserialaizer.deserializeUserSchemaFromFile(fileBuffer.getFileData().getFile()));
 				} catch (EngineException | RuntimeEngineException e)
 				{
-					NotificationPopup.showError(msg, "", e);
+					notificationPresenter.showError("", e.getMessage());
+					upload.clearFileList();
 					return;
 				}
-				uploader.clear();
+				upload.clearFileList();
 				if (schemasGrid.getElements().stream().filter(s -> s.getId().equals(schema.getId())).findAny()
 						.isPresent())
 				{
-					NotificationPopup.showError(
-							msg.getMessage("SCIMServiceEditorSchemaTab.schemaExistError", schema.getId()), "");
+					notificationPresenter.showError("", msg.getMessage("SCIMServiceEditorSchemaTab.schemaExistError", schema.getId()));
+					upload.clearFileList();
 					return;
 				}
 
 				schemasGrid.addElement(schema);
-				fireChange();
 			} catch (IOException e)
 			{
-				uploader.clear();
-				fireChange();
-				NotificationPopup.showError(msg, "Can not import schema", e);
+				upload.clearFileList();
+				notificationPresenter.showError("Can not import schema", e.getMessage());
 			}
 		}
 
@@ -212,10 +250,10 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 
 			SingleActionHandler<SchemaWithMappingBean> export = SingleActionHandler.builder(SchemaWithMappingBean.class)
 					.withCaption(msg.getMessage("SCIMServiceEditorSchemaTab.exportAction"))
-					.withIcon(Images.export.getResource()).withHandler(r -> export(r.iterator().next())).build();
+					.withIcon(VaadinIcon.UPLOAD).withHandler(r -> export(r.iterator().next())).build();
 
 			SingleActionHandler<SchemaWithMappingBean> edit = SingleActionHandler
-					.builder4Edit(msg, SchemaWithMappingBean.class).withHandler(r ->
+					.builder4Edit(msg::getMessage, SchemaWithMappingBean.class).withHandler(r ->
 					{
 						SchemaWithMappingBean edited = r.iterator().next();
 						gotoEdit(edited);
@@ -224,51 +262,58 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 					).build();
 
 			SingleActionHandler<SchemaWithMappingBean> remove = SingleActionHandler
-					.builder4Delete(msg, SchemaWithMappingBean.class).withHandler(r ->
+					.builder4Delete(msg::getMessage, SchemaWithMappingBean.class).withHandler(r ->
 					{
 
 						SchemaWithMappingBean schema = r.iterator().next();
 						schemasGrid.removeElement(schema);
-
-						fireChange();
 					}).withDisabledPredicate(s -> !getEditMode(s).equals(AttributesEditMode.FULL_EDIT)).build();
 
 			return Arrays.asList(export, edit, remove);
 		}
 
+		
 		private void export(SchemaWithMappingBean mapping)
 		{
-			SimpleFileDownloader downloader;
-			try
-			{
-				downloader = getDownloader(mapping);
-			} catch (ControllerException e)
-			{
-				NotificationPopup.showError(msg, e);
-				return;
-			}
-			addExtension(downloader);
-			downloader.download();
+			Anchor download = new Anchor(getStreamResource(mapping), "");
+			download.getElement()
+					.setAttribute("download", true);
+			add(download);
+			download.getElement()
+					.executeJs("return new Promise(resolve =>{this.click(); setTimeout(() => resolve(true), 150)})",
+							download.getElement())
+					.then(j -> remove(download));
 		}
 
-		SimpleFileDownloader getDownloader(SchemaWithMappingBean mapping) throws ControllerException
+		private StreamResource getStreamResource(SchemaWithMappingBean mapping)
 		{
-			SimpleFileDownloader downloader = new SimpleFileDownloader();
-			StreamResource resource = null;
-			try
+			return new StreamResource(getNewFilename(mapping), () ->
 			{
-				byte[] content = Constants.MAPPER.writerWithDefaultPrettyPrinter()
-						.writeValueAsBytes(configurationVaadinBeanMapper.mapToConfigurationSchema(mapping));
-				resource = new StreamResource(() -> new ByteArrayInputStream(content), mapping.getName() + ".json");
 
-			} catch (Exception e)
+				try
+				{
+					byte[] content = Constants.MAPPER.writerWithDefaultPrettyPrinter()
+							.writeValueAsBytes(configurationVaadinBeanMapper.mapToConfigurationSchema(mapping));
+					return new ByteArrayInputStream(content);
+				} catch (Exception e)
+				{
+					throw new RuntimeException(e);
+				}
+			})
 			{
-				throw new ControllerException(
-						msg.getMessage("SCIMServiceEditorSchemaTab.exportError", mapping.getName()), e);
-			}
+				@Override
+				public Map<String, String> getHeaders()
+				{
+					Map<String, String> headers = new HashMap<>(super.getHeaders());
+					headers.put("Content-Disposition", "attachment; filename=\"" + getNewFilename(mapping) + "\"");
+					return headers;
+				}
+			};
+		}
 
-			downloader.setFileDownloadResource(resource);
-			return downloader;
+		private String getNewFilename(SchemaWithMappingBean mapping)
+		{
+			return mapping.getName()  + ".json";
 		}
 
 		private void gotoNew()
@@ -300,7 +345,7 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 						getEditMode(edited), s ->
 						{
 							onConfirm.accept(s);
-							fireChange();
+						//	fireChange();
 							schemasGrid.focus();
 						}, () ->
 						{
@@ -310,32 +355,8 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 				subViewSwitcher.goToSubView(subView);
 			} catch (EngineException e)
 			{
-				NotificationPopup.showError(msg, "Can not edit schema", e);
+				notificationPresenter.showError("Can not edit schema", e.getMessage());
 			}
-		}
-
-		@Override
-		public List<SchemaWithMappingBean> getValue()
-		{
-			return schemasGrid.getElements();
-		}
-
-		@Override
-		protected Component initContent()
-		{
-			return main;
-		}
-
-		@Override
-		protected void doSetValue(List<SchemaWithMappingBean> value)
-		{
-			schemasGrid.setItems(value);
-
-		}
-
-		private void fireChange()
-		{
-			fireEvent(new ValueChangeEvent<List<SchemaWithMappingBean>>(this, schemasGrid.getElements(), true));
 		}
 
 		private AttributesEditMode getEditMode(SchemaWithMappingBean schema)
@@ -360,10 +381,12 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 		private final MessageSource msg;
 		private final UnityServerConfiguration configuration;
 		private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
+		private final NotificationPresenter notificationPresenter;
 
-		SCIMServiceEditorSchemaTabFactory(EditSchemaSubViewFactory editSchemaSubViewFactory, MessageSource msg,
+		SCIMServiceEditorSchemaTabFactory(NotificationPresenter notificationPresenter, EditSchemaSubViewFactory editSchemaSubViewFactory, MessageSource msg,
 				ConfigurationVaadinBeanMapper configurationVaadinBeanMapper, UnityServerConfiguration configuration)
 		{
+			this.notificationPresenter = notificationPresenter;
 			this.editSchemaSubViewFactory = editSchemaSubViewFactory;
 			this.msg = msg;
 			this.configuration = configuration;
@@ -372,10 +395,22 @@ class SCIMServiceEditorSchemaTab extends CustomComponent implements EditorTab
 
 		SCIMServiceEditorSchemaTab getSCIMServiceEditorSchemaTab(SubViewSwitcher subViewSwitcher)
 		{
-			return new SCIMServiceEditorSchemaTab(msg, editSchemaSubViewFactory, configuration, subViewSwitcher,
+			return new SCIMServiceEditorSchemaTab(msg, notificationPresenter, editSchemaSubViewFactory, configuration, subViewSwitcher,
 					configurationVaadinBeanMapper);
 		}
 
+	}
+
+	@Override
+	public VaadinIcon getIcon()
+	{
+		return VaadinIcon.TAGS;
+	}
+
+	@Override
+	public String getCaption()
+	{
+		return msg.getMessage("SCIMServiceEditorSchemaTab.schemas");
 	}
 
 }

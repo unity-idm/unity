@@ -3,20 +3,19 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.console;
+package io.imunity.scim.console.v8;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.data.Binder;
 
 import io.imunity.scim.SCIMEndpoint;
 import io.imunity.scim.config.SCIMEndpointPropertiesConfigurationMapper;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 class SCIMServiceEditorComponent extends ServiceEditorBase
 {

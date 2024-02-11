@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.console;
+package io.imunity.scim.console.mapping;
 
 import java.util.Optional;
 
@@ -57,7 +57,7 @@ public class AttributeMappingBean
 	}
 
 	@Override
-	protected AttributeMappingBean clone()
+	public AttributeMappingBean clone()
 	{
 		AttributeMappingBean clone = new AttributeMappingBean();
 		clone.setDataArray(dataArray);
@@ -66,7 +66,7 @@ public class AttributeMappingBean
 		return clone;
 	}
 
-	AttributeMapping toConfiguration(AttributeDefinitionBean attributeDefinition)
+	public AttributeMapping toConfiguration(AttributeDefinitionBean attributeDefinition)
 	{
 		if (attributeDefinition.getType().equals(SCIMAttributeType.COMPLEX))
 		{

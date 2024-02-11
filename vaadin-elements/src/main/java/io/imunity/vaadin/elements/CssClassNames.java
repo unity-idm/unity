@@ -28,6 +28,7 @@ public enum CssClassNames
 	TRUE_CONDITION_BACKGROUND("u-trueCondition-bg"),
 	FALSE_CONDITION_BACKGROUND("u-falseCondition-bg"),
 	ERROR_BACKGROUND("u-error-bg"),
+	WARN_BACKGROUND("u-warn-bg"),
 	MONOSPACE("u-monospace"),
 	BIG_VAADIN_FORM_ITEM_LABEL("u-big-vaadin-form-item"),
 	MEDIUM_VAADIN_FORM_ITEM_LABEL("u-medium-vaadin-form-item"),	

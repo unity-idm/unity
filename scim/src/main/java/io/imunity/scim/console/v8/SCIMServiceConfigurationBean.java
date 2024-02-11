@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.scim.console;
+package io.imunity.scim.console.v8;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +10,8 @@ import java.util.Objects;
 
 import io.imunity.scim.console.mapping.SchemaWithMappingBean;
 import io.imunity.scim.schema.DefaultSchemaProvider;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
 import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
 public class SCIMServiceConfigurationBean
 {

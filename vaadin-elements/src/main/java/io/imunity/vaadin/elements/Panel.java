@@ -16,9 +16,8 @@ public class Panel extends VerticalLayout
 {
 	public Panel()
 	{
-		this(null);
+		this((String) null);
 	}
-	
 	
 	public Panel(String header)
 	{
@@ -28,15 +27,29 @@ public class Panel extends VerticalLayout
 		addClassName(PANEL.getName());
 		if (header != null)
 		{
-			HorizontalLayout horizontalLayout = new HorizontalLayout();
-			horizontalLayout.setWidthFull();
+			HorizontalLayout headerLayout = new HorizontalLayout();
+			headerLayout.setWidthFull();
 			Span label = new Span(header);
 			label.getStyle()
 					.set("margin", SMALL_MARGIN.value());
-			horizontalLayout.add(label);
-			horizontalLayout.getStyle()
+			headerLayout.add(label);
+			headerLayout.getStyle()
 			.set("background-color", "var(--unity-contrast)");
-			add(horizontalLayout);
+			add(headerLayout);
+		}
+		
+		setSizeUndefined();
+	}
+	
+	public Panel(HorizontalLayout header)
+	{
+		setMargin(true);
+		setPadding(false);
+		setSpacing(false);
+		addClassName(PANEL.getName());
+		if (header != null)
+		{
+			add(header);
 		}
 		
 		setSizeUndefined();

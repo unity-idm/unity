@@ -3,35 +3,33 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.console;
+package io.imunity.scim.console.v8;
 
 import java.util.function.Supplier;
 
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.data.Binder;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.scim.console.mapping.AttributeDefinitionWithMappingBean;
-import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
-import io.imunity.vaadin.endpoint.common.api.services.idp.CollapsableGrid.Editor;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.ListOfDnDCollapsableElements.Editor;
 
 class AttributeDefinitionWithMappingConfigurationEditor extends Editor<AttributeDefinitionWithMappingBean>
 {
 	private final MessageSource msg;
-	private final HtmlTooltipFactory tooltipFactory;
+	private Binder<AttributeDefinitionWithMappingBean> binder;
+	private VerticalLayout main;
+	private AttributeDefinitionComponent attributeDefinitionComponent;
 	private final Supplier<AttributeEditContext> context;
 	private final AttributeEditorData editorData;
 	private AttributeMappingComponent attributeMappingComponent;
-	private AttributeDefinitionComponent attributeDefinitionComponent;
-	private Binder<AttributeDefinitionWithMappingBean> binder;
-	private VerticalLayout main;
-	
-	AttributeDefinitionWithMappingConfigurationEditor(MessageSource msg, HtmlTooltipFactory tooltipFactory, Supplier<AttributeEditContext> context,
+
+	AttributeDefinitionWithMappingConfigurationEditor(MessageSource msg, Supplier<AttributeEditContext> context,
 			AttributeEditorData editorData)
 	{
 		this.msg = msg;
-		this.tooltipFactory = tooltipFactory;
 		this.context = context;
 		this.editorData = editorData;
 		init();
@@ -41,31 +39,27 @@ class AttributeDefinitionWithMappingConfigurationEditor extends Editor<Attribute
 	{
 		main = new VerticalLayout();
 		main.setMargin(false);
-		main.setPadding(false);
-		main.setSpacing(false);
-		
 		VerticalLayout attrDefHeaderSlot = new VerticalLayout();
 		attrDefHeaderSlot.setMargin(false);
-		attrDefHeaderSlot.setPadding(false);
-	
+
 		VerticalLayout subAttrSlot = new VerticalLayout();
 		subAttrSlot.setMargin(false);
-		subAttrSlot.setPadding(false);
 
 		binder = new Binder<>(AttributeDefinitionWithMappingBean.class);
-		attributeDefinitionComponent = new AttributeDefinitionComponent(msg, tooltipFactory, context.get(), editorData, attrDefHeaderSlot,
+		attributeDefinitionComponent = new AttributeDefinitionComponent(msg, context.get(), editorData, attrDefHeaderSlot,
 				subAttrSlot);
-		main.add(attrDefHeaderSlot);
-		attributeMappingComponent = new AttributeMappingComponent(msg, tooltipFactory, editorData, context);
+		main.addComponent(attrDefHeaderSlot);
+		attributeMappingComponent = new AttributeMappingComponent(msg, editorData, context);
 		attributeDefinitionComponent.addValueChangeListener(e -> attributeMappingComponent.update(e.getValue()));
-		main.add(attributeMappingComponent);
-		main.add(subAttrSlot);
+		main.addComponent(attributeMappingComponent);
+		main.addComponent(subAttrSlot);
 		binder.forField(attributeDefinitionComponent).asRequired().bind("attributeDefinition");
-		binder.addValueChangeListener(e -> fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient())));
+		binder.addValueChangeListener(
+				e -> fireEvent(new ValueChangeEvent<>(this, binder.getBean(), e.isUserOriginated())));
+		binder.setValidatorsDisabled(true);
 		binder.forField(attributeMappingComponent).bind("attributeMapping");
 		attributeMappingComponent.setVisible(!context.get().attributesEditMode.equals(AttributesEditMode.HIDE_MAPPING));
-		addAttachListener(e -> attributeDefinitionComponent.setValidatorsDisabled(false));
-		add(main);
+
 	}
 
 	@Override
@@ -92,20 +86,21 @@ class AttributeDefinitionWithMappingConfigurationEditor extends Editor<Attribute
 		return binder.getBean();
 	}
 
+	@Override
+	protected Component initContent()
+	{
+		binder.setValidatorsDisabled(false);
+		return main;
+	}
+
+	@Override
+	protected void doSetValue(AttributeDefinitionWithMappingBean value)
+	{
+		binder.setBean(value);
+	}
+	
 	void refresh()
 	{
 		attributeMappingComponent.update(attributeDefinitionComponent.getValue());
-	}
-
-	@Override
-	protected AttributeDefinitionWithMappingBean generateModelValue()
-	{
-		return getValue();
-	}
-
-	@Override
-	protected void setPresentationValue(AttributeDefinitionWithMappingBean newPresentationValue)
-	{
-		binder.setBean(newPresentationValue);	
 	}
 }

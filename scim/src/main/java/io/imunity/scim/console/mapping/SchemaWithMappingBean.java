@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.console;
+package io.imunity.scim.console.mapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ public class SchemaWithMappingBean
 	}
 
 	@Override
-	protected SchemaWithMappingBean clone()
+	public SchemaWithMappingBean clone()
 	{
 		SchemaWithMappingBean clone = new SchemaWithMappingBean();
 		clone.setAttributes(this.attributes.stream().map(a -> a.clone()).collect(Collectors.toList()));

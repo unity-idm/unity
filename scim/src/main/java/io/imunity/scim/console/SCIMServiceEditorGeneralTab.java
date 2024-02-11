@@ -5,26 +5,27 @@
 
 package io.imunity.scim.console;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.ui.Component;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 
-import io.imunity.tooltip.TooltipExtension;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.TooltipFactory;
+import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
+import io.imunity.vaadin.endpoint.common.api.services.idp.MandatoryGroupSelection;
+import io.imunity.vaadin.endpoint.common.api.services.tabs.GeneralTab;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
-import pl.edu.icm.unity.webui.common.groups.OptionalGroupWithWildcardSelection;
-import pl.edu.icm.unity.webui.common.groups.SingleGroupSelectionWithIndentCombo;
-import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 
 public class SCIMServiceEditorGeneralTab extends GeneralTab
 {
@@ -43,82 +44,86 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 	{
 		super.initUI(serviceBinder, editMode);
 		this.restBinder = restBinder;
-		mainLayout.addComponent(buildScimSection());
-		mainLayout.addComponent(buildCorsSection());
+		add(buildScimSection());
+		add(buildCorsSection());
 	}
 
-	private Component buildScimSection()
+	private AccordionPanel buildScimSection()
 	{
-
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
+		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
 		MandatoryGroupSelection rootGroup = new MandatoryGroupSelection(msg);
-		rootGroup.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.rootGroup"));
-		rootGroup.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
+		rootGroup.setWidth(TEXT_FIELD_BIG.value());
 		rootGroup.setItems(allGroups);
-		main.addComponent(rootGroup);
-		restBinder.forField(rootGroup).asRequired().bind("rootGroup");
-		
-		SingleGroupSelectionWithIndentCombo restAdminGroup = new SingleGroupSelectionWithIndentCombo(msg);
-		restAdminGroup.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroup"));
-		restAdminGroup.setDescription(msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroupDesc"));
-		restAdminGroup.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
+		main.addFormItem(rootGroup, msg.getMessage("SCIMServiceEditorGeneralTab.rootGroup"));
+		restBinder.forField(rootGroup)
+				.asRequired()
+				.bind("rootGroup");
+
+		MandatoryGroupSelection restAdminGroup = new MandatoryGroupSelection(msg);
 		restAdminGroup.setItems(allGroups);
-		main.addComponent(restAdminGroup);
-		restBinder.forField(restAdminGroup).bind("restAdminGroup");
-		TooltipExtension.tooltip(restAdminGroup);
-		
+		restAdminGroup.setWidth(TEXT_FIELD_BIG.value());
+		main.addFormItem(restAdminGroup, msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroup"))
+				.add(TooltipFactory.get(msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroupDesc")));
+		restBinder.forField(restAdminGroup)
+				.bind("restAdminGroup");
+
 		OptionalGroupWithWildcardSelection memeberShipGroups = new OptionalGroupWithWildcardSelection(msg);
-		memeberShipGroups.setSkipRemoveInvalidSelections(true);
-		memeberShipGroups.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroups"));
-		memeberShipGroups.setDescription(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroupsDesc"));
-		memeberShipGroups.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
 		memeberShipGroups.setItems(allGroups);
-		main.addComponent(memeberShipGroups);
-		restBinder.forField(memeberShipGroups).asRequired().withValidator((value, context) ->
-		{
-			if (value == null || value.isEmpty())
-				return ValidationResult.error(msg.getMessage("fieldRequired"));
-			return ValidationResult.ok();
-		}).bind("membershipGroups");
-		TooltipExtension.tooltip(memeberShipGroups);
+		memeberShipGroups.setWidth(TEXT_FIELD_BIG.value());
+		main.addFormItem(memeberShipGroups, msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroups"))
+				.add(TooltipFactory.get(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroupsDesc")));
+		restBinder.forField(memeberShipGroups)
+				.withConverter(List::copyOf, HashSet::new)
+				.asRequired()
+				.withValidator((value, context) ->
+				{
+					if (value == null || value.isEmpty())
+						return ValidationResult.error(msg.getMessage("fieldRequired"));
+					return ValidationResult.ok();
+				})
+				.bind("membershipGroups");
 
 		OptionalGroupWithWildcardSelection excludedMembershipGroups = new OptionalGroupWithWildcardSelection(msg);
-		excludedMembershipGroups.setSkipRemoveInvalidSelections(true);
-		excludedMembershipGroups.setCaption(msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroups"));
-		excludedMembershipGroups.setDescription(msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroupsDesc"));
-		excludedMembershipGroups.setWidth(FieldSizeConstans.SHORT_FIELD_WIDTH, FieldSizeConstans.SHORT_FIELD_WIDTH_UNIT);
-		
 		excludedMembershipGroups.setItems(allGroups);
-		main.addComponent(excludedMembershipGroups);
-		restBinder.forField(excludedMembershipGroups).bind("excludedMembershipGroups");
-		TooltipExtension.tooltip(excludedMembershipGroups);
-			
-		CollapsibleLayout corsSection = new CollapsibleLayout(msg.getMessage("SCIMServiceEditorGeneralTab.scimGroups"),
-				main);
-		corsSection.expand();
-		return corsSection;
+		main.addFormItem(excludedMembershipGroups,
+				msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroups"))
+				.add(TooltipFactory.get(msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroupsDesc")));
+		excludedMembershipGroups.setWidth(TEXT_FIELD_BIG.value());
+		restBinder.forField(excludedMembershipGroups)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind("excludedMembershipGroups");
+
+		AccordionPanel scimSection = new AccordionPanel(msg.getMessage("SCIMServiceEditorGeneralTab.scimGroups"), main);
+		scimSection.setWidthFull();
+		scimSection.setOpened(true);
+		return scimSection;
 	}
 
-	private Component buildCorsSection()
+	private AccordionPanel buildCorsSection()
 	{
 
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(false);
-
-		ChipsWithTextfield allowedCORSheaders = new ChipsWithTextfield(msg);
-		allowedCORSheaders.setCaption(msg.getMessage("RestAdminServiceEditorComponent.allowedCORSheaders"));
-		restBinder.forField(allowedCORSheaders).bind("allowedCORSheaders");
-		main.addComponent(allowedCORSheaders);
-
-		ChipsWithTextfield allowedCORSorigins = new ChipsWithTextfield(msg);
-		allowedCORSorigins.setCaption(msg.getMessage("RestAdminServiceEditorComponent.allowedCORSorigins"));
-		main.addComponent(allowedCORSorigins);
-		restBinder.forField(allowedCORSorigins).bind("allowedCORSorigins");
-
-		CollapsibleLayout corsSection = new CollapsibleLayout(msg.getMessage("RestAdminServiceEditorComponent.cors"),
-				main);
+		FormLayout main = new FormLayout();
+		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		MultiSelectComboBox<String> allowedCORSheaders = new CustomValuesMultiSelectComboBox();
+		allowedCORSheaders.setWidth(TEXT_FIELD_BIG.value());
+		allowedCORSheaders.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		main.addFormItem(allowedCORSheaders, msg.getMessage("RestAdminServiceEditorComponent.allowedCORSheaders"));
+		restBinder.forField(allowedCORSheaders)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind("allowedCORSheaders");
+		MultiSelectComboBox<String> allowedCORSorigins = new CustomValuesMultiSelectComboBox();
+		allowedCORSorigins.setWidth(TEXT_FIELD_BIG.value());
+		allowedCORSorigins.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		main.addFormItem(allowedCORSorigins, msg.getMessage("RestAdminServiceEditorComponent.allowedCORSorigins"));
+		restBinder.forField(allowedCORSorigins)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind("allowedCORSorigins");
+		AccordionPanel corsSection = new AccordionPanel(msg.getMessage("RestAdminServiceEditorComponent.cors"), main);
+		corsSection.setWidthFull();
 		return corsSection;
 	}
 }

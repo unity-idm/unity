@@ -2,22 +2,22 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.scim.console;
+package io.imunity.scim.console.v8;
 
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.SCIMEndpoint;
-import io.imunity.scim.console.SCIMServiceEditor.SCIMServiceEditorFactory;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServicesControllerBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceController;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
+import io.imunity.scim.console.v8.SCIMServiceEditor.SCIMServiceEditorFactory;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.console.services.ServiceController;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 
-@Component
+@Component("SCIMServiceControllerV8")
 class SCIMServiceController extends DefaultServicesControllerBase implements ServiceController
 {
 	private final SCIMServiceEditorFactory editorFactory;

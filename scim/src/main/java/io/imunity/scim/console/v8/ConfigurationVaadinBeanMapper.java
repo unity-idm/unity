@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.console;
+package io.imunity.scim.console.v8;
 
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,13 +20,13 @@ import io.imunity.scim.console.mapping.AttributeDefinitionBean;
 import io.imunity.scim.console.mapping.AttributeDefinitionWithMappingBean;
 import io.imunity.scim.console.mapping.AttributeMappingBean;
 import io.imunity.scim.console.mapping.SchemaWithMappingBean;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
 
-@Component
+@Component("ConfigurationVaadinBeanMapperV8")
 class ConfigurationVaadinBeanMapper
 {
 	private final GroupsManagement groupsManagement;
@@ -101,9 +101,9 @@ class ConfigurationVaadinBeanMapper
 	{
 		return SCIMEndpointConfiguration.builder().withAllowedCorsHeaders(bean.getAllowedCORSheaders())
 				.withAllowedCorsOrigins(bean.getAllowedCORSorigins())
-				.withRootGroup(bean.getRootGroup().group().getPathEncoded())
+				.withRootGroup(bean.getRootGroup().group.getPathEncoded())
 				.withRestAdminGroup(
-						bean.getRestAdminGroup() != null ? bean.getRestAdminGroup().group().getPathEncoded() : null)
+						bean.getRestAdminGroup() != null ? bean.getRestAdminGroup().group.getPathEncoded() : null)
 				.withMembershipGroups(
 						bean.getMembershipGroups().stream().map(g -> g.getPathEncoded()).collect(Collectors.toList()))
 				.withExcludedMembershipGroups(bean.getExcludedMembershipGroups().stream().map(g -> g.getPathEncoded())

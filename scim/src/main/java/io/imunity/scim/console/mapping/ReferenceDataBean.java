@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.console;
+package io.imunity.scim.console.mapping;
 
 import io.imunity.scim.config.ReferenceAttributeMapping.ReferenceType;
 

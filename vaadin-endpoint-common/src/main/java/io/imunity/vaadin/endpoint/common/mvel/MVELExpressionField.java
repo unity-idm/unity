@@ -62,8 +62,13 @@ public class MVELExpressionField extends CustomField<String>
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setWidthFull();
 		layout.setSpacing(false);
-		Component tooltip = htmlTooltipFactory.get(description);
-		HorizontalLayout iconsLayout = new HorizontalLayout(editorButton, tooltip);
+		
+		Component tooltip =  description == null ? null : htmlTooltipFactory.get(description);
+		HorizontalLayout iconsLayout = new HorizontalLayout(editorButton);
+		if (tooltip != null)
+		{
+			iconsLayout.add(tooltip);
+		}
 		iconsLayout.setSpacing(false);
 		iconsLayout.getStyle().set("margin-top", BASE_MARGIN.value());
 		iconsLayout.setClassName(FIELD_ICON_GAP.getName());
@@ -184,6 +189,14 @@ public class MVELExpressionField extends CustomField<String>
 		if (field != null)
 		{
 			field.setWidth(width, unit);
+		}	
+	}
+	
+	public void setWidth(String width)
+	{
+		if (field != null)
+		{
+			field.setWidth(width);
 		}	
 	}
 	

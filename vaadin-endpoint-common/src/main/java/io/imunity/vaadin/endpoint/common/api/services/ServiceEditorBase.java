@@ -43,6 +43,7 @@ public abstract class ServiceEditorBase extends TabSheet implements ServiceEdito
 		defTabs = new HashMap<>();
 		defTabContents = new HashMap<>();
 		addSelectedChangeListener(e -> setErrorInTabs());
+		setSizeFull();
 	}
 
 	protected void setErrorInTabs()

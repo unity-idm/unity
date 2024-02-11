@@ -9,7 +9,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import io.imunity.scim.console.AttributeMappingBean;
+import io.imunity.scim.console.mapping.AttributeMappingBean;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UndefinedMapping implements AttributeMapping

@@ -3,10 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.scim.console;
-
-import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+package io.imunity.scim.console.v8;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,63 +11,58 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.accordion.AccordionPanel;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.NativeLabel;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.scim.console.mapping.AttributeDefinitionWithMappingBean;
 import io.imunity.scim.console.mapping.SchemaWithMappingBean;
-import io.imunity.vaadin.elements.CSSVars;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.Panel;
-import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
-import io.imunity.vaadin.endpoint.common.api.UnitySubView;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
+import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
 
-class EditSchemaSubView extends VerticalLayout implements UnitySubView
+class EditSchemaSubView extends CustomComponent implements UnitySubView
 {
-	private final MessageSource msg;
-	private final HtmlTooltipFactory htmlTooltipFactory;
+	private MessageSource msg;
 	private Binder<SchemaWithMappingBean> binder;
 	private boolean editMode = false;
 	private AttributesEditMode attributesEditMode;
 	private final IdentityTypeSupport identityTypeSupport;
 	private final AttributeTypeManagement attributeTypeManagement;
 
-	private EditSchemaSubView(MessageSource msg,NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory, IdentityTypeSupport identityTypeSupport,
+	private EditSchemaSubView(MessageSource msg, IdentityTypeSupport identityTypeSupport,
 			AttributeTypeManagement attributeTypeManagement, List<String> alreadyUseIds, SchemaWithMappingBean toEdit,
 			AttributesEditMode maapingEditMode, Consumer<SchemaWithMappingBean> onConfirm, Runnable onCancel)
 			throws EngineException
 	{
 		this.msg = msg;
-		this.htmlTooltipFactory = htmlTooltipFactory;
 		this.attributesEditMode = maapingEditMode;
 		this.identityTypeSupport = identityTypeSupport;
 		this.attributeTypeManagement = attributeTypeManagement;
 
 		editMode = toEdit != null;
 		binder = new Binder<>(SchemaWithMappingBean.class);
-		
-		add(buildHeaderSection(alreadyUseIds));
-		add(buildAttributesSection());
-		Button cancelButton = new Button(msg.getMessage("cancel"), event -> onCancel.run());
-		cancelButton.setWidthFull();
-		Button updateButton = new Button(editMode ? msg.getMessage("update") :  msg.getMessage("create"), event ->
+		VerticalLayout mainView = new VerticalLayout();
+		mainView.setMargin(false);
+		mainView.addComponent(buildHeaderSection(alreadyUseIds));
+		mainView.addComponent(buildAttributesSection());
+		Runnable onConfirmR = () ->
 		{
 			SchemaWithMappingBean schema;
 			try
@@ -78,54 +70,46 @@ class EditSchemaSubView extends VerticalLayout implements UnitySubView
 				schema = getSchema();
 			} catch (FormValidationException e)
 			{
-				notificationPresenter.showError(msg.getMessage("EditSchemaSubView.invalidConfiguration"), e.getMessage());
+				NotificationPopup.showError(msg, msg.getMessage("EditSchemaSubView.invalidConfiguration"), e);
 				return;
 			}
 			onConfirm.accept(schema);
-		});
-		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		updateButton.setWidthFull();
-		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
-		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
-		add(buttonsLayout);
+		};
+		mainView.addComponent(editMode ? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
+				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));
 
 		binder.setBean(editMode ? toEdit.clone() : new SchemaWithMappingBean());
-		
-		setSizeFull();
+		setCompositionRoot(mainView);
 	}
 
-	private FormLayout buildHeaderSection(List<String> alreadyUseIds)
+	private FormLayoutWithFixedCaptionWidth buildHeaderSection(List<String> alreadyUseIds)
 	{
-		FormLayout header = new FormLayout();
-		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
+		header.setMargin(true);
 
-
-		TextField id = new TextField();
+		TextField id = new TextField(msg.getMessage("EditSchemaSubView.id"));
 		id.setReadOnly(!attributesEditMode.equals(AttributesEditMode.FULL_EDIT));
-		id.setWidth(CSSVars.TEXT_FIELD_BIG.value());
-		header.addFormItem(id, msg.getMessage("EditSchemaSubView.id"));
+		id.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		header.addComponent(id);
 		binder.forField(id)
 				.withValidator((s, c) -> !editMode && alreadyUseIds.contains(s)
 						? ValidationResult.error(msg.getMessage("EditSchemaSubView.idExists"))
 						: ValidationResult.ok())
 				.asRequired(msg.getMessage("fieldRequired")).bind("id");
 
-		TextField name = new TextField();
-		name.setWidth(CSSVars.TEXT_FIELD_BIG.value());
-		header.addFormItem(name, msg.getMessage("EditSchemaSubView.name"));
+		TextField name = new TextField(msg.getMessage("EditSchemaSubView.name"));
+		header.addComponent(name);
 		name.setReadOnly(!attributesEditMode.equals(AttributesEditMode.FULL_EDIT));
 		binder.forField(name).bind("name");
 
-		TextField desc = new TextField();
-		header.addFormItem(desc, msg.getMessage("EditSchemaSubView.description"));
-		desc.setWidth(CSSVars.TEXT_FIELD_BIG.value());
+		TextField desc = new TextField(msg.getMessage("EditSchemaSubView.description"));
+		header.addComponent(desc);
+		desc.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		desc.setReadOnly(!attributesEditMode.equals(AttributesEditMode.FULL_EDIT));
 		binder.forField(desc).bind("description");
 
-		Checkbox enable = new Checkbox();
-		enable.setLabel(msg.getMessage("EditSchemaSubView.enable"));
-		header.addFormItem(enable, "");
+		CheckBox enable = new CheckBox(msg.getMessage("EditSchemaSubView.enable"));
+		header.addComponent(enable);
 		binder.forField(enable).bind("enable");
 		enable.setReadOnly(attributesEditMode.equals(AttributesEditMode.HIDE_MAPPING));
 
@@ -136,26 +120,24 @@ class EditSchemaSubView extends VerticalLayout implements UnitySubView
 	{
 		VerticalLayout attributesL = new VerticalLayout();
 		attributesL.setMargin(false);
-		NativeLabel invalidMappingInfo = new NativeLabel();
-		invalidMappingInfo.setWidthFull();
+		Label invalidMappingInfo = new Label();
+		invalidMappingInfo.setWidth(100, Unit.PERCENTAGE);
+		invalidMappingInfo.addStyleName(Styles.wordWrap.toString());
 		VerticalLayout wrapper =  new VerticalLayout(invalidMappingInfo);
-		HorizontalLayout headerLayout = new HorizontalLayout();
-		headerLayout.setWidthFull();
-		Span label = new Span(msg.getMessage("AttributeDefinitionConfigurationList.invalidMappingAttributes"));
-		headerLayout.addClassName("u-unsaved-banner");
-		headerLayout.add(VaadinIcon.EXCLAMATION_CIRCLE_O.create(), label);
-		Panel invalidMappingPanel = new Panel(headerLayout);
-		invalidMappingPanel.setMargin(false);
-		invalidMappingPanel.add(wrapper);
-		invalidMappingPanel.setWidthFull();
+		wrapper.addStyleName(Styles.background.toString());
+		Panel invalidMappingPanel = new Panel(wrapper);
+		invalidMappingPanel.addStyleName(Styles.warnBackground.toString());
+		invalidMappingPanel.addStyleName(Styles.vPanelWell.toString());	
+		invalidMappingPanel.setWidth(100, Unit.PERCENTAGE);
+		invalidMappingPanel.setCaption(msg.getMessage("AttributeDefinitionConfigurationList.invalidMappingAttributes"));
+		invalidMappingPanel.setIcon(Images.warn.getResource());
 			
-		AttributeDefinitionConfigurationList attributesList = new AttributeDefinitionConfigurationList(msg, htmlTooltipFactory,
+		AttributeDefinitionConfigurationList attributesList = new AttributeDefinitionConfigurationList(msg,
 				msg.getMessage("AttributeDefinitionConfigurationList.addAttribute"),
 				AttributeEditContext.builder().withDisableComplexAndMulti(false)
 						.withAttributesEditMode(attributesEditMode).build(),
 				AttributeEditorData.builder().withIdentityTypes(getIdentityTypes())
 						.withAttributeTypes(getAttributeTypes()).build());
-		attributesList.setRequiredIndicatorVisible(false);
 		binder.forField(attributesList).withValidator((value, context) ->
 		{
 			List<String> invalidMappingAttr = new ArrayList<>();
@@ -171,19 +153,18 @@ class EditSchemaSubView extends VerticalLayout implements UnitySubView
 			}
 			invalidMappingPanel.setVisible(
 					!invalidMappingAttr.isEmpty() && !attributesEditMode.equals(AttributesEditMode.HIDE_MAPPING));
-			invalidMappingInfo.setText(String.join(", ", invalidMappingAttr));
+			invalidMappingInfo.setValue(String.join(", ", invalidMappingAttr));
 
 			return (value == null || value.stream().filter(a -> a == null).count() > 0)
-					? ValidationResult.error("")
+					? ValidationResult.error(msg.getMessage("fieldRequired"))
 					: ValidationResult.ok();
 		}).bind("attributes");
-		attributesL.add(invalidMappingPanel);
-		attributesL.add(attributesList);
+		attributesL.addComponent(invalidMappingPanel);
+		attributesL.addComponent(attributesList);
 
-		AccordionPanel attributesSection = new AccordionPanel(msg.getMessage("EditSchemaSubView.attributes"),
+		CollapsibleLayout attributesSection = new CollapsibleLayout(msg.getMessage("EditSchemaSubView.attributes"),
 				attributesL);
-		attributesSection.setOpened(true);
-		attributesSection.setWidthFull();
+		attributesSection.expand();
 		return attributesSection;
 	}
 
@@ -208,7 +189,7 @@ class EditSchemaSubView extends VerticalLayout implements UnitySubView
 	}
 
 	@Override
-	public List<String> getBreadcrumbs()
+	public List<String> getBredcrumbs()
 	{
 		if (editMode)
 			return Arrays.asList(msg.getMessage("EditSchemaSubView.schema"), binder.getBean().getId());
@@ -216,21 +197,17 @@ class EditSchemaSubView extends VerticalLayout implements UnitySubView
 			return Arrays.asList(msg.getMessage("EditSchemaSubView.newSchema"));
 	}
 
-	@org.springframework.stereotype.Component
+	@org.springframework.stereotype.Component("EditSchemaSubViewFactoryV8")
 	static class EditSchemaSubViewFactory
 	{
 		final MessageSource msg;
-		final NotificationPresenter notificationPresenter;
-		final HtmlTooltipFactory htmlTooltipFactory;
 		final AttributeTypeManagement attributeTypeManagement;
 		final IdentityTypeSupport identityTypeSupport;
 
-		EditSchemaSubViewFactory(MessageSource msg, NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory, AttributeTypeManagement attributeTypeManagement,
+		EditSchemaSubViewFactory(MessageSource msg, AttributeTypeManagement attributeTypeManagement,
 				IdentityTypeSupport identityTypeSupport)
 		{
 			this.msg = msg;
-			this.notificationPresenter = notificationPresenter;
-			this.htmlTooltipFactory = htmlTooltipFactory;
 			this.attributeTypeManagement = attributeTypeManagement;
 			this.identityTypeSupport = identityTypeSupport;
 		}
@@ -239,7 +216,7 @@ class EditSchemaSubView extends VerticalLayout implements UnitySubView
 				AttributesEditMode attributesEditMode, Consumer<SchemaWithMappingBean> onConfirm, Runnable onCancel)
 				throws EngineException
 		{
-			return new EditSchemaSubView(msg, notificationPresenter, htmlTooltipFactory, identityTypeSupport, attributeTypeManagement, alreadyUseIds, toEdit,
+			return new EditSchemaSubView(msg, identityTypeSupport, attributeTypeManagement, alreadyUseIds, toEdit,
 					attributesEditMode, onConfirm, onCancel);
 		}
 

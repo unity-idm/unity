@@ -6,6 +6,18 @@
 package io.imunity.vaadin.endpoint.common.api.services.idp;
 
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
+import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_UP;
+import static com.vaadin.flow.component.icon.VaadinIcon.POINTER;
+import static com.vaadin.flow.component.icon.VaadinIcon.RESIZE_H;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -23,17 +35,11 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
+
 import io.imunity.vaadin.elements.ActionMenu;
 import io.imunity.vaadin.elements.MenuButton;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
 
 public class CollapsableGrid<T> extends CustomField<List<T>>
 {
@@ -42,23 +48,23 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 	private final Supplier<T> getter;
 
 	private Grid<Editor<T>> grid;
-	private GridListDataView<Editor<T>> gridListDataView;
+	protected GridListDataView<Editor<T>> gridListDataView;
 	private Editor<T> draggedItem;
 	private final boolean readOnly;
 
 	public CollapsableGrid(MessageSource msg, Supplier<Editor<T>> editorProvider, Supplier<T> getter, String caption)
 	{
-		this(msg, editorProvider, caption, getter, false);
+		this(msg, editorProvider, caption, getter, msg.getMessage("addNew"), false);
 	}
 
 	public CollapsableGrid(MessageSource msg, Supplier<Editor<T>> editorProvider, String caption,
-			Supplier<T> getter, boolean readOnly)
+			Supplier<T> getter, String addButtonCaption, boolean readOnly)
 	{
 		this.msg = msg;
 		this.editorProvider = editorProvider;
 		this.getter = getter;
 		this.readOnly = readOnly;
-		initUI(caption, msg.getMessage("addNew"));
+		initUI(caption, addButtonCaption);
 	}
 
 	private void initUI(String caption, String addButtonCaption)
@@ -77,7 +83,9 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 			Editor<T> tEditor = editorProvider.get();
 			T value = getter.get();
 			tEditor.setValue(value);
+			tEditor.addValueChangeListener(e -> fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient())));
 			gridListDataView.addItem(tEditor);
+			grid.select(tEditor);
 		});
 		addElement.setVisible(!readOnly);
 
@@ -106,10 +114,14 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 
 	private List<Editor<T>> getEditors(List<T> elements)
 	{
+		if (elements == null)
+			return Collections.emptyList();
+		
 		return elements.stream().map(item ->
 		{
 			Editor<T> tEditor = editorProvider.get();
 			tEditor.setValue(item);
+			tEditor.addValueChangeListener(e -> fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient())));
 			return tEditor;
 		}).collect(Collectors.toList());
 	}
@@ -156,6 +168,13 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 		this.gridListDataView = grid.setItems(getEditors(elements));
 	}
 
+	
+	@Override
+	public void clear()
+	{
+		super.clear();
+		this.gridListDataView = grid.setItems(new ArrayList<>());
+	}
 	private HorizontalLayout createNameWithDetailsArrow(Grid<Editor<T>> grid, Editor<T> entry)
 	{
 		Icon openIcon = VaadinIcon.ANGLE_RIGHT.create();

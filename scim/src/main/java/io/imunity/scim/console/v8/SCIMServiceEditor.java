@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.scim.console;
+package io.imunity.scim.console.v8;
 
 import java.util.List;
 import java.util.Set;
@@ -12,13 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.scim.SCIMEndpoint;
-import io.imunity.scim.console.SCIMServiceEditorSchemaTab.SCIMServiceEditorSchemaTabFactory;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
+import io.imunity.scim.console.v8.SCIMServiceEditorSchemaTab.SCIMServiceEditorSchemaTabFactory;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
@@ -32,7 +26,12 @@ import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
 
 class SCIMServiceEditor implements ServiceEditor
 {
@@ -89,7 +88,7 @@ class SCIMServiceEditor implements ServiceEditor
 		return editor.getServiceDefiniton();
 	}
 
-	@Component
+	@Component("SCIMServiceEditorFactoryV8")
 	static class SCIMServiceEditorFactory
 	{
 		private final MessageSource msg;
