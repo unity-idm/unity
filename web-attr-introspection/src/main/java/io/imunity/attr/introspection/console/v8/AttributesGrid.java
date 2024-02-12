@@ -3,61 +3,55 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.attr.introspection.console;
+package io.imunity.attr.introspection.console.v8;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
 
 import io.imunity.attr.introspection.config.Attribute;
-import io.imunity.vaadin.elements.grid.EditableGrid;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.webui.common.GridWithEditor;
 
 class AttributesGrid extends CustomField<List<Attribute>>
 {
-	private EditableGrid<AttributeEntryBean> grid;
+	private GridWithEditor<AttributeEntryBean> grid;
 
 	AttributesGrid(MessageSource msg)
 	{
-		this.grid = new EditableGrid<>(msg::getMessage, AttributeEntryBean::new);
+		this.grid = new GridWithEditor<>(msg, AttributeEntryBean.class, t -> false, true, false, "");
 
-		grid.addColumn(s -> s.getName(), (t, v) -> t.setName(v), false)
-				.setHeader(msg.getMessage("AttributesGrid.name"));
+		grid.addTextColumn(s -> s.getName(), (t, v) -> t.setName(v), msg.getMessage("AttributesGrid.name"), 30, true);
 
-		grid.addColumn(s -> s.getDescription(), (t, v) -> t.setDescription(v), false)
-				.setHeader(msg.getMessage("AttributesGrid.description"));
+		grid.addTextColumn(s -> s.getDescription(), (t, v) -> t.setDescription(v),
+				msg.getMessage("AttributesGrid.description"), 50, false);
 
-		grid.addCheckboxColumn(s -> s.isMandatory(), (t, v) -> t.setMandatory(v))
-				.setHeader(msg.getMessage("AttributesGrid.mandatory"));
-		grid.addValueChangeListener(e -> new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient()));
-		grid.setSizeFull();
-		add(grid);
-		setSizeFull();
+		grid.addCheckBoxColumn(s -> s.isMandatory(), (t, v) -> t.setMandatory(v),
+				msg.getMessage("AttributesGrid.mandatory"), 10);
+		grid.addValueChangeListener(e -> fireEvent(new ValueChangeEvent<List<Attribute>>(this, getValue(), true)));
+		
 	}
 
 	@Override
 	public List<Attribute> getValue()
 	{
-		return grid.getValue()
-				.stream()
-				.map(a -> new Attribute(a.getName(), a.getDescription(), a.isMandatory()))
+		return grid.getValue().stream().map(a -> new Attribute(a.getName(), a.getDescription(), a.isMandatory()))
 				.collect(Collectors.toList());
 	}
 
-
 	@Override
-	protected List<Attribute> generateModelValue()
+	protected Component initContent()
 	{
-		return getValue();
+		return grid;
 	}
 
 	@Override
-	protected void setPresentationValue(List<Attribute> value)
+	protected void doSetValue(List<Attribute> value)
 	{
 		grid.setValue(value == null ? null
-				: value.stream()
-						.map(a -> new AttributeEntryBean(a.name, a.description, a.mandatory))
+				: value.stream().map(a -> new AttributeEntryBean(a.name, a.description, a.mandatory))
 						.collect(Collectors.toList()));
 
 	}

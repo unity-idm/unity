@@ -3,14 +3,12 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.attr.introspection.console;
+package io.imunity.attr.introspection.console.v8;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -19,12 +17,6 @@ import org.springframework.stereotype.Component;
 import com.google.common.base.Functions;
 
 import io.imunity.attr.introspection.AttrIntrospectionEndpointFactory;
-import io.imunity.vaadin.auth.VaadinAuthentication;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServicesControllerBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceController;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -39,7 +31,14 @@ import pl.edu.icm.unity.engine.api.authn.IdPInfo;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
+import pl.edu.icm.unity.webui.console.services.ServiceController;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 
 /**
  * Attribute instrospection service controller. Based on the standard web
@@ -48,7 +47,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
  * @author P.Piernik
  *
  */
-@Component
+@Component("AttrIntrospectionServiceControllerV8")
 class AttrIntrospectionServiceController extends DefaultServicesControllerBase implements ServiceController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_ATTR_INTROSPECTION,
@@ -58,24 +57,26 @@ class AttrIntrospectionServiceController extends DefaultServicesControllerBase i
 	private final AuthenticationFlowManagement flowsMan;
 	private final AuthenticatorManagement authMan;
 	private final AuthenticatorSupportService authenticatorSupportService;
-	private final VaadinLogoImageLoader imageAccessService;
-	private final FileStorageService fileStorageService;
+	private final URIAccessService uriAccessService;
 	private final UnityServerConfiguration serverConfig;
+	private final ImageAccessService imageAccessService;
+	private final FileStorageService fileStorageService;
 
 	AttrIntrospectionServiceController(MessageSource msg, EndpointManagement endpointMan, NetworkServer server,
 			EndpointFileConfigurationManagement serviceFileConfigController, AuthenticationFlowManagement flowsMan,
 			AuthenticatorManagement authMan, AuthenticatorSupportService authenticatorSupportService,
-			FileStorageService fileStorageService, VaadinLogoImageLoader imageAccessService,
-			UnityServerConfiguration serverConfig)
+			URIAccessService uriAccessService, UnityServerConfiguration serverConfig,
+			ImageAccessService imageAccessService, FileStorageService fileStorageService)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
 		this.server = server;
 		this.authMan = authMan;
 		this.flowsMan = flowsMan;
 		this.authenticatorSupportService = authenticatorSupportService;
-		this.fileStorageService = fileStorageService;
-		this.imageAccessService = imageAccessService;
+		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
+		this.imageAccessService = imageAccessService;
+		this.fileStorageService = fileStorageService;
 	}
 
 	@Override
@@ -88,11 +89,10 @@ class AttrIntrospectionServiceController extends DefaultServicesControllerBase i
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
 
-		return new AttrIntrospectionServiceEditor(msg, endpointMan.getEndpoints()
-				.stream()
-				.map(e -> e.getContextAddress())
-				.collect(Collectors.toList()), server.getUsedContextPaths(), authenticatorSupportService,
-				() -> getRemoteAuthnOptions(), () -> getIdPs(), fileStorageService, imageAccessService, serverConfig);
+		return new AttrIntrospectionServiceEditor(msg,
+				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(Collectors.toList()),
+				server.getUsedContextPaths(), authenticatorSupportService, () -> getRemoteAuthnOptions(),
+				() -> getIdPs(), uriAccessService, serverConfig, imageAccessService, fileStorageService);
 	}
 
 	private List<IdPInfo> getIdPs()
@@ -113,19 +113,14 @@ class AttrIntrospectionServiceController extends DefaultServicesControllerBase i
 		return providers;
 	}
 
-	private Set<String> getRemoteAuthnOptions()
+	private List<String> getRemoteAuthnOptions()
 	{
-		Set<String> authnOptions = new HashSet<>();
+		List<String> authnOptions = new ArrayList<>();
 		Map<String, AuthenticatorInfo> authenticatorsMap = getAuthenticators();
 
-		authnOptions.addAll(authenticatorsMap.values()
-				.stream()
-				.filter(a -> a.getSupportedBindings()
-						.contains(VaadinAuthentication.NAME)
-						&& !a.getTypeDescription()
-								.isLocal())
-				.map(a -> a.getId())
-				.collect(Collectors.toList()));
+		authnOptions.addAll(authenticatorsMap.values().stream().filter(
+				a -> a.getSupportedBindings().contains(VaadinAuthentication.NAME) && !a.getTypeDescription().isLocal())
+				.map(a -> a.getId()).collect(Collectors.toList()));
 		try
 		{
 			for (AuthenticationFlowDefinition f : flowsMan.getAuthenticationFlows())
@@ -135,10 +130,8 @@ class AttrIntrospectionServiceController extends DefaultServicesControllerBase i
 				{
 					AuthenticatorInfo authenticatorInfo = authenticatorsMap.get(authenticatorName);
 
-					if (authenticatorInfo.getTypeDescription()
-							.isLocal()
-							|| !authenticatorInfo.getSupportedBindings()
-									.contains(VaadinAuthentication.NAME))
+					if (authenticatorInfo.getTypeDescription().isLocal()
+							|| !authenticatorInfo.getSupportedBindings().contains(VaadinAuthentication.NAME))
 					{
 						supportsBinding = false;
 						break;
@@ -160,8 +153,7 @@ class AttrIntrospectionServiceController extends DefaultServicesControllerBase i
 	{
 		try
 		{
-			return authMan.getAuthenticators(null)
-					.stream()
+			return authMan.getAuthenticators(null).stream()
 					.collect(Collectors.toMap(AuthenticatorInfo::getId, Functions.identity()));
 		} catch (EngineException e)
 		{

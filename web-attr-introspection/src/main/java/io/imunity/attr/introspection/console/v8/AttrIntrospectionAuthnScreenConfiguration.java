@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.attr.introspection.console;
+package io.imunity.attr.introspection.console.v8;
 
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
 
@@ -14,19 +14,18 @@ import java.util.Properties;
 
 import com.google.common.collect.Lists;
 
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.AuthnLayoutColumnConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.AuthnLayoutConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.AuthnLayoutPropertiesParser;
-import io.imunity.vaadin.endpoint.common.file.FileFieldUtils;
-import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutColumnConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutConfiguration;
+import pl.edu.icm.unity.webui.console.services.authnlayout.configuration.AuthnLayoutPropertiesParser;
 
 public class AttrIntrospectionAuthnScreenConfiguration
 {
@@ -71,7 +70,7 @@ public class AttrIntrospectionAuthnScreenConfiguration
 		return raw;
 	}
 
-	void fromProperties(String vaadinProperties, MessageSource msg, VaadinLogoImageLoader imageAccessService)
+	void fromProperties(String vaadinProperties, MessageSource msg, ImageAccessService imageAccessService)
 	{
 		Properties raw = new Properties();
 		try
@@ -86,14 +85,15 @@ public class AttrIntrospectionAuthnScreenConfiguration
 		fromProperties(vProperties, msg, imageAccessService);
 	}
 
-	private void fromProperties(VaadinEndpointProperties vaadinProperties, MessageSource msg, VaadinLogoImageLoader  imageAccessService)
+	private void fromProperties(VaadinEndpointProperties vaadinProperties, MessageSource msg, ImageAccessService imageAccessService)
 	{
 		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
 		authnLayoutConfiguration = parser.fromProperties(vaadinProperties);
 		enableSearch = vaadinProperties.getBooleanValue(VaadinEndpointProperties.AUTHN_SHOW_SEARCH);
 		String logoUri = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_LOGO);
 		
-		logo = imageAccessService.loadImageFromUri(logoUri).orElse(new LocalOrRemoteResource());
+		logo = imageAccessService.getEditableImageResourceFromUri(logoUri, 
+				vaadinProperties.getEffectiveAuthenticationTheme()).orElse(null);
 
 		title = vaadinProperties.getLocalizedStringWithoutFallbackToDefault(msg,
 				VaadinEndpointProperties.AUTHN_TITLE);
