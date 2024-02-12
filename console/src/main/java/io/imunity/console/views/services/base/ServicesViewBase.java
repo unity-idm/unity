@@ -84,7 +84,7 @@ public abstract class ServicesViewBase extends ConsoleViewComponent
 				.setHeader(msg.getMessage("ServicesView.bindingCaption"));
 		servicesGrid.addHamburgerActions(getHamburgerActionsHandlers());
 		servicesGrid.setItems(getServices());
-		servicesGrid.sort(List.of(new GridSortOrder<>(name, SortDirection.DESCENDING)));
+		servicesGrid.sort(List.of(new GridSortOrder<>(name, SortDirection.ASCENDING)));
 
 		List<Button> buttons = getButtonsBar();
 		VerticalLayout main = new VerticalLayout();
