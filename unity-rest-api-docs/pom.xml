@@ -114,6 +114,7 @@
 					<plugin>
 						<groupId>com.googlecode.maven-download-plugin</groupId>
 						<artifactId>download-maven-plugin</artifactId>
+						<version>1.8.0</version>
 						<executions>
 							<execution>
 								<id>Download OpenAPI spec</id>
@@ -128,6 +129,9 @@
 							<outputDirectory>${project.build.directory}</outputDirectory>
 							<username>a</username>
 							<password>a</password>
+							<preemptiveAuth>true</preemptiveAuth>
+							<skipCache>true</skipCache>
+							<overwrite>true</overwrite>
 						</configuration>
 					</plugin>
 				</plugins>
