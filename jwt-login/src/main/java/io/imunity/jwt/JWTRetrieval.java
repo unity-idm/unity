@@ -45,8 +45,8 @@ import pl.edu.icm.unity.webui.authn.remote.BareSessionReinitializer;
 class JWTRetrieval extends AbstractCredentialRetrieval<JWTExchange>
 		implements VaadinAuthentication, ProxyAuthenticationCapable
 {
+	static final String RETRIEVAL_NAME = "HttpPostFormJWTRetrievalFactory";
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, JWTRetrieval.class);
-	private static final String RETRIEVAL_NAME = "HttpPostFormJWTRetrievalFactory";
 	private static final String POST_HTTP_METHOD = "POST";
 	private static final String JWT_FORM_PARAM_NAME = "jwt";
 	private static final String AUTHZ_LOGIN_TOKEN_FORM_PARAM_NAME = "authzLoginToken";
