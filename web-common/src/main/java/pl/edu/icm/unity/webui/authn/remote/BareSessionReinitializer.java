@@ -16,13 +16,13 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.SessionReinitializer;
 
-class BareSessionReinitializer implements SessionReinitializer
+public class BareSessionReinitializer implements SessionReinitializer
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, BareSessionReinitializer.class);
 
 	private final HttpServletRequest httpRequest;
 
-	BareSessionReinitializer(HttpServletRequest httpRequest)
+	public BareSessionReinitializer(HttpServletRequest httpRequest)
 	{
 		this.httpRequest = httpRequest;
 	}

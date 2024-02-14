@@ -83,6 +83,7 @@ import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinitionResolver;
 import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
@@ -132,6 +133,7 @@ class OAuthServiceController implements IdpServiceController
 	private NetworkServer server;
 	private final EndpointFileConfigurationManagement serviceFileConfigController;
 	private final OAuthScopesService scopesService;
+	private final DefaultServiceDefinitionResolver serviceDefinitionResolver;
 
 	@Autowired
 	OAuthServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
@@ -176,6 +178,7 @@ class OAuthServiceController implements IdpServiceController
 		this.policyDocumentManagement = policyDocumentManagement;
 		this.serviceFileConfigController = serviceFileConfigController;
 		this.scopesService = scopesService;
+		this.serviceDefinitionResolver = new DefaultServiceDefinitionResolver(endpointMan, serviceFileConfigController, msg);
 	}
 
 	@Override
@@ -188,8 +191,8 @@ class OAuthServiceController implements IdpServiceController
 					.filter(e -> e.getTypeId().equals(OAuthAuthzWebEndpoint.Factory.TYPE.getName()))
 					.collect(Collectors.toList()))
 			{
-				DefaultServiceDefinition oauthWebService = getServiceDef(endpoint);
-				oauthWebService.setBinding(OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding());
+				DefaultServiceDefinition oauthWebService = serviceDefinitionResolver.resolve(endpoint,
+						OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding());
 				DefaultServiceDefinition tokenService = getTokenService(endpoint.getConfiguration().getTag());
 				if (tokenService != null)
 				{
@@ -221,25 +224,9 @@ class OAuthServiceController implements IdpServiceController
 			return null;
 		}
 
-		DefaultServiceDefinition tokenService = getServiceDef(matchingTokenEndpoints.get(0));
-		tokenService.setBinding(OAuthTokenEndpoint.TYPE.getSupportedBinding());
+		DefaultServiceDefinition tokenService = serviceDefinitionResolver.resolve(matchingTokenEndpoints.get(0), 
+				OAuthTokenEndpoint.TYPE.getSupportedBinding());
 		return tokenService;
-	}
-
-	private DefaultServiceDefinition getServiceDef(Endpoint endpoint)
-	{
-		DefaultServiceDefinition serviceDef = new DefaultServiceDefinition(endpoint.getTypeId());
-		serviceDef.setName(endpoint.getName());
-		serviceDef.setAddress(endpoint.getContextAddress());
-		serviceDef.setConfiguration(endpoint.getConfiguration().getConfiguration());
-		serviceDef.setAuthenticationOptions(endpoint.getConfiguration().getAuthenticationOptions());
-		serviceDef.setDisplayedName(endpoint.getConfiguration().getDisplayedName());
-		serviceDef.setRealm(endpoint.getConfiguration().getRealm());
-		serviceDef.setDescription(endpoint.getConfiguration().getDescription());
-		serviceDef.setState(endpoint.getState());
-		serviceDef.setSupportsConfigReloadFromFile(
-				serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
-		return serviceDef;
 	}
 
 	@Override
@@ -254,8 +241,8 @@ class OAuthServiceController implements IdpServiceController
 			if (endpoint == null)
 				return null;
 
-			DefaultServiceDefinition oauthWebService = getServiceDef(endpoint);
-			oauthWebService.setBinding(OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding());
+			DefaultServiceDefinition oauthWebService = serviceDefinitionResolver.resolve(endpoint, 
+					OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding());
 			OAuthServiceDefinition def = new OAuthServiceDefinition(oauthWebService,
 					getTokenService(endpoint.getConfiguration().getTag()));
 			def.setClientsSupplier(this::getOAuthClients);

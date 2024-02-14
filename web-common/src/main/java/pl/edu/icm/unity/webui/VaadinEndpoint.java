@@ -149,16 +149,16 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
+		contextSetupFilter = new InvocationContextSetupFilter(serverConfig, description.getRealm(),
+				getServletUrl(uiServletPath), getAuthenticationFlows());
+		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
+		
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows, 
 				description.getEndpoint().getContextAddress(),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN),
 				description.getRealm());
 		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
-				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
-		
-		contextSetupFilter = new InvocationContextSetupFilter(serverConfig, description.getRealm(),
-				getServletUrl(uiServletPath), getAuthenticationFlows());
-		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		EndpointRegistrationConfiguration registrationConfiguration = genericEndpointProperties.getRegistrationConfiguration();
@@ -235,7 +235,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	
 	protected int getHeartbeatInterval(int sessionTimeout)
 	{
-		if (sessionTimeout >= 3*DEFAULT_HEARTBEAT) 
+		if (sessionTimeout >= 3*DEFAULT_HEARTBEAT)
 			return DEFAULT_HEARTBEAT;
 		int ret = sessionTimeout/3;
 		return ret < 2 ? 2 : ret;

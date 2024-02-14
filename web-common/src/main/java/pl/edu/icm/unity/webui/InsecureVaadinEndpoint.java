@@ -34,6 +34,7 @@ public class InsecureVaadinEndpoint extends VaadinEndpoint
 				remoteAuthnResponseProcessingFilter);
 	}
 
+	@Override
 	protected ServletContextHandler getServletContextHandlerOverridable()
 	{
 		if (context != null)

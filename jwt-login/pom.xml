@@ -8,14 +8,14 @@
 		<version>3.16.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>unity-server-jwt-authn</artifactId>
+	<artifactId>unity-server-jwt-login</artifactId>
 	<packaging>jar</packaging>
 
 	<name>UNITY Server ${m.name} module</name>
 	<description></description>
 
 	<properties>
-		<m.name>jwt-authn</m.name>
+		<m.name>jwt-login</m.name>
 	</properties>
 
 	<scm>
@@ -35,8 +35,21 @@
 			<artifactId>unity-server-rest</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-types-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.module</groupId>
+			<artifactId>jackson-module-parameter-names</artifactId>
+		</dependency>
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>

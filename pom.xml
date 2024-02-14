@@ -90,7 +90,7 @@
 		<module>vaadin23-endpoint-common</module>
 		<module>vaadin23-elements</module>
 		<module>unity-rest-api-docs</module>
-		<module>jwt-authn</module>
+		<module>jwt-login</module>
 	</modules>
 
 	<developers>
@@ -170,7 +170,10 @@
 						<maxmem>256M</maxmem>
 						<encoding>UTF-8</encoding>
 						<fork>${compiler.fork}</fork>
-						<compilerArgument>-Xlint:unchecked</compilerArgument>
+						<compilerArgs>
+							<arg>-Xlint:unchecked</arg>
+							<arg>-parameters</arg>
+						</compilerArgs>
 					</configuration>
 				</plugin>
 				<plugin>
@@ -509,7 +512,17 @@
 		 	   <artifactId>jackson-core</artifactId>
 		 	   <version>${jackson.version}</version>
 			</dependency>
-			
+			<dependency>
+				<groupId>com.fasterxml.jackson.jaxrs</groupId>
+				<artifactId>jackson-jaxrs-json-provider</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.module</groupId>
+				<artifactId>jackson-module-parameter-names</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+		
 			<dependency>
 				<groupId>eu.unicore</groupId>
 				<artifactId>jproperties-conf</artifactId>
@@ -919,7 +932,10 @@
 							<maxmem>256M</maxmem>
 							<encoding>UTF-8</encoding>
 							<fork>${compiler.fork}</fork>
-							<compilerArgument>-Xlint:unchecked</compilerArgument>
+							<compilerArgs>
+								<arg>-Xlint:unchecked</arg>
+								<arg>-parameters</arg>
+							</compilerArgs>
 						</configuration>
 					</plugin>
 				</plugins>
