@@ -5,30 +5,12 @@
 
 package pl.edu.icm.unity.oauth.as;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import io.imunity.idp.*;
+import io.imunity.idp.IdPClientData.AccessStatus;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
+import io.imunity.vaadin.endpoint.common.api.services.idp.IdpUsersHelper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import io.imunity.idp.AccessProtocol;
-import io.imunity.idp.ApplicationId;
-import io.imunity.idp.IdPClientData;
-import io.imunity.idp.IdPClientData.AccessStatus;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
-import io.imunity.idp.TechnicalInformationProperty;
-import io.imunity.idp.TrustedIdPClientsManagement;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
@@ -57,8 +39,13 @@ import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagement

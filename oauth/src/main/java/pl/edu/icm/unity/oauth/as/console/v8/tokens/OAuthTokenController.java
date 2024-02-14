@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.console.tokens;
+package pl.edu.icm.unity.oauth.as.console.v8.tokens;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import java.io.StringReader;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Component
+@Component("OAuthTokenControllerV8")
 class OAuthTokenController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, OAuthTokenController.class);

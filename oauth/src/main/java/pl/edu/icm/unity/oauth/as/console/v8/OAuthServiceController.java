@@ -3,20 +3,10 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.console;
+package pl.edu.icm.unity.oauth.as.console.v8;
 
 import com.nimbusds.oauth2.sdk.client.ClientType;
-import com.vaadin.flow.server.StreamResource;
-import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpServiceController;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpUsersHelper;
-import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -61,10 +51,17 @@ import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.idp.IdpServiceController;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUsersHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 import javax.imageio.ImageIO;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -80,7 +77,7 @@ import java.util.stream.Collectors;
  * @author P.Piernik
  *
  */
-@Component
+@Component("OAuthServiceControllerV8")
 class OAuthServiceController implements IdpServiceController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, OAuthServiceController.class);
@@ -110,12 +107,11 @@ class OAuthServiceController implements IdpServiceController
 	private GroupsManagement groupMan;
 	private EntityCredentialManagement entityCredentialManagement;
 	private IdpUsersHelper idpUsersHelper;
-	private VaadinLogoImageLoader imageService;
+	private ImageAccessService imageService;
 	private PolicyDocumentManagement policyDocumentManagement;
 	private NetworkServer server;
 	private final EndpointFileConfigurationManagement serviceFileConfigController;
 	private final OAuthScopesService scopesService;
-	private final NotificationPresenter notificationPresenter;
 
 	@Autowired
 	OAuthServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
@@ -128,10 +124,10 @@ class OAuthServiceController implements IdpServiceController
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			AttributeTypeSupport attrTypeSupport, AttributesManagement attrMan, EntityManagement entityMan,
 			GroupsManagement groupMan, EntityCredentialManagement entityCredentialManagement,
-			VaadinLogoImageLoader imageService, IdpUsersHelper idpUsersHelper,
+			ImageAccessService imageService, IdpUsersHelper idpUsersHelper,
 			PolicyDocumentManagement policyDocumentManagement,
 			EndpointFileConfigurationManagement serviceFileConfigController,
-			OAuthScopesService scopesService, NotificationPresenter notificationPresenter)
+			OAuthScopesService scopesService)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -160,7 +156,6 @@ class OAuthServiceController implements IdpServiceController
 		this.policyDocumentManagement = policyDocumentManagement;
 		this.serviceFileConfigController = serviceFileConfigController;
 		this.scopesService = scopesService;
-		this.notificationPresenter = notificationPresenter;
 	}
 
 	@Override
@@ -465,9 +460,9 @@ class OAuthServiceController implements IdpServiceController
 			if (logoResource.getLocal() != null)
 			{
 				updateLogo(entity, group, logoResource.getLocal());
-			} else if (logoResource.getSrc() != null)
+			} else if (logoResource.getRemote() != null)
 			{
-				FileData data = uriAccessService.readURI(new URI(logoResource.getSrc()));
+				FileData data = uriAccessService.readURI(new URI(logoResource.getRemote()));
 				updateLogo(entity, group, data.getContents());
 			} else
 			{
@@ -654,14 +649,12 @@ class OAuthServiceController implements IdpServiceController
 			ImageAttributeSyntax syntax = (ImageAttributeSyntax) attrTypeSupport.getSyntax(logo);
 			UnityImage image = syntax.convertFromString(logo.getValues().get(0));
 
+			LocalOrRemoteResource lrLogo = new LocalOrRemoteResource();
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try
 			{
-				byte[] byteArray = baos.toByteArray();
 				ImageIO.write(image.getBufferedImage(), image.getType().toExt(), baos);
-				LocalOrRemoteResource lrLogo = new LocalOrRemoteResource(new StreamResource("logo",
-						() -> new ByteArrayInputStream(byteArray)),
-						"", byteArray);
+				lrLogo.setLocal(baos.toByteArray());
 				baos.close();
 				c.setLogo(lrLogo);
 			} catch (IOException e)
@@ -708,7 +701,7 @@ class OAuthServiceController implements IdpServiceController
 	{
 
 		return new OAuthServiceEditor(msg, subViewSwitcher, outputTranslationProfileFieldFactory,
-				advertisedAddrProvider.get().toString(), server.getUsedContextPaths(), imageService, notificationPresenter,
+				advertisedAddrProvider.get().toString(), server.getUsedContextPaths(), imageService, uriAccessService,
 				fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),

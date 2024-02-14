@@ -3,9 +3,8 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.console;
+package pl.edu.icm.unity.oauth.as.console.v8;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,7 +19,7 @@ public class OAuthScopeBean
 	private String name;
 	private boolean enabled;
 	private String description;
-	private List<String> attributes = new ArrayList<>();
+	private List<String> attributes;
 
 	public OAuthScopeBean(String name, String desc)
 	{

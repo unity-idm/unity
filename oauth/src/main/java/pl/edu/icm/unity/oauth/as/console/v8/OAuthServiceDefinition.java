@@ -3,16 +3,16 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.console;
-
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
+package pl.edu.icm.unity.oauth.as.console.v8;
 
 import java.util.List;
 import java.util.function.Function;
+
+import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
 
 /**
  * Contains information of {@link OAuthAuthzWebEndpoint} and

@@ -84,7 +84,8 @@ public abstract class NewServiceViewBase extends ConsoleViewComponent
 			service = editor.getService();
 		} catch (FormValidationException e)
 		{
-			notificationPresenter.showError(msg.getMessage("NewServiceView.invalidConfiguration"), e.getMessage());
+			String description = e.getMessage() == null ? msg.getMessage("Generic.formErrorHint") : e.getMessage();
+			notificationPresenter.showError(msg.getMessage("NewServiceView.invalidConfiguration"), description);
 			return;
 		}
 

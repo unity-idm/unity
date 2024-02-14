@@ -3,16 +3,17 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.console;
-
-import com.nimbusds.oauth2.sdk.client.ClientType;
-import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+package pl.edu.icm.unity.oauth.as.console.v8;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import com.nimbusds.oauth2.sdk.client.ClientType;
+
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 
 /**
  * Represent single OAuth client. When client is edited or deleted the
@@ -42,9 +43,6 @@ public class OAuthClient
 	{
 		this.type = ClientType.CONFIDENTIAL.toString();
 		this.allowAnyScopes = true;
-		this.flows = new ArrayList<>();
-		this.scopes = new ArrayList<>();
-		this.redirectURIs = new ArrayList<>();
 	}
 
 	public OAuthClient(String id, String secret)
@@ -52,9 +50,7 @@ public class OAuthClient
 		this();
 		this.id = id;
 		this.secret = secret;
-		this.flows = new ArrayList<>(Collections.singletonList(GrantFlow.authorizationCode.toString()));
-		this.scopes = new ArrayList<>();
-		this.redirectURIs = new ArrayList<>();
+		this.flows = new ArrayList<>(Arrays.asList(GrantFlow.authorizationCode.toString()));
 	}
 
 	public String getName()

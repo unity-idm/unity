@@ -3,19 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.console;
+package pl.edu.icm.unity.oauth.as.console.v8;
 
-import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpEditorUsersTab;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpUser;
-import io.imunity.vaadin.endpoint.common.api.services.idp.PolicyAgreementsTab;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthenticationTab;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Function;
+
+import io.imunity.webconsole.utils.tprofile.OutputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.identity.IdentityType;
@@ -24,54 +19,59 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditor;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent;
+import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.console.services.idp.IdpUser;
+import pl.edu.icm.unity.webui.console.services.idp.PolicyAgreementsTab;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 class OAuthServiceEditor implements ServiceEditor
 {
-	private final MessageSource msg;
-	private final List<String> allRealms;
-	private final List<AuthenticationFlowDefinition> flows;
-	private final List<AuthenticatorInfo> authenticators;
+	private MessageSource msg;
+	private List<String> allRealms;
+	private List<AuthenticationFlowDefinition> flows;
+	private List<AuthenticatorInfo> authenticators;
 	private OAuthServiceEditorComponent editor;
-	private final List<String> allAttributes;
-	private final List<Group> allGroups;
-	private final List<IdpUser> allIdpUsers;
-	private final Function<String, List<OAuthClient>> systemClientsSupplier;
-	private final List<String> registrationForms;
-	private final Set<String> credentials;
-	private final VaadinLogoImageLoader imageService;
-	private final FileStorageService fileStorageService;
-	private final UnityServerConfiguration serverConfig;
-	private final AuthenticatorSupportService authenticatorSupportService;
-	private final String serverPrefix;
-	private final Set<String> serverContextPaths;
-	private final Collection<IdentityType> idTypes;
-	private final SubViewSwitcher subViewSwitcher;
-	private final OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
-	private final List<String> usedPaths;
-	private final List<String> allUsernames;
-	private final NotificationPresenter notificationPresenter;
-	private final Collection<PolicyDocumentWithRevision> policyDocuments;
-	private final OAuthScopesService scopeService;
-	private final Set<String> validators;
-	private final Set<String> certificates;
+	private List<String> allAttributes;
+	private List<Group> allGroups;
+	private List<IdpUser> allIdpUsers;
+	private Function<String, List<OAuthClient>> systemClientsSupplier;
+	private List<String> registrationForms;
+	private Set<String> credentials;
+	private ImageAccessService imageService;
+	private FileStorageService fileStorageService;
+	private UnityServerConfiguration serverConfig;
+	private AuthenticatorSupportService authenticatorSupportService;
+	private String serverPrefix;
+	private Set<String> serverContextPaths;
+	private Collection<IdentityType> idTypes;
+	private SubViewSwitcher subViewSwitcher;
+	private OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory;
+	private List<String> usedPaths;
+	private List<String> allUsernames;
+	private URIAccessService uriAccessService;
+	private Collection<PolicyDocumentWithRevision> policyDocuments;
+	private OAuthScopesService scopeService;
+	private Set<String> validators;
+	private Set<String> certificates;
 
 	OAuthServiceEditor(MessageSource msg, 
 			SubViewSwitcher subViewSwitcher,
-			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
+			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory, 
 			String serverPrefix,
 			Set<String> serverContextPaths,
-			VaadinLogoImageLoader imageService,
-			NotificationPresenter notificationPresenter,
+			ImageAccessService imageService, 
+			URIAccessService uriAccessService,
 			FileStorageService fileStorageService,
 			UnityServerConfiguration serverConfig, 
 			List<String> allRealms,
@@ -80,7 +80,7 @@ class OAuthServiceEditor implements ServiceEditor
 			List<String> allAttributes, 
 			List<Group> allGroups, 
 			List<IdpUser> allIdpUsers,
-			Function<String, List<OAuthClient>> systemClientsSupplier,
+			Function<String, List<OAuthClient>> systemClientsSupplier, 
 			List<String> allUsernames, 
 			List<String> registrationForms, 
 			Set<String> credentials,
@@ -93,7 +93,7 @@ class OAuthServiceEditor implements ServiceEditor
 			Set<String> certificates)
 	{
 		this.msg = msg;
-		this.notificationPresenter = notificationPresenter;
+		this.uriAccessService = uriAccessService;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
@@ -126,10 +126,10 @@ class OAuthServiceEditor implements ServiceEditor
 		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, serverPrefix, serverContextPaths,
 				subViewSwitcher, outputTranslationProfileFieldFactory, endpoint != null, credentials, idTypes,
 				allAttributes, usedPaths, scopeService.getSystemScopes(), validators, certificates);
-		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig,
+		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig, uriAccessService,
 				subViewSwitcher, flows, authenticators, allRealms, allUsernames, generalTab::getScopes,
-				OAuthTokenEndpoint.TYPE.getSupportedBinding(), notificationPresenter);
-		WebServiceAuthenticationTab webAuthTab = new WebServiceAuthenticationTab(msg, serverConfig,
+				OAuthTokenEndpoint.TYPE.getSupportedBinding());
+		WebServiceAuthenticationTab webAuthTab = new WebServiceAuthenticationTab(msg, uriAccessService, serverConfig,
 				authenticatorSupportService, flows, authenticators, allRealms, registrationForms,
 				OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding(),
 				msg.getMessage("IdpServiceEditorBase.authentication"));

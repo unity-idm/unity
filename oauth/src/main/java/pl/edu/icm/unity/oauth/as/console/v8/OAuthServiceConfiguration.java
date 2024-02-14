@@ -3,13 +3,21 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.console;
+package pl.edu.icm.unity.oauth.as.console.v8;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import io.imunity.vaadin.endpoint.common.api.services.idp.ActiveValueConfig;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.group.Group;
@@ -19,7 +27,6 @@ import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfigurationParser;
-import pl.edu.icm.unity.engine.api.idp.UserImportConfig;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
@@ -27,11 +34,9 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
-import java.util.stream.Collectors;
+import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
+import pl.edu.icm.unity.webui.console.services.idp.ActiveValueConfig;
+import pl.edu.icm.unity.webui.console.services.idp.UserImportConfig;
 
 /**
  * Represent full OAuth service configuration.
@@ -217,9 +222,9 @@ public class OAuthServiceConfiguration
 			for (UserImportConfig impConfig : userImports)
 			{
 				String key = CommonIdPProperties.USERIMPORT_PFX + (userImports.indexOf(impConfig) + 1) + ".";
-				raw.put(OAuthASProperties.P + key + CommonIdPProperties.USERIMPORT_IMPORTER, impConfig.importer);
+				raw.put(OAuthASProperties.P + key + CommonIdPProperties.USERIMPORT_IMPORTER, impConfig.getImporter());
 				raw.put(OAuthASProperties.P + key + CommonIdPProperties.USERIMPORT_IDENTITY_TYPE,
-						impConfig.type);
+						impConfig.getIdentityType());
 			}
 		}
 
@@ -284,8 +289,8 @@ public class OAuthServiceConfiguration
 			throw new InternalException("Can't serialize oauth idp translation profile to JSON", e);
 		}
 
-		raw.put(OAuthASProperties.P + OAuthASProperties.CLIENTS_GROUP, clientGroup.group().toString());
-		raw.put(OAuthASProperties.P + OAuthASProperties.USERS_GROUP, usersGroup.group().toString());
+		raw.put(OAuthASProperties.P + OAuthASProperties.CLIENTS_GROUP, clientGroup.group.toString());
+		raw.put(OAuthASProperties.P + OAuthASProperties.USERS_GROUP, usersGroup.group.toString());
 
 		if (policyAgreementConfig != null)
 		{
@@ -448,7 +453,9 @@ public class OAuthServiceConfiguration
 			String importer = oauthProperties.getValue(importKey + CommonIdPProperties.USERIMPORT_IMPORTER);
 			String identityType = oauthProperties.getValue(importKey + CommonIdPProperties.USERIMPORT_IDENTITY_TYPE);
 
-			UserImportConfig userImportConfig = new UserImportConfig(null, importer, identityType);
+			UserImportConfig userImportConfig = new UserImportConfig();
+			userImportConfig.setImporter(importer);
+			userImportConfig.setIdentityType(identityType);
 			userImports.add(userImportConfig);
 		}
 

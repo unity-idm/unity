@@ -36,9 +36,20 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 		this.msg = msg;
 		setItemLabelGenerator(g -> g.group().getDisplayedName().getValue(msg));
 		setRequiredIndicatorVisible(true);
-		addValueChangeListener(e -> {
-			if (e.getValue() != null && e.getValue().indent())
-				setValue(new GroupWithIndentIndicator(e.getValue().group(), false));
+		addValueChangeListener(event -> {
+			if(event.isFromClient() && groupChangeConfirmationQuestion != null)
+			{
+				new ConfirmDialog(
+						msg.getMessage("ConfirmDialog.confirm"),
+						groupChangeConfirmationQuestion,
+						msg.getMessage("ok"),
+						e -> {},
+						msg.getMessage("cancel"),
+						e -> setValue(event.getOldValue())
+				).open();
+			}
+			else if (event.getValue() != null && event.getValue().indent())
+				setValue(new GroupWithIndentIndicator(event.getValue().group(), false));
 		});
 		items = new ArrayList<>();
 	}
@@ -134,25 +145,6 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 		return items.stream().map(Group::toString).collect(Collectors.toSet());
 	}
 
-	@Override
-	public void setValue(GroupWithIndentIndicator value)
-	{
-		
-		if (groupChangeConfirmationQuestion != null)
-		{
-			new ConfirmDialog(
-					msg.getMessage("ConfirmDialog.confirm"),
-					groupChangeConfirmationQuestion,
-					msg.getMessage("ok"),
-					e -> super.setValue(value),
-					msg.getMessage("cancel"),
-					e -> {}
-			).open();
-		}else
-		{
-			super.setValue(value);
-		}
-	}
 	
 	public void setGroupChangeConfirmationQuestion(String groupChangeConfirmationQuestion)
 	{

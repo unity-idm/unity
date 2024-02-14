@@ -3,29 +3,10 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.console;
+package pl.edu.icm.unity.oauth.as.console.v8;
 
-import com.vaadin.flow.data.binder.Binder;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.ServiceWebConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpEditorUsersTab;
-import io.imunity.vaadin.endpoint.common.api.services.idp.PolicyAgreementsTab;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthenticationTab;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
-import org.apache.commons.lang3.RandomStringUtils;
-import pl.edu.icm.unity.base.group.Group;
-import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.oauth.as.OAuthScopesService;
-import pl.edu.icm.unity.oauth.as.console.OAuthClient.OAuthClientsBean;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
-import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import static pl.edu.icm.unity.oauth.as.console.v8.OAuthServiceController.IDP_CLIENT_MAIN_GROUP;
+import static pl.edu.icm.unity.oauth.as.console.v8.OAuthServiceController.OAUTH_CLIENTS_SUBGROUP;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,25 +14,46 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static pl.edu.icm.unity.oauth.as.console.OAuthServiceController.IDP_CLIENT_MAIN_GROUP;
-import static pl.edu.icm.unity.oauth.as.console.OAuthServiceController.OAUTH_CLIENTS_SUBGROUP;
+import org.apache.commons.lang3.RandomStringUtils;
+
+import com.vaadin.data.Binder;
+
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.oauth.as.OAuthScopesService;
+import pl.edu.icm.unity.oauth.as.console.v8.OAuthClient.OAuthClientsBean;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
+import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.file.ImageAccessService;
+import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
+import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceDefinition;
+import pl.edu.icm.unity.webui.console.services.ServiceEditorBase;
+import pl.edu.icm.unity.webui.console.services.authnlayout.ServiceWebConfiguration;
+import pl.edu.icm.unity.webui.console.services.idp.IdpEditorUsersTab;
+import pl.edu.icm.unity.webui.console.services.idp.PolicyAgreementsTab;
+import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
 
 class OAuthServiceEditorComponent extends ServiceEditorBase
 {
 	public static final String TOKEN_SERVICE_NAME_SUFFIX = "_TOKEN";
 
-	private final Binder<DefaultServiceDefinition> oauthServiceWebAuthzBinder;
-	private final Binder<DefaultServiceDefinition> oauthServiceTokenBinder;
-	private final Binder<OAuthServiceConfiguration> oauthConfigBinder;
-	private final Binder<ServiceWebConfiguration> webConfigBinder;
-	private final Binder<OAuthClientsBean> clientsBinder;
+	private Binder<DefaultServiceDefinition> oauthServiceWebAuthzBinder;
+	private Binder<DefaultServiceDefinition> oauthServiceTokenBinder;
+	private Binder<OAuthServiceConfiguration> oauthConfigBinder;
+	private Binder<ServiceWebConfiguration> webConfigBinder;
+	private Binder<OAuthClientsBean> clientsBinder;
 	private final FileStorageService fileStorageService;
-	private final Group generatedIdPGroup;
-	private final boolean editMode;
+	private Group generatedIdPGroup;
+	private boolean editMode;
 
 	OAuthServiceEditorComponent(MessageSource msg, OAuthEditorGeneralTab generalTab, OAuthEditorClientsTab clientsTab,
 			IdpEditorUsersTab usersTab, WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab,
-			FileStorageService fileStorageService, VaadinLogoImageLoader imageAccessService,
+			FileStorageService fileStorageService, ImageAccessService imageAccessService,
 			OAuthScopesService scopeService, ServiceDefinition toEdit,
 			List<Group> allGroups, Function<String, List<OAuthClient>> systemClientsSupplier, String systemTheme)
 	{
@@ -72,7 +74,8 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 		if (!editMode)
 		{
-			if (!allGroups.stream().map(Group::toString).anyMatch(g -> g.equals(IDP_CLIENT_MAIN_GROUP)))
+			if (!allGroups.stream().map(g -> g.toString()).filter(g -> g.equals(IDP_CLIENT_MAIN_GROUP))
+					.findAny().isPresent())
 			{
 				groupsWithAutoGen.add(new Group(IDP_CLIENT_MAIN_GROUP));
 			}
@@ -85,8 +88,8 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		clientsTab.initUI(groupsWithAutoGen, oauthServiceTokenBinder, oauthConfigBinder, clientsBinder);
 		usersTab.initUI(oauthConfigBinder);
 
-		generalTab.addNameValueChangeListener(value -> {
-			String displayedName = (value != null && !value.isEmpty()) ? value
+		generalTab.addNameValueChangeListener(e -> {
+			String displayedName = (e.getValue() != null && !e.getValue().isEmpty()) ? e.getValue()
 					: generatedIdPGroup.toString();
 			generatedIdPGroup.setDisplayedName(new I18nString(displayedName));
 			clientsTab.refreshGroups();
@@ -123,7 +126,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, imageAccessService, systemTheme);
 			}
 			clientsBean.setClients(cloneClients(
-					systemClientsSupplier.apply(oauthConfig.getClientGroup().group().toString())));
+					systemClientsSupplier.apply(oauthConfig.getClientGroup().group.toString())));
 		}
 
 		oauthConfigBinder.setBean(oauthConfig);
@@ -139,12 +142,12 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		}
 
 		Runnable refreshClients = () -> usersTab.setAvailableClients(clientsTab.getActiveClients().stream()
-				.collect(Collectors.toMap(OAuthClient::getId,
+				.collect(Collectors.toMap(c -> c.getId(),
 						c -> c.getName() == null || c.getName().isEmpty() ? c.getId()
 								: c.getName())));
 		clientsBinder.addValueChangeListener(e -> refreshClients.run());
-		clientsTab.addGroupValueChangeListener(value -> {
-			Group newGroup = value.group();
+		clientsTab.addGroupValueChangeListener(e -> {
+			Group newGroup = e.getValue().group;
 			List<OAuthClient> newGroupClients = (newGroup.equals(generatedClientsGroup)
 					|| newGroup.equals(generatedIdPGroup)) ? Collections.emptyList()
 							: cloneClients(systemClientsSupplier

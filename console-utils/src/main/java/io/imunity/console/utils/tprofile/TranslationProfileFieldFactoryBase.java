@@ -53,6 +53,8 @@ class TranslationProfileFieldFactoryBase
 	{
 		TranslationProfileField field = getInstance(subViewSwitcher);
 		binder.forField(field).bind(fieldName);
-		return new AccordionPanel(caption, field);
+		AccordionPanel accordionPanel = new AccordionPanel(caption, field);
+		accordionPanel.setWidthFull();
+		return accordionPanel;
 	}
 }

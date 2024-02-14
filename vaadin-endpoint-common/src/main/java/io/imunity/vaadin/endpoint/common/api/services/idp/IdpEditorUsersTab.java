@@ -207,7 +207,7 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 	@Override
 	public String getCaption()
 	{
-		return null;
+		return msg.getMessage("IdpServiceEditorBase.users");
 	}
 
 	public void setAvailableClients(Map<String, String> clients)

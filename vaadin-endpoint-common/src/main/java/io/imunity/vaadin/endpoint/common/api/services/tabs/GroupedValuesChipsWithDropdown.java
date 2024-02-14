@@ -13,11 +13,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class GroupedValuesChipsWithDropdown extends MultiSelectComboBox<String>
+public class GroupedValuesChipsWithDropdown extends MultiSelectComboBox<String>
 {
 	private static final String LABEL_PREFIX = "__label__";
 
-	GroupedValuesChipsWithDropdown(Map<String, List<String>> labels)
+	public GroupedValuesChipsWithDropdown(Map<String, List<String>> labels)
 	{
 		setItemLabelGenerator(
 				v -> !v.startsWith(LABEL_PREFIX) ? "\u2003" + v : v.substring(LABEL_PREFIX.length(), v.length()));

@@ -1,32 +1,30 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
 package pl.edu.icm.unity.oauth.as.console.tokens;
 
-import java.util.Arrays;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.selection.SelectionListener;
+import io.imunity.vaadin.elements.ColumnToggleMenu;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.SearchField;
+import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.GridSearchFieldFactory;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
+import io.imunity.vaadin.endpoint.common.Toolbar;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
 import java.util.Collection;
 import java.util.Collections;
-
-import com.vaadin.event.selection.SelectionListener;
-import com.vaadin.shared.ui.Orientation;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CustomComponent;
-
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.GridWithActionColumn;
-import pl.edu.icm.unity.webui.common.HamburgerMenu;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SearchField;
-
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
-import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Component showing a grid with the oauth tokens.
@@ -34,69 +32,115 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-class OAuthTokenGrid extends CustomComponent
+class OAuthTokenGrid extends VerticalLayout
 {
-	private OAuthTokenController controller;
-	private MessageSource msg;
+	private final OAuthTokenController controller;
+	private final NotificationPresenter notificationPresenter;
+	private final MessageSource msg;
 
 	private GridWithActionColumn<OAuthTokenBean> tokensGrid;
 
-	OAuthTokenGrid(MessageSource msg, OAuthTokenController controller)
+	OAuthTokenGrid(MessageSource msg, OAuthTokenController controller, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.controller = controller;
+		this.notificationPresenter = notificationPresenter;
 		initUI();
 	}
 
 	private void initUI()
 	{
-		tokensGrid = new GridWithActionColumn<>(msg, Collections.emptyList(), false, false);
+		ColumnToggleMenu columnToggleMenu = new ColumnToggleMenu();
 
-		tokensGrid.addSortableColumn(r -> r.getType(), msg.getMessage("OAuthToken.type"), 10);
-		tokensGrid.addSortableColumn(r -> r.getId(), msg.getMessage("OAuthToken.id"), 10);
-		tokensGrid.addSortableColumn(r -> r.getOwner(), msg.getMessage("OAuthToken.owner"), 10).setHidable(true)
-				.setHidden(false);
-		tokensGrid.addSortableColumn(r -> r.getClientName(), msg.getMessage("OAuthToken.clientName"), 10)
-				.setHidable(true).setHidden(false);
-		tokensGrid.addSortableColumn(r -> r.getCreateTime(), msg.getMessage("OAuthToken.createTime"), 10)
-				.setHidable(true).setHidden(true);
-		tokensGrid.addSortableColumn(r -> r.getExpires(), msg.getMessage("OAuthToken.expires"), 10)
-				.setHidable(true).setHidden(false);
-		tokensGrid.addSortableColumn(r -> r.getServerId(), msg.getMessage("OAuthToken.serverId"), 10)
-				.setHidable(true).setHidden(true);
-		tokensGrid.addSortableColumn(r -> r.getAssociatedRefreshTokenForAccessToken(), msg.getMessage("OAuthToken.refreshToken"), 10)
-				.setHidable(true).setHidden(true);
-		tokensGrid.addSortableColumn(r -> r.getScopes(), msg.getMessage("OAuthToken.scopes"), 10)
-				.setHidable(true).setHidden(false);
-		tokensGrid.addSortableColumn(r -> String.valueOf(r.getHasIdToken()),
-				msg.getMessage("OAuthToken.hasIdToken"), 10).setHidable(true).setHidden(true);
+		tokensGrid = new GridWithActionColumn<>(msg::getMessage, Collections.emptyList());
 
-		tokensGrid.setActionColumnHidden(true);
+		tokensGrid.addColumn(OAuthTokenBean::getType)
+				.setHeader(msg.getMessage("OAuthToken.type"))
+				.setSortable(true)
+				.setAutoWidth(true);
+		tokensGrid.addColumn(OAuthTokenBean::getId)
+				.setHeader(msg.getMessage("OAuthToken.id"))
+				.setSortable(true)
+				.setAutoWidth(true);
+		tokensGrid.addColumn(OAuthTokenBean::getOwner)
+				.setHeader(msg.getMessage("OAuthToken.owner"))
+				.setSortable(true)
+				.setAutoWidth(true);
+		Grid.Column<OAuthTokenBean> ownerColumn = tokensGrid.addColumn(OAuthTokenBean::getOwner)
+				.setHeader(msg.getMessage("OAuthToken.owner"))
+				.setSortable(true)
+				.setAutoWidth(true);
+		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.owner"), ownerColumn);
+
+		Grid.Column<OAuthTokenBean> clientColumn = tokensGrid.addColumn(OAuthTokenBean::getClientName)
+				.setHeader(msg.getMessage("OAuthToken.clientName"))
+				.setSortable(true)
+				.setAutoWidth(true);
+		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.clientName"), clientColumn);
+
+		Grid.Column<OAuthTokenBean> createTimeColumn = tokensGrid.addColumn(OAuthTokenBean::getCreateTime)
+				.setHeader(msg.getMessage("OAuthToken.createTime"))
+				.setSortable(true)
+				.setAutoWidth(true);
+		createTimeColumn.setVisible(false);
+		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.createTime"), createTimeColumn);
+
+		Grid.Column<OAuthTokenBean> expiresColumn = tokensGrid.addColumn(OAuthTokenBean::getExpires)
+				.setHeader(msg.getMessage("OAuthToken.expires"))
+				.setSortable(true)
+				.setAutoWidth(true);
+		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.expires"), expiresColumn);
+
+		Grid.Column<OAuthTokenBean> serverIdColumn = tokensGrid.addColumn(OAuthTokenBean::getServerId)
+				.setHeader(msg.getMessage("OAuthToken.serverId"))
+				.setSortable(true)
+				.setAutoWidth(true);
+		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.serverId"), serverIdColumn);
+
+		Grid.Column<OAuthTokenBean> refreshTokenColumn = tokensGrid.addColumn(
+						OAuthTokenBean::getAssociatedRefreshTokenForAccessToken)
+				.setHeader(msg.getMessage("OAuthToken.refreshToken"))
+				.setSortable(true)
+				.setAutoWidth(true);
+		refreshTokenColumn.setVisible(false);
+		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.refreshToken"), refreshTokenColumn);
+
+		Grid.Column<OAuthTokenBean> scopesColumn = tokensGrid.addColumn(OAuthTokenBean::getScopes)
+				.setHeader(msg.getMessage("OAuthToken.scopes"))
+				.setSortable(true)
+				.setAutoWidth(true);
+		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.scopes"), scopesColumn);
+
+		Grid.Column<OAuthTokenBean> hasIdTokenColumn = tokensGrid.addColumn(r -> String.valueOf(r.getHasIdToken()))
+				.setHeader(new Div(new Span(msg.getMessage("OAuthToken.hasIdToken")), columnToggleMenu))
+				.setSortable(true)
+				.setAutoWidth(true);
+		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.hasIdToken"), hasIdTokenColumn);
+
+		tokensGrid.removeActionColumn();
 		tokensGrid.setColumnReorderingAllowed(true);
 
 		tokensGrid.setMultiSelect(true);
 		tokensGrid.setSizeFull();
 
-		HamburgerMenu<OAuthTokenBean> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleName(Styles.sidebar.toString());
-		hamburgerMenu.addActionHandlers(Arrays.asList(getDeleteAction()));
+		ActionMenuWithHandlerSupport<OAuthTokenBean> hamburgerMenu = new ActionMenuWithHandlerSupport<>();
+		hamburgerMenu.addActionHandlers(Collections.singletonList(getDeleteAction()));
 		tokensGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
-		SearchField search = FilterableGridHelper.generateSearchField(tokensGrid, msg);
-		Toolbar<OAuthTokenBean> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
-		toolbar.setWidth(100, Unit.PERCENTAGE);
+		SearchField search = GridSearchFieldFactory.generateSearchField(tokensGrid, msg::getMessage);
+		Toolbar<OAuthTokenBean> toolbar = new Toolbar<>();
+		toolbar.setWidthFull();
 		toolbar.addHamburger(hamburgerMenu);
-		toolbar.addSearch(search, Alignment.MIDDLE_RIGHT);
-		ComponentWithToolbar reqGridWithToolbar = new ComponentWithToolbar(tokensGrid, toolbar,
-				Alignment.BOTTOM_LEFT);
+		toolbar.addSearch(search);
+		ComponentWithToolbar reqGridWithToolbar = new ComponentWithToolbar(tokensGrid, toolbar);
 		reqGridWithToolbar.setSizeFull();
 		reqGridWithToolbar.setSpacing(false);
 
-		setCompositionRoot(reqGridWithToolbar);
+		add(reqGridWithToolbar);
 		setSizeFull();
 	}
 
-	public void addValueChangeListener(SelectionListener<OAuthTokenBean> listener)
+	public void addValueChangeListener(SelectionListener<Grid<OAuthTokenBean>, OAuthTokenBean> listener)
 	{
 		tokensGrid.addSelectionListener(listener);
 	}
@@ -108,17 +152,20 @@ class OAuthTokenGrid extends CustomComponent
 
 	private SingleActionHandler<OAuthTokenBean> getDeleteAction()
 	{
-		return SingleActionHandler.builder4Delete(msg, OAuthTokenBean.class).withHandler(this::deleteHandler)
+		return SingleActionHandler.builder4Delete(msg::getMessage, OAuthTokenBean.class).withHandler(this::deleteHandler)
 				.build();
 	}
 
 	private void deleteHandler(Collection<OAuthTokenBean> items)
 	{
-		new ConfirmDialog(msg, msg.getMessage("OAuthTokenGrid.confirmDelete"), () -> {
-			for (OAuthTokenBean item : items)
-				removeToken(item);
-		}).show();
-
+		new ConfirmDialog(
+				msg.getMessage("ConfirmDialog.confirm"),
+				msg.getMessage("OAuthTokenGrid.confirmDelete"),
+				msg.getMessage("ok"),
+				e -> items.forEach(this::removeToken),
+				msg.getMessage("cancel"),
+				e -> {}
+		).open();
 	}
 
 	protected void removeToken(OAuthTokenBean item)
@@ -129,7 +176,7 @@ class OAuthTokenGrid extends CustomComponent
 			tokensGrid.removeElement(item);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(msg, e);
+			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
 		}
 	}
 

@@ -3,11 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.console;
-
-import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+package pl.edu.icm.unity.oauth.as.console.v8;
 
 import java.util.Objects;
+
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
 public class TrustedUpstreamASBean
 {

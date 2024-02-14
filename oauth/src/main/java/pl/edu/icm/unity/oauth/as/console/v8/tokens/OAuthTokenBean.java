@@ -3,19 +3,18 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.console.tokens;
+package pl.edu.icm.unity.oauth.as.console.v8.tokens;
 
 import com.nimbusds.jwt.SignedJWT;
-import io.imunity.vaadin.elements.grid.FilterableEntry;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.token.BearerJWTAccessToken;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
+import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -119,7 +118,7 @@ class OAuthTokenBean implements FilterableEntry
 	}
 
 	@Override
-	public boolean anyFieldContains(String searched, Function<String, String> msg)
+	public boolean anyFieldContains(String searched, MessageSource msg)
 	{
 		String textLower = searched.toLowerCase();
 

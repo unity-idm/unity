@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
-import io.imunity.console.views.identity_provider.released_profile.endpoints.spi.IdpServiceAdditionalAction;
+import io.imunity.console.spi.IdpServiceAdditionalAction;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
 /**

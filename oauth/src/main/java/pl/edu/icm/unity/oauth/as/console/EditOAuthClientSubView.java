@@ -1,52 +1,51 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
 package pl.edu.icm.unity.oauth.as.console;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import com.nimbusds.oauth2.sdk.client.ClientType;
+import com.vaadin.flow.component.AbstractField;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import io.imunity.vaadin.elements.CopyToClipboardButton;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.UnitySubView;
+import io.imunity.vaadin.endpoint.common.file.FileField;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.nimbusds.oauth2.sdk.client.ClientType;
-import com.vaadin.data.Binder;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
-
-import io.imunity.webelements.clipboard.CopyToClipboardButton;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.FieldSizeConstans;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.TextFieldWithChangeConfirmation;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
-import pl.edu.icm.unity.webui.common.file.ImageField;
-import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.*;
 
 /**
  * Subview for edit oauth client.
@@ -54,23 +53,22 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  * @author P.Piernik
  *
  */
-class EditOAuthClientSubView extends CustomComponent implements UnitySubView
+class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 {
-	private MessageSource msg;
-	private URIAccessService uriAccessService;
-	private UnityServerConfiguration serverConfig;
-	private Binder<OAuthClient> binder;
-	private boolean editMode = false;
-	private Set<String> allClientsIds;
-	private Supplier<Set<String>> scopesSupplier;
+	private final MessageSource msg;
+	private final UnityServerConfiguration serverConfig;
+	private final Binder<OAuthClient> binder;
+	private final boolean editMode;
+	private final Set<String> allClientsIds;
+	private final Supplier<Set<String>> scopesSupplier;
 
-	EditOAuthClientSubView(MessageSource msg, URIAccessService uriAccessService,
+	EditOAuthClientSubView(MessageSource msg,
 			UnityServerConfiguration serverConfig, Set<String> allClientsIds, 
 			Supplier<Set<String>> scopesSupplier, OAuthClient toEdit,
-			Consumer<OAuthClient> onConfirm, Runnable onCancel)
+			Consumer<OAuthClient> onConfirm, Runnable onCancel,
+			NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
-		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
 		this.allClientsIds = allClientsIds;
 		this.scopesSupplier = scopesSupplier;
@@ -79,9 +77,13 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 		binder = new Binder<>(OAuthClient.class);
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
-		mainView.addComponent(buildHeaderSection());
-		mainView.addComponent(buildConsentScreenSection());
-		Runnable onConfirmR = () -> {
+		mainView.add(buildHeaderSection());
+		mainView.add(buildConsentScreenSection());
+
+		Button cancelButton = new Button(msg.getMessage("cancel"), event -> onCancel.run());
+		cancelButton.setWidthFull();
+		Button updateButton = new Button(editMode ? msg.getMessage("update") :  msg.getMessage("create"), event ->
+		{
 
 			OAuthClient client;
 			try
@@ -89,64 +91,66 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 				client = getOAuthClient();
 			} catch (FormValidationException e)
 			{
-				NotificationPopup.showError(msg,
-						msg.getMessage("EditOAuthClientSubView.invalidConfiguration"), e);
+				notificationPresenter.showError(
+						msg.getMessage("EditOAuthClientSubView.invalidConfiguration"), e.getMessage());
 				return;
 			}
 			if (client.getSecret() != null && !client.getSecret().isEmpty())
 			{
-				ConfirmDialog confirmDialog = new ConfirmDialog(msg,
-						msg.getMessage("EditOAuthClientSubView.confirmAddClient"),
-						msg.getMessage("EditOAuthClientSubView.confirm"),
-						msg.getMessage("EditOAuthClientSubView.confirmTooltip"),
-						msg.getMessage("EditOAuthClientSubView.goBack"),
-						msg.getMessage("EditOAuthClientSubView.goBackTooltip"), () -> {
-							onConfirm.accept(client);
-						});
-				confirmDialog.setHTMLContent(true);
-				confirmDialog.setSizeEm(30, 20);
-				confirmDialog.show();
-				
-			} else
-			{
-				onConfirm.accept(client);
+				ConfirmDialog confirmDialog = new ConfirmDialog();
+				Button confirmButton = new Button(msg.getMessage("EditOAuthClientSubView.confirm"), e -> onConfirm.accept(client));
+				confirmButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+				confirmButton.setTooltipText(msg.getMessage("EditOAuthClientSubView.confirmTooltip"));
+				Button back = new Button(msg.getMessage("EditOAuthClientSubView.goBack"));
+				back.setTooltipText(msg.getMessage("EditOAuthClientSubView.goBackTooltip"));
+
+				confirmDialog.setHeader(msg.getMessage("ConfirmDialog.confirm"));
+				confirmDialog.add(new Html("<div>" + msg.getMessage("EditOAuthClientSubView.confirmAddClient") + "</div>"));
+				confirmDialog.setConfirmButton(confirmButton);
+				confirmDialog.setCancelable(true);
+				confirmDialog.setCancelButton(back);
+				confirmDialog.setWidth("30em");
+				confirmDialog.setHeight("20em");
+				confirmDialog.open();
 			}
-		};
-		mainView.addComponent(editMode
-				? StandardButtonsHelper.buildConfirmEditButtonsBar(msg, onConfirmR, onCancel)
-				: StandardButtonsHelper.buildConfirmNewButtonsBar(msg, onConfirmR, onCancel));
+			else
+				onConfirm.accept(client);
+		});
+		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		updateButton.setWidthFull();
+		HorizontalLayout buttonsLayout = new HorizontalLayout(cancelButton, updateButton);
+		buttonsLayout.setClassName(EDIT_VIEW_ACTION_BUTTONS_LAYOUT.getName());
+		mainView.add(buttonsLayout);
 
 		binder.setBean(editMode ? toEdit.clone()
 				: new OAuthClient(UUID.randomUUID().toString(), UUID.randomUUID().toString()));
-		setCompositionRoot(mainView);
+		add(mainView);
 	}
 
-	private FormLayoutWithFixedCaptionWidth buildHeaderSection()
+	private FormLayout buildHeaderSection()
 	{
-		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
-		header.setMargin(true);
+		FormLayout header = new FormLayout();
+		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		TextField name = new TextField();
-		name.setCaption(msg.getMessage("EditOAuthClientSubView.name"));
 		binder.forField(name).withValidator((v, c) -> {
-			if (v != null && !v.isEmpty() && v.length() < 2)
+			if (v != null && v.length() == 1)
 			{
 				return ValidationResult.error(msg.getMessage("toShortValue"));
 			}
 			return ValidationResult.ok();
 
 		}).bind("name");
-		header.addComponent(name);
+		header.addFormItem(name, msg.getMessage("EditOAuthClientSubView.name"));
 
-		ComboBox<String> type = new ComboBox<>();
-		type.setCaption(msg.getMessage("EditOAuthClientSubView.type"));
-		type.setItems(Stream.of(ClientType.values()).map(f -> f.toString()).collect(Collectors.toList()));
+		Select<String> type = new Select<>();
+		type.setItems(Stream.of(ClientType.values()).map(Enum::toString).collect(Collectors.toList()));
 		type.setEmptySelectionAllowed(false);
 		binder.forField(type).bind("type");
-		header.addComponent(type);
+		header.addFormItem(type, msg.getMessage("EditOAuthClientSubView.type"));
 		
 		TextFieldWithGenerator id = new TextFieldWithGenerator();
-		id.setCaption(msg.getMessage("EditOAuthClientSubView.id"));
 		id.setReadOnly(editMode);
 		id.setWidth(30, Unit.EM);
 		binder.forField(id).asRequired(msg.getMessage("fieldRequired")).withValidator((v, c) -> {
@@ -157,13 +161,12 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 
 			return ValidationResult.ok();
 		}).bind("id");
-		header.addComponent(id);
+		header.addFormItem(id, msg.getMessage("EditOAuthClientSubView.id"));
 		
 		CustomField<String> secret;
 		if (!editMode)
 		{
 			secret = new TextFieldWithGenerator();
-			secret.setCaption(msg.getMessage("EditOAuthClientSubView.secret"));
 			secret.setWidth(30, Unit.EM);
 			binder.forField(secret).withValidator((v, c) -> {
 				if ((v == null || v.isEmpty()) && ClientType.CONFIDENTIAL.toString().equals(type.getValue()))
@@ -173,12 +176,11 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 				return ValidationResult.ok();
 
 			}).bind("secret");
-			header.addComponent(secret);
+			header.addFormItem(secret, msg.getMessage("EditOAuthClientSubView.secret"));
 		} else
 		{
-			TextFieldWithChangeConfirmation<TextFieldWithGenerator> secretWithChangeConfirmation = 
+			TextFieldWithChangeConfirmation<TextFieldWithGenerator> secretWithChangeConfirmation =
 					new TextFieldWithChangeConfirmation<>(msg, new TextFieldWithGenerator());
-			secretWithChangeConfirmation.setCaption(msg.getMessage("EditOAuthClientSubView.secret"));
 			secretWithChangeConfirmation.setWidth(30, Unit.EM);
 			binder.forField(secretWithChangeConfirmation).withValidator((v, c) -> {
 				if (secretWithChangeConfirmation.isEditMode())
@@ -188,7 +190,7 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 
 				return ValidationResult.ok();
 			}).bind("secret");
-			header.addComponent(secretWithChangeConfirmation);		
+			header.addFormItem(secretWithChangeConfirmation, msg.getMessage("EditOAuthClientSubView.secret"));
 			secret = secretWithChangeConfirmation;
 		}
 
@@ -199,37 +201,40 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 				secret.setValue("");
 		});
 		
-		ChipsWithDropdown<String> allowedFlows = new ChipsWithDropdown<>();
-		allowedFlows.setCaption(msg.getMessage("EditOAuthClientSubView.allowedFlows"));
+		MultiSelectComboBox<String> allowedFlows = new MultiSelectComboBox<>();
+		allowedFlows.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+		allowedFlows.setWidth(TEXT_FIELD_MEDIUM.value());
 		allowedFlows.setItems(
-				Stream.of(GrantFlow.values()).map(f -> f.toString()).collect(Collectors.toList()));
+				Stream.of(GrantFlow.values()).map(Enum::toString).collect(Collectors.toList()));
 		binder.forField(allowedFlows).withValidator((v, c) -> {
 			if (v == null || v.isEmpty())
 			{
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			}
 			return ValidationResult.ok();
-		}).bind("flows");
-		header.addComponent(allowedFlows);
+		})
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(OAuthClient::getFlows, OAuthClient::setFlows);
+		header.addFormItem(allowedFlows, msg.getMessage("EditOAuthClientSubView.allowedFlows"));
 
-		ChipsWithTextfield redirectURIs = new ChipsWithTextfield(msg);
-		redirectURIs.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
-		redirectURIs.setCaption(msg.getMessage("EditOAuthClientSubView.authorizedRedirectURIs"));
+		MultiSelectComboBox<String> redirectURIs = new CustomValuesMultiSelectComboBox();
+		redirectURIs.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		redirectURIs.setWidth(TEXT_FIELD_BIG.value());
 		binder.forField(redirectURIs).withValidator((v, c) -> {
-			if (v == null || v.size() == 0)
+			if (v == null || v.isEmpty())
 			{
 				return ValidationResult.error(msg.getMessage("fieldRequired"));
 			}
 			return ValidationResult.ok();
-		}).bind("redirectURIs");
-		header.addComponent(redirectURIs);
+		})
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(OAuthClient::getRedirectURIs, OAuthClient::setRedirectURIs);
+		header.addFormItem(redirectURIs, msg.getMessage("EditOAuthClientSubView.authorizedRedirectURIs"));
 
 		Set<String> definedScopes = scopesSupplier.get();
-		
-		ChipsWithDropdown<String> allowedScopes = new ChipsWithDropdown<>();
-		allowedScopes.setCaption(msg.getMessage("EditOAuthClientSubView.allowedScopes"));
+
+		MultiSelectComboBox<String> allowedScopes = new MultiSelectComboBox<>();
 		allowedScopes.setItems(definedScopes);
-		allowedScopes.setSkipRemoveInvalidSelections(true);
 		binder.forField(allowedScopes).withValidator((v, c) -> {
 			if (v != null && !v.isEmpty() && !definedScopes.containsAll(v))
 			{
@@ -237,36 +242,37 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 			}
 
 			return ValidationResult.ok();
-		}).bind("scopes");
+		})
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(OAuthClient::getScopes, OAuthClient::setScopes);
 		
-		CheckBox allowAllScopes = new CheckBox(msg.getMessage("EditOAuthClientSubView.allowAllScopes"));
+		Checkbox allowAllScopes = new Checkbox(msg.getMessage("EditOAuthClientSubView.allowAllScopes"));
 		binder.forField(allowAllScopes).bind("allowAnyScopes");
 		allowAllScopes.addValueChangeListener(v -> allowedScopes.setEnabled(!v.getValue()));
 		
-		header.addComponent(allowAllScopes);
-		header.addComponent(allowedScopes);
-		
+		header.addFormItem(allowAllScopes, "");
+
 		return header;
 	}
 
 	private Component buildConsentScreenSection()
 	{
-		FormLayoutWithFixedCaptionWidth consentScreenL = new FormLayoutWithFixedCaptionWidth();
-		consentScreenL.setMargin(false);
+		FormLayout consentScreenL = new FormLayout();
+		consentScreenL.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		consentScreenL.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		TextField title = new TextField();
-		title.setCaption(msg.getMessage("EditOAuthClientSubView.title"));
 		binder.forField(title).bind("title");
-		consentScreenL.addComponent(title);
+		consentScreenL.addFormItem(title, msg.getMessage("EditOAuthClientSubView.title"));
 
-		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit());
-		logo.setCaption(msg.getMessage("EditOAuthProviderSubView.logo"));
+		FileField logo = new FileField(msg, "image/*", "logo.jpg", serverConfig.getFileSizeLimit());
 		logo.configureBinding(binder, "logo");
-		consentScreenL.addComponent(logo);
+		consentScreenL.addFormItem(logo, msg.getMessage("EditOAuthProviderSubView.logo"));
 
-		CollapsibleLayout consentScreenSection = new CollapsibleLayout(
+		AccordionPanel consentScreenSection = new AccordionPanel(
 				msg.getMessage("EditOAuthClientSubView.consentScreen"), consentScreenL);
-		consentScreenSection.expand();
+		consentScreenSection.setWidthFull();
+		consentScreenSection.setOpened(true);
 		return consentScreenSection;
 	}
 
@@ -279,23 +285,36 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 	}
 
 	@Override
-	public List<String> getBredcrumbs()
+	public List<String> getBreadcrumbs()
 	{
 		if (editMode)
 			return Arrays.asList(msg.getMessage("EditOAuthClientSubView.client"), binder.getBean().getId());
 		else
-			return Arrays.asList(msg.getMessage("EditOAuthClientSubView.newClient"));
+			return Collections.singletonList(msg.getMessage("EditOAuthClientSubView.newClient"));
 	}
 
 	private class TextFieldWithGenerator extends CustomField<String>
 	{
-		private TextField field;
+		private final TextField field;
 
 		public TextFieldWithGenerator()
 		{
 			field = new TextField();
 			field.addValueChangeListener(
-					e -> fireEvent(new ValueChangeEvent<String>(this, field.getValue(), true)));
+					e -> fireEvent(new AbstractField.ComponentValueChangeEvent<>(this, this, field.getValue(), true)));
+			add(initContent());
+		}
+
+		@Override
+		protected String generateModelValue()
+		{
+			return getValue();
+		}
+
+		@Override
+		protected void setPresentationValue(String s)
+		{
+			setValue(s);
 		}
 
 		@Override
@@ -304,32 +323,26 @@ class EditOAuthClientSubView extends CustomComponent implements UnitySubView
 			return field.getValue();
 		}
 
-		@Override
-		protected Component initContent()
+		private Component initContent()
 		{
 			HorizontalLayout main = new HorizontalLayout();
-			main.addComponent(field);
+			main.add(field);
 
-			CopyToClipboardButton copy = new CopyToClipboardButton(msg, field);
-			main.addComponent(copy);
-			main.setComponentAlignment(copy, Alignment.MIDDLE_LEFT);
+			CopyToClipboardButton copy = new CopyToClipboardButton(msg::getMessage, field);
+			copy.addClassName(POINTER.getName());
+			main.add(copy);
 
-			Button gen = new Button();
+			Icon gen = VaadinIcon.COGS.create();
+			gen.addClassName(POINTER.getName());
 			gen.addClickListener(e -> field.setValue(UUID.randomUUID().toString()));
-			gen.setDescription(msg.getMessage("EditOAuthClientSubView.generate"));
-			gen.setIcon(Images.cogs.getResource());
-			gen.setStyleName(Styles.vButtonLink.toString());
-			gen.addStyleName(Styles.vButtonBorderless.toString());
-			gen.addStyleName(Styles.link.toString());
-			main.addComponent(gen);
-			main.setComponentAlignment(gen, Alignment.MIDDLE_LEFT);
-
+			gen.setTooltipText(msg.getMessage("EditOAuthClientSubView.generate"));
+			main.add(new Div(gen));
 			return main;
 
 		}
 
 		@Override
-		protected void doSetValue(String value)
+		public void setValue(String value)
 		{
 			field.setValue(value);
 		}

@@ -4,19 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.console;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
-import static pl.edu.icm.unity.oauth.as.OAuthASProperties.P;
-import static pl.edu.icm.unity.oauth.as.OAuthASProperties.defaults;
-
-import java.util.Collections;
-import java.util.Properties;
-
-import org.junit.jupiter.api.Test;
-
 import com.google.common.collect.Lists;
-
+import org.junit.jupiter.api.Test;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -29,6 +18,15 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
+
+import java.util.Collections;
+import java.util.Properties;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
+import static pl.edu.icm.unity.oauth.as.OAuthASProperties.P;
+import static pl.edu.icm.unity.oauth.as.OAuthASProperties.defaults;
 
 public class OAuthServiceConfigurationTest
 {

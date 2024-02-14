@@ -1,54 +1,48 @@
 /*
- * Copyright (c) 2019 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
 package pl.edu.icm.unity.oauth.as.console;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import com.vaadin.data.Binder;
-import com.vaadin.data.HasValue.ValueChangeListener;
-import com.vaadin.data.ValidationResult;
-import com.vaadin.server.SerializablePredicate;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.CustomField;
-import com.vaadin.ui.VerticalLayout;
-
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.function.SerializablePredicate;
+import io.imunity.vaadin.elements.LinkButton;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
+import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
+import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
+import io.imunity.vaadin.endpoint.common.api.services.idp.MandatoryGroupSelection;
+import io.imunity.vaadin.endpoint.common.api.services.tabs.GroupedValuesChipsWithDropdown;
+import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthenticationTab;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.oauth.as.console.OAuthClient.OAuthClientsBean;
-import pl.edu.icm.unity.webui.common.CollapsibleLayout;
-import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
-import pl.edu.icm.unity.webui.common.GridWithActionColumn;
-import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.chips.GroupedValuesChipsWithDropdown;
-import pl.edu.icm.unity.webui.common.groups.GroupWithIndentIndicator;
-import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
-import pl.edu.icm.unity.webui.console.services.DefaultServiceDefinition;
-import pl.edu.icm.unity.webui.console.services.ServiceEditorBase.EditorTab;
-import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
-import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
+
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 /**
  * OAuth service editor clients tab.
@@ -56,42 +50,43 @@ import pl.edu.icm.unity.webui.console.services.tabs.WebServiceAuthenticationTab;
  * @author P.Piernik
  *
  */
-class OAuthEditorClientsTab extends CustomComponent implements EditorTab
+class OAuthEditorClientsTab extends VerticalLayout implements ServiceEditorBase.EditorTab
 {
-	private MessageSource msg;
-	private URIAccessService uriAccessService;
-	private UnityServerConfiguration serverConfig;
-	private SubViewSwitcher subViewSwitcher;
+	private final MessageSource msg;
+	private final UnityServerConfiguration serverConfig;
+	private final SubViewSwitcher subViewSwitcher;
+	private final NotificationPresenter notificationPresenter;
 
 	private Binder<DefaultServiceDefinition> oauthTokenBinder;
 	private Binder<OAuthServiceConfiguration> configBinder;
 	private Binder<OAuthClientsBean> clientsBinder;
 
-	private List<String> allRealms;
-	private List<String> flows;
-	private List<String> authenticators;
+	private final List<String> allRealms;
+	private final List<String> flows;
+	private final List<String> authenticators;
+	private final List<String> allUsernames;
+	private final Supplier<Set<String>> scopesSupplier;
 	private List<Group> groups;
-	private List<String> allUsernames;
 
 	private MandatoryGroupSelection groupCombo;
 
-	private Supplier<Set<String>> scopesSupplier;
-	
+
 	OAuthEditorClientsTab(MessageSource msg, UnityServerConfiguration serverConfig,
-			URIAccessService uriAccessService, SubViewSwitcher subViewSwitcher,
+			SubViewSwitcher subViewSwitcher,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> allRealms, List<String> allUsernames,  Supplier<Set<String>> scopesSupplier, String binding)
+			List<String> allRealms, List<String> allUsernames,  Supplier<Set<String>> scopesSupplier, String binding,
+			NotificationPresenter notificationPresenter)
 	{
 		this.subViewSwitcher = subViewSwitcher;
 		this.msg = msg;
-		this.uriAccessService = uriAccessService;
 		this.serverConfig = serverConfig;
 		this.allRealms = allRealms;
 		this.flows = WebServiceAuthenticationTab.filterBindingCompatibleAuthenticationFlow(flows, authenticators, binding);
 		this.authenticators = authenticators.stream().filter(a -> a.getSupportedBindings().contains(binding))
-				.map(a -> a.getId()).collect(Collectors.toList());
+				.map(AuthenticatorInfo::getId).collect(Collectors.toList());
 		this.allUsernames = allUsernames;
 		this.scopesSupplier = scopesSupplier;
+		this.notificationPresenter = notificationPresenter;
 	}
 
 	void initUI(List<Group> groups, Binder<DefaultServiceDefinition> oauthTokenBinder,
@@ -101,57 +96,56 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		this.oauthTokenBinder = oauthTokenBinder;
 		this.configBinder = configBinder;
 		this.clientsBinder = clientsBinder;
-		setCaption(msg.getMessage("IdpServiceEditorBase.clients"));
-		setIcon(Images.bullets.getResource());
+		setPadding(false);
 		VerticalLayout mainLayout = new VerticalLayout();
-		mainLayout.setMargin(false);
-		mainLayout.addComponent(buildClientsSection());
-		mainLayout.addComponent(buildAuthenticationSection());
-		setCompositionRoot(mainLayout);
+		mainLayout.setPadding(false);
+		mainLayout.add(buildClientsSection());
+		mainLayout.add(buildAuthenticationSection());
+		add(mainLayout);
 	}
 
 	private Component buildClientsSection()
 	{
 		VerticalLayout mainClientLayout = new VerticalLayout();
-		mainClientLayout.setMargin(false);
+		mainClientLayout.setPadding(false);
 		ClientsComponent clients = new ClientsComponent();
 		VerticalLayout clientsWrapper = new VerticalLayout();
-		clientsWrapper.setMargin(true);
-		clientsWrapper.addComponent(clients);
-		FormLayoutWithFixedCaptionWidth comboWrapper = new FormLayoutWithFixedCaptionWidth();
+		clientsWrapper.setPadding(false);
+		clientsWrapper.add(clients);
+		FormLayout comboWrapper = new FormLayout();
 		groupCombo = new MandatoryGroupSelection(msg);
-		groupCombo.setWidth(30, Unit.EM);
-		groupCombo.setCaption(msg.getMessage("OAuthEditorClientsTab.clientsGroup"));
+		groupCombo.setWidth(TEXT_FIELD_BIG.value());
 		groupCombo.setItems(groups);
 		groupCombo.setRequiredIndicatorVisible(false);
 		configBinder.forField(groupCombo).bind("clientGroup");
 		groupCombo.addValueChangeListener(e -> {
-			clients.filterGroup(e.getValue().group.toString());
+			clients.filterGroup(e.getValue().group().toString());
 		});
 		groupCombo.setGroupChangeConfirmationQuestion(
 				msg.getMessage("OAuthEditorClientsTab.groupChangeConfirmationQuestion"));
-		comboWrapper.addComponent(groupCombo);
-		mainClientLayout.addComponent(comboWrapper);
-		mainClientLayout.addComponent(clientsWrapper);
+		comboWrapper.addFormItem(groupCombo, msg.getMessage("OAuthEditorClientsTab.clientsGroup"));
+		mainClientLayout.add(comboWrapper);
+		mainClientLayout.add(clientsWrapper);
 		clientsBinder.forField(clients).bind("clients");
 		return mainClientLayout;
 	}
 
 	private Component buildAuthenticationSection()
 	{
-		FormLayoutWithFixedCaptionWidth mainAuthenticationLayout = new FormLayoutWithFixedCaptionWidth();
-		ComboBox<String> realm = new ComboBox<>();
-		realm.setCaption(msg.getMessage("ServiceEditorBase.realm"));
+		FormLayout mainAuthenticationLayout = new FormLayout();
+		mainAuthenticationLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		mainAuthenticationLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+
+		Select<String> realm = new Select<>();
 		realm.setItems(allRealms);
 		realm.setEmptySelectionAllowed(false);
 		oauthTokenBinder.forField(realm).asRequired().bind("realm");
-		mainAuthenticationLayout.addComponent(realm);
+		mainAuthenticationLayout.addFormItem(realm, msg.getMessage("ServiceEditorBase.realm"));
 
 		Map<String, List<String>> labels = new HashMap<>();
 		labels.put(msg.getMessage("ServiceEditorBase.flows"), flows);
 		labels.put(msg.getMessage("ServiceEditorBase.authenticators"), authenticators);
 		GroupedValuesChipsWithDropdown authAndFlows = new GroupedValuesChipsWithDropdown(labels);
-		authAndFlows.setCaption(msg.getMessage("ServiceEditorBase.authenticatorsAndFlows"));
 		oauthTokenBinder.forField(authAndFlows).withValidator((v, c) -> {
 			if (v == null || v.isEmpty())
 			{
@@ -160,13 +154,15 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 
 			return ValidationResult.ok();
 
-		}).bind("authenticationOptions");
+		})
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(DefaultServiceDefinition::getAuthenticationOptions, DefaultServiceDefinition::setAuthenticationOptions);
 		authAndFlows.setRequiredIndicatorVisible(true);
-		mainAuthenticationLayout.addComponent(authAndFlows);
+		mainAuthenticationLayout.addFormItem(authAndFlows, msg.getMessage("ServiceEditorBase.authenticatorsAndFlows"));
 
-		CollapsibleLayout authSection = new CollapsibleLayout(
+		AccordionPanel authSection = new AccordionPanel(
 				msg.getMessage("OAuthEditorClientsTab.authentication"), mainAuthenticationLayout);
-		authSection.expand();
+		authSection.setOpened(true);
 		return authSection;
 	}
 
@@ -176,60 +172,88 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 	}
 
 	@Override
-	public String getType()
+	public VaadinIcon getIcon()
 	{
-		return ServiceEditorTab.CLIENTS.toString();
+		return VaadinIcon.BULLETS;
 	}
 
 	@Override
-	public CustomComponent getComponent()
+	public String getType()
+	{
+		return ServiceEditorComponent.ServiceEditorTab.CLIENTS.toString();
+	}
+
+	@Override
+	public Component getComponent()
 	{
 		return this;
 	}
 
+	@Override
+	public String getCaption()
+	{
+		return msg.getMessage("IdpServiceEditorBase.clients");
+	}
+
 	private class ClientsComponent extends CustomField<List<OAuthClient>>
 	{
+		private final SerializablePredicate<OAuthClient> removedFilter = c -> !c.isToRemove();
 		private GridWithActionColumn<OAuthClient> clientsList;
-		private VerticalLayout main;
-		private SerializablePredicate<OAuthClient> removedFilter = c -> !c.isToRemove();
 		private String group;
 
 		public ClientsComponent()
 		{
+			setWidthFull();
 			initUI();
+		}
+
+		@Override
+		protected List<OAuthClient> generateModelValue()
+		{
+			return getValue();
+		}
+
+		@Override
+		protected void setPresentationValue(List<OAuthClient> oAuthClients)
+		{
+			setValue(oAuthClients);
 		}
 
 		private void initUI()
 		{
-			main = new VerticalLayout();
-			main.setMargin(false);
+			VerticalLayout main = new VerticalLayout();
+			main.setPadding(false);
+			main.setSpacing(false);
+			main.setWidthFull();
 
 			Button add = new Button(msg.getMessage("create"));
-			add.addClickListener(e -> {
-				setComponentError(null);
-				gotoNew();
-			});
-			add.setIcon(Images.add.getResource());
-			add.setStyleName(Styles.buttonAction.toString());
-			main.addComponent(add);
-			main.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
+			add.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			add.addClickListener(e -> gotoNew());
+			add.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
+			main.add(add);
+			main.setAlignItems(Alignment.END);
 
-			clientsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-			
+			clientsList = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
+			clientsList.setWidthFull();
+			clientsList.setAllRowsVisible(true);
 			clientsList.addComponentColumn(
-					p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)),
-					msg.getMessage("ClientsComponent.name"), 20);
+					p -> new LinkButton(p.getName(), e -> gotoEdit(p))
+			).setHeader(msg.getMessage("ClientsComponent.name"));
 			
-			clientsList.addColumn(p -> p.getType(), msg.getMessage("ClientsComponent.type"), 30);
-			clientsList.addColumn(p -> p.getFlows() != null ? String.join(",", p.getFlows()) : "",
-					msg.getMessage("ClientsComponent.enabledGrants"), 40);
+			clientsList.addColumn(OAuthClient::getType)
+					.setHeader(msg.getMessage("ClientsComponent.type"))
+					.setAutoWidth(true);
+			clientsList.addColumn(p -> p.getFlows() != null ? String.join(",", p.getFlows()) : "")
+					.setHeader(msg.getMessage("ClientsComponent.enabledGrants"))
+					.setAutoWidth(true);
 			clientsList.addFilter(removedFilter);
-			main.addComponent(clientsList);
+			main.add(clientsList);
+			add(main);
 		}
 
 		private List<SingleActionHandler<OAuthClient>> getActionsHandlers()
 		{
-			SingleActionHandler<OAuthClient> edit = SingleActionHandler.builder4Edit(msg, OAuthClient.class)
+			SingleActionHandler<OAuthClient> edit = SingleActionHandler.builder4Edit(msg::getMessage, OAuthClient.class)
 					.withHandler(r -> {
 						OAuthClient edited = r.iterator().next();
 						gotoEdit(edited);
@@ -238,7 +262,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 					).build();
 
 			SingleActionHandler<OAuthClient> remove = SingleActionHandler
-					.builder4Delete(msg, OAuthClient.class).withHandler(r -> {
+					.builder4Delete(msg::getMessage, OAuthClient.class).withHandler(r -> {
 
 						OAuthClient client = r.iterator().next();
 						if (client.getEntity() == null)
@@ -277,7 +301,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 
 		private void gotoEditSubView(OAuthClient edited, Consumer<OAuthClient> onConfirm)
 		{
-			EditOAuthClientSubView subView = new EditOAuthClientSubView(msg, uriAccessService, serverConfig,
+			EditOAuthClientSubView subView = new EditOAuthClientSubView(msg, serverConfig,
 					getClientsIds(edited), scopesSupplier, edited, c -> {
 						onConfirm.accept(c);
 						fireChange();
@@ -285,7 +309,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 					}, () -> {
 						subViewSwitcher.exitSubView();
 						clientsList.focus();
-					});
+					}, notificationPresenter);
 			subViewSwitcher.goToSubView(subView);
 		}
 
@@ -293,7 +317,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		{
 			Set<String> clients = new HashSet<>();
 			clients.addAll(clientsList.getElements().stream().filter(c -> c.getEntity() == null)
-					.map(c -> c.getId()).collect(Collectors.toSet()));
+					.map(OAuthClient::getId).collect(Collectors.toSet()));
 			clients.addAll(allUsernames);
 			if (edited != null)
 			{
@@ -309,13 +333,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		}
 
 		@Override
-		protected Component initContent()
-		{
-			return main;
-		}
-
-		@Override
-		protected void doSetValue(List<OAuthClient> value)
+		public void setValue(List<OAuthClient> value)
 		{
 			clientsList.setItems(value);
 
@@ -323,7 +341,7 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 
 		private void fireChange()
 		{
-			fireEvent(new ValueChangeEvent<List<OAuthClient>>(this, clientsList.getElements(), true));
+			fireEvent(new ComponentValueChangeEvent<>(this, this, clientsList.getElements(), true));
 		}
 
 		public void filterGroup(String path)
@@ -335,15 +353,15 @@ class OAuthEditorClientsTab extends CustomComponent implements EditorTab
 		}
 	}
 
-	public void addGroupValueChangeListener(ValueChangeListener<GroupWithIndentIndicator> listener)
+	public void addGroupValueChangeListener(Consumer<GroupWithIndentIndicator> listener)
 	{
-		groupCombo.addValueChangeListener(listener);
+		groupCombo.addValueChangeListener(event ->  listener.accept(event.getValue()));
 	}
 
 	public List<OAuthClient> getActiveClients()
 	{
 		return clientsBinder.getBean().getClients().stream().filter(
-				c -> !c.isToRemove() && c.getGroup().equals(groupCombo.getValue().group.toString()))
+				c -> !c.isToRemove() && c.getGroup().equals(groupCombo.getValue().group().toString()))
 				.collect(Collectors.toList());
 	}
 }

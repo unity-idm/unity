@@ -6,19 +6,13 @@
 package io.imunity.console.views.identity_provider.endpoints;
 
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.CustomComponent;
 
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.console.views.identity_provider.released_profile.endpoints.spi.IdpServiceAdditionalAction;
+import io.imunity.console.spi.IdpServiceAdditionalAction;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 @PrototypeComponent
 public class AdditionalIdpActionView extends ConsoleViewComponent

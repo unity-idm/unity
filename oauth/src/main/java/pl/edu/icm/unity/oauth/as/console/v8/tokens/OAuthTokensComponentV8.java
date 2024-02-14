@@ -2,14 +2,17 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.console.tokens;
+package pl.edu.icm.unity.oauth.as.console.v8.tokens;
 
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.Panel;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 import java.util.Collection;
@@ -20,24 +23,23 @@ import java.util.Collection;
  * @author P.Piernik
  */
 @PrototypeComponent
-class OAuthTokensComponent extends VerticalLayout
+class OAuthTokensComponentV8 extends CustomComponent
 {
 
 	private MessageSource msg;
 	private OAuthTokenController controller;
 	private OAuthTokenGrid tokensGrid;
-	private NotificationPresenter notificationPresenter;
 
-	OAuthTokensComponent(MessageSource msg, OAuthTokenController controller, NotificationPresenter notificationPresenter)
+	@Autowired
+	OAuthTokensComponentV8(MessageSource msg, OAuthTokenController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
-		this.notificationPresenter = notificationPresenter;
-		tokensGrid = new OAuthTokenGrid(msg, controller, notificationPresenter);
+		tokensGrid = new OAuthTokenGrid(msg, controller);
 		initUI();
 	}
 
-	public OAuthTokensComponent forService(String service)
+	public OAuthTokensComponentV8 forService(String service)
 	{
 		Collection<OAuthTokenBean> oAuthTokens = null;
 		try
@@ -46,7 +48,7 @@ class OAuthTokensComponent extends VerticalLayout
 			tokensGrid.setItems(oAuthTokens);
 		} catch (ControllerException e)
 		{
-			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			NotificationPopup.showError(msg, e);
 		}
 
 		return this;
@@ -57,20 +59,23 @@ class OAuthTokensComponent extends VerticalLayout
 	{
 		OAuthTokenViewer viewer = new OAuthTokenViewer(msg);
 		viewer.setVisible(false);
-		tokensGrid.addValueChangeListener(e -> viewer.setInput(e.getFirstSelectedItem()));
+		tokensGrid.addValueChangeListener(e -> {
+			viewer.setInput(e.getFirstSelectedItem());	
+		});
 
 		Panel viewerPanel = new Panel();
-		viewerPanel.add(viewer);
+		viewerPanel.setContent(viewer);
 		viewerPanel.setSizeFull();
+		viewerPanel.setStyleName(Styles.vPanelBorderless.toString());
 
-		SplitLayout splitPanel = new SplitLayout(tokensGrid, viewerPanel);
+		CompositeSplitPanel splitPanel = new CompositeSplitPanel(true, false, tokensGrid, viewerPanel, 50);
 		splitPanel.setSizeFull();
 
 		VerticalLayout main = new VerticalLayout();
-		main.add(splitPanel);
+		main.addComponent(splitPanel);
 		main.setSizeFull();
-		main.setPadding(false);
-		add(main);
+		main.setMargin(false);
+		setCompositionRoot(main);
 		setSizeFull();
 	}
 }

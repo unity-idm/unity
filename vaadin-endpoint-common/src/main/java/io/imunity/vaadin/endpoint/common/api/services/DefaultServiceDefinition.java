@@ -5,11 +5,12 @@
 
 package io.imunity.vaadin.endpoint.common.api.services;
 
-import java.util.List;
-
 import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.i18n.I18nString;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains information necessary for create or update service
@@ -34,6 +35,7 @@ public class DefaultServiceDefinition implements ServiceDefinition
 	public DefaultServiceDefinition()
 	{
 		displayedName = new I18nString();
+		authenticationOptions = new ArrayList<>();
 	}
 
 	public DefaultServiceDefinition(ResolvedEndpoint base)
