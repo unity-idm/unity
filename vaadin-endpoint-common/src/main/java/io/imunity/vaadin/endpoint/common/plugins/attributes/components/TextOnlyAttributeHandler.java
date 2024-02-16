@@ -85,12 +85,22 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 				editWithTextArea = sas.isEditWithTextArea();
 				required = required && sas.getMinLength() > 0;
 			}
-			
-			field = editWithTextArea ? new TextArea() : new TextField();
-			if (editWithTextArea)
-				field.getElement().getStyle().set("width", "100%");
+
+			if(editWithTextArea)
+			{
+				TextArea textArea = new TextArea();
+				textArea.setWidthFull();
+				textArea.setTitle("");
+				field = textArea;
+			}
+			else
+			{
+				TextField textField = new TextField();
+				textField.setTitle("");
+				field = textField;
+			}
 			setLabel(label);
-			
+
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints())
 				sb.append(hint).append("\n");

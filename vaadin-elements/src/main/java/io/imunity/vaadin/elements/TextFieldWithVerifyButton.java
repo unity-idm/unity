@@ -44,6 +44,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		verifyButtonIcon.setTooltipText(verifyButtonDesc);
 		verifyButtonIcon.addClassName(POINTER.getName());
 		editor = new TextField();
+		editor.setTitle("");
 		editor.setWidthFull();
 		adminConfirmCheckBox = new Checkbox(adminConfirmCheckBoxLabel);
 		fieldLayout = new HorizontalLayout();

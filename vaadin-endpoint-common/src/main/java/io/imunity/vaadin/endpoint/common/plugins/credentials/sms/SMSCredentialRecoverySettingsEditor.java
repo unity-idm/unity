@@ -98,6 +98,7 @@ class SMSCredentialRecoverySettingsEditor
 		codeLength.setMin(1);
 		codeLength.setMax(50);
 		codeLength.setStepButtonsVisible(true);
+		codeLength.setTitle("");
 		binder.forField(codeLength).asRequired().bind("codeLength");
 		
 		capcha = new Checkbox(msg.getMessage("SMSCredentialRecoverSettings.capcha"));

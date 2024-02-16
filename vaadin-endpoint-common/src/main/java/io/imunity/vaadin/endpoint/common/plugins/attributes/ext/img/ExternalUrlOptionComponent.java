@@ -24,6 +24,7 @@ class ExternalUrlOptionComponent extends TextField
 	ExternalUrlOptionComponent(URL initialValue)
 	{
 		setRequiredIndicatorVisible(true);
+		setTitle("");
 		binder = new Binder<>();
 		binder.forField(this)
 			.withValidator(new URLValidator())
