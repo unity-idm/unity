@@ -5,8 +5,6 @@
 package io.imunity.console.tprofile;
 
 
-import static io.imunity.vaadin.endpoint.common.HtmlLabelFactory.getHtmlLabel;
-
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -17,6 +15,8 @@ import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
+
+import static io.imunity.vaadin.endpoint.common.HtmlLabelFactory.getHtmlLabel;
 
 public class TranslationActionPresenter extends LayoutEmbeddable
 {	
@@ -80,7 +80,7 @@ public class TranslationActionPresenter extends LayoutEmbeddable
 			value = Constants.MAPPER.readValue(value, I18nString.class).getDefaultLocaleValue(msg);
 		} catch (Exception e)
 		{
-			log.error("Can not parse i18n string", e);
+			log.trace("Can not parse i18n string", e);
 		}
 		
 		return value.replace("\n", " | ");

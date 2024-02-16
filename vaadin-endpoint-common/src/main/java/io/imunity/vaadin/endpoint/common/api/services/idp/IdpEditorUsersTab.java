@@ -7,11 +7,11 @@ package io.imunity.vaadin.endpoint.common.api.services.idp;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.function.SerializablePredicate;
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
@@ -46,7 +46,7 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 	private final List<String> allAttrTypes;
 	private SerializablePredicate<IdpUser> searchFilter = null;
 	protected Map<String, String> availableClients;
-	protected ComboBox<String> availableClientsCombobox;
+	protected Select<String> availableClientsCombobox;
 	private EditableGrid<ActiveValueConfig> releasedAttrsGrid;
 
 	public IdpEditorUsersTab(MessageSource msg, List<Group> groups,
@@ -137,11 +137,10 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 		VerticalLayout mainAttrLayout = new VerticalLayout();
 		mainAttrLayout.setPadding(false);
 
-		availableClientsCombobox = new ComboBox<>();
-		availableClientsCombobox.setRequired(true);
+		availableClientsCombobox = new Select<>();
+		availableClientsCombobox.setRequiredIndicatorVisible(true);
+		availableClientsCombobox.setItemLabelGenerator(item -> availableClients.get(item));
 		releasedAttrsGrid = new EditableGrid<>(msg::getMessage, ActiveValueConfig::new);
-		releasedAttrsGrid.addCustomColumn(ActiveValueConfig::getClientId, ActiveValueConfig::setClientId, availableClientsCombobox)
-				.setHeader(msg.getMessage("IdpEditorUsersTab.client"));
 		releasedAttrsGrid.setWidthFull();
 
 		List<String> sorted = allAttrTypes.stream().sorted().toList();
@@ -155,6 +154,13 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 		mattributes.setWidth(TEXT_FIELD_MEDIUM.value());
 		mattributes.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
 		mattributes.setItems(sorted);
+
+		releasedAttrsGrid.addCustomColumn(
+				activeValueConfig -> availableClients.get(activeValueConfig.getClientId()),
+						ActiveValueConfig::setClientId,
+						availableClientsCombobox
+				)
+					.setHeader(msg.getMessage("IdpEditorUsersTab.client"));
 
 		releasedAttrsGrid.addCustomColumn(
 				s -> String.join(",", s.getSingleSelectableAttributes()),
@@ -175,6 +181,15 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 				.setAutoWidth(true)
 				.setFlexGrow(2);
 
+		releasedAttrsGrid.addValueChangeListener(e ->
+		{
+			if(releasedAttrsGrid.isEditorOpen())
+				return;
+			reloadAvailableClients(e.getValue());
+		});
+		releasedAttrsGrid.addEditorCloseListener(() -> reloadAvailableClients(releasedAttrsGrid.getValue()));
+		releasedAttrsGrid.addEditorOpenListener(() -> releasedAttrsGrid.setAddingEnabled(false));
+
 
 		configBinder.forField(releasedAttrsGrid).bind("activeValueSelections");
 
@@ -184,6 +199,14 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 				msg.getMessage("IdpEditorUsersTab.advancedAttributeReleaseControl"), mainAttrLayout);
 		attrSection.setWidthFull();
 		return attrSection;
+	}
+
+	private void reloadAvailableClients(List<ActiveValueConfig> currentValues)
+	{
+		HashSet<String> availableClientIds = new HashSet<>(availableClients.keySet());
+		currentValues.stream().map(ActiveValueConfig::getClientId).toList().forEach(availableClientIds::remove);
+		availableClientsCombobox.setItems(availableClientIds);
+		releasedAttrsGrid.setAddingEnabled(!availableClientIds.isEmpty());
 	}
 
 	@Override
@@ -213,17 +236,13 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 	public void setAvailableClients(Map<String, String> clients)
 	{
 		this.availableClients = clients;
-		availableClientsCombobox.setItems(clients.values());
 
 		List<ActiveValueConfig> remainingConfig = new ArrayList<>();
 		for (ActiveValueConfig ac : releasedAttrsGrid.getValue())
-		{
 			if (clients.containsKey(ac.getClientId()))
-			{
 				remainingConfig.add(ac);
-			}
-		}
 
 		releasedAttrsGrid.setValue(remainingConfig);
+		reloadAvailableClients(remainingConfig);
 	}
 }

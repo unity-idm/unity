@@ -5,19 +5,10 @@
 
 package io.imunity.upman.rest;
 
-import static io.imunity.upman.rest.ProjectManagerRestRoleAttributeTypeProvider.AUTHORIZATION_ROLE;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.transaction.Transactional;
-
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -26,6 +17,13 @@ import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.project.RestGroupAuthorizationRole;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import static io.imunity.upman.rest.ProjectManagerRestRoleAttributeTypeProvider.AUTHORIZATION_ROLE;
 
 @Component
 class UpmanRestAuthorizationManager

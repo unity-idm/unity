@@ -7,10 +7,10 @@ package io.imunity.vaadin.endpoint.common;
 import com.vaadin.flow.server.InitParameters;
 import com.vaadin.flow.server.VaadinServlet;
 import eu.unicore.util.configuration.ConfigurationException;
+import org.eclipse.jetty.ee10.annotations.AnnotationConfiguration;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.eclipse.jetty.ee10.webapp.MetaInfConfiguration;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee10.webapp.*;
 import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -123,6 +123,15 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 		context.setConfigurationDiscovered(true);
 		context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
 		context.getServerClassMatcher().exclude("org.eclipse.jetty.");
+		context.setConfigurations(new Configuration[] {
+				new AnnotationConfiguration(),
+				new WebAppConfiguration(),
+				new WebInfConfiguration(),
+				new WebXmlConfiguration(),
+				new MetaInfConfiguration(),
+				new FragmentConfiguration(),
+				new JettyWebXmlConfiguration(),
+		});
 
 		ServletHolder servletHolder = context.addServlet(servletClass, "/*");
 		servletHolder.setAsyncSupported(true);

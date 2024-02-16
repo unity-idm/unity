@@ -51,6 +51,7 @@ public class EditableGrid<T> extends CustomField<List<T>>
 	private final GridListDataView<T> gridListDataView;
 	private final Function<String, String> msg;
 	private final VerticalLayout layout;
+	private final Button add;
 	private Grid.Column<T> actions;
 	private T draggedItem;
 
@@ -61,7 +62,7 @@ public class EditableGrid<T> extends CustomField<List<T>>
 		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		editor.setBinder(new Binder<>());
 
-		Button add = new Button(msg.apply("add"), VaadinIcon.PLUS_CIRCLE_O.create(), e ->
+		add = new Button(msg.apply("add"), VaadinIcon.PLUS_CIRCLE_O.create(), e ->
 		{
 			if (editor.isOpen())
 				editor.cancel();
@@ -116,6 +117,26 @@ public class EditableGrid<T> extends CustomField<List<T>>
 				.setEditorComponent(getBaseEditorComponent(get, set, true, validator));
 		putActionColumnToEnd(tColumn);
 		return tColumn;
+	}
+
+	public void setAddingEnabled(boolean enabled)
+	{
+		add.setEnabled(enabled);
+	}
+
+	public boolean isEditorOpen()
+	{
+		return editor.isOpen();
+	}
+
+	public void addEditorCloseListener(Runnable runnable)
+	{
+		editor.addCloseListener(e -> runnable.run());
+	}
+
+	public void addEditorOpenListener(Runnable runnable)
+	{
+		editor.addOpenListener(e -> runnable.run());
 	}
 
 	private void putActionColumnToEnd(Grid.Column<T> tColumn)

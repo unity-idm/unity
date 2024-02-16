@@ -22,10 +22,7 @@ import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.function.ValueProvider;
 import io.imunity.vaadin.elements.ActionIconBuilder;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 
 /**
@@ -92,6 +89,8 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 
 	public void replaceElement(T old, T newElement)
 	{
+		if(Objects.equals(old, newElement))
+			return;
 		dataProvider.addItemBefore(newElement, old);
 		dataProvider.removeItem(old);
 		deselectAll();
