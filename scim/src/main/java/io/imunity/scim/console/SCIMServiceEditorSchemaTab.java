@@ -6,7 +6,7 @@
 package io.imunity.scim.console;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -79,7 +79,7 @@ class SCIMServiceEditorSchemaTab extends VerticalLayout implements EditorTab
 		
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		MultiSelectComboBox<String> membershipAttributes = new CustomValuesMultiSelectComboBox();
 		membershipAttributes.setWidth(TEXT_FIELD_BIG.value());
 		membershipAttributes.setPlaceholder(msg.getMessage("typeOrSelect"));

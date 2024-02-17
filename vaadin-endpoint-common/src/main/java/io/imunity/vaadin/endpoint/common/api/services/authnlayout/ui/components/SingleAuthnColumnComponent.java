@@ -5,6 +5,8 @@
 
 package io.imunity.vaadin.endpoint.common.api.services.authnlayout.ui.components;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -12,7 +14,6 @@ import java.util.function.Supplier;
 
 import com.google.common.base.Objects;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.data.binder.Binder;
@@ -53,7 +54,7 @@ public class SingleAuthnColumnComponent extends ColumnComponentBase
 		binder = new Binder<>(AuthnOptionKeyBindingValue.class);
 		valueComboField = new ComboBox<>();
 		valueComboField.setItemLabelGenerator(i -> i.getRepresentationFallbackToConfigKey(msg));
-		valueComboField.setWidth(20, Unit.EM);
+		valueComboField.setWidth(TEXT_FIELD_MEDIUM.value());
 		refreshItems();
 		binder.forField(valueComboField).withValidator((v, c) -> 
 		{

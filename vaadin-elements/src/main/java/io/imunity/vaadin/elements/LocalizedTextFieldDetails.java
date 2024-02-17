@@ -5,17 +5,10 @@
 
 package io.imunity.vaadin.elements;
 
-import com.vaadin.flow.component.HasSize;
-import com.vaadin.flow.component.HasValue;
-import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.data.binder.HasValidator;
-import com.vaadin.flow.data.binder.ValidationResult;
-import com.vaadin.flow.data.binder.Validator;
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
+import static io.imunity.vaadin.elements.CssClassNames.DETAILS_ICON;
+import static io.imunity.vaadin.elements.CssClassNames.EMPTY_DETAILS_ICON;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -23,14 +16,25 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
-import static io.imunity.vaadin.elements.CssClassNames.*;
+import com.vaadin.flow.component.HasSize;
+import com.vaadin.flow.component.HasValue;
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.HasValidator;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
 
 public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> implements HasValidator<Map<Locale, String>>
 {
 	private final Map<Locale, LocalizedTextField> fields = new LinkedHashMap<>();
 	private final Binder<Map<Locale, String>> binder = new Binder<>();
 	private final LocalizedTextField defaultField;
+	private HorizontalLayout summary;
 	private Validator<String> validator = (val, context) -> ValidationResult.ok();
 
 	public LocalizedTextFieldDetails(Collection<Locale> enabledLocales, Locale currentLocale)
@@ -68,7 +72,7 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 		defaultField.setLabel(label);
 		fields.put(currentLocale, defaultField);
 
-		HorizontalLayout summary = new HorizontalLayout(defaultField, angleDown, angleUp);
+		summary = new HorizontalLayout(defaultField, angleDown, angleUp);
 		summary.setWidthFull();
 		summary.setClassName(SMALL_GAP.getName());
 
@@ -208,8 +212,11 @@ public class LocalizedTextFieldDetails extends CustomField<Map<Locale, String>> 
 
 	public void setPlaceholder(String message)
 	{
-		defaultField.setPlaceholder(message);
-		
+		defaultField.setPlaceholder(message);	
 	}
 	
+	public void centerIcons()
+	{
+		summary.setAlignItems(Alignment.BASELINE);
+	}
 }

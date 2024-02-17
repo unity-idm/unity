@@ -97,7 +97,8 @@ public class AuthnLayoutColumn extends VerticalLayout
 		columnTitleField.setLabel(msg.getMessage("LayoutColumn.title"));
 		columnTitleField.setWidthFull();
 		columnTitleField.setWidth(17, Unit.EM);
-
+		columnTitleField.centerIcons();
+		
 		columnWidthField = new IntegerField();
 		columnWidthField.setLabel(msg.getMessage("LayoutColumn.width"));
 		columnWidthField.setWidth(7, Unit.EM);
@@ -108,6 +109,7 @@ public class AuthnLayoutColumn extends VerticalLayout
 
 		HorizontalLayout wrapper = new HorizontalLayout();
 		wrapper.setMargin(false);
+		wrapper.setPadding(true);
 		wrapper.add(columnTitleField);
 		wrapper.add(columnWidthField);
 

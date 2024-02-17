@@ -6,7 +6,7 @@
 package io.imunity.upman.rest.console;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 import java.util.HashSet;
 import java.util.List;
@@ -55,7 +55,7 @@ class UpmanRestServiceEditorGeneralTab extends GeneralTab
 	{
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		MultiSelectComboBox<String> rootGroupAttributes = new MultiSelectComboBox<>();
 		rootGroupAttributes.setWidth(TEXT_FIELD_BIG.value());
@@ -81,7 +81,7 @@ class UpmanRestServiceEditorGeneralTab extends GeneralTab
 
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		MandatoryGroupSelection rootGroup = new MandatoryGroupSelection(msg);
 		rootGroup.setWidth(TEXT_FIELD_BIG.value());
@@ -112,7 +112,7 @@ class UpmanRestServiceEditorGeneralTab extends GeneralTab
 
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		MultiSelectComboBox<String> allowedCORSheaders = new CustomValuesMultiSelectComboBox();
 		allowedCORSheaders.setWidth(TEXT_FIELD_BIG.value());
 		allowedCORSheaders.setPlaceholder(msg.getMessage("typeAndConfirm"));

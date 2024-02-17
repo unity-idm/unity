@@ -25,6 +25,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.elements.AuthnElementConfiguration;
 import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.elements.GridConfig;
@@ -84,7 +85,7 @@ public class GridAuthnColumnComponent extends ColumnComponentBase
 
 		binder.setBean(new GridStateBindingValue(Arrays.asList(), 5));
 		VerticalLayout main = new VerticalLayout();
-		main.setWidth(20, Unit.EM);
+		main.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
 		main.setMargin(false);
 		main.setPadding(false);
 		main.setSpacing(false);

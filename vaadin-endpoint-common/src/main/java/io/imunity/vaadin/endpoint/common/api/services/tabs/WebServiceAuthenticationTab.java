@@ -34,7 +34,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
 /**
@@ -131,7 +131,7 @@ public class WebServiceAuthenticationTab extends VerticalLayout implements Edito
 	{
 		FormLayout mainAuthenticationLayout = new FormLayout();
 		mainAuthenticationLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		mainAuthenticationLayout.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		mainAuthenticationLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		ComboBox<String> realm = new ComboBox<>();
 		realm.setItems(allRealms);
@@ -199,7 +199,7 @@ public class WebServiceAuthenticationTab extends VerticalLayout implements Edito
 	{
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		Checkbox enableRegistration = new Checkbox();
 		enableRegistration.setLabel(msg.getMessage("WebServiceEditorBase.enableRegistration"));
@@ -248,7 +248,7 @@ public class WebServiceAuthenticationTab extends VerticalLayout implements Edito
 	{
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		FileField logo = new FileField(msg, "image/*", "logo.jpg", serverConfiguration.getFileSizeLimit());		
 		logo.configureBinding(webConfigBinder, "logo");

@@ -5,8 +5,9 @@
 
 package io.imunity.vaadin.endpoint.common.api.services.tabs;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 import java.util.List;
 import java.util.Set;
@@ -60,7 +61,7 @@ public class GeneralTab extends VerticalLayout implements EditorTab
 
 		FormLayout mainGeneralLayout = new FormLayout();
 		mainGeneralLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		mainGeneralLayout.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		mainGeneralLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		TextField name = new TextField();
 		name.setReadOnly(editMode);
@@ -81,6 +82,7 @@ public class GeneralTab extends VerticalLayout implements EditorTab
 
 		{
 			TextField paths = new TextField();
+			paths.setWidth(TEXT_FIELD_MEDIUM.value());
 			List<String> pathsList = type.getPaths()
 					.keySet()
 					.stream()
@@ -94,6 +96,7 @@ public class GeneralTab extends VerticalLayout implements EditorTab
 
 		TextField contextPath = new TextField();
 		contextPath.setReadOnly(editMode);
+		contextPath.setWidth(TEXT_FIELD_MEDIUM.value());
 		binder.forField(contextPath)
 				.asRequired()
 				.withValidator((v, c) ->
@@ -107,7 +110,7 @@ public class GeneralTab extends VerticalLayout implements EditorTab
 
 		LocalizedTextFieldDetails displayedName = new LocalizedTextFieldDetails(msg.getEnabledLocales()
 				.values(), msg.getLocale());
-		displayedName.setWidth(TEXT_FIELD_MEDIUM.value());
+		displayedName.setWidth(TEXT_FIELD_BIG.value());
 		binder.forField(displayedName)
 				.withConverter(I18nString::new, I18nString::getLocalizedMap)
 				.bind("displayedName");
@@ -116,6 +119,7 @@ public class GeneralTab extends VerticalLayout implements EditorTab
 		TextField description = new TextField();
 		binder.forField(description)
 				.bind("description");
+		description.setWidth(TEXT_FIELD_BIG.value());
 		mainGeneralLayout.addFormItem(description, msg.getMessage("ServiceEditorBase.description"));
 
 		add(mainGeneralLayout);

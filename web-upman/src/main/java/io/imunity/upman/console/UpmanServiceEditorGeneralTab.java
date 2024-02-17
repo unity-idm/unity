@@ -5,7 +5,7 @@
 
 package io.imunity.upman.console;
 
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 import java.util.List;
 import java.util.Set;
@@ -45,12 +45,13 @@ public class UpmanServiceEditorGeneralTab extends GeneralTab
 	{
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		Checkbox enableHome = new Checkbox();
 		upmanBinder.forField(enableHome)
 				.bind("enableHome");
-		main.addFormItem(enableHome, msg.getMessage("UpmanServiceEditorGeneralTab.enableHome"));
+		enableHome.setLabel(msg.getMessage("UpmanServiceEditorGeneralTab.enableHome"));
+		main.addFormItem(enableHome, "");
 
 		ComboBox<String> homeService = new ComboBox<>();
 		homeService.setEnabled(false);

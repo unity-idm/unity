@@ -106,9 +106,7 @@ public abstract class ColumnComponentBase extends VerticalLayout implements Colu
 		add(header);
 
 		contentLayout = new VerticalLayout();
-		contentLayout.setMargin(false);
-		contentLayout.setPadding(false);
-		contentLayout.setSpacing(false);
+		contentLayout.setPadding(true);
 		contentLayout.setVisible(false);
 		contentLayout.setWidthFull();
 		add(contentLayout);
@@ -151,9 +149,6 @@ public abstract class ColumnComponentBase extends VerticalLayout implements Colu
 	protected void addContent(Component content)
 	{
 		HorizontalLayout wrapper = new HorizontalLayout();
-		wrapper.setMargin(true);
-		wrapper.setPadding(false);
-		wrapper.setSpacing(false);
 		wrapper.setWidthFull();
 		wrapper.add(content);
 		wrapper.setJustifyContentMode(JustifyContentMode.CENTER);

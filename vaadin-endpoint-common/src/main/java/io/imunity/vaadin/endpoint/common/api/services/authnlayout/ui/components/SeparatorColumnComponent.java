@@ -8,10 +8,11 @@ package io.imunity.vaadin.endpoint.common.api.services.authnlayout.ui.components
 import java.util.function.Consumer;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.elements.AuthnElementConfiguration;
 import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.elements.SeparatorConfig;
@@ -61,8 +62,15 @@ public class SeparatorColumnComponent extends ColumnComponentBase
 		valueField = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
 		binder.forField(valueField).withConverter(I18nString::new, I18nString::getLocalizedMap).bind("value");
 		binder.setBean(new I18nStringBindingValue(new I18nString()));
-		valueField.setWidth(20, Unit.EM);
-		return valueField;
+		valueField.setWidthFull();
+		valueField.getElement().getStyle().set("width", "100%");	
+		VerticalLayout main = new VerticalLayout();
+		main.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
+		main.setMargin(false);
+		main.setPadding(false);
+		main.setSpacing(false);
+		main.add(valueField);
+		return main;
 	}
 
 	@Override
