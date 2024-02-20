@@ -977,6 +977,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				|| groupSelectors.values().stream().anyMatch(group -> group != null && !group.getValue().isEmpty())
 				|| !agreementSelectors.isEmpty()
 				|| !credentialParamEditors.isEmpty()
+				|| !policyAgreementSelectors.isEmpty()
 				|| form.isCollectComments();
 	}
 	
