@@ -970,6 +970,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				.count() == 0)
 				|| !agreementSelectors.isEmpty()
 				|| !credentialParamEditors.isEmpty()
+				|| !policyAgreementSelectors.isEmpty()
 				|| form.isCollectComments();
 	}
 	
