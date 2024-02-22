@@ -31,7 +31,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.utils.ClasspathResourceReader;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.base.tx.Transactional;
 
 /**
  * Provides utilities allowing for easy access to common {@link AttributeType} related operations.

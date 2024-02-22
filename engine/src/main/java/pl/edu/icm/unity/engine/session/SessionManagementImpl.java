@@ -32,7 +32,7 @@ import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 import java.time.LocalDateTime;

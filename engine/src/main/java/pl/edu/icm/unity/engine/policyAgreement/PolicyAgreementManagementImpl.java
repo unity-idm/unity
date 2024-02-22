@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementState;
 import pl.edu.icm.unity.stdext.attr.PolicyAgreementAttributeSyntax;
 import pl.edu.icm.unity.store.api.PolicyDocumentDAO;
-import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredPolicyDocument;
 
 @Component

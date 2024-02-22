@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepositor
 import pl.edu.icm.unity.store.api.generic.InputTranslationProfileDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.OutputTranslationProfileDB;
-import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.base.tx.Transactional;
 
 /**
  * Implementation of {@link TranslationProfileManagement}

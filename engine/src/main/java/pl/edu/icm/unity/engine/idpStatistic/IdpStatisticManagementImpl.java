@@ -17,7 +17,7 @@ import pl.edu.icm.unity.engine.api.idp.statistic.GroupedIdpStatistic;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.store.api.IdpStatisticDAO;
-import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.base.tx.Transactional;
 
 @Component
 public class IdpStatisticManagementImpl implements IdpStatisticManagement

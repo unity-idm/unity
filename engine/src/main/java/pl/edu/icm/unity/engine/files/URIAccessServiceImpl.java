@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.files.RemoteFileNetworkClient.ContentsWithType;
 import pl.edu.icm.unity.store.api.FileDAO;
-import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.base.tx.Transactional;
 
 import java.io.File;
 import java.io.IOException;

@@ -5,9 +5,9 @@
 
 package io.imunity.upman.rest;
 
-import jakarta.transaction.Transactional;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -18,6 +18,7 @@ import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
+import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -32,6 +33,7 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 
 import java.util.Arrays;
@@ -42,21 +44,25 @@ import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
+@PrototypeComponent
 class RestProjectService
 {
-	private final DelegatedGroupManagement delGroupMan;
-	private final GroupsManagement groupMan;
-	private final UpmanRestAuthorizationManager authz;
-	private final EntityManagement idsMan;
-	private final ProjectGroupProvider projectGroupProvider;
-	private final RegistrationsManagement registrationsManagement;
-	private final EnquiryManagement enquiryManagement;
-	private final String rootGroup;
-	private final String authorizationGroup;
-	
+	private DelegatedGroupManagement delGroupMan;
+	private GroupsManagement groupMan;
+	private UpmanRestAuthorizationManager authz;
+	private EntityManagement idsMan;
+	private ProjectGroupProvider projectGroupProvider;
+	private RegistrationsManagement registrationsManagement;
+	private EnquiryManagement enquiryManagement;
+	private String rootGroup;
+	private String authorizationGroup;
 
+	//for spring
+	private RestProjectService()
+	{
+	}
 
-	public RestProjectService(DelegatedGroupManagement delGroupMan,
+	RestProjectService(DelegatedGroupManagement delGroupMan,
 	                          GroupsManagement groupMan,
 	                          UpmanRestAuthorizationManager authz,
 	                          EntityManagement idsMan,
@@ -64,6 +70,15 @@ class RestProjectService
 	                          EnquiryManagement enquiryManagement,
 	                          String rootGroup,
 	                          String authorizationGroup)
+	{
+		init(delGroupMan, groupMan, authz, idsMan, registrationsManagement, enquiryManagement, rootGroup,
+				authorizationGroup);
+	}
+
+	void init(DelegatedGroupManagement delGroupMan, GroupsManagement groupMan,
+			UpmanRestAuthorizationManager authz, EntityManagement idsMan,
+			RegistrationsManagement registrationsManagement, EnquiryManagement enquiryManagement, String rootGroup,
+			String authorizationGroup)
 	{
 		this.delGroupMan = delGroupMan;
 		this.groupMan = groupMan;
@@ -360,8 +375,6 @@ class RestProjectService
 			)
 			.build();
 	}
-
-	
 	
 	@Component
 	public static class RestProjectServiceFactory
@@ -372,13 +385,15 @@ class RestProjectService
 		private final EntityManagement idsMan;
 		private final RegistrationsManagement registrationsManagement;
 		private final EnquiryManagement enquiryManagement;
+		private final ObjectFactory<RestProjectService> factory;
 
 		@Autowired
 		RestProjectServiceFactory(@Qualifier("insecure") DelegatedGroupManagement delGroupMan,
 				@Qualifier("insecure") GroupsManagement groupMan, UpmanRestAuthorizationManager authz,
 				@Qualifier("insecure") EntityManagement idsMan,
 				@Qualifier("insecure") RegistrationsManagement registrationsManagement,
-				@Qualifier("insecure") EnquiryManagement enquiryManagement)
+				@Qualifier("insecure") EnquiryManagement enquiryManagement,
+				ObjectFactory<RestProjectService> factory)
 		{
 			this.delGroupMan = delGroupMan;
 			this.groupMan = groupMan;
@@ -386,12 +401,15 @@ class RestProjectService
 			this.idsMan = idsMan;
 			this.registrationsManagement = registrationsManagement;
 			this.enquiryManagement = enquiryManagement;
+			this.factory = factory;
 		}
 
-		public RestProjectService newInstance(String rootGroup, String authorizeGroup)
+		RestProjectService newInstance(String rootGroup, String authorizeGroup)
 		{
-			return new RestProjectService(delGroupMan, groupMan, authz, idsMan,
+			RestProjectService bean = factory.getObject();
+			bean.init(delGroupMan, groupMan, authz, idsMan,
 					registrationsManagement, enquiryManagement, rootGroup, authorizeGroup);
+			return bean;
 		}
 	}
 	

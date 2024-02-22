@@ -4,7 +4,7 @@ import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
 import io.imunity.rest.mappers.policy.PolicyDocumentMapper;
-import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -12,30 +12,47 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.registration.FormType;
+import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@PrototypeComponent
 class RestProjectPolicyDocumentService
 {
-	private final UpmanRestAuthorizationManager authz;
-	private final GroupDelegationConfigGenerator groupDelegationConfigGenerator;
-	private final PolicyDocumentManagement policyDocumentManagement;
-	private final GroupsManagement groupMan;
-	private final UpmanRestPolicyDocumentAuthorizationManager restPolicyDocumentAuthorizationManager;
+	private UpmanRestAuthorizationManager authz;
+	private GroupDelegationConfigGenerator groupDelegationConfigGenerator;
+	private PolicyDocumentManagement policyDocumentManagement;
+	private GroupsManagement groupMan;
+	private UpmanRestPolicyDocumentAuthorizationManager restPolicyDocumentAuthorizationManager;
+	private String rootGroup;
+	private String authorizationGroup;
+	private ProjectGroupProvider projectGroupProvider;
 
-	private final String rootGroup;
-	private final String authorizationGroup;
-	private final ProjectGroupProvider projectGroupProvider;
+	//for spring
+	private RestProjectPolicyDocumentService()
+	{
+	}
 
 	RestProjectPolicyDocumentService(UpmanRestAuthorizationManager authz,
+			GroupDelegationConfigGenerator groupDelegationConfigGenerator,
+			PolicyDocumentManagement policyDocumentManagement, GroupsManagement groupMan,
+			UpmanRestPolicyDocumentAuthorizationManager restPolicyDocumentAuthorizationManager, String rootGroup,
+			String authorizationGroup)
+	{
+		init(authz, groupDelegationConfigGenerator, policyDocumentManagement, groupMan,
+				restPolicyDocumentAuthorizationManager, rootGroup, authorizationGroup);
+	}
+
+	void init(UpmanRestAuthorizationManager authz,
 			GroupDelegationConfigGenerator groupDelegationConfigGenerator,
 			PolicyDocumentManagement policyDocumentManagement, GroupsManagement groupMan,
 			UpmanRestPolicyDocumentAuthorizationManager restPolicyDocumentAuthorizationManager, String rootGroup,
@@ -52,7 +69,7 @@ class RestProjectPolicyDocumentService
 	}
 
 	@Transactional
-	List<RestPolicyDocument> getPolicyDocuments(String projectId) throws EngineException
+	public List<RestPolicyDocument> getPolicyDocuments(String projectId) throws EngineException
 	{
 		assertAuthorization();
 
@@ -70,7 +87,7 @@ class RestProjectPolicyDocumentService
 	}
 
 	@Transactional
-	RestPolicyDocument getPolicyDocument(String projectId, Long policyId) throws EngineException
+	public RestPolicyDocument getPolicyDocument(String projectId, Long policyId) throws EngineException
 	{
 		assertAuthorization();
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
@@ -81,7 +98,7 @@ class RestProjectPolicyDocumentService
 	}
 
 	@Transactional
-	void removePolicyDocument(String projectId, Long policyId) throws EngineException
+	public void removePolicyDocument(String projectId, Long policyId) throws EngineException
 	{
 		assertAuthorization();
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
@@ -106,7 +123,7 @@ class RestProjectPolicyDocumentService
 	}
 
 	@Transactional
-	void updatePolicyDocument(String projectId, RestPolicyDocumentUpdateRequest policy, boolean updateRevision) throws EngineException
+	public void updatePolicyDocument(String projectId, RestPolicyDocumentUpdateRequest policy, boolean updateRevision) throws EngineException
 	{
 		assertAuthorization();
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
@@ -124,7 +141,7 @@ class RestProjectPolicyDocumentService
 		}
 	}
 
-	RestPolicyDocumentId addPolicyDocument(String projectId, RestPolicyDocumentRequest policy) throws EngineException
+	public RestPolicyDocumentId addPolicyDocument(String projectId, RestPolicyDocumentRequest policy) throws EngineException
 	{
 		assertAuthorization();
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
@@ -179,25 +196,30 @@ class RestProjectPolicyDocumentService
 		private final PolicyDocumentManagement policyDocumentManagement;
 		private final GroupsManagement groupMan;
 		private final UpmanRestPolicyDocumentAuthorizationManager restPolicyDocumentAuthorizationManager;
+		private final ObjectFactory<RestProjectPolicyDocumentService> factory;
 
 		@Autowired
 		RestProjectPolicyDocumentServiceFactory(UpmanRestAuthorizationManager authz,
 				@Qualifier("insecure") GroupDelegationConfigGenerator groupDelegationConfigGenerator,
 				@Qualifier("insecure") PolicyDocumentManagement policyDocumentManagement,
 				@Qualifier("insecure") GroupsManagement groupMan,
-				UpmanRestPolicyDocumentAuthorizationManager restPolicyDocumentAuthorizationManager)
+				UpmanRestPolicyDocumentAuthorizationManager restPolicyDocumentAuthorizationManager,
+				ObjectFactory<RestProjectPolicyDocumentService> factory)
 		{
 			this.authz = authz;
 			this.groupDelegationConfigGenerator = groupDelegationConfigGenerator;
 			this.policyDocumentManagement = policyDocumentManagement;
 			this.groupMan = groupMan;
 			this.restPolicyDocumentAuthorizationManager = restPolicyDocumentAuthorizationManager;
+			this.factory = factory;
 		}
 
 		RestProjectPolicyDocumentService newInstance(String rootGroup, String authorizeGroup)
 		{
-			return new RestProjectPolicyDocumentService(authz, groupDelegationConfigGenerator, policyDocumentManagement,
+			RestProjectPolicyDocumentService bean = factory.getObject();
+			bean.init(authz, groupDelegationConfigGenerator, policyDocumentManagement,
 					groupMan, restPolicyDocumentAuthorizationManager, rootGroup, authorizeGroup);
+			return bean;
 		}
 	}
 }
