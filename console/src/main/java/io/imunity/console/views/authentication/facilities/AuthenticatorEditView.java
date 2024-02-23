@@ -101,10 +101,9 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 	private void initUI(AuthenticatorEntry entry)
 	{
 		Map<AuthenticatorTypeDescription, String> authnTypesSorted = getAuthenticatorTypes();
-
+		
 		authenticatorTypeCombo = new NotEmptyComboBox<>();
 		authenticatorTypeCombo.addValueChangeListener(e -> reloadEditor(entry));
-
 		authenticatorTypeCombo.setItemLabelGenerator(authnTypesSorted::get);
 		authenticatorTypeCombo.setWidth(TEXT_FIELD_BIG.value());
 		authenticatorTypeCombo.setItems(authnTypesSorted.keySet().stream()
@@ -121,6 +120,9 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 		typeWrapper.addFormItem(authenticatorTypeCombo, msg.getMessage("MainAuthenticatorEditor.typeComboCaption"));
 		typeWrapper.addFormItem(authenticatorTypeLabel, msg.getMessage("MainAuthenticatorEditor.typeLabelCaption"));
 		layout = new VerticalLayout(typeWrapper);
+		unsavedInfoBanner = new InfoBanner(msg::getMessage);
+		mainView = new VerticalLayout(layout,
+				createActionLayout(msg, edit, FacilitiesView.class, this::onConfirm));
 		layout.setPadding(false);
 
 		if (edit)
@@ -139,9 +141,7 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 			authenticatorTypeLabel.getParent().get().setVisible(false);
 			authenticatorTypeCombo.setValue(authnTypesSorted.keySet().iterator().next());
 		}
-		unsavedInfoBanner = new InfoBanner(msg::getMessage);
-		mainView = new VerticalLayout(layout,
-				createActionLayout(msg, edit, FacilitiesView.class, this::onConfirm));
+	
 		getContent().add(unsavedInfoBanner);
 		getContent().add(mainView);
 	}
