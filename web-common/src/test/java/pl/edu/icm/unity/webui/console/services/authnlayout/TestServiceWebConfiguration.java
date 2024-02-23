@@ -167,8 +167,8 @@ public class TestServiceWebConfiguration
 
 		Properties layoutContentProperties = parseAndBackLayout(sourceCfg);
 		
-		assertThat(layoutContentProperties.get(PREFIX + "authnScreenOptionsLabel.1.text")).isEqualTo("sep1");
-		assertThat(layoutContentProperties.get(PREFIX + "authnScreenColumn.1.columnContents")).isEqualTo("_HEADER_1");
+		assertThat(layoutContentProperties.get(PREFIX + "authnScreenOptionsLabel.1001.text")).isEqualTo("sep1");
+		assertThat(layoutContentProperties.get(PREFIX + "authnScreenColumn.1.columnContents")).isEqualTo("_HEADER_1001");
 	}
 
 	@Test
