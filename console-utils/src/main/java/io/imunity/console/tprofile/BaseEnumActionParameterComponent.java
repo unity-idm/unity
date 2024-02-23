@@ -25,7 +25,7 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 {
 	private final List<String> values;
 	private Binder<StringValueBean> binder;
-	private String label;
+	private String caption;
 	
 	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, MessageSource msg, 
 			Collection<?> vals)
@@ -81,7 +81,8 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 	@Override
 	public void setLabel(String label)
 	{
-		this.label = label;
+		if(caption == null)
+			caption = label;
 		super.setLabel(label);
 	}
 	
@@ -123,8 +124,8 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 	}
 
 	@Override
-	public String getLabel()
+	public String getCaption()
 	{
-		return label;
+		return caption;
 	}
 }

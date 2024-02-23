@@ -4,20 +4,19 @@
  */
 package io.imunity.console.tprofile;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.Binder;
-
 import io.imunity.vaadin.elements.VaadinElementReadOnlySetter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 
 
 public class TextAreaActionParameterComponent extends TextArea implements ActionParameterComponent
 {
 	private final Binder<StringValueBean> binder;
-	private String label;
+	private String caption;
 
 	public TextAreaActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
@@ -70,13 +69,14 @@ public class TextAreaActionParameterComponent extends TextArea implements Action
 	@Override
 	public void setLabel(String label)
 	{
-		this.label = label;
+		if(caption == null)
+			caption = label;
 		super.setLabel(label);
 	}
 	
 	@Override
-	public String getLabel()
+	public String getCaption()
 	{
-		return label;
+		return caption;
 	}
 }

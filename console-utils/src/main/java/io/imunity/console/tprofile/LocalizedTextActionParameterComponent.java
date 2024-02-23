@@ -6,6 +6,9 @@ package io.imunity.console.tprofile;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
+import com.vaadin.flow.data.binder.Validator;
+import com.vaadin.flow.data.binder.ValueContext;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -22,7 +25,7 @@ import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDetails implements ActionParameterComponent
 {
 	private final Binder<StringValueBean> binder;
-	private String label;
+	private String caption;
 	
 	public LocalizedTextActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
@@ -35,6 +38,7 @@ public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDet
 		if (desc.isMandatory())
 		{
 			binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
+					.withValidator(new TextActionValidator(msg))
 					.withConverter(this::getString, this::getValue)
 					.bind("value");
 		} else
@@ -113,16 +117,38 @@ public class LocalizedTextActionParameterComponent extends LocalizedTextFieldDet
 	}	
 	
 	@Override
-	public String getLabel()
+	public String getCaption()
 	{
-		return label;
+		return caption;
 	}
 
 	@Override
 	public void setLabel(String label)
 	{
-		this.label = label;
+		if(caption == null)
+			caption = label;
 		super.setLabel(label);
+	}
+
+	private static class TextActionValidator implements Validator<Map<Locale, String>>
+	{
+		private final MessageSource msg;
+
+		public TextActionValidator(MessageSource msg)
+		{
+			this.msg = msg;
+		}
+
+		@Override
+		public ValidationResult apply(Map<Locale, String> value, ValueContext context)
+		{
+			if (context.getHasValue().isPresent() && context.getHasValue().get().isEmpty())
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
+			if (value == null || value.values().stream().allMatch(String::isBlank))
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
+
+			return ValidationResult.ok();
+		}
 	}
 	
 }

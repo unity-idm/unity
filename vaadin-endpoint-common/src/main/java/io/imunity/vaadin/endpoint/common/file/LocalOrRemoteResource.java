@@ -34,9 +34,20 @@ public class LocalOrRemoteResource extends Image
 		this.local = local;
 	}
 
+	public void setSrc(AbstractStreamResource src, byte[] local)
+	{
+		this.local = local;
+		super.setSrc(src);
+	}
+
 	public byte[] getLocal()
 	{
 		return local;
+	}
+
+	public void setLocal(byte[] local)
+	{
+		this.local = local;
 	}
 
 	public LocalOrRemoteResource clone()

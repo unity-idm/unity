@@ -16,7 +16,7 @@ import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 public class DefaultActionParameterComponent extends TextField implements ActionParameterComponent
 {
 	protected Binder<StringValueBean> binder;
-	private String label;
+	private String caption;
 	
 	public DefaultActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
@@ -76,13 +76,14 @@ public class DefaultActionParameterComponent extends TextField implements Action
 	@Override
 	public void setLabel(String label)
 	{
-		this.label = label;
+		if(caption == null)
+			caption = label;
 		super.setLabel(label);
 	}
 
 	@Override
-	public String getLabel()
+	public String getCaption()
 	{
-		return label;
+		return caption;
 	}
 }

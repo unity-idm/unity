@@ -415,7 +415,7 @@ vaadin-button.u-text-left::part(label) {
 }
 
 .u-big-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 23em;
+    --vaadin-form-item-label-width: 25em;
 }
 
 .u-fido-layout {

@@ -4,16 +4,15 @@
  */
 package io.imunity.console.tprofile;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-
-import java.util.Collection;
-
 import com.vaadin.flow.data.binder.Binder;
-
 import io.imunity.vaadin.elements.VaadinElementReadOnlySetter;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
+
+import java.util.Collection;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
 /**
  * {@link AttributeSelectionComboBox} based editor of attribute  parameter.
@@ -22,7 +21,7 @@ import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 public class AttributeActionParameterComponent extends AttributeSelectionComboBox implements ActionParameterComponent
 {
 	private final Binder<StringValueBean> binder;
-	private String label;
+	private String caption;
 
 	
 	public AttributeActionParameterComponent(ActionParameterDefinition desc,
@@ -107,13 +106,14 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 	@Override
 	public void setLabel(String label)
 	{
-		this.label = label;
+		if(caption == null)
+			caption = label;
 		super.setLabel(label);
 	}
 	
 	@Override
-	public String getLabel()
+	public String getCaption()
 	{
-		return label;
+		return caption;
 	}
 }

@@ -5,25 +5,12 @@
 
 package io.imunity.console.tprofile;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.ERROR_BACKGROUND;
-import static io.imunity.vaadin.elements.CssClassNames.FALSE_CONDITION_BACKGROUND;
-import static io.imunity.vaadin.elements.CssClassNames.TRUE_CONDITION_BACKGROUND;
-import static java.util.stream.Collectors.toList;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.BiConsumer;
-
-import org.apache.logging.log4j.Logger;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.html.Span;
-
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationAction;
@@ -31,6 +18,15 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.BiConsumer;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.*;
+import static java.util.stream.Collectors.toList;
 
 /**
  * Responsible for editing of a single {@link TranslationAction}
@@ -274,7 +270,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 		rep.append("|");
 		for (ActionParameterComponent tc: paramComponents)
 		{
-			String caption = tc.getLabel();
+			String caption = tc.getCaption();
 			if (caption != null && !caption.endsWith(":"))
 				caption = caption + ":";
 			rep.append(caption).append(" ").append(tc.getActionValueRepresentation(msg) != null

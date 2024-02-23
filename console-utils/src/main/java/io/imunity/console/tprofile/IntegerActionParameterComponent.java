@@ -14,7 +14,7 @@ import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 public class IntegerActionParameterComponent extends IntegerField implements ActionParameterComponent
 {
 	private final Binder<StringValueBean> binder;
-	private String label;
+	private String caption;
 
 	public IntegerActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)
 	{
@@ -63,13 +63,14 @@ public class IntegerActionParameterComponent extends IntegerField implements Act
 	@Override
 	public void setLabel(String label)
 	{
-		this.label = label;
+		if(caption == null)
+			caption = label;
 		super.setLabel(label);
 	}
 	
 	@Override
-	public String getLabel()
+	public String getCaption()
 	{
-		return label;
+		return caption;
 	}
 }

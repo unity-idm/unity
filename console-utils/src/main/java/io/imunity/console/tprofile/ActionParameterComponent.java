@@ -13,7 +13,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 public interface ActionParameterComponent
 {
 	String getActionValue();
-	String getLabel();
+	String getCaption();
 	void setActionValue(String value);
 	boolean isValid();
 	void setReadOnly(boolean readOnly);
