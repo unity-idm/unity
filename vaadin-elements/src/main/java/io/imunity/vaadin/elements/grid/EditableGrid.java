@@ -65,13 +65,17 @@ public class EditableGrid<T> extends CustomField<List<T>>
 		add = new Button(msg.apply("add"), VaadinIcon.PLUS_CIRCLE_O.create(), e ->
 		{
 			if (editor.isOpen())
+			{
 				editor.cancel();
+			}
 			T element = supplier.get();
 			gridListDataView.addItem(element);
 			editor.editItem(element);
 		});
 		add.addThemeVariants(LUMO_PRIMARY);
-
+		editor.addOpenListener(e -> add.setEnabled(false));
+		editor.addCloseListener(e -> add.setEnabled(true));
+		
 		layout = new VerticalLayout(add, grid);
 		layout.setPadding(false);
 		layout.setAlignItems(FlexComponent.Alignment.END);

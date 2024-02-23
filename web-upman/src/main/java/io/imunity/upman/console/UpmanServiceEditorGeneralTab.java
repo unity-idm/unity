@@ -67,6 +67,7 @@ public class UpmanServiceEditorGeneralTab extends GeneralTab
 
 		AccordionPanel contentSection = new AccordionPanel(msg.getMessage("UpmanServiceEditorGeneralTab.content"),
 				main);
+		contentSection.setOpened(true);
 		contentSection.setWidthFull();
 		return contentSection;
 	}

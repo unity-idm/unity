@@ -238,6 +238,8 @@ public class WebServiceAuthenticationTab extends VerticalLayout implements Edito
 		});
 
 		AccordionPanel regSection = new AccordionPanel(msg.getMessage("WebServiceEditorBase.usersRegistration"), main);
+		
+		
 		regSection.setOpened(true);
 		regSection.setWidthFull();
 

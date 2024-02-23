@@ -155,7 +155,7 @@ class SCIMServiceEditorSchemaTab extends VerticalLayout implements EditorTab
 			schemasGrid.addComponentColumn(
 					p ->
 					{
-						Button button = new Button(p.getName(), e -> gotoEdit(p));
+						Button button = new Button(p.getId(), e -> gotoEdit(p));
 						button.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 						return button;
 					})

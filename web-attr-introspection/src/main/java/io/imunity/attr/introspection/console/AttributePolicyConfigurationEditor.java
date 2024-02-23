@@ -8,6 +8,7 @@ package io.imunity.attr.introspection.console;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +74,7 @@ class AttributePolicyConfigurationEditor extends Editor<AttributePolicy>
 		targetIdps.setWidth(TEXT_FIELD_BIG.value());
 		targetIdps.setItems(idPs.keySet());
 		binder.forField(targetIdps)
-				.withConverter(List::copyOf, HashSet::new)
+				.withConverter(List::copyOf, l -> new HashSet<>(l == null ? new ArrayList<>() : l))
 				.bind("targetIdps");
 		header.addFormItem(targetIdps, msg.getMessage("AttributePolicyConfigurationEditor.targetIdps"));
 
@@ -82,9 +83,9 @@ class AttributePolicyConfigurationEditor extends Editor<AttributePolicy>
 		targetFederations.setWidth(TEXT_FIELD_BIG.value());
 		targetFederations.setItems(IdPsGroups.keySet());
 		binder.forField(targetFederations)
-				.withConverter(List::copyOf, HashSet::new)
+				.withConverter(List::copyOf, l -> new HashSet<>(l == null ? new ArrayList<>() : l))
 				.bind("targetFederations");
-		header.addFormItem(targetIdps, msg.getMessage("AttributePolicyConfigurationEditor.targetFederations"));
+		header.addFormItem(targetFederations, msg.getMessage("AttributePolicyConfigurationEditor.targetFederations"));
 
 		AttributesGrid attributes = new AttributesGrid(msg);
 		binder.forField(attributes)

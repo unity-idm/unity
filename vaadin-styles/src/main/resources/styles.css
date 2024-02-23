@@ -807,6 +807,12 @@ vaadin-tab.u-tabsheet-full {
 	margin-left: -7em;
 }
 
+vaadin-accordion-heading::part(toggle){
+	transform: rotate(90deg);
+}
 
+vaadin-accordion-heading[opened]::part(toggle) {
+	transform: rotate(270deg);
+}
 
 

@@ -7,7 +7,6 @@ package io.imunity.vaadin.auth;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
@@ -273,7 +272,7 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 	@Override
 	public String getPageTitle()
 	{
-		return getCurrentWebAppDisplayedName();
+		return authenticationUI.getTitle();
 	}
 
 	private class CredentialResetLauncherImpl implements CredentialResetLauncher

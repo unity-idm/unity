@@ -241,6 +241,20 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 
 	private Component getTitleComponent()
 	{
+		String mainTitle = getTitle();
+		if (mainTitle != null)
+		{
+			H2 mainTitleLabel = new H2(mainTitle);
+			mainTitleLabel.addClassName("u-authn-title");
+			mainTitleLabel.getStyle().set("margin-top", "0.5em");
+			mainTitleLabel.getStyle().set("margin-bottom", "2em");
+			return mainTitleLabel;
+		}
+		return null;
+	}
+	
+	public String getTitle()
+	{
 		String configuredMainTitle = config.getLocalizedValue(VaadinEndpointProperties.AUTHN_TITLE, msg.getLocale());
 		String mainTitle = null;
 		String serviceName = endpointDescription.getEndpoint().getConfiguration().getDisplayedName().getValue(msg);
@@ -254,15 +268,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 		{
 			mainTitle = msg.getMessage("AuthenticationUI.login", serviceName);
 		}
-		if (mainTitle != null)
-		{
-			H2 mainTitleLabel = new H2(mainTitle);
-			mainTitleLabel.addClassName("u-authn-title");
-			mainTitleLabel.getStyle().set("margin-top", "0.5em");
-			mainTitleLabel.getStyle().set("margin-bottom", "2em");
-			return mainTitleLabel;
-		}
-		return null;
+		return mainTitle;
 	}
 
 	private FirstFactorAuthNPanel buildBaseAuthenticationOptionWidget(AuthNOption authnOption, boolean gridCompatible)

@@ -177,8 +177,8 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 	}
 	private HorizontalLayout createNameWithDetailsArrow(Grid<Editor<T>> grid, Editor<T> entry)
 	{
-		Icon openIcon = VaadinIcon.ANGLE_RIGHT.create();
-		Icon closeIcon = VaadinIcon.ANGLE_DOWN.create();
+		Icon openIcon = VaadinIcon.ANGLE_DOWN.create();
+		Icon closeIcon = VaadinIcon.ANGLE_UP.create();
 		openIcon.setVisible(!grid.isDetailsVisible(entry));
 		closeIcon.setVisible(grid.isDetailsVisible(entry));
 		openIcon.addClickListener(e -> grid.setDetailsVisible(entry, true));
