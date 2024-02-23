@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguratio
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
-import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
 /**

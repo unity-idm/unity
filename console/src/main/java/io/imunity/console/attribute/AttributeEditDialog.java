@@ -5,12 +5,13 @@
 package io.imunity.console.attribute;
 
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.dependency.CssImport;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
-
+@CssImport(value = "./dialog.css", themeFor = "vaadin-confirm-dialog-overlay")
 public class AttributeEditDialog extends ConfirmDialog
 {
 	private final AttributeEditor editor;

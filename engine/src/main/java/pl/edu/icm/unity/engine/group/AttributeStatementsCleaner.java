@@ -17,7 +17,7 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.base.tx.Transactional;
 
 /**
  * Invoked periodically to scan group attribute statements, and remove the invalid ones.

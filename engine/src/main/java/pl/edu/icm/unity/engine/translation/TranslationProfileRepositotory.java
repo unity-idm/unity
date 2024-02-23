@@ -9,7 +9,7 @@ import java.util.Map;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
-import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.base.tx.Transactional;
 
 /**
  * Allows read profiles from DB and @{SystemTranslationProfileProvider}s 

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.Message;
 import pl.edu.icm.unity.store.api.MessagesDAO;
-import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 @Component
