@@ -23,6 +23,7 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import io.imunity.vaadin.endpoint.common.bus.Event;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -288,6 +290,13 @@ public class TranslationProfileEditor extends VerticalLayout
 			}
 		});
 
+		WebSession.getCurrent()
+				.getEventBus()
+				.addListener(e -> drop.setVisible(true), DragStartEvent.class);
+		WebSession.getCurrent()
+				.getEventBus()
+				.addListener(e -> drop.setVisible(false), DragEndEvent.class);
+		drop.setVisible(false);
 		return drop;
 	}
 
@@ -396,6 +405,16 @@ public class TranslationProfileEditor extends VerticalLayout
 			refreshRules();
 			return true;
 		}
+	}
+	
+	public static final class DragStartEvent implements Event
+	{
+		
+	}
+	
+	public static final class DragEndEvent implements Event
+	{
+		
 	}
 }
 

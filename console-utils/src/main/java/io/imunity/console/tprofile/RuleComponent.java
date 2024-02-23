@@ -17,8 +17,12 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
+
+import io.imunity.console.tprofile.TranslationProfileEditor.DragEndEvent;
+import io.imunity.console.tprofile.TranslationProfileEditor.DragStartEvent;
 import io.imunity.vaadin.elements.*;
 import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -115,6 +119,13 @@ public class RuleComponent extends VerticalLayout
 		DragSource<LinkButton> dragSource =  DragSource.create(dragImg);
 		dragSource.setEffectAllowed(EffectAllowed.MOVE);
 		dragSource.setDragData(this);
+		dragSource.addDragStartListener(e -> WebSession.getCurrent()
+				.getEventBus()
+				.fireEvent(new DragStartEvent()));
+		dragSource.addDragEndListener(e -> WebSession.getCurrent()
+				.getEventBus()
+				.fireEvent(new DragEndEvent()));
+		
 		
 		header.add(dragImg);
 
