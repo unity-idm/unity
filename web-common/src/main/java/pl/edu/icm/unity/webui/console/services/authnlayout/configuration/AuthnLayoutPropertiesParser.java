@@ -49,7 +49,7 @@ public class AuthnLayoutPropertiesParser
 		this.msg = msg;
 		this.configFactories = ImmutableMap
 				.<Class<? extends AuthnElementConfiguration>, AuthnElementParser<?>> builder()
-				.put(HeaderConfig.class, new HeaderConfig.Parser(msg, new SubsequentIdGenerator()))
+				.put(HeaderConfig.class, new HeaderConfig.Parser(msg, new SubsequentIdGenerator(1000)))
 				.put(SeparatorConfig.class,
 						new SeparatorConfig.Parser(msg, new SubsequentIdGenerator()))
 				.put(GridConfig.class, new GridConfig.Parser(new SubsequentIdGenerator()))
@@ -228,6 +228,16 @@ public class AuthnLayoutPropertiesParser
 	{
 		private int value;
 
+		private SubsequentIdGenerator()
+		{
+			value = 0;
+		}
+
+		private SubsequentIdGenerator(int init)
+		{
+			value = init;
+		}
+		
 		@Override
 		public String get()
 		{
