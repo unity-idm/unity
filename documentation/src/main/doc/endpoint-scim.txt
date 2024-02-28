@@ -88,14 +88,21 @@ From authorization standpoint, a SCIM endpoint can be accessed in two ways:
 * with direct authentication, i.e. using regular Unity credential
 * with OAuth token, which can be verified by Unity (usually it is a token also issued by Unity OAuth AS).
 
+===== Direct authentication
+
 In case of direct authentication, SCIM endpoint allows for full access to privileged admin users. Regular user has access to the `/Me` endpoint (or its alternative `/Users/{my-id}` variant) only.
 
-In case of access using the OAuth access token, the situation is more complex:
+===== OAuth token authentication
+
+First of all Unity requires both OAuth token and the client's credential (for whom the token was issued). This means that only locally issued tokens can be used for authentication to the SCIM endpoint. In practice most often two HTTP headers needs to be provided: one with the Bearer OAuth token, another with Basic client's credentials. 
+
+In case of access using the OAuth access token, there are the following requirements on scopes of the OAuth token:
 
 * it is mandatory to hold the scope `sys:scim:read_profile` to be able to read the `/Me` or the `/Users/{my-id}` resource. The returned attributes will exclude all attributes, which are marked as `group membership attributes` in SCIM endpoint Schemas configuration tab.
 * if additionally the scope `sys:scim:read_memberships` is also added to the OAuth token, then filtering of group membership attributes does not take place, and all attributes are returned.
 
 When accessing the endpoint with an OAuth token, it is not possible to read all resources (e.g. `/Groups`) - access is limited to the record defining the user who issued the access token.
+
 
 ==== File configuration
 
