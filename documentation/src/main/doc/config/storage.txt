@@ -14,6 +14,7 @@ The following databases are supported:
 
 . H2 (embedded, no setup required)
 . MySQL
+. MariaDB
 . PostgreSQL
 
 RDBMS service is stable, quite fast and offers an excellent ecosystem of maintenance supporting tools (backups, redundancy, etc) which is available for the mature RDBMS technology.
@@ -68,6 +69,17 @@ Note: For certain authentication types it may be necessary to provide server's p
 +?allowPublicKeyRetrieval=true+ connection option (which however should never be used if the server 
 is accessed through public network). Refer to MariadB driver's documentation for all available connection options
 https://mariadb.com/kb/en/about-mariadb-connector-j/
+
+===== MariaDB setup
+
+MariaDB is a fork of MySQL DB and so the same considerations apply as described in the MySQL setup section above.
+The only difference is that the following URI should be used to connect to MariaDB:
+
+----
+unityServer.storage.engine.rdbms.jdbcUrl=jdbc:mariadb://localhost/unitydb
+----
+
+The +dialect+ option shall be set to +mysql+ value.
 
 ===== PostgreSQL setup
 

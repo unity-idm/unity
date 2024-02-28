@@ -110,7 +110,22 @@ After the dump is created, a regular software update can follow, and Unity 4 can
 an empty H2 database. Then contents can be restored, again using admin's console,
 Maintenance -> Backup & restore functionality.  
 
-===== jdbc:mysql scheme compatibility
-MariaDB Connector/J 3.0 only accepts jdbc:mariadb: as the protocol in connection strings by default.
-To ensure backward compatibility a new MySql driver was added. This allows you to use jdbs:mysql
-as the protocol db connection string. 
+===== Separate MySQL and MariaDB connectors
+
+As MariaDB and MySQL are diverging more and more, since Unity 4 separate drivers are provided for both databases.
+
+A database URI using scheme: 
+
+----
+jdbc:mysql:
+----
+
+will be handled by the MySQL Java Connector. In case when MariaDB is used, we advise to switch the DB URI to use scheme:
+
+----
+jdbc:mariadb:
+----
+
+In this case MariaDB connector will be used.
+
+
