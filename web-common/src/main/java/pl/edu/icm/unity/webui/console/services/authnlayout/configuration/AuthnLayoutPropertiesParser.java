@@ -41,6 +41,7 @@ import pl.edu.icm.unity.webui.console.services.authnlayout.ui.ColumnComponent;
 public class AuthnLayoutPropertiesParser
 {
 	public static final Class<? extends AuthnElementConfiguration> DEFAULT_CONFIG_PARSER = SingleAuthnConfig.class;
+	private static final int HEADER_ID_INIT_VALUE = 1000;
 	private MessageSource msg;
 	private Map<Class<? extends AuthnElementConfiguration>, AuthnElementParser<?>> configFactories;
 
@@ -49,7 +50,7 @@ public class AuthnLayoutPropertiesParser
 		this.msg = msg;
 		this.configFactories = ImmutableMap
 				.<Class<? extends AuthnElementConfiguration>, AuthnElementParser<?>> builder()
-				.put(HeaderConfig.class, new HeaderConfig.Parser(msg, new SubsequentIdGenerator(1000)))
+				.put(HeaderConfig.class, new HeaderConfig.Parser(msg, new SubsequentIdGenerator(HEADER_ID_INIT_VALUE)))
 				.put(SeparatorConfig.class,
 						new SeparatorConfig.Parser(msg, new SubsequentIdGenerator()))
 				.put(GridConfig.class, new GridConfig.Parser(new SubsequentIdGenerator()))
