@@ -272,7 +272,7 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 	@Override
 	public String getPageTitle()
 	{
-		return authenticationUI.getTitle();
+		return authenticationUI != null ? authenticationUI.getTitle() : getCurrentWebAppDisplayedName();
 	}
 
 	private class CredentialResetLauncherImpl implements CredentialResetLauncher
