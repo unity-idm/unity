@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 public class ImageAccessService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ImageAccessService.class);
-	private static final String UNKNOWN_THEME = "UNKNOWN_THEME";
+	public static final String UNKNOWN_THEME = "UNKNOWN_THEME";
 	
 	private final URIAccessService uriAccessService;
 	

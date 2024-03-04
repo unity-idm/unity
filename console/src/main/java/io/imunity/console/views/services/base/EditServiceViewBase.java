@@ -6,10 +6,13 @@
 package io.imunity.console.views.services.base;
 
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.OptionalParameter;
+
+import io.imunity.console.ConsoleEndpointFactory;
 import io.imunity.console.components.InfoBanner;
 import io.imunity.console.views.CommonViewParam;
 import io.imunity.console.views.ConsoleViewComponent;
@@ -45,9 +48,8 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 	private VerticalLayout mainView;
 	private VerticalLayout unsavedInfoBanner;
 
-	
 	public EditServiceViewBase(MessageSource msg, ServiceControllerBase controller,
-		 Class<? extends ConsoleViewComponent> mainServicesViewName, NotificationPresenter notificationPresenter)
+			Class<? extends ConsoleViewComponent> mainServicesViewName, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -66,12 +68,11 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 		String tabParam = Optional.ofNullable(queryParameters.getOrDefault(CommonViewParam.tab.name(), null))
 				.map(l -> l.get(0))
 				.orElse(null);
-		
+
 		ServiceEditorTab activeTab;
 		try
 		{
-			activeTab = tabParam != null ? ServiceEditorTab.valueOf(tabParam.toUpperCase())
-					: ServiceEditorTab.GENERAL;
+			activeTab = tabParam != null ? ServiceEditorTab.valueOf(tabParam.toUpperCase()) : ServiceEditorTab.GENERAL;
 		} catch (Exception e)
 		{
 			activeTab = ServiceEditorTab.GENERAL;
@@ -85,7 +86,8 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 		} catch (ControllerException e)
 		{
 			notificationPresenter.showError(e.getCaption(), e.getMessage());
-			UI.getCurrent().navigate(mainServicesViewName);
+			UI.getCurrent()
+					.navigate(mainServicesViewName);
 			return;
 		}
 		getContent().removeAll();
@@ -97,7 +99,8 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 		} catch (ControllerException e)
 		{
 			notificationPresenter.showError(e.getCaption(), e.getMessage());
-			UI.getCurrent().navigate(mainServicesViewName);
+			UI.getCurrent()
+					.navigate(mainServicesViewName);
 			return;
 		}
 		mainView.setMargin(false);
@@ -121,6 +124,28 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 			return;
 		}
 
+		if (service.getType()
+				.equals(ConsoleEndpointFactory.TYPE.getName()))
+		{
+			ConfirmDialog confirm = new ConfirmDialog("",
+					msg.getMessage("EditServiceView.confirmUpdateDesc"), msg.getMessage("EditServiceView.confirmUpdate"), e ->
+					{
+						UI.getCurrent()
+								.navigate(mainServicesViewName);
+						update(service);
+					}, msg.getMessage("cancel"), e ->
+					{
+					});
+			confirm.open();
+		} else
+		{
+			update(service);
+
+		}
+	}
+	
+	private void update(ServiceDefinition service)
+	{
 		try
 		{
 			controller.update(service);
@@ -129,9 +154,7 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 			notificationPresenter.showError(e.getCaption(), e.getMessage());
 			return;
 		}
-
 		UI.getCurrent().navigate(mainServicesViewName);
-
 	}
 
 	@Override
@@ -140,10 +163,10 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 		return Optional.ofNullable(breadCrumbParameter);
 	}
 
-
 	private SubViewSwitcher createSubViewSwitcher()
 	{
-		return new DefaultSubViewSwitcher(this, mainView, unsavedInfoBanner, breadCrumbParameter, this::setBreadCrumbParameter);
+		return new DefaultSubViewSwitcher(this, mainView, unsavedInfoBanner, breadCrumbParameter,
+				this::setBreadCrumbParameter);
 	}
 
 	private void setBreadCrumbParameter(BreadCrumbParameter parameter)
