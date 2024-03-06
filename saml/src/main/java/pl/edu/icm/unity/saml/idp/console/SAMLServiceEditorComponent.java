@@ -102,12 +102,17 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 		}
 
 		Runnable refreshClients = () -> usersTab.setAvailableClients(clientsTab.getActiveClients().stream()
-				.collect(Collectors.toMap(c -> c.getName(),
-						c -> c.getDisplayedName() == null || c.getDisplayedName().isEmpty()
-								? c.getName()
-								: c.getDisplayedName().getValue(msg))));
+				.collect(Collectors.toMap(SAMLIndividualTrustedSPConfiguration::getName, this::getCaption)));
 		clientsTab.addClientsValueChangeListener(e -> refreshClients.run());
 		refreshClients.run();
+	}
+
+	private String getCaption(SAMLIndividualTrustedSPConfiguration spConfiguration)
+	{
+		if(spConfiguration.getDisplayedName() == null || spConfiguration.getDisplayedName().isEmpty())
+			return spConfiguration.getName();
+		String value = spConfiguration.getDisplayedName().getValue(msg);
+		return value.isEmpty() ? spConfiguration.getName() : value;
 	}
 
 	public ServiceDefinition getServiceDefiniton() throws FormValidationException

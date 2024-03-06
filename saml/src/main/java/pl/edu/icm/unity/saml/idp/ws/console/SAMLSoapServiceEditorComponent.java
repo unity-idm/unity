@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorClientsTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorGeneralTab;
+import pl.edu.icm.unity.saml.idp.console.SAMLIndividualTrustedSPConfiguration;
 import pl.edu.icm.unity.saml.idp.console.SAMLServiceConfiguration;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 
@@ -88,14 +89,17 @@ class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 		}
 
 		Runnable refreshClients = () -> usersTab.setAvailableClients(clientsTab.getActiveClients().stream()
-				.collect(Collectors.toMap(c -> c.getName(),
-						c -> c.getDisplayedName() == null || c.getDisplayedName().isEmpty()
-								? c.getName()
-								: c.getDisplayedName().getValue(msg))));
-		clientsTab.addClientsValueChangeListener(e -> {
-			refreshClients.run();
-		});
+				.collect(Collectors.toMap(SAMLIndividualTrustedSPConfiguration::getName, this::getCaption)));
+		clientsTab.addClientsValueChangeListener(e -> refreshClients.run());
 		refreshClients.run();
+	}
+
+	private String getCaption(SAMLIndividualTrustedSPConfiguration spConfiguration)
+	{
+		if(spConfiguration.getDisplayedName() == null || spConfiguration.getDisplayedName().isEmpty())
+			return spConfiguration.getName();
+		String value = spConfiguration.getDisplayedName().getValue(msg);
+		return value.isEmpty() ? spConfiguration.getName() : value;
 	}
 
 	public ServiceDefinition getServiceDefiniton() throws FormValidationException
