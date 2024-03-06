@@ -141,6 +141,7 @@ class RestProjectPolicyDocumentService
 		}
 	}
 
+	@Transactional
 	public RestPolicyDocumentId addPolicyDocument(String projectId, RestPolicyDocumentRequest policy) throws EngineException
 	{
 		assertAuthorization();
