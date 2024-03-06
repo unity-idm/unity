@@ -13,6 +13,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.console.tprofile.RegistrationTranslationProfileEditor;
@@ -24,6 +25,7 @@ import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
@@ -43,10 +45,12 @@ import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GroupSelectionUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.imunity.console.tprofile.Constants.FORM_PROFILE;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
@@ -71,7 +75,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private Checkbox ignoreRequestsAndInvitation;
 
 	private EnumComboBox<EnquiryForm.EnquiryType> enquiryType;
-	private MultiSelectComboBox<String> targetGroups;
+	private MultiSelectComboBox<Group> targetGroups;
 	private MVELExpressionField targetCondition;
 	private EnquiryFormNotificationsEditor notificationsEditor;
 	private RegistrationFormLayoutSettingsEditor layoutSettingsEditor;
@@ -84,6 +88,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 
 	//binder is only for targetCondition validation
 	private Binder<EnquiryForm> binder;
+	private Map<String, Group> allGroups;
 
 	EnquiryFormEditor(MessageSource msg, UnityServerConfiguration serverConfig,
 			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
@@ -176,7 +181,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		super.buildCommon(builder);
 
 		builder.withType(enquiryType.getValue());
-		builder.withTargetGroups(targetGroups.getValue().toArray(new String[0]));
+		builder.withTargetGroups(targetGroups.getValue().stream().map(Group::getPathEncoded).toList().toArray(new String[0]));
 		builder.withTargetCondition(targetCondition.getValue());
 		return builder;
 	}
@@ -186,7 +191,11 @@ public class EnquiryFormEditor extends BaseFormEditor
 		super.setValue(toEdit);
 		notificationsEditor.setValue(toEdit.getNotificationsConfiguration());
 		enquiryType.setValue(toEdit.getType());
-		targetGroups.setValue(toEdit.getTargetGroups());
+		List<String> groups = Arrays.asList(toEdit.getTargetGroups());
+		targetGroups.setValue(allGroups.entrySet().stream()
+				.filter(entry -> groups.contains(entry.getKey()))
+				.map(Map.Entry::getValue)
+				.collect(Collectors.toSet()));
 		binder.setBean(toEdit);
 
 		TranslationProfile profile = new TranslationProfile(
@@ -233,13 +242,13 @@ public class EnquiryFormEditor extends BaseFormEditor
 			}
 		});
 
-
 		targetGroups = new MultiSelectComboBox<>();
-		List<String> items = GroupSelectionUtils.establishGroups(
-				"/", true, groupsMan, notificationsEditor.getGroups());
-		targetGroups.setItems(items);
+		allGroups = groupsMan.getAllGroups();
+		targetGroups.setItems(allGroups.values());
 		targetGroups.setRequiredIndicatorVisible(true);
 		targetGroups.setWidth(TEXT_FIELD_BIG.value());
+		targetGroups.setItemLabelGenerator(group -> group.getDisplayedName().getValue(msg));
+		targetGroups.setRenderer(new ComponentRenderer<>(group -> new GroupItemPresentation(group, msg)));
 
 		targetCondition = new MVELExpressionField(msg,
 				msg.getMessage("EnquiryFormEditor.targetConditionDesc"),

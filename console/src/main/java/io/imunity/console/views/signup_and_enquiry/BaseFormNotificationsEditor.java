@@ -5,10 +5,12 @@
 package io.imunity.console.views.signup_and_enquiry;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
-import io.imunity.console.views.directory_browser.group_details.GroupComboBox;
+import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import io.imunity.console.tprofile.LayoutEmbeddable;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msg_template.reg.*;
 import pl.edu.icm.unity.base.registration.BaseFormNotifications;
@@ -17,8 +19,10 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 
 import java.util.List;
+import java.util.Map;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static java.util.Optional.ofNullable;
 
 /**
  * Code for editing BaseFormNotifications, i.e. a base for registration and enquiry forms notifications config editing.
@@ -32,15 +36,16 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	protected final MessageTemplateManagement msgTempMan;
 	
 	private Checkbox sendAdminCopy;
-	private GroupComboBox adminsNotificationGroup;
+	private ComboBox<Group> adminsNotificationGroup;
 
 	private CompatibleTemplatesComboBox rejectedTemplate;
 	private CompatibleTemplatesComboBox acceptedTemplate;
 	private CompatibleTemplatesComboBox updatedTemplate;
 	private CompatibleTemplatesComboBox invitationTemplate;
 	private CompatibleTemplatesComboBox invitationProcessedTemplate;
+	private Map<String, Group> allGroups;
 
-	
+
 	public BaseFormNotificationsEditor(MessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan, MessageTemplateManagement msgTempMan) throws EngineException
 	{
@@ -56,9 +61,12 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	{
 		sendAdminCopy = new Checkbox(msg.getMessage("BaseFormNotificationsEditor.sendAdminCopy"));
 		
-		adminsNotificationGroup = new GroupComboBox(
-				msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"), groupsMan);
-		adminsNotificationGroup.setInput("/", true);
+		adminsNotificationGroup = new ComboBox<>(
+				msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"));
+		adminsNotificationGroup.setItemLabelGenerator(group -> group.getDisplayedName().getValue(msg));
+		adminsNotificationGroup.setRenderer(new ComponentRenderer<>(group -> new GroupItemPresentation(group, msg)));
+		allGroups = groupsMan.getAllGroups();
+		adminsNotificationGroup.setItems(allGroups.values());
 		adminsNotificationGroup.setWidth(TEXT_FIELD_MEDIUM.value());
 		
 		rejectedTemplate =  new CompatibleTemplatesComboBox(RejectRegistrationTemplateDef.NAME, msgTempMan);
@@ -83,7 +91,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	
 	protected void setValue(BaseFormNotifications toEdit)
 	{
-		adminsNotificationGroup.setValue(toEdit.getAdminsNotificationGroup());
+		adminsNotificationGroup.setValue(allGroups.get(toEdit.getAdminsNotificationGroup()));
 		sendAdminCopy.setValue(toEdit.isSendUserNotificationCopyToAdmin());
 		rejectedTemplate.setValue(toEdit.getRejectedTemplate());
 		acceptedTemplate.setValue(toEdit.getAcceptedTemplate());
@@ -95,7 +103,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	protected void fill(BaseFormNotifications notCfg)
 	{
 		notCfg.setAcceptedTemplate(acceptedTemplate.getValue());
-		notCfg.setAdminsNotificationGroup(adminsNotificationGroup.getValue());
+		notCfg.setAdminsNotificationGroup(ofNullable(adminsNotificationGroup.getValue()).map(Group::getPathEncoded).orElse(null));
 		notCfg.setSendUserNotificationCopyToAdmin(sendAdminCopy.getValue());
 		notCfg.setRejectedTemplate(rejectedTemplate.getValue());
 		notCfg.setUpdatedTemplate(updatedTemplate.getValue());
@@ -105,6 +113,6 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	
 	public List<String> getGroups()
 	{
-		return adminsNotificationGroup.getAllGroups();
+		return allGroups.keySet().stream().toList();
 	}
 }
