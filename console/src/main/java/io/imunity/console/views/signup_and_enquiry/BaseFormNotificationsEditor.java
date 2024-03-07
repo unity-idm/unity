@@ -111,8 +111,8 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		notCfg.setInvitationProcessedTemplate(invitationProcessedTemplate.getValue());
 	}
 	
-	public List<String> getGroups()
+	public List<Group> getGroups()
 	{
-		return allGroups.keySet().stream().toList();
+		return allGroups.values().stream().toList();
 	}
 }

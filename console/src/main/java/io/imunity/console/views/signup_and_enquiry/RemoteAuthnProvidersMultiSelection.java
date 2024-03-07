@@ -13,13 +13,13 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 
 public class RemoteAuthnProvidersMultiSelection extends MultiSelectComboBox<AuthenticationOptionsSelector>
 {
+	private final MessageSource msg;
+	private List<AuthenticationOptionsSelector> selectors;
 
 	public RemoteAuthnProvidersMultiSelection(MessageSource msg, AuthenticatorSupportService authenticatorSupport) throws EngineException
 	{
@@ -29,6 +29,7 @@ public class RemoteAuthnProvidersMultiSelection extends MultiSelectComboBox<Auth
 	
 	public RemoteAuthnProvidersMultiSelection(MessageSource msg)
 	{
+		this.msg = msg;
 		setItemLabelGenerator(s -> s.getRepresentationFallbackToConfigKey(msg));
 		setWidthFull();
 	}
@@ -43,7 +44,6 @@ public class RemoteAuthnProvidersMultiSelection extends MultiSelectComboBox<Auth
 		{
 			authnOptions.addAll(authenticator.getAuthnOptionSelectors());
 		}
-		
 		setItems(authnOptions);
 	}
 
@@ -51,6 +51,16 @@ public class RemoteAuthnProvidersMultiSelection extends MultiSelectComboBox<Auth
 	public ComboBoxListDataView<AuthenticationOptionsSelector> setItems(
 			Collection<AuthenticationOptionsSelector> authenticationOptionsSelectors)
 	{
-		return super.setItems(authenticationOptionsSelectors);
+		selectors = authenticationOptionsSelectors
+				.stream()
+				.sorted(Comparator.comparing(selector -> selector.getRepresentationFallbackToConfigKey(msg)))
+				.toList();
+		return super.setItems(selectors);
+	}
+
+	@Override
+	public void setValue(Collection<AuthenticationOptionsSelector> items)
+	{
+		super.setValue(selectors.stream().filter(items::contains).toList());
 	}
 }

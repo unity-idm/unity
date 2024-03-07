@@ -6,6 +6,7 @@ package io.imunity.console.views.signup_and_enquiry;
 
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.console.views.signup_and_enquiry.layout.FormLayoutEditor;
 import io.imunity.vaadin.elements.Panel;
@@ -16,6 +17,8 @@ import pl.edu.icm.unity.base.registration.RegistrationFormLayouts;
 
 import java.util.function.Supplier;
 
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
+
 public class RegistrationFormLayoutEditor extends VerticalLayout
 {
 	private final MessageSource msg;
@@ -23,7 +26,7 @@ public class RegistrationFormLayoutEditor extends VerticalLayout
 	private Checkbox enableCustomLayout;
 	private FormLayoutEditor primaryLayoutEditor;
 	private FormLayoutEditor secondaryLayoutEditor;
-	private VerticalLayout layouts;
+	private FormLayout layouts;
 	private boolean isInitialValueSet = false;
 
 	public RegistrationFormLayoutEditor(MessageSource msg, Supplier<RegistrationForm> formProvider)
@@ -36,12 +39,14 @@ public class RegistrationFormLayoutEditor extends VerticalLayout
 
 	private void initUI()
 	{
-		layouts = new VerticalLayout();
-		layouts.setPadding(false);
+		layouts = new FormLayout();
+		layouts.setResponsiveSteps(
+				new FormLayout.ResponsiveStep("0", 1),
+				new FormLayout.ResponsiveStep("75em", 2));
 		primaryLayoutEditor = new FormLayoutEditor(msg, () -> formProvider.get().getEffectivePrimaryFormLayout(msg));
-		primaryLayoutEditor.setWidth(38, Unit.EM);
+		primaryLayoutEditor.setWidth(37, Unit.EM);
 		secondaryLayoutEditor = new FormLayoutEditor(msg, () -> formProvider.get().getEffectiveSecondaryFormLayout(msg));
-		secondaryLayoutEditor.setWidth(38, Unit.EM);
+		secondaryLayoutEditor.setWidth(37, Unit.EM);
 		Panel primaryLayoutPanel = new Panel(msg.getMessage("RegistrationFormEditor.primaryLayout"));
 		primaryLayoutPanel.add(primaryLayoutEditor);
 		primaryLayoutPanel.setSizeUndefined();
@@ -50,6 +55,7 @@ public class RegistrationFormLayoutEditor extends VerticalLayout
 		secondaryLayoutPanel.add(secondaryLayoutEditor);
 		secondaryLayoutPanel.setSizeUndefined();
 		secondaryLayoutPanel.setMargin(false);
+		secondaryLayoutPanel.getStyle().set("margin-top", BASE_MARGIN.value());
 
 		layouts.add(primaryLayoutPanel, secondaryLayoutPanel);
 		layouts.setVisible(false);

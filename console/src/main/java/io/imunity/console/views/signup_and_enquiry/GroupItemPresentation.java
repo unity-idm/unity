@@ -15,11 +15,16 @@ class GroupItemPresentation extends Div
 {
 	GroupItemPresentation(Group group, MessageSource msg)
 	{
+		this(group.getDisplayedName().getValue(msg), group.getPathEncoded());
+	}
+
+	GroupItemPresentation(String groupName, String groupPath)
+	{
 		Div name = new Div();
-		name.setText(group.getDisplayedName().getValue(msg));
+		name.setText(groupName);
 		name.addClassName(BOLD.getName());
 		Div path = new Div();
-		path.setText(group.getPathEncoded());
+		path.setText(groupPath);
 		name.add(path);
 		add(name, path);
 	}

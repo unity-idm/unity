@@ -6,22 +6,11 @@
 package io.imunity.vaadin.endpoint.common.api.services.idp;
 
 
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_DOWN;
-import static com.vaadin.flow.component.icon.VaadinIcon.ANGLE_UP;
-import static com.vaadin.flow.component.icon.VaadinIcon.POINTER;
-import static com.vaadin.flow.component.icon.VaadinIcon.RESIZE_H;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
 import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.dnd.DragSource;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -35,11 +24,18 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-
 import io.imunity.vaadin.elements.ActionMenu;
 import io.imunity.vaadin.elements.MenuButton;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import static com.vaadin.flow.component.icon.VaadinIcon.*;
 
 public class CollapsableGrid<T> extends CustomField<List<T>>
 {
@@ -100,6 +96,7 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 		grid.setItemDetailsRenderer(new ComponentRenderer<>(e -> e));
 		grid.addComponentColumn(this::createRowActionMenu)
 				.setTextAlign(ColumnTextAlign.END);
+		grid.setSelectionMode(Grid.SelectionMode.NONE);
 		gridListDataView = grid.setItems(getEditors(new ArrayList<>()));
 		enableRowReordering();
 		main.add(elementsHeader, grid);
@@ -129,10 +126,6 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 	private void enableRowReordering()
 	{
 		grid.setDropMode(GridDropMode.BETWEEN);
-		grid.setRowsDraggable(true);
-
-		grid.addDragStartListener(e -> draggedItem = e.getDraggedItems().get(0));
-
 		grid.addDropListener(e ->
 		{
 			Editor<T> targetPerson = e.getDropTargetItem().orElse(null);
@@ -194,6 +187,14 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 		moveIcon.addClassName(POINTER.name());
 		ActionMenu actionMenu = new ActionMenu();
 		actionMenu.setVisible(!readOnly);
+		DragSource<Icon> iconDragSource = DragSource.create(moveIcon);
+		iconDragSource.setDraggable(true);
+		iconDragSource.addDragStartListener(event ->
+		{
+			draggedItem = entry;
+			grid.setRowsDraggable(true);
+		});
+		iconDragSource.addDragEndListener(event -> grid.setRowsDraggable(false));
 
 		MenuButton topButton = new MenuButton(msg.getMessage("ListOfCollapsableElements.moveTop"), ANGLE_UP);
 		actionMenu.addItem(topButton, e ->

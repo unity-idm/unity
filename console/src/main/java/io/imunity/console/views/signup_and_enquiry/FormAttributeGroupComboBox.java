@@ -4,32 +4,28 @@
  */
 package io.imunity.console.views.signup_and_enquiry;
 
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import io.imunity.vaadin.elements.NotEmptyComboBox;
-import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-import static pl.edu.icm.unity.base.registration.AttributeRegistrationParam.DYN_GROUP_PFX;
 
-
-public class FormAttributeGroupComboBox extends NotEmptyComboBox<String>
+class FormAttributeGroupComboBox extends NotEmptyComboBox<FormAttributeGroupComboBox.GroupModel>
 {
-	private final MessageSource msg;
-	private final List<String> groups;
+	private final List<GroupModel> groups;
 	private List<String> dynamicGroups;
 
-	public FormAttributeGroupComboBox(String caption, MessageSource msg, Collection<String> groups, 
-			List<String> dynamicGroups)
+	public FormAttributeGroupComboBox(String caption, Collection<GroupModel> groups, List<String> dynamicGroups)
 	{
 		super(caption);
-		this.msg = msg;
 		this.groups = new ArrayList<>(groups);
 		this.dynamicGroups = new ArrayList<>(dynamicGroups);
-		setItemLabelGenerator(this::getCaption);
+		setItemLabelGenerator(group -> group.name);
+		setRenderer(new ComponentRenderer<>(group -> new GroupItemPresentation(group.name, group.path)));
 		setInput(null);
 	}
 	
@@ -38,21 +34,25 @@ public class FormAttributeGroupComboBox extends NotEmptyComboBox<String>
 		this.dynamicGroups = new ArrayList<>(dynamicGroups);
 		setInput(getValue());
 	}
-	
-	private String getCaption(String item)
+
+	public void setValue(String group)
 	{
-		return item.startsWith(DYN_GROUP_PFX) ? 
-				msg.getMessage("RegistrationFormEditor.dynamicGroup", 
-						item.substring(DYN_GROUP_PFX.length())) : 
-				item;
+		GroupModel groupModel = groups.stream()
+				.filter(model -> model.path.equals(group))
+				.findAny()
+				.orElse(null);
+		setValue(groupModel);
 	}
 	
-	private void setInput(String selectedValue)
+	private void setInput(GroupModel selectedValue)
 	{
-		Collections.sort(groups);
-		List<String> processedGroups = new ArrayList<>(groups);
+		groups.sort(Comparator.comparing(model -> model.name));
+		List<GroupModel> processedGroups = new ArrayList<>(groups);
 		for (String dynamicGroup: dynamicGroups)
-			processedGroups.add(AttributeRegistrationParam.DYN_GROUP_PFX + dynamicGroup);
+		{
+			String name = AttributeRegistrationParam.DYN_GROUP_PFX + dynamicGroup;
+			processedGroups.add(new GroupModel(name, name));
+		}
 		setItems(processedGroups);
 		if (!processedGroups.isEmpty())
 		{
@@ -63,9 +63,5 @@ public class FormAttributeGroupComboBox extends NotEmptyComboBox<String>
 		}
 	}
 
-	@Override
-	public String getValue()
-	{
-		return super.getValue();
-	}
+	record GroupModel(String name, String path){}
 }

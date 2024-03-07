@@ -397,7 +397,9 @@ public class RegistrationFormEditor extends BaseFormEditor
 		remoteAuthnGridHeight = new NotEmptyIntegerField();
 		remoteAuthnGridHeight.setValue(5);
 		remoteAuthnGridHeight.setMin(1);
+		remoteAuthnGridHeight.setMax(100);
 		remoteAuthnGridHeight.setStepButtonsVisible(true);
+		refreshRemoteAuthGridSettingsControls();
 
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));

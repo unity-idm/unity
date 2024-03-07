@@ -27,6 +27,7 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.ListOfEmbeddedElemen
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -44,6 +45,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static io.imunity.console.views.signup_and_enquiry.FormAttributeGroupComboBox.*;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
@@ -57,7 +59,7 @@ public class BaseFormEditor extends VerticalLayout
 	private final AttributeTypeSupport attributeTypeSupport;
 	protected ActionParameterComponentProvider actionComponentProvider;
 	private final Collection<AttributeType> attributeTypes;
-	private List<String> groups;
+	private List<GroupModel> groups;
 	private final List<String> credentialTypes;
 	protected boolean copyMode;
 	
@@ -195,9 +197,11 @@ public class BaseFormEditor extends VerticalLayout
 		}
 	}
 	
-	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval) throws EngineException
+	protected TabSheet createCollectedParamsTabs(List<Group> groups, boolean forceInteractiveRetrieval) throws EngineException
 	{
-		this.groups = groups;
+		this.groups = groups.stream()
+				.map(group -> new GroupModel(group.getDisplayedName().getValue(msg), group.getPathEncoded()))
+				.toList();
 		collectedParamsTabSheet = new TabSheet();
 
 		optins = new ListOfEmbeddedElements<>(msg, new AgreementEditorAndProvider(), 0, 20, true);
@@ -444,7 +448,7 @@ public class BaseFormEditor extends VerticalLayout
 					msg.getMessage("RegistrationFormViewer.paramAttribute"), attributeTypes);
 			attributeType.setWidth(TEXT_FIELD_MEDIUM.value());
 			group = new FormAttributeGroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), 
-					msg, groups, getDynamicGroups());
+					groups, getDynamicGroups());
 			group.updateDynamicGroups(getDynamicGroups());
 			group.setWidth(TEXT_FIELD_MEDIUM.value());
 			showGroups = new Checkbox(msg.getMessage("RegistrationFormViewer.paramShowGroup"));
@@ -487,7 +491,7 @@ public class BaseFormEditor extends VerticalLayout
 			urlPrefillEditor.valid();
 			AttributeRegistrationParam ret = new AttributeRegistrationParam();
 			ret.setAttributeType(attributeType.getValue().getName());
-			ret.setGroup(group.getValue());
+			ret.setGroup(group.getValue().path());
 			ret.setShowGroups(showGroups.getValue());
 			ret.setConfirmationMode(confirmationMode.getValue());
 			ret.setUrlQueryPrefill(urlPrefillEditor.getValue());
@@ -584,6 +588,7 @@ public class BaseFormEditor extends VerticalLayout
 		{
 			credential = new NotEmptyComboBox<>(msg.getMessage("RegistrationFormViewer.paramCredential"));
 			credential.setItems(credentialTypes);
+			credential.setValue(credentialTypes.stream().findFirst().orElse(null));
 			label = new TextField(msg.getMessage("RegistrationFormViewer.paramLabel"));
 			description = new TextField(msg.getMessage("RegistrationFormViewer.paramDescription"));
 
