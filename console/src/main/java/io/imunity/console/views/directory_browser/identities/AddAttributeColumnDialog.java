@@ -58,7 +58,7 @@ class AddAttributeColumnDialog extends ConfirmDialog
 			throw new IllegalStateException();
 		}
 		attributeType = new AttributeSelectionComboBox(msg.getMessage("AddAttributeColumnDialog.info2"),
-				attrTypes, false);
+				attrTypes, false, msg);
 		attributeType.setWidthFull();
 		
 		useRootGroup = new Checkbox(msg.getMessage("AddAttributeColumnDialog.useRootGroup"), true);

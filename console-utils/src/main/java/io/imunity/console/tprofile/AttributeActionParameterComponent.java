@@ -27,7 +27,7 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 	public AttributeActionParameterComponent(ActionParameterDefinition desc,
 			MessageSource msg, Collection<AttributeType> attributeTypes)
 	{
-		super(desc.getName() + ":", attributeTypes);
+		super(desc.getName() + ":", attributeTypes, msg);
 		setWidth(TEXT_FIELD_MEDIUM.value());
 		setTooltipText(msg.getMessage(desc.getDescriptionKey()));
 		binder = new Binder<>(StringValueBean.class);

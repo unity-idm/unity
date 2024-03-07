@@ -4,10 +4,11 @@
  */
 package io.imunity.console.tprofile;
 
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import io.imunity.vaadin.elements.NotEmptyComboBox;
 import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -16,31 +17,29 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CssClassNames.BOLD;
+
 /**
  * Allows to select an attribute name
  */
 public class AttributeSelectionComboBox extends NotEmptyComboBox<AttributeType>
 {
+	private final MessageSource msg;
 	protected Map<String, AttributeType> attributeTypesByName;
 	private boolean filterImmutable = true;
 	private String label;
 
-	public AttributeSelectionComboBox(String caption, AttributeTypeManagement aTypeMan) throws EngineException
-	{
-		Collection<AttributeType> attributeTypes = aTypeMan.getAttributeTypes();
-		initContents(caption, attributeTypes);
-	}
-
 	public AttributeSelectionComboBox(String caption, Collection<AttributeType> attributeTypes,
-									  boolean filterImmutable)
+									  boolean filterImmutable, MessageSource msg)
 	{
+		this.msg = msg;
 		this.filterImmutable = filterImmutable;
 		initContents(caption, attributeTypes);
 	}
 
-	public AttributeSelectionComboBox(String caption, Collection<AttributeType> attributeTypes)
+	public AttributeSelectionComboBox(String caption, Collection<AttributeType> attributeTypes, MessageSource msg)
 	{
-		this(caption, attributeTypes, true);
+		this(caption, attributeTypes, true, msg);
 	}
 	
 	private void initContents(String caption, Collection<AttributeType> attributeTypes)
@@ -58,7 +57,17 @@ public class AttributeSelectionComboBox extends NotEmptyComboBox<AttributeType>
 			.collect(Collectors.toList());
 			
 		setItems(items);
-		setItemLabelGenerator(AttributeType::getName);
+		setItemLabelGenerator(attributeType -> attributeType.getDisplayedName().getValue(msg));
+		setRenderer(new ComponentRenderer<>(attributeType ->
+		{
+			Div displayedName = new Div();
+			displayedName.setText(attributeType.getDisplayedName().getValue(msg));
+			displayedName.addClassName(BOLD.getName());
+			Div id = new Div();
+			id.setText(attributeType.getName());
+			displayedName.add(id);
+			return new Div(displayedName, id);
+		}));
 
 		if (!items.isEmpty())
 			setValue(items.get(0));

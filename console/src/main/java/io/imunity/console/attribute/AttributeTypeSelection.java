@@ -7,9 +7,8 @@ package io.imunity.console.attribute;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.shared.HasTooltip;
+import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.AttributeSelectionComboBox;
-import io.imunity.vaadin.elements.TooltipFactory;
 import org.apache.commons.lang3.StringUtils;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -44,14 +43,14 @@ class AttributeTypeSelection extends FormLayout
 		Span name = new Span(type.getName());
 		formItem = addFormItem(name, msg.getMessage("AttributeType.name"));
 		String message = type.getDescription().getValue(msg);
-		formItemTooltip = TooltipFactory.get(message);
+		formItemTooltip = TooltipFactory.getWithHtmlContent(message);
 		formItemTooltip.setVisible(!StringUtils.isEmpty(message));
 		formItem.add(formItemTooltip);
 	}
 
 	private void createAttributeSelectionWidget(Collection<AttributeType> attributeTypes)
 	{
-		attributeTypesCombo = new AttributeSelectionComboBox(null, attributeTypes);
+		attributeTypesCombo = new AttributeSelectionComboBox(null, attributeTypes, msg);
 		attributeTypesCombo.setWidth(TEXT_FIELD_MEDIUM.value());
 		if (attributeTypes.size() == 1)
 		{
@@ -59,7 +58,7 @@ class AttributeTypeSelection extends FormLayout
 		} else
 		{
 			formItem = addFormItem(attributeTypesCombo, msg.getMessage("AttributeType.name"));
-			formItemTooltip = TooltipFactory.get("");
+			formItemTooltip = TooltipFactory.getWithHtmlContent("");
 			formItemTooltip.setVisible(false);
 			formItem.add(formItemTooltip);
 			attributeTypesCombo.addValueChangeListener(event -> changeAttributeType(event.getValue()));
@@ -83,8 +82,12 @@ class AttributeTypeSelection extends FormLayout
 
 	private void changeAttributeType(AttributeType type)
 	{
+		if(type == null)
+			return;
 		String message = type.getDescription().getValue(msg);
-		((HasTooltip)formItemTooltip).setTooltipText(message);
+		formItem.remove(formItemTooltip);
+		formItemTooltip = TooltipFactory.getWithHtmlContent(message);
+		formItem.add(formItemTooltip);
 		formItemTooltip.setVisible(!StringUtils.isEmpty(message));
 		if (callback != null)
 			callback.accept(type);

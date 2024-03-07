@@ -131,7 +131,7 @@ class AttributeStatementComponent extends VerticalLayout
 		assignMode.setItemLabelGenerator(captions::get);
 		assignMode.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 
-		ComboBox<AttributeType> dynamicAttributeName = new AttributeSelectionComboBox("", attributeTypes);
+		ComboBox<AttributeType> dynamicAttributeName = new AttributeSelectionComboBox("", attributeTypes, msg);
 		MVELExpressionField dynamicAttributeValue = new MVELExpressionField(msg,
 				"",
 				msg.getMessage("AttributeStatementComponent.dynamicAttrValueDesc"),

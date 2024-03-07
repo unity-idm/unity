@@ -445,7 +445,7 @@ public class BaseFormEditor extends VerticalLayout
 		public ComponentsContainer getEditorComponent(AttributeRegistrationParam value, int index)
 		{
 			attributeType = new AttributeSelectionComboBox(
-					msg.getMessage("RegistrationFormViewer.paramAttribute"), attributeTypes);
+					msg.getMessage("RegistrationFormViewer.paramAttribute"), attributeTypes, msg);
 			attributeType.setWidth(TEXT_FIELD_MEDIUM.value());
 			group = new FormAttributeGroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), 
 					groups, getDynamicGroups());

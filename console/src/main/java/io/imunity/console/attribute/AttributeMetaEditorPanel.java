@@ -75,7 +75,7 @@ class AttributeMetaEditorPanel extends FormLayout
 	private void createAttributeSelectionWidget(Collection<AttributeType> attributeTypes)
 	{
 		this.attributeTypes = new AttributeSelectionComboBox(msg.getMessage("AttributeType.name"), 
-				attributeTypes); 
+				attributeTypes, msg);
 		
 		if (attributeTypes.size() == 1)
 		{

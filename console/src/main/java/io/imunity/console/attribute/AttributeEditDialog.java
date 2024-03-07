@@ -44,7 +44,8 @@ public class AttributeEditDialog extends ConfirmDialog
 				close();
 		} catch (FormValidationException e)
 		{
-			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			open();
+			notificationPresenter.showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
 		}
 	}
 	

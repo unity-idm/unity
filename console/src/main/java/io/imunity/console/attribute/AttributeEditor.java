@@ -37,6 +37,7 @@ public class AttributeEditor extends VerticalLayout
 		attrTypePanel.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		AttributeType initial = attrTypePanel.getAttributeType();
 		attrValuesContainer = new FormLayout();
+		attrValuesContainer.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		attrValuesContainer.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 	
 		AttributeEditContext editContext = AttributeEditContext.builder()
@@ -86,6 +87,7 @@ public class AttributeEditor extends VerticalLayout
 		attrTypePanel = new AttributeTypeSelection(attributeType, msg);
 		attrTypePanel.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		attrValuesContainer = new FormLayout();
+		attrValuesContainer.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		attrValuesContainer.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		AttributeEditContext editContext = AttributeEditContext.builder()
@@ -111,6 +113,7 @@ public class AttributeEditor extends VerticalLayout
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeTypeSelection(attributeType, msg);
 		attrValuesContainer = new FormLayout();
+		attrValuesContainer.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		attrValuesContainer.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 		attrTypePanel.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
