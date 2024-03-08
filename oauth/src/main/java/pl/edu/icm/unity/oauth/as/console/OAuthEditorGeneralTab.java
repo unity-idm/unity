@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.IDP_INFO_LAYOUT;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 /**
@@ -181,7 +182,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		main.add(mainGeneralLayout);
 
 		HorizontalLayout infoLayout = new HorizontalLayout();
-		infoLayout.getStyle().set("margin-left", "-20em");
+		infoLayout.addClassName(IDP_INFO_LAYOUT.getName());
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setPadding(false);
 		wrapper.setSpacing(false);

@@ -99,6 +99,10 @@ vaadin-button[theme=primary]:hover {
     background-color: var(--unity-hover-button-color);
 }
 
+vaadin-button[theme=tertiary] {
+    padding: 0;
+}
+
 vaadin-button[theme=tertiary]:hover {
     cursor: pointer;
 }
@@ -125,6 +129,18 @@ vaadin-icon[disabled] {
 .u-menu-tabs > vaadin-tab[selection] {
     background-color: var(--unity-selected-tab-color);
     color: var(--unity-font-primary-color);
+}
+
+vaadin-tabsheet > vaadin-tabs > vaadin-tab[selected] {
+    font-weight: var(--unity-bold-font-weight);
+}
+
+vaadin-form-item > vaadin-combo-box[disabled] + label,
+vaadin-form-item > vaadin-integer-field[disabled] + label,
+vaadin-form-item > vaadin-text-field[disabled] + label,
+vaadin-form-item > vaadin-text-area[disabled] + label,
+vaadin-form-item > vaadin-custom-field[disabled] + label {
+    opacity: 0.5;
 }
 
 vaadin-context-menu-item {
@@ -787,6 +803,11 @@ vaadin-tab.u-tabsheet-full {
 
 .u-border {
 	border: 1px solid #d4d4d4;
+}
+
+.u-idp-info-layout {
+	margin-left: -20em;
+	min-width: 50em;
 }
 
 .u-columnHeader {

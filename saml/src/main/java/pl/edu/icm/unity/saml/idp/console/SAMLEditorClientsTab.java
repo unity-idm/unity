@@ -10,7 +10,6 @@ import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
@@ -168,10 +167,13 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 		private void initContent()
 		{
 			VerticalLayout main = new VerticalLayout();
+			main.setAlignItems(Alignment.END);
 			main.setPadding(false);
-			Icon add = VaadinIcon.PLUS_CIRCLE_O.create();
-			add.addClickListener(e -> gotoNew());
-			main.add(add);
+			Button button = new Button(msg.getMessage("SAMLEditorClientsTab.trustedFederations.button"),
+					VaadinIcon.PLUS_CIRCLE_O.create());
+			button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			button.addClickListener(e -> gotoNew());
+			main.add(button);
 			main.add(federationList);
 			add(main);
 		}
@@ -307,10 +309,13 @@ public class SAMLEditorClientsTab extends VerticalLayout implements ServiceEdito
 		private void initContent()
 		{
 			VerticalLayout main = new VerticalLayout();
+			main.setAlignItems(Alignment.END);
 			main.setMargin(false);
-			Icon add = VaadinIcon.PLUS_CIRCLE_O.create();
-			add.addClickListener(e -> gotoNew());
-			main.add(add, spList);
+			Button button = new Button(msg.getMessage("SAMLEditorClientsTab.individualTrustedSps.button"),
+					VaadinIcon.PLUS_CIRCLE_O.create());
+			button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			button.addClickListener(e -> gotoNew());
+			main.add(button, spList);
 			add(main);
 		}
 

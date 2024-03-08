@@ -8,14 +8,6 @@ package io.imunity.console.spi;
 
 import com.vaadin.flow.component.icon.VaadinIcon;
 
-public class ServiceActionRepresentation
+public record ServiceActionRepresentation(String caption, VaadinIcon icon)
 {
-	public final String caption;
-	public final VaadinIcon icon;
-
-	public ServiceActionRepresentation(String caption, VaadinIcon icon)
-	{
-		this.caption = caption;
-		this.icon = icon;
-	}
 }

@@ -100,8 +100,8 @@ public class IdpServicesView extends ServicesViewBase
 		{
 			SingleActionHandler<ServiceDefinition> actionHandler = SingleActionHandler
 					.builder(ServiceDefinition.class)
-					.withCaption(action.getActionRepresentation().caption)
-					.withIcon(action.getActionRepresentation().icon)
+					.withCaption(action.getActionRepresentation().caption())
+					.withIcon(action.getActionRepresentation().icon())
 					.withHandler(r -> gotoExtraAction(r.iterator().next(), action.getName()))
 					.withDisabledPredicate(r -> !r.getType().equals(action.getSupportedServiceType()))
 					.hideIfInactive().build();
@@ -113,7 +113,7 @@ public class IdpServicesView extends ServicesViewBase
 	private void gotoExtraAction(ServiceDefinition next, String action)
 	{
 		UI.getCurrent()
-				.navigate(EditIdpServiceView.class, next.getName(),
-						new QueryParameters(Map.of(CommonViewParam.tab.name(), List.of(action))));
+				.navigate(AdditionalIdpServiceView.class, next.getName(),
+						new QueryParameters(Map.of(CommonViewParam.name.name(), List.of(action))));
 	}
 }

@@ -23,10 +23,10 @@ import java.util.Collection;
 class OAuthTokensComponent extends VerticalLayout
 {
 
-	private MessageSource msg;
-	private OAuthTokenController controller;
-	private OAuthTokenGrid tokensGrid;
-	private NotificationPresenter notificationPresenter;
+	private final MessageSource msg;
+	private final OAuthTokenController controller;
+	private final OAuthTokenGrid tokensGrid;
+	private final NotificationPresenter notificationPresenter;
 
 	OAuthTokensComponent(MessageSource msg, OAuthTokenController controller, NotificationPresenter notificationPresenter)
 	{
@@ -60,11 +60,15 @@ class OAuthTokensComponent extends VerticalLayout
 		tokensGrid.addValueChangeListener(e -> viewer.setInput(e.getFirstSelectedItem()));
 
 		Panel viewerPanel = new Panel();
+		viewerPanel.setMargin(false);
 		viewerPanel.add(viewer);
 		viewerPanel.setSizeFull();
 
 		SplitLayout splitPanel = new SplitLayout(tokensGrid, viewerPanel);
-		splitPanel.setSizeFull();
+		splitPanel.setOrientation(SplitLayout.Orientation.VERTICAL);
+		splitPanel.setSplitterPosition(50);
+		splitPanel.setWidthFull();
+		splitPanel.setHeight("40em");
 
 		VerticalLayout main = new VerticalLayout();
 		main.add(splitPanel);

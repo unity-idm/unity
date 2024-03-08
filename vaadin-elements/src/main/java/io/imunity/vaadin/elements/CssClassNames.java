@@ -24,6 +24,7 @@ public enum CssClassNames
 	DROP_LAYOUT("u-drop-layout"),
 	DROP_FIELD("u-drop-field"),
 	PANEL("u-panel"),
+	IDP_INFO_LAYOUT("u-idp-info-layout"),
 	NO_PADDING_TOP("u-no-padding-top"),
 	TRUE_CONDITION_BACKGROUND("u-trueCondition-bg"),
 	FALSE_CONDITION_BACKGROUND("u-falseCondition-bg"),

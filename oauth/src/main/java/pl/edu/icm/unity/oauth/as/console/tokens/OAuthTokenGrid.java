@@ -7,8 +7,6 @@ package pl.edu.icm.unity.oauth.as.console.tokens;
 
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.selection.SelectionListener;
 import io.imunity.vaadin.elements.ColumnToggleMenu;
@@ -62,10 +60,6 @@ class OAuthTokenGrid extends VerticalLayout
 				.setHeader(msg.getMessage("OAuthToken.id"))
 				.setSortable(true)
 				.setAutoWidth(true);
-		tokensGrid.addColumn(OAuthTokenBean::getOwner)
-				.setHeader(msg.getMessage("OAuthToken.owner"))
-				.setSortable(true)
-				.setAutoWidth(true);
 		Grid.Column<OAuthTokenBean> ownerColumn = tokensGrid.addColumn(OAuthTokenBean::getOwner)
 				.setHeader(msg.getMessage("OAuthToken.owner"))
 				.setSortable(true)
@@ -95,6 +89,7 @@ class OAuthTokenGrid extends VerticalLayout
 				.setHeader(msg.getMessage("OAuthToken.serverId"))
 				.setSortable(true)
 				.setAutoWidth(true);
+		serverIdColumn.setVisible(false);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.serverId"), serverIdColumn);
 
 		Grid.Column<OAuthTokenBean> refreshTokenColumn = tokensGrid.addColumn(
@@ -112,16 +107,14 @@ class OAuthTokenGrid extends VerticalLayout
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.scopes"), scopesColumn);
 
 		Grid.Column<OAuthTokenBean> hasIdTokenColumn = tokensGrid.addColumn(r -> String.valueOf(r.getHasIdToken()))
-				.setHeader(new Div(new Span(msg.getMessage("OAuthToken.hasIdToken")), columnToggleMenu))
+				.setHeader(msg.getMessage("OAuthToken.hasIdToken"))
 				.setSortable(true)
 				.setAutoWidth(true);
+		hasIdTokenColumn.setVisible(false);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.hasIdToken"), hasIdTokenColumn);
-
-		tokensGrid.removeActionColumn();
+		tokensGrid.setActionColumnHeader(columnToggleMenu.getTarget());
 		tokensGrid.setColumnReorderingAllowed(true);
-
-		tokensGrid.setMultiSelect(true);
-		tokensGrid.setSizeFull();
+		tokensGrid.setMultiSelect(false);
 
 		ActionMenuWithHandlerSupport<OAuthTokenBean> hamburgerMenu = new ActionMenuWithHandlerSupport<>();
 		hamburgerMenu.addActionHandlers(Collections.singletonList(getDeleteAction()));
@@ -133,11 +126,12 @@ class OAuthTokenGrid extends VerticalLayout
 		toolbar.addHamburger(hamburgerMenu);
 		toolbar.addSearch(search);
 		ComponentWithToolbar reqGridWithToolbar = new ComponentWithToolbar(tokensGrid, toolbar);
-		reqGridWithToolbar.setSizeFull();
+		reqGridWithToolbar.setWidthFull();
 		reqGridWithToolbar.setSpacing(false);
 
-		add(reqGridWithToolbar);
-		setSizeFull();
+		add(reqGridWithToolbar, tokensGrid);
+		setPadding(false);
+		setWidthFull();
 	}
 
 	public void addValueChangeListener(SelectionListener<Grid<OAuthTokenBean>, OAuthTokenBean> listener)

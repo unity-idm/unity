@@ -27,6 +27,7 @@ public class DefaultSubViewSwitcher implements SubViewSwitcher
 
 	private UnitySubView lastSubView;
 	private Component currentSubView;
+	private boolean bannerInfoVisibility;
 
 	public DefaultSubViewSwitcher(UnityViewComponent viewComponent, VerticalLayout mainView,
 			VerticalLayout unsavedInfoBanner, BreadCrumbParameter original,
@@ -43,7 +44,7 @@ public class DefaultSubViewSwitcher implements SubViewSwitcher
 	public void exitSubView()
 	{
 		viewComponent.getContent().remove(currentSubView);
-		unsavedInfoBanner.setVisible(false);
+		unsavedInfoBanner.setVisible(bannerInfoVisibility);
 		if(lastSubView != null)
 		{
 			viewComponent.getContent().add((Component) lastSubView);
@@ -64,7 +65,8 @@ public class DefaultSubViewSwitcher implements SubViewSwitcher
 	public void exitSubViewAndShowUpdateInfo()
 	{
 		exitSubView();
-		unsavedInfoBanner.setVisible(true);
+		bannerInfoVisibility = true;
+		unsavedInfoBanner.setVisible(bannerInfoVisibility);
 	}
 
 	@Override

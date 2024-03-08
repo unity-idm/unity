@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.IDP_INFO_LAYOUT;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 /**
@@ -131,7 +132,7 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 		metaOffInfo = new Span();
 
 		HorizontalLayout infoLayout = new HorizontalLayout();
-		infoLayout.getStyle().set("margin-left", "-20em");
+		infoLayout.addClassName(IDP_INFO_LAYOUT.getName());
 
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setPadding(false);
@@ -398,7 +399,7 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 				.setAutoWidth(true)
 				.setFlexGrow(2);
 
-		idMappings.setWidth(TEXT_FIELD_BIG.value());
+		idMappings.setWidthFull();
 		configBinder.forField(idMappings)
 				.bind(SAMLServiceConfiguration::getIdentityMapping, SAMLServiceConfiguration::setIdentityMapping);
 

@@ -123,11 +123,11 @@ class OAuthTokenViewer extends VerticalLayout
 		token.setValue(tokenBean.get().getTokenValue());
 		if (oauthToken.getOpenidInfo() != null)
 		{
-			idToken.setVisible(true);
+			idToken.getParent().get().setVisible(true);
 			setIdToken(oauthToken.getOpenidInfo());
 		} else
 		{
-			idToken.setVisible(false);
+			idToken.getParent().get().setVisible(false);
 		}
 
 
@@ -163,15 +163,15 @@ class OAuthTokenViewer extends VerticalLayout
 		Optional<JWTClaimsSet> claims = BearerJWTAccessToken.tryParseJWTClaimSet(jwt);
 		if (!oAuthTokenBean.isRefreshToken() && claims.isPresent())
 		{
-			jwtClaimsSet.setVisible(true);
-			jwtInfo.setVisible(true);
+			jwtClaimsSet.getParent().get().setVisible(true);
+			jwtInfo.getParent().get().setVisible(true);
 			JsonNode tree = JsonUtil.parse(claims.get().toString());
 			jwtClaimsSet.setValue(JsonUtil.serializeHumanReadable(tree));
 			jwtInfo.setText(jwt.get().getHeader().toString());
 		} else
 		{
-			jwtClaimsSet.setVisible(false);
-			jwtInfo.setVisible(false);
+			jwtClaimsSet.getParent().get().setVisible(false);
+			jwtInfo.getParent().get().setVisible(false);
 		}
 	}
 

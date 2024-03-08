@@ -31,12 +31,13 @@ import io.imunity.console.views.directory_setup.automation.AutomationEditView;
 import io.imunity.console.views.directory_setup.automation.AutomationRunView;
 import io.imunity.console.views.directory_setup.automation.AutomationView;
 import io.imunity.console.views.directory_setup.identity_types.IdentityTypesView;
-import io.imunity.console.views.identity_provider.released_profile.EditOutputTranslationView;
-import io.imunity.console.views.identity_provider.released_profile.NewOutputTranslationView;
-import io.imunity.console.views.identity_provider.released_profile.ReleasedDataProfilesView;
+import io.imunity.console.views.identity_provider.endpoints.AdditionalIdpServiceView;
 import io.imunity.console.views.identity_provider.endpoints.EditIdpServiceView;
 import io.imunity.console.views.identity_provider.endpoints.IdpServicesView;
 import io.imunity.console.views.identity_provider.endpoints.NewIdpServiceView;
+import io.imunity.console.views.identity_provider.released_profile.EditOutputTranslationView;
+import io.imunity.console.views.identity_provider.released_profile.NewOutputTranslationView;
+import io.imunity.console.views.identity_provider.released_profile.ReleasedDataProfilesView;
 import io.imunity.console.views.maintenance.AboutView;
 import io.imunity.console.views.maintenance.audit_log.AuditLogView;
 import io.imunity.console.views.maintenance.backup_and_restore.BackupAndRestoreView;
@@ -100,7 +101,7 @@ public class ConsoleMenu extends UnityAppLayout
 								MenuComponent.builder(IdpServicesView.class)
 								.tabName(msg.getMessage("WebConsoleMenu.identityProvider.endpoints"))
 								.icon(VaadinIcon.GLOBE)
-								.subViews(NewIdpServiceView.class, EditIdpServiceView.class)
+								.subViews(NewIdpServiceView.class, EditIdpServiceView.class, AdditionalIdpServiceView.class)
 								.build(),
 								MenuComponent.builder(ReleasedDataProfilesView.class)
 										.tabName(msg.getMessage("WebConsoleMenu.identityProvider.releasedProfiles"))
