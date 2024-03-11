@@ -110,7 +110,7 @@ public class TokenEndpointTest extends TokenTestBase
 				ServerHostnameCheckingMode.NONE);
 
 		HTTPResponse errorResp = wrapped.send();
-		assertThat(errorResp.getStatusCode(), is(HTTPResponse.SC_FORBIDDEN));
+		assertThat(errorResp.getStatusCode()).isEqualTo(HTTPResponse.SC_FORBIDDEN);
 	}
 	
 	@Test
@@ -131,7 +131,7 @@ public class TokenEndpointTest extends TokenTestBase
 				ServerHostnameCheckingMode.NONE);
 
 		HTTPResponse errorResp = wrapped.send();
-		assertThat(errorResp.getStatusCode(), is(HTTPResponse.SC_UNAUTHORIZED));
+		assertThat(errorResp.getStatusCode()).isEqualTo(HTTPResponse.SC_UNAUTHORIZED);
 	}
 	
 	
