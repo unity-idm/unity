@@ -5,6 +5,16 @@
 
 package io.imunity.vaadin.elements.grid;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
@@ -17,10 +27,10 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.editor.Editor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -34,16 +44,6 @@ import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
-
 public class EditableGrid<T> extends CustomField<List<T>>
 {
 	private final Grid<T> grid = new Grid<>();
@@ -54,6 +54,7 @@ public class EditableGrid<T> extends CustomField<List<T>>
 	private final Button add;
 	private Grid.Column<T> actions;
 	private T draggedItem;
+	private boolean addNewMode=false;
 
 	public EditableGrid(Function<String, String> msg, Supplier<T> supplier)
 	{
@@ -71,10 +72,20 @@ public class EditableGrid<T> extends CustomField<List<T>>
 			T element = supplier.get();
 			gridListDataView.addItem(element);
 			editor.editItem(element);
+			addNewMode = true;
 		});
 		add.addThemeVariants(LUMO_PRIMARY);
 		editor.addOpenListener(e -> add.setEnabled(false));
 		editor.addCloseListener(e -> add.setEnabled(true));
+		editor.setBuffered(true);
+		
+		grid.addItemDoubleClickListener(e -> {
+			if (!editor.isOpen())
+			{
+				editor.editItem(e.getItem());
+			}
+			
+		});
 		
 		layout = new VerticalLayout(add, grid);
 		layout.setPadding(false);
@@ -94,6 +105,8 @@ public class EditableGrid<T> extends CustomField<List<T>>
 					{
 						gridListDataView.removeItem(bean);
 						updateValue();
+						fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), true));
+						
 					});
 					Icon moveIcon = VaadinIcon.RESIZE_H.create();
 					moveIcon.addClassName(POINTER.getName());
@@ -292,7 +305,9 @@ public class EditableGrid<T> extends CustomField<List<T>>
 			if(editor.getBinder().validate().isOk())
 			{
 				editor.save();
-				editor.cancel();
+				addNewMode = false;
+				fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), true));
+
 			}
 		});
 		save.addThemeVariants(LUMO_TERTIARY);
@@ -300,9 +315,14 @@ public class EditableGrid<T> extends CustomField<List<T>>
 
 		Button cancel = new Button(msg.apply("cancel"), e ->
 		{
-			gridListDataView.removeItem(editor.getItem());
-			updateValue();
+			if (addNewMode)
+			{
+				gridListDataView.removeItem(editor.getItem());
+			}
 			editor.cancel();
+			fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), true));
+			addNewMode = false;
+
 		});
 		cancel.addThemeVariants(LUMO_TERTIARY);
 
@@ -310,7 +330,9 @@ public class EditableGrid<T> extends CustomField<List<T>>
 				.addStatusChangeListener(status -> save.setEnabled(status.getBinder().isValid()));
 		editor.addOpenListener(e -> save.setEnabled(false));
 
-		return new Div(save, cancel);
+		HorizontalLayout horizontalLayout = new HorizontalLayout(save, cancel);
+		horizontalLayout.setJustifyContentMode(JustifyContentMode.END);
+		return horizontalLayout;
 	}
 
 	@Override
