@@ -29,6 +29,7 @@ import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
@@ -73,7 +74,7 @@ public class AccessTokenResourceTest
 				null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
-
+	
 	@Test
 	public void allGrantsExceptCodeAndRefershAreFailingWithoutAuthentication() throws Exception
 	{
@@ -97,6 +98,29 @@ public class AccessTokenResourceTest
 					"https://return.host.com/foo", null, null, null, null, null, null, null);
 			assertEquals(HTTPResponse.SC_UNAUTHORIZED, r.getStatus());
 		}
+	}
+	
+	@Test
+	public void codeGrantAreFailingWithoutConfidentialClientAuthentication() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		OAuthASProperties config = OAuthTestUtils.getConfig();
+		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
+		AuthenticationRealm realm = new AuthenticationRealm("foo", "", 5, 10, RememberMePolicy.disallow, 1, 1000);
+
+		InvocationContext notAuthed = new InvocationContext(null, realm, Collections.emptyList());
+		InvocationContext.setCurrent(notAuthed);
+
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(config, new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100);
+		ctx.setClientType(ClientType.CONFIDENTIAL);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils
+				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
+
+		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), step1Resp.getAuthorizationCode()
+				.getValue(), null, "https://return.host.com/foo", null, null, null, null, null, null, null);
+		assertEquals(HTTPResponse.SC_UNAUTHORIZED, r.getStatus());
+
 	}
 
 	@Test
