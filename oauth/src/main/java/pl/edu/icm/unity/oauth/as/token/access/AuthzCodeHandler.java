@@ -86,7 +86,10 @@ class AuthzCodeHandler
 
 		try
 		{
-			verifyPKCE(parsedAuthzCodeToken.getPkcsInfo(), parsedAuthzCodeToken.getClientType(), codeVerifier);
+			assertConfidentialClientHasSession(parsedAuthzCodeToken.getClientType());
+			assertPublicClientHasPKCE(parsedAuthzCodeToken.getPkcsInfo(), parsedAuthzCodeToken.getClientType());
+			verifyPKCEIfDefined(parsedAuthzCodeToken.getPkcsInfo(), parsedAuthzCodeToken.getClientType(), codeVerifier);
+
 		} catch (OAuthErrorException e)
 		{
 			statisticsPublisher.reportFail(parsedAuthzCodeToken.getClientUsername(),
@@ -135,12 +138,25 @@ class AuthzCodeHandler
 		return BaseOAuthResource.toResponse(Response.ok(BaseOAuthResource.getResponseContent(oauthResponse)));
 	}
 
-	private void verifyPKCE(PKCSInfo parsedAuthzCodeToken, ClientType clientType, String codeVerifier)
-			throws OAuthErrorException
+	private void assertConfidentialClientHasSession(ClientType clientType) throws OAuthErrorException
+	{
+		if (clientType == ClientType.CONFIDENTIAL && InvocationContext.getCurrent()
+				.getLoginSession() == null)
+		{
+			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_CLIENT, "not authenticated"));
+		}
+	}
+	
+	private void assertPublicClientHasPKCE(PKCSInfo parsedAuthzCodeToken, ClientType clientType) throws OAuthErrorException
 	{
 		if (parsedAuthzCodeToken.getCodeChallenge() == null && clientType == ClientType.PUBLIC)
 			throw new OAuthErrorException(
 					BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "missing mandatory PKCE"));
+	}
+
+	private void verifyPKCEIfDefined(PKCSInfo parsedAuthzCodeToken, ClientType clientType, String codeVerifier)
+			throws OAuthErrorException
+	{
 		if (parsedAuthzCodeToken.getCodeChallenge() != null && codeVerifier == null)
 			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "missing PKCE"));
 		if (parsedAuthzCodeToken.getCodeChallenge() == null && codeVerifier != null)
