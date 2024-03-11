@@ -93,6 +93,49 @@ public class TokenEndpointTest extends TokenTestBase
 		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
 	}
 	
+	@Test
+	public void shouldFailGetTokenWithoutWrongCredential() throws Exception
+	{
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getConfig(),
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, clientId1.getEntityId());
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils
+				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx);
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("wrong"));
+		TokenRequest request = new TokenRequest(
+				new URI("https://localhost:52443/oauth/token"), ca,
+				new AuthorizationCodeGrant(resp1.getAuthorizationCode(),
+						new URI("https://return.host.com/foo")));
+		HTTPRequest bare = request.toHTTPRequest();
+		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
+				ServerHostnameCheckingMode.NONE);
+
+		HTTPResponse errorResp = wrapped.send();
+		assertThat(errorResp.getStatusCode(), is(HTTPResponse.SC_FORBIDDEN));
+	}
+	
+	@Test
+	public void shouldFailGetTokenWithoutCredential() throws Exception
+	{
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getConfig(),
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, clientId1.getEntityId());
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils
+				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx);
+
+		TokenRequest request = new TokenRequest(
+				new URI("https://localhost:52443/oauth/token"), new ClientID("client1"),
+				new AuthorizationCodeGrant(resp1.getAuthorizationCode(),
+						new URI("https://return.host.com/foo")));
+		HTTPRequest bare = request.toHTTPRequest();
+		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
+				ServerHostnameCheckingMode.NONE);
+
+		HTTPResponse errorResp = wrapped.send();
+		assertThat(errorResp.getStatusCode(), is(HTTPResponse.SC_UNAUTHORIZED));
+	}
+	
 	
 	@Test
 	public void shouldReturnUserInfoAfterCompleteCodeFlow() throws Exception
