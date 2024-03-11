@@ -31,6 +31,7 @@ import com.nimbusds.openid.connect.sdk.Nonce;
 
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
@@ -70,7 +71,53 @@ public class PKCETest
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
-
+	@Test
+	public void shouldGetAccessTokenWithoutCodeVerifierWhenClientIsConfidentialAndLoggedIn() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		OAuthASProperties config = OAuthTestUtils.getConfig();
+		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
+		AuthenticationRealm realm = new AuthenticationRealm("foo", "", 5, 10, RememberMePolicy.disallow ,1, 1000);
+		InvocationContext virtualAdmin = new InvocationContext(null, realm, Collections.emptyList());
+		virtualAdmin.setLocale(Locale.ENGLISH);
+		LoginSession loginSession = new LoginSession();
+		loginSession.setEntityId(100L);
+		virtualAdmin.setLoginSession(loginSession);
+		InvocationContext.setCurrent(virtualAdmin);
+		OAuthAuthzContext ctx = createContextWithoutPKCE(config, new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100);
+		ctx.setClientType(ClientType.CONFIDENTIAL);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
+		
+		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
+				step1Resp.getAuthorizationCode().getValue(), 
+				null,
+				"https://return.host.com/foo",
+				null, null, null, null, null, null, null);
+		assertEquals(HTTPResponse.SC_OK, r.getStatus());
+	}
+	
+	@Test
+	public void shouldFailToGetAccessWhenClientIsConfidentialAndNotLoggedIn() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		OAuthASProperties config = OAuthTestUtils.getConfig();
+		AccessTokenResource tested = createAccessTokenResource(tokensManagement, config, tx);
+		setupInvocationContext();
+		OAuthAuthzContext ctx = createContextWithoutPKCE(config, new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100);
+		ctx.setClientType(ClientType.CONFIDENTIAL);
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
+				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
+		
+		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
+				step1Resp.getAuthorizationCode().getValue(), 
+				null,
+				"https://return.host.com/foo",
+				null, null, null, null, null, null, null);
+		assertEquals(HTTPResponse.SC_UNAUTHORIZED, r.getStatus());
+	}
 	
 	@Test
 	public void shouldFailToGetAccessTokenWithoutCodeVerifierWhenChallengeSet() throws Exception
@@ -83,6 +130,7 @@ public class PKCETest
 				GrantFlow.authorizationCode, 100,
 				"verifier__123456789012345678901234567890123", 
 				CodeChallengeMethod.S256);
+		ctx.setClientType(ClientType.PUBLIC);
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
 				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		
@@ -105,6 +153,7 @@ public class PKCETest
 				GrantFlow.authorizationCode, 100,
 				"verifier__123456789012345678901234567890123", 
 				CodeChallengeMethod.S256);
+		ctx.setClientType(ClientType.PUBLIC);
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
 				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		
@@ -151,6 +200,7 @@ public class PKCETest
 		OAuthAuthzContext ctx = createContext(config, new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100,
 				verifier, CodeChallengeMethod.PLAIN);
+		ctx.setClientType(ClientType.PUBLIC);
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
 				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		
@@ -174,6 +224,7 @@ public class PKCETest
 		OAuthAuthzContext ctx = createContext(config, new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, 100,
 				verifier, CodeChallengeMethod.S256);
+		ctx.setClientType(ClientType.PUBLIC);
 		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(
 				OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 		
