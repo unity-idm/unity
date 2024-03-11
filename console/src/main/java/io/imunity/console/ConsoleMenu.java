@@ -57,10 +57,13 @@ import io.imunity.console.views.signup_and_enquiry.forms.RegistrationView;
 import io.imunity.console.views.signup_and_enquiry.invitations.InvitationsView;
 import io.imunity.console.views.signup_and_enquiry.requests.RequestsView;
 import io.imunity.vaadin.elements.MenuComponent;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.AuthorizationManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -73,7 +76,7 @@ public class ConsoleMenu extends UnityAppLayout
 {
 
 	@Autowired
-	public ConsoleMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg)
+	public ConsoleMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg, AuthorizationManagement authorizationManagement)
 	{
 		super(Stream.of(
 						MenuComponent.builder(DirectoryBrowserView.class)
@@ -213,11 +216,31 @@ public class ConsoleMenu extends UnityAppLayout
 						)
 						.collect(toList()), standardWebLogoutHandler, msg, List.of()
 		);
+
+		try
+		{
+			if(!authorizationManagement.hasAdminAccess())
+			{
+				showCriticalException(standardWebLogoutHandler, msg);
+				return;
+			}
+		}
+		catch (AuthorizationException e)
+		{
+			showCriticalException(standardWebLogoutHandler, msg);
+			return;
+		}
+
 		super.initView();
 
 		Image image = createDefaultImage();
 		addToLeftContainerAsFirst(createImageLayout(image));
 		activateLeftContainerMinimization(image);
+	}
+
+	private static void showCriticalException(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg)
+	{
+		NotificationPresenter.showCriticalError(standardWebLogoutHandler::logout, msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 	}
 
 	private HorizontalLayout createImageLayout(Component image)
