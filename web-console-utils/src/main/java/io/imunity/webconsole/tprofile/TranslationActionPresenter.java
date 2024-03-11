@@ -88,7 +88,7 @@ public class TranslationActionPresenter extends LayoutEmbeddable
 			value = Constants.MAPPER.readValue(value, I18nString.class).getDefaultLocaleValue(msg);
 		} catch (Exception e)
 		{
-			log.error("Can not parse i18n string", e);
+			log.trace("Can not parse i18n string", e);
 		}
 		
 		return value.replace("\n", " | ");
