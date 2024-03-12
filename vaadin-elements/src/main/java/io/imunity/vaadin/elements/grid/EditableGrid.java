@@ -54,6 +54,7 @@ public class EditableGrid<T> extends CustomField<List<T>>
 	private final Button add;
 	private Grid.Column<T> actions;
 	private T draggedItem;
+	private boolean editing;
 
 	public EditableGrid(Function<String, String> msg, Supplier<T> supplier)
 	{
@@ -71,11 +72,21 @@ public class EditableGrid<T> extends CustomField<List<T>>
 			T element = supplier.get();
 			gridListDataView.addItem(element);
 			editor.editItem(element);
+			editing = false;
 		});
 		add.addThemeVariants(LUMO_PRIMARY);
 		editor.addOpenListener(e -> add.setEnabled(false));
 		editor.addCloseListener(e -> add.setEnabled(true));
-		
+		editor.addCloseListener(e ->
+		{
+			Binder<T> binder = editor.getBinder();
+			if(binder.validate().hasErrors())
+			{
+				gridListDataView.removeItem(editor.getBinder().getBean());
+				updateValue();
+			}
+		});
+
 		layout = new VerticalLayout(add, grid);
 		layout.setPadding(false);
 		layout.setAlignItems(FlexComponent.Alignment.END);
@@ -105,6 +116,16 @@ public class EditableGrid<T> extends CustomField<List<T>>
 				.setEditorComponent(addEditButtons())
 				.setAutoWidth(true)
 				.setTextAlign(END);
+	}
+
+	public void enableEditorOnSelect()
+	{
+		grid.setSelectionMode(Grid.SelectionMode.SINGLE);
+		grid.addSelectionListener(event ->
+		{
+			editing = true;
+			event.getFirstSelectedItem().ifPresent(editor::editItem);
+		});
 	}
 
 	public Grid.Column<T> addColumn(ValueProvider<T, String> get, Setter<T, String> set, boolean req)
@@ -300,7 +321,8 @@ public class EditableGrid<T> extends CustomField<List<T>>
 
 		Button cancel = new Button(msg.apply("cancel"), e ->
 		{
-			gridListDataView.removeItem(editor.getItem());
+			if(!editing)
+				gridListDataView.removeItem(editor.getItem());
 			updateValue();
 			editor.cancel();
 		});

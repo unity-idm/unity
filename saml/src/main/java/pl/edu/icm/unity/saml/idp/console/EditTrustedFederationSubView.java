@@ -15,6 +15,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -147,8 +148,9 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 		binder.forField(ignoreSignatureVerification).bind("ignoreSignatureVerification");
 		header.addFormItem(ignoreSignatureVerification, "");
 
-		ComboBox<String> signatureVerificationCertificate = new ComboBox<>();
+		Select<String> signatureVerificationCertificate = new Select<>();
 		signatureVerificationCertificate.setItems(certificates);
+		signatureVerificationCertificate.setEmptySelectionAllowed(true);
 		header.addFormItem(signatureVerificationCertificate, msg.getMessage("EditTrustedFederationSubView.signatureVerificationCertificate"));
 
 		TextField refreshInterval = new TextField();

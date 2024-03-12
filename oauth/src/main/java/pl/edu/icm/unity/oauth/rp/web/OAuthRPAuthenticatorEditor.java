@@ -8,7 +8,6 @@ package pl.edu.icm.unity.oauth.rp.web;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -40,6 +39,7 @@ import java.util.List;
 import java.util.Set;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
@@ -156,7 +156,7 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 	private AccordionPanel buildAdvancedSection()
 	{
 		FormLayout advanced = new FormLayout();
-		advanced.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		advanced.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		advanced.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		IntegerField cacheTime = new IntegerField();
@@ -184,8 +184,9 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 				.bind(OAuthRPConfiguration::getClientHostnameChecking, OAuthRPConfiguration::setClientHostnameChecking);
 		advanced.addFormItem(clientHostnameChecking, msg.getMessage("OAuthRPAuthenticatorEditor.clientHostnameChecking"));
 
-		ComboBox<String> clientTrustStore = new ComboBox<>();
+		Select<String> clientTrustStore = new Select<>();
 		clientTrustStore.setItems(validatorNames);
+		clientTrustStore.setEmptySelectionAllowed(true);
 
 		configBinder.forField(clientTrustStore)
 				.bind(OAuthRPConfiguration::getClientTrustStore, OAuthRPConfiguration::setClientTrustStore);

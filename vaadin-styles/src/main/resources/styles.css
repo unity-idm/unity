@@ -99,7 +99,7 @@ vaadin-button[theme=primary]:hover {
     background-color: var(--unity-hover-button-color);
 }
 
-vaadin-button[theme=tertiary] {
+vaadin-form-item > vaadin-button[theme=tertiary] {
     padding: 0;
 }
 

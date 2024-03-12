@@ -59,7 +59,7 @@ class UploadComponent extends CustomField<LocalOrRemoteResource>
 			byteArray = ((ByteArrayOutputStream) fileData.getOutputBuffer()).toByteArray();
 			image.setSrc(new StreamResource("logo", () -> new ByteArrayInputStream(byteArray)), byteArray);
 		});
-
+		upload.setUploadButton(new Button(msg.getMessage("FileField.local.button")));
 		downloader = new Anchor();
 		downloader.getElement().setAttribute("download", true);
 		downloader.addClassName(POINTER.getName());

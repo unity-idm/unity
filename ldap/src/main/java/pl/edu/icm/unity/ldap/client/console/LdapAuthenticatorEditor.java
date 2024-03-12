@@ -10,7 +10,6 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -395,8 +394,9 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				LdapConfiguration::setTrustAllCerts);
 		serverConnectionLayout.addFormItem(trustAllCerts, "");
 
-		ComboBox<String> clientTrustStore = new ComboBox<>();
+		Select<String> clientTrustStore = new Select<>();
 		clientTrustStore.setItems(validators);
+		clientTrustStore.setEmptySelectionAllowed(true);
 		configBinder.forField(clientTrustStore).bind(LdapConfiguration::getClientTrustStore,
 				LdapConfiguration::setClientTrustStore);
 		serverConnectionLayout.addFormItem(clientTrustStore,
@@ -549,9 +549,11 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				LdapConfiguration::setAccountAssociation);
 		interactiveLoginSettings.addFormItem(accountAssociation, "");
 
-		ComboBox<String> registrationForm = new ComboBox<>();
+		Select<String> registrationForm = new Select<>();
 		registrationForm.setItems(registrationForms);
 		registrationForm.setWidth(TEXT_FIELD_MEDIUM.value());
+		registrationForm.setEmptySelectionAllowed(true);
+		registrationForm.setEmptySelectionCaption("");
 		configBinder.forField(registrationForm).bind(LdapConfiguration::getRegistrationForm,
 				LdapConfiguration::setRegistrationForm);
 		interactiveLoginSettings.addFormItem(registrationForm, msg.getMessage("LdapAuthenticatorEditor.registrationForm"));

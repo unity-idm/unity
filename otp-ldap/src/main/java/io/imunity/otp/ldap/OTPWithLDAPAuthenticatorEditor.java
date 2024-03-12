@@ -9,7 +9,6 @@ import com.unboundid.ldap.sdk.LDAPException;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -300,6 +299,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		serverConnectionLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		EditableGrid<ServerSpecification> serverConfig = new EditableGrid<>(msg::getMessage, ServerSpecification::new);
+		serverConfig.enableEditorOnSelect();
 		serverConfig.setWidth(TEXT_FIELD_BIG.value());
 		serverConfig.setHeight("20em");
 		serverConfig.addColumn(ServerSpecification::getServer, ServerSpecification::setServer, true)
@@ -348,8 +348,9 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		configBinder.forField(trustAllCerts).bind("trustAllCerts");
 		serverConnectionLayout.addFormItem(trustAllCerts, "");
 		
-		ComboBox<String> clientTrustStore = new ComboBox<>();
+		Select<String> clientTrustStore = new Select<>();
 		clientTrustStore.setItems(validators);
+		clientTrustStore.setEmptySelectionAllowed(true);
 		configBinder.forField(clientTrustStore).bind("clientTrustStore");
 		serverConnectionLayout.addFormItem(clientTrustStore, msg.getMessage("LdapAuthenticatorEditor.clientTrustStore"));
 

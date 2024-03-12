@@ -9,7 +9,6 @@ import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -38,8 +37,7 @@ import java.util.function.Consumer;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.*;
 
 
 class EditIndividualTrustedIdpSubView extends VerticalLayout implements UnitySubView
@@ -205,8 +203,9 @@ class EditIndividualTrustedIdpSubView extends VerticalLayout implements UnitySub
 				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getGroupMembershipAttribute, SAMLIndividualTrustedSamlIdpConfiguration::setGroupMembershipAttribute);
 		header.addFormItem(groupAttribute, msg.getMessage("EditIndividualTrustedIdpSubView.groupMembershipAttribute"));
 		
-		ComboBox<String> registrationForm = new ComboBox<>();
+		Select<String> registrationForm = new Select<>();
 		registrationForm.setItems(registrationForms);
+		registrationForm.setEmptySelectionAllowed(true);
 		header.addFormItem(registrationForm, msg.getMessage("EditIndividualTrustedIdpSubView.registrationForm"));
 		configBinder.forField(registrationForm)
 				.bind(SAMLIndividualTrustedSamlIdpConfiguration::getRegistrationForm, SAMLIndividualTrustedSamlIdpConfiguration::setRegistrationForm);
@@ -225,7 +224,7 @@ class EditIndividualTrustedIdpSubView extends VerticalLayout implements UnitySub
 	private AccordionPanel buildSingleLogoutSection()
 	{
 		FormLayout singleLogout = new FormLayout();
-		singleLogout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		singleLogout.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		singleLogout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		TextField postLogoutEndpoint = new TextField();

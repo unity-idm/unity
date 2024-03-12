@@ -16,6 +16,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -31,6 +32,7 @@ import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.endpoint.common.file.FileField;
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -56,6 +58,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
@@ -157,6 +160,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		name.focus();
 
 		TextField requesterId = new TextField();
+		requesterId.setWidth(TEXT_FIELD_MEDIUM.value());
 		configBinder.forField(requesterId)
 				.asRequired(msg.getMessage("fieldRequired"))
 				.bind(SAMLAuthenticatorConfiguration::getRequesterId, SAMLAuthenticatorConfiguration::setRequesterId);
@@ -348,11 +352,20 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			boolean v = e.getValue();
 			metadataPath.setEnabled(v);
 			signMetadata.setEnabled(v);
+			if(v)
+				urlMetadataPathField.setValue(sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + metadataPath.getValue());
+			else
+				urlMetadataPathField.setValue("");
 			autoGenerateMetadata.setEnabled(v);
 			metadataSource.setEnabled(!autoGenerateMetadata.getValue() && v);
 		});
 
-		autoGenerateMetadata.addValueChangeListener(e -> metadataSource.setEnabled(!e.getValue() && publishMetadata.getValue()));
+		autoGenerateMetadata.addValueChangeListener(e ->
+		{
+			metadataSource.setEnabled(!e.getValue() && publishMetadata.getValue());
+			if(e.getValue())
+				metadataSource.setValue(new LocalOrRemoteResource());
+		});
 
 		return new AccordionPanel(msg.getMessage("SAMLAuthenticatorEditor.metadataPublishing"),
 				metadataPublishing);
@@ -368,8 +381,9 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		configBinder.forField(sloPath).bind(SAMLAuthenticatorConfiguration::getSloPath, SAMLAuthenticatorConfiguration::setSloPath);
 		singleLogout.addFormItem(sloPath, msg.getMessage("SAMLAuthenticatorEditor.sloPath"));
 
-		ComboBox<String> sloRealm = new ComboBox<>();
+		Select<String> sloRealm = new Select<>();
 		sloRealm.setItems(realms);
+		sloRealm.setEmptySelectionAllowed(true);
 		singleLogout.addFormItem(sloRealm, msg.getMessage("SAMLAuthenticatorEditor.sloRealm"));
 		configBinder.forField(sloRealm).bind(SAMLAuthenticatorConfiguration::getSloRealm, SAMLAuthenticatorConfiguration::setSloRealm);
 
@@ -384,7 +398,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		sloMappings.addColumn(SAMLIdentityMapping::getSamlId, SAMLIdentityMapping::setSamlId, false)
 				.setHeader(msg.getMessage("SAMLAuthenticatorEditor.sloMappings.samlId"))
 				.setAutoWidth(true);
-		;
+		sloMappings.enableEditorOnSelect();
 		configBinder.forField(sloMappings).bind(SAMLAuthenticatorConfiguration::getSloMappings, SAMLAuthenticatorConfiguration::setSloMappings);
 
 		return new AccordionPanel(msg.getMessage("SAMLAuthenticatorEditor.singleLogout"), singleLogout);

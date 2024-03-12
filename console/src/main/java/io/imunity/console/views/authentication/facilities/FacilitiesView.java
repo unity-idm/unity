@@ -17,6 +17,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -38,7 +39,7 @@ import java.util.Comparator;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
-import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
 import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM;
 import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM_ITEM;
 
@@ -105,11 +106,11 @@ public class FacilitiesView extends ConsoleViewComponent
 
 		H3 authenticatorHeader = new H3(msg.getMessage("AuthenticatorsComponent.caption"));
 		H3 authenticationFlowsHeader = new H3(msg.getMessage("AuthenticationFlowsComponent.caption"));
-		authenticationFlowsHeader.getStyle().set("margin-top", BASE_MARGIN.value());
+		authenticationFlowsHeader.getStyle().set("margin-top", BIG_MARGIN.value());
 		VerticalLayout main = new VerticalLayout(
 				authenticatorHeader,
 				createAuthenticatorActionLayout(),
-				authenticatorsGrid,
+				authenticatorsGrid, new Hr(),
 				authenticationFlowsHeader,
 				createHeaderActionLayout(msg, AuthenticationFlowEditView.class),
 				flowsGrid);

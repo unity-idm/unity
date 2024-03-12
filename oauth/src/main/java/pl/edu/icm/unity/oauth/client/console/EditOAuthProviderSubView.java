@@ -9,7 +9,6 @@ import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -224,6 +223,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		{
 			authenticationEndpoint.setRequiredIndicatorVisible(!e.getValue());
 			accessTokenEndpoint.setRequiredIndicatorVisible(!e.getValue());
+			openIdDiscovery.setRequiredIndicatorVisible(e.getValue());
 			openIdDiscovery.getParent().get().setVisible(e.getValue());
 		});
 
@@ -242,9 +242,10 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		advanced.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		advanced.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		ComboBox<String> registrationForm = new ComboBox<>();
+		Select<String> registrationForm = new Select<>();
 		registrationForm.setWidth(TEXT_FIELD_MEDIUM.value());
 		registrationForm.setItems(registrationForms);
+		registrationForm.setEmptySelectionAllowed(true);
 		configBinder.forField(registrationForm)
 				.bind(OAuthProviderConfiguration::getRegistrationForm, OAuthProviderConfiguration::setRegistrationForm);
 		advanced.addFormItem(registrationForm, msg.getMessage("EditOAuthProviderSubView.registrationForm"));
@@ -276,6 +277,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		advanced.addFormItem(accountAssociation, msg.getMessage("EditOAuthProviderSubView.accountAssociation"));
 		
 		EditableGrid<NameValuePairBinding> extraAuthorizationParameters = new EditableGrid<>(msg::getMessage, NameValuePairBinding::new);
+		extraAuthorizationParameters.enableEditorOnSelect();
 		extraAuthorizationParameters.setWidth(TEXT_FIELD_BIG.value());
 		extraAuthorizationParameters.setHeight("20em");
 		advanced.addFormItem(extraAuthorizationParameters, msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameters"));

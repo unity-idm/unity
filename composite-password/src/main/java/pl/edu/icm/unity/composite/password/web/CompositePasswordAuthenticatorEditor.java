@@ -442,7 +442,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 													edited.type,
 													c.id,
 													c.configuration));
-									subViewSwitcher.exitSubView();
+									subViewSwitcher.exitSubViewAndShowUpdateInfo();
 									remoteAuthnGrid.getDataProvider().refreshAll();
 								});
 					}

@@ -9,7 +9,6 @@ import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -148,7 +147,7 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 				.bind(SAMLAuthnTrustedFederationConfiguration::isIgnoreSignatureVerification, SAMLAuthnTrustedFederationConfiguration::setIgnoreSignatureVerification);
 		header.addFormItem(ignoreSignatureVerification, "");
 
-		ComboBox<String> signatureVerificationCertificate = new ComboBox<>();
+		Select<String> signatureVerificationCertificate = new Select<>();
 		signatureVerificationCertificate.setItems(certificates);
 		binder.forField(signatureVerificationCertificate).asRequired(
 				(v, c) -> ((v == null || v.isEmpty()) && !ignoreSignatureVerification.getValue())
@@ -156,6 +155,11 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 						: ValidationResult.ok())
 				.bind(SAMLAuthnTrustedFederationConfiguration::getSignatureVerificationCertificate, SAMLAuthnTrustedFederationConfiguration::setSignatureVerificationCertificate);
 		header.addFormItem(signatureVerificationCertificate, msg.getMessage("EditTrustedFederationSubView.signatureVerificationCertificate"));
+		ignoreSignatureVerification.addValueChangeListener(event ->
+		{
+			signatureVerificationCertificate.setRequiredIndicatorVisible(!event.getValue());
+			signatureVerificationCertificate.setEmptySelectionAllowed(event.getValue());
+		});
 
 		IntegerField refreshInterval = new IntegerField();
 		refreshInterval.setMin(0);
@@ -163,8 +167,9 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 				.bind(SAMLAuthnTrustedFederationConfiguration::getRefreshInterval, SAMLAuthnTrustedFederationConfiguration::setRefreshInterval);
 		header.addFormItem(refreshInterval, msg.getMessage("EditTrustedFederationSubView.refreshInterval"));
 
-		ComboBox<String> registrationForm = new ComboBox<>();
+		Select<String> registrationForm = new Select<>();
 		registrationForm.setItems(registrationForms);
+		registrationForm.setEmptySelectionAllowed(true);
 		binder.forField(registrationForm)
 				.bind(SAMLAuthnTrustedFederationConfiguration::getRegistrationForm, SAMLAuthnTrustedFederationConfiguration::setRegistrationForm);
 		header.addFormItem(registrationForm, msg.getMessage("EditTrustedFederationSubView.registrationForm"));

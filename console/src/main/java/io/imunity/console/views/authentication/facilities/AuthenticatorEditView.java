@@ -6,6 +6,7 @@
 package io.imunity.console.views.authentication.facilities;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -19,6 +20,7 @@ import io.imunity.console.components.InfoBanner;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactoriesRegistry;
+import io.imunity.vaadin.elements.AfterSubNavigationEvent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.NotEmptyComboBox;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -77,10 +79,10 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 		getContent().removeAll();
 
 		AuthenticatorEntry entry;
-		if(id == null)
+		if(id == null || id.equals("new"))
 		{
 			entry = new AuthenticatorEntry(new AuthenticatorDefinition("", "", "", ""), List.of());
-			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
+			breadCrumbParameter = new BreadCrumbParameter("new", msg.getMessage("new"));
 			edit = false;
 		}
 		else
@@ -103,7 +105,7 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 		Map<AuthenticatorTypeDescription, String> authnTypesSorted = getAuthenticatorTypes();
 		
 		authenticatorTypeCombo = new NotEmptyComboBox<>();
-		authenticatorTypeCombo.addValueChangeListener(e -> reloadEditor(entry));
+		authenticatorTypeCombo.addValueChangeListener(e -> reloadEditor(entry, authnTypesSorted));
 		authenticatorTypeCombo.setItemLabelGenerator(authnTypesSorted::get);
 		authenticatorTypeCombo.setWidth(TEXT_FIELD_BIG.value());
 		authenticatorTypeCombo.setItems(authnTypesSorted.keySet().stream()
@@ -159,9 +161,12 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 				.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 	}
 
-	private void reloadEditor(AuthenticatorEntry entry)
+	private void reloadEditor(AuthenticatorEntry entry, Map<AuthenticatorTypeDescription, String> authnTypesSorted)
 	{
 		AuthenticatorTypeDescription type = authenticatorTypeCombo.getValue();
+		breadCrumbParameter = new BreadCrumbParameter(
+				breadCrumbParameter.id,
+				(edit ? "" : msg.getMessage("New") + " ") + authnTypesSorted.get(type), null, true);
 		if (layout.getChildren().anyMatch(child -> child.equals(editorComponent)))
 			layout.remove(editorComponent);
 
@@ -175,6 +180,7 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 			notificationPresenter.showError(
 					msg.getMessage("MainAuthenticatorEditor.createSingleAuthenticatorEditorError"), e.getMessage());
 		}
+		ComponentUtil.fireEvent(UI.getCurrent(), new AfterSubNavigationEvent(this, false));
 	}
 
 	private SubViewSwitcher createSubViewSwitcher()

@@ -8,9 +8,9 @@ package pl.edu.icm.unity.pam.web;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -120,9 +120,10 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 				.bind(PamConfiguration::isAccountAssociation, PamConfiguration::setAccountAssociation);
 		interactiveLoginSettings.addFormItem(accountAssociation, "");
 
-		ComboBox<String> registrationForm = new ComboBox<>();
+		Select<String> registrationForm = new Select<>();
 		registrationForm.setWidth(TEXT_FIELD_MEDIUM.value());
 		registrationForm.setItems(registrationForms);
+		registrationForm.setEmptySelectionAllowed(true);
 		configBinder.forField(registrationForm)
 				.bind(PamConfiguration::getRegistrationForm, PamConfiguration::setRegistrationForm);
 		interactiveLoginSettings.addFormItem(registrationForm,
