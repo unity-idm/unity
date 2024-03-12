@@ -5,6 +5,16 @@
 
 package io.imunity.vaadin.elements.grid;
 
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
@@ -17,7 +27,6 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.editor.Editor;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -33,16 +42,6 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 public class EditableGrid<T> extends CustomField<List<T>>
 {
@@ -87,6 +86,18 @@ public class EditableGrid<T> extends CustomField<List<T>>
 			}
 		});
 
+		editor.setBuffered(true);
+		
+		grid.addItemDoubleClickListener(e ->
+		{
+			if (!editor.isOpen())
+			{
+				editor.editItem(e.getItem());
+				editing = true;
+			}
+			
+		});
+		
 		layout = new VerticalLayout(add, grid);
 		layout.setPadding(false);
 		layout.setAlignItems(FlexComponent.Alignment.END);
@@ -105,6 +116,7 @@ public class EditableGrid<T> extends CustomField<List<T>>
 					{
 						gridListDataView.removeItem(bean);
 						updateValue();
+						fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), true));
 					});
 					Icon moveIcon = VaadinIcon.RESIZE_H.create();
 					moveIcon.addClassName(POINTER.getName());
@@ -116,16 +128,6 @@ public class EditableGrid<T> extends CustomField<List<T>>
 				.setEditorComponent(addEditButtons())
 				.setAutoWidth(true)
 				.setTextAlign(END);
-	}
-
-	public void enableEditorOnSelect()
-	{
-		grid.setSelectionMode(Grid.SelectionMode.SINGLE);
-		grid.addSelectionListener(event ->
-		{
-			editing = true;
-			event.getFirstSelectedItem().ifPresent(editor::editItem);
-		});
 	}
 
 	public Grid.Column<T> addColumn(ValueProvider<T, String> get, Setter<T, String> set, boolean req)
@@ -314,6 +316,7 @@ public class EditableGrid<T> extends CustomField<List<T>>
 			{
 				editor.save();
 				editor.cancel();
+				fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), true));
 			}
 		});
 		save.addThemeVariants(LUMO_TERTIARY);
@@ -325,6 +328,7 @@ public class EditableGrid<T> extends CustomField<List<T>>
 				gridListDataView.removeItem(editor.getItem());
 			updateValue();
 			editor.cancel();
+			fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), true));
 		});
 		cancel.addThemeVariants(LUMO_TERTIARY);
 

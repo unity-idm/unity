@@ -30,7 +30,7 @@ class AttributesGrid extends CustomField<List<Attribute>>
 
 		grid.addCheckboxColumn(s -> s.isMandatory(), (t, v) -> t.setMandatory(v))
 				.setHeader(msg.getMessage("AttributesGrid.mandatory"));
-		grid.addValueChangeListener(e -> new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient()));
+		grid.addValueChangeListener(e -> fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient())));
 		grid.setSizeFull();
 		add(grid);
 		setSizeFull();

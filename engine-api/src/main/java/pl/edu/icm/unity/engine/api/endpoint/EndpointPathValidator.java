@@ -27,6 +27,8 @@ public class EndpointPathValidator
 			throw new WrongArgumentException("Context path must not possess more then one '/'");
 		if (contextPath.length() == 1)
 			throw new WrongArgumentException("Context path must be a valid path element of a URL");
+		if (contextPath.contains(" "))
+			throw new WrongArgumentException("Context path must not contain spaces");	
 		try
 		{
 			URL tested = new URL("https://localhost:8080" + contextPath);
