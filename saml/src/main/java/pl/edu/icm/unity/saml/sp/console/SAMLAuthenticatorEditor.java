@@ -398,7 +398,6 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		sloMappings.addColumn(SAMLIdentityMapping::getSamlId, SAMLIdentityMapping::setSamlId, false)
 				.setHeader(msg.getMessage("SAMLAuthenticatorEditor.sloMappings.samlId"))
 				.setAutoWidth(true);
-		sloMappings.enableEditorOnSelect();
 		configBinder.forField(sloMappings).bind(SAMLAuthenticatorConfiguration::getSloMappings, SAMLAuthenticatorConfiguration::setSloMappings);
 
 		return new AccordionPanel(msg.getMessage("SAMLAuthenticatorEditor.singleLogout"), singleLogout);

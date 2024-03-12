@@ -277,7 +277,6 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		advanced.addFormItem(accountAssociation, msg.getMessage("EditOAuthProviderSubView.accountAssociation"));
 		
 		EditableGrid<NameValuePairBinding> extraAuthorizationParameters = new EditableGrid<>(msg::getMessage, NameValuePairBinding::new);
-		extraAuthorizationParameters.enableEditorOnSelect();
 		extraAuthorizationParameters.setWidth(TEXT_FIELD_BIG.value());
 		extraAuthorizationParameters.setHeight("20em");
 		advanced.addFormItem(extraAuthorizationParameters, msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameters"));

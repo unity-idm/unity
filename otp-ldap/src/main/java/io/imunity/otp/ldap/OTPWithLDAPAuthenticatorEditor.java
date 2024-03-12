@@ -299,7 +299,6 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		serverConnectionLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		EditableGrid<ServerSpecification> serverConfig = new EditableGrid<>(msg::getMessage, ServerSpecification::new);
-		serverConfig.enableEditorOnSelect();
 		serverConfig.setWidth(TEXT_FIELD_BIG.value());
 		serverConfig.setHeight("20em");
 		serverConfig.addColumn(ServerSpecification::getServer, ServerSpecification::setServer, true)

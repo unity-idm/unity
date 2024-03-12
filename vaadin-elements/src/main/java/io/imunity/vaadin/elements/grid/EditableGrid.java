@@ -5,16 +5,6 @@
 
 package io.imunity.vaadin.elements.grid;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
-import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasValue;
 import com.vaadin.flow.component.Key;
@@ -27,6 +17,7 @@ import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.grid.dnd.GridDropLocation;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.grid.editor.Editor;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -42,6 +33,16 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.renderer.Renderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.function.ValueProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
+import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
+import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 public class EditableGrid<T> extends CustomField<List<T>>
 {
@@ -79,9 +80,9 @@ public class EditableGrid<T> extends CustomField<List<T>>
 		editor.addCloseListener(e ->
 		{
 			Binder<T> binder = editor.getBinder();
-			if(binder.validate().hasErrors())
+			if(binder.validate().hasErrors() && binder.getBean() != null)
 			{
-				gridListDataView.removeItem(editor.getBinder().getBean());
+				gridListDataView.removeItem(binder.getBean());
 				updateValue();
 			}
 		});
