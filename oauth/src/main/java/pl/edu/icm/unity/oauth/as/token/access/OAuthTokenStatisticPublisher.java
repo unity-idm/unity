@@ -22,6 +22,7 @@ import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -72,7 +73,7 @@ public class OAuthTokenStatisticPublisher
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
 		if (loginSession == null)
 		{
-			log.error("Can not retrieve identity of the OAuth client, skippig error reporting");
+			log.debug("Can not retrieve identity of the OAuth client, skippig error reporting");
 			return;
 		}
 
@@ -84,7 +85,7 @@ public class OAuthTokenStatisticPublisher
 
 		} catch (Exception e)
 		{
-			log.error("Can not retrieving identity of the OAuth client", e);
+			log.debug("Can not retrieving identity of the OAuth client", e);
 			return;
 		}
 
@@ -96,7 +97,7 @@ public class OAuthTokenStatisticPublisher
 			clientName = getClientName(clientEntity);
 		} catch (Exception e)
 		{
-			log.error("Can not retrieving client name attribute of the OAuth client", e);
+			log.debug("Can not retrieving client name attribute of the OAuth client", e);
 			return;
 		}
 
@@ -112,8 +113,7 @@ public class OAuthTokenStatisticPublisher
 			attrs = unsecureAttributesMan.getAllAttributes(clientEntity, true, oauthGroup, null, false);
 		} catch (EngineException e)
 		{
-			log.error("Problem retrieving attributes of the OAuth client", e);
-			throw new InternalError("Internal error, can not retrieve OAuth client's data");
+			throw new InternalException("Internal error, can not retrieve OAuth client's data", e);
 		}
 
 		Optional<AttributeExt> clientNameAttr = attrs.stream()
@@ -140,7 +140,7 @@ public class OAuthTokenStatisticPublisher
 					new ApplicationId(clientUsername), Instant.now());
 		} catch (EngineException e)
 		{
-			log.error("Can not set last access attribute", e);
+			log.debug("Can not set last access attribute", e);
 		}
 
 	}
@@ -175,7 +175,7 @@ public class OAuthTokenStatisticPublisher
 			}
 		} catch (Exception e)
 		{
-			log.error("Can not get relateed OAauth authz endpoint for token endpoint " + endpoint.getName(), e);
+			log.debug("Can not get relateed OAauth authz endpoint for token endpoint " + endpoint.getName(), e);
 			return endpoint.getEndpoint();
 		}
 	}
