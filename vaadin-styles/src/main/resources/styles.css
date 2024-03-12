@@ -732,7 +732,7 @@ vaadin-details.u-multi-tab-details {
     text-decoration: underline;
 }
 
-.u-avoid-y-scroller {
+.u-avoid-main-layout-y-scroller {
     height: 92.5vh;
 }
 

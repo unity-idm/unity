@@ -114,7 +114,7 @@ class OAuthTokenGrid extends VerticalLayout
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.hasIdToken"), hasIdTokenColumn);
 		tokensGrid.setActionColumnHeader(columnToggleMenu.getTarget());
 		tokensGrid.setColumnReorderingAllowed(true);
-		tokensGrid.setMultiSelect(false);
+		tokensGrid.setMultiSelect(true);
 
 		ActionMenuWithHandlerSupport<OAuthTokenBean> hamburgerMenu = new ActionMenuWithHandlerSupport<>();
 		hamburgerMenu.addActionHandlers(Collections.singletonList(getDeleteAction()));
@@ -130,7 +130,6 @@ class OAuthTokenGrid extends VerticalLayout
 		reqGridWithToolbar.setSpacing(false);
 
 		add(reqGridWithToolbar, tokensGrid);
-		setPadding(false);
 		setWidthFull();
 	}
 

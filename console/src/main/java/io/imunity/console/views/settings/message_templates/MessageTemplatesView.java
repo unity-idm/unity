@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.*;
 import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
+import static io.imunity.vaadin.elements.CssClassNames.AVOID_MAIN_LAYOUT_Y_SCROLLER;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.settings.messageTemplates", parent = "WebConsoleMenu.settings")
@@ -68,7 +69,7 @@ public class MessageTemplatesView extends ConsoleViewComponent
 		VerticalLayout layout = new VerticalLayout(createHeaderLayout(globalHamburgerHandlers.menu), splitLayout);
 		layout.setSpacing(false);
 		layout.setWidthFull();
-		layout.addClassName("u-avoid-y-scroller");
+		layout.addClassName(AVOID_MAIN_LAYOUT_Y_SCROLLER.getName());
 		getContent().setHeightFull();
 		getContent().add(layout);
 		refresh();

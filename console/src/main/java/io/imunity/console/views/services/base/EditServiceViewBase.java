@@ -7,6 +7,7 @@ package io.imunity.console.views.services.base;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
@@ -30,6 +31,8 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static io.imunity.vaadin.elements.CssClassNames.AVOID_MAIN_LAYOUT_Y_SCROLLER;
 
 /**
  * 
@@ -107,7 +110,9 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 		mainView.add(editor);
 		mainView.add(EditViewActionLayoutFactory.createActionLayout(msg, true, mainServicesViewName, this::onConfirm));
 		getContent().add(unsavedInfoBanner);
-		getContent().add(mainView);
+		Scroller scroller = new Scroller(mainView);
+		scroller.addClassName(AVOID_MAIN_LAYOUT_Y_SCROLLER.getName());
+		getContent().add(scroller);
 	}
 
 	private void onConfirm()

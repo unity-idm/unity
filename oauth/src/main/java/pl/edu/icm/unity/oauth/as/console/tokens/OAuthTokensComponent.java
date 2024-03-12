@@ -14,6 +14,8 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 import java.util.Collection;
 
+import static io.imunity.vaadin.elements.CssClassNames.AVOID_MAIN_LAYOUT_Y_SCROLLER;
+
 /**
  * Allows for viewing and removing tokens
  * 
@@ -60,7 +62,6 @@ class OAuthTokensComponent extends VerticalLayout
 		tokensGrid.addValueChangeListener(e -> viewer.setInput(e.getFirstSelectedItem()));
 
 		Panel viewerPanel = new Panel();
-		viewerPanel.setMargin(false);
 		viewerPanel.add(viewer);
 		viewerPanel.setSizeFull();
 
@@ -68,7 +69,7 @@ class OAuthTokensComponent extends VerticalLayout
 		splitPanel.setOrientation(SplitLayout.Orientation.VERTICAL);
 		splitPanel.setSplitterPosition(50);
 		splitPanel.setWidthFull();
-		splitPanel.setHeight("40em");
+		splitPanel.addClassName(AVOID_MAIN_LAYOUT_Y_SCROLLER.getName());
 
 		VerticalLayout main = new VerticalLayout();
 		main.add(splitPanel);
@@ -76,5 +77,6 @@ class OAuthTokensComponent extends VerticalLayout
 		main.setPadding(false);
 		add(main);
 		setSizeFull();
+		setPadding(false);
 	}
 }
