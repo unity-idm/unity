@@ -9,6 +9,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.console.views.signup_and_enquiry.layout.FormLayoutEditor;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.Panel;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.FormLayoutUtils;
@@ -23,16 +24,18 @@ public class RegistrationFormLayoutEditor extends VerticalLayout
 {
 	private final MessageSource msg;
 	private final Supplier<RegistrationForm> formProvider;
+	private final NotificationPresenter notificationPresenter;
 	private Checkbox enableCustomLayout;
 	private FormLayoutEditor primaryLayoutEditor;
 	private FormLayoutEditor secondaryLayoutEditor;
 	private FormLayout layouts;
 	private boolean isInitialValueSet = false;
 
-	public RegistrationFormLayoutEditor(MessageSource msg, Supplier<RegistrationForm> formProvider)
+	public RegistrationFormLayoutEditor(MessageSource msg, Supplier<RegistrationForm> formProvider, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.formProvider = formProvider;
+		this.notificationPresenter = notificationPresenter;
 
 		initUI();
 	}
@@ -43,9 +46,24 @@ public class RegistrationFormLayoutEditor extends VerticalLayout
 		layouts.setResponsiveSteps(
 				new FormLayout.ResponsiveStep("0", 1),
 				new FormLayout.ResponsiveStep("75em", 2));
-		primaryLayoutEditor = new FormLayoutEditor(msg, () -> formProvider.get().getEffectivePrimaryFormLayout(msg));
+		primaryLayoutEditor = new FormLayoutEditor(msg, () ->
+		{
+			RegistrationForm registrationForm = formProvider.get();
+			if(registrationForm == null)
+			{
+				notificationPresenter.showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
+				return null;
+			}
+			return registrationForm.getEffectivePrimaryFormLayout(msg);
+		});
 		primaryLayoutEditor.setWidth(37, Unit.EM);
-		secondaryLayoutEditor = new FormLayoutEditor(msg, () -> formProvider.get().getEffectiveSecondaryFormLayout(msg));
+		secondaryLayoutEditor = new FormLayoutEditor(msg, () ->
+		{
+			RegistrationForm registrationForm = formProvider.get();
+			if(registrationForm == null)
+				return null;
+			return registrationForm.getEffectiveSecondaryFormLayout(msg);
+		});
 		secondaryLayoutEditor.setWidth(37, Unit.EM);
 		Panel primaryLayoutPanel = new Panel(msg.getMessage("RegistrationFormEditor.primaryLayout"));
 		primaryLayoutPanel.add(primaryLayoutEditor);

@@ -82,6 +82,7 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 			tEditor.addValueChangeListener(e -> fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient())));
 			gridListDataView.addItem(tEditor);
 			grid.select(tEditor);
+			grid.setDetailsVisible(tEditor, true);
 		});
 		addElement.setVisible(!readOnly);
 

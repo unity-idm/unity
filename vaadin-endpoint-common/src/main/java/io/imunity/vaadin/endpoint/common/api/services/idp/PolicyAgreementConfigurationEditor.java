@@ -210,7 +210,7 @@ public class PolicyAgreementConfigurationEditor extends CollapsableGrid.Editor<P
 	protected String getHeaderText()
 	{
 		return policyToAccept.getValue() == null || policyToAccept.getValue().isEmpty()
-				? msg.getMessage("empty")
+				? msg.getMessage("empty.document")
 				: policyToAccept.getValue().stream().map(p -> p.name)
 						.collect(Collectors.joining(", "));
 

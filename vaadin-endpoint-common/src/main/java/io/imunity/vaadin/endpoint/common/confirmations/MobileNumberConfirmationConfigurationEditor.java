@@ -5,13 +5,10 @@
 
 package io.imunity.vaadin.endpoint.common.confirmations;
 
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
-
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
-
 import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerFieldWithDefaultOutOfRangeError;
@@ -22,6 +19,8 @@ import pl.edu.icm.unity.base.msg_template.confirm.MobileNumberConfirmationTempla
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 {
@@ -64,7 +63,8 @@ public class MobileNumberConfirmationConfigurationEditor extends FormLayout
 		binder = new Binder<>(MobileNumberConfirmationConfiguration.class);
 
 		CompatibleTemplatesComboBox msgTemplate = new CompatibleTemplatesComboBox(MobileNumberConfirmationTemplateDef.NAME, msgTemplateMan);
-		msgTemplate.setRequired(true);
+		msgTemplate.setRequiredIndicatorVisible(true);
+		msgTemplate.setEmptySelectionAllowed(false);
 		msgTemplate.setDefaultValue();
 		msgTemplate.setWidth(CSSVars.FIELD_MEDIUM.value());	
 

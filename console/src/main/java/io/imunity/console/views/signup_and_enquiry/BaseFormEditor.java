@@ -388,7 +388,10 @@ public class BaseFormEditor extends VerticalLayout
 			confirmationMode.setWidth(TEXT_FIELD_MEDIUM.value());
 
 			identityType.addValueChangeListener(val -> {
-				boolean emailVerifiable = allowedIdentitiesByName.get(val.getValue()).isEmailVerifiable();
+				IdentityTypeDefinition identityTypeDefinition = allowedIdentitiesByName.get(val.getValue());
+				if(identityTypeDefinition == null)
+					return;
+				boolean emailVerifiable = identityTypeDefinition.isEmailVerifiable();
 				confirmationMode.setVisible(emailVerifiable);
 				confirmationMode.getParent().ifPresent(parent -> parent.setVisible(emailVerifiable));
 			});

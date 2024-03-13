@@ -425,7 +425,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	{
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setPadding(false);
-		layoutEditor = new RegistrationFormLayoutEditor(msg, this::formProvider);
+		layoutEditor = new RegistrationFormLayoutEditor(msg, this::formProvider, notificationPresenter);
 		wrapper.add(layoutEditor);
 		tabs.addSelectedChangeListener(event -> layoutEditor.updateFromForm());
 		tabs.add(msg.getMessage("RegistrationFormViewer.layoutTab"), wrapper);

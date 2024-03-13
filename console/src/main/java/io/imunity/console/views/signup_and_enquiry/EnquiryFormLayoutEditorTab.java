@@ -7,6 +7,7 @@ package io.imunity.console.views.signup_and_enquiry;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.console.views.signup_and_enquiry.layout.FormLayoutEditor;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.FormLayoutUtils;
@@ -19,22 +20,33 @@ public class EnquiryFormLayoutEditorTab extends VerticalLayout
 {
 	private final MessageSource msg;
 	private final Supplier<EnquiryForm> formProvider;
+	private final NotificationPresenter notificationPresenter;
 	private Checkbox enableCustomLayout;
 	private FormLayoutEditor layoutEditor;
 	private boolean isInitialValueSet = false;
 
-	public EnquiryFormLayoutEditorTab(MessageSource msg, Supplier<EnquiryForm> formProvider)
+	public EnquiryFormLayoutEditorTab(MessageSource msg, Supplier<EnquiryForm> formProvider, NotificationPresenter notificationPresenter)
 	{
 		super();
 		this.msg = msg;
 		this.formProvider = formProvider;
+		this.notificationPresenter = notificationPresenter;
 
 		initUI();
 	}
 
 	private void initUI()
 	{
-		layoutEditor = new FormLayoutEditor(msg, () -> formProvider.get().getEffectiveFormLayout(msg));
+		layoutEditor = new FormLayoutEditor(msg, () ->
+		{
+			EnquiryForm enquiryForm = formProvider.get();
+			if(enquiryForm == null)
+			{
+				notificationPresenter.showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
+				return null;
+			}
+			return enquiryForm.getEffectiveFormLayout(msg);
+		});
 		layoutEditor.setSizeFull();
 		
 		enableCustomLayout = new Checkbox(msg.getMessage("FormLayoutEditor.enableCustom"));

@@ -5,7 +5,7 @@
 package io.imunity.console.views.signup_and_enquiry;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import io.imunity.console.tprofile.LayoutEmbeddable;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
@@ -36,7 +36,7 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	protected final MessageTemplateManagement msgTempMan;
 	
 	private Checkbox sendAdminCopy;
-	private ComboBox<Group> adminsNotificationGroup;
+	private Select<Group> adminsNotificationGroup;
 
 	private CompatibleTemplatesComboBox rejectedTemplate;
 	private CompatibleTemplatesComboBox acceptedTemplate;
@@ -61,10 +61,16 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	{
 		sendAdminCopy = new Checkbox(msg.getMessage("BaseFormNotificationsEditor.sendAdminCopy"));
 		
-		adminsNotificationGroup = new ComboBox<>(
-				msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"));
-		adminsNotificationGroup.setItemLabelGenerator(group -> group.getDisplayedName().getValue(msg));
-		adminsNotificationGroup.setRenderer(new ComponentRenderer<>(group -> new GroupItemPresentation(group, msg)));
+		adminsNotificationGroup = new Select<>();
+		adminsNotificationGroup.setLabel(msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"));
+		adminsNotificationGroup.setEmptySelectionAllowed(true);
+		adminsNotificationGroup.setItemLabelGenerator(group ->
+		{
+			if(group == null)
+				return "";
+			return group.getDisplayedName().getValue(msg);
+		});
+		adminsNotificationGroup.setRenderer(new ComponentRenderer<>(group -> new GroupItemLabel(group, msg)));
 		allGroups = groupsMan.getAllGroups();
 		adminsNotificationGroup.setItems(allGroups.values());
 		adminsNotificationGroup.setWidth(TEXT_FIELD_MEDIUM.value());

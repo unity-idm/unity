@@ -248,7 +248,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		targetGroups.setRequiredIndicatorVisible(true);
 		targetGroups.setWidth(TEXT_FIELD_BIG.value());
 		targetGroups.setItemLabelGenerator(group -> group.getDisplayedName().getValue(msg));
-		targetGroups.setRenderer(new ComponentRenderer<>(group -> new GroupItemPresentation(group, msg)));
+		targetGroups.setRenderer(new ComponentRenderer<>(group -> new GroupItemLabel(group, msg)));
 
 		targetCondition = new MVELExpressionField(msg,
 				msg.getMessage("EnquiryFormEditor.targetConditionDesc"),
@@ -312,7 +312,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private void initLayoutTab()
 	{
 		VerticalLayout wrapper = new VerticalLayout();
-		layoutEditor = new EnquiryFormLayoutEditorTab(msg, this::getEnquiryForm);
+		layoutEditor = new EnquiryFormLayoutEditorTab(msg, this::getEnquiryForm, notificationPresenter);
 		wrapper.setPadding(true);
 		wrapper.add(layoutEditor);
 		tabs.addSelectedChangeListener(event -> layoutEditor.updateFromForm());

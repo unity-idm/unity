@@ -16,6 +16,12 @@ import java.util.List;
 
 class FormAttributeGroupComboBox extends NotEmptyComboBox<FormAttributeGroupComboBox.GroupModel>
 {
+	record GroupModel(
+			String name,
+			String path
+	){}
+
+
 	private final List<GroupModel> groups;
 	private List<String> dynamicGroups;
 
@@ -25,7 +31,7 @@ class FormAttributeGroupComboBox extends NotEmptyComboBox<FormAttributeGroupComb
 		this.groups = new ArrayList<>(groups);
 		this.dynamicGroups = new ArrayList<>(dynamicGroups);
 		setItemLabelGenerator(group -> group.name);
-		setRenderer(new ComponentRenderer<>(group -> new GroupItemPresentation(group.name, group.path)));
+		setRenderer(new ComponentRenderer<>(group -> new GroupItemLabel(group.name, group.path)));
 		setInput(null);
 	}
 	
@@ -62,6 +68,4 @@ class FormAttributeGroupComboBox extends NotEmptyComboBox<FormAttributeGroupComb
 				setValue(processedGroups.get(0));
 		}
 	}
-
-	record GroupModel(String name, String path){}
 }

@@ -11,14 +11,14 @@ import pl.edu.icm.unity.base.message.MessageSource;
 
 import static io.imunity.vaadin.elements.CssClassNames.BOLD;
 
-class GroupItemPresentation extends Div
+class GroupItemLabel extends Div
 {
-	GroupItemPresentation(Group group, MessageSource msg)
+	GroupItemLabel(Group group, MessageSource msg)
 	{
 		this(group.getDisplayedName().getValue(msg), group.getPathEncoded());
 	}
 
-	GroupItemPresentation(String groupName, String groupPath)
+	GroupItemLabel(String groupName, String groupPath)
 	{
 		Div name = new Div();
 		name.setText(groupName);

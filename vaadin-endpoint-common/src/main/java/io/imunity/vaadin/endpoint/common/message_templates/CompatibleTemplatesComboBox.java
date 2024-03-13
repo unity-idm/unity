@@ -4,24 +4,23 @@
  */
 package io.imunity.vaadin.endpoint.common.message_templates;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.logging.log4j.Logger;
-
 import com.vaadin.flow.component.combobox.ComboBox;
-
+import com.vaadin.flow.component.select.Select;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.msg_template.MessageTemplate;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * A {@link ComboBox} showing only the templates which are compatible with a given description.
  * @author K. Benedyczak
  */
-public class CompatibleTemplatesComboBox extends ComboBox<String>
+public class CompatibleTemplatesComboBox extends Select<String>
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, CompatibleTemplatesComboBox.class);
 	
@@ -32,6 +31,7 @@ public class CompatibleTemplatesComboBox extends ComboBox<String>
 	{
 		this.msgTplMan = msgTplMan;
 		setDefinitionName(definitionName);
+		setEmptySelectionAllowed(true);
 	}
 	
 	public void setDefinitionName(String definitionName)

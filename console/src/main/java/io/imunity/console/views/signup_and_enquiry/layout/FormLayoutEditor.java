@@ -159,6 +159,8 @@ public class FormLayoutEditor extends VerticalLayout
 		if (layoutProvider == null)
 			return;
 		FormLayout formLayout = layoutProvider.get();
+		if (formLayout == null)
+			return;
 		setLayout(formLayout);
 	}
 	
