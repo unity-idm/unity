@@ -42,6 +42,7 @@ class SCIMServiceEditor implements ServiceEditor
 	private final List<AuthenticationFlowDefinition> flows;
 	private final List<AuthenticatorInfo> authenticators;
 	private final List<String> usedPaths;
+	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 	private final SubViewSwitcher subViewSwitcher;
 	private SCIMServiceEditorComponent editor;
@@ -49,7 +50,7 @@ class SCIMServiceEditor implements ServiceEditor
 	private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
 
 	SCIMServiceEditor(MessageSource msg, SubViewSwitcher subViewSwitcher, List<String> allRealms,
-			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths,
+			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths, List<String> usedNames,
 			Set<String> serverContextPaths, List<Group> allGroups,
 			SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory,
 			ConfigurationVaadinBeanMapper configurationVaadinBeanMapper)
@@ -59,6 +60,7 @@ class SCIMServiceEditor implements ServiceEditor
 		this.authenticators = authenticators;
 		this.flows = flows;
 		this.usedPaths = usedPaths;
+		this.usedNames = usedNames;
 		this.serverContextPaths = serverContextPaths;
 		this.allGroups = allGroups;
 		this.subViewSwitcher = subViewSwitcher;
@@ -71,7 +73,7 @@ class SCIMServiceEditor implements ServiceEditor
 	{
 
 		SCIMServiceEditorGeneralTab restAdminServiceEditorGeneralTab = new SCIMServiceEditorGeneralTab(msg,
-				SCIMEndpoint.TYPE, usedPaths, serverContextPaths, allGroups);
+				SCIMEndpoint.TYPE, usedPaths, usedNames, serverContextPaths, allGroups);
 
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding());
@@ -127,6 +129,7 @@ class SCIMServiceEditor implements ServiceEditor
 					flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 					authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 					endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(Collectors.toList()),
+					endpointMan.getEndpoints().stream().map(e -> e.getName()).collect(Collectors.toList()),
 					networkServer.getUsedContextPaths(),
 					bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values().stream()
 							.map(g -> g.getGroup()).collect(Collectors.toList()),

@@ -30,11 +30,13 @@ class WellKnownServiceEditor implements ServiceEditor
 	private final List<AuthenticationFlowDefinition> flows;
 	private final List<AuthenticatorInfo> authenticators;
 	private final List<String> usedEndpointsPaths;
+	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 	private WellKnownServiceEditorComponent editor;
 
 	WellKnownServiceEditor(MessageSource msg, List<String> allRealms,
-	                       List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths,
+	                       List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths, 
+	                       List<String> usedNames, 
 	                       Set<String> serverContextPaths)
 	{
 		this.msg = msg;
@@ -42,6 +44,7 @@ class WellKnownServiceEditor implements ServiceEditor
 		this.authenticators = List.copyOf(authenticators);
 		this.flows = List.copyOf(flows);
 		this.usedEndpointsPaths = List.copyOf(usedPaths);
+		this.usedNames = List.copyOf(usedNames);
 		this.serverContextPaths = serverContextPaths;
 	}
 
@@ -49,7 +52,7 @@ class WellKnownServiceEditor implements ServiceEditor
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
 		
-		GeneralTab generalTab = new GeneralTab(msg, SecuredSharedEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths);
+		GeneralTab generalTab = new GeneralTab(msg, SecuredSharedEndpointFactory.TYPE, usedEndpointsPaths, usedNames, serverContextPaths);
 		
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				SecuredSharedEndpointFactory.TYPE.getSupportedBinding());

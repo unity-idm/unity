@@ -35,17 +35,19 @@ class RestAdminServiceEditor implements ServiceEditor
 	private final List<AuthenticationFlowDefinition> flows;
 	private final List<AuthenticatorInfo> authenticators;
 	private final List<String> usedPaths;
+	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 	private RestAdminServiceEditorComponent editor;
 
 	RestAdminServiceEditor(MessageSource msg, List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, List<String> usedPaths, Set<String> serverContextPaths)
+			List<AuthenticatorInfo> authenticators, List<String> usedPaths, List<String> usedNames,  Set<String> serverContextPaths)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
 		this.flows = flows;
 		this.usedPaths = usedPaths;
+		this.usedNames = usedNames;
 		this.serverContextPaths = serverContextPaths;
 	}
 
@@ -54,7 +56,7 @@ class RestAdminServiceEditor implements ServiceEditor
 	{
 
 		RestAdminServiceEditorGeneralTab restAdminServiceEditorGeneralTab = new RestAdminServiceEditorGeneralTab(
-				msg, RESTAdminEndpoint.TYPE, usedPaths, serverContextPaths);
+				msg, RESTAdminEndpoint.TYPE, usedPaths, usedNames, serverContextPaths);
 
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding());

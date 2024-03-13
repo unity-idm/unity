@@ -104,6 +104,10 @@ class UpManServiceController extends DefaultServicesControllerBase implements Se
 						.stream()
 						.map(e -> e.getContextAddress())
 						.collect(Collectors.toList()),
+				endpointMan.getEndpoints()
+						.stream()
+						.map(e -> e.getName())
+						.collect(Collectors.toList()),
 				server.getUsedContextPaths(), authenticatorSupportService);
 	}
 

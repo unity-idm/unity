@@ -5,6 +5,7 @@
 
 package io.imunity.home.views.sign_in;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -12,9 +13,11 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
@@ -106,19 +109,33 @@ public class SignInView extends HomeViewComponent
 			layout.add(create2ndFactorOptInComponent(theUser.getEntityId()));
 
 		if(!outdatedCredentialDefinition.isEmpty())
-			layout.add(new H2(msg.getMessage("UserHomeUI.credentialRequiringUpdate")), createPanelLayout(outdatedCredentialDefinition));
+			layout.add(getDetailsPanel(new H2(msg.getMessage("UserHomeUI.credentialRequiringUpdate")), createPanelLayout(outdatedCredentialDefinition), false));
 
-		layout.add(new H2(msg.getMessage("UserHomeUI.signInCredentials")), createPanelLayout(correctCredentialDefinition));
+	
+		layout.add(getDetailsPanel(new H2(msg.getMessage("UserHomeUI.signInCredentials")), createPanelLayout(correctCredentialDefinition), true));
 
-		Details details = new Details(getH2(msg.getMessage("UserHomeUI.addAnotherSignInCredentials")), createPanelLayout(notSetCredentialDefinition));
-		details.getStyle().set("margin-top", SMALL_MARGIN.value());
-		details.setWidthFull();
-		layout.add(details);
+		if (!notSetCredentialDefinition.isEmpty())
+		{
+			layout.add(new HorizontalLayout());
+			layout.add(new HorizontalLayout());
+			layout.add(new HorizontalLayout());
+			layout.add(getDetailsPanel(getH2(msg.getMessage("UserHomeUI.addAnotherSignInCredentials")),
+					createPanelLayout(notSetCredentialDefinition), false));
+		}
 		layout.setSizeUndefined();
 		layout.setId("credential-layout");
 		getContent().add(layout);
 	}
 
+	private Details getDetailsPanel(Component summary, Component content, boolean opened)
+	{
+		Details details = new Details(summary, content);
+		details.getStyle().set("margin-top", SMALL_MARGIN.value());
+		details.setWidthFull();
+		details.setOpened(opened);
+		return details;
+	}
+	
 	private H2 getH2(String title)
 	{
 		H2 summary = new H2(title);

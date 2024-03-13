@@ -63,6 +63,9 @@ class RestAdminServiceController extends DefaultServicesControllerBase implement
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress())
-						.collect(Collectors.toList()), networkServer.getUsedContextPaths());
+						.collect(Collectors.toList()),
+				endpointMan.getEndpoints().stream().map(e -> e.getName())
+						.collect(Collectors.toList()),
+				networkServer.getUsedContextPaths());
 	}
 }

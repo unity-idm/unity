@@ -33,10 +33,10 @@ class UpmanRestServiceEditorGeneralTab extends GeneralTab
 	private final List<String> attributes;
 
 	public UpmanRestServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type,
-			List<String> usedEndpointsPaths, Set<String> serverContextPaths, List<Group> allGroups,
+			List<String> usedEndpointsPaths, List<String> usedNames,  Set<String> serverContextPaths, List<Group> allGroups,
 			List<String> attributes)
 	{
-		super(msg, type, usedEndpointsPaths, serverContextPaths);
+		super(msg, type, usedEndpointsPaths, usedNames, serverContextPaths);
 		this.allGroups = allGroups;
 		this.attributes = attributes;
 	}

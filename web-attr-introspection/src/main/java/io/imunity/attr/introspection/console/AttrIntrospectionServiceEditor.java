@@ -33,6 +33,7 @@ public class AttrIntrospectionServiceEditor implements ServiceEditor
 {
 	private final MessageSource msg;
 	private final List<String> usedEndpointsPaths;
+	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 	private final AuthenticatorSupportService authenticatorSupportService;
 	private final Supplier<Set<String>> authnOptionSupplier;
@@ -42,13 +43,14 @@ public class AttrIntrospectionServiceEditor implements ServiceEditor
 	private final UnityServerConfiguration serverConfig;
 	private AttrIntrospectionEditorComponent editor;
 
-	public AttrIntrospectionServiceEditor(MessageSource msg, List<String> usedPaths, Set<String> serverContextPaths,
+	public AttrIntrospectionServiceEditor(MessageSource msg, List<String> usedPaths, List<String> usedNames, Set<String> serverContextPaths,
 			AuthenticatorSupportService authenticatorSupportService, Supplier<Set<String>> authnOptionSupplier,
 			Supplier<List<IdPInfo>> providersSupplier, FileStorageService fileStorageService,
 			VaadinLogoImageLoader imageAccessService, UnityServerConfiguration serverConfig)
 	{
 		this.msg = msg;
 		this.usedEndpointsPaths = usedPaths;
+		this.usedNames = usedNames;
 		this.serverContextPaths = serverContextPaths;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.authnOptionSupplier = authnOptionSupplier;
@@ -61,7 +63,7 @@ public class AttrIntrospectionServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		GeneralTab generalTab = new GeneralTab(msg, AttrIntrospectionEndpointFactory.TYPE, usedEndpointsPaths,
+		GeneralTab generalTab = new GeneralTab(msg, AttrIntrospectionEndpointFactory.TYPE, usedEndpointsPaths, usedNames,
 				serverContextPaths);
 		AuthenticationOptionsTab authenticationOptionsTab = new AuthenticationOptionsTab(msg, serverConfig,
 				authenticatorSupportService, authnOptionSupplier);

@@ -264,7 +264,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 		if (configuredMainTitle != null && !configuredMainTitle.isEmpty())
 		{
 			mainTitle = String.format(configuredMainTitle, serviceName);
-		} else if (configuredMainTitle == null)
+		} else 
 		{
 			mainTitle = msg.getMessage("AuthenticationUI.login", serviceName);
 		}

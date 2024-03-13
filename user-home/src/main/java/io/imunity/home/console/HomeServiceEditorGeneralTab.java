@@ -44,12 +44,12 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 	private MultiSelectComboBox<String> enabledControls;
 	private Checkbox allowRemovalSheduling;
 
-	public HomeServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths,
+	public HomeServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, List<String> usedNames,
 			Set<String> serverContextPaths, List<String> allAttributes, List<String> allImageAttributes,
 			List<Group> allGroups, List<String> upManServices, List<String> enquiryForms,
 			List<String> registrationForms)
 	{
-		super(msg, type, usedEndpointsPaths, serverContextPaths);
+		super(msg, type, usedEndpointsPaths, usedNames, serverContextPaths);
 		this.allAttributes = allAttributes;
 		this.allImageAttributes = allImageAttributes;
 		this.allGroups = allGroups;

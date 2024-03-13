@@ -39,6 +39,7 @@ public class WebServiceEditor implements ServiceEditor
 	private final UnityServerConfiguration serverConfig;
 	private final AuthenticatorSupportService authenticatorSupportService;
 	private final List<String> usedPaths;
+	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 	private final EndpointTypeDescription type;
 	private final String defaultMainTheme;
@@ -49,7 +50,8 @@ public class WebServiceEditor implements ServiceEditor
 			VaadinLogoImageLoader imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
-			List<AuthenticatorInfo> authenticators, List<String> registrationForms, List<String> usedPaths, Set<String> serverContextPaths,
+			List<AuthenticatorInfo> authenticators, List<String> registrationForms, List<String> usedPaths, List<String> usedNames,
+			Set<String> serverContextPaths,
 			AuthenticatorSupportService authenticatorSupportService, String defaultMainTheme)
 	{
 		this.msg = msg;
@@ -62,6 +64,7 @@ public class WebServiceEditor implements ServiceEditor
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.usedPaths = usedPaths;
+		this.usedNames = usedNames;
 		this.serverContextPaths = serverContextPaths;
 		this.type = type;
 		this.defaultMainTheme = defaultMainTheme;
@@ -71,7 +74,7 @@ public class WebServiceEditor implements ServiceEditor
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
 
-		GeneralTab generalTab = new GeneralTab(msg, type, usedPaths, serverContextPaths);
+		GeneralTab generalTab = new GeneralTab(msg, type, usedPaths, usedNames, serverContextPaths);
 		WebServiceAuthenticationTab webServiceAuthenticationTab = new WebServiceAuthenticationTab(msg,
 				serverConfig, authenticatorSupportService, flows, authenticators,
 				allRealms, registrationForms, type.getSupportedBinding());
