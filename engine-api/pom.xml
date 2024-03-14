@@ -65,10 +65,6 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty.ee8</groupId>
-			<artifactId>jetty-ee8-servlet</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.eclipse.jetty.ee10</groupId>
 			<artifactId>jetty-ee10-servlet</artifactId>
 		</dependency>

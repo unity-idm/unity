@@ -5,15 +5,12 @@
 package pl.edu.icm.unity.saml.idp.ecp;
 
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.common.collect.Lists;
+import com.nimbusds.jwt.JWTClaimsSet;
+import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import eu.unicore.util.httpclient.DefaultClientConfiguration;
+import eu.unicore.util.httpclient.HttpUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.hc.client5.http.ContextBuilder;
 import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
 import org.apache.hc.client5.http.classic.HttpClient;
@@ -34,13 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-
-import com.google.common.collect.Lists;
-import com.nimbusds.jwt.JWTClaimsSet;
-
-import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
-import eu.unicore.util.httpclient.DefaultClientConfiguration;
-import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -63,6 +53,12 @@ import pl.edu.icm.unity.saml.xmlbeans.ecp.RelayStateDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class TestECP extends AbstractTestIdpBase
 {

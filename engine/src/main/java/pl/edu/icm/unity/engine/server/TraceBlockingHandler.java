@@ -8,8 +8,7 @@
  **********************************************************************/
 package pl.edu.icm.unity.engine.server;
 
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;

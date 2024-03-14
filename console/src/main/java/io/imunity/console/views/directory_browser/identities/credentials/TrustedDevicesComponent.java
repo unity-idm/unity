@@ -20,7 +20,7 @@ import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessorEE8;
+import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 
@@ -132,7 +132,7 @@ class TrustedDevicesComponent extends VerticalLayout
 		List<Token> tokens;
 		try
 		{
-			tokens = tokenMan.getOwnedTokens(RememberMeProcessorEE8.REMEMBER_ME_TOKEN_TYPE,
+			tokens = tokenMan.getOwnedTokens(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE,
 					new EntityParam(entityId));
 		} catch (Exception e)
 		{
@@ -162,7 +162,7 @@ class TrustedDevicesComponent extends VerticalLayout
 		try
 		{
 			List<Token> tokens = tokenMan
-					.getOwnedTokens(RememberMeProcessorEE8.REMEMBER_ME_TOKEN_TYPE, new EntityParam(entityId));
+					.getOwnedTokens(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE, new EntityParam(entityId));
 			tokensGrid.setItems(tokens.stream().map(t -> new TableTokensBean(t, msg)).toList());
 			tokensGrid.deselectAll();
 		} catch (Exception e)
@@ -177,7 +177,7 @@ class TrustedDevicesComponent extends VerticalLayout
 	{
 		try
 		{
-			tokenMan.removeToken(RememberMeProcessorEE8.REMEMBER_ME_TOKEN_TYPE, value);
+			tokenMan.removeToken(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE, value);
 			refresh();
 		} catch (Exception e)
 		{

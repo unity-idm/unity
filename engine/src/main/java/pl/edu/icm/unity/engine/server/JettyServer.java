@@ -7,11 +7,10 @@ package pl.edu.icm.unity.engine.server;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.jetty.SecuredServerConnector;
+import jakarta.servlet.ServletException;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee8.servlet.FilterHolder;
-import org.eclipse.jetty.ee8.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee8.servlets.CrossOriginFilter;
-import org.eclipse.jetty.ee8.servlets.DoSFilter;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
+import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http.UriCompliance.Violation;
@@ -34,13 +33,8 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
-import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointEE8Instance;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -63,12 +57,10 @@ public class JettyServer implements Lifecycle, NetworkServer
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
-	private List<WebAppEndpointEE8Instance> deployedEE8Endpoints;
 	private Map<String, org.eclipse.jetty.server.Handler> usedContextPaths;
 	private ContextHandlerCollection mainContextHandler;
 	private FilterHolder dosFilter = null;
-	private org.eclipse.jetty.ee10.servlet.FilterHolder dosFilter10 = null;
-	private String defaultWebContentsPath;
+	private final String defaultWebContentsPath;
 
 	private final URL[] listenUrls;
 	private final IAuthnAndTrustConfiguration securityConfiguration;
@@ -96,9 +88,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		this.serverSettings = serverSettings;
 		this.defaultWebContentsPath = defaultWebContentsPath;
 		initServer();
-		dosFilter = createDoSFilterInstance();
-		dosFilter10 = createDoSFilterInstance10();
-		addRedirectHandler();
+		dosFilter = createDoSFilterInstance10();
 	}
 	
 	@Override
@@ -415,18 +405,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 		usedContextPaths = new HashMap<>();
 		mainContextHandler = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<>(16);
-		deployedEE8Endpoints = new ArrayList<>(16);
-	}
-
-	private void addRedirectHandler() throws ConfigurationException
-	{
-		try
-		{
-			deployHandler(new RedirectHandler(defaultWebContentsPath), "sys:redirect");
-		} catch (EngineException e)
-		{
-			log.error("Cannot deploy redirect handler " + e.getMessage(), e);
-		}
 	}
 
 	/**
@@ -443,49 +421,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	}
 
 	@Override
-	public synchronized void deployEndpoint(WebAppEndpointEE8Instance endpoint)
-			throws EngineException
-	{
-		ServletContextHandler handler = endpoint.getServletContextHandler();
-		deployHandler(handler, endpoint.getEndpointDescription().getName());
-		deployedEE8Endpoints.add(endpoint);
-	}
-
-	/**
-	 * Deploys a simple handler. It is only checked if the context path is free.
-	 */
-	@Override
 	public synchronized void deployHandler(ServletContextHandler handler, String endpointId)
-			throws EngineException
-	{
-		String contextPath = handler.getContextPath();
-		if (usedContextPaths.containsKey(contextPath))
-		{
-			throw new WrongArgumentException("There are (at least) two web " +
-					"applications configured at the same context path: " + contextPath);
-		}
-
-		addDoSFilter(handler);
-		addCORSFilter(handler);
-
-		ClientIPSettingHandler clientIPSettingHandler = applyClientIPDiscoveryHandler(handler.get(), endpointId);
-		mainContextHandler.addHandler(clientIPSettingHandler);
-		if(theServer.isStarted())
-		{
-			try
-			{
-				clientIPSettingHandler.start();
-			} catch (Exception e)
-			{
-				mainContextHandler.removeHandler(clientIPSettingHandler);
-				throw new EngineException("Can not start handler", e);
-			}
-		}
-		usedContextPaths.put(contextPath, clientIPSettingHandler);
-	}
-
-	@Override
-	public synchronized void deployHandler(org.eclipse.jetty.ee10.servlet.ServletContextHandler handler, String endpointId)
 			throws EngineException
 	{
 		String contextPath = handler.getContextPath();
@@ -555,8 +491,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 	{
 		if(deployedEndpoints.stream().anyMatch(endp -> endp.getEndpointDescription().getName().equals(id)))
 			undeployEE10Endpoint(id);
-		else if(deployedEE8Endpoints.stream().anyMatch(endp -> endp.getEndpointDescription().getName().equals(id)))
-			undeployEE8Endpoint(id);
 		else
 			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
 	}
@@ -589,52 +523,10 @@ public class JettyServer implements Lifecycle, NetworkServer
 		deployedEndpoints.remove(endpoint);
 	}
 
-	private void undeployEE8Endpoint(String id) throws EngineException
-	{
-		WebAppEndpointEE8Instance endpoint = null;
-		for (WebAppEndpointEE8Instance endp: deployedEE8Endpoints)
-		{
-			if (endp.getEndpointDescription().getName().equals(id))
-			{
-				endpoint = endp;
-				break;
-			}
-		}
-		if (endpoint == null)
-			throw new WrongArgumentException("There is no deployed endpoint with id " + id);
-
-		String contextPath = endpoint.getEndpointDescription().getEndpoint().getContextAddress();
-		org.eclipse.jetty.server.Handler handler = usedContextPaths.get(contextPath);
-		try
-		{
-			handler.stop();
-		} catch (Exception e)
-		{
-			throw new EngineException("Can not stop handler", e);
-		}
-		mainContextHandler.removeHandler(handler);
-		usedContextPaths.remove(contextPath);
-		deployedEE8Endpoints.remove(endpoint);
-	}
-
 	@Override
 	public Set<String> getUsedContextPaths()
 	{
 		return usedContextPaths.keySet();
-	}
-
-	private FilterHolder createDoSFilterInstance()
-	{
-		if (!serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_DOS_FILTER))
-			return null;
-		FilterHolder holder = new FilterHolder(new DoSFilter());
-		Set<String> keys = serverSettings.getSortedStringKeys(UnityHttpServerConfiguration.DOS_FILTER_PFX);
-		for (String key: keys)
-			holder.setInitParameter(key.substring(
-						UnityHttpServerConfiguration.PREFIX.length() +
-						UnityHttpServerConfiguration.DOS_FILTER_PFX.length()),
-					serverSettings.getProperty(key));
-		return holder;
 	}
 
 	private org.eclipse.jetty.ee10.servlet.FilterHolder createDoSFilterInstance10()
@@ -656,66 +548,11 @@ public class JettyServer implements Lifecycle, NetworkServer
 		if (dosFilter != null)
 		{
 			log.info("Enabling DoS filter on context " + handler.getContextPath());
-			handler.addFilter(dosFilter, "/*", EnumSet.of(DispatcherType.REQUEST));
-		}
-	}
-
-	private void addDoSFilter(org.eclipse.jetty.ee10.servlet.ServletContextHandler handler)
-	{
-		if (dosFilter != null)
-		{
-			log.info("Enabling DoS filter on context " + handler.getContextPath());
-			handler.addFilter(dosFilter10, "/*", EnumSet.of(jakarta.servlet.DispatcherType.REQUEST));
+			handler.addFilter(dosFilter, "/*", EnumSet.of(jakarta.servlet.DispatcherType.REQUEST));
 		}
 	}
 
 	private void addCORSFilter(ServletContextHandler handler)
-	{
-		boolean enable = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_CORS);
-		if (!enable)
-			return;
-
-		log.info("Enabling CORS");
-		CrossOriginFilter cors = new CrossOriginFilter();
-		FilterConfig config = new FilterConfig()
-		{
-
-			@Override
-			public ServletContext getServletContext()
-			{
-				throw new UnsupportedOperationException("Not implemented");
-			}
-
-			@Override
-			public Enumeration<String> getInitParameterNames()
-			{
-				throw new UnsupportedOperationException("Not implemented");
-			}
-
-			@Override
-			public String getInitParameter(String name)
-			{
-				return serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + name);
-			}
-
-			@Override
-			public String getFilterName()
-			{
-				return "CORS";
-			}
-		};
-		try
-		{
-			cors.init(config);
-		} catch (ServletException e)
-		{
-			throw new ConfigurationException("Error setting up CORS", e);
-		}
-		FilterHolder filterHolder = new FilterHolder(cors);
-		handler.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
-	}
-
-	private void addCORSFilter(org.eclipse.jetty.ee10.servlet.ServletContextHandler handler)
 	{
 		boolean enable = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_CORS);
 		if (!enable)
@@ -753,7 +590,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		try
 		{
 			cors.init(config);
-		} catch (jakarta.servlet.ServletException e)
+		} catch (ServletException e)
 		{
 			throw new ConfigurationException("Error setting up CORS", e);
 		}

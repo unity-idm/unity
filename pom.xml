@@ -401,18 +401,8 @@
 			</dependency>
 
 			<dependency>
-				<groupId>org.eclipse.jetty.ee8</groupId>
-				<artifactId>jetty-ee8-servlet</artifactId>
-				<version>${jetty.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.eclipse.jetty.websocket</groupId>
 				<artifactId>jetty-websocket-jetty-server</artifactId>
-				<version>${jetty.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.jetty.ee8.websocket</groupId>
-				<artifactId>jetty-ee8-websocket-jetty-server</artifactId>
 				<version>${jetty.version}</version>
 			</dependency>
 			<dependency>
@@ -421,28 +411,8 @@
 				<version>${jetty.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>org.eclipse.jetty.ee8</groupId>
-				<artifactId>jetty-ee8-servlets</artifactId>
-				<version>${jetty.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.jetty.ee8</groupId>
-				<artifactId>jetty-ee8-apache-jsp</artifactId>
-				<version>${jetty.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.jetty.ee8</groupId>
-				<artifactId>jetty-ee8-webapp</artifactId>
-				<version>${jetty.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.eclipse.jetty.ee10</groupId>
 				<artifactId>jetty-ee10-servlets</artifactId>
-				<version>${jetty.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.jetty.ee8.websocket</groupId>
-				<artifactId>jetty-ee8-websocket-javax-server</artifactId>
 				<version>${jetty.version}</version>
 			</dependency>
 			<dependency>

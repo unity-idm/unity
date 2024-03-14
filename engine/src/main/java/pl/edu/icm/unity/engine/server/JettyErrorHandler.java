@@ -4,15 +4,9 @@
  */
 package pl.edu.icm.unity.engine.server;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.servlet.RequestDispatcher;
-
+import freemarker.ext.beans.BeansWrapperBuilder;
+import freemarker.template.Configuration;
+import jakarta.servlet.RequestDispatcher;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.http.HttpStatus;
 import org.eclipse.jetty.io.ByteBufferOutputStream;
@@ -22,11 +16,15 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.util.Callback;
-
-import freemarker.ext.beans.BeansWrapperBuilder;
-import freemarker.template.Configuration;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
+
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Custom error handler implementation for Jetty. 

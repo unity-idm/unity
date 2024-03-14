@@ -49,9 +49,7 @@ public abstract class AbstractWebEndpoint extends AbstractEndpoint
 	public final void start() throws EngineException
 	{
 		startOverridable();
-		if(this instanceof WebAppEndpointEE8Instance ee8)
-			httpServer.deployEndpoint(ee8);
-		else if(this instanceof WebAppEndpointInstance ee10)
+		if(this instanceof WebAppEndpointInstance ee10)
 			httpServer.deployEndpoint(ee10);
 		else
 			throw new IllegalStateException("Endpoint have to implement one of WebAppEndpointEEInstance");
