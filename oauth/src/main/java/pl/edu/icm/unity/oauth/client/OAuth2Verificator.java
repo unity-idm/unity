@@ -54,7 +54,7 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthn
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 
 import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;

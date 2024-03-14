@@ -6,13 +6,17 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.server.*;
+import com.vaadin.flow.server.SynchronizedRequestHandler;
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinResponse;
+import com.vaadin.flow.server.VaadinServletResponse;
+import com.vaadin.flow.server.VaadinSession;
+import io.imunity.vaadin.endpoint.common.EopException;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 import java.io.IOException;
 import java.io.PrintWriter;

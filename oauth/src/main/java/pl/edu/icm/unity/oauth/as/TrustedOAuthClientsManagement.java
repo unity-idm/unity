@@ -8,7 +8,7 @@ package pl.edu.icm.unity.oauth.as;
 import io.imunity.idp.*;
 import io.imunity.idp.IdPClientData.AccessStatus;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpUsersHelper;
+import io.imunity.vaadin.auth.services.idp.IdpUsersHelper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
+import io.imunity.vaadin.endpoint.common.consent_utils.URIPresentationHelper;
 
 import java.io.IOException;
 import java.io.StringReader;

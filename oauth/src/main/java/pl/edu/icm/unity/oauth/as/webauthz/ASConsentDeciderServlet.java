@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as.webauthz;
 
 import com.nimbusds.oauth2.sdk.*;
+import io.imunity.vaadin.endpoint.common.EopException;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequestWrapper;
@@ -31,13 +32,12 @@ import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Optional;
 
-import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
+import static io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.noSignInContextException;
 
 /**
  * Invoked after authentication, main OAuth AS servlet. It decides whether the

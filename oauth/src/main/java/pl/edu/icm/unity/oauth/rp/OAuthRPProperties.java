@@ -4,20 +4,15 @@
  */
 package pl.edu.icm.unity.oauth.rp;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.logging.log4j.Logger;
-
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
-
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -30,7 +25,10 @@ import pl.edu.icm.unity.oauth.rp.verificator.InternalTokenVerificator;
 import pl.edu.icm.unity.oauth.rp.verificator.MitreTokenVerificator;
 import pl.edu.icm.unity.oauth.rp.verificator.TokenVerificatorProtocol;
 import pl.edu.icm.unity.oauth.rp.verificator.UnityTokenVerificator;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Configuration of OAuth RP-alike authenticator.

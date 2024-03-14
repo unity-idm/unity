@@ -6,14 +6,14 @@
 package pl.edu.icm.unity.oauth.as.console;
 
 import com.vaadin.flow.data.binder.Binder;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.ServiceWebConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpEditorUsersTab;
-import io.imunity.vaadin.endpoint.common.api.services.idp.PolicyAgreementsTab;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthenticationTab;
+import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceEditorBase;
+import io.imunity.vaadin.auth.services.layout.ServiceWebConfiguration;
+import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
+import io.imunity.vaadin.auth.services.idp.IdpEditorUsersTab;
+import io.imunity.vaadin.auth.services.idp.PolicyAgreementsTab;
+import io.imunity.vaadin.auth.services.tabs.WebServiceAuthenticationTab;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.commons.lang3.RandomStringUtils;
 import pl.edu.icm.unity.base.group.Group;
@@ -24,8 +24,8 @@ import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.console.OAuthClient.OAuthClientsBean;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -8,12 +8,11 @@ import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 import java.util.HashMap;
 import java.util.Map;

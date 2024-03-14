@@ -4,24 +4,17 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.apache.logging.log4j.Logger;
-
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
-
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -32,7 +25,8 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.PlainProfileFetcher;
 import pl.edu.icm.unity.oauth.oidc.metadata.OIDCMetadataRequest;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+
+import java.util.*;
 
 /**
  * Configuration of OAuth client for custom provider.

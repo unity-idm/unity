@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import io.imunity.vaadin.endpoint.common.EopException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 import java.io.IOException;
 import java.io.PrintWriter;

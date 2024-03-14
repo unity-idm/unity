@@ -40,7 +40,7 @@ import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
-import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
+import io.imunity.vaadin.endpoint.common.consent_utils.URIPresentationHelper;
 
 import java.io.ByteArrayInputStream;
 import java.time.Instant;

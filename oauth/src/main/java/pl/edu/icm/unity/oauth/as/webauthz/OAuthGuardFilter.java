@@ -4,14 +4,13 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import io.imunity.vaadin.endpoint.common.VaadinRequestMatcher;
+import io.imunity.vaadin.endpoint.common.EopException;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -52,13 +51,6 @@ public class OAuthGuardFilter implements Filter
 			throw new ServletException("This filter can be used only for HTTP servlets");
 		HttpServletRequest request = (HttpServletRequest) requestBare;
 		HttpServletResponse response = (HttpServletResponse) responseBare;
-		
-		if (VaadinRequestMatcher.isVaadinRequest(request))
-		{
-			log.trace("Ignoring request to Vaadin internal address {}", request.getRequestURI());
-			chain.doFilter(request, response);
-			return;
-		}
 		
 		Optional<OAuthAuthzContext> context = OAuthSessionService.getContext(request); 
 		if (!context.isPresent())

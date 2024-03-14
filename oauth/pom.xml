@@ -84,22 +84,7 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-console-utils</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-console-utils</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-console-spi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

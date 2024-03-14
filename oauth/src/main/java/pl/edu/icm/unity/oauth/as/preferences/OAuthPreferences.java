@@ -8,10 +8,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import io.imunity.vaadin.endpoint.common.consent_utils.IdPPreferences;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.webui.idpcommon.IdPPreferences;
 
 import java.time.Instant;
 import java.util.*;
@@ -28,7 +28,6 @@ public class OAuthPreferences extends IdPPreferences
 
 	private Map<String, OAuthClientSettings> spSettings = new HashMap<>();
 
-	@Override
 	protected void serializeAll(ObjectNode main)
 	{
 		ObjectNode settingsN = main.withObjectProperty("spSettings");
@@ -36,7 +35,6 @@ public class OAuthPreferences extends IdPPreferences
 			settingsN.set(entry.getKey(), entry.getValue().serialize());
 	}
 
-	@Override
 	protected void deserializeAll(ObjectNode main)
 	{
 		ObjectNode spSettingsNode = main.withObjectProperty("spSettings");

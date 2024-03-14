@@ -11,10 +11,10 @@ import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
-import pl.edu.icm.unity.oauth.client.console.v8.OAuthBaseConfiguration;
+import pl.edu.icm.unity.oauth.client.console.OAuthBaseConfiguration;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties.VerificationProtocol;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 
 import java.io.IOException;
 import java.io.StringReader;

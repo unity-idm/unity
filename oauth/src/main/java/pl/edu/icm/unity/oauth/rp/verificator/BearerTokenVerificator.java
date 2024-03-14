@@ -4,39 +4,21 @@
  */
 package pl.edu.icm.unity.oauth.rp.verificator;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Properties;
-
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
-
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
-import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.*;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
@@ -47,7 +29,15 @@ import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.oauth.rp.verificator.ResultsCache.CacheEntry;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Properties;
 
 /**
  * Verificator of bearer access token.
@@ -102,7 +92,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			verificatorProperties = new OAuthRPProperties(properties, pkiMan, tokensDAO);
 			tokenChecker = verificatorProperties.getTokenChecker();
 			translationProfile = getTranslationProfile(verificatorProperties, CommonWebAuthnProperties.TRANSLATION_PROFILE,
-					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);			
+					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 			int ttl = -1;
 			if (verificatorProperties.isSet(OAuthRPProperties.CACHE_TIME))
 				ttl = verificatorProperties.getIntValue(OAuthRPProperties.CACHE_TIME);
