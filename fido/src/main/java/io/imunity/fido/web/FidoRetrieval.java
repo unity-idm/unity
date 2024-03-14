@@ -18,13 +18,13 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.fido.FidoExchange;
 import io.imunity.fido.service.FidoCredentialVerificator;
 import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.auth.extensions.SMSRetrievalProperties;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -33,7 +33,6 @@ import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties;
 
 import java.io.StringReader;
 import java.util.Collection;

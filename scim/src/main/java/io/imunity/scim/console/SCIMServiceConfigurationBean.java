@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import io.imunity.scim.console.mapping.SchemaWithMappingBean;
 import io.imunity.scim.schema.DefaultSchemaProvider;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
+import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
 import pl.edu.icm.unity.base.group.Group;
 
 public class SCIMServiceConfigurationBean

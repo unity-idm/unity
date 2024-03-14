@@ -5,15 +5,15 @@
 
 package io.imunity.vaadin.secured_shared_endpoint.console;
 
-import com.vaadin.data.Binder;
+import com.vaadin.flow.data.binder.Binder;
+import io.imunity.vaadin.auth.services.*;
+import io.imunity.vaadin.auth.services.tabs.AuthenticationTab;
+import io.imunity.vaadin.auth.services.tabs.GeneralTab;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.secured_shared_endpoint.SecuredSharedEndpointFactory;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.console.services.*;
-import pl.edu.icm.unity.webui.console.services.tabs.AuthenticationTab;
-import pl.edu.icm.unity.webui.console.services.tabs.GeneralTab;
 
 import java.util.List;
 import java.util.Set;

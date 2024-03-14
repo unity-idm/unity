@@ -20,9 +20,9 @@ import com.vaadin.flow.data.binder.ValidationResult;
 
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.TooltipFactory;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.idp.MandatoryGroupSelection;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.GeneralTab;
+import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
+import io.imunity.vaadin.auth.services.idp.MandatoryGroupSelection;
+import io.imunity.vaadin.auth.services.tabs.GeneralTab;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;

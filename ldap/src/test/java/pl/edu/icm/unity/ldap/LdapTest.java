@@ -4,53 +4,14 @@
  */
 package pl.edu.icm.unity.ldap;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.ADV_SEARCH_ATTRIBUTES;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.ADV_SEARCH_BASE;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.ADV_SEARCH_FILTER;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.ADV_SEARCH_PFX;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.ATTRIBUTES;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.BIND_AS;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.BIND_ONLY;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.CONNECTION_MODE;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.GROUPS_BASE_NAME;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.GROUP_DEFINITION_MATCHBY_MEMBER_ATTR;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.GROUP_DEFINITION_MEMBER_ATTR;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.GROUP_DEFINITION_NAME_ATTR;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.GROUP_DEFINITION_OC;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.GROUP_DEFINITION_PFX;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.MEMBER_OF_ATTRIBUTE;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.MEMBER_OF_GROUP_ATTRIBUTE;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.PORTS;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.PREFIX;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.SERVERS;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.SYSTEM_DN;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.SYSTEM_PASSWORD;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.TLS_TRUST_ALL;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.TRUSTSTORE;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.USER_DN_SEARCH_KEY;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.USER_DN_TEMPLATE;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.VALID_USERS_FILTER;
-import static pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties.TRANSLATION_PROFILE;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.regex.Pattern;
-
+import com.unboundid.ldap.listener.InMemoryDirectoryServer;
+import com.unboundid.ldap.sdk.LDAPException;
+import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
-import com.unboundid.ldap.listener.InMemoryDirectoryServer;
-import com.unboundid.ldap.sdk.LDAPException;
-
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
-import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
@@ -60,7 +21,16 @@ import pl.edu.icm.unity.ldap.client.LdapClient;
 import pl.edu.icm.unity.ldap.client.LdapUtils;
 import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties;
-import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
+
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.regex.Pattern;
+
+import static io.imunity.vaadin.auth.CommonWebAuthnProperties.TRANSLATION_PROFILE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static pl.edu.icm.unity.ldap.client.config.LdapProperties.*;
 
 public class LdapTest
 {

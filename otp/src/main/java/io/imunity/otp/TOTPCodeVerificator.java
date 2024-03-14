@@ -4,8 +4,6 @@
  */
 package io.imunity.otp;
 
-import io.imunity.otp.v8.TOTPCodeGenerator;
-
 public class TOTPCodeVerificator
 {
 	public static boolean verifyCode(String code, String secret, OTPGenerationParams params, int allowedDriftSteps)

@@ -5,22 +5,19 @@
 
 package io.imunity.vaadin.account_association;
 
-import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
-
-import org.springframework.stereotype.Service;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinServlet;
-
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.wizard.Wizard;
 import io.imunity.vaadin.elements.wizard.WizardStepPreparer;
+import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.sandbox.SandboxAuthnLaunchStep;
+import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
@@ -45,7 +42,7 @@ class AssociationAccountWizardProviderImpl implements AssociationAccountWizardPr
 	{
 		String contextPath = VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath();
 		Runnable sandBoxNewPageOpener = () -> UI.getCurrent().getPage()
-				.executeJs("window.open('"+ contextPath + SANDBOX_PATH_ASSOCIATION + "/', '_blank', 'resizable,status=0,location=0')");
+				.executeJs("window.open('"+ contextPath + Vaadin2XEndpoint.SANDBOX_PATH_ASSOCIATION + "/', '_blank', 'resizable,status=0,location=0')");
 		SandboxAuthnRouter router = Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter();
 
 		return Wizard.builder()
@@ -82,7 +79,7 @@ class AssociationAccountWizardProviderImpl implements AssociationAccountWizardPr
 	{
 		String contextPath = VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath();
 		Runnable sandBoxNewPageOpener = () -> UI.getCurrent().getPage()
-				.executeJs("window.open('"+ contextPath + SANDBOX_PATH_ASSOCIATION + "/', '_blank', 'resizable,status=0,location=0')");
+				.executeJs("window.open('"+ contextPath + Vaadin2XEndpoint.SANDBOX_PATH_ASSOCIATION + "/', '_blank', 'resizable,status=0,location=0')");
 		SandboxAuthnRouter router = Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter();
 
 		return Wizard.builder()

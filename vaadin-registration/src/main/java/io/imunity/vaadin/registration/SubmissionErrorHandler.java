@@ -8,7 +8,6 @@ package io.imunity.vaadin.registration;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 class SubmissionErrorHandler
 {
@@ -27,7 +26,7 @@ class SubmissionErrorHandler
 			}
 		} else
 		{
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			notificationPresenter.showError(msg.getMessage("Generic.formError"), e.getMessage());
 		}
 	}
 }

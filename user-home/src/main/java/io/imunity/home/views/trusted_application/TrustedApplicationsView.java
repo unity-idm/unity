@@ -28,7 +28,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 import java.io.ByteArrayInputStream;
 import java.util.List;

@@ -21,7 +21,7 @@ import io.imunity.vaadin.endpoint.common.forms.components.QRCodeFactory;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.MissingCredentialException;
 
 import java.util.Map;
 

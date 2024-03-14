@@ -11,6 +11,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import io.imunity.vaadin.endpoint.common.forms.ResolvedInvitationParam;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
-import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 import java.util.Optional;
 import java.util.function.Consumer;

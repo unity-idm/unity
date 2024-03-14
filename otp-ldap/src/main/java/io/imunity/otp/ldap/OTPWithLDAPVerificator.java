@@ -10,8 +10,8 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.otp.HashFunction;
 import io.imunity.otp.OTPGenerationParams;
 import io.imunity.otp.TOTPKeyGenerator;
-import io.imunity.otp.v8.OTPCredentialReset;
-import io.imunity.otp.v8.OTPExchangeV8;
+import io.imunity.otp.credential_reset.OTPCredentialReset;
+import io.imunity.otp.OTPExchange;
 import io.imunity.otp.TOTPCodeVerificator;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.logging.log4j.Logger;
@@ -44,7 +44,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 @PrototypeComponent
-class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchangeV8
+class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OTP, OTPWithLDAPVerificator.class);
 
@@ -60,7 +60,7 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchangeV
 
 	OTPWithLDAPVerificator(PKIManagement pkiManagement)
 	{
-		super(NAME, DESC, OTPExchangeV8.ID);
+		super(NAME, DESC, OTPExchange.ID);
 		this.pkiManagement = pkiManagement;
 		this.ldapClient = new LdapClient();
 	}

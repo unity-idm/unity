@@ -40,7 +40,7 @@ import pl.edu.icm.unity.ldap.client.config.ServerSpecification;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonConfiguration.UserDNResolving;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.ConnectionMode;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Set;
 

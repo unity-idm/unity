@@ -14,11 +14,11 @@ import org.springframework.stereotype.Component;
 import io.imunity.scim.SCIMEndpoint;
 import io.imunity.scim.console.SCIMServiceEditorSchemaTab.SCIMServiceEditorSchemaTabFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
+import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceEditor;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent;
+import io.imunity.vaadin.auth.services.tabs.AuthenticationTab;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
@@ -31,7 +31,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 
 class SCIMServiceEditor implements ServiceEditor

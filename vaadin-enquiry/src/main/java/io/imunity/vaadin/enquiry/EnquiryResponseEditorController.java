@@ -6,6 +6,7 @@ package io.imunity.vaadin.enquiry;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.WebSession;
+import io.imunity.vaadin.endpoint.common.forms.PrefilledSet;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
@@ -41,7 +42,6 @@ import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguratio
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
-import pl.edu.icm.unity.webui.forms.PrefilledSet;
 
 import java.util.*;
 import java.util.stream.Collectors;

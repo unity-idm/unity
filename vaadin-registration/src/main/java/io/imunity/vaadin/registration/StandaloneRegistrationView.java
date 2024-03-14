@@ -23,6 +23,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter.PostAuthenticationDecissionWithContext;
+import io.imunity.vaadin.endpoint.common.forms.RegCodeException;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import org.apache.logging.log4j.Logger;
@@ -45,8 +46,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -309,7 +308,7 @@ class StandaloneRegistrationView extends UnityViewComponent implements BeforeEnt
 				&& !editor.isUserInteractionRequired();
 	}
 
-	private void handleError(Exception e, ErrorCause cause)
+	private void handleError(Exception e, RegCodeException.ErrorCause cause)
 	{
 		log.warn("Registration error", e);
 		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
@@ -328,7 +327,7 @@ class StandaloneRegistrationView extends UnityViewComponent implements BeforeEnt
 	private void onAuthnError(String authenticatorError, TriggeringMode mode)
 	{
 		log.info("External authentication failed, aborting: {}", authenticatorError);
-		NotificationPopup.showError(authenticatorError, "");
+		notificationPresenter.showError(authenticatorError, "");
 		showFirstStage(RemotelyAuthenticatedPrincipal.getLocalContext(), mode);
 	}
 	
@@ -478,7 +477,7 @@ class StandaloneRegistrationView extends UnityViewComponent implements BeforeEnt
 		}
 
 		@Override
-		public void onCreationError(Exception e, ErrorCause cause)
+		public void onCreationError(Exception e, RegCodeException.ErrorCause cause)
 		{
 			handleError(e, cause);
 		}

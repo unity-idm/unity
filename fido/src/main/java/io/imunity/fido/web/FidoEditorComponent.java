@@ -23,7 +23,7 @@ import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorCon
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
-import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.MissingCredentialException;
 
 import java.util.ArrayList;
 import java.util.List;

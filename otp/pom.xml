@@ -57,11 +57,6 @@
 		<!-- compile -->
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-console-utils</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-vaadin-endpoint-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -69,10 +64,6 @@
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-vaadin-authentication</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.vaadin.addons</groupId>
-			<artifactId>qrcode</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>

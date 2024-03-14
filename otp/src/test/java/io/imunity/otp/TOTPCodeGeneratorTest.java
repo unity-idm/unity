@@ -4,13 +4,6 @@
  */
 package io.imunity.otp;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import io.imunity.otp.v8.TOTPCodeGenerator;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Hex;
@@ -18,6 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class TOTPCodeGeneratorTest
 {

@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.credential.pass.MobilePasswordResetTemplateDef;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Optional;
 

@@ -40,7 +40,7 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 class EditSchemaSubView extends VerticalLayout implements UnitySubView
 {

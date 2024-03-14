@@ -15,13 +15,16 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.Page;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
-import io.imunity.vaadin.endpoint.common.forms.URLQueryPrefillCreator;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.vaadin.endpoint.common.forms.*;
+import io.imunity.vaadin.endpoint.common.forms.RegCodeException.ErrorCause;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import jakarta.annotation.security.PermitAll;
@@ -49,12 +52,6 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.forms.InvitationResolver;
-import pl.edu.icm.unity.webui.forms.PrefilledSet;
-import pl.edu.icm.unity.webui.forms.RegCodeException;
-import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
-import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -602,7 +599,7 @@ class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObs
 			}
 		} else
 		{
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			notificationPresenter.showError(msg.getMessage("Generic.formError"), e.getMessage());
 		}
 	}
 

@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.otp.v8;
+package io.imunity.otp;
 
-import io.imunity.otp.OTPGenerationParams;
 import org.apache.commons.codec.binary.Base32;
 import org.bouncycastle.util.encoders.Hex;
 

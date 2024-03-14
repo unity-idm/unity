@@ -19,7 +19,6 @@ import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonConfiguration;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -27,12 +26,7 @@ import java.util.Properties;
 
 import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
 
-/**
- * OTP-LDAP configuration. Used by {@link AuthenticatorEditor} binder.
- * 
- * @author P.Piernik
- *
- */
+
 public class OTPWithLDAPConfiguration extends LDAPCommonConfiguration
 {
 	private String secretAttribute;

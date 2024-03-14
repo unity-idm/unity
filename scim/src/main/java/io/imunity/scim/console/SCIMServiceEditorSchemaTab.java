@@ -5,20 +5,6 @@
 
 package io.imunity.scim.console;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -35,23 +21,31 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.server.StreamResource;
-
 import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.console.EditSchemaSubView.EditSchemaSubViewFactory;
 import io.imunity.scim.console.mapping.SchemaWithMappingBean;
 import io.imunity.scim.schema.SchemaResourceDeserialaizer;
+import io.imunity.vaadin.auth.services.ServiceEditorBase.EditorTab;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent;
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase.EditorTab;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
-import pl.edu.icm.unity.webui.console.services.ServiceEditorComponent.ServiceEditorTab;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 class SCIMServiceEditorSchemaTab extends VerticalLayout implements EditorTab
 {
@@ -112,7 +106,7 @@ class SCIMServiceEditorSchemaTab extends VerticalLayout implements EditorTab
 	@Override
 	public String getType()
 	{
-		return ServiceEditorTab.OTHER.toString();
+		return ServiceEditorComponent.ServiceEditorTab.OTHER.toString();
 	}
 
 	@Override

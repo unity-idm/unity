@@ -38,7 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.ldap.client.console.LdapAuthenticatorEditorFactory;
 import pl.edu.icm.unity.pam.web.PamAuthenticatorEditorFactory;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.io.File;
 import java.io.IOException;

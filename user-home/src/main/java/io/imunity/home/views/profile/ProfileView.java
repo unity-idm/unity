@@ -64,7 +64,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 @PermitAll
 @Breadcrumb(key = "UserHomeUI.profile")

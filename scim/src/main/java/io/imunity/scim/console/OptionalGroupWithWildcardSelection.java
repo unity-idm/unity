@@ -24,8 +24,8 @@ import elemental.json.JsonObject;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
-import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper;
-import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper.GroupNameComparator;
+import io.imunity.vaadin.auth.services.idp.GroupSelectionHelper;
+import io.imunity.vaadin.auth.services.idp.GroupSelectionHelper.GroupNameComparator;
 
 class OptionalGroupWithWildcardSelection extends MultiSelectComboBox<Group>
 {

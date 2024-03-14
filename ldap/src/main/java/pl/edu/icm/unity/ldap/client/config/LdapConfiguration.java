@@ -7,6 +7,9 @@ package pl.edu.icm.unity.ldap.client.config;
 
 import com.unboundid.ldap.sdk.LDAPException;
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import io.imunity.vaadin.auth.extensions.PasswordRetrievalProperties;
+import io.imunity.vaadin.auth.extensions.TLSRetrievalProperties;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -18,24 +21,18 @@ import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPCommonConfiguration;
 import pl.edu.icm.unity.ldap.client.config.common.LDAPConnectionProperties.SearchScope;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalProperties;
-import pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalProperties;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
 
-/**
- * Ldap configuration. Used by {@link AuthenticatorEditor} binder.
- * 
- * @author P.Piernik
- *
- */
+
 public class LdapConfiguration extends LDAPCommonConfiguration
 {
 

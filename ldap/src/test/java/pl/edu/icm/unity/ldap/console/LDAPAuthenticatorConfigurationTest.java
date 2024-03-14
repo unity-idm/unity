@@ -4,21 +4,9 @@
  */
 package pl.edu.icm.unity.ldap.console;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.META;
-import static pl.edu.icm.unity.ldap.client.config.LdapProperties.PREFIX;
-
-import java.security.cert.X509Certificate;
-import java.util.Properties;
-
-import org.junit.jupiter.api.Test;
-
 import com.google.common.collect.Lists;
-
+import io.imunity.vaadin.auth.extensions.PasswordRetrievalProperties;
+import org.junit.jupiter.api.Test;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -32,7 +20,17 @@ import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFa
 import pl.edu.icm.unity.ldap.client.LdapCertVerificator;
 import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
 import pl.edu.icm.unity.ldap.client.config.LdapConfiguration;
-import pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalProperties;
+
+import java.security.cert.X509Certificate;
+import java.util.Properties;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static pl.edu.icm.unity.configtester.ConfigurationComparator.createComparator;
+import static pl.edu.icm.unity.ldap.client.config.LdapProperties.META;
+import static pl.edu.icm.unity.ldap.client.config.LdapProperties.PREFIX;
 
 public class LDAPAuthenticatorConfigurationTest
 {

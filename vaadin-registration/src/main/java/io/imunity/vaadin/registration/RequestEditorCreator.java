@@ -4,11 +4,10 @@
  */
 package io.imunity.vaadin.registration;
 
-import com.vaadin.server.Page;
+import com.vaadin.flow.component.UI;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupResolverFactory;
-import io.imunity.vaadin.endpoint.common.forms.URLQueryPrefillCreator;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.vaadin.endpoint.common.forms.*;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
@@ -27,9 +26,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.forms.InvitationResolver;
-import pl.edu.icm.unity.webui.forms.RegCodeException;
-import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 import java.util.List;
 import java.util.Map;
@@ -206,7 +202,7 @@ public class RequestEditorCreator
 			EnquiryInvitationParam enqInv = invitation.get().getAsEnquiryInvitationParamWithAnonymousEntity();
 			String url = publicRegistrationURLSupport.getPublicEnquiryLink(enqInv.getFormPrefill().getFormId(),
 					registrationCode);
-			Page.getCurrent().open(url, null);
+			UI.getCurrent().getPage().open(url, null);
 			return true;
 		}
 		return false;

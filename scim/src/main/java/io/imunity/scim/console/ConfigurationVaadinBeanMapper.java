@@ -20,7 +20,7 @@ import io.imunity.scim.console.mapping.AttributeDefinitionBean;
 import io.imunity.scim.console.mapping.AttributeDefinitionWithMappingBean;
 import io.imunity.scim.console.mapping.AttributeMappingBean;
 import io.imunity.scim.console.mapping.SchemaWithMappingBean;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
+import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.group.Group;

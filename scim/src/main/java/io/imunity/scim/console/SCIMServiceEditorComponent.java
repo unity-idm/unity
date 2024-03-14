@@ -10,12 +10,12 @@ import com.vaadin.flow.data.binder.Binder;
 
 import io.imunity.scim.SCIMEndpoint;
 import io.imunity.scim.config.SCIMEndpointPropertiesConfigurationMapper;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
+import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceEditorBase;
+import io.imunity.vaadin.auth.services.tabs.AuthenticationTab;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 
 class SCIMServiceEditorComponent extends ServiceEditorBase

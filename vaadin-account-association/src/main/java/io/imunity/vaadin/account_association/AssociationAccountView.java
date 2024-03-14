@@ -18,6 +18,7 @@ import com.vaadin.flow.server.VaadinServlet;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.wizard.Wizard;
 import io.imunity.vaadin.elements.wizard.WizardStepPreparer;
+import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.sandbox.SandboxAuthnLaunchStep;
 import jakarta.annotation.security.PermitAll;
@@ -26,8 +27,6 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 
 import java.util.Map;
-
-import static pl.edu.icm.unity.webui.VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
 
 @PermitAll
 @Route("/sec/account-association")
@@ -48,7 +47,7 @@ class AssociationAccountView extends Composite<VerticalLayout> implements HasDyn
 	{
 		String contextPath = VaadinServlet.getCurrent().getServletConfig().getServletContext().getContextPath();
 		Runnable sandBoxNewPageOpener = () -> UI.getCurrent().getPage()
-				.executeJs("window.open('"+ contextPath + SANDBOX_PATH_ASSOCIATION + "/', '_blank', 'resizable,status=0,location=0')");
+				.executeJs("window.open('"+ contextPath + Vaadin2XEndpoint.SANDBOX_PATH_ASSOCIATION + "/', '_blank', 'resizable,status=0,location=0')");
 		SandboxAuthnRouter router = Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter();
 
 		Runnable finishTask = () ->	UI.getCurrent().navigate(StatusView.class, QueryParameters.simple(Map.of(

@@ -8,7 +8,7 @@ package io.imunity.home.console;
 
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.HomeEndpointProperties.RemovalModes;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
+import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;

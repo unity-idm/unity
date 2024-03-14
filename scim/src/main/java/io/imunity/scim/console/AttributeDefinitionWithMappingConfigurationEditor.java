@@ -12,9 +12,9 @@ import com.vaadin.flow.data.binder.Binder;
 
 import io.imunity.scim.console.mapping.AttributeDefinitionWithMappingBean;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
-import io.imunity.vaadin.endpoint.common.api.services.idp.CollapsableGrid.Editor;
+import io.imunity.vaadin.auth.services.idp.CollapsableGrid.Editor;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 class AttributeDefinitionWithMappingConfigurationEditor extends Editor<AttributeDefinitionWithMappingBean>
 {

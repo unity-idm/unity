@@ -5,10 +5,10 @@
 
 package io.imunity.vaadin.enquiry;
 
+import io.imunity.vaadin.endpoint.common.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
 
 import java.net.MalformedURLException;
 import java.net.URL;

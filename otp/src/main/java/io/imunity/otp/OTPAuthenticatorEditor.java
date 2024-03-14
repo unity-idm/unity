@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Properties;
 import java.util.stream.Collectors;

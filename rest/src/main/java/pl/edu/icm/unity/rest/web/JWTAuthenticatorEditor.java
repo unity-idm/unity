@@ -20,7 +20,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
 import pl.edu.icm.unity.rest.jwt.authn.JWTVerificator;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.io.IOException;
 import java.io.StringReader;

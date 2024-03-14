@@ -5,7 +5,9 @@
 package io.imunity.vaadin.enquiry;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.forms.BaseRequestEditor;
+import io.imunity.vaadin.endpoint.common.forms.PrefilledSet;
 import io.imunity.vaadin.endpoint.common.forms.RegistrationLayoutsContainer;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
@@ -20,8 +22,6 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.forms.PrefilledSet;
 
 import java.util.List;
 import java.util.Map;

@@ -82,11 +82,6 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-vaadin-authentication</artifactId>
 			<version>${project.version}</version>
 		</dependency>

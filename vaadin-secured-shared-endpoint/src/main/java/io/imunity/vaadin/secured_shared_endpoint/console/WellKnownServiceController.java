@@ -5,9 +5,12 @@
 
 package io.imunity.vaadin.secured_shared_endpoint.console;
 
+import io.imunity.vaadin.auth.services.DefaultServicesControllerBase;
+import io.imunity.vaadin.auth.services.ServiceController;
+import io.imunity.vaadin.auth.services.ServiceEditor;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.secured_shared_endpoint.SecuredSharedEndpointFactory;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -18,10 +21,6 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFileConfigurationManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
-import pl.edu.icm.unity.webui.console.services.DefaultServicesControllerBase;
-import pl.edu.icm.unity.webui.console.services.ServiceController;
-import pl.edu.icm.unity.webui.console.services.ServiceEditor;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;

@@ -4,13 +4,8 @@
  */
 package pl.edu.icm.unity.ldap.client;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.List;
-import java.util.Properties;
-
 import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
@@ -21,7 +16,12 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
 import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Base for LDAP verificators, responsible for handling configuration (common for both pass and cert verificators).
