@@ -22,11 +22,11 @@ import com.vaadin.flow.data.binder.Binder;
 
 import io.imunity.attr.introspection.config.Attribute;
 import io.imunity.attr.introspection.config.AttributePolicy;
-import io.imunity.vaadin.endpoint.common.api.services.idp.CollapsableGrid.Editor;
+import io.imunity.vaadin.auth.services.idp.CollapsableGrid.Editor;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.IdPInfo;
 import pl.edu.icm.unity.engine.api.authn.IdPInfo.IdpGroup;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 class AttributePolicyConfigurationEditor extends Editor<AttributePolicy>
 {

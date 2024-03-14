@@ -5,7 +5,7 @@
 
 package io.imunity.attr.introspection.console;
 
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.PREFIX;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -14,9 +14,9 @@ import java.util.Properties;
 
 import com.google.common.collect.Lists;
 
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.AuthnLayoutColumnConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.AuthnLayoutConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.configuration.AuthnLayoutPropertiesParser;
+import io.imunity.vaadin.auth.services.layout.configuration.AuthnLayoutColumnConfiguration;
+import io.imunity.vaadin.auth.services.layout.configuration.AuthnLayoutConfiguration;
+import io.imunity.vaadin.auth.services.layout.configuration.AuthnLayoutPropertiesParser;
 import io.imunity.vaadin.endpoint.common.file.FileFieldUtils;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 
 public class AttrIntrospectionAuthnScreenConfiguration

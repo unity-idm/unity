@@ -19,8 +19,10 @@ import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.sandbox.SandboxAuthenticationScreen;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
+import io.imunity.vaadin.endpoint.common.CancelHandler;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
@@ -34,16 +36,14 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 
+import static io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.*;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.PREFIX;
-import static pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8.DECISION_SESSION_ATTRIBUTE;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.PREFIX;
 
 @Route("/")
 @AnonymousAllowed

@@ -20,9 +20,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase.EditorTab;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthnScreenLayoutEditor;
+import io.imunity.vaadin.auth.services.ServiceEditorBase.EditorTab;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent.ServiceEditorTab;
+import io.imunity.vaadin.auth.services.tabs.WebServiceAuthnScreenLayoutEditor;
 import io.imunity.vaadin.endpoint.common.file.FileField;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;

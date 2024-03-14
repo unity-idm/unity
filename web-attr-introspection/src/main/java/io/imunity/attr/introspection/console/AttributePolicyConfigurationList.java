@@ -8,7 +8,7 @@ package io.imunity.attr.introspection.console;
 import java.util.List;
 
 import io.imunity.attr.introspection.config.AttributePolicy;
-import io.imunity.vaadin.endpoint.common.api.services.idp.CollapsableGrid;
+import io.imunity.vaadin.auth.services.idp.CollapsableGrid;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.IdPInfo;
 

@@ -15,8 +15,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase.EditorTab;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
+import io.imunity.vaadin.auth.services.ServiceEditorBase.EditorTab;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent.ServiceEditorTab;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.IdPInfo;
 

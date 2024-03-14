@@ -4,12 +4,8 @@
  */
 package pl.edu.icm.unity.pam;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Properties;
-import java.util.function.Supplier;
-
+import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.libpam.PAM;
 import org.jvnet.libpam.PAMException;
@@ -17,26 +13,21 @@ import org.jvnet.libpam.UnixUser;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
-import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
-import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.*;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Properties;
+import java.util.function.Supplier;
 
 @PrototypeComponent
 public class PAMVerificator extends AbstractRemoteVerificator implements PasswordExchange

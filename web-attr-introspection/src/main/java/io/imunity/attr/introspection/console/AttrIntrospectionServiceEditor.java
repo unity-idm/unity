@@ -14,20 +14,20 @@ import com.vaadin.flow.data.binder.Binder;
 
 import io.imunity.attr.introspection.AttrIntrospectionEndpointFactory;
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.GeneralTab;
+import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceEditor;
+import io.imunity.vaadin.auth.services.ServiceEditorBase;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent;
+import io.imunity.vaadin.auth.services.tabs.GeneralTab;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.IdPInfo;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 public class AttrIntrospectionServiceEditor implements ServiceEditor
 {
