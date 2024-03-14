@@ -13,6 +13,7 @@ import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
 import io.imunity.vaadin.auth.services.ServiceEditorBase.EditorTab;
@@ -54,6 +55,12 @@ class AttributePoliciesTab extends VerticalLayout implements EditorTab
 		customPoliciesLayout.setWidthFull();
 
 		attrPoliciesConfigBinder.forField(customPoliciesList)
+				.withValidator((c, v) ->
+				{
+					if (c.contains(null))
+						return ValidationResult.error("");
+					return ValidationResult.ok();
+				})
 				.bind("customPolicies");
 		mainWrapper.add(customPoliciesLayout);
 

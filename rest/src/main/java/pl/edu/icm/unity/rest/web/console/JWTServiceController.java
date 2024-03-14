@@ -66,6 +66,9 @@ class JWTServiceController extends DefaultServicesControllerBase implements Serv
 				flowsMan.getAuthenticationFlows().stream().collect(Collectors.toList()),
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 				pkiMan.getCredentialNames(), endpointMan.getEndpoints().stream()
-						.map(e -> e.getContextAddress()).collect(Collectors.toList()), networkServer.getUsedContextPaths());
+						.map(e -> e.getContextAddress()).collect(Collectors.toList()),
+				endpointMan.getEndpoints().stream()
+						.map(e -> e.getName()).collect(Collectors.toList()),		
+				networkServer.getUsedContextPaths());
 	}
 }

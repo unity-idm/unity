@@ -44,15 +44,17 @@ public class GeneralTab extends VerticalLayout implements EditorTab
 	protected final MessageSource msg;
 	private final EndpointTypeDescription type;
 	private final List<String> usedEndpointsPaths;
+	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 
-	public GeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths,
+	public GeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, List<String> usedNames,
 			Set<String> serverContextPaths)
 	{
 		this.msg = msg;
 		this.type = type;
 		this.usedEndpointsPaths = usedEndpointsPaths;
 		this.serverContextPaths = serverContextPaths;
+		this.usedNames = usedNames;
 	}
 
 	public void initUI(Binder<DefaultServiceDefinition> binder, boolean editMode)
@@ -66,7 +68,15 @@ public class GeneralTab extends VerticalLayout implements EditorTab
 		TextField name = new TextField();
 		name.setReadOnly(editMode);
 		binder.forField(name)
-				.asRequired()
+				.asRequired().withValidator((v,c) -> {
+					
+					if (!editMode && usedNames.contains(v))
+					{
+						return ValidationResult.error(msg.getMessage("ServiceEditorBase.usedName", v));
+					}
+					
+					return ValidationResult.ok();
+				})
 				.bind("name");
 		mainGeneralLayout.addFormItem(name, msg.getMessage("ServiceEditorBase.name"));
 

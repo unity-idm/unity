@@ -224,6 +224,11 @@ public class CollapsableGrid<T> extends CustomField<List<T>>
 		return horizontalLayout;
 	}
 
+	public List<Editor<T>> getEditors()
+	{
+		return gridListDataView.getItems().toList();
+	}
+	
 	@Override
 	public List<T> getValue()
 	{

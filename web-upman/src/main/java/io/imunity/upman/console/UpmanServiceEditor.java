@@ -37,6 +37,7 @@ class UpmanServiceEditor implements ServiceEditor
 	private final UnityServerConfiguration serverConfig;
 	private final AuthenticatorSupportService authenticatorSupportService;
 	private final List<String> usedEndpointsPaths;
+	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 	private UpmanEditorComponent editor;
 
@@ -44,7 +45,7 @@ class UpmanServiceEditor implements ServiceEditor
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, List<String> upManServices,
-			List<String> registrationForms, List<String> usedPaths, Set<String> serverContextPaths,
+			List<String> registrationForms, List<String> usedPaths, List<String> usedNames, Set<String> serverContextPaths,
 			AuthenticatorSupportService authenticatorSupportService)
 	{
 		this.msg = msg;
@@ -57,6 +58,7 @@ class UpmanServiceEditor implements ServiceEditor
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.usedEndpointsPaths = usedPaths;
+		this.usedNames = usedNames;
 		this.serverContextPaths = serverContextPaths;
 		this.imageAccessService = imageAccessService;
 	}
@@ -66,7 +68,7 @@ class UpmanServiceEditor implements ServiceEditor
 	{
 
 		UpmanServiceEditorGeneralTab homeServiceEditorGeneralTab = new UpmanServiceEditorGeneralTab(msg,
-				UpManEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths, upManServices);
+				UpManEndpointFactory.TYPE, usedEndpointsPaths, usedNames, serverContextPaths, upManServices);
 		WebServiceAuthenticationTab authenticationTab = new WebServiceAuthenticationTab(msg,
 				serverConfig, authenticatorSupportService, flows, authenticators, allRealms,
 				registrationForms, UpManEndpointFactory.TYPE.getSupportedBinding());

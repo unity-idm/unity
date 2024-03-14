@@ -69,6 +69,7 @@ class UpmanRestServiceController extends DefaultServicesControllerBase implement
 		return new UpmanRestServiceEditor(msg, configProvider, realmsMan.getRealms().stream().map(DescribedObjectROImpl::getName)
 				.collect(Collectors.toList()), new ArrayList<>(flowsMan.getAuthenticationFlows()),
 				new ArrayList<>(authMan.getAuthenticators(null)), endpointMan.getEndpoints().stream().map(Endpoint::getContextAddress)
+						.collect(Collectors.toList()), endpointMan.getEndpoints().stream().map(Endpoint::getName)
 						.collect(Collectors.toList()),
 				networkServer.getUsedContextPaths(),
 				bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values().stream().map(g -> g.getGroup())

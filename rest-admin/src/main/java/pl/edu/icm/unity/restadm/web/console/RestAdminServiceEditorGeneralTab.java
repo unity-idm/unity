@@ -35,9 +35,9 @@ public class RestAdminServiceEditorGeneralTab extends GeneralTab
 	private Binder<RestAdminServiceConfiguration> restBinder;
 
 	public RestAdminServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type,
-			List<String> usedEndpointsPaths, Set<String> serverContextPaths)
+			List<String> usedEndpointsPaths, List<String> usedNames,  Set<String> serverContextPaths)
 	{
-		super(msg, type, usedEndpointsPaths, serverContextPaths);
+		super(msg, type, usedEndpointsPaths, usedNames, serverContextPaths);
 	}
 
 	public void initUI(Binder<DefaultServiceDefinition> serviceBinder, Binder<RestAdminServiceConfiguration> restBinder,

@@ -33,9 +33,10 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 	private final List<Group> allGroups;
 
 	public SCIMServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths,
+			List<String> usedNames,
 			Set<String> serverContextPaths, List<Group> allGroups)
 	{
-		super(msg, type, usedEndpointsPaths, serverContextPaths);
+		super(msg, type, usedEndpointsPaths, usedNames, serverContextPaths);
 		this.allGroups = List.copyOf(allGroups);
 	}
 

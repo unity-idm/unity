@@ -31,6 +31,7 @@ class UpmanRestServiceEditor implements ServiceEditor
 	private final List<AuthenticationFlowDefinition> flows;
 	private final List<AuthenticatorInfo> authenticators;
 	private final List<String> usedPaths;
+	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 	private final List<Group> groups;
 	private final List<String> attributes;
@@ -38,7 +39,7 @@ class UpmanRestServiceEditor implements ServiceEditor
 
 	UpmanRestServiceEditor(MessageSource msg, UpmanRestServiceConfigurationProvider configProvider,
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
-			List<String> usedPaths, Set<String> serverContextPaths, List<Group> groups, List<String> attributes)
+			List<String> usedPaths, List<String> usedNames, Set<String> serverContextPaths, List<Group> groups, List<String> attributes)
 	{
 		this.msg = msg;
 		this.configProvider = configProvider;
@@ -46,6 +47,7 @@ class UpmanRestServiceEditor implements ServiceEditor
 		this.authenticators = authenticators;
 		this.flows = flows;
 		this.usedPaths = usedPaths;
+		this.usedNames = usedNames;
 		this.serverContextPaths = serverContextPaths;
 		this.groups = groups;
 		this.attributes = attributes;
@@ -56,7 +58,7 @@ class UpmanRestServiceEditor implements ServiceEditor
 	{
 
 		UpmanRestServiceEditorGeneralTab upmanRestServiceEditorGeneralTab = new UpmanRestServiceEditorGeneralTab(
-				msg, RESTUpmanEndpoint.TYPE, usedPaths, serverContextPaths, groups, attributes);
+				msg, RESTUpmanEndpoint.TYPE, usedPaths, usedNames, serverContextPaths, groups, attributes);
 
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding());

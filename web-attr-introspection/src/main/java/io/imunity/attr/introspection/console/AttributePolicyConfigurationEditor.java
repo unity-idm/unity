@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -19,6 +21,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 
 import io.imunity.attr.introspection.config.Attribute;
 import io.imunity.attr.introspection.config.AttributePolicy;
@@ -37,6 +40,7 @@ class AttributePolicyConfigurationEditor extends Editor<AttributePolicy>
 	private TextField name;
 	private Map<String, IdPInfo> idPs;
 	private Map<String, IdpGroup> IdPsGroups;
+	private Supplier<Set<String>> usedNamesProvider;
 
 	AttributePolicyConfigurationEditor(MessageSource msg, List<IdPInfo> idps)
 	{
@@ -66,7 +70,14 @@ class AttributePolicyConfigurationEditor extends Editor<AttributePolicy>
 
 		name = new TextField();
 		header.addFormItem(name, msg.getMessage("AttributePolicyConfigurationEditor.name"));
-		binder.forField(name)
+		binder.forField(name).withValidator((value, context) -> {
+			if (value != null && usedNamesProvider != null && usedNamesProvider.get().contains(value))
+			{
+				return ValidationResult.error(msg.getMessage("AttributePolicyConfigurationEditor.nameError", value));
+			}
+			
+			return ValidationResult.ok();
+		})
 				.bind("name");
 
 		MultiSelectComboBox<String> targetIdps = new MultiSelectComboBox<>();
@@ -92,11 +103,21 @@ class AttributePolicyConfigurationEditor extends Editor<AttributePolicy>
 				.bind("attributes");
 		main.add(attributes);
 
-		binder.addValueChangeListener(e -> new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient()));
+		binder.addValueChangeListener(e -> fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient())));
 		add(main);
 		setSizeFull();
 	}
 
+	public String getName()
+	{
+		return name.getValue();
+	}
+	
+	public void setUsedNamesProvider(Supplier<Set<String>> names)
+	{
+		this.usedNamesProvider = names;
+	}
+	
 	private String getGroupDisplayeName(String p)
 	{
 		IdpGroup value = IdPsGroups.get(p);

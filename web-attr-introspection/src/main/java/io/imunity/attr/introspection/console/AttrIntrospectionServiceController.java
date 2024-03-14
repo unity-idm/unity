@@ -91,8 +91,13 @@ class AttrIntrospectionServiceController extends DefaultServicesControllerBase i
 		return new AttrIntrospectionServiceEditor(msg, endpointMan.getEndpoints()
 				.stream()
 				.map(e -> e.getContextAddress())
-				.collect(Collectors.toList()), server.getUsedContextPaths(), authenticatorSupportService,
-				() -> getRemoteAuthnOptions(), () -> getIdPs(), fileStorageService, imageAccessService, serverConfig);
+				.collect(Collectors.toList()),
+				endpointMan.getEndpoints()
+						.stream()
+						.map(e -> e.getName())
+						.collect(Collectors.toList()),
+				server.getUsedContextPaths(), authenticatorSupportService, () -> getRemoteAuthnOptions(),
+				() -> getIdPs(), fileStorageService, imageAccessService, serverConfig);
 	}
 
 	private List<IdPInfo> getIdPs()

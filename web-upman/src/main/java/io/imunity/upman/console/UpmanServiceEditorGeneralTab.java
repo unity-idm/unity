@@ -27,9 +27,9 @@ public class UpmanServiceEditorGeneralTab extends GeneralTab
 	private List<String> homeServices;
 
 	public UpmanServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type,
-			List<String> usedEndpointsPaths, Set<String> serverContextPaths, List<String> homeServices)
+			List<String> usedEndpointsPaths, List<String> usedNames, Set<String> serverContextPaths, List<String> homeServices)
 	{
-		super(msg, type, usedEndpointsPaths, serverContextPaths);
+		super(msg, type, usedEndpointsPaths, usedNames, serverContextPaths);
 		this.homeServices = homeServices;
 	}
 

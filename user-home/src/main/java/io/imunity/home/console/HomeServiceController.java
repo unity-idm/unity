@@ -110,7 +110,8 @@ class HomeServiceController extends DefaultServicesControllerBase implements Ser
 				registrationMan.getForms().stream().filter(RegistrationForm::isPubliclyAvailable)
 						.map(DescribedObjectROImpl::getName).collect(Collectors.toList()),
 				endpointMan.getEndpoints().stream().map(Endpoint::getContextAddress)
-						.collect(Collectors.toList()), server.getUsedContextPaths(),
+						.collect(Collectors.toList()), endpointMan.getEndpoints().stream().map(Endpoint::getName)
+						.collect(Collectors.toList()),  server.getUsedContextPaths(),
 				authenticatorSupportService);
 	}
 }

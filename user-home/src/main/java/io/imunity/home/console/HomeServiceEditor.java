@@ -40,6 +40,7 @@ class HomeServiceEditor implements ServiceEditor
 	private final UnityServerConfiguration serverConfig;
 	private final AuthenticatorSupportService authenticatorSupportService;
 	private final List<String> usedEndpointsPaths;
+	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 	private final VaadinLogoImageLoader imageAccessService;
 	private HomeServiceEditorComponent editor;
@@ -51,7 +52,7 @@ class HomeServiceEditor implements ServiceEditor
 			List<AuthenticatorInfo> authenticators, List<String> allAttributes,
 			List<String> allImageAttributes,
 			List<Group> allGroups, List<String> upManServices, List<String> enquiryForms,
-			List<String> registrationForms, List<String> usedPaths, Set<String> serverContextPaths,
+			List<String> registrationForms, List<String> usedPaths, List<String> usedNames,  Set<String> serverContextPaths,
 			AuthenticatorSupportService authenticatorSupportService)
 	{
 		this.msg = msg;
@@ -69,6 +70,7 @@ class HomeServiceEditor implements ServiceEditor
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.usedEndpointsPaths = usedPaths;
+		this.usedNames = usedNames;
 		this.serverContextPaths = serverContextPaths;
 	}
 
@@ -77,7 +79,7 @@ class HomeServiceEditor implements ServiceEditor
 	{
 
 		HomeServiceEditorGeneralTab homeServiceEditorGeneralTab = new HomeServiceEditorGeneralTab(msg,
-				UserHomeEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths, allAttributes, allImageAttributes,
+				UserHomeEndpointFactory.TYPE, usedEndpointsPaths, usedNames, serverContextPaths, allAttributes, allImageAttributes,
 				allGroups, upManServices, enquiryForms, registrationForms);
 		WebServiceAuthenticationTab authenticationTab = new WebServiceAuthenticationTab(msg,
 				serverConfig, authenticatorSupportService, flows, authenticators, allRealms,

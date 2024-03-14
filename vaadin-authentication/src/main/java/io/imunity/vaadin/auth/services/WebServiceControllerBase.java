@@ -96,7 +96,8 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 				authMan.getAuthenticators(null).stream().collect(Collectors.toList()),
 				registrationMan.getForms().stream().map(r -> r.getName()).collect(Collectors.toList()),
 				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(
-						Collectors.toList()), networkServer.getUsedContextPaths(),
+						Collectors.toList()), endpointMan.getEndpoints().stream().map(e -> e.getName()).collect(
+								Collectors.toList()) , networkServer.getUsedContextPaths(),
 				authenticatorSupportService, defaultMainTheme);
 	}
 }
