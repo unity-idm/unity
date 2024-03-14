@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)

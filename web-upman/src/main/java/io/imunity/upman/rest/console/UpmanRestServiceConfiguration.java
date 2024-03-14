@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import io.imunity.upman.rest.UpmanRestEndpointProperties;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
+import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;

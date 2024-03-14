@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.upman.UpManEndpointFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServicesControllerBase;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceController;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
+import io.imunity.vaadin.auth.services.DefaultServicesControllerBase;
+import io.imunity.vaadin.auth.services.ServiceController;
+import io.imunity.vaadin.auth.services.ServiceEditor;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;

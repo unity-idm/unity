@@ -9,11 +9,11 @@ import java.util.List;
 import java.util.Set;
 
 import io.imunity.upman.UpManEndpointFactory;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthenticationTab;
+import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceEditor;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent;
+import io.imunity.vaadin.auth.services.tabs.WebServiceAuthenticationTab;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 
 class UpmanServiceEditor implements ServiceEditor

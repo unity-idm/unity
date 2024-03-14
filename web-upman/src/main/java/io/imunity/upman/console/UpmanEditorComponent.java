@@ -9,17 +9,17 @@ package io.imunity.upman.console;
 import com.vaadin.flow.data.binder.Binder;
 
 import io.imunity.upman.UpManEndpointFactory;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.authnlayout.ServiceWebConfiguration;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.WebServiceAuthenticationTab;
+import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceEditorBase;
+import io.imunity.vaadin.auth.services.layout.ServiceWebConfiguration;
+import io.imunity.vaadin.auth.services.tabs.WebServiceAuthenticationTab;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 
 class UpmanEditorComponent extends ServiceEditorBase
