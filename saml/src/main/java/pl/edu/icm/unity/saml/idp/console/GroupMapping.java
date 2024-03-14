@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.saml.idp.console;
 
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
+import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
 
 /**
  * Contains SAML group mapping information

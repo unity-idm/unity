@@ -7,7 +7,7 @@ package pl.edu.icm.unity.saml.idp.console;
 
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpUsersHelper;
+import io.imunity.vaadin.auth.services.idp.IdpUsersHelper;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;

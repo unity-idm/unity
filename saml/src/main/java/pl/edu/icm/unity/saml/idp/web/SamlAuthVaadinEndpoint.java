@@ -67,8 +67,7 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
-import pl.edu.icm.unity.webui.VaadinEndpoint;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import pl.edu.icm.unity.ws.CXFUtils;
 import pl.edu.icm.unity.ws.XmlBeansNsHackOutHandler;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -76,12 +75,7 @@ import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import java.util.EnumSet;
 import java.util.List;
 
-/**
- * Extends a simple {@link VaadinEndpoint} with configuration of SAML authn filter. Also SAML configuration
- * is parsed here.
- * 
- * @author K. Benedyczak
- */
+
 @PrototypeComponent
 @Primary
 public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint

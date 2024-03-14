@@ -56,13 +56,11 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
+import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 import java.io.IOException;
 import java.util.*;
-
-import static pl.edu.icm.unity.webui.LoginInProgressService.noSignInContextException;
 
 /**
  * Invoked after authentication, main SAML web IdP servlet. It decides whether the request should be
@@ -365,7 +363,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	
 	private SAMLAuthnContext getSamlContext(HttpServletRequest req)
 	{
-		return SamlSessionService.getContext(req).orElseThrow(noSignInContextException());
+		return SamlSessionService.getContext(req).orElseThrow(LoginInProgressService.noSignInContextException());
 	}
 	
 	@Component

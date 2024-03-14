@@ -35,7 +35,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.saml.idp.console.SimpleIDPMetaConverter.SAMLEntity;
 import pl.edu.icm.unity.saml.metadata.srv.CachedMetadataLoader;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 import java.util.*;

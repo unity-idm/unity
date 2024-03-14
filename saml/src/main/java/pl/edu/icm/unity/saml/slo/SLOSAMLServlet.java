@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
+import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutRequestDocument;
 
 import java.io.IOException;

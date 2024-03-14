@@ -9,12 +9,12 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
+import io.imunity.vaadin.endpoint.common.consent_utils.IdPPreferences;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
-import pl.edu.icm.unity.webui.idpcommon.IdPPreferences;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 import java.time.Instant;
@@ -140,12 +140,7 @@ public class SamlPreferences extends IdPPreferences
 	{
 		savePreferencesGeneric(preferencesMan, preferences, SamlPreferences.ID);
 	}
-	
-	/**
-	 * @param sp
-	 * @return settings for the given Service provider. Never null - if there are no preferences, then 
-	 * the default settings are returned.
-	 */
+
 	public SPSettings getSPSettings(NameIDType spName)
 	{
 		String sp = getSPKey(spName);

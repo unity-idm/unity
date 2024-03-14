@@ -12,7 +12,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
+import io.imunity.vaadin.endpoint.common.EopException;
 
 import java.io.BufferedReader;
 import java.io.IOException;

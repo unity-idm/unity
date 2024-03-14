@@ -10,8 +10,9 @@ import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinResponse;
 import com.vaadin.flow.server.VaadinSession;
 import eu.unicore.samly2.exceptions.SAMLServerException;
+import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
+import io.imunity.vaadin.endpoint.common.EopException;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.utils.Log;
@@ -21,8 +22,6 @@ import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReport
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService.VaadinContextSessionWithRequest;
-import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import java.io.IOException;

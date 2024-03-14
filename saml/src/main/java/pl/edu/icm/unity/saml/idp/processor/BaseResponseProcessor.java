@@ -25,7 +25,13 @@ import pl.edu.icm.unity.saml.idp.GroupChooser;
 import pl.edu.icm.unity.saml.idp.SamlAttributeMapper;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAssertionResponseContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import xmlbeans.org.oasis.saml2.assertion.*;
+import xmlbeans.org.oasis.saml2.assertion.AttributeType;
+import xmlbeans.org.oasis.saml2.assertion.EncryptedAssertionDocument;
+import xmlbeans.org.oasis.saml2.assertion.EncryptedElementType;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationDataType;
+import xmlbeans.org.oasis.saml2.assertion.SubjectConfirmationType;
+import xmlbeans.org.oasis.saml2.assertion.SubjectType;
 import xmlbeans.org.oasis.saml2.protocol.RequestAbstractType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 

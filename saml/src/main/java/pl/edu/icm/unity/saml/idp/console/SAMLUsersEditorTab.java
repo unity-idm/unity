@@ -12,9 +12,9 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.vaadin.elements.grid.EditableGrid;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpEditorUsersTab;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpUser;
-import io.imunity.vaadin.endpoint.common.api.services.idp.MandatoryGroupSelection;
+import io.imunity.vaadin.auth.services.idp.IdpEditorUsersTab;
+import io.imunity.vaadin.auth.services.idp.IdpUser;
+import io.imunity.vaadin.auth.services.idp.MandatoryGroupSelection;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 

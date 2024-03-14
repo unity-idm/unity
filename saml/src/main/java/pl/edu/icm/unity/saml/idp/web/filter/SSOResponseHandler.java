@@ -23,7 +23,7 @@ import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlMessageHandler;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import pl.edu.icm.unity.saml.slo.SamlRoutableUnsignedMessage;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
+import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import jakarta.servlet.http.HttpServletRequest;

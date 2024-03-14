@@ -7,8 +7,8 @@ package pl.edu.icm.unity.saml.idp.console;
 
 import com.vaadin.flow.server.StreamResource;
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.vaadin.endpoint.common.api.services.idp.ActiveValueConfig;
-import io.imunity.vaadin.endpoint.common.api.services.idp.GroupWithIndentIndicator;
+import io.imunity.vaadin.auth.services.idp.ActiveValueConfig;
+import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
 import io.imunity.vaadin.endpoint.common.file.FileFieldUtils;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -37,7 +37,7 @@ import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.RequestAcceptancePolicy;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.ResponseSigningPolicy;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

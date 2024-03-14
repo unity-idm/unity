@@ -6,11 +6,11 @@
 package pl.edu.icm.unity.saml.idp.ws.console;
 
 import com.vaadin.flow.data.binder.Binder;
-import io.imunity.vaadin.endpoint.common.api.services.DefaultServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorBase;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpEditorUsersTab;
-import io.imunity.vaadin.endpoint.common.api.services.tabs.AuthenticationTab;
+import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceEditorBase;
+import io.imunity.vaadin.auth.services.idp.IdpEditorUsersTab;
+import io.imunity.vaadin.auth.services.tabs.AuthenticationTab;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.group.Group;
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.saml.idp.console.SAMLEditorClientsTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLEditorGeneralTab;
 import pl.edu.icm.unity.saml.idp.console.SAMLIndividualTrustedSPConfiguration;
 import pl.edu.icm.unity.saml.idp.console.SAMLServiceConfiguration;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.List;
 import java.util.stream.Collectors;

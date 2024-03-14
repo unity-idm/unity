@@ -14,8 +14,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.webui.authn.CancelHandler;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
+import io.imunity.vaadin.endpoint.common.CancelHandler;
+import io.imunity.vaadin.endpoint.common.EopException;
 
 /**
  * Implements handling of cancellation of authentication in the context of SAML

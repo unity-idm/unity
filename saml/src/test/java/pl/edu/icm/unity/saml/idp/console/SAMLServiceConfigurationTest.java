@@ -6,8 +6,9 @@ package pl.edu.icm.unity.saml.idp.console;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.junit.jupiter.api.Test;
-
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.base.translation.ProfileType;
@@ -18,9 +19,6 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
-import pl.edu.icm.unity.saml.idp.console.v8.SAMLServiceConfiguration;
-import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 import java.security.cert.X509Certificate;
 import java.util.Collections;
@@ -40,7 +38,7 @@ public class SAMLServiceConfigurationTest
 	private PKIManagement pkiMan = mock(PKIManagement.class);
 	private MessageSource msg = mock(MessageSource.class);
 	private URIAccessService uriAccessSrv = mock(URIAccessService.class);
-	private ImageAccessService imageAccessSrv = mock(ImageAccessService.class);
+	private VaadinLogoImageLoader imageAccessSrv = mock(VaadinLogoImageLoader.class);
 	private FileStorageService fileStorageSrv = mock(FileStorageService.class);
 	
 	@Test
@@ -102,7 +100,7 @@ public class SAMLServiceConfigurationTest
 		when(pkiMan.getCredentialNames()).thenReturn(Sets.newHashSet("foo"));
 		NamedCertificate nc = new NamedCertificate("foo", mock(X509Certificate.class));
 		when(pkiMan.getCertificate(any())).thenReturn(nc);
-		when(imageAccessSrv.getEditableImageResourceFromUri(eq("foo"), any())).thenReturn(Optional.of(new LocalOrRemoteResource(null, "foo")));
+		when(imageAccessSrv.loadImageFromUri(eq("foo"))).thenReturn(Optional.of(new LocalOrRemoteResource(null, "foo")));
 		TranslationProfile tp = new TranslationProfile("name", "description", ProfileType.OUTPUT, Collections.emptyList());
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, defaults)
 				.update("embeddedTranslationProfile", tp.toJsonObject().toString())

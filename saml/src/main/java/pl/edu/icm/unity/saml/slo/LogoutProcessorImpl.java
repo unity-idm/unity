@@ -11,7 +11,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LogoutProcessor;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.saml.slo.SAMLInternalLogoutContext.AsyncLogoutFinishCallback;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
+import io.imunity.vaadin.endpoint.common.EopException;
 
 import java.io.IOException;
 

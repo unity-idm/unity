@@ -8,10 +8,10 @@ package pl.edu.icm.unity.saml.idp;
 import io.imunity.idp.*;
 import io.imunity.idp.IdPClientData.AccessStatus;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
+import io.imunity.vaadin.endpoint.common.consent_utils.URIPresentationHelper;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -30,7 +30,6 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.SamlIdPWebEndpointFactory;
-import pl.edu.icm.unity.webui.idpcommon.URIPresentationHelper;
 
 import java.net.URI;
 import java.time.Instant;

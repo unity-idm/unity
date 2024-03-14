@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Route;
-import com.vaadin.server.Page;
 import eu.unicore.samly2.SAMLConstants;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -55,8 +55,8 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.filter.IdpConsentDeciderServlet;
 import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
-import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
+import io.imunity.vaadin.endpoint.common.WebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -289,7 +289,7 @@ class SamlIdPWebView extends UnityViewComponent
 		String redirectURL = userInfo.getRedirectURL();
 		if (redirectURL != null)
 		{
-			Page.getCurrent().open(redirectURL, null);
+			UI.getCurrent().getPage().open(redirectURL, null);
 			throw new EopException();
 		}
 	}

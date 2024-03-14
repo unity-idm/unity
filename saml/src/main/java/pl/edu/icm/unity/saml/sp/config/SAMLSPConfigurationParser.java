@@ -30,7 +30,7 @@ import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 
 @Component
 public class SAMLSPConfigurationParser

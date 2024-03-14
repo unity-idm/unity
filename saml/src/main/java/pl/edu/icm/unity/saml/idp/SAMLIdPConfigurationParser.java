@@ -22,7 +22,7 @@ import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 
 import java.io.IOException;
 import java.io.StringReader;

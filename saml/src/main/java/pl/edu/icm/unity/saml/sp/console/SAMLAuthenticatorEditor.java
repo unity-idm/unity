@@ -49,7 +49,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.sp.SAMLVerificator;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
 import java.io.ByteArrayInputStream;

@@ -23,7 +23,7 @@ import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.metadata.cfg.IdpRemoteMetaManager;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
+import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 
 import jakarta.servlet.ServletException;

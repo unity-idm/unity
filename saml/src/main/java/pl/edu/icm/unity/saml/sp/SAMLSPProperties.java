@@ -4,33 +4,25 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import java.security.PublicKey;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
-
-import org.apache.logging.log4j.Logger;
-
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
 import pl.edu.icm.unity.saml.sp.config.AdditionalCredential;
-import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import java.util.*;
 
 /**
  * Configuration of a SAML requester (or SAML SP).

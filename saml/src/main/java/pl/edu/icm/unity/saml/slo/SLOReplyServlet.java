@@ -19,7 +19,7 @@ import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.SamlHttpResponseServlet;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
+import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.protocol.LogoutResponseDocument;
 
 /**

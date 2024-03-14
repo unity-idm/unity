@@ -16,7 +16,7 @@ import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.slo.SamlMessageHandler;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
+import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import java.io.IOException;
