@@ -25,17 +25,20 @@ class WellKnownServiceEditor implements ServiceEditor
 	private final List<AuthenticationFlowDefinition> flows;
 	private final List<AuthenticatorInfo> authenticators;
 	private final List<String> usedEndpointsPaths;
+	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 	private WellKnownServiceEditorComponent editor;
 
 	WellKnownServiceEditor(MessageSource msg, List<String> allRealms,
-	                       List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths,
-	                       Set<String> serverContextPaths)
+			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths,
+			List<String> usedNames,
+			Set<String> serverContextPaths)
 	{
 		this.msg = msg;
 		this.allRealms = List.copyOf(allRealms);
 		this.authenticators = List.copyOf(authenticators);
 		this.flows = List.copyOf(flows);
+		this.usedNames = List.copyOf(usedNames);
 		this.usedEndpointsPaths = List.copyOf(usedPaths);
 		this.serverContextPaths = serverContextPaths;
 	}
@@ -43,13 +46,15 @@ class WellKnownServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		
-		GeneralTab generalTab = new GeneralTab(msg, SecuredSharedEndpointFactory.TYPE, usedEndpointsPaths, serverContextPaths);
-		
+
+		GeneralTab generalTab = new GeneralTab(msg, SecuredSharedEndpointFactory.TYPE, usedEndpointsPaths,
+				usedNames, serverContextPaths);
+
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				SecuredSharedEndpointFactory.TYPE.getSupportedBinding());
-		
-		editor = new WellKnownServiceEditorComponent(msg, generalTab, authenticationTab, (DefaultServiceDefinition) endpoint);
+
+		editor = new WellKnownServiceEditorComponent(msg, generalTab, authenticationTab,
+				(DefaultServiceDefinition) endpoint);
 		return editor;
 	}
 
@@ -65,7 +70,7 @@ class WellKnownServiceEditor implements ServiceEditor
 		private final Binder<DefaultServiceDefinition> serviceBinder;
 
 		public WellKnownServiceEditorComponent(MessageSource msg, GeneralTab generalTab, AuthenticationTab authTab,
-		                                       DefaultServiceDefinition toEdit)
+				DefaultServiceDefinition toEdit)
 		{
 			super(msg);
 			boolean editMode = toEdit != null;

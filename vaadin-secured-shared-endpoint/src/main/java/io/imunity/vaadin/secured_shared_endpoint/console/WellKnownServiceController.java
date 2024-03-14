@@ -58,6 +58,7 @@ class WellKnownServiceController extends DefaultServicesControllerBase implement
 				new ArrayList<>(flowsMan.getAuthenticationFlows()),
 				new ArrayList<>(authMan.getAuthenticators(null)),
 				endpointMan.getEndpoints().stream().map(Endpoint::getContextAddress).collect(Collectors.toList()),
+				endpointMan.getEndpoints().stream().map(Endpoint::getName).collect(Collectors.toList()),
 				networkServer.getUsedContextPaths());
 	}
 
