@@ -13,9 +13,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
-
+import io.imunity.vaadin.endpoint.common.AttributeTypeUtils;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 public class IntegerBoundEditor extends CustomField<Integer>
 {

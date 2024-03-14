@@ -26,7 +26,7 @@ import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.credential.pass.MobilePasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings.ConfirmationMode;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Collections;
 import java.util.List;

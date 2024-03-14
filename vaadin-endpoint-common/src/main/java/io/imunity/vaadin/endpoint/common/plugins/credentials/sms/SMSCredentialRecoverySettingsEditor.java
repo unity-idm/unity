@@ -16,7 +16,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.credential.sms.SMSCredentialRecoverySettings;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 

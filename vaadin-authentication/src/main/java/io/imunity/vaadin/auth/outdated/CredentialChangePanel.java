@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
-import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.MissingCredentialException;
 
 import java.util.Optional;
 

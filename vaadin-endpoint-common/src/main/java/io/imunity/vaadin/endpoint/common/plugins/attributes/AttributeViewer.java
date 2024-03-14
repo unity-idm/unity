@@ -5,15 +5,13 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
 import com.vaadin.flow.component.Component;
-
 import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.shared.Tooltip;
-
+import io.imunity.vaadin.endpoint.common.safe_html.HtmlConfigurableLabel;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 import java.util.List;
 

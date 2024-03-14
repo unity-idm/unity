@@ -4,14 +4,13 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors;
 
-import java.util.Optional;
-
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.validator.LongRangeValidator;
-
+import io.imunity.vaadin.endpoint.common.AttributeTypeUtils;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
+
+import java.util.Optional;
 
 public class LongBoundEditor extends AbstractBoundEditor<Long>
 {

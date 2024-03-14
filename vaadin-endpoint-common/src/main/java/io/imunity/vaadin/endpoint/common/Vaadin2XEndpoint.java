@@ -21,7 +21,6 @@ import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 import java.io.StringReader;
 import java.time.Duration;
@@ -36,6 +35,7 @@ import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAUL
 
 public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements WebAppEndpointInstance
 {
+	public static final String SANDBOX_PATH_ASSOCIATION = "/sandbox-association";
 	protected static final Duration UNRESTRICTED_SESSION_TIMEOUT_VALUE = Duration.of(1, ChronoUnit.HOURS);
 
 	protected ApplicationContext applicationContext;

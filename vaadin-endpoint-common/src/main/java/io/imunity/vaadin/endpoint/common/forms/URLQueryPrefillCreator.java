@@ -18,7 +18,6 @@ import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
-import pl.edu.icm.unity.webui.forms.PrefilledSet;
 
 import java.util.HashMap;
 import java.util.List;

@@ -22,7 +22,7 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
-import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.MissingCredentialException;
 
 import java.util.List;
 import java.util.function.Consumer;

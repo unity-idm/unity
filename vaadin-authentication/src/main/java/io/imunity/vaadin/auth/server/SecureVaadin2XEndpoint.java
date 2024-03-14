@@ -27,7 +27,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 import java.util.EnumSet;
 import java.util.List;

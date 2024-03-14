@@ -7,7 +7,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 class InternalAttributeValueEditor implements ListOfEmbeddedElementsStub.Editor<LabelledValue>
 {

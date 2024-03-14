@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.credential.sms.SMSAuthnTemplateDef;
 import pl.edu.icm.unity.stdext.credential.sms.SMSCredential;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Optional;
 

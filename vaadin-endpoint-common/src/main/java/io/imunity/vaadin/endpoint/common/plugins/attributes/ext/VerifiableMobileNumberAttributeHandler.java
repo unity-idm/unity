@@ -14,8 +14,10 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.StringBindingValue;
 import io.imunity.vaadin.elements.TextFieldWithVerifyButton;
 import io.imunity.vaadin.endpoint.common.confirmations.MobileNumberConfirmationConfigurationEditor;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.components.ConfirmationInfoFormatter;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleStringFieldBinder;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.sms.MobileNumberConfirmationDialog;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +31,6 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.MobileNumberConfirmationManager;
 import pl.edu.icm.unity.stdext.attr.VerifiableMobileNumberAttributeSyntax;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 import java.util.Optional;
 

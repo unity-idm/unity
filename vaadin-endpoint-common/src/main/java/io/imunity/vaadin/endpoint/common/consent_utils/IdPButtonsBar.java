@@ -10,8 +10,8 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.LinkButton;
+import io.imunity.vaadin.endpoint.common.WebLogoutHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 
 /**
  * Bar with buttons: Accept, Decline, Login as another user. The login as another user action is 

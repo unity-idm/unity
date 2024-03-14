@@ -6,9 +6,8 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors;
 
 import com.vaadin.flow.component.textfield.IntegerField;
-
+import io.imunity.vaadin.endpoint.common.AttributeTypeUtils;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 public class IntegerFieldWithDefaultOutOfRangeError extends IntegerField
 {

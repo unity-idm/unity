@@ -14,6 +14,7 @@ import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationGrid;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationOption;
 import io.imunity.vaadin.endpoint.common.api.RemoteRegistrationSignupHandler;
+import io.imunity.vaadin.endpoint.common.forms.ResolvedInvitationParam;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
@@ -24,7 +25,7 @@ import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
-import pl.edu.icm.unity.webui.forms.ResolvedInvitationParam;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -14,7 +14,9 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.CancelHandler;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -32,15 +34,13 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.Post
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_CANCEL;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_SHOW_CANCEL;
 
 /**
  * Organizes authentication options in columns, making them instantly usable.

@@ -10,19 +10,24 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.LinkButton;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId;
 import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createNonLoginComponent;
 import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createSimpleLoginComponent;
 import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.*;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.*;
 
 /**
  * Core component maintaining set of columns with authentication options.

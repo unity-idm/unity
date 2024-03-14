@@ -12,7 +12,6 @@ import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
-import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 import java.util.List;
 import java.util.Optional;

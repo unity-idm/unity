@@ -6,11 +6,11 @@ package io.imunity.vaadin.endpoint.common.active_value_select;
 
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.endpoint.common.WebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
-import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;

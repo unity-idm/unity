@@ -14,7 +14,7 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.metadata.AttributeMe
 import io.imunity.vaadin.endpoint.common.plugins.attributes.metadata.WebAttributeMetadataHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.utils.SensitiveAttributeMetadataProvider;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 public class SensitiveAttributeMetadataHandler implements WebAttributeMetadataHandler
 {

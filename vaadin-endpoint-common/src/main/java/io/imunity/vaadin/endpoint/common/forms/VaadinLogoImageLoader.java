@@ -15,7 +15,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.files.IllegalURIException;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
-import pl.edu.icm.unity.webui.common.file.ImageAccessService;
 
 import java.io.ByteArrayInputStream;
 import java.net.URI;
@@ -55,12 +54,17 @@ public class VaadinLogoImageLoader
 		if (URIHelper.isWebReady(uri))
 		{
 			return Optional.of(new LocalOrRemoteResource(uri.toString(), ""));
-		} else
+		}
+		else if (logoUri.startsWith("file:../common/"))
+		{
+			return Optional.of(new LocalOrRemoteResource(uri.toString().replace("file:../common/", "../unitygw/"), ""));
+		}
+		else
 		{
 			FileData fileData = null;
 			try
 			{
-				fileData = uriAccessService.readImageURI(uri, ImageAccessService.UNKNOWN_THEME);
+				fileData = uriAccessService.readImageURI(uri, "UNKNOWN_THEME");
 			} catch (Exception e)
 			{
 				log.error("Can not read image from uri: " + logoUri);

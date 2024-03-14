@@ -12,11 +12,11 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.StringBindingValue;
 import io.imunity.vaadin.elements.TextFieldWithVerifyButton;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.components.ConfirmationInfoFormatter;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleStringFieldBinder;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditor;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorContext;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -28,7 +28,6 @@ import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
-import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 public class EmailIdentityEditor implements IdentityEditor
 {

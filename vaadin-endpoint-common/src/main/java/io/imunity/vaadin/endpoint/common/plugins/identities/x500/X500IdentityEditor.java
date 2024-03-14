@@ -25,7 +25,6 @@ import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
-import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

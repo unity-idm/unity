@@ -10,7 +10,7 @@ import com.vaadin.flow.data.binder.Binder;
 import io.imunity.vaadin.elements.StringBindingValue;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Collection;
 

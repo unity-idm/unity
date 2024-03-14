@@ -7,10 +7,9 @@ package io.imunity.vaadin.auth;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-
+import io.imunity.vaadin.endpoint.common.CancelHandler;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
-import pl.edu.icm.unity.webui.authn.CancelHandler;
 
 import java.util.function.Function;
 

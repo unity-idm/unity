@@ -4,22 +4,21 @@
 
 package io.imunity.vaadin.endpoint.common.confirmations;
 
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
-
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
-
 import io.imunity.vaadin.elements.CSSVars;
+import io.imunity.vaadin.endpoint.common.AttributeTypeUtils;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerFieldWithDefaultOutOfRangeError;
 import pl.edu.icm.unity.base.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.msg_template.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 /**
  * Editor for {@link EmailConfirmationConfiguration}

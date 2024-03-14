@@ -19,7 +19,6 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.webui.idpcommon.SelectableAttributesComponent;
 
 import java.util.*;
 import java.util.Map.Entry;

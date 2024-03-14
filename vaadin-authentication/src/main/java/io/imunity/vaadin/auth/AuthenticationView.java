@@ -20,6 +20,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
@@ -43,7 +44,6 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 import java.util.Iterator;
 import java.util.List;
@@ -53,8 +53,8 @@ import java.util.function.Function;
 import static io.imunity.vaadin.auth.server.AuthenticationFilter.VAADIN_ROLE;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.*;
 import static pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
 
 @Route("/authentication")
 public class AuthenticationView extends UnityViewComponent implements BeforeEnterObserver

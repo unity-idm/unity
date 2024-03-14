@@ -11,7 +11,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.shared.Registration;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 class AdditionalAuthnDialog extends Dialog
 {

@@ -14,7 +14,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.AutoClickButton;
 import org.apache.logging.log4j.util.Strings;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.webui.common.Styles;
 
 public class WorkflowCompletedComponent extends VerticalLayout
 {
@@ -28,7 +27,6 @@ public class WorkflowCompletedComponent extends VerticalLayout
 			add(logo);
 
 		infoL = new H2(config.mainInformation);
-		infoL.addClassName(Styles.vLabelH1.toString());
 		infoL.addClassName(config.success ? "u-final-info" : "u-final-error");
 		add(infoL);
 

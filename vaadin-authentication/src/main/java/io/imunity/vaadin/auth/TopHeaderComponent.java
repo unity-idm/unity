@@ -7,10 +7,10 @@ package io.imunity.vaadin.auth;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.LinkButton;
+import io.imunity.vaadin.endpoint.common.EndpointRegistrationConfiguration;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 import java.util.Optional;
 

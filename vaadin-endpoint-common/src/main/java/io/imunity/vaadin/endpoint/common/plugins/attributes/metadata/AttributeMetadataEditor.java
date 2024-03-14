@@ -5,8 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes.metadata;
 
 import com.vaadin.flow.component.Component;
-
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 /**
  * Editor of metadata handled by {@link AttributeMetadataProvider}

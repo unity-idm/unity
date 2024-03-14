@@ -85,7 +85,7 @@ public class ProxyAuthenticationFilter implements Filter
 		URIBuilder uriBuilder = new URIBuilder();
 		for (Map.Entry<String, String[]> entry: parameterMap.entrySet())
 			if (!entry.getKey().equals(ProxyAuthenticationFilter.TRIGGERING_PARAM) &&
-					!entry.getKey().equals(pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper.IDP_SELECT_PARAM))
+					!entry.getKey().equals(PreferredAuthenticationHelper.IDP_SELECT_PARAM))
 			{
 				for (String value: entry.getValue())
 					uriBuilder.addParameter(entry.getKey(), value);
@@ -118,7 +118,7 @@ public class ProxyAuthenticationFilter implements Filter
 	{
 		if (isAutomatedAuthenticationDesired(httpRequest))
 		{
-			String selectedAuthn = httpRequest.getParameter(pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper.IDP_SELECT_PARAM);
+			String selectedAuthn = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
 			if (selectedAuthn == null && authenticators.size() > 1)
 			{
 				log.error("There are more multiple authenticators installed, "

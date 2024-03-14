@@ -5,12 +5,12 @@
 package io.imunity.vaadin.auth.extensions.credreset;
 
 import com.vaadin.flow.component.textfield.TextField;
-import pl.edu.icm.unity.webui.common.ComponentWithLabel;
+import io.imunity.vaadin.elements.ComponentWithLabel;
 
 /**
  * Depending on configuration label may be put as placeholder or as a standard caption of this textfield
  */
-public class TextFieldWithContextLabel extends TextField implements ComponentWithLabel
+public class TextFieldWithContextLabel extends TextField
 {
 	private final boolean showLabelInline;
 

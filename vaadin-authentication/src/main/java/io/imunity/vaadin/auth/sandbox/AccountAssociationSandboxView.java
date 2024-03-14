@@ -27,15 +27,16 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 import java.util.List;
 import java.util.Optional;
 
+import static io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint.SANDBOX_PATH_ASSOCIATION;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.*;
-import static pl.edu.icm.unity.webui.authn.remote.RemoteRedirectedAuthnResponseProcessingFilterV8.DECISION_SESSION_ATTRIBUTE;
 
-@Route("/sandbox-association")
+@Route(SANDBOX_PATH_ASSOCIATION)
 @AnonymousAllowed
 class AccountAssociationSandboxView extends UnityViewComponent implements BeforeEnterObserver
 {

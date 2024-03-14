@@ -26,7 +26,7 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordEncodingPoolProvider;
 import pl.edu.icm.unity.stdext.credential.pass.SCryptEncoder;
 import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

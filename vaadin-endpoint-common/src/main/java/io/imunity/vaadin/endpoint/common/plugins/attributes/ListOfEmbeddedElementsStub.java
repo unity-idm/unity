@@ -14,7 +14,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.ArrayList;
 import java.util.Collection;

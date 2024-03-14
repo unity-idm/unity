@@ -13,12 +13,13 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.base.message.MessageSource;
+
 import nl.captcha.Captcha;
 import nl.captcha.backgrounds.GradiatedBackgroundProducer;
 import nl.captcha.gimpy.FishEyeGimpyRenderer;
 import nl.captcha.text.producer.DefaultTextProducer;
-import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.awt.*;
 

@@ -5,11 +5,8 @@
 package io.imunity.vaadin.auth;
 
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
-/**
- * Allows for controlling wrapped {@link VaadinAuthenticationUI}
- */
+
 interface AuthenticationUIController
 {
 	void cancel();

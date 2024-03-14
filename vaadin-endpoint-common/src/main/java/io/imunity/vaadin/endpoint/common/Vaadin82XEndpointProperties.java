@@ -6,7 +6,6 @@
 package io.imunity.vaadin.endpoint.common;
 
 import eu.unicore.util.configuration.PropertyMD;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 
 import java.io.File;
 import java.util.Optional;

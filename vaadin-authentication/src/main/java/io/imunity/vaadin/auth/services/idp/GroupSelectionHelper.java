@@ -1,0 +1,94 @@
+/*
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+
+package io.imunity.vaadin.auth.services.idp;
+
+import org.springframework.util.StringUtils;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.message.MessageSource;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Group selection related operations.
+ * @author P.Piernik
+ *
+ */
+public class GroupSelectionHelper
+{
+	public static final String GROUPS_TREE_INDENT_CHAR = "\u2003";
+
+	public static int getMinIndent(List<Group> items)
+	{
+		if (items.isEmpty())
+		{
+			return 0;
+		}
+
+		List<String> sorted = items.stream()
+				.sorted((g1, g2) -> StringUtils.countOccurrencesOf(g1.toString(), "/")
+						- StringUtils.countOccurrencesOf(g2.toString(), "/"))
+				.map(g -> g.toString()).collect(Collectors.toList());
+
+		return StringUtils.countOccurrencesOf(sorted.get(0), "/");
+	}
+
+	public static String generateIndent(int i)
+	{
+		return i > 0 ? String.join("", Collections.nCopies(i, GROUPS_TREE_INDENT_CHAR)) : "";
+	}
+
+	/**
+	 * Sort groups by displayed names - according to the hierarchy
+	 * @param source
+	 * @param comparator
+	 */
+	public static void sort(List<Group> source, Comparator<Group> comparator)
+	{
+		if (source.isEmpty())
+			return;
+		Map<String, Group> groupByPath = source.stream().collect(Collectors.toMap(g -> g.toString(), g -> g));
+
+		Group sortRoot = new Group("_sortRoot_" + UUID.randomUUID());
+		Map<Group, List<Group>> byParent = source.stream()
+				.collect(Collectors.groupingBy(
+						g -> (g.toString().equals("/") || groupByPath.get(g.getParentPath()) == null) ? sortRoot
+								: groupByPath.get(g.getParentPath()),
+						Collectors.toList()));
+
+		List<Group> ordered = new ArrayList<>();
+		Deque<Group> groupDeque = new LinkedList<>();
+
+		byParent.get(sortRoot).stream().sorted(comparator).forEach(groupDeque::add);
+
+		while (!groupDeque.isEmpty())
+		{
+			Group tmp = groupDeque.pollLast();
+			byParent.getOrDefault(tmp, Collections.emptyList()).stream().sorted(comparator)
+					.forEach(groupDeque::add);
+			ordered.add(tmp);
+		}
+		source.clear();
+		source.addAll(ordered);
+	}
+
+	public static class GroupNameComparator implements Comparator<Group>
+	{
+		private MessageSource msg;
+
+		public GroupNameComparator(MessageSource msg)
+		{
+			this.msg = msg;
+		}
+
+		@Override
+		public int compare(Group g1, Group g2)
+		{
+			return g2.getDisplayedName().getValue(msg).compareTo(g1.getDisplayedName().getValue(msg));
+		}
+
+	}
+}

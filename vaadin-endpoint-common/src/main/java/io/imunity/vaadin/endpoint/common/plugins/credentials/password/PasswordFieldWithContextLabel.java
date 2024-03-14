@@ -6,7 +6,7 @@ package io.imunity.vaadin.endpoint.common.plugins.credentials.password;
 
 
 import com.vaadin.flow.component.textfield.PasswordField;
-import pl.edu.icm.unity.webui.common.ComponentWithLabel;
+import io.imunity.vaadin.elements.ComponentWithLabel;
 
 public class PasswordFieldWithContextLabel extends PasswordField
 {

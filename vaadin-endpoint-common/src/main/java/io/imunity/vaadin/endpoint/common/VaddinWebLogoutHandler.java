@@ -19,7 +19,6 @@ import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.webui.authn.WebLogoutHandler;
 
 import java.io.IOException;
 import java.net.URI;
