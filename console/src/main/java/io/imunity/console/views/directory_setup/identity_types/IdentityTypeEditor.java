@@ -13,7 +13,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import io.imunity.vaadin.elements.CSSVars;
+import io.imunity.vaadin.endpoint.common.AttributeTypeUtils;
 import io.imunity.vaadin.endpoint.common.confirmations.EmailConfirmationConfigurationEditor;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerFieldWithDefaultOutOfRangeError;
 import pl.edu.icm.unity.base.identity.IdentityType;
@@ -21,8 +23,6 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
-import pl.edu.icm.unity.webui.common.FormValidationException;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;

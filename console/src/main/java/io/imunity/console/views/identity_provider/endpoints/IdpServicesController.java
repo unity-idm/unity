@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.console.views.services.base.ServiceControllerBase;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.services.idp.IdpServiceControllersRegistry;
+import io.imunity.vaadin.auth.services.idp.IdpServiceControllersRegistry;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 

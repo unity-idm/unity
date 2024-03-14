@@ -33,7 +33,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 import java.util.*;
 import java.util.stream.Collectors;

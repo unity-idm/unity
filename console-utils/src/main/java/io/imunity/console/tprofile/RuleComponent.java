@@ -44,7 +44,7 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextK
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Map;
 import java.util.Objects;

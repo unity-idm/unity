@@ -4,25 +4,21 @@
  */
 package io.imunity.console.views.signup_and_enquiry.formfill;
 
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import io.imunity.console.views.signup_and_enquiry.EnquiryResponsesChangedEvent;
 import io.imunity.console.views.signup_and_enquiry.RegistrationRequestsChangedEvent;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.WebSession;
+import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
 import io.imunity.vaadin.enquiry.EnquiryResponseEditor;
 import io.imunity.vaadin.enquiry.EnquiryResponseEditorController;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.registration.EnquiryForm;
-import pl.edu.icm.unity.base.registration.EnquiryResponse;
-import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.*;
 import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.base.registration.RegistrationRequestAction;
-import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -31,8 +27,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.AsyncErrorHandler;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 
 
@@ -87,8 +81,8 @@ public class AdminEnquiryFormLauncher
 			}	
 		} catch (EngineException e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage(
-					"AdminFormLauncher.errorRequestAutoAccept"), e);
+			notificationPresenter.showError(msg.getMessage(
+					"AdminFormLauncher.errorRequestAutoAccept"), e.getMessage());
 		}
 	}
 	
@@ -105,7 +99,7 @@ public class AdminEnquiryFormLauncher
 		{
 			WorkflowFinalizationConfiguration config = getFinalizationHandler(form).getFinalRegistrationConfigurationOnError(
 					TriggeringState.PRESET_USER_EXISTS);
-			NotificationPopup.showError(config.mainInformation, 
+			notificationPresenter.showError(config.mainInformation,
 					config.extraInformation == null ? "" : config.extraInformation);
 		} catch (WrongArgumentException e)
 		{
@@ -115,7 +109,7 @@ public class AdminEnquiryFormLauncher
 			log.warn("Registration request submision failed", e);
 			WorkflowFinalizationConfiguration config =  getFinalizationHandler(form).getFinalRegistrationConfigurationOnError(
 					TriggeringState.GENERAL_ERROR);
-			NotificationPopup.showError(config.mainInformation, 
+			notificationPresenter.showError(config.mainInformation,
 					config.extraInformation == null ? "" : config.extraInformation);
 		}
 		return null;
@@ -142,7 +136,7 @@ public class AdminEnquiryFormLauncher
 	
 	public void showDialog(final EnquiryForm form, 
 			RemotelyAuthenticatedPrincipal remoteContext, 
-			AsyncErrorHandler errorHandler)
+			RegistrationFormDialogProvider.AsyncErrorHandler errorHandler)
 	{
 		EnquiryResponseEditor editor;
 		try

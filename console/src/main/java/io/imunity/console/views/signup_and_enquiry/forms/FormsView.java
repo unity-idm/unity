@@ -46,7 +46,7 @@ import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationT
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.signupAndEnquiry.forms", parent = "WebConsoleMenu.signupAndEnquiry")

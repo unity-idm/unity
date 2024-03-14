@@ -21,12 +21,12 @@ import io.imunity.console.views.EditViewActionLayoutFactory;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
+import io.imunity.vaadin.auth.services.ServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent.ServiceEditorTab;
 import io.imunity.vaadin.endpoint.common.sub_view_switcher.DefaultSubViewSwitcher;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 import java.util.List;
 import java.util.Map;

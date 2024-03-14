@@ -43,7 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 import java.io.ByteArrayInputStream;
 import java.util.*;

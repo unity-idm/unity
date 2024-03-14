@@ -33,7 +33,7 @@ import pl.edu.icm.unity.base.registration.EnquiryResponseState;
 import pl.edu.icm.unity.base.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.base.registration.RegistrationRequestState;
 import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 /**
  * Component showing a grid with the registration requests. It is possible to

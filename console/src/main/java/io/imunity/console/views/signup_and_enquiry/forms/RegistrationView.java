@@ -18,8 +18,8 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 import java.util.List;
 import java.util.Optional;

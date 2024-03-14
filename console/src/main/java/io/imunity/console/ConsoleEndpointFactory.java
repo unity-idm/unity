@@ -26,8 +26,8 @@ import java.util.Collections;
 @Component
 public class ConsoleEndpointFactory implements EndpointFactory
 {
-	public static final String NAME = "ConsoleUI";
-	public static final String SERVLET_PATH = "/console2";
+	public static final String NAME = "WebConsoleUI";
+	public static final String SERVLET_PATH = "/console";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
 			"Web administrative console user interface\"", VaadinAuthentication.NAME,
 			Collections.singletonMap(SERVLET_PATH, "Web console endpoint"));

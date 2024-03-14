@@ -4,14 +4,9 @@
  */
 package io.imunity.console.tprofile;
 
-import com.vaadin.ui.ComboBox;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 
-/**
- * {@link ComboBox} based editor of enum paramter.
- * @author K. Benedyczak
- */
 public class EnumActionParameterComponent extends BaseEnumActionParameterComponent implements ActionParameterComponent
 {
 	public EnumActionParameterComponent(ActionParameterDefinition desc, MessageSource msg)

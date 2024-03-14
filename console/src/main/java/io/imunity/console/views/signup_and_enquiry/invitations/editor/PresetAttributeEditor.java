@@ -23,7 +23,7 @@ import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 /**
  * Editor of a prefilled invitation {@link Attribute}.

@@ -20,7 +20,7 @@ import io.imunity.console.tprofile.RegistrationTranslationProfileEditor;
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.EnumComboBox;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.services.idp.PolicyAgreementConfigurationList;
+import io.imunity.vaadin.auth.services.idp.PolicyAgreementConfigurationList;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import org.apache.logging.log4j.Logger;
@@ -44,7 +44,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.ArrayList;
 import java.util.Arrays;

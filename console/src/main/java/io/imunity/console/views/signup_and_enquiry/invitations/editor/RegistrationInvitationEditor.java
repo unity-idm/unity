@@ -37,7 +37,7 @@ import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 @PrototypeComponent
 class RegistrationInvitationEditor extends VerticalLayout implements InvitationParamEditor

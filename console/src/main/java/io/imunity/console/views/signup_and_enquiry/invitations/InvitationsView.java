@@ -24,7 +24,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.IllegalFormTypeException;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.signup_and_enquiry.invitations", parent = "WebConsoleMenu.signup_and_enquiry")

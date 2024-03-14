@@ -7,7 +7,7 @@ package io.imunity.console.views.maintenance.audit_log;
 import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-class MembershipFormatter
+public class MembershipFormatter
 {
 	public static String toString(MessageSource msg, GroupMembership membership)
 	{

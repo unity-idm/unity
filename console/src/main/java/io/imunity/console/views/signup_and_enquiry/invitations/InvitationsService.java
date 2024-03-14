@@ -25,7 +25,7 @@ import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 /**
  * Controller for all invitation views

@@ -5,28 +5,22 @@
 
 package io.imunity.console.views.directory_setup.attribute_types;
 
-import java.io.ByteArrayInputStream;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.metadata.AttributeMetadataHandlerRegistry;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.vaadin.simplefiledownloader.SimpleFileDownloader;
-
-import com.vaadin.server.StreamResource;
-
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.metadata.AttributeMetadataHandlerRegistry;
-import pl.edu.icm.unity.base.Constants;
-import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Controller for all attribute type views
@@ -69,35 +63,6 @@ class AttributeTypeController
 		{
 			throw new ControllerException(msg.getMessage("AttributeTypeController.getAllError"), e);
 		}
-	}
-
-	SimpleFileDownloader getAttributeTypesDownloader(Set<AttributeTypeEntry> items) throws ControllerException
-	{
-		SimpleFileDownloader downloader = new SimpleFileDownloader();
-		StreamResource resource = null;
-		try
-		{
-			if (items.size() == 1)
-			{
-				AttributeType item = items.iterator()
-						.next().attributeType;
-				byte[] content = Constants.MAPPER.writeValueAsBytes(item);
-				resource = new StreamResource(() -> new ByteArrayInputStream(content), item.getName() + ".json");
-			} else
-			{
-
-				byte[] content = Constants.MAPPER.writeValueAsBytes(items.stream()
-						.map(at -> at.attributeType)
-						.collect(Collectors.toSet()));
-				resource = new StreamResource(() -> new ByteArrayInputStream(content), "attributeTypes.json");
-			}
-		} catch (Exception e)
-		{
-			throw new ControllerException(msg.getMessage("AttributeTypeController.getDownloaderError"), e);
-		}
-
-		downloader.setFileDownloadResource(resource);
-		return downloader;
 	}
 
 	void addAttributeType(AttributeType at) throws ControllerException

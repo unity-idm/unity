@@ -17,7 +17,7 @@ import com.vaadin.flow.data.binder.Validator;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.URLQueryPrefillConfig;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 

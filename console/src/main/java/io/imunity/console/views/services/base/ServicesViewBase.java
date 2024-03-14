@@ -31,14 +31,14 @@ import io.imunity.console.views.ShowViewActionLayoutFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceTypeInfoHelper;
+import io.imunity.vaadin.auth.services.ServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent.ServiceEditorTab;
+import io.imunity.vaadin.auth.services.ServiceTypeInfoHelper;
 import pl.edu.icm.unity.base.endpoint.Endpoint.EndpointState;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 /**
  * 

@@ -13,12 +13,8 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
-
-import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
-import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import io.imunity.vaadin.elements.Panel;
-import io.imunity.vaadin.elements.CSSVars;
-import io.imunity.vaadin.elements.CssClassNames;
+import io.imunity.vaadin.elements.*;
+import io.imunity.vaadin.endpoint.common.AttributeTypeUtils;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.bounded_editors.IntegerBoundEditor;
@@ -30,7 +26,6 @@ import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;

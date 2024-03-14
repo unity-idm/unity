@@ -23,7 +23,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.stream.Stream;
 

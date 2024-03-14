@@ -24,17 +24,17 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceControllerBaseInt;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceDefinition;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditor;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceEditorComponent.ServiceEditorTab;
-import io.imunity.vaadin.endpoint.common.api.services.ServiceTypeInfoHelper;
+import io.imunity.vaadin.auth.services.ServiceControllerBaseInt;
+import io.imunity.vaadin.auth.services.ServiceDefinition;
+import io.imunity.vaadin.auth.services.ServiceEditor;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent.ServiceEditorTab;
+import io.imunity.vaadin.auth.services.ServiceTypeInfoHelper;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 /**
  * 

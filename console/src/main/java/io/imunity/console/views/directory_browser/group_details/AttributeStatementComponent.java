@@ -31,7 +31,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeStatementMVELContextKey;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Collection;
 import java.util.HashSet;

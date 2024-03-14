@@ -33,8 +33,7 @@ import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.bus.Event;
 
 import java.util.ArrayList;
@@ -395,7 +394,7 @@ public class TranslationProfileEditor extends VerticalLayout
 						actionComponentProvider.getOutputProfile(profileName);
 			} catch (EngineException e)
 			{
-				NotificationPopup.showError(msg, msg.getMessage("TranslationProfilesComponent.errorReadData"), e);
+				notificationPresenter.showError(msg.getMessage("TranslationProfilesComponent.errorReadData"), e.getMessage());
 				return false;
 			}
 

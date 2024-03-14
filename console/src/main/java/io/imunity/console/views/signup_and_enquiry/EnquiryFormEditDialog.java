@@ -9,7 +9,7 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 public class EnquiryFormEditDialog extends ConfirmDialog
 {

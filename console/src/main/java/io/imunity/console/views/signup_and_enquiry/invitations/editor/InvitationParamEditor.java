@@ -8,7 +8,7 @@ package io.imunity.console.views.signup_and_enquiry.invitations.editor;
 import com.vaadin.flow.component.Component;
 
 import pl.edu.icm.unity.base.registration.invitation.InvitationParam;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 interface InvitationParamEditor
 {

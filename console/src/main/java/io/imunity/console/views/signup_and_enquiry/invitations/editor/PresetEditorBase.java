@@ -15,7 +15,7 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.ListOfEmbeddedElemen
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Optional;
 

@@ -21,7 +21,7 @@ import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 
 /**

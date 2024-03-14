@@ -17,8 +17,8 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 import java.util.Optional;
 

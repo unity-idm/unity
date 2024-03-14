@@ -5,23 +5,19 @@
 
 package io.imunity.console.views.translation_profiles;
 
-import com.vaadin.server.StreamResource;
 import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.console.tprofile.TranslationProfileEditor;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.vaadin.simplefiledownloader.SimpleFileDownloader;
-import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
-import java.io.ByteArrayInputStream;
 import java.util.List;
 
 public abstract class TranslationsServiceBase
@@ -120,25 +116,4 @@ public abstract class TranslationsServiceBase
 					updated.getName()), e);
 		}
 	}
-
-	SimpleFileDownloader getDownloader(TranslationProfile profile) throws ControllerException
-	{
-		SimpleFileDownloader downloader = new SimpleFileDownloader();
-		StreamResource resource = null;
-		try
-		{
-			byte[] content = Constants.MAPPER.writeValueAsBytes(profile);
-			resource = new StreamResource(() -> new ByteArrayInputStream(content),
-					profile.getName() + ".json");
-
-		} catch (Exception e)
-		{
-			throw new ControllerException(msg.getMessage("TranslationProfilesController.exportError",
-					profile.getName()), e);
-		}
-
-		downloader.setFileDownloadResource(resource);
-		return downloader;
-	}
-
 }

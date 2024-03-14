@@ -6,9 +6,9 @@
 package io.imunity.console.views.directory_setup.attribute_types;
 
 import io.imunity.vaadin.elements.grid.FilterableEntry;
+import io.imunity.vaadin.endpoint.common.AttributeTypeUtils;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 
 import java.util.function.Function;
 

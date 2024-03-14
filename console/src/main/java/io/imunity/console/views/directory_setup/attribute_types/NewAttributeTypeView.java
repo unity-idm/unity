@@ -5,28 +5,25 @@
 
 package io.imunity.console.views.directory_setup.attribute_types;
 
-import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
-
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
-
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 import jakarta.annotation.security.PermitAll;
+import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+
+import java.util.Optional;
+
+import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
 
 /**
  * New attribute type view
@@ -119,7 +116,7 @@ class NewAttributeTypeView extends ConsoleViewComponent
 			controller.addAttributeType(at);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(msg, e);
+			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
 			return;
 		}
 

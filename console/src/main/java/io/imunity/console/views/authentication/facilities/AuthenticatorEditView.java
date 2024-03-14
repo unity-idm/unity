@@ -31,8 +31,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorTypeDescription;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 import java.util.*;
 import java.util.stream.Collectors;

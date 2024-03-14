@@ -19,7 +19,7 @@ import io.imunity.vaadin.elements.EnumComboBox;
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import io.imunity.vaadin.elements.NotEmptyComboBox;
-import io.imunity.vaadin.endpoint.common.api.services.idp.PolicyAgreementConfigurationList;
+import io.imunity.vaadin.auth.services.idp.PolicyAgreementConfigurationList;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ListOfEmbeddedElements;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ListOfEmbeddedElementsStub.Editor;
@@ -39,7 +39,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.*;
 import java.util.function.Predicate;

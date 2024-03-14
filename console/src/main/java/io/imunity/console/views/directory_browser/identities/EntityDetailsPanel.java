@@ -9,6 +9,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.console.views.maintenance.audit_log.IdentityFormatter;
+import io.imunity.console.views.maintenance.audit_log.MembershipFormatter;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.ListOfElementsWithActions;
 import pl.edu.icm.unity.base.authn.CredentialInfo;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
@@ -18,7 +19,6 @@ import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.webui.common.identities.MembershipFormatter;
 
 import java.util.Collection;
 import java.util.Map;

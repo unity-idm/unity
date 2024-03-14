@@ -9,7 +9,7 @@ import com.vaadin.flow.component.dependency.CssImport;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 @CssImport(value = "./dialog.css", themeFor = "vaadin-confirm-dialog-overlay")
 public class AttributeEditDialog extends ConfirmDialog

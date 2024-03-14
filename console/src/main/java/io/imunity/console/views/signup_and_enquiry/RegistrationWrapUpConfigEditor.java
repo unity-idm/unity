@@ -16,7 +16,7 @@ import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig;
 import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -39,7 +39,6 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -368,8 +367,8 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 
 					} catch (EngineException ex)
 					{
-						NotificationPopup.showError(msg,
-								msg.getMessage("GroupDelegationEditConfigDialog.errorUpdateForm"), ex);
+						notificationPresenter.showError(
+								msg.getMessage("GroupDelegationEditConfigDialog.errorUpdateForm"), ex.getMessage());
 					}
 					close.run();
 				}, msg.getMessage("no"), e -> close.run());
