@@ -365,19 +365,6 @@
 		</exec>
 	</target>
 
-	<target name="update-webContents" unless="skip.copy.jars">
-		<!-- not as dependencies, as we want to skip them if skip.copy.jars is set -->
-		<mkdir dir="${webContents}" />
-		<echo message="Updating web contents, download from maven repo" />
-		<exec executable="mvn">
-			<arg value="-f" />
-			<arg value="${main.dir}/pom.xml" />
-			<arg value="dependency:unpack" />
-			<arg value="-Dartifact=io.imunity:unity-server-web-common:${mypom.version}:zip:webResources" />
-			<arg value="-DoutputDirectory=${webContents}" />
-		</exec>
-	</target>
-
 	<target name="update-i18n" unless="skip.copy.jars">
 		<!-- not as dependencies, as we want to skip them if skip.copy.jars is set -->
 		<mkdir dir="${i18n}" />

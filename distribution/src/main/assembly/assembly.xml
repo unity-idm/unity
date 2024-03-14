@@ -48,15 +48,6 @@
 			<directoryMode>0755</directoryMode>
 			<unpack>true</unpack>
 			<includes>
-				<include>io.imunity:unity-server-web-common:zip:webResources</include>
-			</includes>
-			<scope>test</scope>
-		</dependencySet>
-		<dependencySet>
-			<outputDirectory>/</outputDirectory>
-			<directoryMode>0755</directoryMode>
-			<unpack>true</unpack>
-			<includes>
 				<include>io.imunity:unity-vaadin-styles:zip:webResources</include>
 			</includes>
 			<scope>test</scope>

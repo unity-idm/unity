@@ -77,11 +77,6 @@
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-common</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-ldap</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -222,7 +217,7 @@
 								<argument>pl.edu.icm.unity.ws.CXFEndpointProperties|ref-cxfEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.rest.RESTEndpointProperties|ref-restEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.ldap.client.config.LdapProperties|ref-ldapProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.webui.VaadinEndpointProperties|ref-vaadinEndpointProperties.txt|</argument>
+								<argument>io.imunity.vaadin.endpoint.common.VaadinEndpointProperties|ref-vaadinEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.saml.idp.SamlIdpProperties|ref-samlIdPProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.saml.sp.SAMLSPProperties|ref-samlSPProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.client.config.OAuthClientProperties|ref-oauthClientProperties.txt|</argument>

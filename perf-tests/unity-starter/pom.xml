@@ -81,12 +81,6 @@
 			<artifactId>unity-composite-password</artifactId>
 			<version>${unity.version}</version>
 			<scope>test</scope>
-		</dependency>		
-		<dependency>
-			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-console</artifactId>
-			<version>${unity.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>

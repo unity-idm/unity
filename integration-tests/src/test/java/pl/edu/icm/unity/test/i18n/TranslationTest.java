@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.test.i18n;
 
+import com.google.common.collect.Sets;
+import org.junit.jupiter.api.Test;
+import pl.edu.icm.unity.base.message.MessageSource;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -14,12 +18,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.junit.jupiter.api.Test;
-
-import com.google.common.collect.Sets;
-
-import pl.edu.icm.unity.base.message.MessageSource;
-
 
 public class TranslationTest
 {
@@ -28,10 +26,8 @@ public class TranslationTest
 	public static final MessageBundleSpec[] SPECS = new MessageBundleSpec[]	{
 		new MessageBundleSpec("server-engine-api", "/messages/engine-api/messages"),
 		new MessageBundleSpec("server-std-plugins", "/messages/stdext/messages"),
-		new MessageBundleSpec("server-web-common", "/messages/webui/messages"),
 		new MessageBundleSpec("server-user-home/home", "/messages/webhome/messages"),
 		new MessageBundleSpec("server-saml", "/messages/saml/messages"),
-		new MessageBundleSpec("server-unicore", "/messages/unicore/messages"),
 		new MessageBundleSpec("serveroauth", "/messages/oauth/messages"),
 	}; 
 	

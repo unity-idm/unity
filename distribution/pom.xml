@@ -46,11 +46,6 @@
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-user-home</artifactId>
 			<version>${project.version}</version>
-		</dependency>	
-		<dependency>
-			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-console</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
@@ -146,26 +141,10 @@
 		Test scope not to include in regular libs directory -->
 		<dependency>
 			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-common</artifactId>
-			<version>${project.version}</version>
-			<type>zip</type>
-			<classifier>webResources</classifier>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
 			<artifactId>unity-vaadin-styles</artifactId>
 			<version>${project.version}</version>
 			<type>zip</type>
 			<classifier>webResources</classifier>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-common</artifactId>
-			<version>${project.version}</version>
-			<type>zip</type>
-			<classifier>i18n</classifier>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -200,14 +179,6 @@
 			<classifier>i18n</classifier>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>io.imunity</groupId>
-			<artifactId>unity-server-web-console</artifactId>
-			<version>${project.version}</version>
-			<type>zip</type>
-			<classifier>i18n</classifier>
-			<scope>test</scope>
-		</dependency>				
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-user-home</artifactId>

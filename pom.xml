@@ -20,7 +20,6 @@
 		<slf4j.version>2.0.9</slf4j.version>
 		<log4j.version>2.20.0</log4j.version>
 		<spring.version>5.3.31</spring.version>
-		<vaadin.version>8.14.3</vaadin.version>
 		<vaadin.version.new>24.3.3</vaadin.version.new>
 		<cxf.version>4.0.3</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
@@ -57,14 +56,7 @@
 		<module>storage-api</module>
 		<module>storage</module>
 		<module>std-plugins</module>
-		<module>web-vaadin-tooltip</module>
-		<module>web-vaadin-widgetset</module>
-		<module>web-common</module>
-		<module>web-elements</module>
-		<module>web-console-utils</module>
 		<module>user-home</module>
-		<module>web-console-spi</module>
-		<module>web-console</module>
 		<module>web-upman</module>
 		<module>idp-spi</module>
 		<module>rest</module>
@@ -650,56 +642,6 @@
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis-spring</artifactId>
 				<version>2.0.7</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-server</artifactId>
-				<version>${vaadin.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-themes</artifactId>
-				<version>${vaadin.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-client</artifactId>
-				<version>${vaadin.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.vaadin.addons</groupId>
-				<artifactId>wizards-for-vaadin</artifactId>
-				<version>2.0.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.vaadin.addons</groupId>
-				<artifactId>stepper</artifactId>
-				<version>2.4.0</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-context-menu</artifactId>
-				<version>3.1.0</version>
-			</dependency>
-			<dependency>
-				<groupId>org.vaadin.addons</groupId>
-				<artifactId>simplefiledownloader</artifactId>
-				<version>2.0.2</version>
-			</dependency>
-			<dependency>
-				<groupId>com.github.vaadin4qbanos</groupId>
-				<artifactId>jsclipboard</artifactId>
-				<version>1.0.12</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-client-compiler</artifactId>
-				<version>${vaadin.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.vaadin.addons</groupId>
-				<artifactId>qrcode</artifactId>
-				<version>2.1</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.vt.middleware</groupId>
