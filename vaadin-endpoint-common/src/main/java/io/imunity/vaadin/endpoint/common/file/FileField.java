@@ -33,14 +33,20 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 
 	FileField(MessageSource msg, String mimeType, int maxFileSize, boolean remoteOnly)
 	{
-		uploadComponent = new UploadComponent(msg, mimeType, maxFileSize);
-		remoteUrlComponent = new RemoteUrlComponent(msg);
-
 		tab = new TabSheet();
 		tab.addThemeVariants(TabSheetVariant.LUMO_TABS_MINIMAL, TabSheetVariant.LUMO_TABS_HIDE_SCROLL_BUTTONS);
 		tab.addClassName(CssClassNames.TABSHEET_FULL.getName());
 		localTab = new Tab(msg.getMessage("FileField.local"));
 		remoteTab = new Tab(msg.getMessage("FileField.remote"));
+
+		uploadComponent = new UploadComponent(msg, mimeType, maxFileSize);
+		uploadComponent.addValueChangeListener(event ->
+		{
+			if(event.isFromClient())
+				updateValue();
+		});
+		remoteUrlComponent = new RemoteUrlComponent(msg);
+
 		tab.add(localTab, uploadComponent);
 		tab.add(remoteTab, remoteUrlComponent);
 

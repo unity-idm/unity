@@ -69,6 +69,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			"urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
 			"urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName",
 			"urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
+	public static final String SAML_SP_METADATA = "/saml-sp-metadata/";
 
 	private final PKIManagement pkiMan;
 	private final FileStorageService fileStorageService;
@@ -292,9 +293,9 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		urlMetadataPathField.setReadOnly(true);
 		metadataPublishing.addFormItem(urlMetadataPathField, msg.getMessage("SAMLAuthenticatorEditor.metadataUrl"));
 		metadataPath.addValueChangeListener(item -> urlMetadataPathField.setValue(
-				sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + item.getValue()));
+				sharedEndpointManagement.getServletUrl(SAML_SP_METADATA) + item.getValue()));
 		configBinder.forField(urlMetadataPathField)
-				.bindReadOnly(item -> sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + item.getMetadataPath());
+				.bindReadOnly(item -> sharedEndpointManagement.getServletUrl(SAML_SP_METADATA) + item.getMetadataPath());
 
 		signMetadata = new Checkbox(msg.getMessage("SAMLAuthenticatorEditor.signMetadata"));
 		configBinder.forField(signMetadata)
@@ -312,7 +313,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		{
 			if(event.getValue())
 				urlMetadataPathField.setValue(
-						sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + metadataPath.getValue());
+						sharedEndpointManagement.getServletUrl(SAML_SP_METADATA) + metadataPath.getValue());
 			else
 				urlMetadataPathField.setValue("");
 		});
@@ -353,7 +354,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			metadataPath.setEnabled(v);
 			signMetadata.setEnabled(v);
 			if(v)
-				urlMetadataPathField.setValue(sharedEndpointManagement.getServletUrl("/saml-sp-metadata/") + metadataPath.getValue());
+				urlMetadataPathField.setValue(sharedEndpointManagement.getServletUrl(SAML_SP_METADATA) + metadataPath.getValue());
 			else
 				urlMetadataPathField.setValue("");
 			autoGenerateMetadata.setEnabled(v);

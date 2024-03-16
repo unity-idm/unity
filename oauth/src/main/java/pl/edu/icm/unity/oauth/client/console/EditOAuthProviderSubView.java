@@ -48,8 +48,7 @@ import java.util.function.Consumer;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.*;
 
 
 class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
@@ -136,7 +135,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 	private FormLayout buildHeaderSection(Set<String> providersIds)
 	{
 		FormLayout header = new FormLayout();
-		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		header.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		loadTemplates();
@@ -239,7 +238,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 	private AccordionPanel buildAdvancedSection(Set<String> validators, Set<String> registrationForms)
 	{
 		FormLayout advanced = new FormLayout();
-		advanced.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		advanced.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		advanced.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		Select<String> registrationForm = new Select<>();

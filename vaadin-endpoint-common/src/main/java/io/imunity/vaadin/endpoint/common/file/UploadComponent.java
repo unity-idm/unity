@@ -51,13 +51,16 @@ class UploadComponent extends CustomField<LocalOrRemoteResource>
 		upload.getElement().addEventListener("file-remove", e ->
 		{
 			image.setSrc("");
+			image.setLocal(null);
 			image.setVisible(false);
+			fireEvent(new ComponentValueChangeEvent<>(this, this, image, true));
 		});
 		upload.addSucceededListener(event ->
 		{
 			FileData fileData = memoryBuffer.getFileData();
 			byteArray = ((ByteArrayOutputStream) fileData.getOutputBuffer()).toByteArray();
 			image.setSrc(new StreamResource("logo", () -> new ByteArrayInputStream(byteArray)), byteArray);
+			fireEvent(new ComponentValueChangeEvent<>(this, this, image, true));
 		});
 		upload.setUploadButton(new Button(msg.getMessage("FileField.local.button")));
 		downloader = new Anchor();
@@ -76,6 +79,7 @@ class UploadComponent extends CustomField<LocalOrRemoteResource>
 			clear.setVisible(false);
 			downloader.setVisible(false);
 			upload.setVisible(true);
+			fireEvent(new ComponentValueChangeEvent<>(this, this, image, true));
 		});
 		clear.setVisible(false);
 
