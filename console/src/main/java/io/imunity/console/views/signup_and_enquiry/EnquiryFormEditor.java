@@ -283,7 +283,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), true);
 		tabOfLists.setWidthFull();
-		tabOfLists.setSelectedIndex(2);
+		tabOfLists.setSelectedIndex(0);
 
 		VerticalLayout wrapper = new VerticalLayout(main, tabOfLists);
 		wrapper.setPadding(false);
