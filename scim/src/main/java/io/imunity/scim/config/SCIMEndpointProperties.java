@@ -32,7 +32,9 @@ public class SCIMEndpointProperties extends UnityPropertiesHelper
 	public static final String MEMBERSHIP_ATTRIBUTES = "membershipAttributes.";
 	public static final String SCHEMAS = "schemas.";
 	public static final String SCHEMAS_FILE = "schemasFile.";
-
+	public static final String ENABLED_CORS_ORIGINS = "allowedCorsOrigins.";
+	public static final String ENABLED_CORS_HEADERS = "allowedCorsHeaders.";
+	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<>();
 
@@ -50,6 +52,13 @@ public class SCIMEndpointProperties extends UnityPropertiesHelper
 				new PropertyMD().setList(false).setDescription("SCIM group membership attributes"));
 		META.put(SCHEMAS, new PropertyMD().setList(false).setDescription("SCIM schemas definitions"));
 		META.put(SCHEMAS_FILE, new PropertyMD().setList(false).setHidden().setDescription("SCIM schemas definitions from file"));
+		META.put(ENABLED_CORS_ORIGINS, new PropertyMD().setList(false).setDescription(
+				"List of origins allowed for the CORS requests. "
+					+ "The complete set of HTTP methods is enabled for the enumerated resources. "
+					+ "If the list is undefined then CORS support is turned off."));
+		META.put(ENABLED_CORS_HEADERS, new PropertyMD().setList(false).setDescription(
+				"List of headers allowed for the CORS requests. If undefined then all are enabled by defult."));
+	
 	}
 
 	public SCIMEndpointProperties(Properties properties) throws ConfigurationException

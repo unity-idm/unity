@@ -21,7 +21,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import io.imunity.scim.SCIMConstants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.rest.RESTEndpointProperties;
 
 public class SCIMEndpointPropertiesConfigurationMapper
 {
@@ -29,14 +28,13 @@ public class SCIMEndpointPropertiesConfigurationMapper
 
 	public static String toProperties(SCIMEndpointConfiguration configuration) throws JsonProcessingException
 	{
-		Properties rawRest = new Properties();
+		Properties rawScim = new Properties();
 		configuration.allowedCorsHeaders
-				.forEach(ach -> rawRest.put(SCIMEndpointProperties.PREFIX + RESTEndpointProperties.ENABLED_CORS_HEADERS
+				.forEach(ach -> rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.ENABLED_CORS_HEADERS
 						+ (configuration.allowedCorsHeaders.indexOf(ach) + 1), ach));
 		configuration.allowedCorsOrigins
-				.forEach(aco -> rawRest.put(SCIMEndpointProperties.PREFIX + RESTEndpointProperties.ENABLED_CORS_ORIGINS
+				.forEach(aco -> rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.ENABLED_CORS_ORIGINS
 						+ (configuration.allowedCorsOrigins.indexOf(aco) + 1), aco));
-		Properties rawScim = new Properties();
 		configuration.membershipGroups.forEach(g -> rawScim.put(SCIMEndpointProperties.PREFIX
 				+ SCIMEndpointProperties.MEMBERSHIP_GROUPS + (configuration.membershipGroups.indexOf(g) + 1), g));
 		configuration.excludedMembershipGroups.forEach(g -> rawScim.put(SCIMEndpointProperties.PREFIX
@@ -54,9 +52,9 @@ public class SCIMEndpointPropertiesConfigurationMapper
 		{
 			rawScim.put(SCIMEndpointProperties.PREFIX + SCIMEndpointProperties.REST_ADMIN_GROUP, configuration.restAdminGroup);
 		}
+		
 		SCIMEndpointProperties propScim = new SCIMEndpointProperties(rawScim);
-		RESTEndpointProperties propRest = new RESTEndpointProperties(rawRest);
-		return propRest.getAsString() + "\n" + propScim.getAsString();
+		return propScim.getAsString();
 	}
 
 	public static SCIMEndpointConfiguration fromProperties(String properties)
@@ -71,12 +69,10 @@ public class SCIMEndpointPropertiesConfigurationMapper
 		}
 
 		SCIMEndpointProperties scimProp = new SCIMEndpointProperties(raw);
-		RESTEndpointProperties restEndpointProperties = new RESTEndpointProperties(raw);
-		return fromProperties(scimProp, restEndpointProperties);
+		return fromProperties(scimProp);
 	}
 
-	public static SCIMEndpointConfiguration fromProperties(SCIMEndpointProperties scimProp,
-			RESTEndpointProperties restEndpointProperties)
+	public static SCIMEndpointConfiguration fromProperties(SCIMEndpointProperties scimProp)
 	{
 		List<SchemaWithMapping> schemas = new ArrayList<>();
 	
@@ -112,9 +108,9 @@ public class SCIMEndpointPropertiesConfigurationMapper
 
 		return SCIMEndpointConfiguration.builder()
 				.withAllowedCorsHeaders(
-						restEndpointProperties.getListOfValues(RESTEndpointProperties.ENABLED_CORS_HEADERS))
+						scimProp.getListOfValues(SCIMEndpointProperties.ENABLED_CORS_HEADERS))
 				.withAllowedCorsOrigins(
-						restEndpointProperties.getListOfValues(RESTEndpointProperties.ENABLED_CORS_ORIGINS))
+						scimProp.getListOfValues(SCIMEndpointProperties.ENABLED_CORS_ORIGINS))
 				.withSchemas(schemas)
 				.withMembershipGroups(scimProp.getListOfValues(SCIMEndpointProperties.MEMBERSHIP_GROUPS))
 				.withExcludedMembershipGroups(scimProp.getListOfValues(SCIMEndpointProperties.EXCLUDED_MEMBERSHIP_GROUPS))
