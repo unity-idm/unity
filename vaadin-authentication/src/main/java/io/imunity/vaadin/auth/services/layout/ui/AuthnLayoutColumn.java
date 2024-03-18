@@ -69,6 +69,7 @@ public class AuthnLayoutColumn extends VerticalLayout
 		setPadding(false);
 		setWidthFull();
 		addClassName("u-border");
+		setMinWidth("30em");
 
 		HorizontalLayout headerBar = new HorizontalLayout();
 		headerBar.setHeight(2, Unit.EM);

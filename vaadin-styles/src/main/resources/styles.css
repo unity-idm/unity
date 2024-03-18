@@ -736,6 +736,10 @@ vaadin-details.u-multi-tab-details {
     height: 92.5vh;
 }
 
+.u-avoid-main-layout-y-scroller:has(+ vaadin-vertical-layout) {
+    display: none;
+}
+
 .u-panel > vaadin-form-layout {
     margin-left: var(--unity-base-margin);
 }
