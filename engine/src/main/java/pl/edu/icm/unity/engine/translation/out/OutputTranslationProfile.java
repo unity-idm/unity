@@ -21,6 +21,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthnContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
@@ -207,12 +208,34 @@ public class OutputTranslationProfile
 				usedAuthenticators.add(loginSession.getLogin2ndFactor().optionId.getAuthenticatorKey());
 			ret.put(OutputTranslationMVELContextKey.authentications.name(), usedAuthenticators);
 			ret.put(OutputTranslationMVELContextKey.mfa.name(), usedAuthenticators.size() > 1);
-
+			ret.putAll(getAuthnContextMvelVariables(loginSession.getFirstFactorRemoteIdPAuthnContext()));
+			
 		} else
 		{
 			ret.put(OutputTranslationMVELContextKey.authenticatedWith.name(), new ArrayList<String>());
 			ret.put(OutputTranslationMVELContextKey.idp.name(), null);
 		}
+		return ret;
+	}
+	
+	private static Map<String, Object> getAuthnContextMvelVariables(AuthnContext authnContext)
+	{
+		Map<String, Object> ret = new HashMap<>();
+		
+		List<String> acrs = new ArrayList<>();
+		String upstreamProtocol = "local";
+		String upstreamIdP = null;
+		
+		if (authnContext != null)
+		{
+			acrs.addAll(authnContext.classReferences);
+			upstreamIdP = authnContext.remoteIdPId;
+			upstreamProtocol = authnContext.protocol.name();
+		}
+		
+		ret.put(OutputTranslationMVELContextKey.upstreamACRs.name(), acrs);
+		ret.put(OutputTranslationMVELContextKey.upstreamProtocol.name(), upstreamProtocol);
+		ret.put(OutputTranslationMVELContextKey.upstreamIdP.name(), upstreamIdP);
 		return ret;
 	}
 

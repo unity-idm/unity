@@ -23,7 +23,7 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 	private final NotApplicableResult notApplicableResult;
 	private final UnknownRemotePrincipalResult unknownRemotePrincipalResult;
 	private final RemoteErrorResult errorResult;
-
+	
 	private RemoteAuthenticationResult(Status status, 
 			RemoteSuccessResult successResult,
 			NotApplicableResult notApplicableResult, 

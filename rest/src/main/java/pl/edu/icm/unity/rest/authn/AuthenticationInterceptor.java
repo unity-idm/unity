@@ -34,6 +34,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.DenyReason;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+
+import pl.edu.icm.unity.engine.api.authn.AuthnContext;
 import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -193,12 +195,23 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		String label = getLabel(client.entity.getEntityId());
 		LoginSession ls = sessionMan.getCreateSession(client.entity.getEntityId(), realm, 
 				label, client.entity.getOutdatedCredentialId(), new RememberMeInfo(false, false), 
-				client.firstFactor, client.secondFactor);
+				client.firstFactor, client.secondFactor, getAuthnContext(client));
+		
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.entity.getAuthenticatedWith());
 		ls.setRemoteIdP(client.entity.getRemoteIdP());
 		MDC.put(MDCKeys.ENTITY_ID.key, ls.getEntityId());
 		MDC.put(MDCKeys.USER.key, ls.getEntityLabel());
+	}
+	
+	AuthnContext getAuthnContext(EntityWithAuthenticators client)
+	{
+		if (client.firstFactorResult.isRemote())
+		{
+			return client.firstFactorResult.asRemote().getSuccessResult().getRemotelyAuthenticatedPrincipal().getAuthnInput().getAuthnContext();
+		}
+	
+		return null;	
 	}
 	
 	private String getLabel(long entityId)
@@ -257,11 +270,11 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterSecondaryAuthentication(state,
 					result2);
 			return Optional.of(new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), 
-					authenticatorOnlyKey(secondFactorAuthn.getAuthenticatorId())));			
+					authenticatorOnlyKey(secondFactorAuthn.getAuthenticatorId()), state.getPrimaryResult()));			
 		} else
 		{
 			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterPrimaryAuthentication(state, false);
-			return  Optional.of(new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), null));
+			return  Optional.of(new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), null, state.getPrimaryResult()));
 		}
 	}
 
@@ -293,13 +306,15 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		private final AuthenticatedEntity entity;
 		private final AuthenticationOptionKey firstFactor;
 		private final AuthenticationOptionKey secondFactor;
-
+		private final AuthenticationResult firstFactorResult;
+		
 		EntityWithAuthenticators(AuthenticatedEntity entity, AuthenticationOptionKey firstFactor,
-				AuthenticationOptionKey secondFactor)
+				AuthenticationOptionKey secondFactor, AuthenticationResult firstFactorResult)
 		{
 			this.entity = entity;
 			this.firstFactor = firstFactor;
 			this.secondFactor = secondFactor;
+			this.firstFactorResult = firstFactorResult;
 		}
 	}
 }

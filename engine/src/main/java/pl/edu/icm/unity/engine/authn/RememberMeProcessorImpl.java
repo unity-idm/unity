@@ -318,7 +318,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 				.getSecondFactorAuthnOptionId();
 		long entityId = unityRememberMeToken.get().getEntity();
 		String label = getLabel(entityId);
-		
+
 		LoginSession session = sessionMan.createSession(entityId,
 				realm, 
 				label, 
@@ -326,7 +326,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 				new RememberMeInfo(firstFactorSkipped,
 						secondFactorAuthnOptionId != null),
 				unityRememberMeToken.get().getFirstFactorAuthnOptionId(),
-				secondFactorAuthnOptionId);
+				secondFactorAuthnOptionId, null);
 		return Optional.of(session);
 	}
 

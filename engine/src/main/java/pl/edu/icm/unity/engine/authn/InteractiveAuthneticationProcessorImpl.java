@@ -4,9 +4,18 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
+import java.util.List;
+import java.util.Optional;
+
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
@@ -17,6 +26,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthnContext;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.ErrorDetail;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.SecondFactorDetail;
@@ -45,13 +55,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
-
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.util.List;
-import java.util.Optional;
 
 @Primary
 @Component
@@ -124,7 +127,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			}
 		} else
 		{
-			loginSession = getLoginSessionForEntity(
+			loginSession = getLoginSessionForEntity(getAuthnContext(authnState.getPrimaryResult()),
 					authnState.getPrimaryResult().getSuccessResult().authenticatedEntity,
 					stepContext.realm, authnState.getFirstFactorOptionId(),
 					null);
@@ -171,7 +174,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			return interpretAuthnException(e, httpRequest, machineDetails.getIp());
 		}
 
-		LoginSession loginSession = getLoginSessionForEntity(logInfo, stepContext.realm,
+		LoginSession loginSession = getLoginSessionForEntity(getAuthnContext(state.getPrimaryResult()), logInfo, stepContext.realm,
 				state.getFirstFactorOptionId(), stepContext.authnOptionId);
 
 		List<SessionParticipant> sessionParticipants = AuthenticationProcessor.extractParticipants(
@@ -203,7 +206,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	}
 	
 	@Override
-	public void syntheticAuthenticate(AuthenticatedEntity authenticatedEntity,
+	public void syntheticAuthenticate(AuthnContext authnContext, AuthenticatedEntity authenticatedEntity,
 			List<SessionParticipant> participants,
 			AuthenticationOptionKey authnOptionKey,
 			AuthenticationRealm realm,
@@ -212,7 +215,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			HttpServletResponse httpResponse,
 			SessionReinitializer sessionReinitializer)
 	{
-		LoginSession loginSession = getLoginSessionForEntity(authenticatedEntity, realm, authnOptionKey, null);
+		LoginSession loginSession = getLoginSessionForEntity(authnContext, authenticatedEntity, realm, authnOptionKey, null);
 
 		logged(authenticatedEntity, loginSession, realm, machineDetails, setRememberMe, participants,
 				sessionReinitializer, httpResponse);
@@ -301,7 +304,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		}
 	}
 	
-	private LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity,
+	private LoginSession getLoginSessionForEntity(AuthnContext authnContext, AuthenticatedEntity authenticatedEntity,
 			AuthenticationRealm realm,
 			AuthenticationOptionKey firstFactorAuhtnOptionId,
 			AuthenticationOptionKey secondFactorAuhtnOptionId)
@@ -312,7 +315,17 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		return sessionMan.getCreateSession(entityId, realm, label,
 				authenticatedEntity.getOutdatedCredentialId(), 
 				new RememberMeInfo(false, false), firstFactorAuhtnOptionId,
-				secondFactorAuhtnOptionId);
+				secondFactorAuhtnOptionId, authnContext);
+	}
+	
+	private AuthnContext getAuthnContext(AuthenticationResult authenticationResult)
+	{
+		if (authenticationResult.isRemote())
+		{
+			return authenticationResult.asRemote().getSuccessResult().getRemotelyAuthenticatedPrincipal().getAuthnInput().getAuthnContext();
+		}
+	
+		return null;	
 	}
 	
 	private void logged(AuthenticatedEntity authenticatedEntity,

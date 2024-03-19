@@ -52,6 +52,7 @@ public class LoginSession
 	private AuthNInfo login1stFactor;
 	private AuthNInfo login2ndFactor;
 	private AuthNInfo additionalAuthn;
+	private AuthnContext firstFactorRemoteIdPAuthnContext;
 	
 	private Map<String, String> sessionData = new HashMap<>();
 
@@ -270,6 +271,16 @@ public class LoginSession
 		return inactiveFor > getMaxInactivity();
 	}
 	
+	public AuthnContext getFirstFactorRemoteIdPAuthnContext()
+	{
+		return firstFactorRemoteIdPAuthnContext;
+	}
+
+	public void setFirstFactorRemoteIdPAuthnContext(AuthnContext firstFactorRemoteIdPAuthnContext)
+	{
+		this.firstFactorRemoteIdPAuthnContext = firstFactorRemoteIdPAuthnContext;
+	}
+	
 	public void deserialize(Token token)
 	{
 		ObjectNode main = JsonUtil.parse(token.getContents());
@@ -303,6 +314,9 @@ public class LoginSession
 		
 		if (main.has("rememberMeInfo"))
 			rememberMeInfo = Constants.MAPPER.convertValue(main.get("rememberMeInfo"), RememberMeInfo.class);
+		
+		if (main.has("firstFactorRemoteIdPAuthnContext"))
+			firstFactorRemoteIdPAuthnContext = Constants.MAPPER.convertValue(main.get("firstFactorRemoteIdPAuthnContext"), AuthnContext.class);
 		
 		setId(token.getValue());
 		setStarted(token.getCreated());
@@ -354,6 +368,9 @@ public class LoginSession
 		
 		if (rememberMeInfo != null)
 			main.putPOJO("rememberMeInfo", rememberMeInfo);
+	
+		if (firstFactorRemoteIdPAuthnContext != null)
+			main.putPOJO("firstFactorRemoteIdPAuthnContext", firstFactorRemoteIdPAuthnContext);
 		
 		return JsonUtil.serialize2Bytes(main);
 	}
@@ -363,6 +380,8 @@ public class LoginSession
 	{
 		return id + "@" + realm + " of entity " + entityId;
 	}
+
+	
 
 	public static class RememberMeInfo
 	{
