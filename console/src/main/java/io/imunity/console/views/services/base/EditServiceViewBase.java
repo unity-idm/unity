@@ -7,6 +7,7 @@ package io.imunity.console.views.services.base;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
@@ -109,8 +110,7 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 		mainView.setMargin(false);
 		mainView.add(editor);
 		mainView.add(EditViewActionLayoutFactory.createActionLayout(msg, true, mainServicesViewName, this::onConfirm));
-		getContent().add(unsavedInfoBanner);
-		Scroller scroller = new Scroller(mainView);
+		Scroller scroller = new Scroller(new Div(unsavedInfoBanner, mainView));
 		scroller.addClassName(AVOID_MAIN_LAYOUT_Y_SCROLLER.getName());
 		getContent().add(scroller);
 	}

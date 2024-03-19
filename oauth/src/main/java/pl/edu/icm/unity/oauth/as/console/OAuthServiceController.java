@@ -657,8 +657,8 @@ class OAuthServiceController implements IdpServiceController
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			try
 			{
-				byte[] byteArray = baos.toByteArray();
 				ImageIO.write(image.getBufferedImage(), image.getType().toExt(), baos);
+				byte[] byteArray = baos.toByteArray();
 				LocalOrRemoteResource lrLogo = new LocalOrRemoteResource(new StreamResource("logo",
 						() -> new ByteArrayInputStream(byteArray)),
 						"", byteArray);

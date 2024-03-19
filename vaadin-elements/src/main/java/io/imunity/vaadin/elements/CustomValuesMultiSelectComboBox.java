@@ -58,8 +58,11 @@ public class CustomValuesMultiSelectComboBox extends MultiSelectComboBox<String>
 	{
 		if(values == null)
 			return;
-		items.addAll(values);
-		setItems(items);
+		if(!items.containsAll(values))
+		{
+			items.addAll(values);
+			setItems(items);
+		}
 		super.setValue(values);
 	}
 }

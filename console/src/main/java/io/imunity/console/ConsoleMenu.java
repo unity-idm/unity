@@ -6,7 +6,9 @@
 package io.imunity.console;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -238,9 +240,16 @@ public class ConsoleMenu extends UnityAppLayout
 		activateLeftContainerMinimization(image);
 	}
 
-	private static void showCriticalException(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg)
+	private void showCriticalException(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg)
 	{
-		NotificationPresenter.showCriticalError(standardWebLogoutHandler::logout, msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
+		UI current = UI.getCurrent();
+		String criticalError = "criticalError";
+		if(ComponentUtil.getData(current, criticalError) == null)
+		{
+			NotificationPresenter.showCriticalError(standardWebLogoutHandler::logout,
+					msg.getMessage("AuthorizationController.notAdminUser"), "");
+			ComponentUtil.setData(current, criticalError, true);
+		}
 	}
 
 	private HorizontalLayout createImageLayout(Component image)

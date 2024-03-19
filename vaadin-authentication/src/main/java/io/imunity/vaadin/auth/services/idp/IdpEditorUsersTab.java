@@ -7,13 +7,15 @@ package io.imunity.vaadin.auth.services.idp;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.function.SerializablePredicate;
+import io.imunity.vaadin.auth.services.ServiceEditorBase;
+import io.imunity.vaadin.auth.services.ServiceEditorComponent;
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.SearchField;
 import io.imunity.vaadin.elements.grid.EditableGrid;
@@ -21,8 +23,6 @@ import io.imunity.vaadin.elements.grid.GridSearchFieldFactory;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
 import io.imunity.vaadin.endpoint.common.Toolbar;
-import io.imunity.vaadin.auth.services.ServiceEditorBase;
-import io.imunity.vaadin.auth.services.ServiceEditorComponent;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 
@@ -46,8 +46,9 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 	private final List<String> allAttrTypes;
 	private SerializablePredicate<IdpUser> searchFilter = null;
 	protected Map<String, String> availableClients;
-	protected Select<String> availableClientsCombobox;
+	protected ComboBox<String> availableClientsCombobox;
 	private EditableGrid<ActiveValueConfig> releasedAttrsGrid;
+	private Set<String> availableClientIds;
 
 	public IdpEditorUsersTab(MessageSource msg, List<Group> groups,
 			List<IdpUser> allUsers, List<String> attrTypes)
@@ -137,7 +138,20 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 		VerticalLayout mainAttrLayout = new VerticalLayout();
 		mainAttrLayout.setPadding(false);
 
-		availableClientsCombobox = new Select<>();
+		availableClientsCombobox = new ComboBox<>() {
+			@Override
+			public void setValue(String values)
+			{
+				if(values == null)
+					return;
+				if(!availableClientIds.contains(values))
+				{
+					availableClientIds.add(values);
+					setItems(availableClientIds);
+				}
+				super.setValue(values);
+			}
+		};
 		availableClientsCombobox.setRequiredIndicatorVisible(true);
 		availableClientsCombobox.setItemLabelGenerator(item -> availableClients.get(item));
 		releasedAttrsGrid = new EditableGrid<>(msg::getMessage, ActiveValueConfig::new);
@@ -157,9 +171,10 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 
 		releasedAttrsGrid.addCustomColumn(
 				activeValueConfig -> availableClients.get(activeValueConfig.getClientId()),
-						ActiveValueConfig::setClientId,
-						availableClientsCombobox
-				)
+				ActiveValueConfig::getClientId,
+				ActiveValueConfig::setClientId,
+				availableClientsCombobox
+		)
 					.setHeader(msg.getMessage("IdpEditorUsersTab.client"));
 
 		releasedAttrsGrid.addCustomColumn(
@@ -203,7 +218,7 @@ public class IdpEditorUsersTab extends VerticalLayout implements ServiceEditorBa
 
 	private void reloadAvailableClients(List<ActiveValueConfig> currentValues)
 	{
-		HashSet<String> availableClientIds = new HashSet<>(availableClients.keySet());
+		availableClientIds = new HashSet<>(availableClients.keySet());
 		currentValues.stream().map(ActiveValueConfig::getClientId).toList().forEach(availableClientIds::remove);
 		availableClientsCombobox.setItems(availableClientIds);
 		releasedAttrsGrid.setAddingEnabled(!availableClientIds.isEmpty());

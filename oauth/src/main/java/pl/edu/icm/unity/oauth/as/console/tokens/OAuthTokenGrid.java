@@ -119,6 +119,7 @@ class OAuthTokenGrid extends VerticalLayout
 		ActionMenuWithHandlerSupport<OAuthTokenBean> hamburgerMenu = new ActionMenuWithHandlerSupport<>();
 		hamburgerMenu.addActionHandlers(Collections.singletonList(getDeleteAction()));
 		tokensGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
+		tokensGrid.addItemClickListener(e -> tokensGrid.select(e.getItem()));
 
 		SearchField search = GridSearchFieldFactory.generateSearchField(tokensGrid, msg::getMessage);
 		Toolbar<OAuthTokenBean> toolbar = new Toolbar<>();

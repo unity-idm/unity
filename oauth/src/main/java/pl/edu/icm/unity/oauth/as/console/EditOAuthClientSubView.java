@@ -234,6 +234,8 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		Set<String> definedScopes = scopesSupplier.get();
 
 		MultiSelectComboBox<String> allowedScopes = new MultiSelectComboBox<>();
+		allowedScopes.setAutoExpand(MultiSelectComboBox.AutoExpandMode.BOTH);
+		allowedScopes.setWidth(TEXT_FIELD_MEDIUM.value());
 		allowedScopes.setItems(definedScopes);
 		binder.forField(allowedScopes).withValidator((v, c) -> {
 			if (v != null && !v.isEmpty() && !definedScopes.containsAll(v))
@@ -248,9 +250,15 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		
 		Checkbox allowAllScopes = new Checkbox(msg.getMessage("EditOAuthClientSubView.allowAllScopes"));
 		binder.forField(allowAllScopes).bind("allowAnyScopes");
-		allowAllScopes.addValueChangeListener(v -> allowedScopes.setEnabled(!v.getValue()));
+		allowAllScopes.addValueChangeListener(v ->
+		{
+			allowedScopes.setEnabled(!v.getValue());
+			if(v.getValue())
+				allowedScopes.setValue(List.of());
+		});
 		
 		header.addFormItem(allowAllScopes, "");
+		header.addFormItem(allowedScopes, msg.getMessage("EditOAuthClientSubView.allowedScopes"));
 
 		return header;
 	}

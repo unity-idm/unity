@@ -51,8 +51,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.IDP_INFO_LAYOUT;
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.*;
 
 /**
  * SAML service editor general tab
@@ -258,7 +257,7 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 	{
 		FormLayout advancedLayout = new FormLayout();
 		advancedLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		advancedLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		advancedLayout.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
 		IntegerField authenticationTimeout = new IntegerField();
 		authenticationTimeout.setStepButtonsVisible(true);
