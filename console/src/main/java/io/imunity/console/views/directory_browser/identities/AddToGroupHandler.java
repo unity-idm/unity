@@ -4,14 +4,13 @@
  */
 package io.imunity.console.views.directory_browser.identities;
 
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.console.views.directory_browser.group_browser.GroupManagementHelper;
 import io.imunity.console.views.directory_browser.group_details.GroupComboBox;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
-
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -57,17 +56,17 @@ class AddToGroupHandler
 			.open();
 	}
 	
-	private class TargetGroupSelectionDialog extends ConfirmDialog
+	private class TargetGroupSelectionDialog extends DialogWithActionFooter
 	{
 		private final Consumer<String> selectionConsumer;
 		private GroupComboBox groupSelection;
 
 		TargetGroupSelectionDialog(MessageSource msg, Consumer<String> selectionConsumer)
 		{
+			super(msg::getMessage);
 			this.selectionConsumer = selectionConsumer;
-			setHeader(msg.getMessage("AddToGroupHandler.caption"));
-			setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
-			setCancelable(true);
+			setHeaderTitle(msg.getMessage("AddToGroupHandler.caption"));
+			setActionButton(msg.getMessage("ok"), this::onConfirm);
 			setWidth("30em");
 			setHeight("18em");
 			add(getContents());

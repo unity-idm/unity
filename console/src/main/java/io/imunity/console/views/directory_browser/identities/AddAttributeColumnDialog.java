@@ -6,10 +6,10 @@ package io.imunity.console.views.directory_browser.identities;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import io.imunity.console.tprofile.AttributeSelectionComboBox;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import java.util.Collection;
 
 
-class AddAttributeColumnDialog extends ConfirmDialog
+class AddAttributeColumnDialog extends DialogWithActionFooter
 {
 	private final AttributeTypeManagement attrsMan;
 	private final MessageSource msg;
@@ -29,16 +29,16 @@ class AddAttributeColumnDialog extends ConfirmDialog
 	private Checkbox useRootGroup;
 	
 	
-	AddAttributeColumnDialog(MessageSource msg, AttributeTypeManagement attrsMan, 
+	AddAttributeColumnDialog(MessageSource msg, AttributeTypeManagement attrsMan,
 			Callback callback, NotificationPresenter notificationPresenter)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
 		this.attrsMan = attrsMan;
 		this.callback = callback;
-		setHeader(msg.getMessage("AddAttributeColumnDialog.caption"));
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
-		setCancelable(true);
+		setHeaderTitle(msg.getMessage("AddAttributeColumnDialog.caption"));
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		setWidth("40em");
 		setHeight("20em");
 		add(getContents());

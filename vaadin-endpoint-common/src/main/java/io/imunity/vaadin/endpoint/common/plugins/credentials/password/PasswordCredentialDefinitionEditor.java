@@ -8,13 +8,14 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.TooltipFactory;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionViewer;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
@@ -26,7 +27,6 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordEncodingPoolProvider;
 import pl.edu.icm.unity.stdext.credential.pass.SCryptEncoder;
 import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -265,7 +265,7 @@ class PasswordCredentialDefinitionEditor implements CredentialDefinitionEditor, 
 		binder.setBean(helper);
 	}
 	
-	private static class TestPasswordDialog extends ConfirmDialog
+	private static class TestPasswordDialog extends DialogWithActionFooter
 	{
 		private final MessageSource msg;
 		private final NotificationPresenter notificationPresenter;
@@ -273,11 +273,13 @@ class PasswordCredentialDefinitionEditor implements CredentialDefinitionEditor, 
 
 		TestPasswordDialog(MessageSource msg, PasswordCredential config, NotificationPresenter notificationPresenter)
 		{
+			super(msg::getMessage);
 			this.msg = msg;
 			this.config = config;
 			this.notificationPresenter = notificationPresenter;
-			setHeader(msg.getMessage("PasswordDefinitionEditor.testMe"));
-			setConfirmButton(new Button(msg.getMessage("close")));
+			setHeaderTitle(msg.getMessage("PasswordDefinitionEditor.testMe"));
+			setActionButton(msg.getMessage("close"), this::close);
+			setCancelButtonVisible(false);
 			setWidth("35em");
 			setHeight("22em");
 			add(getContents());

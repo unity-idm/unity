@@ -237,7 +237,7 @@ public class AttributesGrid extends VerticalLayout
 				registry);
 		AttributeEditDialog dialog = new AttributeEditDialog(msg, msg.getMessage("Attribute.editAttribute"),
 				this::updateAttribute, attributeEditor, notificationPresenter);
-		dialog.addConfirmListener(e -> refresh());
+		dialog.addActionButtonListener(this::refresh);
 		dialog.open();
 	}
 

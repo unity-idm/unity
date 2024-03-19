@@ -6,10 +6,10 @@ package io.imunity.console.views.directory_browser.identities;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotEmptyComboBox;
 import pl.edu.icm.unity.base.message.MessageSource;
 
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
 
 
-class AddFilterDialog extends ConfirmDialog
+class AddFilterDialog extends DialogWithActionFooter
 {
 	enum Operand {equal, notEqual, contain, notContain}
 	private final Callback callback;
@@ -32,12 +32,12 @@ class AddFilterDialog extends ConfirmDialog
 	
 	AddFilterDialog(MessageSource msg, Collection<String> columns, Callback callback)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.columns = columns;
 		this.callback = callback;
-		setHeader(msg.getMessage("AddFilterDialog.caption"));
-		setCancelable(true);
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
+		setHeaderTitle(msg.getMessage("AddFilterDialog.caption"));
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		setWidth("45em");
 		setHeight("15em");
 		add(getContents());

@@ -4,10 +4,10 @@
  */
 package io.imunity.console.views.directory_browser.identities;
 
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.select.Select;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 
 import java.util.Collection;
 
-class ChangeCredentialRequirementDialog extends ConfirmDialog
+class ChangeCredentialRequirementDialog extends DialogWithActionFooter
 {
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
@@ -34,6 +34,7 @@ class ChangeCredentialRequirementDialog extends ConfirmDialog
 			EntityCredentialManagement eCredMan, CredentialRequirementManagement credReqMan, 
 			Callback callback, NotificationPresenter notificationPresenter)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.eCredMan = eCredMan;
 		this.entity = entity;
@@ -41,9 +42,8 @@ class ChangeCredentialRequirementDialog extends ConfirmDialog
 		this.callback = callback;
 		this.initialCR = initialCR;
 		this.notificationPresenter = notificationPresenter;
-		setHeader(msg.getMessage("CredentialRequirementDialog.caption"));
-		setCancelable(true);
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
+		setHeaderTitle(msg.getMessage("CredentialRequirementDialog.caption"));
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		setWidth("40em");
 		setHeight("18em");
 		add(getContents());

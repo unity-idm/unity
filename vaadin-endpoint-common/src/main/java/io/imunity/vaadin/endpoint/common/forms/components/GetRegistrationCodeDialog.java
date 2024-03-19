@@ -5,16 +5,16 @@
 package io.imunity.vaadin.endpoint.common.forms.components;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 
-public class GetRegistrationCodeDialog extends ConfirmDialog
+public class GetRegistrationCodeDialog extends DialogWithActionFooter
 {
 	private final MessageSource msg;
 	private final Callback callback;
@@ -25,14 +25,14 @@ public class GetRegistrationCodeDialog extends ConfirmDialog
 	public GetRegistrationCodeDialog(MessageSource msg, Callback callback,
 	                                 String title, String information, String codeCaption)
 	{
+		super(msg::getMessage);
 		this.callback = callback;
 		this.information = information;
 		this.codeCaption = codeCaption;
 		this.msg = msg;
-		setHeader(title);
-		setCancelable(true);
-		addCancelListener(event -> onCancel());
-		addConfirmListener(event -> onConfirm());
+		setHeaderTitle(title);
+		setCancelButton(msg.getMessage("cancel"), this::onCancel);
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());
 	}
 	

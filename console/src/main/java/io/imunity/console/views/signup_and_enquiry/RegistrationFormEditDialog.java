@@ -6,12 +6,13 @@
 package io.imunity.console.views.signup_and_enquiry;
 
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
-public class RegistrationFormEditDialog extends ConfirmDialog
+public class RegistrationFormEditDialog extends DialogWithActionFooter
 {
 
 	private final MessageSource msg;
@@ -22,13 +23,13 @@ public class RegistrationFormEditDialog extends ConfirmDialog
 	public RegistrationFormEditDialog(MessageSource msg, String caption, Callback callback,
 			RegistrationFormEditor attributeEditor, NotificationPresenter notificationPresenter)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.editor = attributeEditor;
 		this.callback = callback;
 		this.notificationPresenter = notificationPresenter;
-		setHeader(caption);
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
-		setCancelButton(msg.getMessage("cancel"), e -> {});
+		setHeaderTitle(caption);
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(editor);
 		setWidth("80%");
 		setHeight("80%");

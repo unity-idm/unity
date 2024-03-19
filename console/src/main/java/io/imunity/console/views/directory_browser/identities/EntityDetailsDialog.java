@@ -4,16 +4,17 @@
  */
 package io.imunity.console.views.directory_browser.identities;
 
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import pl.edu.icm.unity.base.message.MessageSource;
 
-class EntityDetailsDialog extends ConfirmDialog
+class EntityDetailsDialog extends DialogWithActionFooter
 {
 	EntityDetailsDialog(MessageSource msg, EntityDetailsPanel contents)
 	{
-		setHeader(msg.getMessage("IdentityDetails.entityDetailsCaption"));
-		setConfirmButton(new Button(msg.getMessage("close")));
+		super(msg::getMessage);
+		setHeaderTitle(msg.getMessage("IdentityDetails.entityDetailsCaption"));
+		setActionButton(msg.getMessage("close"), this::close);
+		setCancelButtonVisible(false);
 		add(contents);
 		setWidth("40em");
 	}

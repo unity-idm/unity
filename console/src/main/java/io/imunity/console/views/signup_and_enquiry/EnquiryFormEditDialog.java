@@ -5,13 +5,13 @@
 
 package io.imunity.console.views.signup_and_enquiry;
 
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
-public class EnquiryFormEditDialog extends ConfirmDialog
+public class EnquiryFormEditDialog extends DialogWithActionFooter
 {
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
@@ -21,13 +21,13 @@ public class EnquiryFormEditDialog extends ConfirmDialog
 	public EnquiryFormEditDialog(MessageSource msg, String caption, Callback callback,
 			EnquiryFormEditor editor, NotificationPresenter notificationPresenter)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.editor = editor;
 		this.callback = callback;
 		this.notificationPresenter = notificationPresenter;
-		setHeader(caption);
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
-		setCancelButton(msg.getMessage("cancel"), e -> {});
+		setHeaderTitle(caption);
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(editor);
 		setWidth("80%");
 		setHeight("80%");

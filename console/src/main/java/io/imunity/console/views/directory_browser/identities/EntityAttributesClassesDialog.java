@@ -34,7 +34,7 @@ class EntityAttributesClassesDialog extends AbstractAttributesClassesDialog
 	private final NotificationPresenter notificationPresenter;
 	private GenericElementsTable<String> groupAcs;
 
-	EntityAttributesClassesDialog(MessageSource msg, String group, EntityWithLabel entity, 
+	EntityAttributesClassesDialog(MessageSource msg, String group, EntityWithLabel entity,
 			AttributeClassManagement attrMan, GroupsManagement groupsMan, Runnable callback,
 			NotificationPresenter notificationPresenter)
 	{
@@ -42,9 +42,8 @@ class EntityAttributesClassesDialog extends AbstractAttributesClassesDialog
 		this.entity = entity;
 		this.callback = callback;
 		this.notificationPresenter = notificationPresenter;
-		setHeader(msg.getMessage("EntityAttributesClasses.caption"));
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
-		setCancelable(true);
+		setHeaderTitle(msg.getMessage("EntityAttributesClasses.caption"));
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());
 	}
 

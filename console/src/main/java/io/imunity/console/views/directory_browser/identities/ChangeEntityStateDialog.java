@@ -5,12 +5,12 @@
 package io.imunity.console.views.directory_browser.identities;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.entity.EntityScheduledOperation;
 import pl.edu.icm.unity.base.entity.EntityState;
@@ -23,7 +23,7 @@ import java.util.Date;
 import java.util.Locale;
 
 
-class ChangeEntityStateDialog extends ConfirmDialog
+class ChangeEntityStateDialog extends DialogWithActionFooter
 {
 	private static final Locale EUROPEAN_TIME_FORMAT = new Locale("DE");
 
@@ -39,12 +39,12 @@ class ChangeEntityStateDialog extends ConfirmDialog
 
 	ChangeEntityStateDialog(MessageSource msg, EntityWithLabel entity, Callback callback)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.entity = entity;
 		this.callback = callback;
-		setHeader(msg.getMessage("ChangeEntityStateDialog.caption"));
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
-		setCancelable(true);
+		setHeaderTitle(msg.getMessage("ChangeEntityStateDialog.caption"));
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		setWidth("50em");
 		add(getContents());
 	}

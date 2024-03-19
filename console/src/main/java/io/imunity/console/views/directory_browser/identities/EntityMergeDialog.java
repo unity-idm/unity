@@ -5,12 +5,12 @@
 package io.imunity.console.views.directory_browser.identities;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.console.views.directory_browser.group_browser.GroupChangedEvent;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 
-class EntityMergeDialog extends ConfirmDialog
+class EntityMergeDialog extends DialogWithActionFooter
 {
 	private enum Direction
 	{
@@ -37,9 +37,10 @@ class EntityMergeDialog extends ConfirmDialog
 	private RadioButtonGroup<Direction> mergeDirection;
 	private Checkbox safeMode;
 
-	EntityMergeDialog(MessageSource msg, EntityWithLabel first, EntityWithLabel second, Group group, 
+	EntityMergeDialog(MessageSource msg, EntityWithLabel first, EntityWithLabel second, Group group,
 			EntityManagement identitiesMan, NotificationPresenter notificationPresenter)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
 		this.first = first;
@@ -49,9 +50,8 @@ class EntityMergeDialog extends ConfirmDialog
 		this.bus = WebSession.getCurrent().getEventBus();
 		setWidth("40em");
 		setHeight("25em");
-		setHeader(msg.getMessage("EntityMergeDialog.caption"));
-		setCancelable(true);
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
+		setHeaderTitle(msg.getMessage("EntityMergeDialog.caption"));
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());
 	}
 

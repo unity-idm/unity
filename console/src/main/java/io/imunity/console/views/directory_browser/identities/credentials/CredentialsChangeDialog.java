@@ -5,9 +5,8 @@
 package io.imunity.console.views.directory_browser.identities.credentials;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -19,7 +18,7 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 @PrototypeComponent
-public class CredentialsChangeDialog extends ConfirmDialog
+public class CredentialsChangeDialog extends DialogWithActionFooter
 {
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
@@ -43,6 +42,7 @@ public class CredentialsChangeDialog extends ConfirmDialog
 			CredentialEditorRegistry credEditorReg, TokensManagement tokenMan,
 			NotificationPresenter notificationPresenter)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.ecredMan = ecredMan;
@@ -54,8 +54,9 @@ public class CredentialsChangeDialog extends ConfirmDialog
 		this.notificationPresenter = notificationPresenter;
 		setWidth("62em");
 		setHeight("55em");
-		setConfirmButton(new Button(msg.getMessage("close"), e -> onConfirm()));
-		setHeader(msg.getMessage("CredentialChangeDialog.caption"));
+		setActionButton(msg.getMessage("close"), this::onConfirm);
+		setCancelButtonVisible(false);
+		setHeaderTitle(msg.getMessage("CredentialChangeDialog.caption"));
 	}
 
 	public CredentialsChangeDialog init(long entityId, boolean simpleMode, Callback callback)

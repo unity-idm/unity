@@ -5,14 +5,14 @@
 package io.imunity.console.views.directory_browser.identities;
 
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotEmptyComboBox;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.*;
 
-class RemoveAttributeColumnDialog extends ConfirmDialog
+class RemoveAttributeColumnDialog extends DialogWithActionFooter
 {
 	private static final String GROUP_PREFIX = "@/";
 	private final Callback callback;
@@ -23,19 +23,19 @@ class RemoveAttributeColumnDialog extends ConfirmDialog
 	private Map<String, String> labelsToAttr;
 	private ComboBox<String> attributeType;
 
-	RemoveAttributeColumnDialog(MessageSource msg, Set<String> alreadyUsedInRoot, 
+	RemoveAttributeColumnDialog(MessageSource msg, Set<String> alreadyUsedInRoot,
 			Set<String> alreadyUsedInCurrent, String currentGroup, Callback callback)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.alreadyUsedInCurrent = alreadyUsedInCurrent;
 		this.alreadyUsedInRoot = alreadyUsedInRoot;
 		this.callback = callback;
 		this.currentGroup = currentGroup;
-		setHeader(msg.getMessage("RemoveAttributeColumnDialog.caption"));
+		setHeaderTitle(msg.getMessage("RemoveAttributeColumnDialog.caption"));
 		setWidth("40em");
 		setHeight("15em");
-		setCancelable(true);
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());
 	}
 

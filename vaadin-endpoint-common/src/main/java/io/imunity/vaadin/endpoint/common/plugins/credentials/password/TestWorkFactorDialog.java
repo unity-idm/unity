@@ -8,13 +8,12 @@ import com.google.common.util.concurrent.AtomicDouble;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.SCryptEncoder;
@@ -24,7 +23,7 @@ import java.text.DecimalFormat;
 import java.util.Random;
 
 
-class TestWorkFactorDialog extends ConfirmDialog
+class TestWorkFactorDialog extends DialogWithActionFooter
 {
 	private final PasswordCredential config;
 	private final MessageSource msg;
@@ -35,14 +34,16 @@ class TestWorkFactorDialog extends ConfirmDialog
 	private VerticalLayout layout;
 	private final SCryptEncoder scryptEncoder;
 	
-	public TestWorkFactorDialog(MessageSource msg, PasswordCredential config, 
+	public TestWorkFactorDialog(MessageSource msg, PasswordCredential config,
 			SCryptEncoder scryptEncoder)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.config = config;
 		this.scryptEncoder = scryptEncoder;
-		setConfirmButton(new Button(msg.getMessage("close")));
-		setHeader(msg.getMessage("PasswordDefinitionEditor.testWorkFactor"));
+		setActionButton(msg.getMessage("close"), this::close);
+		setCancelButtonVisible(false);
+		setHeaderTitle(msg.getMessage("PasswordDefinitionEditor.testWorkFactor"));
 		setWidth("35em");
 		setHeight("20em");
 		add(getContents());

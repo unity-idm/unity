@@ -28,15 +28,14 @@ class GroupAttributesClassesDialog extends AbstractAttributesClassesDialog
 	private final Callback callback;
 	private final NotificationPresenter notificationPresenter;
 
-	GroupAttributesClassesDialog(MessageSource msg, String group, 
+	GroupAttributesClassesDialog(MessageSource msg, String group,
 			AttributeClassManagement acMan, GroupsManagement groupsMan, Callback callback, NotificationPresenter notificationPresenter)
 	{
 		super(msg, group, acMan, groupsMan);
 		this.callback = callback;
 		this.notificationPresenter = notificationPresenter;
-		setHeader(msg.getMessage("GroupAttributesClasses.caption"));
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
-		setCancelable(true);
+		setHeaderTitle(msg.getMessage("GroupAttributesClasses.caption"));
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());
 	}
 

@@ -20,6 +20,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.console.views.signup_and_enquiry.*;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 import org.springframework.beans.factory.ObjectFactory;
@@ -49,7 +50,7 @@ import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
 import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 
-class GroupDelegationEditConfigDialog extends ConfirmDialog
+class GroupDelegationEditConfigDialog extends DialogWithActionFooter
 {
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
@@ -84,6 +85,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 			GroupDelegationConfigGenerator configGenerator, Group group,
 			Consumer<GroupDelegationConfiguration> callback, NotificationPresenter notificationPresenter)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.toEdit = group.getDelegationConfiguration();
 		this.callback = callback;
@@ -98,10 +100,9 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		this.group = group;
 		this.notificationPresenter = notificationPresenter;
 
-		setHeader(msg.getMessage("GroupDelegationEditConfigDialog.caption"));
+		setHeaderTitle(msg.getMessage("GroupDelegationEditConfigDialog.caption"));
 		setWidth("50em");
-		setConfirmButton(msg.getMessage("ok"), event -> onConfirm());
-		setCancelable(true);
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());
 	}
 
@@ -732,7 +733,7 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 		}
 	}
 
-	private static class ValidationResultDialog extends ConfirmDialog
+	private static class ValidationResultDialog extends DialogWithActionFooter
 	{
 		private final MessageSource msg;
 		private final List<String> messages;
@@ -740,11 +741,13 @@ class GroupDelegationEditConfigDialog extends ConfirmDialog
 
 		public ValidationResultDialog(MessageSource msg, List<String> messages, String formName)
 		{
+			super(msg::getMessage);
 			this.msg = msg;
 			this.messages = messages;
 			this.formName = formName;
-			setHeader(msg.getMessage("GroupDelegationEditConfigDialog.validationDialogCaption"));
-			setConfirmButton(msg.getMessage("ok"), e -> {});
+			setHeaderTitle(msg.getMessage("GroupDelegationEditConfigDialog.validationDialogCaption"));
+			setActionButton(msg.getMessage("ok"), this::close);
+			setCancelButtonVisible(false);
 			add(getContents());
 		}
 

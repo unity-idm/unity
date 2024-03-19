@@ -5,21 +5,21 @@
 package io.imunity.console.views.directory_setup.attribute_classes;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.console.attribute.AttributeFieldWithEdit;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.*;
 
 
-public class RequiredAttributesDialog extends ConfirmDialog
+public class RequiredAttributesDialog extends DialogWithActionFooter
 {
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
@@ -32,11 +32,12 @@ public class RequiredAttributesDialog extends ConfirmDialog
 	private List<AttributeFieldWithEdit> attrEdits;
 	private final String info;
 
-	public RequiredAttributesDialog(MessageSource msg, String info, 
+	public RequiredAttributesDialog(MessageSource msg, String info,
 			Set<String> missingAttributes, AttributeHandlerRegistry attrHandlerRegistry,
 			Collection<AttributeType> attributeTypes, String group, Callback callback,
 			NotificationPresenter notificationPresenter)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.missingAttributes = missingAttributes;
 		this.info = info;
@@ -45,7 +46,7 @@ public class RequiredAttributesDialog extends ConfirmDialog
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.callback = callback;
 		this.notificationPresenter = notificationPresenter;
-		setHeader(msg.getMessage("RequiredAttributesDialog.caption"));
+		setHeaderTitle(msg.getMessage("RequiredAttributesDialog.caption"));
 		add(getContents());
 	}
 

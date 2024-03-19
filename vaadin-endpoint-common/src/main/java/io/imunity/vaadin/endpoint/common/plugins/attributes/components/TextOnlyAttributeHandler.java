@@ -6,6 +6,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
 
 import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.shared.Tooltip;
@@ -149,6 +150,8 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
+			if(field.getParent().orElse(null) instanceof FormLayout.FormItem)
+				return;
 			if (context.isShowLabelInline())
 				field.getElement().setProperty("placeholder", label);
 			else

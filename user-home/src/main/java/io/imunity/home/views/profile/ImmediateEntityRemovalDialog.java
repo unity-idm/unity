@@ -4,12 +4,12 @@
  */
 package io.imunity.home.views.profile;
 
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.html.Span;
 import io.imunity.home.HomeEndpointProperties.RemovalModes;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import org.apache.logging.log4j.Logger;
-
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
  * configures system to merely disable account, to perform some cleanup operations in 
  * relaying systems.
  */
-class ImmediateEntityRemovalDialog extends ConfirmDialog
+class ImmediateEntityRemovalDialog extends DialogWithActionFooter
 {
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ImmediateEntityRemovalDialog.class);
@@ -41,15 +41,17 @@ class ImmediateEntityRemovalDialog extends ConfirmDialog
 								 VaddinWebLogoutHandler authnProcessor,
 								 RemovalModes removalMode, NotificationPresenter notificationPresenter)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.entity = entityId;
 		this.identitiesMan = identitiesManagement;
 		this.authnProcessor = authnProcessor;
 		this.removalMode = removalMode;
 		this.notificationPresenter = notificationPresenter;
-		setHeader(msg.getMessage("RemoveEntityDialog.caption"));
-		setText(msg.getMessage("RemoveEntityDialog.confirmImmediate"));
-		setConfirmButton(msg.getMessage("ok"), e -> performRemoval());
+		setHeaderTitle(msg.getMessage("RemoveEntityDialog.caption"));
+		add(new Span(msg.getMessage("RemoveEntityDialog.confirmImmediate")));
+		setActionButton(msg.getMessage("ok"), this::performRemoval);
+		setCancelButtonVisible(false);
 	}
 
 	private void performRemoval()

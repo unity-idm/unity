@@ -5,7 +5,7 @@
 package io.imunity.console.views.directory_setup.attribute_classes;
 
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import pl.edu.icm.unity.base.attribute.AttributesClass;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -21,7 +21,7 @@ import java.util.Set;
 /**
  * Base of dialogs allowing for editing group or entity {@link AttributesClass}es. 
  */
-public abstract class AbstractAttributesClassesDialog extends ConfirmDialog
+public abstract class AbstractAttributesClassesDialog extends DialogWithActionFooter
 {
 	protected final static Set<String> EMPTY = new HashSet<>(0);
 	protected final MessageSource msg;
@@ -32,9 +32,10 @@ public abstract class AbstractAttributesClassesDialog extends ConfirmDialog
 	protected EffectiveAttrClassViewer effective;
 	protected Map<String, AttributesClass> allClasses;
 	
-	public AbstractAttributesClassesDialog(MessageSource msg, String group, 
+	public AbstractAttributesClassesDialog(MessageSource msg, String group,
 			AttributeClassManagement acMan, GroupsManagement groupsMan)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.acMan = acMan;
 		this.groupsMan = groupsMan;

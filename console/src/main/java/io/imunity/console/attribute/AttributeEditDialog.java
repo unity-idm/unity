@@ -4,31 +4,31 @@
  */
 package io.imunity.console.attribute;
 
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.dependency.CssImport;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.message.MessageSource;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 @CssImport(value = "./dialog.css", themeFor = "vaadin-confirm-dialog-overlay")
-public class AttributeEditDialog extends ConfirmDialog
+public class AttributeEditDialog extends DialogWithActionFooter
 {
 	private final AttributeEditor editor;
 	private final Callback callback;
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
 
-	public AttributeEditDialog(MessageSource msg, String caption, Callback callback, 
+	public AttributeEditDialog(MessageSource msg, String caption, Callback callback,
 			AttributeEditor attributeEditor, NotificationPresenter notificationPresenter)
 	{
-		setHeader(caption);
+		super(msg::getMessage);
+		setHeaderTitle(caption);
 		this.editor = attributeEditor;
 		this.callback = callback;
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
-		setCancelable(true);
-		setConfirmButton(msg.getMessage("ok"), event -> onConfirm());
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		setWidth("64em");
 		setHeight("30em");
 		add(editor);

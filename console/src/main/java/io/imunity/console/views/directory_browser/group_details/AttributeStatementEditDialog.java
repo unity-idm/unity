@@ -5,20 +5,20 @@
 package io.imunity.console.views.directory_browser.group_details;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Div;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.base.attribute.AttributeStatement;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Collection;
 
-class AttributeStatementEditDialog extends ConfirmDialog
+class AttributeStatementEditDialog extends DialogWithActionFooter
 {
 	private final AttributeHandlerRegistry attrHandlerRegistry;
 	private final GroupsManagement groupsMan;
@@ -35,6 +35,7 @@ class AttributeStatementEditDialog extends ConfirmDialog
 			AttributeTypeManagement attrsMan, String group, AttributeHandlerRegistry attrHandlerRegistry,
 			GroupsManagement groupsMan, Callback callback, NotificationPresenter notificationPresenter)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.statement = attributeStatement;
 		this.attrsMan = attrsMan;
@@ -44,9 +45,8 @@ class AttributeStatementEditDialog extends ConfirmDialog
 		this.groupsMan = groupsMan;
 		this.notificationPresenter = notificationPresenter;
 		setWidth("65em");
-		setHeader(msg.getMessage("AttributeStatementEditDialog.caption"));
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
-		setCancelable(true);
+		setHeaderTitle(msg.getMessage("AttributeStatementEditDialog.caption"));
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());
 	}
 

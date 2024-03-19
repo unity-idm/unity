@@ -6,9 +6,9 @@ package io.imunity.console.views.directory_browser.group_browser;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +21,7 @@ import java.util.HashSet;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
-class GroupAddDialog extends ConfirmDialog
+class GroupAddDialog extends DialogWithActionFooter
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, GroupAddDialog.class);
 
@@ -35,16 +35,16 @@ class GroupAddDialog extends ConfirmDialog
 	private LocalizedTextAreaDetails description;
 	private Checkbox isPublic;
 
-	GroupAddDialog(MessageSource msg, Group group, Callback callback) 
+	GroupAddDialog(MessageSource msg, Group group, Callback callback)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.parent = group.toString();
 		this.callback = callback;
 		setWidth("50em");
 		setHeight("25em");
-		setHeader(msg.getMessage("GroupEditDialog.createCaption"));
-		setConfirmButton(msg.getMessage("ok"), e -> onConfirm());
-		setCancelable(true);
+		setHeaderTitle(msg.getMessage("GroupEditDialog.createCaption"));
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());
 	}
 

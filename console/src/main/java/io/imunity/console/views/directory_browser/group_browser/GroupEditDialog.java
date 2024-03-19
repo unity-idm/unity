@@ -8,7 +8,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.editor.Editor;
@@ -21,6 +20,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.validator.StringLengthValidator;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import org.apache.logging.log4j.Logger;
@@ -34,19 +34,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.vaadin.flow.component.button.ButtonVariant.LUMO_PRIMARY;
 import static com.vaadin.flow.component.button.ButtonVariant.LUMO_TERTIARY;
 import static com.vaadin.flow.component.grid.ColumnTextAlign.END;
 import static com.vaadin.flow.data.value.ValueChangeMode.EAGER;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
-class GroupEditDialog extends ConfirmDialog
+class GroupEditDialog extends DialogWithActionFooter
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, GroupEditDialog.class);
 
 	private final MessageSource msg;
-	private final Button confirmButton;
 	private final Callback callback;
 	private final Group originalGroup;
 	private TextField path;
@@ -59,15 +57,13 @@ class GroupEditDialog extends ConfirmDialog
 	
 	GroupEditDialog(MessageSource msg, Group group, Callback callback)
 	{
+		super(msg::getMessage);
 		this.msg = msg;
 		this.originalGroup = group;
 		this.callback = callback;
-		this.confirmButton = new Button(msg.getMessage("ok"), e -> onConfirm());
-		confirmButton.addThemeVariants(LUMO_PRIMARY);
 		setWidth("60em");
 		setHeight("60em");
-		setCancelable(true);
-		setConfirmButton(confirmButton);
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());
 	}
 
@@ -203,9 +199,9 @@ class GroupEditDialog extends ConfirmDialog
 		editor.addOpenListener(e ->
 		{
 			save.setEnabled(false);
-			confirmButton.setEnabled(false);
+			setActionButtonVisible(false);
 		});
-		editor.addCloseListener(e -> confirmButton.setEnabled(true));
+		editor.addCloseListener(e -> setActionButtonVisible(true));
 
 		return new Div(save, cancel);
 	}
