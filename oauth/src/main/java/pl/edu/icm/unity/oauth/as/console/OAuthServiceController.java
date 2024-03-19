@@ -465,11 +465,11 @@ class OAuthServiceController implements IdpServiceController
 			if (logoResource.getLocal() != null)
 			{
 				updateLogo(entity, group, logoResource.getLocal());
-			} else if (logoResource.getSrc() != null)
+			} else if (logoResource.getSrc() != null && !logoResource.getSrc().isEmpty())
 			{
 				FileData data = uriAccessService.readURI(new URI(logoResource.getSrc()));
 				updateLogo(entity, group, data.getContents());
-			} else
+			} else if(!attrMan.getAttributes(entity, group, OAuthSystemAttributesProvider.CLIENT_LOGO).isEmpty())
 			{
 				attrMan.removeAttribute(entity, group, OAuthSystemAttributesProvider.CLIENT_LOGO);
 			}
