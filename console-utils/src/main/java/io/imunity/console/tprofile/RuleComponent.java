@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.CssClassNames.*;
 
 public class RuleComponent extends VerticalLayout
@@ -103,7 +104,7 @@ public class RuleComponent extends VerticalLayout
 		header.setPadding(false);
 	
 		showHide = new LinkButton("", event -> showHideContent(!content.isVisible()));
-		showHide.add(VaadinIcon.ANGLE_DOWN.create());
+		showHide.add(VaadinIcon.ANGLE_UP.create());
 		header.add(showHide);
 		header.setAlignItems(Alignment.CENTER);
 		
@@ -188,6 +189,7 @@ public class RuleComponent extends VerticalLayout
 		
 		add(main);
 		setMargin(false);
+		getStyle().set("margin-bottom", BASE_MARGIN.value());
 		setPadding(false);
 	}
 	
@@ -384,7 +386,7 @@ public class RuleComponent extends VerticalLayout
 	private void showHideContent(boolean show)
 	{
 		showHide.removeAll();
-		showHide.add(show ? VaadinIcon.ANGLE_DOWN.create() : VaadinIcon.ANGLE_UP.create());
+		showHide.add(show ? VaadinIcon.ANGLE_UP.create() : VaadinIcon.ANGLE_DOWN.create());
 		content.setVisible(show);
 	}
 	
