@@ -72,10 +72,10 @@ public class InteractiveAuthenticationProcessorTest
 		when(sessionReinitializer.reinitialize()).thenReturn(httpSession);
 		when(entityMan.getEntityLabel(new EntityParam(1L))).thenReturn("label");
 		when(sessionMan.getCreateSession(1, userRealm, "label", "out",
-			rememberMeInfo, authenticationOptionKey, null)).thenReturn(loginSession);
+			rememberMeInfo, authenticationOptionKey, null, null)).thenReturn(loginSession);
 		InvocationContext.setCurrent(new InvocationContext(null, endpointRealm, List.of()));
 
-		processor.syntheticAuthenticate(authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
+		processor.syntheticAuthenticate(null, authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
 			loginMachineDetails, false, httpResponse, sessionReinitializer);
 
 		verify(sessionBinder).bindHttpSession(httpSession, loginSession);
@@ -105,10 +105,10 @@ public class InteractiveAuthenticationProcessorTest
 		when(sessionReinitializer.reinitialize()).thenReturn(httpSession);
 		when(entityMan.getEntityLabel(new EntityParam(1L))).thenReturn("label");
 		when(sessionMan.getCreateSession(1, userRealm, "label", "out",
-			rememberMeInfo, authenticationOptionKey, null)).thenReturn(loginSession);
+			rememberMeInfo, authenticationOptionKey, null, null)).thenReturn(loginSession);
 		InvocationContext.setCurrent(new InvocationContext(null, endpointRealm, List.of()));
 
-		processor.syntheticAuthenticate(authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
+		processor.syntheticAuthenticate(null, authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
 			loginMachineDetails, false, httpResponse, sessionReinitializer);
 
 		verify(sessionBinder, times(0)).bindHttpSession(httpSession, loginSession);

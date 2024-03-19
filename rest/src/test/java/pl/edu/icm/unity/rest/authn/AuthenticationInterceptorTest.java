@@ -113,7 +113,7 @@ public class AuthenticationInterceptorTest
 
 		when(mockProcessor.finalizeAfterPrimaryAuthentication(any(), eq(false)))
 				.thenReturn(new AuthenticatedEntity(1L, "", ""));
-		when(sessionMan.getCreateSession(eq(1L), any(), any(), any(), any(), any(), any()))
+		when(sessionMan.getCreateSession(eq(1L), any(), any(), any(), any(), any(), any(), any()))
 				.thenReturn(new LoginSession());
 
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(mock(MessageSource.class), mockProcessor,

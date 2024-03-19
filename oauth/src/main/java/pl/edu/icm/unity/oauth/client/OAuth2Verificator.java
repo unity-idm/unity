@@ -42,6 +42,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
+import pl.edu.icm.unity.engine.api.authn.AuthnContext.Protocol;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.*;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -81,6 +82,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	public static final String DESC = "Handles OAuth2 tokens obtained from remote OAuth providers. "
 			+ "Queries about additional user information.";
 	public static final String DEFAULT_TOKEN_EXPIRATION = "3600";
+	
 	
 	private OAuthClientProperties config;
 	private final String responseConsumerAddress;
@@ -304,7 +306,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			throw new RemoteAuthenticationException("Problem during user information retrieval", e);
 		}
 
-		return convertInput(context, attributes);
+		return  convertInput(context, attributes, openIdConnectMode);
 	}
 	
 	private AccessTokenFormat getAccessTokenFormat(OAuthContext context)
@@ -550,7 +552,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return (BearerAccessToken) accessTokenGeneric;
 	}
 	
-	private RemotelyAuthenticatedInput convertInput(OAuthContext context, AttributeFetchResult attributes)
+	private RemotelyAuthenticatedInput convertInput(OAuthContext context, AttributeFetchResult attributes, boolean openIdConnectMode)
 	{
 		CustomProviderProperties provCfg = config.getProvider(context.getProviderConfigKey());
 		String tokenEndpoint = provCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
@@ -578,8 +580,27 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				input.addIdentity(new RemoteIdentity(attr.getValue().get(0), "sub"));
 		}
 		input.setRawAttributes(attributes.getRawAttributes());
-		
+		input.setAuthnContext(getAuthnContext(attributes, openIdConnectMode));
 		return input;
+	}
+	
+	private AuthnContext getAuthnContext(AttributeFetchResult attributes, boolean openIdConnectMode)
+	{
+		return new AuthnContext(openIdConnectMode ? Protocol.OIDC : Protocol.OIDC,
+				openIdConnectMode ? attributes.getAttributes()
+						.get("iss")
+						.get(0) : AuthnContext.UNDEFINED_IDP,
+				getAcr(attributes));
+	}
+
+	private List<String> getAcr(AttributeFetchResult attributes)
+	{
+		return attributes.getAttributes()
+				.get("acr") != null ? List.of(
+						attributes.getAttributes()
+								.get("acr")
+								.get(0))
+						: List.of();
 	}
 	
 	@Override
