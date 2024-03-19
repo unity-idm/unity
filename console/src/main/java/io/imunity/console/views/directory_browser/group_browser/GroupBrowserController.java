@@ -10,13 +10,16 @@ import io.imunity.console.views.signup_and_enquiry.EnquiryFormEditor;
 import io.imunity.console.views.signup_and_enquiry.RegistrationFormEditor;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.*;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
@@ -29,6 +32,8 @@ import java.util.stream.Collectors;
 @Component
 class GroupBrowserController
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, GroupBrowserController.class);
+
 	private final MessageSource msg;
 	private final GroupsManagement groupsMan;
 	private final AttributeClassManagement acMan;
@@ -73,7 +78,13 @@ class GroupBrowserController
 		{
 			GroupStructuralData bulkData = bulkQueryService.getBulkStructuralData(path);
 			groupAndSubgroups = bulkQueryService.getGroupAndSubgroups(bulkData);
-		} catch (EngineException e)
+		}
+		catch (AuthorizationException e)
+		{
+			LOG.debug("Authorization error: ", e);
+			return Map.of();
+		}
+		catch (EngineException e)
 		{
 			notificationPresenter.showError(msg.getMessage("GroupBrowserController.getGroupsError"), e.getMessage());
 			return Map.of();
