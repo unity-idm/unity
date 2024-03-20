@@ -6,14 +6,15 @@ package io.imunity.console.attribute;
 
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import io.imunity.vaadin.elements.Panel;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -138,8 +139,7 @@ public class AttributeEditor extends VerticalLayout
 		removeAll();
 		Panel panel = new Panel();
 		panel.add(attrValuesContainer);
-		panel.setMargin(false);
-		attrTypePanel.addFormItem(panel, "");
+		attrTypePanel.add(new Hr(), panel);
 		add(attrTypePanel);
 	}
 	
