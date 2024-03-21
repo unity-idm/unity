@@ -20,7 +20,7 @@
 		<slf4j.version>2.0.9</slf4j.version>
 		<log4j.version>2.20.0</log4j.version>
 		<spring.version>5.3.31</spring.version>
-		<vaadin.version.new>24.3.3</vaadin.version.new>
+		<vaadin.version>24.3.3</vaadin.version>
 		<cxf.version>4.0.3</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
 		<bc.version>1.76</bc.version>
@@ -149,6 +149,11 @@
 	<build>
 		<pluginManagement>
 			<plugins>
+	            <plugin>
+    	            <groupId>com.vaadin</groupId>
+        	        <artifactId>vaadin-maven-plugin</artifactId>
+            	    <version>${vaadin.version}</version>
+	            </plugin>
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
@@ -319,7 +324,7 @@
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-bom</artifactId>
-				<version>${vaadin.version.new}</version>
+				<version>${vaadin.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
