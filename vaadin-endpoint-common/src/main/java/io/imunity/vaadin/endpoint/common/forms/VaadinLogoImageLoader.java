@@ -61,13 +61,14 @@ public class VaadinLogoImageLoader
 		}
 		else
 		{
-			FileData fileData = null;
+			FileData fileData;
 			try
 			{
-				fileData = uriAccessService.readImageURI(uri, "UNKNOWN_THEME");
+				fileData = uriAccessService.readImageURI(uri);
 			} catch (Exception e)
 			{
 				log.error("Can not read image from uri: " + logoUri);
+				return Optional.empty();
 			}
 			
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileData.getContents());

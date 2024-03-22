@@ -5,23 +5,12 @@
 
 package pl.edu.icm.unity.engine.files;
 
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessException;
@@ -29,6 +18,16 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.store.api.FileDAO;
 import pl.edu.icm.unity.test.utils.ExceptionsUtils;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 /**
  * 
@@ -68,7 +67,7 @@ public class URIAccessServiceRestrictAccessTest
 	{
 		String uri = "file:/../pom.xml";
 		Throwable exception = catchThrowable(
-				() -> uriService.readImageURI(URIHelper.parseURI(uri), "theme1"));
+				() -> uriService.readImageURI(URIHelper.parseURI(uri)));
 		ExceptionsUtils.assertExceptionType(exception, URIAccessException.class);
 	}
 

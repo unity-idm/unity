@@ -5,25 +5,11 @@
 
 package pl.edu.icm.unity.engine.files;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Date;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -35,6 +21,19 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.files.RemoteFileNetworkClient.ContentsWithType;
 import pl.edu.icm.unity.store.api.FileDAO;
 import pl.edu.icm.unity.test.utils.ExceptionsUtils;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Date;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 /**
  * 
  * @author P.Piernik
@@ -95,7 +94,7 @@ public class URIAccessServiceTest
 		URI parsedURI = URIHelper.parseURI(uri);
 		when(networkClient.download(eq(parsedURI.toURL()), any())).thenReturn(new ContentsWithType(new byte[] {}, "image/jpg"));
 		uriService = new URIAccessServiceImpl(conf, dao, networkClient);
-		uriService.readImageURI(parsedURI, "demo");
+		uriService.readImageURI(parsedURI);
 		verify(networkClient).download(eq(parsedURI.toURL()), any());
 	}
 }

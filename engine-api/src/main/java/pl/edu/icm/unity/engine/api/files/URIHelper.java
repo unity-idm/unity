@@ -85,6 +85,8 @@ public class URIHelper
 			String scheme = uri.getScheme();
 			return SUPPORTED_URL_SCHEMES.contains(scheme);
 		}
+		if(uri != null && uri.getPath().startsWith("../unitygw/"))
+			return true;
 		return false;
 	}
 

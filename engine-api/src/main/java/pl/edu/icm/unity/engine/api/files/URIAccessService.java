@@ -13,7 +13,7 @@ import java.time.Duration;
 
 public interface URIAccessService
 {
-	public static final String UNITY_FILE_URI_SCHEMA = "unity.internal";
+	String UNITY_FILE_URI_SCHEMA = "unity.internal";
 	
 	FileData readURI(URI uri);
 
@@ -21,5 +21,5 @@ public interface URIAccessService
 
 	RemoteFileData readURL(URI uri, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber);
 	
-	FileData readImageURI(URI uri, String themeName);
+	FileData readImageURI(URI uri);
 }

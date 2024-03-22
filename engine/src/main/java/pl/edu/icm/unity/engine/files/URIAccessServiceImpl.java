@@ -110,21 +110,16 @@ public class URIAccessServiceImpl implements URIAccessService
 
 	@Transactional
 	@Override
-	public FileData readImageURI(URI uri, String themeName)
+	public FileData readImageURI(URI uri)
 	{
-		if (themeName == null)
-		{
-			throw new IllegalArgumentException("Theme name can not be null");
-		}
-		
 		try
 		{
 			URIHelper.validateURI(uri);
 		} catch (IllegalURIException e)
 		{
-			throw new URIAccessException("Can not read image uri: " + uri.toString(), e);
+			throw new URIAccessException("Can not read image uri: " + uri, e);
 		}
-		String root = Paths.get(webContentDir, "VAADIN", "themes", themeName).toFile().getAbsolutePath();
+		String root = Paths.get(webContentDir, "assets").toFile().getAbsolutePath();
 
 		try
 		{
@@ -136,7 +131,7 @@ public class URIAccessServiceImpl implements URIAccessService
 
 		try
 		{
-			return readImageFileFromClassPath(themeName, URIHelper.getPathFromURI(uri));
+			return readImageFileFromClassPath(URIHelper.getPathFromURI(uri));
 		} catch (IOException e)
 		{
 			log.trace("Can not read image file from classpath", e);
@@ -274,9 +269,9 @@ public class URIAccessServiceImpl implements URIAccessService
 		}
 	}
 
-	private FileData readImageFileFromClassPath(String themeName, String path) throws IOException
+	private FileData readImageFileFromClassPath(String path) throws IOException
 	{
-		Resource r = new ClassPathResource(Paths.get("VAADIN", "themes", themeName, path).toString());
+		Resource r = new ClassPathResource(Paths.get(path).toString());
 		return new FileData(new File(path).getName(), IOUtils.toByteArray(r.getInputStream()), new Date());
 	}
 }
