@@ -88,7 +88,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		this.serverSettings = serverSettings;
 		this.defaultWebContentsPath = defaultWebContentsPath;
 		initServer();
-		dosFilter = createDoSFilterInstance10();
+		dosFilter = createDoSFilterInstance();
 	}
 	
 	@Override
@@ -529,7 +529,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		return usedContextPaths.keySet();
 	}
 
-	private org.eclipse.jetty.ee10.servlet.FilterHolder createDoSFilterInstance10()
+	private org.eclipse.jetty.ee10.servlet.FilterHolder createDoSFilterInstance()
 	{
 		if (!serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_DOS_FILTER))
 			return null;
