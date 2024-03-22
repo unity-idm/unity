@@ -4,15 +4,16 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.message.MessageSource;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 public class FixedAttributeEditor
 {
@@ -46,6 +47,11 @@ public class FixedAttributeEditor
 	}
 
 	public void placeOnLayout(com.vaadin.flow.component.formlayout.FormLayout layout)
+	{
+		new CompositeLayoutAdapter(layout, getComponentsGroup());
+	}
+
+	public void placeOnLayout(VerticalLayout layout)
 	{
 		new CompositeLayoutAdapter(layout, getComponentsGroup());
 	}

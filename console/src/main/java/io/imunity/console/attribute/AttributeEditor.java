@@ -5,10 +5,8 @@
 package io.imunity.console.attribute;
 
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import io.imunity.vaadin.elements.Panel;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -20,11 +18,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
-
 public class AttributeEditor extends VerticalLayout
 {
-	private final FormLayout attrValuesContainer;
+	private final VerticalLayout attrValuesContainer;
 	private final AttributeTypeSelection attrTypePanel;
 	private final String groupPath;
 	private boolean typeFixed = false;
@@ -35,11 +31,9 @@ public class AttributeEditor extends VerticalLayout
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeTypeSelection(attributeTypes, msg);
-		attrTypePanel.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		AttributeType initial = attrTypePanel.getAttributeType();
-		attrValuesContainer = new FormLayout();
-		attrValuesContainer.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		attrValuesContainer.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		attrValuesContainer = new VerticalLayout();
+		attrValuesContainer.setPadding(false);
 	
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required)
@@ -86,10 +80,8 @@ public class AttributeEditor extends VerticalLayout
 	{
 		this.groupPath = attribute.getGroupPath();
 		attrTypePanel = new AttributeTypeSelection(attributeType, msg);
-		attrTypePanel.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		attrValuesContainer = new FormLayout();
-		attrValuesContainer.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		attrValuesContainer.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		attrValuesContainer = new VerticalLayout();
+		attrValuesContainer.setPadding(false);
 
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
@@ -113,11 +105,8 @@ public class AttributeEditor extends VerticalLayout
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeTypeSelection(attributeType, msg);
-		attrValuesContainer = new FormLayout();
-		attrValuesContainer.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		attrValuesContainer.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
-
-		attrTypePanel.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		attrValuesContainer = new VerticalLayout();
+		attrValuesContainer.setPadding(false);
 
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
@@ -137,9 +126,7 @@ public class AttributeEditor extends VerticalLayout
 	private void initCommon()
 	{
 		removeAll();
-		Panel panel = new Panel();
-		panel.add(attrValuesContainer);
-		attrTypePanel.add(new Hr(), panel);
+		attrTypePanel.add(new Hr(), attrValuesContainer);
 		add(attrTypePanel);
 	}
 	

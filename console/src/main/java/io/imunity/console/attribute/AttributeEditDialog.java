@@ -29,7 +29,7 @@ public class AttributeEditDialog extends DialogWithActionFooter
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
 		setActionButton(msg.getMessage("ok"), this::onConfirm);
-		setWidth("64em");
+		setWidth("40em");
 		setHeight("30em");
 		add(editor);
 	}

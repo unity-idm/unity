@@ -5,8 +5,9 @@
 package io.imunity.console.attribute;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.AttributeSelectionComboBox;
 import org.apache.commons.lang3.StringUtils;
@@ -19,11 +20,11 @@ import java.util.function.Consumer;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 
-class AttributeTypeSelection extends FormLayout
+class AttributeTypeSelection extends VerticalLayout
 {
 	private final MessageSource msg;
 	private Consumer<AttributeType> callback;
-	private FormLayout.FormItem formItem;
+	private HorizontalLayout formItem;
 	private Component formItemTooltip;
 	private AttributeSelectionComboBox attributeTypesCombo;
 
@@ -35,15 +36,23 @@ class AttributeTypeSelection extends FormLayout
 	AttributeTypeSelection(Collection<AttributeType> attributeTypes, MessageSource msg)
 	{
 		this.msg = msg;
+		setSpacing(false);
+		setPadding(false);
 		createAttributeSelectionWidget(attributeTypes);
 	}
 
 	private void createAttributeWidget(AttributeType type)
 	{
-		Span name = new Span(type.getName());
-		formItem = addFormItem(name, msg.getMessage("AttributeType.name"));
+		TextField name = new TextField(msg.getMessage("AttributeType.name"));
+		name.setWidth(TEXT_FIELD_MEDIUM.value());
+		name.setValue(type.getName());
+		name.setReadOnly(true);
+		formItem = new HorizontalLayout(name);
+		formItem.setSpacing(false);
+		formItem.setAlignItems(Alignment.END);
+		add(formItem);
 		String message = type.getDescription().getValue(msg);
-		formItemTooltip = TooltipFactory.getWithHtmlContent(message);
+		setTooltipComponent(message);
 		formItemTooltip.setVisible(!StringUtils.isEmpty(message));
 		formItem.add(formItemTooltip);
 	}
@@ -57,9 +66,18 @@ class AttributeTypeSelection extends FormLayout
 			createAttributeWidget(attributeTypes.iterator().next());
 		} else
 		{
-			formItem = addFormItem(attributeTypesCombo, msg.getMessage("AttributeType.name"));
-			formItemTooltip = TooltipFactory.getWithHtmlContent("");
-			formItemTooltip.setVisible(false);
+			attributeTypesCombo.setLabel(msg.getMessage("AttributeType.name"));
+			formItem = new HorizontalLayout(attributeTypesCombo);
+			formItem.setAlignItems(Alignment.END);
+			formItem.setSpacing(false);
+			add(formItem);
+			AttributeType value = attributeTypesCombo.getValue();
+			if(value != null)
+			{
+				String message = value.getDescription().getValue(msg);
+				setTooltipComponent(message);
+				formItemTooltip.setVisible(!message.isEmpty());
+			}
 			formItem.add(formItemTooltip);
 			attributeTypesCombo.addValueChangeListener(event -> changeAttributeType(event.getValue()));
 		}
@@ -86,10 +104,16 @@ class AttributeTypeSelection extends FormLayout
 			return;
 		String message = type.getDescription().getValue(msg);
 		formItem.remove(formItemTooltip);
-		formItemTooltip = TooltipFactory.getWithHtmlContent(message);
+		setTooltipComponent(message);
 		formItem.add(formItemTooltip);
 		formItemTooltip.setVisible(!StringUtils.isEmpty(message));
 		if (callback != null)
 			callback.accept(type);
+	}
+
+	private void setTooltipComponent(String message)
+	{
+		formItemTooltip = TooltipFactory.getWithHtmlContent(message);
+		formItemTooltip.getStyle().set("margin-bottom", "0.9em");
 	}
 }
