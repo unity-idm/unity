@@ -17,13 +17,13 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
-
 import io.imunity.console.tprofile.TranslationProfileEditor.DragEndEvent;
 import io.imunity.console.tprofile.TranslationProfileEditor.DragStartEvent;
 import io.imunity.vaadin.elements.*;
 import io.imunity.vaadin.endpoint.common.ExceptionMessageHumanizer;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -44,7 +44,6 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationMVELContextK
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.engine.translation.in.action.IncludeInputProfileActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.IncludeOutputProfileActionFactory;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.Map;
 import java.util.Objects;
@@ -154,8 +153,7 @@ public class RuleComponent extends VerticalLayout
 		});
 		
 		headerWrapper.add(header);
-		headerWrapper.add(new Hr());
-			
+
 		condition = new MVELExpressionField(msg,
 				msg.getMessage("MVELExpressionField.conditionDesc"),
 				MVELExpressionContext.builder().withTitleKey("TranslationProfileEditor.ruleConditionTitle")
@@ -180,7 +178,8 @@ public class RuleComponent extends VerticalLayout
 		
 		main.add(headerWrapper);
 		main.add(content);
-	
+		main.add(new Hr());
+
 		info.setText(actionEditor.getStringRepresentation());
 		
 		binder = new Binder<>(TranslationRule.class);

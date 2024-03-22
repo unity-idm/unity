@@ -41,8 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CSSVars.*;
 import static io.imunity.vaadin.elements.CssClassNames.DROP_LAYOUT;
 import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
@@ -149,8 +148,8 @@ public class TranslationProfileEditor extends VerticalLayout
 		testProfileButton.addClickListener(e -> testRules(), e -> clearTestResults());
 
 		rulesHeader.add(new NativeLabel(msg.getMessage("TranslationProfileEditor.rules")), addRule, testProfileButton);
+		rulesHeader.getStyle().set("margin-bottom", BIG_MARGIN.value());
 		rulesHeader.setAlignItems(Alignment.CENTER);
-
 
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
