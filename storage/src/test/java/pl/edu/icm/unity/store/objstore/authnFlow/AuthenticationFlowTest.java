@@ -56,7 +56,7 @@ public class AuthenticationFlowTest extends AbstractNamedWithTSTest<Authenticati
 	{
 		return new AuthenticationFlowDefinition(
 				id , Policy.REQUIRE,
-				Sets.newHashSet("pass"), Lists.newArrayList("cert"));
+				Sets.newHashSet("pass"), Lists.newArrayList("cert"), null);
 	}
 
 	@Override

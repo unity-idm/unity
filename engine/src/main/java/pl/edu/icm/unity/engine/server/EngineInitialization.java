@@ -838,6 +838,9 @@ public class EngineInitialization extends LifecycleBase
 			Policy policy = config.getEnumValue(
 					authenticationFlowKey + UnityServerConfiguration.AUTHENTICATION_FLOW_POLICY,
 					Policy.class);
+			String policyConfig = config.getValue(
+					authenticationFlowKey + UnityServerConfiguration.AUTHENTICATION_FLOW_POLICY_CONFIGURATION);
+			
 			String firstFactorSpec = config.getValue(authenticationFlowKey
 					+ UnityServerConfiguration.AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS);
 			String[] firstFactorAuthn = firstFactorSpec.split(",");
@@ -854,7 +857,7 @@ public class EngineInitialization extends LifecycleBase
 			}
 
 			AuthenticationFlowDefinition authFlowdef = new AuthenticationFlowDefinition(name, policy,
-					firstFactorAuthnSet, secondFactorAuthnList);
+					firstFactorAuthnSet, secondFactorAuthnList, policyConfig);
 
 			if (!existing.containsKey(name))
 			{

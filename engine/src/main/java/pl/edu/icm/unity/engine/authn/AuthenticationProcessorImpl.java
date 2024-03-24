@@ -4,9 +4,13 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
+import org.mvel2.MVEL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,15 +48,17 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 	private final SecondFactorOptInService secondFactorOptInService;
 	private final LocalCredentialsRegistry localCred;
 	private final CredentialRepository credRepo;
+	private final AuthenticationFlowPolicyConfigMVELContextBuilder policyConfigMVELContextBuilder;
 	
 	@Autowired
 	AuthenticationProcessorImpl(
 			SecondFactorOptInService secondFactorOptInService,
-			LocalCredentialsRegistry localCred, CredentialRepository credRepo)
+			LocalCredentialsRegistry localCred, CredentialRepository credRepo, AuthenticationFlowPolicyConfigMVELContextBuilder policyConfigMVELContextBuilder)
 	{
 		this.secondFactorOptInService = secondFactorOptInService;
 		this.localCred = localCred;
 		this.credRepo = credRepo;
+		this.policyConfigMVELContextBuilder = policyConfigMVELContextBuilder;
 	}
 	
 	/**
@@ -99,14 +105,60 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 				throw new AuthenticationException(
 						"AuthenticationProcessorImpl.secondFactorRequire");
 			}
+		} else if (flowPolicy.equals(Policy.DYNAMIC))
+		{
+			PartialAuthnState partialAuthnState = null;
+			try
+			{
+				if (evaluateCondition(authenticationFlow.getPolicyConfiguration(), createMvelContext(result, authnOptionId, authenticationFlow))){
+					partialAuthnState = getSecondFactorAuthn(authenticationFlow,
+							result, authnOptionId);
 
+					if (partialAuthnState != null)
+						return partialAuthnState;
+
+					throw new AuthenticationException(
+							"AuthenticationProcessorImpl.secondFactorRequire");
+				}
+			} catch (EngineException e)
+			{
+				log.error("Can not evaluate mvel condition", e);
+				throw new AuthenticationException("AuthenticationProcessorImpl.authnFailed");
+			}
 		}
 		// In Future: Risk base policy
-
 		return new PartialAuthnState(authnOptionId, null, result, authenticationFlow);
 	}
 
-	
+	private Map<String, Object> createMvelContext(AuthenticationResult authenticationResult,
+			AuthenticationOptionKey firstFactorOptionId, AuthenticationFlow authenticationFlow) throws EngineException
+	{
+		return policyConfigMVELContextBuilder.createMvelContext(firstFactorOptionId, authenticationResult,
+				getUserOptInAttribute(authenticationResult.getSuccessResult().authenticatedEntity.getEntityId()), authenticationFlow);
+	}
+
+	private boolean evaluateCondition(String condition, Object input) throws EngineException
+	{
+		Serializable compiled = MVEL.compileExpression(condition);
+
+		Boolean result = null;
+		try
+		{
+			result = (Boolean) MVEL.executeExpression(compiled, input, new HashMap<>());
+		} catch (Exception e)
+		{
+			log.warn("Error during expression execution.", e);
+			throw new EngineException(e);
+		}
+
+		if (result == null)
+		{
+			log.debug("Condition evaluated to null value, assuming false");
+			return false;
+		}
+		return result.booleanValue();
+	}
+
 	private boolean getUserOptInAttribute(long entityId)
 	{
 		try

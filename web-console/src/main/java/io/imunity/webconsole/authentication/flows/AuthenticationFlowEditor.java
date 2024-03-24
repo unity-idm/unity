@@ -17,10 +17,13 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.authn.DynamicPolicyConfigurationMVELContextKey;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
+import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 
 /**
@@ -56,20 +59,52 @@ class AuthenticationFlowEditor extends CustomComponent
 		policy.setValue(Policy.REQUIRE);
 		policy.setEmptySelectionAllowed(false);
 
+		MVELExpressionField policyConfig = new MVELExpressionField(msg, "AuthenticationFlow.policyConfigurationTitle",
+				"MVELExpressionField.conditionDesc", MVELExpressionContext.builder()
+						.withTitleKey("AuthenticationFlow.policyConfigurationTitle")
+						.withEvalToKey("MVELExpressionField.evalToBoolean")
+						.withVars(DynamicPolicyConfigurationMVELContextKey.toMap())
+						.build());
+
 		binder = new Binder<>(AuthenticationFlowDefinition.class);
-		binder.forField(name).withValidator(new NoSpaceValidator(msg)).asRequired(msg.getMessage("fieldRequired")).bind("name");
-		binder.forField(firstFactorAuthenticators).withNullRepresentation(Collections.emptyList())
-				.withConverter(l -> l != null ? l.stream().collect(Collectors.toSet()) : null,
-						s -> s != null ? s.stream().collect(Collectors.toList()) : null)
-				.asRequired().bind("firstFactorAuthenticators");
-		binder.forField(secondFactorAuthenticators).bind("secondFactorAuthenticators");
-		binder.forField(policy).bind("policy");
+		binder.forField(name)
+				.withValidator(new NoSpaceValidator(msg))
+				.asRequired(msg.getMessage("fieldRequired"))
+				.bind("name");
+		binder.forField(firstFactorAuthenticators)
+				.withNullRepresentation(Collections.emptyList())
+				.withConverter(l -> l != null ? l.stream()
+						.collect(Collectors.toSet()) : null, s -> s != null
+								? s.stream()
+										.collect(Collectors.toList())
+								: null)
+				.asRequired()
+				.bind("firstFactorAuthenticators");
+		binder.forField(secondFactorAuthenticators)
+				.bind("secondFactorAuthenticators");
+		binder.forField(policy)
+				.bind("policy");
+		binder.forField(policyConfig).bind("policyConfiguration");
+		
+		policy.addValueChangeListener(v ->
+		{
+			policyConfig.setVisible(v.getValue()
+					.equals(Policy.DYNAMIC));
+			if (!v.getValue()
+					.equals(Policy.DYNAMIC))
+			{
+				policyConfig.clear();
+			}
+		});
+		
+		
+		
 		binder.setBean(toEdit.flow);
 
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.setMargin(false);
 
-		mainLayout.addComponents(name, policy, firstFactorAuthenticators, secondFactorAuthenticators);
+		mainLayout.addComponents(name, policy, policyConfig, firstFactorAuthenticators, secondFactorAuthenticators);
 		if (!toEdit.endpoints.isEmpty())
 		{
 			ListOfElements<String> endpoints = new ListOfElements<>(toEdit.endpoints, t -> new Label(t));
@@ -88,7 +123,8 @@ class AuthenticationFlowEditor extends CustomComponent
 
 	boolean hasErrors()
 	{
-		return binder.validate().hasErrors();
+		return binder.validate()
+				.hasErrors();
 	}
 
 	AuthenticationFlowDefinition getAuthenticationFlow()

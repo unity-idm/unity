@@ -109,13 +109,13 @@ public class AuthenticationOptionsHandlerTest
 		AuthenticatorInstance vauthenticator1 = getMockVaadinAuthentication(authenticator, entries);
 		AuthenticatorInstance vauthenticator2 = getMockVaadinAuthentication(authenticator2, secondFAEntry);
 		return new AuthenticationFlow("", Policy.REQUIRE, Sets.newHashSet(vauthenticator1), 
-				Lists.newArrayList(vauthenticator2), 1);
+				Lists.newArrayList(vauthenticator2), null, 1);
 	}
 	
 	private AuthenticationFlow getMockAuthnOption(String authenticator, String... entries)
 	{
 		return new AuthenticationFlow("", Policy.NEVER, Sets.newHashSet(
-				getMockVaadinAuthentication(authenticator, entries)), Lists.newArrayList(), 1);
+				getMockVaadinAuthentication(authenticator, entries)), Lists.newArrayList(), null, 1);
 	}
 	
 	private AuthenticatorInstance getMockVaadinAuthentication(String authenticator, String... entries)

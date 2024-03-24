@@ -20,6 +20,7 @@ class DBAuthenticationFlow
 	final Set<String> firstFactorAuthenticators;
 	final List<String> secondFactorAuthenticators;
 	final String policy;
+	final String policyConfiguration;
 	final long revision;
 	
 	private DBAuthenticationFlow(Builder builder)
@@ -33,13 +34,14 @@ class DBAuthenticationFlow
 				.orElse(null);
 		this.policy = builder.policy;
 		this.revision = builder.revision;
+		this.policyConfiguration = builder.policyConfiguration;
 	}
-	
-	
+
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(firstFactorAuthenticators, name, policy, revision, secondFactorAuthenticators);
+		return Objects.hash(policyConfiguration, firstFactorAuthenticators, name, policy, revision,
+				secondFactorAuthenticators);
 	}
 
 	@Override
@@ -52,11 +54,15 @@ class DBAuthenticationFlow
 		if (getClass() != obj.getClass())
 			return false;
 		DBAuthenticationFlow other = (DBAuthenticationFlow) obj;
-		return Objects.equals(firstFactorAuthenticators, other.firstFactorAuthenticators)
+		return Objects.equals(policyConfiguration, other.policyConfiguration)
+				&& Objects.equals(firstFactorAuthenticators, other.firstFactorAuthenticators)
 				&& Objects.equals(name, other.name) && Objects.equals(policy, other.policy)
 				&& revision == other.revision
 				&& Objects.equals(secondFactorAuthenticators, other.secondFactorAuthenticators);
 	}
+
+
+
 
 
 
@@ -70,6 +76,7 @@ class DBAuthenticationFlow
 		private Set<String> firstFactorAuthenticators = Collections.emptySet();
 		private List<String> secondFactorAuthenticators = Collections.emptyList();
 		private String policy;
+		private String policyConfiguration;
 		private long revision;
 
 		private Builder()
@@ -97,6 +104,12 @@ class DBAuthenticationFlow
 		public Builder withPolicy(String policy)
 		{
 			this.policy = policy;
+			return this;
+		}
+		
+		public Builder withPolicyConfiguration(String configuration)
+		{
+			this.policyConfiguration = configuration;
 			return this;
 		}
 
