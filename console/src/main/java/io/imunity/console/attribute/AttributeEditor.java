@@ -32,8 +32,7 @@ public class AttributeEditor extends VerticalLayout
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeTypeSelection(attributeTypes, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
-		attrValuesContainer = new VerticalLayout();
-		attrValuesContainer.setPadding(false);
+		attrValuesContainer = new AttrValuesContainer();
 	
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required)
@@ -80,8 +79,7 @@ public class AttributeEditor extends VerticalLayout
 	{
 		this.groupPath = attribute.getGroupPath();
 		attrTypePanel = new AttributeTypeSelection(attributeType, msg);
-		attrValuesContainer = new VerticalLayout();
-		attrValuesContainer.setPadding(false);
+		attrValuesContainer = new AttrValuesContainer();
 
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
@@ -105,8 +103,7 @@ public class AttributeEditor extends VerticalLayout
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeTypeSelection(attributeType, msg);
-		attrValuesContainer = new VerticalLayout();
-		attrValuesContainer.setPadding(false);
+		attrValuesContainer = new AttrValuesContainer();
 
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationEditMode.ADMIN).required()
@@ -142,5 +139,12 @@ public class AttributeEditor extends VerticalLayout
 		return ret.get();
 	}
 
+	private static class AttrValuesContainer extends VerticalLayout
+	{
+		AttrValuesContainer()
+		{
+			setPadding(false);
+		}
+	}
 }
 

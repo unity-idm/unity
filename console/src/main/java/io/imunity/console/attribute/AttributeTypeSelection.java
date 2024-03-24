@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.function.Consumer;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static org.apache.commons.lang3.StringUtils.isNoneEmpty;
 
 class AttributeTypeSelection extends VerticalLayout
 {
@@ -53,7 +54,7 @@ class AttributeTypeSelection extends VerticalLayout
 		add(formItem);
 		String message = type.getDescription().getValue(msg);
 		setTooltipComponent(message);
-		formItemTooltip.setVisible(!StringUtils.isEmpty(message));
+		formItemTooltip.setVisible(isNoneEmpty(message));
 		formItem.add(formItemTooltip);
 	}
 
@@ -72,11 +73,11 @@ class AttributeTypeSelection extends VerticalLayout
 			formItem.setSpacing(false);
 			add(formItem);
 			AttributeType value = attributeTypesCombo.getValue();
-			if(value != null)
+			if (value != null)
 			{
 				String message = value.getDescription().getValue(msg);
 				setTooltipComponent(message);
-				formItemTooltip.setVisible(!message.isEmpty());
+				formItemTooltip.setVisible(isNoneEmpty(message));
 			}
 			formItem.add(formItemTooltip);
 			attributeTypesCombo.addValueChangeListener(event -> changeAttributeType(event.getValue()));
