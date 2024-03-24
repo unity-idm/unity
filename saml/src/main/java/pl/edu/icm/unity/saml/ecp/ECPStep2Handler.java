@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.AuthnContext;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -175,7 +175,7 @@ public class ECPStep2Handler
 		Long entityId = ae.getEntityId();
 		
 		InvocationContext iCtx = new InvocationContext(null, realm, Collections.emptyList());
-		authnSuccess(ae, iCtx, getAuthnContext(authenticationResult));
+		authnSuccess(ae, iCtx, getRemoteAut(authenticationResult));
 		InvocationContext.setCurrent(iCtx);
 		
 		try
@@ -191,7 +191,7 @@ public class ECPStep2Handler
 		}
 	}
 	
-	private void authnSuccess(AuthenticatedEntity client, InvocationContext ctx, AuthnContext authnContext)
+	private void authnSuccess(AuthenticatedEntity client, InvocationContext ctx, RemoteAuthnMetadata authnContext)
 	{
 		log.info("Client was successfully authenticated: [" + 
 					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
@@ -202,14 +202,16 @@ public class ECPStep2Handler
 		ls.setRemoteIdP(client.getRemoteIdP());
 	}
 
-	private AuthnContext getAuthnContext(AuthenticationResult authenticationResult)
+	private RemoteAuthnMetadata getRemoteAut(AuthenticationResult successAuthenticationResult)
 	{
-		if (authenticationResult.isRemote())
-		{
-			return authenticationResult.asRemote().getSuccessResult().getRemotelyAuthenticatedPrincipal().getAuthnInput().getAuthnContext();
-		}
-	
-		return null;	
+		return successAuthenticationResult.isRemote() ?
+
+				successAuthenticationResult.asRemote()
+						.getSuccessResult()
+						.getRemotelyAuthenticatedPrincipal()
+						.getAuthnInput()
+						.getRemoteAuthnMetadata()
+				: null;
 	}
 	
 	private String processHeader(Header soapHeader) throws ServletException

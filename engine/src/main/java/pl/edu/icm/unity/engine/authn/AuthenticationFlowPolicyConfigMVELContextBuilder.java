@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.engine.api.authn.AuthnContext;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.authn.DynamicPolicyConfigurationMVELContextKey;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -40,8 +40,6 @@ import pl.edu.icm.unity.types.basic.Identity;
 @Component
 public class AuthenticationFlowPolicyConfigMVELContextBuilder
 {
-	private final static String DEFAULT_UPSTREAM_PROTOCOL = "local";
-
 	private final AttributesHelper attributesHelper;
 	private final EntityManagement identitiesMan;
 	private final GroupsManagement groupManagement;
@@ -98,14 +96,14 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilder
 				.collect(Collectors.toList());
 		ret.put(DynamicPolicyConfigurationMVELContextKey.groups.name(), groupNames);
 
-		AuthnContext context = null;
+		RemoteAuthnMetadata context = null;
 		if (authenticationResult.isRemote())
 		{
 			context = authenticationResult.asRemote()
 					.getSuccessResult()
 					.getRemotelyAuthenticatedPrincipal()
 					.getAuthnInput()
-					.getAuthnContext();
+					.getRemoteAuthnMetadata();
 		}
 		ret.putAll(getAuthnContextMvelVariables(context));
 		ret.put(DynamicPolicyConfigurationMVELContextKey.userOptIn.name(), userOptIn);
@@ -117,12 +115,12 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilder
 		return ret;
 	}
 
-	private static Map<String, Object> getAuthnContextMvelVariables(AuthnContext authnContext)
+	private static Map<String, Object> getAuthnContextMvelVariables(RemoteAuthnMetadata authnContext)
 	{
 		Map<String, Object> ret = new HashMap<>();
 
 		List<String> acrs = new ArrayList<>();
-		String upstreamProtocol = DEFAULT_UPSTREAM_PROTOCOL;
+		String upstreamProtocol = DynamicPolicyConfigurationMVELContextKey.DEFAULT_UPSTREAM_PROTOCOL;
 		String upstreamIdP = null;
 
 		if (authnContext != null)

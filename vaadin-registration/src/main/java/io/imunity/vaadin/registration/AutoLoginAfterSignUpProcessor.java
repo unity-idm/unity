@@ -1,50 +1,35 @@
 /*
- * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.forms.reg;
-
-import java.time.Instant;
-import java.util.List;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+package io.imunity.vaadin.registration;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.vaadin.server.VaadinServletResponse;
-
+import com.vaadin.flow.server.VaadinServletResponse;
+import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.endpoint.common.VaadinSessionReinitializer;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.webui.authn.LoginMachineDetailsExtractor;
-import pl.edu.icm.unity.webui.authn.column.VaadinSessionReinitializer;
 
-/**
- * Used in standalone registration from to automatically sign in user, only in
- * case where:
- * <ul>
- * <li>the registration request was auto accepted
- * <li>realm is configured at registration form level
- * <li>remote sign up method was used to fill out the registration request
- * <li>time from remote authN to now should not be < realm's max session
- * inactivity time
- * </ul>
- * 
- * @author Roman Krysinski (roman@unity-idm.eu)
- */
+import java.time.Instant;
+import java.util.List;
+
 @PrototypeComponent
 class AutoLoginAfterSignUpProcessor
 {
@@ -77,16 +62,16 @@ class AutoLoginAfterSignUpProcessor
 					+ "sign in for registration request {}", form.getName(), requestState.getRequestId());
 			return false;
 		}
-		
+
 		RemotelyAuthenticatedPrincipal remoteContext = editor.getRemoteAuthnContext();
 		if (RemotelyAuthenticatedPrincipal.isLocalContext(remoteContext))
 		{
 			LOG.debug("Automatic login for registration request {} is not supported, "
-					+ "auto sign in requires form to be submitted with remote sign up method", 
+							+ "auto sign in requires form to be submitted with remote sign up method",
 					requestState.getRequestId());
 			return false;
 		}
-		
+
 		if (editor.getAuthnOptionKey() == null)
 		{
 			LOG.debug("Automatic login for registration request {} is not supported, "
@@ -94,7 +79,7 @@ class AutoLoginAfterSignUpProcessor
 					requestState.getRequestId());
 			return false;
 		}
-		
+
 		AuthenticationRealm realm;
 		try
 		{
@@ -104,31 +89,31 @@ class AutoLoginAfterSignUpProcessor
 			LOG.error("Unable to automatically sign in entity {}.", requestState.getCreatedEntityId(), e);
 			return false;
 		}
-		
+
 		if (remoteContext.getCreationTime() == null)
 		{
 			LOG.debug("Unable to determine whether session expired or not, "
-					+ "entity {} is not eligible for sign up after registration {}.", 
+							+ "entity {} is not eligible for sign up after registration {}.",
 					requestState.getCreatedEntityId(), requestState.getRequestId());
 			return false;
 		}
-		
+
 		if (isSessionExpiredDueToUserInactivity(remoteContext.getCreationTime(), realm))
 		{
 			LOG.debug("Automatic login for registration request {} is not possible, "
 					+ "session expired.", requestState.getRequestId());
 			return false;
 		}
-		
+
 		try
 		{
-			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(requestState.getCreatedEntityId(), 
+			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(requestState.getCreatedEntityId(),
 					remoteContext.getMappingResult().getAuthenticatedWith(), null);
 			authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
-			
+
 			loginUser(authenticatedEntity, realm, remoteContext, editor.getAuthnOptionKey());
 			LOG.info("Entity Id {} automatically signed into realm {}, as the result of successful "
-					+ "registration request processing: {}", requestState.getCreatedEntityId(), 
+							+ "registration request processing: {}", requestState.getCreatedEntityId(),
 					form.getAutoLoginToRealm(), requestState.getRequestId());
 			return true;
 		} catch (Exception e)
@@ -146,17 +131,17 @@ class AutoLoginAfterSignUpProcessor
 		return userActivityDuration > realm.getMaxInactivity();
 	}
 
-	private void loginUser(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm, 
-			RemotelyAuthenticatedPrincipal remoteContext, AuthenticationOptionKey authenticationOption)
+	private void loginUser(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm,
+						   RemotelyAuthenticatedPrincipal remoteContext, AuthenticationOptionKey authenticationOption)
 	{
 		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
-		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
+		RememberMeToken.LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
 				.getLoginMachineDetailsFromCurrentRequest();
-		authnProcessor.syntheticAuthenticate(remoteContext.getAuthnInput().getRemoteAuthnMetadata(), authenticatedEntity, extractParticipants(remoteContext), 
-				authenticationOption, realm, loginMachineDetails, false, 
+		authnProcessor.syntheticAuthenticate(remoteContext.getAuthnInput().getRemoteAuthnMetadata(), authenticatedEntity, extractParticipants(remoteContext),
+				authenticationOption, realm, loginMachineDetails, false,
 				servletResponse, new VaadinSessionReinitializer());
 	}
-	
+
 	private List<SessionParticipant> extractParticipants(RemotelyAuthenticatedPrincipal remoteContext)
 	{
 		List<SessionParticipant> ret = Lists.newArrayList();

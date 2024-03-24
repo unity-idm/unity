@@ -21,9 +21,9 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthnContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
@@ -218,12 +218,12 @@ public class OutputTranslationProfile
 		return ret;
 	}
 	
-	private static Map<String, Object> getAuthnContextMvelVariables(AuthnContext authnContext)
+	private static Map<String, Object> getAuthnContextMvelVariables(RemoteAuthnMetadata authnContext)
 	{
 		Map<String, Object> ret = new HashMap<>();
 		
 		List<String> acrs = new ArrayList<>();
-		String upstreamProtocol = "local";
+		String upstreamProtocol = OutputTranslationMVELContextKey.DEFAULT_UPSTREAM_PROTOCOL;
 		String upstreamIdP = null;
 		
 		if (authnContext != null)

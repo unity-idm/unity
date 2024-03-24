@@ -70,17 +70,13 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
-import pl.edu.icm.unity.engine.api.authn.AuthnContext;
-import pl.edu.icm.unity.engine.api.authn.AuthnContext.Protocol;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -102,6 +98,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 
+
 /**
  * Binding independent OAuth 2 logic. Creates authZ requests, validates response (OAuth authorization grant)
  * performs subsequent call to AS to get resource owner's (authenticated user) information.
@@ -116,14 +113,16 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	public static final String DESC = "Handles OAuth2 tokens obtained from remote OAuth providers. "
 			+ "Queries about additional user information.";
 	public static final String DEFAULT_TOKEN_EXPIRATION = "3600";
-	
-	
+
+
 	private OAuthClientProperties config;
 	private final String responseConsumerAddress;
 	private final OAuthContextsManagement contextManagement;
 	private final PKIManagement pkiManagement;
 	private final MessageSource msg;
-	private OAuthDiscoveryMetadataCache metadataManager;
+	private final OAuthDiscoveryMetadataCache metadataManager;
+	private final OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler;
+
 	
 	@Autowired
 	public OAuth2Verificator(MessageSource msg, AdvertisedAddressProvider advertisedAddrProvider,
@@ -131,7 +130,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			OAuthContextsManagement contextManagement,
 			PKIManagement pkiManagement,
 			RemoteAuthnResultTranslator processor,
-			OAuthDiscoveryMetadataCache metadataManager)
+			OAuthDiscoveryMetadataCache metadataManager, OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler)
 	{
 		super(NAME, DESC, OAuthExchange.ID, processor);
 		URL baseAddress = advertisedAddrProvider.get();
@@ -141,6 +140,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		this.pkiManagement = pkiManagement;
 		this.msg = msg;
 		this.metadataManager = metadataManager;
+		this.remoteAuthenticationInputAssembler = remoteAuthenticationInputAssembler;
 	}
 
 	@Override
@@ -340,7 +340,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			throw new RemoteAuthenticationException("Problem during user information retrieval", e);
 		}
 
-		return  convertInput(context, attributes, openIdConnectMode);
+		return  remoteAuthenticationInputAssembler.convertInput(config.getProvider(context.getProviderConfigKey()), context, attributes, openIdConnectMode);	
 	}
 	
 	private AccessTokenFormat getAccessTokenFormat(OAuthContext context)
@@ -349,7 +349,6 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				.getProvider(context.getProviderConfigKey());
 		return providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT,
 				AccessTokenFormat.class);
-
 	}
 
 	private HTTPResponse retrieveAccessTokenGeneric(OAuthContext context, String tokenEndpoint, 
@@ -586,56 +585,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return (BearerAccessToken) accessTokenGeneric;
 	}
 	
-	private RemotelyAuthenticatedInput convertInput(OAuthContext context, AttributeFetchResult attributes, boolean openIdConnectMode)
-	{
-		CustomProviderProperties provCfg = config.getProvider(context.getProviderConfigKey());
-		String tokenEndpoint = provCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
-		String discoveryEndpoint = provCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
-		if (tokenEndpoint == null && discoveryEndpoint != null)
-		{
-			try
-			{
-				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(provCfg.generateMetadataRequest());
-				tokenEndpoint = providerMeta.getTokenEndpointURI().toString();
-			} catch (Exception e)
-			{
-				log.warn("Can't obtain OIDC metadata", e);
-			}
-		}
-		if (tokenEndpoint == null)
-			tokenEndpoint = "unknown";
-
-		
-		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(tokenEndpoint);
-		for (Map.Entry<String, List<String>> attr: attributes.getAttributes().entrySet())
-		{
-			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue().toArray()));
-			if (attr.getKey().equals("sub") && !attr.getValue().isEmpty())
-				input.addIdentity(new RemoteIdentity(attr.getValue().get(0), "sub"));
-		}
-		input.setRawAttributes(attributes.getRawAttributes());
-		input.setAuthnContext(getAuthnContext(attributes, openIdConnectMode));
-		return input;
-	}
 	
-	private AuthnContext getAuthnContext(AttributeFetchResult attributes, boolean openIdConnectMode)
-	{
-		return new AuthnContext(openIdConnectMode ? Protocol.OIDC : Protocol.OIDC,
-				openIdConnectMode ? attributes.getAttributes()
-						.get("iss")
-						.get(0) : AuthnContext.UNDEFINED_IDP,
-				getAcr(attributes));
-	}
-
-	private List<String> getAcr(AttributeFetchResult attributes)
-	{
-		return attributes.getAttributes()
-				.get("acr") != null ? List.of(
-						attributes.getAttributes()
-								.get("acr")
-								.get(0))
-						: List.of();
-	}
 	
 	@Override
 	public VerificatorType getType()

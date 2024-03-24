@@ -8,13 +8,10 @@ package pl.edu.icm.unity.engine.api.authn;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-public class AuthnContext
+public class RemoteAuthnMetadata
 {
 	public static final String UNDEFINED_IDP = "undefined";
-	
+
 	public enum Protocol
 	{
 		SAML, OIDC, OTHER
@@ -23,14 +20,12 @@ public class AuthnContext
 	public final Protocol protocol;
 	public final String remoteIdPId;
 	public final List<String> classReferences;
-
-	@JsonCreator
-	public AuthnContext(@JsonProperty("protocol") Protocol protocol, @JsonProperty("remoteIdPId") String remoteIdPId,
-			@JsonProperty("classReferences") List<String> classReferences)
+	
+	public RemoteAuthnMetadata(Protocol protocol, String remoteIdPId, List<java.lang.String> classReferences)
 	{
 		this.protocol = protocol;
-		this.remoteIdPId = remoteIdPId;
 		this.classReferences = classReferences;
+		this.remoteIdPId = remoteIdPId;
 	}
 
 	@Override
@@ -48,9 +43,10 @@ public class AuthnContext
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AuthnContext other = (AuthnContext) obj;
+		RemoteAuthnMetadata other = (RemoteAuthnMetadata) obj;
 		return Objects.equals(classReferences, other.classReferences) && protocol == other.protocol
 				&& Objects.equals(remoteIdPId, other.remoteIdPId);
 	}
-
+	
+	
 }

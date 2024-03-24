@@ -60,7 +60,7 @@ public interface InteractiveAuthenticationProcessor
 			HttpServletRequest httpRequest,
 			SandboxAuthnRouter sandboxRouter);
 
-	void syntheticAuthenticate(AuthnContext authnContext, AuthenticatedEntity authenticatedEntity,
+	void syntheticAuthenticate(RemoteAuthnMetadata authnContext, AuthenticatedEntity authenticatedEntity,
 			List<SessionParticipant> participants,
 			AuthenticationOptionKey authnOptionKey,
 			AuthenticationRealm realm,

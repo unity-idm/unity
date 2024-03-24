@@ -6,9 +6,9 @@ package pl.edu.icm.unity.engine.api.session;
 
 import java.util.Map;
 
-import pl.edu.icm.unity.engine.api.authn.AuthnContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -33,7 +33,7 @@ public interface SessionManagement
 	 */
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
 			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, AuthnContext authnContext);
+			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext);
 	
 	
 	/**
@@ -47,7 +47,7 @@ public interface SessionManagement
 	 */
 	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm, 
 			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, AuthnContext authnContext);
+			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.

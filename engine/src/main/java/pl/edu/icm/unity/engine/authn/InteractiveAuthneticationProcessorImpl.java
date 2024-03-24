@@ -26,7 +26,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
-import pl.edu.icm.unity.engine.api.authn.AuthnContext;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.ErrorDetail;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision.SecondFactorDetail;
@@ -37,6 +36,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.authn.SessionCookie;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
@@ -206,7 +206,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	}
 	
 	@Override
-	public void syntheticAuthenticate(AuthnContext authnContext, AuthenticatedEntity authenticatedEntity,
+	public void syntheticAuthenticate(RemoteAuthnMetadata authnContext, AuthenticatedEntity authenticatedEntity,
 			List<SessionParticipant> participants,
 			AuthenticationOptionKey authnOptionKey,
 			AuthenticationRealm realm,
@@ -304,7 +304,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		}
 	}
 	
-	private LoginSession getLoginSessionForEntity(AuthnContext authnContext, AuthenticatedEntity authenticatedEntity,
+	private LoginSession getLoginSessionForEntity(RemoteAuthnMetadata authnContext, AuthenticatedEntity authenticatedEntity,
 			AuthenticationRealm realm,
 			AuthenticationOptionKey firstFactorAuhtnOptionId,
 			AuthenticationOptionKey secondFactorAuhtnOptionId)
@@ -318,11 +318,11 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 				secondFactorAuhtnOptionId, authnContext);
 	}
 	
-	private AuthnContext getAuthnContext(AuthenticationResult authenticationResult)
+	private RemoteAuthnMetadata getAuthnContext(AuthenticationResult authenticationResult)
 	{
 		if (authenticationResult.isRemote())
 		{
-			return authenticationResult.asRemote().getSuccessResult().getRemotelyAuthenticatedPrincipal().getAuthnInput().getAuthnContext();
+			return authenticationResult.asRemote().getSuccessResult().getRemotelyAuthenticatedPrincipal().getAuthnInput().getRemoteAuthnMetadata();
 		}
 	
 		return null;	

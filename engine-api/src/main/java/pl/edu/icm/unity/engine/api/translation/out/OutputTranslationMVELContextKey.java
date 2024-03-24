@@ -37,6 +37,7 @@ public enum OutputTranslationMVELContextKey
 	
 	
 	public static final String descriptionPrefix = "OutputTranslationMVELContextKey.";
+	public static final String DEFAULT_UPSTREAM_PROTOCOL = "local";
 	public final String descriptionKey;
 
 	private OutputTranslationMVELContextKey(String descriptionKey)

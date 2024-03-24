@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import pl.edu.icm.unity.engine.api.authn.AuthnContext;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 
 /**
@@ -32,7 +32,7 @@ public class RemotelyAuthenticatedInput
 	private Map<String, RemoteAttribute> attributes;
 	private Map<String, ? extends Object> rawAttributes;
 	private Map<String, RemoteIdentity> identities;
-	private AuthnContext authnContext;
+	private RemoteAuthnMetadata remoteAuthnMetadata;
 
 	public RemotelyAuthenticatedInput(String idpName)
 	{
@@ -116,14 +116,14 @@ public class RemotelyAuthenticatedInput
 		this.rawAttributes = rawAttributes;
 	}
 
-	public AuthnContext getAuthnContext()
+	public RemoteAuthnMetadata getRemoteAuthnMetadata()
 	{
-		return authnContext;
+		return remoteAuthnMetadata;
 	}
 
-	public void setAuthnContext(AuthnContext authnContext)
+	public void setRemoteAuthnMetadata(RemoteAuthnMetadata authnContext)
 	{
-		this.authnContext = authnContext;
+		this.remoteAuthnMetadata = authnContext;
 	}
 	
 	@Override
