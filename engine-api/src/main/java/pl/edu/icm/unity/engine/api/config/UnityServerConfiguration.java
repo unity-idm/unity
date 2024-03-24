@@ -121,6 +121,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String AUTHENTICATION_FLOW = "authenticationFlow.";
 	public static final String AUTHENTICATION_FLOW_NAME = "authenticationFlowName";
 	public static final String AUTHENTICATION_FLOW_POLICY = "authenticationFlowPolicy";
+	public static final String AUTHENTICATION_FLOW_POLICY_CONFIGURATION = "authenticationFlowPolicyConfiguration";
 	public static final String AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS = "firstFactorAuthenticators";
 	public static final String AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS = "secondFactorAuthenticators";
 
@@ -378,6 +379,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setDescription("Authentication flow name"));
 		defaults.put(AUTHENTICATION_FLOW_POLICY, new PropertyMD(AuthenticationFlowDefinition.Policy.USER_OPTIN).setStructuredListEntry(AUTHENTICATION_FLOW).
 				setCategory(initAuthnCat).setDescription("Defines multi factor policy."));
+		defaults.put(AUTHENTICATION_FLOW_POLICY_CONFIGURATION, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).
+				setCategory(initAuthnCat).setDescription("Defines multi factor policy configuration."));
 		defaults.put(AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).setMandatory().
 				setCategory(initAuthnCat).
 				setDescription("First factor authenticators, separated with a single comma (no spaces)."));

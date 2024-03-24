@@ -369,7 +369,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		
 		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				AUTHENTICATION_FLOW_CERT_SECOND_FACTOR, Policy.REQUIRE,
-				Sets.newHashSet(AUTHENTICATOR_WS_PASS), Lists.newArrayList(AUTHENTICATOR_WS_CERT)));
+				Sets.newHashSet(AUTHENTICATOR_WS_PASS), Lists.newArrayList(AUTHENTICATOR_WS_CERT), null));
 
 		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				AUTHENTICATION_FLOW_OPTIN, Policy.USER_OPTIN,

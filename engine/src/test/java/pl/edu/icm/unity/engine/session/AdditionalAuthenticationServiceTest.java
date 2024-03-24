@@ -49,7 +49,7 @@ public class AdditionalAuthenticationServiceTest
 	{
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Collections.emptyList(), 1);
+				Sets.newHashSet(auth1), Collections.emptyList(), null, 1);
 		setupContext(flow);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(true);
 		
@@ -67,7 +67,7 @@ public class AdditionalAuthenticationServiceTest
 		AuthenticatorInstance auth1 = getAuthenticator("remote-authn", "cred-1");
 		when(auth1.getRetrieval().requiresRedirect()).thenReturn(true);
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Collections.emptyList(), 1);
+				Sets.newHashSet(auth1), Collections.emptyList(), null, 1);
 		setupContext(flow);
 		
 		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
@@ -83,7 +83,7 @@ public class AdditionalAuthenticationServiceTest
 	{
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Collections.emptyList(), 1);
+				Sets.newHashSet(auth1), Collections.emptyList(), null, 1);
 		setupContext(flow);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(false);
 		
@@ -101,7 +101,7 @@ public class AdditionalAuthenticationServiceTest
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
+				Sets.newHashSet(auth1), Lists.newArrayList(auth2), null, 1);
 		setupContext(flow);
 		when(authnProcessor.getValidAuthenticatorForEntity(any(), eq(1L))).thenReturn(auth2);
 		
@@ -119,7 +119,7 @@ public class AdditionalAuthenticationServiceTest
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
+				Sets.newHashSet(auth1), Lists.newArrayList(auth2), null, 1);
 		setupContext(flow);
 		when(authnProcessor.getValidAuthenticatorForEntity(any(), eq(1L))).thenReturn(null);
 		
@@ -137,7 +137,7 @@ public class AdditionalAuthenticationServiceTest
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
+				Sets.newHashSet(auth1), Lists.newArrayList(auth2), null, 1);
 		setupContext(flow, "authn-1", null);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(true);
 		
@@ -155,7 +155,7 @@ public class AdditionalAuthenticationServiceTest
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
+				Sets.newHashSet(auth1), Lists.newArrayList(auth2), null, 1);
 		setupContext(flow, "authn-1", "authn-2");
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(true);
 		
@@ -172,7 +172,7 @@ public class AdditionalAuthenticationServiceTest
 	{
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Lists.newArrayList(), 1);
+				Sets.newHashSet(auth1), Lists.newArrayList(), null, 1);
 		setupContext(flow, "authn-1", null);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(true);
 		
@@ -191,7 +191,7 @@ public class AdditionalAuthenticationServiceTest
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
+				Sets.newHashSet(auth1), Lists.newArrayList(auth2), null, 1);
 		setupContext(flow, "authn-1", null);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(false);
 		
@@ -209,7 +209,7 @@ public class AdditionalAuthenticationServiceTest
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
+				Sets.newHashSet(auth1), Lists.newArrayList(auth2), null, 1);
 		setupContext(flow, "authn-1", "authn-2");
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(false);
 		
@@ -226,7 +226,7 @@ public class AdditionalAuthenticationServiceTest
 	{
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Lists.newArrayList(), 1);
+				Sets.newHashSet(auth1), Lists.newArrayList(), null, 1);
 		setupContext(flow, "authn-1", null);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(false);
 		
@@ -243,7 +243,7 @@ public class AdditionalAuthenticationServiceTest
 	{
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Lists.newArrayList(), 1);
+				Sets.newHashSet(auth1), Lists.newArrayList(), null, 1);
 		setupContext(flow, "authn-1", null);
 		
 		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
@@ -260,7 +260,7 @@ public class AdditionalAuthenticationServiceTest
 		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
-				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
+				Sets.newHashSet(auth1), Lists.newArrayList(auth2), null, 1);
 		setupContext(flow, "authn-1", null);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(true);
 		

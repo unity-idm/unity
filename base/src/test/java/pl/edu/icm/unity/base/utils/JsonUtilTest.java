@@ -32,7 +32,7 @@ public class JsonUtilTest
 		// given
 		AuthenticationFlowDefinition authn = new AuthenticationFlowDefinition("flow",
 				Policy.REQUIRE, new HashSet<String>(Arrays.asList("primary")),
-				new ArrayList<String>(Arrays.asList("secondary")));
+				new ArrayList<String>(Arrays.asList("secondary")), null);
 
 		// when
 		String jsonString = JsonUtil.toJsonString(authn);
@@ -62,7 +62,7 @@ public class JsonUtilTest
 		// then
 		assertThat(authn).isEqualTo(new AuthenticationFlowDefinition("flow", Policy.REQUIRE,
 				new HashSet<String>(Arrays.asList("primary")),
-				new ArrayList<String>(Arrays.asList("secondary"))));
+				new ArrayList<String>(Arrays.asList("secondary")), null));
 	}
 
 	@Test
@@ -85,10 +85,10 @@ public class JsonUtilTest
 		assertThat(authn).contains(
 				new AuthenticationFlowDefinition("flow1", Policy.REQUIRE,
 						new HashSet<String>(Arrays.asList("primary")),
-						new ArrayList<String>(Arrays.asList("secondary"))),
+						new ArrayList<String>(Arrays.asList("secondary")), null),
 				new AuthenticationFlowDefinition("flow2", Policy.REQUIRE,
 						new HashSet<String>(Arrays.asList("primary")),
 						new ArrayList<String>(
-								Arrays.asList("secondary"))));
+								Arrays.asList("secondary")), null));
 	}
 }

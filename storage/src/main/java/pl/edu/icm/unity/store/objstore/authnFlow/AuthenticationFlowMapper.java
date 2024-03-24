@@ -18,6 +18,7 @@ class AuthenticationFlowMapper
 				.withName(authenticationFlowDefinition.getName())
 				.withPolicy(authenticationFlowDefinition.getPolicy()
 						.name())
+				.withPolicyConfiguration(authenticationFlowDefinition.getPolicyConfiguration())
 				.withRevision(authenticationFlowDefinition.getRevision())
 				.build();
 
@@ -27,7 +28,7 @@ class AuthenticationFlowMapper
 	{
 		AuthenticationFlowDefinition authenticationFlowDefinition = new AuthenticationFlowDefinition(
 				dbAuthenticationFlow.name, Policy.valueOf(dbAuthenticationFlow.policy),
-				dbAuthenticationFlow.firstFactorAuthenticators, dbAuthenticationFlow.secondFactorAuthenticators);
+				dbAuthenticationFlow.firstFactorAuthenticators, dbAuthenticationFlow.secondFactorAuthenticators, dbAuthenticationFlow.policyConfiguration);
 		authenticationFlowDefinition.setRevision(dbAuthenticationFlow.revision);
 		return authenticationFlowDefinition;
 	}

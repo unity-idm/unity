@@ -293,7 +293,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		createCertUserNoPassword(InternalAuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
 		AuthenticatorInstance authenticator = getAuthenticator("authn", "credential1"); 
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, Sets.newHashSet(authenticator), 
-				Collections.emptyList(), 1);
+				Collections.emptyList(), null, 1);
 		setupUserContext(sessionMan, identityResolver, "user2", null, Lists.newArrayList(flow));
 		
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
