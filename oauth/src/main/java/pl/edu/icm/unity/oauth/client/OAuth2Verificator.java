@@ -4,11 +4,47 @@
  */
 package pl.edu.icm.unity.oauth.client;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.util.MultiMap;
+import org.eclipse.jetty.util.UrlEncoded;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.google.common.base.Strings;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.oauth2.sdk.*;
-import com.nimbusds.oauth2.sdk.auth.*;
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
+import com.nimbusds.oauth2.sdk.AuthorizationCode;
+import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
+import com.nimbusds.oauth2.sdk.AuthorizationRequest;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.TokenRequest;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
+import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
+import com.nimbusds.oauth2.sdk.auth.ClientSecretPost;
+import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -21,17 +57,11 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest.Builder;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
-import eu.unicore.util.configuration.ConfigurationException;
-import net.minidev.json.JSONObject;
-import org.apache.hc.core5.net.URIBuilder;
-import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.eclipse.jetty.util.MultiMap;
-import org.eclipse.jetty.util.UrlEncoded;
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
+import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import jakarta.ws.rs.core.MediaType;
+import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -40,11 +70,21 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.authn.*;
+import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
-import pl.edu.icm.unity.engine.api.authn.AuthnContext.Protocol;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.IdPInfo;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.authn.remote.*;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultTranslator;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -55,17 +95,6 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthn
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
-import io.imunity.vaadin.auth.CommonWebAuthnProperties;
-
-import jakarta.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
 
 
 /**
@@ -82,14 +111,15 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	public static final String DESC = "Handles OAuth2 tokens obtained from remote OAuth providers. "
 			+ "Queries about additional user information.";
 	public static final String DEFAULT_TOKEN_EXPIRATION = "3600";
-	
-	
+
+
 	private OAuthClientProperties config;
 	private final String responseConsumerAddress;
 	private final OAuthContextsManagement contextManagement;
 	private final PKIManagement pkiManagement;
 	private final MessageSource msg;
 	private final OAuthDiscoveryMetadataCache metadataManager;
+	private final OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler;
 	
 	@Autowired
 	public OAuth2Verificator(MessageSource msg, AdvertisedAddressProvider advertisedAddrProvider,
@@ -97,7 +127,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			OAuthContextsManagement contextManagement,
 			PKIManagement pkiManagement,
 			RemoteAuthnResultTranslator processor,
-			OAuthDiscoveryMetadataCache metadataManager)
+			OAuthDiscoveryMetadataCache metadataManager, OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler)
 	{
 		super(NAME, DESC, OAuthExchange.ID, processor);
 		URL baseAddress = advertisedAddrProvider.get();
@@ -107,6 +137,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		this.pkiManagement = pkiManagement;
 		this.msg = msg;
 		this.metadataManager = metadataManager;
+		this.remoteAuthenticationInputAssembler = remoteAuthenticationInputAssembler;
 	}
 
 	@Override
@@ -306,7 +337,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			throw new RemoteAuthenticationException("Problem during user information retrieval", e);
 		}
 
-		return  convertInput(context, attributes, openIdConnectMode);
+		return  remoteAuthenticationInputAssembler.convertInput(config.getProvider(context.getProviderConfigKey()), context, attributes, openIdConnectMode);	
 	}
 	
 	private AccessTokenFormat getAccessTokenFormat(OAuthContext context)
@@ -315,7 +346,6 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				.getProvider(context.getProviderConfigKey());
 		return providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT,
 				AccessTokenFormat.class);
-
 	}
 
 	private HTTPResponse retrieveAccessTokenGeneric(OAuthContext context, String tokenEndpoint, 
@@ -552,56 +582,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return (BearerAccessToken) accessTokenGeneric;
 	}
 	
-	private RemotelyAuthenticatedInput convertInput(OAuthContext context, AttributeFetchResult attributes, boolean openIdConnectMode)
-	{
-		CustomProviderProperties provCfg = config.getProvider(context.getProviderConfigKey());
-		String tokenEndpoint = provCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
-		String discoveryEndpoint = provCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
-		if (tokenEndpoint == null && discoveryEndpoint != null)
-		{
-			try
-			{
-				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(provCfg.generateMetadataRequest());
-				tokenEndpoint = providerMeta.getTokenEndpointURI().toString();
-			} catch (Exception e)
-			{
-				log.warn("Can't obtain OIDC metadata", e);
-			}
-		}
-		if (tokenEndpoint == null)
-			tokenEndpoint = "unknown";
-
-		
-		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(tokenEndpoint);
-		for (Map.Entry<String, List<String>> attr: attributes.getAttributes().entrySet())
-		{
-			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue().toArray()));
-			if (attr.getKey().equals("sub") && !attr.getValue().isEmpty())
-				input.addIdentity(new RemoteIdentity(attr.getValue().get(0), "sub"));
-		}
-		input.setRawAttributes(attributes.getRawAttributes());
-		input.setAuthnContext(getAuthnContext(attributes, openIdConnectMode));
-		return input;
-	}
 	
-	private AuthnContext getAuthnContext(AttributeFetchResult attributes, boolean openIdConnectMode)
-	{
-		return new AuthnContext(openIdConnectMode ? Protocol.OIDC : Protocol.OIDC,
-				openIdConnectMode ? attributes.getAttributes()
-						.get("iss")
-						.get(0) : AuthnContext.UNDEFINED_IDP,
-				getAcr(attributes));
-	}
-
-	private List<String> getAcr(AttributeFetchResult attributes)
-	{
-		return attributes.getAttributes()
-				.get("acr") != null ? List.of(
-						attributes.getAttributes()
-								.get("acr")
-								.get(0))
-						: List.of();
-	}
 	
 	@Override
 	public VerificatorType getType()

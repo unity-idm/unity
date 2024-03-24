@@ -8,7 +8,6 @@ import java.security.PrivateKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.apache.logging.log4j.Logger;
 
@@ -24,9 +23,9 @@ import eu.unicore.samly2.validators.AssertionValidator;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthnContext;
-import pl.edu.icm.unity.engine.api.authn.AuthnContext.Protocol;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata.Protocol;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
@@ -146,27 +145,15 @@ public class SAMLResponseValidatorUtil
 		input.setAttributes(remoteAttributes);
 		input.setRawAttributes(input.getAttributes());
 		input.setGroups(getGroups(remoteAttributes, groupA));
-		input.setAuthnContext(getAuthnContext(validator, issuer));	
+		input.setRemoteAuthnMetadata(getRemoteAuthnMetadata(validator, issuer));	
 		addSessionParticipants(validator, issuer, input, idp);
 		
 		return input;
 	}
 	
-	private AuthnContext getAuthnContext(SSOAuthnResponseValidator validator, NameIDType issuer)
+	private RemoteAuthnMetadata getRemoteAuthnMetadata(SSOAuthnResponseValidator validator, NameIDType issuer)
 	{
-		return new AuthnContext(Protocol.SAML, issuer.getStringValue(), getAuthnContextClassRef(validator));
-	}
-
-	private List<String> getAuthnContextClassRef(SSOAuthnResponseValidator validator)
-	{
-		return validator.getAuthNAssertions()
-				.stream()
-				.map(a -> a.getAssertion()
-						.getAuthnStatementArray())
-				.flatMap(Stream::of)
-				.map(a -> a.getAuthnContext()
-						.getAuthnContextClassRef())
-				.toList();
+		return new RemoteAuthnMetadata(Protocol.SAML, issuer.getStringValue(), getAuthnContextClassValues(validator));
 	}
 	
 	private List<RemoteIdentity> getAuthenticatedIdentities(SSOAuthnResponseValidator validator)
@@ -233,6 +220,13 @@ public class SAMLResponseValidatorUtil
 
 	private RemoteAttribute getAuthnContextClassAttribute(SSOAuthnResponseValidator validator)
 	{
+		List<String> values = getAuthnContextClassValues(validator);
+		return new RemoteAttribute(AUTHN_CONTEXT_CLASS_REF_ATTR,
+				(Object[]) values.toArray(new String[values.size()]));
+	}
+	
+	private List<String> getAuthnContextClassValues(SSOAuthnResponseValidator validator)
+	{		
 		List<AssertionDocument> assertions = validator.getAuthNAssertions();
 		List<String> values = new ArrayList<>();
 		for (AssertionDocument assertion: assertions)
@@ -250,8 +244,7 @@ public class SAMLResponseValidatorUtil
 				}
 			}
 		}
-		return new RemoteAttribute(AUTHN_CONTEXT_CLASS_REF_ATTR,
-				(Object[]) values.toArray(new String[values.size()]));
+		return values;
 	}
 	
 	private List<RemoteGroupMembership> getGroups(List<RemoteAttribute> remoteAttributes, String groupA)

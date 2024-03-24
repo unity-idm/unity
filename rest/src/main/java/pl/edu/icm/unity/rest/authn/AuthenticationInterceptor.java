@@ -39,7 +39,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.DenyReason;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.engine.api.authn.AuthnContext;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -203,15 +203,15 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		MDC.put(MDCKeys.USER.key, ls.getEntityLabel());
 	}
 	
-	AuthnContext getAuthnContext(EntityWithAuthenticators client)
+	private RemoteAuthnMetadata getAuthnContext(EntityWithAuthenticators client)
 	{
-		if (client.firstFactorResult.isRemote())
-		{
-			return client.firstFactorResult.asRemote().getSuccessResult().getRemotelyAuthenticatedPrincipal().getAuthnInput().getAuthnContext();
-		}
-	
-		return null;	
+		return client.firstFactorResult.isRemote() ? client.firstFactorResult.asRemote()
+				.getSuccessResult()
+				.getRemotelyAuthenticatedPrincipal()
+				.getAuthnInput()
+				.getRemoteAuthnMetadata() : null;
 	}
+	
 	
 	private String getLabel(long entityId)
 	{
