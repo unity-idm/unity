@@ -5,9 +5,12 @@
 
 package io.imunity.console.views.settings.message_templates;
 
+import java.util.function.Function;
+
+import io.imunity.vaadin.elements.grid.FilterableEntry;
 import pl.edu.icm.unity.base.msg_template.MessageTemplate;
 
-class MessageTemplateEntry
+class MessageTemplateEntry implements FilterableEntry
 {
 	public final MessageTemplate messageTemplate;
 
@@ -16,7 +19,7 @@ class MessageTemplateEntry
 		this.messageTemplate = messageTemplate;
 	}
 
-	boolean anyFieldContains(String searched)
+	public boolean anyFieldContains(String searched, Function<String, String> msg)
 	{
 		if(searched == null || searched.isBlank())
 			return true;
