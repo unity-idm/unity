@@ -32,7 +32,7 @@ public class AuthenticationFlowMapperTest extends MapperTestBase<AuthenticationF
 				.withRevision(0)
 				.withFirstFactorAuthenticators(Set.of("a1"))
 				.withSecondFactorAuthenticators(List.of("a2"))
-				.withPolicyConfiguration("config")
+				.withDynamicPolicyMvelCondition("config")
 				.build();
 
 	}

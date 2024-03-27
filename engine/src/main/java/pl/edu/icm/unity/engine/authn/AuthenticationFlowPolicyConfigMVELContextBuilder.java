@@ -38,7 +38,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 
 @Component
-public class AuthenticationFlowPolicyConfigMVELContextBuilder
+class AuthenticationFlowPolicyConfigMVELContextBuilder
 {
 	private final AttributesHelper attributesHelper;
 	private final EntityManagement identitiesMan;
@@ -46,7 +46,7 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilder
 	private final AttributeValueConverter attrConverter;
 	private final TransactionalRunner tx;
 
-	public AuthenticationFlowPolicyConfigMVELContextBuilder(AttributesHelper attributesHelper,
+	AuthenticationFlowPolicyConfigMVELContextBuilder(AttributesHelper attributesHelper,
 			@Qualifier("insecure") EntityManagement identitiesMan,
 			@Qualifier("insecure") GroupsManagement groupManagement, AttributeValueConverter attrConverter,
 			TransactionalRunner tx)
@@ -58,13 +58,13 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilder
 		this.tx = tx;
 	}
 
-	public Map<String, Object> createMvelContext(AuthenticationOptionKey firstFactorOptionId,
-			AuthenticationResult authenticationResult, boolean userOptIn, AuthenticationFlow authenticationFlow)
+	Map<String, Object> createMvelContext(AuthenticationOptionKey firstFactorOptionId,
+			AuthenticationResult authenticationSuccessResult, boolean userOptIn, AuthenticationFlow authenticationFlow)
 			throws EngineException
 	{
 		Map<String, Object> ret = new HashMap<>();
 
-		EntityParam entity = new EntityParam(authenticationResult.getSuccessResult().authenticatedEntity.getEntityId());
+		EntityParam entity = new EntityParam(authenticationSuccessResult.getSuccessResult().authenticatedEntity.getEntityId());
 		Set<String> allGroups = identitiesMan.getGroups(entity)
 				.keySet();
 		List<Group> resolvedGroups = groupManagement.getGroupsByWildcard("/**")
@@ -97,9 +97,9 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilder
 		ret.put(DynamicPolicyConfigurationMVELContextKey.groups.name(), groupNames);
 
 		RemoteAuthnMetadata context = null;
-		if (authenticationResult.isRemote())
+		if (authenticationSuccessResult.isRemote())
 		{
-			context = authenticationResult.asRemote()
+			context = authenticationSuccessResult.asRemote()
 					.getSuccessResult()
 					.getRemotelyAuthenticatedPrincipal()
 					.getAuthnInput()

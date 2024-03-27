@@ -30,19 +30,19 @@ public class AuthenticationFlow
 	private Set<AuthenticatorInstance> firstFactorAuthenticators;
 	private List<AuthenticatorInstance> secondFactorAuthenticators;
 	private Policy policy;
-	private String policyConfiguration;
+	private String dynamicPolicyMvelCondition;
 	private String name;
 	private long revision;
 
 	public AuthenticationFlow(String name, Policy policy,
 			Set<AuthenticatorInstance> firstFactorAuthenticators,
-			List<AuthenticatorInstance> secondFactorAuthenticators, String policyConfiguration, long revision)
+			List<AuthenticatorInstance> secondFactorAuthenticators, String dynamicPolicyMvelCondition, long revision)
 	{
 		this.name = name;
 		this.policy = policy;
 		this.firstFactorAuthenticators = firstFactorAuthenticators;
 		this.secondFactorAuthenticators = secondFactorAuthenticators;
-		this.policyConfiguration = policyConfiguration;
+		this.dynamicPolicyMvelCondition = dynamicPolicyMvelCondition;
 		this.revision = revision;
 	}
 
@@ -69,9 +69,9 @@ public class AuthenticationFlow
 		return policy;
 	}
 	
-	public String getPolicyConfiguration()
+	public String getDynamicPolicyMvelCondition()
 	{
-		return policyConfiguration;
+		return dynamicPolicyMvelCondition;
 	}
 	
 	public void destroy()
