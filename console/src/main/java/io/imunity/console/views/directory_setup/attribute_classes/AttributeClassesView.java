@@ -73,9 +73,6 @@ public class AttributeClassesView extends ConsoleViewComponent
 				.setHeader(msg.getMessage("AttributeClassesView.mandatoryCaption"))
 				.setAutoWidth(true)
 				.setSortable(true);
-//		attributesClassGrid.addComponentColumn(this::createRowActionMenu)
-//				.setHeader(msg.getMessage("actions"))
-//				.setTextAlign(ColumnTextAlign.END);
 
 		attributesClassGrid.sort(GridSortOrder.asc(nameColumn)
 				.build());
