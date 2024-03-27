@@ -5,25 +5,34 @@
 
 package io.imunity.console.views.authentication.credential_requirements;
 
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+
 import com.google.common.collect.Sets;
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 import jakarta.annotation.security.PermitAll;
@@ -31,12 +40,6 @@ import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
-
-import java.util.*;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.authentication.credentialRequirements", parent = "WebConsoleMenu.authentication")
@@ -60,7 +63,7 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 
 	public void init()
 	{
-		credList = new Grid<>();
+		credList = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
 		credList.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		Grid.Column<CredentialRequirements> nameColumn = credList.addComponentColumn(c ->
 				{
@@ -84,42 +87,32 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 				.setAutoWidth(true)
 				.setResizable(true)
 				.setSortable(true);
-		credList.addComponentColumn(this::createRowActionMenu)
-				.setHeader(msg.getMessage("actions"))
-				.setTextAlign(ColumnTextAlign.END);
-
+		
 		credList.sort(GridSortOrder.asc(nameColumn).build());
 		credList.setItems(controller.getCredentialRequirements());
 
 		getContent().add(new VerticalLayout(createHeaderActionLayout(msg, CredentialRequirementsEditView.class), credList));
 	}
-
-	private Component createRowActionMenu(CredentialRequirements entry)
+	
+	private List<SingleActionHandler<CredentialRequirements>> getActionsHandlers()
 	{
-		ActionIconBuilder generalSettingsBuilder = new ActionIconBuilder().icon(EDIT);
-		ActionIconBuilder removeBuilder = new ActionIconBuilder().icon(TRASH);
+		SingleActionHandler<CredentialRequirements> edit = SingleActionHandler
+				.builder4Edit(msg::getMessage, CredentialRequirements.class)
+				.withHandler(r -> gotoEdit(r.iterator().next()))
+				.withDisabledPredicate(r -> r.isReadOnly()).build();
 
-		if(entry.isReadOnly())
-		{
-			generalSettingsBuilder.disabled();
-			removeBuilder.disabled();
-		}
-		else
-		{
-			generalSettingsBuilder
-					.tooltipText(msg.getMessage("edit"))
-					.navigation(CredentialRequirementsEditView.class, entry.getName())
-					.build();
+		SingleActionHandler<CredentialRequirements> remove = SingleActionHandler
+				.builder4Delete(msg::getMessage, CredentialRequirements.class)
+				.withDisabledPredicate(credReq -> credReq.isReadOnly())
+				.withHandler(r -> tryRemove(r.iterator().next())).build();
 
-			removeBuilder
-					.tooltipText(msg.getMessage("remove"))
-					.clickListener(() -> tryRemove(entry))
-					.build();
-		}
+		return Arrays.asList(edit, remove);
+	}
 
-		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettingsBuilder.build(), removeBuilder.build());
-		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		return horizontalLayout;
+	private void gotoEdit(CredentialRequirements cred)
+	{
+		UI.getCurrent()
+				.navigate(CredentialRequirementsEditView.class, cred.getName());
 	}
 
 	private void tryRemove(CredentialRequirements item)
