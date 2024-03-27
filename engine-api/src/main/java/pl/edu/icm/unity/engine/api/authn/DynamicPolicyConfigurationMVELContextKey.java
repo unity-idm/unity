@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public enum DynamicPolicyConfigurationMVELContextKey
-{	
+{
 	userOptIn(DynamicPolicyConfigurationMVELContextKey.descriptionPrefix + "userOptIn"),
 	hasValid2FCredential(DynamicPolicyConfigurationMVELContextKey.descriptionPrefix + "hasValid2FCredential"),
 	authentication1F(DynamicPolicyConfigurationMVELContextKey.descriptionPrefix + "authentication1F"),
@@ -27,9 +27,9 @@ public enum DynamicPolicyConfigurationMVELContextKey
 	public final String descriptionKey;
 
 	private DynamicPolicyConfigurationMVELContextKey(String descriptionKey)
-		{
-			this.descriptionKey = descriptionKey;
-		}
+	{
+		this.descriptionKey = descriptionKey;
+	}
 
 	public static Map<String, String> toMap()
 	{

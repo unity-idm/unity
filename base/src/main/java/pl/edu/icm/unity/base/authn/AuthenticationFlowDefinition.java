@@ -34,7 +34,7 @@ public class AuthenticationFlowDefinition implements NamedObject
 	private Set<String> firstFactorAuthenticators;
 	private List<String> secondFactorAuthenticators;
 	private Policy policy;
-	private String policyConfiguration;
+	private String dynamicPolicyMvelCondition;
 	private long revision = 0;
 	
 
@@ -44,13 +44,13 @@ public class AuthenticationFlowDefinition implements NamedObject
 	
 	public AuthenticationFlowDefinition(String name, Policy policy,
 			Set<String> firstFactorAuthenticators,
-			List<String> secondFactorAuthenticators, String configuration)
+			List<String> secondFactorAuthenticators, String dynamicPolicyMvelCondition)
 	{
 		this.name = name;
 		this.firstFactorAuthenticators = firstFactorAuthenticators;
 		this.secondFactorAuthenticators = secondFactorAuthenticators;
 		this.policy = policy;
-		this.policyConfiguration = configuration;
+		this.dynamicPolicyMvelCondition = dynamicPolicyMvelCondition;
 	}
 	
 	public AuthenticationFlowDefinition(String name, Policy policy,
@@ -119,20 +119,20 @@ public class AuthenticationFlowDefinition implements NamedObject
 		this.revision = revision;
 	}
 	
-	public String getPolicyConfiguration()
+	public String getDynamicPolicyMvelCondition()
 	{
-		return policyConfiguration;
+		return dynamicPolicyMvelCondition;
 	}
 
-	public void setPolicyConfiguration(String configuration)
+	public void setDynamicPolicyMvelCondition(String configuration)
 	{
-		this.policyConfiguration = configuration;
+		this.dynamicPolicyMvelCondition = configuration;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(policyConfiguration, firstFactorAuthenticators, name, policy, revision,
+		return Objects.hash(dynamicPolicyMvelCondition, firstFactorAuthenticators, name, policy, revision,
 				secondFactorAuthenticators);
 	}
 
@@ -146,7 +146,7 @@ public class AuthenticationFlowDefinition implements NamedObject
 		if (getClass() != obj.getClass())
 			return false;
 		AuthenticationFlowDefinition other = (AuthenticationFlowDefinition) obj;
-		return Objects.equals(policyConfiguration, other.policyConfiguration)
+		return Objects.equals(dynamicPolicyMvelCondition, other.dynamicPolicyMvelCondition)
 				&& Objects.equals(firstFactorAuthenticators, other.firstFactorAuthenticators)
 				&& Objects.equals(name, other.name) && policy == other.policy && revision == other.revision
 				&& Objects.equals(secondFactorAuthenticators, other.secondFactorAuthenticators);

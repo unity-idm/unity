@@ -130,7 +130,7 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 		binder.forField(policy)
 				.bind(AuthenticationFlowDefinition::getPolicy, AuthenticationFlowDefinition::setPolicy);
 		binder.forField(policyConfig)
-				.bind(AuthenticationFlowDefinition::getPolicyConfiguration, AuthenticationFlowDefinition::setPolicyConfiguration);
+				.bind(AuthenticationFlowDefinition::getDynamicPolicyMvelCondition, AuthenticationFlowDefinition::setDynamicPolicyMvelCondition);
 
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));

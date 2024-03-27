@@ -110,9 +110,10 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 			PartialAuthnState partialAuthnState = null;
 			try
 			{
-				if (evaluateCondition(authenticationFlow.getPolicyConfiguration(), createMvelContext(result, authnOptionId, authenticationFlow))){
-					partialAuthnState = getSecondFactorAuthn(authenticationFlow,
-							result, authnOptionId);
+				if (evaluateCondition(authenticationFlow.getDynamicPolicyMvelCondition(),
+						createMvelContext(result, authnOptionId, authenticationFlow)))
+				{
+					partialAuthnState = getSecondFactorAuthn(authenticationFlow, result, authnOptionId);
 
 					if (partialAuthnState != null)
 						return partialAuthnState;
@@ -122,7 +123,6 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 				}
 			} catch (EngineException e)
 			{
-				log.error("Can not evaluate mvel condition", e);
 				throw new AuthenticationException("AuthenticationProcessorImpl.authnFailed");
 			}
 		}

@@ -32,7 +32,7 @@ public class JsonUtilTest
 		// given
 		AuthenticationFlowDefinition authn = new AuthenticationFlowDefinition("flow",
 				Policy.REQUIRE, new HashSet<String>(Arrays.asList("primary")),
-				new ArrayList<String>(Arrays.asList("secondary")), null);
+				new ArrayList<String>(Arrays.asList("secondary")), "policyConfiguration");
 
 		// when
 		String jsonString = JsonUtil.toJsonString(authn);
@@ -45,6 +45,9 @@ public class JsonUtilTest
 		assertThat(json.get("secondFactorAuthenticators")
 				.get(0)
 				.asText()).isEqualTo("secondary");
+//		assertThat(json.get("dynamicPolicyMvelCondition")
+//				.asText()).isEqualTo("policyConfiguration");
+		
 		System.out.println(json);
 
 	}
@@ -53,7 +56,7 @@ public class JsonUtilTest
 	public void shouldConvertToGivenType()
 	{
 		// given
-		String jsonString = "{\"name\":\"flow\",\"firstFactorAuthenticators\":[\"primary\"],\"secondFactorAuthenticators\":[\"secondary\"],\"policy\":\"REQUIRE\"}";
+		String jsonString = "{\"name\":\"flow\",\"firstFactorAuthenticators\":[\"primary\"],\"secondFactorAuthenticators\":[\"secondary\"],\"policy\":\"REQUIRE\", \"dynamicPolicyMvelCondition\":\"policyConfiguration\"}";
 
 		// when
 		AuthenticationFlowDefinition authn = JsonUtil.parse(jsonString,
@@ -62,7 +65,7 @@ public class JsonUtilTest
 		// then
 		assertThat(authn).isEqualTo(new AuthenticationFlowDefinition("flow", Policy.REQUIRE,
 				new HashSet<String>(Arrays.asList("primary")),
-				new ArrayList<String>(Arrays.asList("secondary")), null));
+				new ArrayList<String>(Arrays.asList("secondary")), "policyConfiguration"));
 	}
 
 	@Test
