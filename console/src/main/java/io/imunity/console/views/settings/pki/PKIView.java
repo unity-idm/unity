@@ -5,43 +5,40 @@
 
 package io.imunity.console.views.settings.pki;
 
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
 import com.google.common.collect.Sets;
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
-
-import java.util.Comparator;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.settings.publicKeyInfrastructure", parent = "WebConsoleMenu.settings")
 @Route(value = "/pki", layout = ConsoleMenu.class)
 public class PKIView extends ConsoleViewComponent
 {
-
 	private final MessageSource msg;
 	private final CertificatesController certController;
-	private Grid<CertificateEntry> certGrid;
+	private GridWithActionColumn<CertificateEntry> certGrid;
 
 	PKIView(MessageSource msg, CertificatesController controller)
 	{
@@ -53,17 +50,13 @@ public class PKIView extends ConsoleViewComponent
 	private void initUI()
 	{
 
-		certGrid = new Grid<>();
+		certGrid = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
 		certGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		Grid.Column<CertificateEntry> nameColumn = certGrid.addComponentColumn(c -> new RouterLink(c.getName(), PKIEditView.class, c.getName()))
 				.setHeader(msg.getMessage("CertificatesComponent.certificateNameCaption"))
 				.setAutoWidth(true)
 				.setSortable(true)
 				.setComparator(Comparator.comparing(CertificateEntry::getName));
-		certGrid.addComponentColumn(this::createRowActionMenu)
-				.setHeader(msg.getMessage("actions"))
-				.setTextAlign(ColumnTextAlign.END);
-
 		certGrid.setItems(certController.getCertificates());
 		certGrid.sort(GridSortOrder.desc(nameColumn).build());
 
@@ -73,23 +66,22 @@ public class PKIView extends ConsoleViewComponent
 		getContent().add(main);
 	}
 
-	private Component createRowActionMenu(CertificateEntry entry)
+	private List<SingleActionHandler<CertificateEntry>> getActionsHandlers()
 	{
-		Icon generalSettings = new ActionIconBuilder()
-				.icon(EDIT)
-				.tooltipText(msg.getMessage("edit"))
-				.navigation(PKIEditView.class, entry.getName())
-				.build();
+		SingleActionHandler<CertificateEntry> edit = SingleActionHandler
+				.builder4Edit(msg::getMessage, CertificateEntry.class)
+				.withHandler(r -> gotoEdit(r.iterator().next())).build();
 
-		Icon remove = new ActionIconBuilder()
-				.icon(TRASH)
-				.tooltipText(msg.getMessage("remove"))
-				.clickListener(() -> tryRemove(entry))
-				.build();
+		SingleActionHandler<CertificateEntry> remove = SingleActionHandler
+				.builder4Delete(msg::getMessage, CertificateEntry.class)
+				.withHandler(r -> tryRemove(r.iterator().next())).build();
+		return Arrays.asList(edit, remove);
+	}
 
-		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, remove);
-		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		return horizontalLayout;
+	private void gotoEdit(CertificateEntry cred)
+	{
+		UI.getCurrent()
+				.navigate(PKIEditView.class, cred.getName());
 	}
 
 	private void tryRemove(CertificateEntry cert)
