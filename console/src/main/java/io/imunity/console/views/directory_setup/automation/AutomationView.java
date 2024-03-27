@@ -79,11 +79,11 @@ public class AutomationView extends ConsoleViewComponent
 
 		Toolbar<ScheduledProcessingRule> toolbar = new Toolbar<>();
 		toolbar.addHamburger(hamburgerMenu);
-		ComponentWithToolbar attrTypeGridWithToolbar = new ComponentWithToolbar(automationGrid, toolbar);
-		attrTypeGridWithToolbar.setSpacing(false);
-		attrTypeGridWithToolbar.setSizeFull();
+		ComponentWithToolbar gridWithToolbar = new ComponentWithToolbar(automationGrid, toolbar);
+		gridWithToolbar.setSpacing(false);
+		gridWithToolbar.setSizeFull();
 
-		VerticalLayout layout = new VerticalLayout(createHeaderLayout(), attrTypeGridWithToolbar);
+		VerticalLayout layout = new VerticalLayout(createHeaderLayout(), gridWithToolbar);
 		layout.setSpacing(false);
 		getContent().add(layout);
 	}

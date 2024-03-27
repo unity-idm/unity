@@ -5,47 +5,47 @@
 
 package io.imunity.console.views.settings.policy_documents;
 
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+
 import com.google.common.collect.Sets;
-import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.grid.dataview.GridListDataView;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.SearchField;
+import io.imunity.vaadin.elements.grid.GridSearchFieldFactory;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
+import io.imunity.vaadin.endpoint.common.Toolbar;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
-
-import java.util.Comparator;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.EDIT;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
-import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.settings.policyDocuments", parent = "WebConsoleMenu.settings")
 @Route(value = "/policy-documents", layout = ConsoleMenu.class)
 public class PolicyDocumentsView extends ConsoleViewComponent
 {
-
 	private final MessageSource msg;
 	private final PolicyDocumentsController controller;
-	private final TextField search = new TextField();
-	private Grid<PolicyDocumentEntry> policyDocsGrid;
-
+	private GridWithActionColumn<PolicyDocumentEntry> policyDocsGrid;
+	
 	PolicyDocumentsView(MessageSource msg, PolicyDocumentsController controller)
 	{
 		this.msg = msg;
@@ -55,7 +55,8 @@ public class PolicyDocumentsView extends ConsoleViewComponent
 
 	public void init()
 	{
-		policyDocsGrid = new Grid<>();
+		policyDocsGrid = new GridWithActionColumn<PolicyDocumentEntry>(
+				msg::getMessage, getActionsHandlers());
 		policyDocsGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		Grid.Column<PolicyDocumentEntry> nameColumn = policyDocsGrid
 				.addComponentColumn(e -> new RouterLink(e.name, PolicyDocumentEditView.class, String.valueOf(e.id)))
@@ -63,77 +64,68 @@ public class PolicyDocumentsView extends ConsoleViewComponent
 				.setAutoWidth(true)
 				.setSortable(true)
 				.setComparator(Comparator.comparing(e -> e.name));
-
 		policyDocsGrid.addColumn(e -> String.valueOf(e.revision))
 				.setHeader(msg.getMessage("PolicyDocumentsView.version"))
 				.setAutoWidth(true)
 				.setSortable(true);
-
 		policyDocsGrid.addColumn(e -> msg.getMessage("PolicyDocumentType." + e.contentType.toString()))
 				.setHeader(msg.getMessage("PolicyDocumentsView.type"))
 				.setAutoWidth(true)
 				.setSortable(true);
+		policyDocsGrid.sort(GridSortOrder.desc(nameColumn)
+				.build());
 
-		policyDocsGrid.addComponentColumn(this::createRowActionMenu)
-				.setHeader(msg.getMessage("actions"))
-				.setTextAlign(ColumnTextAlign.END);
-
-		policyDocsGrid.sort(GridSortOrder.desc(nameColumn).build());
-		loadData();
-		getContent().add(new VerticalLayout(createHeaderLayout(), policyDocsGrid));
+		SearchField search = GridSearchFieldFactory.generateSearchField(policyDocsGrid, msg::getMessage);
+		Toolbar<PolicyDocumentEntry> toolbar = new Toolbar<>();
+		toolbar.addSearch(search);
+		toolbar.setJustifyContentMode(JustifyContentMode.END);
+		toolbar.setSizeFull();
+		ComponentWithToolbar gridWithToolbar = new ComponentWithToolbar(policyDocsGrid, toolbar);
+		gridWithToolbar.setSpacing(false);
+		gridWithToolbar.setSizeFull();
+		policyDocsGrid.setItems(new ArrayList<>(controller.getPolicyDocuments()));
+		getContent()
+				.add(new VerticalLayout(createHeaderActionLayout(msg, PolicyDocumentEditView.class), gridWithToolbar));
 	}
 
-	private VerticalLayout createHeaderLayout()
+	private List<SingleActionHandler<PolicyDocumentEntry>> getActionsHandlers()
 	{
-		VerticalLayout headerLayout = createHeaderActionLayout(msg, PolicyDocumentEditView.class);
-		search.setValueChangeMode(ValueChangeMode.EAGER);
-		search.setPlaceholder(msg.getMessage("search"));
-		headerLayout.add(search);
-		return headerLayout;
-	}
-
-	private void loadData()
-	{
-		GridListDataView<PolicyDocumentEntry> messageTemplateEntryGridListDataView = policyDocsGrid.setItems(controller.getPolicyDocuments());
-		messageTemplateEntryGridListDataView.addFilter(entry -> entry.anyFieldContains(search.getValue()));
-		search.addValueChangeListener(e -> messageTemplateEntryGridListDataView.refreshAll());
-	}
-
-	private Component createRowActionMenu(PolicyDocumentEntry entry)
-	{
-		Icon generalSettings = new ActionIconBuilder()
-				.icon(EDIT)
-				.tooltipText(msg.getMessage("edit"))
-				.navigation(PolicyDocumentEditView.class, String.valueOf(entry.id))
+		SingleActionHandler<PolicyDocumentEntry> remove = SingleActionHandler
+				.builder4Delete(msg::getMessage, PolicyDocumentEntry.class)
+				.withHandler(this::tryRemove)
 				.build();
 
-		Icon remove = new ActionIconBuilder()
-				.icon(TRASH)
-				.tooltipText(msg.getMessage("remove"))
-				.clickListener(() -> tryRemove(entry))
+		SingleActionHandler<PolicyDocumentEntry> edit = SingleActionHandler
+				.builder4Edit(msg::getMessage, PolicyDocumentEntry.class)
+				.withHandler(r -> gotoEdit(r.iterator()
+						.next()))
 				.build();
 
-		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, remove);
-		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		return horizontalLayout;
+		return Arrays.asList(edit, remove);
 	}
 
-	private void tryRemove(PolicyDocumentEntry entry)
+	private void gotoEdit(PolicyDocumentEntry policy)
 	{
-		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(entry.name));
-		new ConfirmDialog(
-				msg.getMessage("ConfirmDialog.confirm"),
-				msg.getMessage("PolicyDocumentsView.confirmDelete", confirmText),
-				msg.getMessage("ok"),
-				e -> remove(entry),
-				msg.getMessage("cancel"),
-				e -> {}
-		).open();
+		UI.getCurrent()
+				.navigate(PolicyDocumentEditView.class, policy.getId()
+						.toString());
+	}
+
+	private void tryRemove(Set<PolicyDocumentEntry> entry)
+	{
+		PolicyDocumentEntry item = entry.iterator()
+				.next();
+		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(item.name));
+		new ConfirmDialog(msg.getMessage("ConfirmDialog.confirm"),
+				msg.getMessage("PolicyDocumentsView.confirmDelete", confirmText), msg.getMessage("ok"),
+				e -> remove(item), msg.getMessage("cancel"), e ->
+				{
+				}).open();
 	}
 
 	private void remove(PolicyDocumentEntry e)
 	{
 		controller.removePolicyDocument(e.id);
-		loadData();
+		policyDocsGrid.removeElement(e);
 	}
 }

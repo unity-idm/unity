@@ -10,8 +10,11 @@ import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
 
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Function;
 
-public class PolicyDocumentEntry
+import io.imunity.vaadin.elements.grid.FilterableEntry;
+
+public class PolicyDocumentEntry implements FilterableEntry
 {
 	Long id;
 	String name;
@@ -28,6 +31,7 @@ public class PolicyDocumentEntry
 		contentType = PolicyDocumentContentType.EMBEDDED;
 		revision = 1;
 	}
+
 	PolicyDocumentEntry(PolicyDocumentWithRevision documentWithRevision)
 	{
 		this.id = documentWithRevision.id;
@@ -109,17 +113,23 @@ public class PolicyDocumentEntry
 		this.revision = revision;
 	}
 
-	boolean anyFieldContains(String searched)
+	@Override
+	public boolean anyFieldContains(String searched, Function<String, String> msg)
 	{
 		String textLower = searched.toLowerCase();
 
-		if (name != null && name.toLowerCase().contains(textLower))
+		if (name != null && name.toLowerCase()
+				.contains(textLower))
 			return true;
 
-		if (String.valueOf(revision).toLowerCase().contains(textLower))
+		if (String.valueOf(revision)
+				.toLowerCase()
+				.contains(textLower))
 			return true;
 
-		return contentType != null && contentType.toString().toLowerCase().contains(textLower);
+		return contentType != null && contentType.toString()
+				.toLowerCase()
+				.contains(textLower);
 	}
 
 }
