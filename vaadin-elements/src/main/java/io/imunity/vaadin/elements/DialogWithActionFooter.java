@@ -18,7 +18,7 @@ public class DialogWithActionFooter extends Dialog
 
 	public DialogWithActionFooter(Function<String, String> msg)
 	{
-		setModal(false);
+		setModal(true);
 		cancelButton = new Button(msg.apply("cancel"), e -> close());
 		actionButton = new Button(msg.apply("ok"));
 		actionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
