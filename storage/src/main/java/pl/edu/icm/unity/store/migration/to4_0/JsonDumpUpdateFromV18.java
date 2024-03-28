@@ -5,28 +5,26 @@
 
 package pl.edu.icm.unity.store.migration.to4_0;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.base.Constants;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.export.JsonDumpUpdate;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+
+import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.store.export.JsonDumpUpdate;
+
 @Component
 public class JsonDumpUpdateFromV18 implements JsonDumpUpdate
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV18.class);
-
 	@Autowired
 	private ObjectMapper objectMapper;
 

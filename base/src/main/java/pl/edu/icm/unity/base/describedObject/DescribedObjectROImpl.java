@@ -51,7 +51,7 @@ public class DescribedObjectROImpl implements DescribedObject
 
 	protected final void fromJsonDescObj(ObjectNode root)
 	{
-		description = root.get("description").asText(null);
+		description = root.get("description").asText();
 		name = root.get("name").asText();
 	}
 	

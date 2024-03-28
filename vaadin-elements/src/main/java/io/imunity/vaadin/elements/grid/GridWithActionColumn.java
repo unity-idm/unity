@@ -281,7 +281,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		return tColumn;
 	}
 
-	public <V extends Component> Column<T> addBooleanColumn(Function<T, Boolean> checkBox)
+	public Column<T> addBooleanColumn(Function<T, Boolean> checkBox)
 	{
 		Column<T> addComponentColumn = super.addComponentColumn(v -> getBoolIcon(checkBox.apply(v))).setResizable(true).setFlexGrow(2);
 		refreshActionColumn();

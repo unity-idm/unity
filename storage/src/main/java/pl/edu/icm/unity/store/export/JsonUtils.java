@@ -19,24 +19,24 @@ public class JsonUtils
 	public static void nextExpect(JsonParser jp, String name) throws IOException
 	{
 		jp.nextToken();
-		String fieldName = jp.getCurrentName();
+		String fieldName = jp.currentName();
 		if (!fieldName.equals(name))
 			throw new IOException("Expected " + name + 
 					" element, got: " + fieldName + 
-					" " + jp.getCurrentLocation() + " tokenType: [" +
-					jp.getCurrentToken() + "]");
+					" " + jp.currentLocation() + " tokenType: [" +
+					jp.currentToken() + "]");
 		jp.nextToken();
 	}
 	
 	
 	public static void expect(JsonParser jp, String name) throws IOException
 	{
-		String fieldName = jp.getCurrentName();
+		String fieldName = jp.currentName();
 		if (!fieldName.equals(name))
 			throw new IOException("Expected " + name + 
 					" element, got: " + fieldName + 
-					" " + jp.getCurrentLocation() + " tokenType: [" +
-					jp.getCurrentToken() + "]");
+					" " + jp.currentLocation() + " tokenType: [" +
+					jp.currentToken() + "]");
 		jp.nextToken();
 	}
 	
@@ -44,16 +44,16 @@ public class JsonUtils
 	{
 		if (tokenType != jp.nextToken())
 			throw new IOException("Expected " + tokenType + 
-					", got: " + jp.getCurrentToken() + 
-					" " + jp.getCurrentLocation());
+					", got: " + jp.currentToken() + 
+					" " + jp.currentLocation());
 	}
 	
 	public static void expect(JsonParser jp, JsonToken tokenType) throws IOException
 	{
-		if (tokenType != jp.getCurrentToken())
+		if (tokenType != jp.currentToken())
 			throw new IOException("Expected " + tokenType + 
-					", got: " + jp.getCurrentToken() + 
-					" " + jp.getCurrentLocation());
+					", got: " + jp.currentToken() + 
+					" " + jp.currentLocation());
 	}
 	
 	public static ArrayNode deserialize2Array(JsonParser input, String expectedCategory) throws IOException

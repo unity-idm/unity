@@ -4,32 +4,29 @@
  */
 package io.imunity.console.views.authentication.facilities;
 
+import java.io.CharArrayWriter;
+import java.io.PrintWriter;
+import java.util.Map;
+
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
+
 import io.imunity.console.tprofile.MappingResultComponent;
 import io.imunity.console.tprofile.TranslationProfileViewer;
 import io.imunity.vaadin.elements.wizard.WizardStep;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 
-import java.io.CharArrayWriter;
-import java.io.PrintWriter;
-import java.util.Map;
-
 
 class DryRunStep extends WizardStep
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, DryRunStep.class);
-
 	private final InputTranslationActionsRegistry taRegistry;
 	private final Map<String, TranslationProfile> inputProfiles;
 	private final MessageSource msg;

@@ -38,6 +38,7 @@ class RestProjectPolicyDocumentService
 	private ProjectGroupProvider projectGroupProvider;
 
 	//for spring
+	@SuppressWarnings("unused")
 	private RestProjectPolicyDocumentService()
 	{
 	}

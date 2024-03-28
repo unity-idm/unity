@@ -202,16 +202,14 @@ public class SAMLIdPConfigurationParser
 	private List<RemoteMetadataSource> getMetadataSources(SamlIdpProperties samlProperties)
 	{
 		Set<String> keys = samlProperties.getStructuredListKeys(SamlIdpProperties.SPMETA_PREFIX);
-		return keys.stream()
-				.map(key ->
-						RemoteMetadataSource.builder()
-								.withUrl(samlProperties.getValue(key + SamlIdpProperties.METADATA_URL))
-								.withHttpsTruststore(samlProperties.getValue(key + SamlIdpProperties.METADATA_HTTPS_TRUSTSTORE))
-								.withIssuerCertificate(samlProperties.getValue(key + SamlIdpProperties.METADATA_ISSUER_CERT))
-								.withRefreshInterval(Duration.ofSeconds(samlProperties.getIntValue(key + SamlIdpProperties.METADATA_REFRESH)))
-								.withSignatureValidation(samlProperties.getEnumValue(key + SamlIdpProperties.METADATA_SIGNATURE, MetadataSignatureValidation.class))
-								.withTranslationProfile(generateMetadataTranslationProfile(samlProperties, key))
-								.build())
+		return keys.stream().map(key -> RemoteMetadataSource.builder()
+					.withUrl(samlProperties.getValue(key + SamlIdpProperties.METADATA_URL))
+					.withHttpsTruststore(samlProperties.getValue(key + SamlIdpProperties.METADATA_HTTPS_TRUSTSTORE))
+					.withIssuerCertificate(samlProperties.getValue(key + SamlIdpProperties.METADATA_ISSUER_CERT))
+					.withRefreshInterval(Duration.ofSeconds(samlProperties.getIntValue(key + SamlIdpProperties.METADATA_REFRESH)))
+					.withSignatureValidation(samlProperties.getEnumValue(key + SamlIdpProperties.METADATA_SIGNATURE, MetadataSignatureValidation.class))
+					.withTranslationProfile(generateMetadataTranslationProfile(samlProperties, key))
+					.build())
 				.collect(Collectors.toList());
 	}
 

@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http.UriCompliance.Violation;
@@ -559,7 +560,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 			return;
 
 		log.info("Enabling CORS");
-		org.eclipse.jetty.ee10.servlets.CrossOriginFilter cors = new org.eclipse.jetty.ee10.servlets.CrossOriginFilter();
+		CrossOriginFilter cors = new CrossOriginFilter();
 		jakarta.servlet.FilterConfig config = new jakarta.servlet.FilterConfig()
 		{
 

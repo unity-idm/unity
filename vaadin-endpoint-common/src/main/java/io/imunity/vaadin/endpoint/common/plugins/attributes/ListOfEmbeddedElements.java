@@ -33,7 +33,7 @@ public class ListOfEmbeddedElements<T> extends FormLayout
 			int min, int max, boolean showLine)
 	{
 		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		stub = new ListOfEmbeddedElementsStub<T>(msg, editorProvider, min, max, showLine);
+		stub = new ListOfEmbeddedElementsStub<>(msg, editorProvider, min, max, showLine);
 		new CompositeLayoutAdapter(this, stub.getComponentsGroup());
 	}
 	

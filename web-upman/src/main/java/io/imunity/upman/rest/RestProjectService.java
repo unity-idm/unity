@@ -58,6 +58,7 @@ class RestProjectService
 	private String authorizationGroup;
 
 	//for spring
+	@SuppressWarnings("unused")
 	private RestProjectService()
 	{
 	}

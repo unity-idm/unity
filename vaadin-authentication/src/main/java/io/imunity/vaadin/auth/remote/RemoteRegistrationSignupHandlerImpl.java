@@ -25,7 +25,6 @@ import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.*;
-import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 import java.util.*;
 import java.util.stream.Collectors;
