@@ -15,11 +15,16 @@ import java.util.Optional;
 
 public interface CredentialEditor
 {
-
 	ComponentsContainer getEditor(CredentialEditorContext context);
 	Optional<Component> getViewer(String credentialInfo);
 	String getValue() throws IllegalCredentialException;
 	void setCredentialError(EngineException error);
+	
+	default boolean isUserConfigurable() 
+	{
+		return true;
+	}
+	
 	default boolean isCredentialCleared()
 	{
 		return false;

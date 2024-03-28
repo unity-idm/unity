@@ -47,7 +47,7 @@ class SingleCredentialEditComponent extends VerticalLayout
 		for (Component component: editorComponents.getComponents())
 			if (component instanceof Focusable)
 			{
-				((Focusable) component).focus();
+				((Focusable<?>) component).focus();
 				break;
 			}
 	}

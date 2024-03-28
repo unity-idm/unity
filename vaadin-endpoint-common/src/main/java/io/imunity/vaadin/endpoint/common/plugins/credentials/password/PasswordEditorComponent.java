@@ -16,7 +16,6 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 
 public class PasswordEditorComponent extends VerticalLayout implements Focusable<PasswordEditorComponent>
 {
-
 	private final PasswordFieldsComponent fieldsComponent;
 	private int tabIndex;
 	

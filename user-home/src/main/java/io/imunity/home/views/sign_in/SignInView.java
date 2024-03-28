@@ -5,6 +5,20 @@
 
 package io.imunity.home.views.sign_in;
 
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
+import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
+import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
@@ -26,8 +40,11 @@ import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import jakarta.annotation.security.PermitAll;
-import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.base.authn.*;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
+import pl.edu.icm.unity.base.authn.CredentialInfo;
+import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.base.authn.CredentialRequirements;
+import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -40,17 +57,6 @@ import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
-import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
 
 @PermitAll
 @Breadcrumb(key = "UserHomeUI.signIn")
@@ -81,11 +87,13 @@ public class SignInView extends HomeViewComponent
 		this.credEditorReg = credEditorReg;
 		this.notificationPresenter = notificationPresenter;
 	}
+	
 	private void init()
 	{
 		getContent().removeAll();
 		LoginSession theUser = InvocationContext.getCurrent().getLoginSession();
-		Boolean disable2ndFactorOptIn = ComponentUtil.getData(UI.getCurrent(), HomeEndpointProperties.class).getBooleanValue(HomeEndpointProperties.DISABLE_2ND_FACTOR_OPT_IN);
+		Boolean disable2ndFactorOptIn = ComponentUtil.getData(UI.getCurrent(), HomeEndpointProperties.class)
+				.getBooleanValue(HomeEndpointProperties.DISABLE_2ND_FACTOR_OPT_IN);
 		Entity entity = loadEntity(theUser.getEntityId());
 		Map<String, CredentialDefinition> credentials = loadCredentials(entity);
 		if (credentials.size() == 0)
@@ -97,11 +105,14 @@ public class SignInView extends HomeViewComponent
 		Map<String, CredentialPublicInformation> credentialsState = entity.getCredentialInfo()
 				.getCredentialsState();
 
-		List<SingleCredentialPanel> outdatedCredentialDefinition = filterCredentials(credentials.values(), credentialsState, LocalCredentialState.outdated)
+		List<SingleCredentialPanel> outdatedCredentialDefinition = 
+				filterCredentials(credentials.values(), credentialsState, LocalCredentialState.outdated)
 				.map((CredentialDefinition credDef) -> createPanel(credDef, theUser.getEntityId())).toList();
-		List<SingleCredentialPanel> correctCredentialDefinition = filterCredentials(credentials.values(), credentialsState, LocalCredentialState.correct)
+		List<SingleCredentialPanel> correctCredentialDefinition = 
+				filterCredentials(credentials.values(), credentialsState, LocalCredentialState.correct)
 				.map((CredentialDefinition credDef) -> createPanel(credDef, theUser.getEntityId())).toList();
-		List<SingleCredentialPanel> notSetCredentialDefinition = filterCredentials(credentials.values(), credentialsState, LocalCredentialState.notSet)
+		List<SingleCredentialPanel> notSetCredentialDefinition = 
+				filterCredentials(credentials.values(), credentialsState, LocalCredentialState.notSet)
 				.map((CredentialDefinition credDef) -> createPanel(credDef, theUser.getEntityId())).toList();
 
 		VerticalLayout layout = new VerticalLayout();
@@ -109,10 +120,12 @@ public class SignInView extends HomeViewComponent
 			layout.add(create2ndFactorOptInComponent(theUser.getEntityId()));
 
 		if(!outdatedCredentialDefinition.isEmpty())
-			layout.add(getDetailsPanel(new H2(msg.getMessage("UserHomeUI.credentialRequiringUpdate")), createPanelLayout(outdatedCredentialDefinition), false));
+			layout.add(getDetailsPanel(new H2(msg.getMessage("UserHomeUI.credentialRequiringUpdate")), 
+					createPanelLayout(outdatedCredentialDefinition), false));
 
 	
-		layout.add(getDetailsPanel(new H2(msg.getMessage("UserHomeUI.signInCredentials")), createPanelLayout(correctCredentialDefinition), true));
+		layout.add(getDetailsPanel(new H2(msg.getMessage("UserHomeUI.signInCredentials")), 
+				createPanelLayout(correctCredentialDefinition), true));
 
 		if (!notSetCredentialDefinition.isEmpty())
 		{
@@ -149,6 +162,7 @@ public class SignInView extends HomeViewComponent
 		layout.setPadding(false);
 		layout.setSpacing(false);
 		layout.getStyle().set("margin-left", BIG_MARGIN.value());
+		layout.getStyle().set("margin-top", MEDIUM_MARGIN.value());
 
 		int last = panels.size();
 		int credSize = panels.size();

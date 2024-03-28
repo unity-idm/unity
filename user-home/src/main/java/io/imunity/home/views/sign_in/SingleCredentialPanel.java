@@ -66,10 +66,10 @@ class SingleCredentialPanel extends VerticalLayout
 	
 	
 	SingleCredentialPanel(AdditionalAuthnHandler additionalAuthnHandler, MessageSource msg, long entityId,
-								 EntityCredentialManagement ecredMan, CredentialManagement credMan,
-								 EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
-								 CredentialDefinition toEdit, boolean enableAdminActions,
-								 NotificationPresenter notificationPresenter, Runnable refresh)
+			EntityCredentialManagement ecredMan, CredentialManagement credMan,
+			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
+			CredentialDefinition toEdit, boolean enableAdminActions,
+			NotificationPresenter notificationPresenter, Runnable refresh)
 	{
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.msg = msg;
@@ -123,13 +123,16 @@ class SingleCredentialPanel extends VerticalLayout
 		edit = new LinkButton(msg.getMessage("CredentialChangeDialog.setup"), e -> switchEditorVisibility(true));
 		
 		HorizontalLayout buttonsBar = new HorizontalLayout();
-		buttonsBar.setPadding(false);
-		buttonsBar.add(edit);
-		if (enableAdminOptions)
+		if (credEditor.isUserConfigurable())
 		{
-			buttonsBar.add(clear);
-			if (isInvalidationSupported(toEdit.getTypeId()))
-				buttonsBar.add(invalidate);
+			buttonsBar.setPadding(false);
+			buttonsBar.add(edit);
+			if (enableAdminOptions)
+			{
+				buttonsBar.add(clear);
+				if (isInvalidationSupported(toEdit.getTypeId()))
+					buttonsBar.add(invalidate);
+			}
 		}
 		return buttonsBar;
 	}
