@@ -50,6 +50,6 @@ class AuthNPanel extends VerticalLayout
 	private void updateFocus(Component retrievalComponent)
 	{
 		if (retrievalComponent instanceof Focusable)
-			((Focusable)retrievalComponent).focus();
+			((Focusable<?>)retrievalComponent).focus();
 	}
 }

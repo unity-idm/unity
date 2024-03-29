@@ -124,7 +124,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		return AuthenticationRetrievalContext.builder().withSupportOnlySecondFactorReseting(true).build();
 	}
 	
-	private class PasswordRetrievalComponent extends VerticalLayout implements Focusable
+	private class PasswordRetrievalComponent extends VerticalLayout implements Focusable<PasswordRetrievalComponent>
 	{
 		private final CredentialEditor credEditor;
 		private AuthenticationCallback callback;

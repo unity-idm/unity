@@ -111,7 +111,7 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 		return AuthenticationRetrievalContext.builder().build();
 	}
 	
-	private class FidoRetrievalComponent extends VerticalLayout implements Focusable
+	private class FidoRetrievalComponent extends VerticalLayout implements Focusable<FidoRetrievalComponent>
 	{
 		private AuthenticationCallback callback;
 		private TextField usernameField;

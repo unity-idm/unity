@@ -107,7 +107,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 		return AuthenticationRetrievalContext.builder().withSupportOnlySecondFactorReseting(true).build();
 	}
 
-	private class OTPRetrievalComponent extends VerticalLayout implements Focusable
+	private class OTPRetrievalComponent extends VerticalLayout implements Focusable<OTPRetrievalComponent>
 	{
 		private AuthenticationCallback callback;
 		private TextField usernameField;

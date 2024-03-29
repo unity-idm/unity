@@ -55,7 +55,7 @@ abstract class AuthNPanelBase extends Component implements AuthenticationUIContr
 	{
 		if (retrievalComponent instanceof Focusable)
 		{
-			((Focusable)retrievalComponent).focus();
+			((Focusable<?>)retrievalComponent).focus();
 			return true;
 		}
 		return false;

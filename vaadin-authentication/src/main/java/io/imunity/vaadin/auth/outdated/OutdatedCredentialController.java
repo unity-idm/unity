@@ -97,7 +97,7 @@ public class OutdatedCredentialController
 		master.add(ui);
 		master.setAlignItems(FlexComponent.Alignment.CENTER);
 		
-		Focusable toFocus = ui.getFocussedComponent();
+		Focusable<?> toFocus = ui.getFocussedComponent();
 		if (toFocus != null)
 			toFocus.focus();
 		return master;

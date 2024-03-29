@@ -136,11 +136,11 @@ class CredentialChangePanel extends VerticalLayout
 		return wrapper;
 	}
 	
-	Focusable getFocussedComponent()
+	Focusable<?> getFocussedComponent()
 	{
 		for (Component component: credEditorComp.getComponents())
 			if (component instanceof Focusable)
-				return (Focusable) component;
+				return (Focusable<?>) component;
 		return null;
 	}
 	

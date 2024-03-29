@@ -67,7 +67,7 @@ public class CredentialResetNewCredentialUI extends CredentialResetLayout
 		ret.add(credEditorComponents);
 		for (Component c: credEditorComponents)
 			if (c instanceof Focusable)
-				((Focusable) c).focus();
+				((Focusable<?>) c).focus();
 			
 		
 		Component buttons = getButtonsBar(setCredentialLabel, 

@@ -121,7 +121,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		return AuthenticationRetrievalContext.builder().withSupportOnlySecondFactorReseting(true).build();
 	}
 
-	private class SMSRetrievalComponent extends VerticalLayout implements Focusable
+	private class SMSRetrievalComponent extends VerticalLayout implements Focusable<SMSRetrievalComponent>
 	{
 		private final CredentialEditor credEditor;
 		private AuthenticationCallback callback;
