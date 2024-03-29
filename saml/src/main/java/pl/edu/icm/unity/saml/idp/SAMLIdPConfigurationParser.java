@@ -4,36 +4,58 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.util.configuration.ConfigurationException;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
-import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.exceptions.InternalException;
-import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.translation.TranslationProfile;
-import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.idp.*;
-import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
-import pl.edu.icm.unity.saml.SamlProperties;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
-import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
-import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ACTIVE_VALUE_CLIENT;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ACTIVE_VALUE_MULTI_SELECTABLE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ACTIVE_VALUE_SELECTION_PFX;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ACTIVE_VALUE_SINGLE_SELECTABLE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.SKIP_USERIMPORT;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.TRANSLATION_PROFILE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.USERIMPORT_IDENTITY_TYPE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.USERIMPORT_IMPORTER;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.USERIMPORT_PFX;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_CERTIFICATE;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.CREDENTIAL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SP_ACCEPT_POLICY;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.TRUSTSTORE;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.*;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
+import eu.emi.security.authn.x509.X509CertChainValidator;
+import eu.emi.security.authn.x509.X509Credential;
+import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.i18n.I18nString;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClient;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfigurationParser;
+import pl.edu.icm.unity.engine.api.idp.PropertiesTranslationProfileLoader;
+import pl.edu.icm.unity.engine.api.idp.UserImportConfig;
+import pl.edu.icm.unity.engine.api.idp.UserImportConfigs;
+import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.saml.SamlProperties;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
+import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
 
 @Component
 public class SAMLIdPConfigurationParser
@@ -291,13 +313,6 @@ public class SAMLIdPConfigurationParser
 		return generateTranslationProfile(samlProperties, key, 
 				SAMLSPProperties.IDPMETA_EMBEDDED_TRANSLATION_PROFILE, 
 				SAMLSPProperties.IDPMETA_TRANSLATION_PROFILE);
-	}
-
-	private TranslationProfile generateIndividualIdPTranslationProfile(SamlIdpProperties samlProperties, String key)
-	{
-		return generateTranslationProfile(samlProperties, key, 
-				CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE, 
-				CommonWebAuthnProperties.TRANSLATION_PROFILE);
 	}
 
 	private TranslationProfile generateTranslationProfile(SamlIdpProperties samlProperties, String key,
