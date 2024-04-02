@@ -100,17 +100,17 @@ public class JettyServerFeaturesTest
 	{
 		Properties securityProps = new Properties();
 		securityProps.load(new StringReader(
-"""
-unity.pki.credentials.MAIN.format=pkcs12
-unity.pki.credentials.MAIN.path=src/test/resources/pki/demoKeystore.p12
-unity.pki.credentials.MAIN.keyAlias=unity-demo
-unity.pki.credentials.MAIN.password=the!unity
+				"""
+				unity.pki.credentials.MAIN.format=pkcs12
+				unity.pki.credentials.MAIN.path=src/test/resources/pki/demoKeystore.p12
+				unity.pki.credentials.MAIN.keyAlias=unity-demo
+				unity.pki.credentials.MAIN.password=the!unity
 
-unity.pki.truststores.MAIN.type=keystore
-unity.pki.truststores.MAIN.keystorePath=src/test/resources/pki/demoTruststore.jks
-unity.pki.truststores.MAIN.keystorePassword=the!unity
-unity.pki.truststores.MAIN.keystoreFormat=JKS
-"""
+				unity.pki.truststores.MAIN.type=keystore
+				unity.pki.truststores.MAIN.keystorePath=src/test/resources/pki/demoTruststore.jks
+				unity.pki.truststores.MAIN.keystorePassword=the!unity
+				unity.pki.truststores.MAIN.keystoreFormat=JKS
+				"""
 		));
 		TruststoreProperties truststoreProps = new TruststoreProperties(securityProps,
 				List.of(),
