@@ -191,6 +191,11 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		if (attributes != null)
 			addAttributesToAssertion(assertion, attributes);
 
+		if (samlConfiguration.sendNotBeforeConstraint)
+		{		
+			assertion.setTimeConditions(assertion.getXMLBeanDoc().getAssertion().getIssueInstant().getTime(), null);
+		}
+		
 		AssertionSigningPolicy assertionSigningPolicy = samlConfiguration.signAssertion;
 		if (assertionSigningPolicy == AssertionSigningPolicy.always || !doSignResponse())
 			signAssertion(assertion);

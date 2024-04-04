@@ -84,6 +84,8 @@ public class SAMLServiceConfiguration
 	private List<UserImportConfig> userImports;
 	private boolean skipUserImport;
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
+	private boolean sendNotBeforeConstraint;
+ 
 	
 	public SAMLServiceConfiguration(MessageSource msg, List<Group> allGroups)
 	{
@@ -151,7 +153,8 @@ public class SAMLServiceConfiguration
 
 		raw.put(SamlIdpProperties.P + SamlIdpProperties.PUBLISH_METADATA, String.valueOf(publishMetadata));
 		raw.put(SamlIdpProperties.P + SamlIdpProperties.SIGN_METADATA, String.valueOf(signMetadata));
-
+		raw.put(SamlIdpProperties.P + SamlIdpProperties.SEND_NOT_BEFORE_CONSTRAINT, String.valueOf(sendNotBeforeConstraint));
+		
 		raw.put(SamlIdpProperties.P + SamlIdpProperties.AUTHENTICATION_TIMEOUT,
 				String.valueOf(authenticationTimeout));
 
@@ -321,6 +324,12 @@ public class SAMLServiceConfiguration
 			signMetadata = samlIdpProperties.getBooleanValue(SamlProperties.SIGN_METADATA);
 		}
 
+		if (samlIdpProperties.isSet(SamlIdpProperties.SEND_NOT_BEFORE_CONSTRAINT))
+		{
+			sendNotBeforeConstraint = samlIdpProperties.getBooleanValue(SamlIdpProperties.SEND_NOT_BEFORE_CONSTRAINT);
+		}
+
+		
 		if (samlIdpProperties.isSet(SamlProperties.METADATA_SOURCE))
 		{
 			autoGenerateMetadata = false;
@@ -748,6 +757,16 @@ public class SAMLServiceConfiguration
 	public void setAdditionallyAdvertisedCredential(String additionallyAdvertisedCredential)
 	{
 		this.additionallyAdvertisedCredential = additionallyAdvertisedCredential;
+	}
+
+	public boolean isSendNotBeforeConstraint()
+	{
+		return sendNotBeforeConstraint;
+	}
+
+	public void setSendNotBeforeConstraint(boolean sendNotBeforeConstraint)
+	{
+		this.sendNotBeforeConstraint = sendNotBeforeConstraint;
 	}
 
 	

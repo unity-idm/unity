@@ -81,7 +81,9 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	public final IdentityTypeMapper idTypeMapper;
 
 	public final boolean signMetadata;
+	public final boolean sendNotBeforeConstraint;
 
+	
 	private boolean signRespNever;
 	private boolean signRespAlways;
 	private ReplayAttackChecker replayChecker;
@@ -101,7 +103,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			TranslationProfile translationProfile, boolean skipConsent, Set<ActiveValueClient> activeValueClient,
 			IdpPolicyAgreementsConfiguration policyAgreements, X509Credential credential,
 			X509CertChainValidator chainValidator, boolean signMetadata,
-			Optional<AdditionalyAdvertisedCredential> additionalyAdvertisedCredential)
+			Optional<AdditionalyAdvertisedCredential> additionalyAdvertisedCredential, 
+			boolean sendNotBeforeConstraint)
 	{
 		super(trustedMetadataSources, publishMetadata, metadataURLPath, ourMetadataFilePath);
 		this.authenticationTimeout = authenticationTimeout;
@@ -127,6 +130,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		this.trustedValidator = chainValidator;
 		this.signMetadata = signMetadata;
 		this.additionallyAdvertisedCredential = additionalyAdvertisedCredential;
+		this.sendNotBeforeConstraint = sendNotBeforeConstraint;
 		load();
 	}
 
@@ -532,7 +536,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		private X509CertChainValidator chainValidator;
 		private boolean signMetadata;
 		private Optional<AdditionalyAdvertisedCredential> additionallyAdvertisedCredential = Optional.empty();
-
+		private boolean sendNotBeforeConstraint;
+		
 		private SAMLIdPConfigurationBuilder()
 		{
 		}
@@ -700,6 +705,13 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			this.signMetadata = signMetadata;
 			return this;
 		}
+		
+		public SAMLIdPConfigurationBuilder withSendNotBeforeConstraint(boolean sendNotBeforeConstraint)
+		{
+			this.sendNotBeforeConstraint = sendNotBeforeConstraint;
+			return this;
+		}
+		
 
 		public SAMLIdPConfiguration build()
 		{
@@ -708,7 +720,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 					truststore, validityPeriod, requestValidityPeriod, issuerURI, returnSingleAssertion, spAcceptPolicy,
 					userCanEditConsent, trustedServiceProviders, groupChooser, identityTypeMapper, userImportConfigs,
 					translationProfile, skipConsent, activeValueClient, policyAgreements, credential, chainValidator,
-					signMetadata, additionallyAdvertisedCredential);
+					signMetadata, additionallyAdvertisedCredential, sendNotBeforeConstraint);
 		}
 	}
 }
