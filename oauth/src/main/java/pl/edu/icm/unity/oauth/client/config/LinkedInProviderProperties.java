@@ -35,7 +35,7 @@ public class LinkedInProviderProperties extends CustomProviderProperties
 				"https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))");
 		setIfUnset(properties, prefix + SCOPES, "r_liteprofile r_basicprofile r_emailaddress");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
-		setIfUnset(properties, prefix + ICON_URL, "../unitygw/img/external/linkedin-small.png");
+		setIfUnset(properties, prefix + ICON_URL, "assets/img/external/linkedin-small.png");
 		setDefaultProfileIfUnset(properties, prefix, "sys:linkedin");
 		return properties;
 	}

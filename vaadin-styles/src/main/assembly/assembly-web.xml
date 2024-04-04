@@ -11,6 +11,8 @@
 			<directory>src/main/resources</directory>
 			<includes>
 				<include>styles.css</include>
+				<include>favicon.html</include>
+				<include>assets/**</include>
 			</includes>
 			<outputDirectory>/webContents/</outputDirectory>
 		</fileSet>

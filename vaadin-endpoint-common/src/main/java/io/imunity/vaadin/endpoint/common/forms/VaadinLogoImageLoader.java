@@ -24,7 +24,6 @@ import java.util.Optional;
 public class VaadinLogoImageLoader
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, VaadinLogoImageLoader.class);
-	private static final String LOCAL_GW_PREFIX = "../unitygw";
 	private final URIAccessService uriAccessService;
 
 	VaadinLogoImageLoader(URIAccessService uriAccessService)
@@ -36,10 +35,6 @@ public class VaadinLogoImageLoader
 	{
 		if (logoUri == null || logoUri.isEmpty())
 			return Optional.empty();
-		if (logoUri.startsWith(LOCAL_GW_PREFIX))
-		{
-			return Optional.of(new LocalOrRemoteResource(logoUri, ""));
-		}
 			
 		URI uri;
 		try
@@ -47,34 +42,30 @@ public class VaadinLogoImageLoader
 			uri = URIHelper.parseURI(logoUri);
 		} catch (IllegalURIException e1)
 		{
-			log.error("Can not parse image uri  " + logoUri);
+			log.error("Can not parse image URI  " + logoUri);
 			return Optional.empty();
 		}
 
-		if (URIHelper.isWebReady(uri))
-		{
-			return Optional.of(new LocalOrRemoteResource(uri.toString(), ""));
-		}
-		else if (logoUri.startsWith("file:../common/"))
-		{
-			return Optional.of(new LocalOrRemoteResource(uri.toString().replace("file:../common/", "../unitygw/"), ""));
-		}
-		else
-		{
-			FileData fileData;
-			try
-			{
-				fileData = uriAccessService.readImageURI(uri);
-			} catch (Exception e)
-			{
-				log.error("Can not read image from uri: " + logoUri);
-				return Optional.empty();
-			}
-			
-			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileData.getContents());
-			StreamResource streamResource = new StreamResource(fileData.getName(), () -> byteArrayInputStream);
-			return Optional.of(new LocalOrRemoteResource(streamResource, "", fileData.getContents()));
-		}
+		return URIHelper.isWebReady(uri) ?
+			Optional.of(new LocalOrRemoteResource(uri.toString(), "")) :
+			fetchAndExpose(logoUri, uri);
 
+	}
+
+	private Optional<LocalOrRemoteResource> fetchAndExpose(String logoUri, URI uri)
+	{
+		FileData fileData;
+		try
+		{
+			fileData = uriAccessService.readImageURI(uri);
+		} catch (Exception e)
+		{
+			log.error("Can not read image from URI: " + logoUri);
+			return Optional.empty();
+		}
+		
+		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileData.getContents());
+		StreamResource streamResource = new StreamResource(fileData.getName(), () -> byteArrayInputStream);
+		return Optional.of(new LocalOrRemoteResource(streamResource, "", fileData.getContents()));
 	}
 }

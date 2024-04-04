@@ -26,6 +26,7 @@ public class IdPAuthNGridComponent extends VerticalLayout
 		providerB.setTooltipText(name);
 		providerB.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		providerB.setWidthFull();
+		providerB.addClassName("u-text-left");
 		add(providerB);
 		setMargin(false);
 		setPadding(false);

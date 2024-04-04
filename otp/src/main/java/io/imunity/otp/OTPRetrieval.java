@@ -325,7 +325,7 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 		@Override
 		public Image getImage()
 		{
-			return new Image("../unitygw/img/other/mobile-sms.png", "");
+			return new Image("assets/img/other/mobile-sms.png", "");
 		}
 
 		@Override

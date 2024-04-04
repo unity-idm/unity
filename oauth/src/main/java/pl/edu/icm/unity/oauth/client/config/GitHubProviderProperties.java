@@ -31,7 +31,7 @@ public class GitHubProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.github.com/user");
 		setIfUnset(properties, prefix + SCOPES, "read:user user:email");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.httpParams.toString());
-		setIfUnset(properties, prefix + ICON_URL, "../unitygw/img/external/github-small.png");
+		setIfUnset(properties, prefix + ICON_URL, "assets/img/external/github-small.png");
 		setDefaultProfileIfUnset(properties, prefix, "sys:github");
 		return properties;
 	}

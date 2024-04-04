@@ -264,7 +264,7 @@ public class ConsoleMenu extends UnityAppLayout
 
 	private static Image createDefaultImage()
 	{
-		Image tmpImage = new Image("../unitygw/img/other/logo-hand.png", "");
+		Image tmpImage = new Image("assets/img/other/logo-square.png", "");
 		tmpImage.setClassName(LOGO_IMAGE.getName());
 		return tmpImage;
 	}

@@ -19,6 +19,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import static com.vaadin.flow.server.VaadinService.getCurrentRequest;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
 
 @Component
 class LogoExposingService
@@ -38,7 +39,7 @@ class LogoExposingService
 	{
 		if (configuration.getLogoURI() == null)
 			return null;
-		return (configuration.federationId == null || configuration.getLogoURI().startsWith("file:") || configuration.getLogoURI().startsWith("../unitygw")) ?
+		return (configuration.federationId == null || configuration.getLogoURI().startsWith("file:")) ?
 			getDirectlyDefinedImage(configuration) :
 			getPrefetchedFederationLogo(configuration, configKey);
 	}
@@ -59,10 +60,14 @@ class LogoExposingService
 
 	private static Image createImage(File file)
 	{
-		try(FileInputStream byteArrayInputStream = new FileInputStream(file))
+		try 
 		{
+			@SuppressWarnings("resource")
+			FileInputStream byteArrayInputStream = new FileInputStream(file);
 			StreamResource streamResource = new StreamResource(file.getName(), () -> byteArrayInputStream);
-			return new Image(streamResource, "");
+			Image img = new Image(streamResource, "");
+			img.addClassName(LOGO_IMAGE.getName());
+			return img;
 		} catch (IOException  e)
 		{
 			log.warn(e);

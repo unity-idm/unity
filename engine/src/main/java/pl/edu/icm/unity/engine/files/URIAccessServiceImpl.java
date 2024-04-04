@@ -43,10 +43,10 @@ public class URIAccessServiceImpl implements URIAccessService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, URIAccessServiceImpl.class);
 	
-	private FileDAO fileDao;
-	private boolean restrictFileSystemAccess;
-	private String webContentDir;
-	private RemoteFileNetworkClient fileNetworkClient;
+	private final FileDAO fileDao;
+	private final boolean restrictFileSystemAccess;
+	private final String webContentDir;
+	private final RemoteFileNetworkClient fileNetworkClient;
 
 	@Autowired
 	public URIAccessServiceImpl(UnityServerConfiguration conf, FileDAO fileDao, PKIManagement pkiMan)
@@ -119,7 +119,7 @@ public class URIAccessServiceImpl implements URIAccessService
 		{
 			throw new URIAccessException("Can not read image uri: " + uri, e);
 		}
-		String root = Paths.get(webContentDir, "assets").toFile().getAbsolutePath();
+		String root = Paths.get(webContentDir).toFile().getAbsolutePath();
 
 		try
 		{

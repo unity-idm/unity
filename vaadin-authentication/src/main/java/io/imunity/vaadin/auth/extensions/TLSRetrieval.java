@@ -160,7 +160,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		@Override
 		public Image getImage()
 		{
-			Image image = new Image("../unitygw/img/other/certificate.png", "");
+			Image image = new Image("assets/img/other/certificate.png", "");
 			image.getStyle().set("max-height", "1.65rem");
 			image.getStyle().set("padding-top", "0.25em");
 			return image;

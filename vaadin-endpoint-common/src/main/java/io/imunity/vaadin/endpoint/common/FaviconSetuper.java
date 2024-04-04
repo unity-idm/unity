@@ -24,8 +24,8 @@ public class FaviconSetuper
 	public static void setupFavicon(AppShellSettings settings, UnityServerConfiguration config)
 	{
 		File webContentsFile = config.getFileValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH, true);
-		Path faviconDefFile = webContentsFile.toPath().resolve(Path.of("VAADIN", "favicon.html"));
-		log.debug("Trying to read favicon definitions from {}", faviconDefFile);
+		Path faviconDefFile = webContentsFile.toPath().resolve(Path.of("favicon.html"));
+		log.info("Trying to read favicon definitions from {}", faviconDefFile);
 		if (Files.isReadable(faviconDefFile))
 		{
 			String faviconDefContents = readFile(faviconDefFile);

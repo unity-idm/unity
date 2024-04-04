@@ -30,7 +30,7 @@ public class DropboxProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS, ClientHttpMethod.post.toString());
 		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.dropboxapi.com/2/users/get_current_account");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
-		setIfUnset(properties, prefix + ICON_URL, "../unitygw/img/external/dropbox-small.png");
+		setIfUnset(properties, prefix + ICON_URL, "assets/img/external/dropbox-small.png");
 		setDefaultProfileIfUnset(properties, prefix, "sys:dropbox");
 		return properties;
 	}
