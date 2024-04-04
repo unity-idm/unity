@@ -5,21 +5,28 @@
 
 package io.imunity.console.views.authentication.facilities;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.COG_O;
+import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
+import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM;
+import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM_ITEM;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
 import com.google.common.collect.Sets;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -27,21 +34,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
+
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
-import io.imunity.vaadin.elements.ActionIconBuilder;
 import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.grid.GridWithActionColumn;
+import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
-
-import java.util.Comparator;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.console.views.ViewHeaderActionLayoutFactory.createHeaderActionLayout;
-import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
-import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM;
-import static io.imunity.vaadin.elements.CssClassNames.GRID_DETAILS_FORM_ITEM;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.authentication.facilities", parent = "WebConsoleMenu.authentication")
@@ -51,8 +52,8 @@ public class FacilitiesView extends ConsoleViewComponent
 	private final MessageSource msg;
 	private final AuthenticatorsController controller;
 	private final AuthenticationFlowsController flowsController;
-	private Grid<AuthenticationFlowEntry> flowsGrid;
-	private Grid<AuthenticatorEntry> authenticatorsGrid;
+	private GridWithActionColumn<AuthenticationFlowEntry> flowsGrid;
+	private GridWithActionColumn<AuthenticatorEntry> authenticatorsGrid;
 
 
 	FacilitiesView(MessageSource msg, AuthenticatorsController controller,
@@ -66,43 +67,33 @@ public class FacilitiesView extends ConsoleViewComponent
 
 	private void initUI()
 	{
-		authenticatorsGrid = new Grid<>();
+		authenticatorsGrid = new GridWithActionColumn<>(msg::getMessage, getAuthenticatorsActionsHandlers());
+		authenticatorsGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
 		authenticatorsGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-		authenticatorsGrid.setItemDetailsRenderer(new ComponentRenderer<>(this::getDetailsComponent));
-		Grid.Column<AuthenticatorEntry> authenticatorNameColumn = authenticatorsGrid.addComponentColumn(entry ->
-				{
-					RouterLink label = new RouterLink(entry.authenticator().id, AuthenticatorEditView.class,
-							entry.authenticator().id);
-					return createNameWithDetailsArrow(authenticatorsGrid, entry, label);
-				})
+		Grid.Column<AuthenticatorEntry> authenticatorNameColumn = authenticatorsGrid
+				.addComponentColumn(entry -> new RouterLink(entry.authenticator().id, AuthenticatorEditView.class,
+						entry.authenticator().id))
 				.setHeader(msg.getMessage("AuthenticationFlowsComponent.nameCaption"))
 				.setAutoWidth(true)
 				.setSortable(true)
 				.setComparator(Comparator.comparing(r -> r.authenticator().id));
 		authenticatorsGrid.setItems(controller.getAllAuthenticators());
-		authenticatorsGrid.sort(GridSortOrder.asc(authenticatorNameColumn).build());
-		authenticatorsGrid.addComponentColumn(this::createRowActionMenu)
-				.setHeader(msg.getMessage("actions"))
-				.setTextAlign(ColumnTextAlign.END);
+		authenticatorsGrid.sort(GridSortOrder.asc(authenticatorNameColumn)
+				.build());
 
-		flowsGrid = new Grid<>();
+		flowsGrid = new GridWithActionColumn<>(msg::getMessage, getFlowsActionsHandlers());
+		flowsGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
 		flowsGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
-		flowsGrid.setItemDetailsRenderer(new ComponentRenderer<>(this::getDetailsComponent));
-		Grid.Column<AuthenticationFlowEntry> nameColumn = flowsGrid.addComponentColumn(entry ->
-				{
-					RouterLink label = new RouterLink(entry.flow.getName(), AuthenticationFlowEditView.class,
-							entry.flow.getName());
-					return createNameWithDetailsArrow(flowsGrid, entry, label);
-				})
+		Grid.Column<AuthenticationFlowEntry> nameColumn = flowsGrid
+				.addComponentColumn(entry -> new RouterLink(entry.flow.getName(), AuthenticationFlowEditView.class,
+						entry.flow.getName()))
 				.setHeader(msg.getMessage("AuthenticationFlowsComponent.nameCaption"))
-				.setAutoWidth(true)
+				.setAutoWidth(
+						true)
 				.setSortable(true)
 				.setComparator(Comparator.comparing(r -> r.flow.getName()));
 		flowsGrid.setItems(flowsController.getFlows());
 		flowsGrid.sort(GridSortOrder.asc(nameColumn).build());
-		flowsGrid.addComponentColumn(this::createRowActionMenu)
-				.setHeader(msg.getMessage("actions"))
-				.setTextAlign(ColumnTextAlign.END);
 
 		H3 authenticatorHeader = new H3(msg.getMessage("AuthenticatorsComponent.caption"));
 		H3 authenticationFlowsHeader = new H3(msg.getMessage("AuthenticationFlowsComponent.caption"));
@@ -116,6 +107,47 @@ public class FacilitiesView extends ConsoleViewComponent
 				flowsGrid);
 		main.setSpacing(false);
 		getContent().add(main);
+	}
+	
+	private List<SingleActionHandler<AuthenticatorEntry>> getAuthenticatorsActionsHandlers()
+	{
+		SingleActionHandler<AuthenticatorEntry> edit = SingleActionHandler
+				.builder4Edit(msg::getMessage, AuthenticatorEntry.class)
+				.withHandler(r -> gotoEdit(r.iterator().next())).build();
+
+		SingleActionHandler<AuthenticatorEntry> remove = SingleActionHandler
+				.builder4Delete(msg::getMessage, AuthenticatorEntry.class)
+				.withHandler(r -> tryRemove(r.iterator().next())).build();
+
+		return Arrays.asList(edit, remove);
+
+	}
+
+	private void gotoEdit(AuthenticatorEntry next)
+	{
+		UI.getCurrent()
+				.navigate(AuthenticatorEditView.class, next.authenticator().id);
+	}
+
+	
+	private List<SingleActionHandler<AuthenticationFlowEntry>> getFlowsActionsHandlers()
+	{
+		SingleActionHandler<AuthenticationFlowEntry> edit = SingleActionHandler
+				.builder4Edit(msg::getMessage, AuthenticationFlowEntry.class)
+				.withHandler(r -> gotoEdit(r.iterator().next())).build();
+
+		SingleActionHandler<AuthenticationFlowEntry> remove = SingleActionHandler
+				.builder4Delete(msg::getMessage, AuthenticationFlowEntry.class)
+				.withHandler(r -> tryRemove(r.iterator().next())).build();
+
+		return Arrays.asList(edit, remove);
+
+	}
+
+	private void gotoEdit(AuthenticationFlowEntry e)
+	{
+		UI.getCurrent()
+				.navigate(AuthenticatorEditView.class, e.flow.getName());
 	}
 
 	private FormLayout getDetailsComponent(AuthenticationFlowEntry flow)
@@ -155,44 +187,6 @@ public class FacilitiesView extends ConsoleViewComponent
 		headerLayout.setAlignItems(FlexComponent.Alignment.END);
 		headerLayout.add(new HorizontalLayout(wizard, addButton));
 		return headerLayout;
-	}
-
-	private Component createRowActionMenu(AuthenticatorEntry entry)
-	{
-		Icon generalSettings = new ActionIconBuilder()
-				.icon(EDIT)
-				.tooltipText(msg.getMessage("edit"))
-				.navigation(AuthenticatorEditView.class, entry.authenticator().id)
-				.build();
-
-		Icon remove = new ActionIconBuilder()
-				.icon(TRASH)
-				.tooltipText(msg.getMessage("remove"))
-				.clickListener(() -> tryRemove(entry))
-				.build();
-
-		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, remove);
-		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		return horizontalLayout;
-	}
-
-	private Component createRowActionMenu(AuthenticationFlowEntry entry)
-	{
-		Icon generalSettings = new ActionIconBuilder()
-				.icon(EDIT)
-				.tooltipText(msg.getMessage("edit"))
-				.navigation(AuthenticationFlowEditView.class, entry.flow.getName())
-				.build();
-
-		Icon remove = new ActionIconBuilder()
-				.icon(TRASH)
-				.tooltipText(msg.getMessage("remove"))
-				.clickListener(() -> tryRemove(entry))
-				.build();
-
-		HorizontalLayout horizontalLayout = new HorizontalLayout(generalSettings, remove);
-		horizontalLayout.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
-		return horizontalLayout;
 	}
 
 	private void remove(AuthenticationFlowEntry flow)
@@ -238,16 +232,4 @@ public class FacilitiesView extends ConsoleViewComponent
 				}
 		).open();
 	}
-
-	private static <T> HorizontalLayout createNameWithDetailsArrow(Grid<T> grid, T entry, RouterLink label)
-	{
-		Icon openIcon = VaadinIcon.ANGLE_RIGHT.create();
-		Icon closeIcon = VaadinIcon.ANGLE_DOWN.create();
-		openIcon.setVisible(!grid.isDetailsVisible(entry));
-		closeIcon.setVisible(grid.isDetailsVisible(entry));
-		openIcon.addClickListener(e -> grid.setDetailsVisible(entry, true));
-		closeIcon.addClickListener(e -> grid.setDetailsVisible(entry, false));
-		return new HorizontalLayout(openIcon, closeIcon, label);
-	}
-
 }
