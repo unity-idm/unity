@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.authn;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
@@ -33,6 +33,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.types.authn.DynamicExpressionPolicyConfiguration;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
@@ -44,97 +45,114 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 class AuthenticationProcessorImpl implements AuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AuthenticationProcessorImpl.class);
-	
+
 	private final SecondFactorOptInService secondFactorOptInService;
 	private final LocalCredentialsRegistry localCred;
 	private final CredentialRepository credRepo;
 	private final AuthenticationFlowPolicyConfigMVELContextBuilder policyConfigMVELContextBuilder;
-	
+
 	@Autowired
-	AuthenticationProcessorImpl(
-			SecondFactorOptInService secondFactorOptInService,
-			LocalCredentialsRegistry localCred, CredentialRepository credRepo, AuthenticationFlowPolicyConfigMVELContextBuilder policyConfigMVELContextBuilder)
+	AuthenticationProcessorImpl(SecondFactorOptInService secondFactorOptInService, LocalCredentialsRegistry localCred,
+			CredentialRepository credRepo,
+			AuthenticationFlowPolicyConfigMVELContextBuilder policyConfigMVELContextBuilder)
 	{
 		this.secondFactorOptInService = secondFactorOptInService;
 		this.localCred = localCred;
 		this.credRepo = credRepo;
 		this.policyConfigMVELContextBuilder = policyConfigMVELContextBuilder;
 	}
-	
+
 	/**
-	 * Starting point: the result of the primary authenticator is verified. If the authentication failed
-	 * then an exception is thrown. Otherwise it is checked whether, according to the 
-	 * {@link AuthenticationFlow} selected, second authentication should be performed, what is returned.
+	 * Starting point: the result of the primary authenticator is verified. If the
+	 * authentication failed then an exception is thrown. Otherwise it is checked
+	 * whether, according to the {@link AuthenticationFlow} selected, second
+	 * authentication should be performed, what is returned.
 	 */
 	@Override
-	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, 
+	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result,
 			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId) throws AuthenticationException
 	{
 		if (result.getStatus() != Status.success)
 		{
 			if (result.getStatus() == Status.unknownRemotePrincipal)
-				throw new UnknownRemoteUserException("AuthenticationProcessorImpl.authnFailed", 
-						result.asRemote());
+				throw new UnknownRemoteUserException("AuthenticationProcessorImpl.authnFailed", result.asRemote());
 			throw new AuthenticationException("AuthenticationProcessorImpl.authnFailed");
 		}
-		
-		
+
 		Policy flowPolicy = authenticationFlow.getPolicy();
 		if (flowPolicy.equals(Policy.REQUIRE))
 		{
-			PartialAuthnState partialAuthnState = getSecondFactorAuthn(
-					authenticationFlow, result, authnOptionId);
-			if (partialAuthnState != null)
-				return partialAuthnState;
-
-			throw new AuthenticationException(
-					"AuthenticationProcessorImpl.secondFactorRequire");
-
+			return proccessRequiredPolicy(result, authenticationFlow, authnOptionId);
 		} else if (flowPolicy.equals(Policy.USER_OPTIN))
 		{
+			Optional<PartialAuthnState> retOfUserOptIn = proccessUserOptInPolicy(result, authenticationFlow,
+					authnOptionId);
+			if (retOfUserOptIn.isPresent())
+				return retOfUserOptIn.get();
 
-			PartialAuthnState partialAuthnState = null;
-			if (getUserOptInAttribute(result.getSuccessResult().authenticatedEntity.getEntityId()))
-			{
-				partialAuthnState = getSecondFactorAuthn(authenticationFlow,
-						result, authnOptionId);
-
-				if (partialAuthnState != null)
-					return partialAuthnState;
-
-				throw new AuthenticationException(
-						"AuthenticationProcessorImpl.secondFactorRequire");
-			}
-		} else if (flowPolicy.equals(Policy.DYNAMIC))
+		} else if (flowPolicy.equals(Policy.DYNAMIC_EXPRESSION))
 		{
-			PartialAuthnState partialAuthnState = null;
-			try
-			{
-				if (evaluateCondition(authenticationFlow.getDynamicPolicyMvelCondition(),
-						createMvelContext(result, authnOptionId, authenticationFlow)))
-				{
-					partialAuthnState = getSecondFactorAuthn(authenticationFlow, result, authnOptionId);
-
-					if (partialAuthnState != null)
-						return partialAuthnState;
-
-					throw new AuthenticationException(
-							"AuthenticationProcessorImpl.secondFactorRequire");
-				}
-			} catch (EngineException e)
-			{
-				throw new AuthenticationException("AuthenticationProcessorImpl.authnFailed");
-			}
+			Optional<PartialAuthnState> retOfDynamicPolicy = proccessDynamicPolicy(result, authenticationFlow,
+					authnOptionId);
+			if (retOfDynamicPolicy.isPresent())
+				return retOfDynamicPolicy.get();
 		}
-		// In Future: Risk base policy
+
 		return new PartialAuthnState(authnOptionId, null, result, authenticationFlow);
 	}
 
-	private Map<String, Object> createMvelContext(AuthenticationResult authenticationResult,
-			AuthenticationOptionKey firstFactorOptionId, AuthenticationFlow authenticationFlow) throws EngineException
+	private PartialAuthnState proccessRequiredPolicy(AuthenticationResult result, AuthenticationFlow authenticationFlow,
+			AuthenticationOptionKey authnOptionId) throws AuthenticationException
 	{
-		return policyConfigMVELContextBuilder.createMvelContext(firstFactorOptionId, authenticationResult,
-				getUserOptInAttribute(authenticationResult.getSuccessResult().authenticatedEntity.getEntityId()), authenticationFlow);
+		PartialAuthnState partialAuthnState = getSecondFactorAuthn(authenticationFlow, result, authnOptionId);
+		if (partialAuthnState != null)
+			return partialAuthnState;
+
+		throw new AuthenticationException("AuthenticationProcessorImpl.secondFactorRequire");
+	}
+
+	private Optional<PartialAuthnState> proccessUserOptInPolicy(AuthenticationResult result,
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId) throws AuthenticationException
+	{
+		PartialAuthnState partialAuthnState = null;
+		if (getUserOptInAttribute(result.getSuccessResult().authenticatedEntity.getEntityId()))
+		{
+			partialAuthnState = getSecondFactorAuthn(authenticationFlow, result, authnOptionId);
+
+			if (partialAuthnState != null)
+				return Optional.of(partialAuthnState);
+
+			throw new AuthenticationException("AuthenticationProcessorImpl.secondFactorRequire");
+		}
+		return Optional.empty();
+	}
+
+	private Optional<PartialAuthnState> proccessDynamicPolicy(AuthenticationResult result,
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId) throws AuthenticationException
+	{
+		PartialAuthnState partialAuthnState = null;
+		try
+		{
+			String mvelExpression = ((DynamicExpressionPolicyConfiguration) authenticationFlow
+					.getPolicyConfiguration()).mvelExpression;
+			if (evaluateCondition(mvelExpression,
+					policyConfigMVELContextBuilder.createMvelContext(authnOptionId, result,
+							getUserOptInAttribute(result.getSuccessResult().authenticatedEntity.getEntityId()),
+							authenticationFlow)))
+			{
+				partialAuthnState = getSecondFactorAuthn(authenticationFlow, result, authnOptionId);
+
+				if (partialAuthnState != null)
+					return Optional.of(partialAuthnState);
+
+				throw new AuthenticationException("AuthenticationProcessorImpl.secondFactorRequire");
+			}
+		} catch (EngineException e)
+		{
+			throw new AuthenticationException("AuthenticationProcessorImpl.authnFailed");
+		}
+
+		return Optional.empty();
 	}
 
 	private boolean evaluateCondition(String condition, Object input) throws EngineException
@@ -156,6 +174,8 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 			log.debug("Condition evaluated to null value, assuming false");
 			return false;
 		}
+
+		log.debug("Condition \"{}\" evaluated to {}", condition, result.booleanValue());
 		return result.booleanValue();
 	}
 
@@ -167,25 +187,25 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 		} catch (EngineException e)
 		{
 			log.debug("Can not get user optin attribute for entity " + entityId);
-			//force second factor
+			// force second factor
 			return true;
 		}
 	}
 
-	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, 
-			AuthenticationResult result, AuthenticationOptionKey firstFactorauthnOptionId)
+	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, AuthenticationResult result,
+			AuthenticationOptionKey firstFactorauthnOptionId)
 	{
 		if (result.getSuccessResult().authenticatedEntity == null)
 			return null;
 		AuthenticatorInstance secondFactorAuthenticator = getValidAuthenticatorForEntity(
-				authenticationFlow.getSecondFactorAuthenticators(), 
+				authenticationFlow.getSecondFactorAuthenticators(),
 				result.getSuccessResult().authenticatedEntity.getEntityId());
 		if (secondFactorAuthenticator == null)
 			return null;
-		return new PartialAuthnState(firstFactorauthnOptionId, secondFactorAuthenticator.getRetrieval(), 
-				result, authenticationFlow);
+		return new PartialAuthnState(firstFactorauthnOptionId, secondFactorAuthenticator.getRetrieval(), result,
+				authenticationFlow);
 	}
-	
+
 	@Override
 	public AuthenticatorInstance getValidAuthenticatorForEntity(Collection<AuthenticatorInstance> pool, long entityId)
 	{
@@ -194,7 +214,8 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 			AuthenticatorInstanceMetadata authenticator = authn.getMetadata();
 			if (authenticator != null)
 			{
-				if (!authenticator.getTypeDescription().isLocal())
+				if (!authenticator.getTypeDescription()
+						.isLocal())
 					return authn;
 				else if (checkIfUserHasCredential(authenticator, entityId))
 					return authn;
@@ -202,26 +223,24 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 		}
 		return null;
 	}
-	
-	
-	private boolean checkIfUserHasLocalCredential(long entityId,
-			String credentialId) throws IllegalCredentialException, EngineException
+
+	private boolean checkIfUserHasLocalCredential(long entityId, String credentialId)
+			throws IllegalCredentialException, EngineException
 	{
 
 		CredentialDefinition credentialDefinition = credRepo.get(credentialId);
 		return localCred.createLocalCredentialVerificator(credentialDefinition)
 				.isCredentialSet(new EntityParam(entityId));
 	}
-	
+
 	@Override
 	public boolean checkIfUserHasCredential(AuthenticatorInstanceMetadata authn, long entityId)
 	{
-		
+
 		try
 		{
 			boolean ret = checkIfUserHasLocalCredential(entityId, authn.getLocalCredentialName());
-			log.debug("Check if user {} has defined credential {}: {}", 
-					entityId, authn.getLocalCredentialName(), ret);
+			log.debug("Check if user {} has defined credential {}: {}", entityId, authn.getLocalCredentialName(), ret);
 			return ret;
 		} catch (Exception e)
 		{
@@ -230,41 +249,43 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 		}
 
 	}
-		
+
 	@Override
 	public AuthenticatedEntity finalizeAfterPrimaryAuthentication(PartialAuthnState state, boolean skipSecondFactor)
 	{
 		if (state.isSecondaryAuthenticationRequired() && !skipSecondFactor)
-			throw new IllegalStateException("BUG: code tried to finalize authentication "
-					+ "requiring MFA after first authentication");
-		return state.getPrimaryResult().getSuccessResult().authenticatedEntity;
+			throw new IllegalStateException(
+					"BUG: code tried to finalize authentication " + "requiring MFA after first authentication");
+		return state.getPrimaryResult()
+				.getSuccessResult().authenticatedEntity;
 	}
 
-	
 	@Override
-	public AuthenticatedEntity finalizeAfterSecondaryAuthentication(PartialAuthnState state, 
+	public AuthenticatedEntity finalizeAfterSecondaryAuthentication(PartialAuthnState state,
 			AuthenticationResult result2) throws AuthenticationException
 	{
 		if (!state.isSecondaryAuthenticationRequired())
 			throw new IllegalStateException("BUG: code tried to finalize authentication "
 					+ "with additional authentication while only one was selected");
-		
+
 		if (result2.getStatus() != Status.success)
 		{
 			if (result2.getStatus() == Status.unknownRemotePrincipal)
 				throw new AuthenticationException("AuthenticationProcessorImpl.authnWrongUsers");
 			throw new AuthenticationException("AuthenticationProcessorImpl.authnFailed");
 		}
-		
+
 		Long secondId = result2.getSuccessResult().authenticatedEntity.getEntityId();
-		AuthenticatedEntity firstAuthenticated = state.getPrimaryResult().getSuccessResult().authenticatedEntity; 
+		AuthenticatedEntity firstAuthenticated = state.getPrimaryResult()
+				.getSuccessResult().authenticatedEntity;
 		Long primaryId = firstAuthenticated.getEntityId();
 		if (!secondId.equals(primaryId))
 		{
 			throw new AuthenticationException("AuthenticationProcessorImpl.authnWrongUsers");
 		}
 		AuthenticatedEntity logInfo = result2.getSuccessResult().authenticatedEntity;
-		logInfo.getAuthenticatedWith().addAll(firstAuthenticated.getAuthenticatedWith());
+		logInfo.getAuthenticatedWith()
+				.addAll(firstAuthenticated.getAuthenticatedWith());
 		if (firstAuthenticated.getOutdatedCredentialId() != null)
 			logInfo.setOutdatedCredentialId(firstAuthenticated.getOutdatedCredentialId());
 		return logInfo;

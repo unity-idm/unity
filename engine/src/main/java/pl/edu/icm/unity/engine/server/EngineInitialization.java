@@ -54,6 +54,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyConfigurationMapper;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
 import pl.edu.icm.unity.engine.api.endpoint.ServletProvider;
@@ -857,7 +858,7 @@ public class EngineInitialization extends LifecycleBase
 			}
 
 			AuthenticationFlowDefinition authFlowdef = new AuthenticationFlowDefinition(name, policy,
-					firstFactorAuthnSet, secondFactorAuthnList, policyConfig);
+					firstFactorAuthnSet, secondFactorAuthnList, AuthenticationPolicyConfigurationMapper.map(policy, policyConfig));
 
 			if (!existing.containsKey(name))
 			{

@@ -20,7 +20,7 @@ class DBAuthenticationFlow
 	final Set<String> firstFactorAuthenticators;
 	final List<String> secondFactorAuthenticators;
 	final String policy;
-	final String dynamicPolicyMvelCondition;
+	final String policyConfiguration;
 	final long revision;
 	
 	private DBAuthenticationFlow(Builder builder)
@@ -34,13 +34,13 @@ class DBAuthenticationFlow
 				.orElse(null);
 		this.policy = builder.policy;
 		this.revision = builder.revision;
-		this.dynamicPolicyMvelCondition = builder.dynamicPolicyMvelCondition;
+		this.policyConfiguration = builder.policyConfiguration;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(dynamicPolicyMvelCondition, firstFactorAuthenticators, name, policy, revision,
+		return Objects.hash(policyConfiguration, firstFactorAuthenticators, name, policy, revision,
 				secondFactorAuthenticators);
 	}
 
@@ -54,7 +54,7 @@ class DBAuthenticationFlow
 		if (getClass() != obj.getClass())
 			return false;
 		DBAuthenticationFlow other = (DBAuthenticationFlow) obj;
-		return Objects.equals(dynamicPolicyMvelCondition, other.dynamicPolicyMvelCondition)
+		return Objects.equals(policyConfiguration, other.policyConfiguration)
 				&& Objects.equals(firstFactorAuthenticators, other.firstFactorAuthenticators)
 				&& Objects.equals(name, other.name) && Objects.equals(policy, other.policy)
 				&& revision == other.revision
@@ -76,7 +76,7 @@ class DBAuthenticationFlow
 		private Set<String> firstFactorAuthenticators = Collections.emptySet();
 		private List<String> secondFactorAuthenticators = Collections.emptyList();
 		private String policy;
-		private String dynamicPolicyMvelCondition;
+		private String policyConfiguration;
 		private long revision;
 
 		private Builder()
@@ -107,9 +107,9 @@ class DBAuthenticationFlow
 			return this;
 		}
 		
-		public Builder withDynamicPolicyMvelCondition(String dynamicPolicyMvelCondition)
+		public Builder withPolicyConfiguration(String policyConfiguration)
 		{
-			this.dynamicPolicyMvelCondition = dynamicPolicyMvelCondition;
+			this.policyConfiguration = policyConfiguration;
 			return this;
 		}
 

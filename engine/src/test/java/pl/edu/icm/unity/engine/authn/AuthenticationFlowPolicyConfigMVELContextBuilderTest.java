@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +22,6 @@ import org.mockito.stubbing.Answer;
 
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -47,7 +45,6 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,8 +54,6 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 	private AttributesHelper attributesHelper;
 	@Mock
 	private EntityManagement identitiesMan;
-	@Mock
-	private GroupsManagement groupManagement;
 	@Mock
 	private AttributeValueConverter attrConverter;
 	@Mock
@@ -82,7 +77,7 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 		AuthenticatorInstanceMetadata meta = new AuthenticatorInstanceMetadata();
 		meta.setLocalCredentialName("pass");
 
-		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.DYNAMIC, null,
+		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.DYNAMIC_EXPRESSION, null,
 				List.of(new AuthenticatorImpl(null, null, meta)), null, 0);
 
 		when(attributesHelper.getAttributesInternal(1L, true, "/", null, false))
@@ -93,10 +88,8 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 				.thenReturn(new Entity(List.of(new Identity("type", "val", 1L, "val")), null, new CredentialInfo("id",
 						Map.of("pass", new CredentialPublicInformation(LocalCredentialState.correct, null)))));
 		when(attrConverter.internalValuesToExternal("a1", List.of("v1"))).thenReturn(List.of("v1"));
-		when(identitiesMan.getGroups(new EntityParam(1L)))
-				.thenReturn(Map.of("/g1", new GroupMembership("/g1", 1L, new Date())));
-		when(groupManagement.getGroupsByWildcard("/**")).thenReturn(List.of(new Group("/g1")));
-
+		when(identitiesMan.getGroupsForPresentation(new EntityParam(1L)))
+				.thenReturn(List.of(new Group("/g1")));
 		when(attrConverter.internalValuesToObjectValues("a1", List.of("v1"))).thenAnswer(new Answer<List<?>>()
 		{
 			@Override

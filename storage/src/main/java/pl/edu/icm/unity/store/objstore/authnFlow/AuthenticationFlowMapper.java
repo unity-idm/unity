@@ -18,7 +18,7 @@ class AuthenticationFlowMapper
 				.withName(authenticationFlowDefinition.getName())
 				.withPolicy(authenticationFlowDefinition.getPolicy()
 						.name())
-				.withDynamicPolicyMvelCondition(authenticationFlowDefinition.getPolicyConfiguration())
+				.withPolicyConfiguration(AuthenticationPolicyConfigurationMapper.map(authenticationFlowDefinition.getPolicyConfiguration()))
 				.withRevision(authenticationFlowDefinition.getRevision())
 				.build();
 
@@ -28,7 +28,9 @@ class AuthenticationFlowMapper
 	{
 		AuthenticationFlowDefinition authenticationFlowDefinition = new AuthenticationFlowDefinition(
 				dbAuthenticationFlow.name, Policy.valueOf(dbAuthenticationFlow.policy),
-				dbAuthenticationFlow.firstFactorAuthenticators, dbAuthenticationFlow.secondFactorAuthenticators, dbAuthenticationFlow.dynamicPolicyMvelCondition);
+				dbAuthenticationFlow.firstFactorAuthenticators, dbAuthenticationFlow.secondFactorAuthenticators,
+				AuthenticationPolicyConfigurationMapper.map(Policy.valueOf(dbAuthenticationFlow.policy),
+						dbAuthenticationFlow.policyConfiguration));
 		authenticationFlowDefinition.setRevision(dbAuthenticationFlow.revision);
 		return authenticationFlowDefinition;
 	}

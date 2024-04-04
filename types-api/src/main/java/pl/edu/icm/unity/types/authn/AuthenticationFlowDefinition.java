@@ -25,16 +25,18 @@ import pl.edu.icm.unity.types.NamedObject;
  */
 public class AuthenticationFlowDefinition implements NamedObject
 {
+	public static final AuthenticationPolicyConfiguration EMPTY_CONFIGURATION = new EmptyConfiguration();
+	
 	public enum Policy
 	{
-		REQUIRE, USER_OPTIN, NEVER, DYNAMIC
+		REQUIRE, USER_OPTIN, NEVER, DYNAMIC_EXPRESSION
 	}
-
+	
 	private String name;
 	private Set<String> firstFactorAuthenticators;
 	private List<String> secondFactorAuthenticators;
 	private Policy policy;
-	private String policyConfiguration;
+	private AuthenticationPolicyConfiguration policyConfiguration;
 	private long revision = 0;
 	
 
@@ -44,19 +46,25 @@ public class AuthenticationFlowDefinition implements NamedObject
 	
 	public AuthenticationFlowDefinition(String name, Policy policy,
 			Set<String> firstFactorAuthenticators,
-			List<String> secondFactorAuthenticators, String configuration)
+			List<String> secondFactorAuthenticators, AuthenticationPolicyConfiguration policyConfiguration)
 	{
 		this.name = name;
 		this.firstFactorAuthenticators = firstFactorAuthenticators;
 		this.secondFactorAuthenticators = secondFactorAuthenticators;
 		this.policy = policy;
-		this.policyConfiguration = configuration;
+		this.policyConfiguration = policyConfiguration;
 	}
 	
 	public AuthenticationFlowDefinition(String name, Policy policy,
 			Set<String> firstFactorAuthenticators)
 	{
-		this(name, policy, firstFactorAuthenticators, new ArrayList<>(), null);
+		this(name, policy, firstFactorAuthenticators, new ArrayList<>(), EMPTY_CONFIGURATION);
+	}
+	
+	public AuthenticationFlowDefinition(String name, Policy policy,
+			Set<String> firstFactorAuthenticators, List<String> secondFactorAuthenticators)
+	{
+		this(name, policy, firstFactorAuthenticators, secondFactorAuthenticators, EMPTY_CONFIGURATION);
 	}
 	
 	@JsonIgnore
@@ -119,12 +127,12 @@ public class AuthenticationFlowDefinition implements NamedObject
 		this.revision = revision;
 	}
 	
-	public String getPolicyConfiguration()
+	public AuthenticationPolicyConfiguration getPolicyConfiguration()
 	{
 		return policyConfiguration;
 	}
 
-	public void setPolicyConfiguration(String configuration)
+	public void setPolicyConfiguration(AuthenticationPolicyConfiguration configuration)
 	{
 		this.policyConfiguration = configuration;
 	}
@@ -152,5 +160,9 @@ public class AuthenticationFlowDefinition implements NamedObject
 				&& Objects.equals(secondFactorAuthenticators, other.secondFactorAuthenticators);
 	}
 	
+	private static final class EmptyConfiguration implements AuthenticationPolicyConfiguration
+	{
+		
+	}
 	
 }

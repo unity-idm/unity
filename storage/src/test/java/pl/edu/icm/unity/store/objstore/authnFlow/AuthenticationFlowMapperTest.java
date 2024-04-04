@@ -20,7 +20,7 @@ public class AuthenticationFlowMapperTest extends MapperTestBase<AuthenticationF
 	@Override
 	protected AuthenticationFlowDefinition getFullAPIObject()
 	{
-		return new AuthenticationFlowDefinition("name", Policy.REQUIRE, Set.of("a1"), List.of("a2"), "config");
+		return new AuthenticationFlowDefinition("name", Policy.REQUIRE, Set.of("a1"), List.of("a2"));
 	}
 
 	@Override
@@ -32,7 +32,6 @@ public class AuthenticationFlowMapperTest extends MapperTestBase<AuthenticationF
 				.withRevision(0)
 				.withFirstFactorAuthenticators(Set.of("a1"))
 				.withSecondFactorAuthenticators(List.of("a2"))
-				.withDynamicPolicyMvelCondition("config")
 				.build();
 
 	}

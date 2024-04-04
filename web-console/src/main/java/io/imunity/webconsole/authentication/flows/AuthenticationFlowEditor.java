@@ -19,7 +19,6 @@ import com.vaadin.ui.TextField;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.DynamicPolicyConfigurationMVELContextKey;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
@@ -37,7 +36,7 @@ class AuthenticationFlowEditor extends CustomComponent
 	private TextField name;
 	private ChipsWithDropdown<String> firstFactorAuthenticators;
 	private ChipsWithDropdown<String> secondFactorAuthenticators;
-	private Binder<AuthenticationFlowDefinition> binder;
+	private Binder<AuthenticationFlowDefinitionForBinder> binder;
 	private ComboBox<Policy> policy;
 
 	AuthenticationFlowEditor(MessageSource msg, AuthenticationFlowEntry toEdit, List<String> authenticators)
@@ -66,7 +65,7 @@ class AuthenticationFlowEditor extends CustomComponent
 						.withVars(DynamicPolicyConfigurationMVELContextKey.toMap())
 						.build());
 
-		binder = new Binder<>(AuthenticationFlowDefinition.class);
+		binder = new Binder<>(AuthenticationFlowDefinitionForBinder.class);
 		binder.forField(name)
 				.withValidator(new NoSpaceValidator(msg))
 				.asRequired(msg.getMessage("fieldRequired"))
@@ -89,9 +88,9 @@ class AuthenticationFlowEditor extends CustomComponent
 		policy.addValueChangeListener(v ->
 		{
 			policyConfig.setVisible(v.getValue()
-					.equals(Policy.DYNAMIC));
+					.equals(Policy.DYNAMIC_EXPRESSION));
 			if (!v.getValue()
-					.equals(Policy.DYNAMIC))
+					.equals(Policy.DYNAMIC_EXPRESSION))
 			{
 				policyConfig.clear();
 			}
@@ -127,7 +126,7 @@ class AuthenticationFlowEditor extends CustomComponent
 				.hasErrors();
 	}
 
-	AuthenticationFlowDefinition getAuthenticationFlow()
+	AuthenticationFlowDefinitionForBinder getAuthenticationFlow()
 	{
 		return binder.getBean();
 	}

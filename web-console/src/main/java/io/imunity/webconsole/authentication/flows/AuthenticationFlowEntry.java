@@ -8,8 +8,6 @@ package io.imunity.webconsole.authentication.flows;
 import java.util.Collections;
 import java.util.List;
 
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-
 /**
  * 
  * @author P.Piernik
@@ -17,10 +15,10 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
  */
 class AuthenticationFlowEntry
 {
-	final AuthenticationFlowDefinition flow;
+	final AuthenticationFlowDefinitionForBinder flow;
 	final List<String> endpoints;
 
-	AuthenticationFlowEntry(AuthenticationFlowDefinition flow, List<String> endpoints)
+	AuthenticationFlowEntry(AuthenticationFlowDefinitionForBinder flow, List<String> endpoints)
 	{
 		this.flow = flow;
 		this.endpoints = Collections.unmodifiableList(endpoints == null ? Collections.emptyList() : endpoints);

@@ -34,6 +34,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
+import pl.edu.icm.unity.types.authn.DynamicExpressionPolicyConfiguration;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticationProcessorTest
@@ -62,8 +63,8 @@ public class AuthenticationProcessorTest
 		AuthenticationOptionKey optionKey = new AuthenticationOptionKey("1", "1");
 		AuthenticationResult result = LocalAuthenticationResult
 				.successful(new AuthenticatedEntity(1L, AuthenticationSubject.entityBased(1L), null));
-		AuthenticationFlow authenticationFlow = new AuthenticationFlow("flow", Policy.DYNAMIC, Set.of(),
-				List.of(instance), "hasValid2FCredential == true", 1L);
+		AuthenticationFlow authenticationFlow = new AuthenticationFlow("flow", Policy.DYNAMIC_EXPRESSION, Set.of(),
+				List.of(instance), new DynamicExpressionPolicyConfiguration("hasValid2FCredential == true"), 1L);
 		when(policyConfigMVELContextBuilder.createMvelContext(optionKey, result, false,
 				authenticationFlow)).thenReturn(Map.of("hasValid2FCredential", true));
 		PartialAuthnState processPrimaryAuthnResult = processor.processPrimaryAuthnResult(result, authenticationFlow,
@@ -84,8 +85,8 @@ public class AuthenticationProcessorTest
 		AuthenticationOptionKey optionKey = new AuthenticationOptionKey("1", "1");
 		AuthenticationResult result = LocalAuthenticationResult
 				.successful(new AuthenticatedEntity(1L, AuthenticationSubject.entityBased(1L), null));
-		AuthenticationFlow authenticationFlow = new AuthenticationFlow("flow", Policy.DYNAMIC, Set.of(),
-				List.of(instance), "hasValid2FCredential == true", 1L);
+		AuthenticationFlow authenticationFlow = new AuthenticationFlow("flow", Policy.DYNAMIC_EXPRESSION, Set.of(),
+				List.of(instance), new DynamicExpressionPolicyConfiguration("hasValid2FCredential == true"), 1L);
 		when(policyConfigMVELContextBuilder.createMvelContext(optionKey, result, false,
 				authenticationFlow)).thenReturn(Map.of("hasValid2FCredential", false));
 		PartialAuthnState processPrimaryAuthnResult = processor.processPrimaryAuthnResult(result, authenticationFlow,

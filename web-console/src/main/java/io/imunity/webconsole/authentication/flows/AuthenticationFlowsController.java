@@ -17,6 +17,7 @@ import io.imunity.webconsole.common.EndpointController;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyConfigurationMapper;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -58,12 +59,12 @@ public class AuthenticationFlowsController
 		}
 	}
 
-	void addFlow(AuthenticationFlowDefinition flow) throws ControllerException
+	void addFlow(AuthenticationFlowDefinitionForBinder flow) throws ControllerException
 
 	{
 		try
 		{
-			flowMan.addAuthenticationFlow(flow);
+			flowMan.addAuthenticationFlow(map(flow));
 		} catch (Exception e)
 		{
 			throw new ControllerException(
@@ -71,12 +72,12 @@ public class AuthenticationFlowsController
 		}
 	}
 
-	void updateFlow(AuthenticationFlowDefinition flow) throws ControllerException
+	void updateFlow(AuthenticationFlowDefinitionForBinder flow) throws ControllerException
 
 	{
 		try
 		{
-			flowMan.updateAuthenticationFlow(flow);
+			flowMan.updateAuthenticationFlow(map(flow));
 		} catch (Exception e)
 		{
 			throw new ControllerException(
@@ -84,7 +85,7 @@ public class AuthenticationFlowsController
 		}
 	}
 
-	void removeFlow(AuthenticationFlowDefinition flow) throws ControllerException
+	void removeFlow(AuthenticationFlowDefinitionForBinder flow) throws ControllerException
 	{
 		try
 		{
@@ -113,7 +114,7 @@ public class AuthenticationFlowsController
 
 		for (AuthenticationFlowDefinition flow : flows)
 		{
-			ret.add(new AuthenticationFlowEntry(flow, filterEndpoints(flow.getName(), endpoints)));
+			ret.add(new AuthenticationFlowEntry(map(flow), filterEndpoints(flow.getName(), endpoints)));
 		}
 
 		return ret;
@@ -126,7 +127,7 @@ public class AuthenticationFlowsController
 
 		try
 		{
-			return new AuthenticationFlowEntry(flowMan.getAuthenticationFlow(flowName),
+			return new AuthenticationFlowEntry(map(flowMan.getAuthenticationFlow(flowName)),
 					filterEndpoints(flowName, endpoints));
 		} catch (Exception e)
 		{
@@ -141,6 +142,20 @@ public class AuthenticationFlowsController
 				.filter(e -> e.getEndpoint().getConfiguration().getAuthenticationOptions() != null
 						&& e.getEndpoint().getConfiguration().getAuthenticationOptions().contains(flowName))
 				.map(e -> e.getName()).sorted().collect(Collectors.toList());
+	}
+	
+	private AuthenticationFlowDefinition map(AuthenticationFlowDefinitionForBinder flow)
+	{
+		return new AuthenticationFlowDefinition(flow.getName(), flow.getPolicy(), flow.getFirstFactorAuthenticators(),
+				flow.getSecondFactorAuthenticators(),
+				AuthenticationPolicyConfigurationMapper.map(flow.getPolicy(), flow.getPolicyConfiguration()));
+	}
+
+	private AuthenticationFlowDefinitionForBinder map(AuthenticationFlowDefinition flow)
+	{
+		return new AuthenticationFlowDefinitionForBinder(flow.getName(), flow.getPolicy(),
+				flow.getFirstFactorAuthenticators(), flow.getSecondFactorAuthenticators(),
+				AuthenticationPolicyConfigurationMapper.map(flow.getPolicyConfiguration()));
 	}
 
 }
