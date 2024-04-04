@@ -106,6 +106,7 @@ public class SAMLIdPConfigurationParserTest
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + POST_LOGOUT_RET_URL, "postRetUrl");
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + SOAP_LOGOUT_URL, "soapUrl");
 
+		p.setProperty(P+SEND_NOT_BEFORE_CONSTRAINT, "true");
 
 		PKIManagement pkiManagement = mock(PKIManagement.class);
 		X509Certificate x509Certificatecertificate = mock(X509Certificate.class);
@@ -163,6 +164,8 @@ public class SAMLIdPConfigurationParserTest
 						.withSoapLogoutUrl("soapUrl")
 						.build()
 		);
+		assertThat(configuration.sendNotBeforeConstraint).isEqualTo(true);
+
 	}
 
 	private static IdpPolicyAgreementsConfiguration getIdpPolicyAgreementsConfiguration()
