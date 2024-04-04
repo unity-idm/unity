@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -22,18 +21,17 @@ import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
+import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.authn.DynamicPolicyConfigurationMVELContextKey;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
@@ -42,18 +40,15 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 {
 	private final AttributesHelper attributesHelper;
 	private final EntityManagement identitiesMan;
-	private final GroupsManagement groupManagement;
 	private final AttributeValueConverter attrConverter;
 	private final TransactionalRunner tx;
 
 	AuthenticationFlowPolicyConfigMVELContextBuilder(AttributesHelper attributesHelper,
-			@Qualifier("insecure") EntityManagement identitiesMan,
-			@Qualifier("insecure") GroupsManagement groupManagement, AttributeValueConverter attrConverter,
+			@Qualifier("insecure") EntityManagement identitiesMan, AttributeValueConverter attrConverter,
 			TransactionalRunner tx)
 	{
 		this.attributesHelper = attributesHelper;
 		this.identitiesMan = identitiesMan;
-		this.groupManagement = groupManagement;
 		this.attrConverter = attrConverter;
 		this.tx = tx;
 	}
@@ -62,39 +57,16 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 			AuthenticationResult authenticationSuccessResult, boolean userOptIn, AuthenticationFlow authenticationFlow)
 			throws EngineException
 	{
-		Map<String, Object> ret = new HashMap<>();
 
-		EntityParam entity = new EntityParam(authenticationSuccessResult.getSuccessResult().authenticatedEntity.getEntityId());
-		Set<String> allGroups = identitiesMan.getGroups(entity)
-				.keySet();
-		List<Group> resolvedGroups = groupManagement.getGroupsByWildcard("/**")
+		EntityParam entityParam = new EntityParam(
+				authenticationSuccessResult.getSuccessResult().authenticatedEntity.getEntityId());
+		Entity entity = identitiesMan.getEntity(entityParam);
+		List<String> resolvedGroups = identitiesMan.getGroupsForPresentation(entityParam)
 				.stream()
-				.filter(grp -> allGroups.contains(grp.getName()))
-				.collect(Collectors.toList());
-		Collection<AttributeExt> allAttributes = tx.runInTransactionRetThrowing(
-				() -> attributesHelper.getAttributesInternal(entity.getEntityId(), true, "/", null, false));
-
-		addAttributesToContext(DynamicPolicyConfigurationMVELContextKey.attr.name(),
-				DynamicPolicyConfigurationMVELContextKey.attrObj.name(), ret, allAttributes, attrConverter);
-
-		Map<String, List<String>> idsByType = new HashMap<>();
-		for (Identity id : identitiesMan.getEntity(entity)
-				.getIdentities())
-		{
-			List<String> vals = idsByType.get(id.getTypeId());
-			if (vals == null)
-			{
-				vals = new ArrayList<>();
-				idsByType.put(id.getTypeId(), vals);
-			}
-			vals.add(id.getValue());
-		}
-		ret.put(DynamicPolicyConfigurationMVELContextKey.idsByType.name(), idsByType);
-
-		List<String> groupNames = resolvedGroups.stream()
 				.map(group -> group.getName())
 				.collect(Collectors.toList());
-		ret.put(DynamicPolicyConfigurationMVELContextKey.groups.name(), groupNames);
+		Collection<AttributeExt> allAttributes = tx.runInTransactionRetThrowing(
+				() -> attributesHelper.getAttributesInternal(entityParam.getEntityId(), true, "/", null, false));
 
 		RemoteAuthnMetadata context = null;
 		if (authenticationSuccessResult.isRemote())
@@ -105,6 +77,21 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 					.getAuthnInput()
 					.getRemoteAuthnMetadata();
 		}
+
+		return setupContext(entity, context, allAttributes, resolvedGroups, userOptIn, authenticationFlow,
+				firstFactorOptionId);
+
+	}
+
+	private Map<String, Object> setupContext(Entity entity, RemoteAuthnMetadata context,
+			Collection<AttributeExt> allAttributes, List<String> groupNames, boolean userOptIn,
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey firstFactorOptionId) throws EngineException
+	{
+		Map<String, Object> ret = new HashMap<>();
+		addAttributesToContext(DynamicPolicyConfigurationMVELContextKey.attr.name(),
+				DynamicPolicyConfigurationMVELContextKey.attrObj.name(), ret, allAttributes, attrConverter);
+		ret.put(DynamicPolicyConfigurationMVELContextKey.idsByType.name(), getIdentitiesByType(entity));
+		ret.put(DynamicPolicyConfigurationMVELContextKey.groups.name(), groupNames);
 		ret.putAll(getAuthnContextMvelVariables(context));
 		ret.put(DynamicPolicyConfigurationMVELContextKey.userOptIn.name(), userOptIn);
 		ret.put(DynamicPolicyConfigurationMVELContextKey.authentication1F.name(),
@@ -115,7 +102,23 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 		return ret;
 	}
 
-	private static Map<String, Object> getAuthnContextMvelVariables(RemoteAuthnMetadata authnContext)
+	private Map<String, List<String>> getIdentitiesByType(Entity entity)
+	{
+		Map<String, List<String>> idsByType = new HashMap<>();
+		for (Identity id : entity.getIdentities())
+		{
+			List<String> vals = idsByType.get(id.getTypeId());
+			if (vals == null)
+			{
+				vals = new ArrayList<>();
+				idsByType.put(id.getTypeId(), vals);
+			}
+			vals.add(id.getValue());
+		}
+		return idsByType;
+	}
+
+	private Map<String, Object> getAuthnContextMvelVariables(RemoteAuthnMetadata authnContext)
 	{
 		Map<String, Object> ret = new HashMap<>();
 
@@ -127,7 +130,8 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 		{
 			acrs.addAll(authnContext.classReferences());
 			upstreamIdP = authnContext.remoteIdPId();
-			upstreamProtocol = authnContext.protocol().name();
+			upstreamProtocol = authnContext.protocol()
+					.name();
 		}
 
 		ret.put(DynamicPolicyConfigurationMVELContextKey.upstreamACRs.name(), acrs);
@@ -136,7 +140,7 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 		return ret;
 	}
 
-	private static void addAttributesToContext(String attrKey, String attrObjKey, Map<String, Object> ret,
+	private void addAttributesToContext(String attrKey, String attrObjKey, Map<String, Object> ret,
 			Collection<AttributeExt> attributes, AttributeValueConverter attrConverter)
 			throws IllegalAttributeValueException
 	{
@@ -155,11 +159,9 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 		ret.put(attrObjKey, attrObj);
 	}
 
-	private boolean hasValid2FCredential(EntityParam entity, AuthenticationFlow authenticationFlow)
-			throws EngineException
+	private boolean hasValid2FCredential(Entity entity, AuthenticationFlow authenticationFlow) throws EngineException
 	{
-		Map<String, CredentialPublicInformation> userCredentialsState = identitiesMan.getEntity(entity)
-				.getCredentialInfo()
+		Map<String, CredentialPublicInformation> userCredentialsState = entity.getCredentialInfo()
 				.getCredentialsState();
 
 		for (AuthenticatorInstance authenticator : authenticationFlow.getSecondFactorAuthenticators())

@@ -5,17 +5,15 @@
 
 package io.imunity.console.views.authentication.facilities;
 
-import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
-
 import java.util.Collections;
 import java.util.List;
 
 class AuthenticationFlowEntry
 {
-	final AuthenticationFlowDefinition flow;
+	final AuthenticationFlowDefinitionForBinder flow;
 	final List<String> endpoints;
 
-	AuthenticationFlowEntry(AuthenticationFlowDefinition flow, List<String> endpoints)
+	AuthenticationFlowEntry(AuthenticationFlowDefinitionForBinder flow, List<String> endpoints)
 	{
 		this.flow = flow;
 		this.endpoints = Collections.unmodifiableList(endpoints == null ? Collections.emptyList() : endpoints);

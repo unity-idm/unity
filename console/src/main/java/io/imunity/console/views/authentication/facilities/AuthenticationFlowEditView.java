@@ -50,7 +50,7 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 	private final AuthenticationFlowsController flowsController;
 	private boolean edit;
 	private BreadCrumbParameter breadCrumbParameter;
-	private Binder<AuthenticationFlowDefinition> binder;
+	private Binder<AuthenticationFlowDefinitionForBinder> binder;
 	private final HtmlTooltipFactory htmlTooltipFactory;
 
 	AuthenticationFlowEditView(MessageSource msg, AuthenticationFlowsController flowsController, HtmlTooltipFactory htmlTooltipFactory)
@@ -68,7 +68,7 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 		AuthenticationFlowEntry definition;
 		if(flowName == null)
 		{
-			AuthenticationFlowDefinition flow = new AuthenticationFlowDefinition("", AuthenticationFlowDefinition.Policy.REQUIRE, Set.of(), List.of(), null);
+			AuthenticationFlowDefinitionForBinder flow = new AuthenticationFlowDefinitionForBinder(msg.getMessage("AuthenticationFlow.defaultName"), AuthenticationFlowDefinition.Policy.REQUIRE, Set.of(), List.of(), null);
 			definition = new AuthenticationFlowEntry(flow, List.of());
 			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			edit = false;
@@ -91,7 +91,6 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 	private void initUI(AuthenticationFlowEntry toEdit, List<String> authenticators)
 	{
 		TextField name = new TextField();
-		name.setPlaceholder(msg.getMessage("AuthenticationFlow.defaultName"));
 		name.setWidth(TEXT_FIELD_BIG.value());
 		name.setReadOnly(edit);
 
@@ -113,24 +112,24 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 						.build(), htmlTooltipFactory);
 		
 		
-		binder = new Binder<>(AuthenticationFlowDefinition.class);
+		binder = new Binder<>(AuthenticationFlowDefinitionForBinder.class);
 		binder.forField(name)
 				.withValidator(((value, context) -> value != null && value.contains(" ") ? ValidationResult.error(msg.getMessage("NoSpaceValidator.noSpace")) : ValidationResult.ok()))
 				.asRequired(msg.getMessage("fieldRequired"))
-				.bind(AuthenticationFlowDefinition::getName, AuthenticationFlowDefinition::setName);
+				.bind(AuthenticationFlowDefinitionForBinder::getName, AuthenticationFlowDefinitionForBinder::setName);
 		binder.forField(firstFactorAuthenticators)
 				.withValidator((value, context) -> value == null || value.isEmpty() ? ValidationResult.error(msg.getMessage("fieldRequired")) : ValidationResult.ok())
 				.asRequired(msg.getMessage("fieldRequired"))
-				.bind(AuthenticationFlowDefinition::getFirstFactorAuthenticators, AuthenticationFlowDefinition::setFirstFactorAuthenticators);
+				.bind(AuthenticationFlowDefinitionForBinder::getFirstFactorAuthenticators, AuthenticationFlowDefinitionForBinder::setFirstFactorAuthenticators);
 		binder.forField(secondFactorAuthenticators)
 				.withConverter(c -> (List<String>) new ArrayList<>(c), HashSet::new)
-				.bind(AuthenticationFlowDefinition::getSecondFactorAuthenticators, AuthenticationFlowDefinition::setSecondFactorAuthenticators);
+				.bind(AuthenticationFlowDefinitionForBinder::getSecondFactorAuthenticators, AuthenticationFlowDefinitionForBinder::setSecondFactorAuthenticators);
 		binder.forField(policy)
-				.bind(AuthenticationFlowDefinition::getPolicy, AuthenticationFlowDefinition::setPolicy);
+				.bind(AuthenticationFlowDefinitionForBinder::getPolicy, AuthenticationFlowDefinitionForBinder::setPolicy);
 		binder.forField(policy)
-				.bind(AuthenticationFlowDefinition::getPolicy, AuthenticationFlowDefinition::setPolicy);
+				.bind(AuthenticationFlowDefinitionForBinder::getPolicy, AuthenticationFlowDefinitionForBinder::setPolicy);
 		binder.forField(policyConfig)
-				.bind(AuthenticationFlowDefinition::getDynamicPolicyMvelCondition, AuthenticationFlowDefinition::setDynamicPolicyMvelCondition);
+				.bind(AuthenticationFlowDefinitionForBinder::getPolicyConfiguration, AuthenticationFlowDefinitionForBinder::setPolicyConfiguration);
 
 		FormLayout mainLayout = new FormLayout();
 		mainLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
@@ -144,9 +143,9 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 		policy.addValueChangeListener(v ->
 		{
 			formItem.setVisible(v.getValue()
-					.equals(Policy.DYNAMIC));
+					.equals(Policy.DYNAMIC_EXPRESSION));
 			if (!v.getValue()
-					.equals(Policy.DYNAMIC))
+					.equals(Policy.DYNAMIC_EXPRESSION))
 			{
 				policyConfig.clear();
 			}
@@ -169,7 +168,7 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 		binder.validate();
 		if(binder.isValid())
 		{
-			AuthenticationFlowDefinition bean = binder.getBean();
+			AuthenticationFlowDefinitionForBinder bean = binder.getBean();
 			if(edit)
 				flowsController.updateFlow(bean);
 			else

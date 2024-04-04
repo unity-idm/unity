@@ -11,6 +11,7 @@ import java.util.Set;
 
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.base.authn.AuthenticationPolicyConfiguration;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 
@@ -30,19 +31,19 @@ public class AuthenticationFlow
 	private Set<AuthenticatorInstance> firstFactorAuthenticators;
 	private List<AuthenticatorInstance> secondFactorAuthenticators;
 	private Policy policy;
-	private String dynamicPolicyMvelCondition;
+	private AuthenticationPolicyConfiguration policyConfiguration;
 	private String name;
 	private long revision;
 
 	public AuthenticationFlow(String name, Policy policy,
 			Set<AuthenticatorInstance> firstFactorAuthenticators,
-			List<AuthenticatorInstance> secondFactorAuthenticators, String dynamicPolicyMvelCondition, long revision)
+			List<AuthenticatorInstance> secondFactorAuthenticators, AuthenticationPolicyConfiguration policyConfiguration, long revision)
 	{
 		this.name = name;
 		this.policy = policy;
 		this.firstFactorAuthenticators = firstFactorAuthenticators;
 		this.secondFactorAuthenticators = secondFactorAuthenticators;
-		this.dynamicPolicyMvelCondition = dynamicPolicyMvelCondition;
+		this.policyConfiguration = policyConfiguration;
 		this.revision = revision;
 	}
 
@@ -69,9 +70,9 @@ public class AuthenticationFlow
 		return policy;
 	}
 	
-	public String getDynamicPolicyMvelCondition()
+	public AuthenticationPolicyConfiguration getPolicyConfiguration()
 	{
-		return dynamicPolicyMvelCondition;
+		return policyConfiguration;
 	}
 	
 	public void destroy()

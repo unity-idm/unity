@@ -96,7 +96,7 @@ public class AuthenticatorLoader
 			ret.add(new AuthenticationFlow(authenticationFlowDefinition.getName(),
 					authenticationFlowDefinition.getPolicy(),
 					Sets.newLinkedHashSet(firstFactorAuthImpl),
-					secondFactorFactorAuthImpl,  authenticationFlowDefinition.getDynamicPolicyMvelCondition(), authenticationFlowDefinition.getRevision()));
+					secondFactorFactorAuthImpl,  authenticationFlowDefinition.getPolicyConfiguration(), authenticationFlowDefinition.getRevision()));
 		}
 		return ret;
 	}
