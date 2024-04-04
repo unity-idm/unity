@@ -804,6 +804,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				&& hasRemoteGroup;
 
 		GroupMultiComboBox groupMultiComboBox = new GroupMultiComboBox(msg);
+		groupMultiComboBox.setMultiSelect(groupParam.isMultiSelect());
 		groupMultiComboBox.setWidthFull();
 		groupMultiComboBox.setLabel(groupParam.getLabel());
 		groupMultiComboBox.setRequired(isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));

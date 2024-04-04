@@ -62,12 +62,6 @@ public class GroupMultiComboBox extends MultiSelectComboBox<GroupTreeNode>
 			
 		});
 	}
-	
-//	GroupTreeNode getSelected(String path)
-//	{
-//		ListDataProvider<GroupTreeNode> dataProvider = (ListDataProvider<GroupTreeNode>) getDataProvider();
-//		return dataProvider.getItems().stream().filter(g -> g.group.getPathEncoded().equals(path)).findFirst().get();
-//	}
 
 	public List<String> getSelectedGroupsWithoutParents()
 	{
