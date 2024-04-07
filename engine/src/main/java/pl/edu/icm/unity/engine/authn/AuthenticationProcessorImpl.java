@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.authn;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
@@ -80,25 +79,19 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 		}
 
 		Policy flowPolicy = authenticationFlow.getPolicy();
-		if (flowPolicy.equals(Policy.REQUIRE))
+		switch (flowPolicy)
 		{
+		case REQUIRE:
 			return proccessRequiredPolicy(result, authenticationFlow, authnOptionId);
-		} else if (flowPolicy.equals(Policy.USER_OPTIN))
-		{
-			Optional<PartialAuthnState> retOfUserOptIn = proccessUserOptInPolicy(result, authenticationFlow,
-					authnOptionId);
-			if (retOfUserOptIn.isPresent())
-				return retOfUserOptIn.get();
-
-		} else if (flowPolicy.equals(Policy.DYNAMIC_EXPRESSION))
-		{
-			Optional<PartialAuthnState> retOfDynamicPolicy = proccessDynamicPolicy(result, authenticationFlow,
-					authnOptionId);
-			if (retOfDynamicPolicy.isPresent())
-				return retOfDynamicPolicy.get();
+		case DYNAMIC_EXPRESSION:
+			return proccessDynamicPolicy(result, authenticationFlow, authnOptionId);
+		case USER_OPTIN:
+			return proccessUserOptInPolicy(result, authenticationFlow, authnOptionId);
+		case NEVER:
+			return new PartialAuthnState(authnOptionId, null, result, authenticationFlow);
+		default:
+			return new PartialAuthnState(authnOptionId, null, result, authenticationFlow);
 		}
-
-		return new PartialAuthnState(authnOptionId, null, result, authenticationFlow);
 	}
 
 	private PartialAuthnState proccessRequiredPolicy(AuthenticationResult result, AuthenticationFlow authenticationFlow,
@@ -111,7 +104,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 		throw new AuthenticationException("AuthenticationProcessorImpl.secondFactorRequire");
 	}
 
-	private Optional<PartialAuthnState> proccessUserOptInPolicy(AuthenticationResult result,
+	private PartialAuthnState proccessUserOptInPolicy(AuthenticationResult result,
 			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId) throws AuthenticationException
 	{
 		PartialAuthnState partialAuthnState = null;
@@ -120,14 +113,14 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 			partialAuthnState = getSecondFactorAuthn(authenticationFlow, result, authnOptionId);
 
 			if (partialAuthnState != null)
-				return Optional.of(partialAuthnState);
+				return partialAuthnState;
 
 			throw new AuthenticationException("AuthenticationProcessorImpl.secondFactorRequire");
 		}
-		return Optional.empty();
+		return new PartialAuthnState(authnOptionId, null, result, authenticationFlow);
 	}
 
-	private Optional<PartialAuthnState> proccessDynamicPolicy(AuthenticationResult result,
+	private PartialAuthnState proccessDynamicPolicy(AuthenticationResult result,
 			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId) throws AuthenticationException
 	{
 		PartialAuthnState partialAuthnState = null;
@@ -143,7 +136,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 				partialAuthnState = getSecondFactorAuthn(authenticationFlow, result, authnOptionId);
 
 				if (partialAuthnState != null)
-					return Optional.of(partialAuthnState);
+					return partialAuthnState;
 
 				throw new AuthenticationException("AuthenticationProcessorImpl.secondFactorRequire");
 			}
@@ -152,7 +145,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 			throw new AuthenticationException("AuthenticationProcessorImpl.authnFailed");
 		}
 
-		return Optional.empty();
+		return new PartialAuthnState(authnOptionId, null, result, authenticationFlow);
 	}
 
 	private boolean evaluateCondition(String condition, Object input) throws EngineException
