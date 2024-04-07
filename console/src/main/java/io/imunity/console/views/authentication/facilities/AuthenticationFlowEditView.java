@@ -66,14 +66,15 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 		getContent().removeAll();
 
 		AuthenticationFlowEntry definition;
-		if(flowName == null)
+		if (flowName == null)
 		{
-			AuthenticationFlowDefinitionForBinder flow = new AuthenticationFlowDefinitionForBinder(msg.getMessage("AuthenticationFlow.defaultName"), AuthenticationFlowDefinition.Policy.REQUIRE, Set.of(), List.of(), null);
+			AuthenticationFlowDefinitionForBinder flow = new AuthenticationFlowDefinitionForBinder(
+					msg.getMessage("AuthenticationFlow.defaultName"), AuthenticationFlowDefinition.Policy.REQUIRE,
+					Set.of(), List.of(), null);
 			definition = new AuthenticationFlowEntry(flow, List.of());
 			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 			edit = false;
-		}
-		else
+		} else
 		{
 			definition = flowsController.getFlow(flowName);
 			breadCrumbParameter = new BreadCrumbParameter(flowName, flowName);
