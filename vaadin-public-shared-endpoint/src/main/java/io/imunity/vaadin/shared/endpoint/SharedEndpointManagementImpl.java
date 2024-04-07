@@ -88,12 +88,13 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		this.advertisedAddress = advertisedAddrProvider.get();
 	}
 
-
+	@Override
 	public String getServerAddress()
 	{
 		return advertisedAddress.toExternalForm();
 	}
 	
+	@Override
 	public void deployInternalEndpointServlet(String contextPath, ServletHolder servlet, boolean mapVaadinResource)
 			throws EngineException
 	{
@@ -105,7 +106,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 				CONTEXT_PATH + contextPath);
 	}
 
-
+	@Override
 	public void deployInternalEndpointFilter(String contextPath, FilterHolder filter)
 	{
 		sharedHandler.addFilter(filter, contextPath + "/*", EnumSet.of(DispatcherType.REQUEST));
@@ -113,11 +114,13 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 				CONTEXT_PATH + contextPath);
 	}
 	
+	@Override
 	public String getBaseContextPath()
 	{
 		return CONTEXT_PATH;
 	}
 	
+	@Override
 	public String getServletUrl(String servletPath)
 	{
 		return advertisedAddress.toExternalForm() +
@@ -125,8 +128,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 				servletPath;
 	}
 	
-
-	protected String getWebContentsDir(UnityServerConfiguration config)
+	private String getWebContentsDir(UnityServerConfiguration config)
 	{
 		if (config.isSet(UnityServerConfiguration.UNITYGW_WEB_CONTENT_PATH))
 			return config.getValue(UnityServerConfiguration.UNITYGW_WEB_CONTENT_PATH);

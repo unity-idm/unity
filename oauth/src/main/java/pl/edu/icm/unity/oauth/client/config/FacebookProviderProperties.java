@@ -33,7 +33,7 @@ public class FacebookProviderProperties extends CustomProviderProperties
 				+ "last_name,locale,middle_name,public_key,timezone,website");
 		setIfUnset(properties, prefix + SCOPES, "email public_profile");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
-		setIfUnset(properties, prefix + ICON_URL, "../unitygw/img/external/FB-small.png");
+		setIfUnset(properties, prefix + ICON_URL, "assets/img/external/FB-small.png");
 		setDefaultProfileIfUnset(properties, prefix, "sys:facebook");
 		return properties;
 	}

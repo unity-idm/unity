@@ -16,8 +16,6 @@ Let's consider an example of a configuration of the OAuth2 verificator
 in file +conf/authenticators/remoteOAuth.properties+:
 
 ----
-unity.oauth2.client.displayName=OAuth2 authentication
-
 unity.oauth2.client.providers.fb.type=facebook
 unity.oauth2.client.providers.fb.clientId=UNITY_APP_ID_FROM_FACEBOOK
 unity.oauth2.client.providers.fb.clientSecret=UNITY_APP_SECRET_FROM_FACEBOOK

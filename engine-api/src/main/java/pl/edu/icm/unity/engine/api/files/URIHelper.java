@@ -21,7 +21,7 @@ import java.util.Set;
 public class URIHelper
 {
 	public static final Set<String> SUPPORTED_LOCAL_FILE_SCHEMES = new HashSet<>(
-			Arrays.asList("file", "unity.internal"));
+			Arrays.asList("file", URIAccessService.UNITY_FILE_URI_SCHEMA));
 	
 	public static final Set<String> SUPPORTED_URL_SCHEMES = new HashSet<>(
 			Arrays.asList("data", "http", "https"));
@@ -44,12 +44,10 @@ public class URIHelper
 	{
 		String scheme = uri.getScheme();
 
-		if (scheme == null || scheme.isEmpty() || SUPPORTED_LOCAL_FILE_SCHEMES.contains(scheme) || SUPPORTED_URL_SCHEMES.contains(scheme))
-			
-		{
+		if (scheme == null || scheme.isEmpty() || SUPPORTED_LOCAL_FILE_SCHEMES.contains(scheme) 
+				|| SUPPORTED_URL_SCHEMES.contains(scheme))
 			return;
-		}
-		throw new IllegalURIException("Unknown scheme");
+		throw new IllegalURIException("Unknown scheme: " + scheme);
 	}
 
 	public static boolean isWebReady(String rawURI)
@@ -81,12 +79,7 @@ public class URIHelper
 	public static boolean isWebReady(URI uri)
 	{
 		if (uri != null && uri.getScheme() != null)
-		{
-			String scheme = uri.getScheme();
-			return SUPPORTED_URL_SCHEMES.contains(scheme);
-		}
-		if(uri != null && uri.getPath().startsWith("../unitygw/"))
-			return true;
+			return SUPPORTED_URL_SCHEMES.contains(uri.getScheme());
 		return false;
 	}
 

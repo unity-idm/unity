@@ -25,7 +25,7 @@ public class UnityProviderProperties extends CustomProviderProperties
 	private static Properties addDefaults(Properties properties, String prefix)
 	{
 		setIfUnset(properties, prefix + PROVIDER_NAME, "UnityIdM");
-		setIfUnset(properties, prefix + ICON_URL, "../unitygw/img/other/logo-hand.png");
+		setIfUnset(properties, prefix + ICON_URL, "assets/img/other/logo-square.png");
 		setDefaultProfileIfUnset(properties, prefix, "sys:oidc");
 		setIfUnset(properties, prefix + OPENID_CONNECT, "true");
 		return properties;

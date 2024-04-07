@@ -30,7 +30,7 @@ public class MicrosoftAzureV2ProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + OPENID_CONNECT, "true");
 		setIfUnset(properties, prefix + OPENID_DISCOVERY, "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration");
 		setIfUnset(properties, prefix + SCOPES, "openid email profile https://graph.microsoft.com/user.read");
-		setIfUnset(properties, prefix + ICON_URL, "../unitygw/img/external/ms-small.png");
+		setIfUnset(properties, prefix + ICON_URL, "assets/img/external/ms-small.png");
 		setDefaultProfileIfUnset(properties, prefix, "sys:microsoftAzure-v2");
 		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://graph.microsoft.com/v1.0/me");
 		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, "secretBasic");
