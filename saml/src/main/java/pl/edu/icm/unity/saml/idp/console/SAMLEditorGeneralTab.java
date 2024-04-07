@@ -250,11 +250,11 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 				.bind(SAMLServiceConfiguration::getRequestAcceptancePolicy, SAMLServiceConfiguration::setRequestAcceptancePolicy);
 		mainGeneralLayout.addFormItem(acceptPolicy, msg.getMessage("SAMLEditorGeneralTab.acceptPolicy"));
 
-		Checkbox sendNotBefore = new Checkbox(
-				msg.getMessage("SAMLEditorGeneralTab.sendNotBefore"));
-		configBinder.forField(sendNotBefore)
-				.bind(SAMLServiceConfiguration::isSendNotBeforeConstraint, SAMLServiceConfiguration::setSendNotBeforeConstraint);
-		mainGeneralLayout.addFormItem(sendNotBefore, "");
+		Checkbox setNotBefore = new Checkbox(
+				msg.getMessage("SAMLEditorGeneralTab.setNotBefore"));
+		configBinder.forField(setNotBefore)
+				.bind(SAMLServiceConfiguration::isSetNotBeforeConstraint, SAMLServiceConfiguration::setSetNotBeforeConstraint);
+		mainGeneralLayout.addFormItem(setNotBefore, "");
 
 		
 		return main;

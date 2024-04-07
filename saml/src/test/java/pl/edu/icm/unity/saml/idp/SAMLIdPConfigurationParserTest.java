@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.idp;
 import eu.unicore.samly2.SAMLConstants;
 import org.junit.jupiter.api.Test;
 
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
@@ -106,7 +107,7 @@ public class SAMLIdPConfigurationParserTest
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + POST_LOGOUT_RET_URL, "postRetUrl");
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + SOAP_LOGOUT_URL, "soapUrl");
 
-		p.setProperty(P+SEND_NOT_BEFORE_CONSTRAINT, "true");
+		p.setProperty(P+SET_NOT_BEFORE_CONSTRAINT, "true");
 
 		PKIManagement pkiManagement = mock(PKIManagement.class);
 		X509Certificate x509Certificatecertificate = mock(X509Certificate.class);
@@ -164,10 +165,33 @@ public class SAMLIdPConfigurationParserTest
 						.withSoapLogoutUrl("soapUrl")
 						.build()
 		);
-		assertThat(configuration.sendNotBeforeConstraint).isEqualTo(true);
+		assertThat(configuration.setNotBeforeConstraint).isEqualTo(true);
 
 	}
+	
+	@Test
+	public void shouldNotSetNotBeforeContraint() throws EngineException
+	{
+		
+		Properties p = new Properties();
+		p.setProperty(P+ISSUER_URI, "issuerUri");
+		p.setProperty(P+CREDENTIAL, "credential");
+		p.setProperty(P+DEFAULT_GROUP, "/");
 
+		MessageSource messageSource = mock(MessageSource.class);
+		X509Certificate x509Certificatecertificate = mock(X509Certificate.class);
+		NamedCertificate certificate = new NamedCertificate("certificate", x509Certificatecertificate);
+		PKIManagement pkiManagement = mock(PKIManagement.class);
+		when(pkiManagement.getCertificate("certificate")).thenReturn(certificate);
+		when(pkiManagement.getCredentialNames()).thenReturn(Set.of("credential"));
+		SAMLIdPConfigurationParser samlIdPConfigurationParser = new SAMLIdPConfigurationParser(pkiManagement, messageSource);
+
+		SAMLIdPConfiguration configuration = samlIdPConfigurationParser.parse(p);
+		assertThat(configuration.setNotBeforeConstraint).isEqualTo(false);
+
+	}
+	
+	
 	private static IdpPolicyAgreementsConfiguration getIdpPolicyAgreementsConfiguration()
 	{
 		return new IdpPolicyAgreementsConfiguration(new I18nString("title"), new I18nString("info"), 10, "10min", List.of(new PolicyAgreementConfiguration(List.of(10L), CHECKBOX_SELECTED, new I18nString("txt"))));
