@@ -249,7 +249,7 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		CheckBox sendNotBefore = new CheckBox(
 				msg.getMessage("SAMLEditorGeneralTab.sendNotBefore"));
 		configBinder.forField(sendNotBefore)
-				.bind(SAMLServiceConfiguration::isSendNotBeforeConstraint, SAMLServiceConfiguration::setSendNotBeforeConstraint);
+				.bind("setNotBeforeConstraint");
 		mainGeneralLayout.addComponent(sendNotBefore);
 
 		
