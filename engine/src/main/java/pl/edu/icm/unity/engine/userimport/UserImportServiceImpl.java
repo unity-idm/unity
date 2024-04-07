@@ -109,6 +109,14 @@ public class UserImportServiceImpl implements UserImportSerivce
 		{
 			log.debug("Trying to import user {} from {}", userImport.identityValue,
 					userImport.importerKey);
+			
+			if (userImport.identityValue == null)
+			{
+				log.warn("There is no identity to import");
+				continue;
+			}
+			
+			
 			SingleUserImportHandler handler = handlersByKey.get(userImport.importerKey);
 			if (handler == null)
 			{
