@@ -68,8 +68,10 @@ class EmailConfirmationView extends UnityViewComponent
 
 		Component image = null;
 		if(status.logoURL == null || status.logoURL.isBlank())
+		{
 			if(!status.success)
 				image = VaadinIcon.EXCLAMATION_CIRCLE.create();
+		}
 		else
 		{
 			image = new Image(status.logoURL, "");
