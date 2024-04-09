@@ -57,7 +57,7 @@ class NewAuthenticationFlowView extends CustomComponent implements UnityView
 	{
 		AuthenticationFlowDefinitionForBinder bean = new AuthenticationFlowDefinitionForBinder(
 				msg.getMessage("AuthenticationFlow.defaultName"), Policy.REQUIRE, Set.of(), Collections.emptyList(),
-				VIEW_NAME);
+				null);
 		return new AuthenticationFlowEntry(bean, Collections.emptyList());
 	}
 

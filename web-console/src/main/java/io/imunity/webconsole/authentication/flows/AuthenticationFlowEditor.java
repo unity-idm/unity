@@ -20,6 +20,7 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.DynamicPolicyConfigurationMVELContextKey;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
@@ -42,7 +43,7 @@ class AuthenticationFlowEditor extends CustomComponent
 	AuthenticationFlowEditor(MessageSource msg, AuthenticationFlowEntry toEdit, List<String> authenticators)
 	{
 		name = new TextField(msg.getMessage("AuthenticationFlow.name"));
-		name.setWidth(100, Unit.PERCENTAGE);
+		name.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		name.setValue(toEdit.flow.getName());
 
 		firstFactorAuthenticators = new ChipsWithDropdown<>(s -> s, true);
@@ -58,13 +59,16 @@ class AuthenticationFlowEditor extends CustomComponent
 		policy.setValue(Policy.REQUIRE);
 		policy.setEmptySelectionAllowed(false);
 
-		MVELExpressionField policyConfig = new MVELExpressionField(msg, "AuthenticationFlow.policyConfigurationTitle",
-				"MVELExpressionField.conditionDesc", MVELExpressionContext.builder()
+		MVELExpressionField policyConfig = new MVELExpressionField(msg, msg.getMessage("AuthenticationFlow.policyConfiguration"),
+				msg.getMessage("MVELExpressionField.conditionDesc"), MVELExpressionContext.builder()
 						.withTitleKey("AuthenticationFlow.policyConfigurationTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean")
 						.withVars(DynamicPolicyConfigurationMVELContextKey.toMap())
 						.build());
-
+		policyConfig.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		
+		policyConfig.setVisible(false);
+		
 		binder = new Binder<>(AuthenticationFlowDefinitionForBinder.class);
 		binder.forField(name)
 				.withValidator(new NoSpaceValidator(msg))

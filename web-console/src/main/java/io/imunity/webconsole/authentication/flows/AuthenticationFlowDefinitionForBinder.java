@@ -11,7 +11,7 @@ import java.util.Set;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 
 
-class AuthenticationFlowDefinitionForBinder
+public class AuthenticationFlowDefinitionForBinder
 {
 	private String name;
 	private Set<String> firstFactorAuthenticators;

@@ -21,10 +21,10 @@ public class RemoteAuthnMetadata
 	public final String remoteIdPId;
 	public final List<String> classReferences;
 	
-	public RemoteAuthnMetadata(Protocol protocol, String remoteIdPId, List<java.lang.String> classReferences)
+	public RemoteAuthnMetadata(Protocol protocol, String remoteIdPId, List<String> classReferences)
 	{
 		this.protocol = protocol;
-		this.classReferences = classReferences;
+		this.classReferences = classReferences != null ? List.copyOf(classReferences) : null;
 		this.remoteIdPId = remoteIdPId;
 	}
 
