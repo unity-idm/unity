@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
@@ -100,7 +101,7 @@ public class SessionManagementImpl implements SessionManagement
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
 				String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-				AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId)
+				AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext)
 	{
 		try
 		{
@@ -137,7 +138,7 @@ public class SessionManagementImpl implements SessionManagement
 			}
 
 			return createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
-					rememberMeInfo, firstFactorOptionId, secondFactorOptionId);
+					rememberMeInfo, firstFactorOptionId, secondFactorOptionId, authnContext);
 
 		} finally
 		{
@@ -166,7 +167,7 @@ public class SessionManagementImpl implements SessionManagement
 	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
 			String entityLabel, String outdatedCredentialId, 
 			RememberMeInfo rememberMeInfo, AuthenticationOptionKey firstFactorOptionId,
-			AuthenticationOptionKey secondFactorOptionId)
+			AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
@@ -177,6 +178,7 @@ public class SessionManagementImpl implements SessionManagement
 				new AuthNInfo(secondFactorOptionId, now));
 		ls.setOutdatedCredentialId(outdatedCredentialId);
 		ls.setEntityLabel(entityLabel);
+		ls.setFirstFactorRemoteIdPAuthnContext(authnContext);
 		try
 		{
 			tokensManagement.addToken(SESSION_TOKEN_TYPE, id, new EntityParam(loggedEntity), 

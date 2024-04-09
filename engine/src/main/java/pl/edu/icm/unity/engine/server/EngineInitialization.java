@@ -54,6 +54,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicyConfigurationMapper;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
 import pl.edu.icm.unity.engine.api.endpoint.ServletProvider;
@@ -838,6 +839,9 @@ public class EngineInitialization extends LifecycleBase
 			Policy policy = config.getEnumValue(
 					authenticationFlowKey + UnityServerConfiguration.AUTHENTICATION_FLOW_POLICY,
 					Policy.class);
+			String policyConfig = config.getValue(
+					authenticationFlowKey + UnityServerConfiguration.AUTHENTICATION_FLOW_POLICY_CONFIGURATION);
+			
 			String firstFactorSpec = config.getValue(authenticationFlowKey
 					+ UnityServerConfiguration.AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS);
 			String[] firstFactorAuthn = firstFactorSpec.split(",");
@@ -854,7 +858,7 @@ public class EngineInitialization extends LifecycleBase
 			}
 
 			AuthenticationFlowDefinition authFlowdef = new AuthenticationFlowDefinition(name, policy,
-					firstFactorAuthnSet, secondFactorAuthnList);
+					firstFactorAuthnSet, secondFactorAuthnList, AuthenticationPolicyConfigurationMapper.map(policy, policyConfig));
 
 			if (!existing.containsKey(name))
 			{

@@ -4,6 +4,15 @@
  */
 package pl.edu.icm.unity.saml.idp.processor;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
+import java.util.TimeZone;
+
+import org.apache.logging.log4j.Logger;
+
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
@@ -14,11 +23,11 @@ import eu.unicore.samly2.proto.AssertionResponse;
 import io.imunity.idp.AccessProtocol;
 import io.imunity.idp.ApplicationId;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
+import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.AssertionSigningPolicy;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.slo.SamlRoutableSignableMessage;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -32,11 +41,6 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
-
-import java.time.Instant;
-import java.util.*;
-
-import static pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.AssertionSigningPolicy;
 
 /**
  * Extends {@link StatusResponseProcessor} to produce SAML Response documents,
@@ -191,11 +195,18 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		if (attributes != null)
 			addAttributesToAssertion(assertion, attributes);
 
+		if (samlConfiguration.setNotBeforeConstraint)
+		{		
+			AssertionTimeConditionSetter.setDefaultNotBeforeCondition(assertion);
+		}
+		
 		AssertionSigningPolicy assertionSigningPolicy = samlConfiguration.signAssertion;
 		if (assertionSigningPolicy == AssertionSigningPolicy.always || !doSignResponse())
 			signAssertion(assertion);
 		return assertion;
 	}
+	
+	
 
 	/**
 	 * Only unspecified - it's too much work to implement it fully with minimal

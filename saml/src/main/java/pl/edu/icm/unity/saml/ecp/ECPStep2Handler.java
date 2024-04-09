@@ -28,6 +28,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -173,7 +175,7 @@ public class ECPStep2Handler
 		Long entityId = ae.getEntityId();
 		
 		InvocationContext iCtx = new InvocationContext(null, realm, Collections.emptyList());
-		authnSuccess(ae, iCtx);
+		authnSuccess(ae, iCtx, getRemoteAut(authenticationResult));
 		InvocationContext.setCurrent(iCtx);
 		
 		try
@@ -189,17 +191,28 @@ public class ECPStep2Handler
 		}
 	}
 	
-	private void authnSuccess(AuthenticatedEntity client, InvocationContext ctx)
+	private void authnSuccess(AuthenticatedEntity client, InvocationContext ctx, RemoteAuthnMetadata authnContext)
 	{
 		log.info("Client was successfully authenticated: [" + 
 					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
-				"", client.getOutdatedCredentialId(), new RememberMeInfo(false, false), null, null);
+				"", client.getOutdatedCredentialId(), new RememberMeInfo(false, false), null, null, authnContext);
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
 		ls.setRemoteIdP(client.getRemoteIdP());
 	}
 
+	private RemoteAuthnMetadata getRemoteAut(AuthenticationResult successAuthenticationResult)
+	{
+		return successAuthenticationResult.isRemote() ?
+
+				successAuthenticationResult.asRemote()
+						.getSuccessResult()
+						.getRemotelyAuthenticatedPrincipal()
+						.getAuthnInput()
+						.getRemoteAuthnMetadata()
+				: null;
+	}
 	
 	private String processHeader(Header soapHeader) throws ServletException
 	{

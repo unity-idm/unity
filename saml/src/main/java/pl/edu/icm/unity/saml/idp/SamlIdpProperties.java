@@ -49,6 +49,8 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String ISSUER_URI = "issuerURI";
 	public static final String RETURN_SINGLE_ASSERTION = "returnSingleAssertion";
 	public static final String SP_ACCEPT_POLICY = "spAcceptPolicy";
+	public static final String SET_NOT_BEFORE_CONSTRAINT = "setNotBeforeConstraint";
+
 	
 	public static final String SPMETA_PREFIX = "acceptedSPMetadataSource.";
 	
@@ -134,6 +136,9 @@ public class SamlIdpProperties extends SamlProperties
 				+ "All other will be treated as +all+. This is because you can control the "
 				+ "access with authentication and authorization of the client, additional SAML "
 				+ "level configuraiton is not neccessary."));
+		defaults.put(SET_NOT_BEFORE_CONSTRAINT, new PropertyMD("false").setCategory(samlCat).
+				setDescription("If true then notBefore constraint is added to SAML responses"));
+		
 		defaults.put(ALLOWED_SP_PREFIX, new PropertyMD().setStructuredList(false).setCategory(samlCat).
 				setDescription("List of entries defining allowed Service Providers (clients). Used " +
 				"only for +validRequester+ and +strict+ acceptance policies."));

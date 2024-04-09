@@ -20,6 +20,8 @@ import org.junit.Test;
 import eu.unicore.samly2.SAMLUtils;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.samly2.validators.SSOAuthnResponseValidator;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata.Protocol;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.saml.sp.FakeTrustedIdPConfiguration;
@@ -56,5 +58,36 @@ public class TestSAMLResponseValidatorUtil
 		assertThat(authnInput.getAttributes().get(AUTHN_CONTEXT_CLASS_REF_ATTR).getValues().get(0), 
 				is("urn:oasis:names:tc:SAML:2.0:ac:classes:Password"));
 		
+	}
+	
+	@Test
+	public void shouldReturnAuthnContextFromAssertionAsRemoteMetaContext() throws Exception
+	{
+		ReplayAttackChecker rac = new ReplayAttackChecker();
+		SAMLSPConfiguration samlProperties = mock(SAMLSPConfiguration.class);
+		SAMLResponseValidatorUtil responseValidator = new SAMLResponseValidatorUtil(
+				samlProperties, rac, "");
+		
+		ResponseDocument respDoc = ResponseDocument.Factory.parse(
+				new File("src/test/resources/responseDocSigned.xml"));
+		List<AssertionDocument> authnAssertions = SAMLUtils.extractAllAssertions(
+				respDoc.getResponse(), null).stream()
+				.filter(a -> a.getAssertion().getAuthnStatementArray().length > 0)
+				.collect(Collectors.toList());
+			
+		SSOAuthnResponseValidator validator = mock(SSOAuthnResponseValidator.class);
+		when(validator.getAuthNAssertions()).thenReturn(authnAssertions);
+		RemotelyAuthenticatedInput authnInput = responseValidator.convertAssertion(
+				respDoc, validator, null, FakeTrustedIdPConfiguration.get());
+		
+		
+		RemoteAuthnMetadata remoteAuthnMeta = authnInput.getRemoteAuthnMetadata();
+		assertThat(remoteAuthnMeta, is(notNullValue()));
+		assertThat(remoteAuthnMeta.classReferences.isEmpty(), is(false));
+		assertThat(remoteAuthnMeta.classReferences.get(0),  
+				is("urn:oasis:names:tc:SAML:2.0:ac:classes:Password"));
+		assertThat(remoteAuthnMeta.protocol, is(Protocol.SAML));
+		assertThat(remoteAuthnMeta.remoteIdPId, is("http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php"));
+
 	}
 }

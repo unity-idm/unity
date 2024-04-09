@@ -13,6 +13,7 @@ import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.types.authn.AuthenticationPolicyConfiguration;
 
 /**
  * Stores information about a authentication flow, as configured by administrator and selectable by 
@@ -30,17 +31,19 @@ public class AuthenticationFlow
 	private Set<AuthenticatorInstance> firstFactorAuthenticators;
 	private List<AuthenticatorInstance> secondFactorAuthenticators;
 	private Policy policy;
+	private AuthenticationPolicyConfiguration policyConfiguration;
 	private String name;
 	private long revision;
 
 	public AuthenticationFlow(String name, Policy policy,
 			Set<AuthenticatorInstance> firstFactorAuthenticators,
-			List<AuthenticatorInstance> secondFactorAuthenticators, long revision)
+			List<AuthenticatorInstance> secondFactorAuthenticators, AuthenticationPolicyConfiguration policyConfiguration, long revision)
 	{
 		this.name = name;
 		this.policy = policy;
 		this.firstFactorAuthenticators = firstFactorAuthenticators;
 		this.secondFactorAuthenticators = secondFactorAuthenticators;
+		this.policyConfiguration = policyConfiguration;
 		this.revision = revision;
 	}
 
@@ -65,6 +68,11 @@ public class AuthenticationFlow
 	public Policy getPolicy()
 	{
 		return policy;
+	}
+	
+	public AuthenticationPolicyConfiguration getPolicyConfiguration()
+	{
+		return policyConfiguration;
 	}
 	
 	public void destroy()
@@ -109,6 +117,8 @@ public class AuthenticationFlow
 						+ supportedBindings);
 		}
 	}
+
+	
 
 	
 

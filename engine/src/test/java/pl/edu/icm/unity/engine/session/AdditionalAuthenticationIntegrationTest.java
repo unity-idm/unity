@@ -88,7 +88,7 @@ public class AdditionalAuthenticationIntegrationTest extends DBIntegrationTestBa
 		when(authn.getMetadata()).thenReturn(authnInstance);
 		when(authn.getRetrieval()).thenReturn(retrieval);
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER,
-				Sets.newHashSet(authn), Collections.emptyList(), 1);
+				Sets.newHashSet(authn), Collections.emptyList(), null, 1);
 		return Lists.newArrayList(flow);
 	}
 }

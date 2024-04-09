@@ -29,9 +29,15 @@ public enum OutputTranslationMVELContextKey
 	authenticatedWith(OutputTranslationMVELContextKey.descriptionPrefix + "authenticatedWith"),
 	idp(OutputTranslationMVELContextKey.descriptionPrefix + "idp"),
 	authentications(OutputTranslationMVELContextKey.descriptionPrefix + "authentications"),
-	mfa(OutputTranslationMVELContextKey.descriptionPrefix + "mfa");
+	mfa(OutputTranslationMVELContextKey.descriptionPrefix + "mfa"),
+	upstreamACRs(OutputTranslationMVELContextKey.descriptionPrefix + "upstreamACRs"),
+	upstreamIdP(OutputTranslationMVELContextKey.descriptionPrefix + "upstreamIdP"),
+	upstreamProtocol(OutputTranslationMVELContextKey.descriptionPrefix + "upstreamProtocol");
+
+	
 	
 	public static final String descriptionPrefix = "OutputTranslationMVELContextKey.";
+	public static final String DEFAULT_UPSTREAM_PROTOCOL = "local";
 	public final String descriptionKey;
 
 	private OutputTranslationMVELContextKey(String descriptionKey)

@@ -8,6 +8,7 @@ package pl.edu.icm.unity.types.authn;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -24,15 +25,18 @@ import pl.edu.icm.unity.types.NamedObject;
  */
 public class AuthenticationFlowDefinition implements NamedObject
 {
+	public static final AuthenticationPolicyConfiguration EMPTY_CONFIGURATION = new EmptyConfiguration();
+	
 	public enum Policy
 	{
-		REQUIRE, USER_OPTIN, NEVER
+		REQUIRE, USER_OPTIN, NEVER, DYNAMIC_EXPRESSION
 	}
-
+	
 	private String name;
 	private Set<String> firstFactorAuthenticators;
 	private List<String> secondFactorAuthenticators;
 	private Policy policy;
+	private AuthenticationPolicyConfiguration policyConfiguration;
 	private long revision = 0;
 	
 
@@ -42,18 +46,25 @@ public class AuthenticationFlowDefinition implements NamedObject
 	
 	public AuthenticationFlowDefinition(String name, Policy policy,
 			Set<String> firstFactorAuthenticators,
-			List<String> secondFactorAuthenticators)
+			List<String> secondFactorAuthenticators, AuthenticationPolicyConfiguration policyConfiguration)
 	{
 		this.name = name;
 		this.firstFactorAuthenticators = firstFactorAuthenticators;
 		this.secondFactorAuthenticators = secondFactorAuthenticators;
 		this.policy = policy;
+		this.policyConfiguration = policyConfiguration;
 	}
 	
 	public AuthenticationFlowDefinition(String name, Policy policy,
 			Set<String> firstFactorAuthenticators)
 	{
-		this(name, policy, firstFactorAuthenticators, new ArrayList<>());
+		this(name, policy, firstFactorAuthenticators, new ArrayList<>(), EMPTY_CONFIGURATION);
+	}
+	
+	public AuthenticationFlowDefinition(String name, Policy policy,
+			Set<String> firstFactorAuthenticators, List<String> secondFactorAuthenticators)
+	{
+		this(name, policy, firstFactorAuthenticators, secondFactorAuthenticators, EMPTY_CONFIGURATION);
 	}
 	
 	@JsonIgnore
@@ -116,22 +127,23 @@ public class AuthenticationFlowDefinition implements NamedObject
 		this.revision = revision;
 	}
 	
+	public AuthenticationPolicyConfiguration getPolicyConfiguration()
+	{
+		return policyConfiguration;
+	}
+
+	public void setPolicyConfiguration(AuthenticationPolicyConfiguration configuration)
+	{
+		this.policyConfiguration = configuration;
+	}
+
 	@Override
 	public int hashCode()
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + ((policy == null) ? 0 : policy.hashCode());
-		result = prime * result + ((firstFactorAuthenticators == null) ? 0
-				: firstFactorAuthenticators.hashCode());
-		result = prime * result + ((secondFactorAuthenticators == null) ? 0
-				: secondFactorAuthenticators.hashCode());
-		result = prime * result + (int) (revision ^ (revision >>> 32));
-		return result;
+		return Objects.hash(policyConfiguration, firstFactorAuthenticators, name, policy, revision,
+				secondFactorAuthenticators);
 	}
-	
-	
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -142,35 +154,15 @@ public class AuthenticationFlowDefinition implements NamedObject
 		if (getClass() != obj.getClass())
 			return false;
 		AuthenticationFlowDefinition other = (AuthenticationFlowDefinition) obj;
-		
-		if (name == null)
-		{
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		
-		if (policy == null)
-		{
-			if (other.policy != null)
-				return false;
-		} else if (!policy.equals(other.policy))
-			return false;
-		
-		if (secondFactorAuthenticators == null)
-		{
-			if (other.secondFactorAuthenticators != null)
-				return false;
-		} else if (!secondFactorAuthenticators.equals(other.secondFactorAuthenticators))
-			return false;
-		if (firstFactorAuthenticators == null)
-		{
-			if (other.firstFactorAuthenticators != null)
-				return false;
-		} else if (!firstFactorAuthenticators.equals(other.firstFactorAuthenticators))
-			return false;
-		if (revision != other.revision)
-			return false;
-		return true;
+		return Objects.equals(policyConfiguration, other.policyConfiguration)
+				&& Objects.equals(firstFactorAuthenticators, other.firstFactorAuthenticators)
+				&& Objects.equals(name, other.name) && policy == other.policy && revision == other.revision
+				&& Objects.equals(secondFactorAuthenticators, other.secondFactorAuthenticators);
 	}
+	
+	private static final class EmptyConfiguration implements AuthenticationPolicyConfiguration
+	{
+		
+	}
+	
 }

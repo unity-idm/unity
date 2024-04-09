@@ -246,6 +246,13 @@ public class SAMLEditorGeneralTab extends CustomComponent implements EditorTab
 		configBinder.forField(acceptPolicy).asRequired().bind("requestAcceptancePolicy");
 		mainGeneralLayout.addComponent(acceptPolicy);
 
+		CheckBox sendNotBefore = new CheckBox(
+				msg.getMessage("SAMLEditorGeneralTab.setNotBefore"));
+		configBinder.forField(sendNotBefore)
+				.bind("setNotBeforeConstraint");
+		mainGeneralLayout.addComponent(sendNotBefore);
+
+		
 		return main;
 	}
 

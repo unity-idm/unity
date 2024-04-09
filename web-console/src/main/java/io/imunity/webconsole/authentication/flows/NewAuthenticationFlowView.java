@@ -7,6 +7,7 @@ package io.imunity.webconsole.authentication.flows;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
@@ -55,10 +55,9 @@ class NewAuthenticationFlowView extends CustomComponent implements UnityView
 
 	private AuthenticationFlowEntry getDefaultAuthenticationFlow()
 	{
-		AuthenticationFlowDefinition bean = new AuthenticationFlowDefinition();
-		bean.setName(msg.getMessage("AuthenticationFlow.defaultName"));
-		bean.setSecondFactorAuthenticators(Collections.emptyList());
-		bean.setPolicy(Policy.REQUIRE);
+		AuthenticationFlowDefinitionForBinder bean = new AuthenticationFlowDefinitionForBinder(
+				msg.getMessage("AuthenticationFlow.defaultName"), Policy.REQUIRE, Set.of(), Collections.emptyList(),
+				null);
 		return new AuthenticationFlowEntry(bean, Collections.emptyList());
 	}
 

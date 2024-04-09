@@ -4,23 +4,67 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
-import eu.unicore.samly2.SAMLConstants;
-import org.junit.Test;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.idp.ActiveValueClient;
-import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
-import pl.edu.icm.unity.engine.api.idp.UserImportConfig;
-import pl.edu.icm.unity.engine.api.idp.UserImportConfigs;
-import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
-import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.types.translation.TranslationRule;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ACTIVE_VALUE_CLIENT;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ACTIVE_VALUE_MULTI_SELECTABLE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ACTIVE_VALUE_SELECTION_PFX;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.ACTIVE_VALUE_SINGLE_SELECTABLE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.POLICY_AGREEMENTS_INFO;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.POLICY_AGREEMENTS_PFX;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.POLICY_AGREEMENTS_TITLE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.POLICY_AGREEMENTS_WIDTH;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.POLICY_AGREEMENTS_WIDTH_UNIT;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.POLICY_AGREEMENT_DOCUMENTS;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.POLICY_AGREEMENT_PRESENTATION_TYPE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.POLICY_AGREEMENT_TEXT;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.SKIP_CONSENT;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.SKIP_USERIMPORT;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.TRANSLATION_PROFILE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.USERIMPORT_IDENTITY_TYPE;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.USERIMPORT_IMPORTER;
+import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.USERIMPORT_PFX;
+import static pl.edu.icm.unity.saml.SamlProperties.IDENTITY_LOCAL;
+import static pl.edu.icm.unity.saml.SamlProperties.IDENTITY_MAPPING_PFX;
+import static pl.edu.icm.unity.saml.SamlProperties.IDENTITY_SAML;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_HTTPS_TRUSTSTORE;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_ISSUER_CERT;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_REFRESH;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_SIGNATURE;
+import static pl.edu.icm.unity.saml.SamlProperties.METADATA_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.POST_LOGOUT_RET_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.POST_LOGOUT_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.REDIRECT_LOGOUT_RET_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.REDIRECT_LOGOUT_URL;
+import static pl.edu.icm.unity.saml.SamlProperties.SOAP_LOGOUT_URL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_CERTIFICATE;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_CERTIFICATES;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_ENTITY;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_LOGO;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_NAME;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_PREFIX;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_RETURN_URL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ALLOWED_SP_RETURN_URLS;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.AUTHENTICATION_TIMEOUT;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.CREDENTIAL;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.DEFAULT_GROUP;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.DEF_ATTR_ASSERTION_VALIDITY;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP_PFX;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.GROUP_TARGET;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.ISSUER_URI;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.RETURN_SINGLE_ASSERTION;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SAML_REQUEST_VALIDITY;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SET_NOT_BEFORE_CONSTRAINT;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SIGN_ASSERTION;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SIGN_RESPONSE;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SPMETA_PREFIX;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SP_ACCEPT_POLICY;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.TRUSTSTORE;
+import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.USER_EDIT_CONSENT;
+import static pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType.CHECKBOX_SELECTED;
 
 import java.security.cert.X509Certificate;
 import java.time.Duration;
@@ -30,14 +74,25 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static pl.edu.icm.unity.engine.api.idp.CommonIdPProperties.*;
-import static pl.edu.icm.unity.saml.SamlProperties.*;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
-import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.*;
-import static pl.edu.icm.unity.types.policyAgreement.PolicyAgreementPresentationType.CHECKBOX_SELECTED;
+import org.junit.Test;
+
+import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClient;
+import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
+import pl.edu.icm.unity.engine.api.idp.UserImportConfig;
+import pl.edu.icm.unity.engine.api.idp.UserImportConfigs;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.policyAgreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.types.translation.ProfileType;
+import pl.edu.icm.unity.types.translation.TranslationAction;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 
 public class SAMLIdPConfigurationParserTest
 {
@@ -105,6 +160,7 @@ public class SAMLIdPConfigurationParserTest
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + POST_LOGOUT_RET_URL, "postRetUrl");
 		p.setProperty(P + ALLOWED_SP_PREFIX + "1." + SOAP_LOGOUT_URL, "soapUrl");
 
+		p.setProperty(P+SET_NOT_BEFORE_CONSTRAINT, "true");
 
 		PKIManagement pkiManagement = mock(PKIManagement.class);
 		X509Certificate x509Certificatecertificate = mock(X509Certificate.class);
@@ -162,8 +218,33 @@ public class SAMLIdPConfigurationParserTest
 						.withSoapLogoutUrl("soapUrl")
 						.build()
 		);
-	}
+		assertThat(configuration.setNotBeforeConstraint).isEqualTo(true);
 
+	}
+	
+	@Test
+	public void shouldNotSetNotBeforeContraint() throws EngineException
+	{
+		
+		Properties p = new Properties();
+		p.setProperty(P+ISSUER_URI, "issuerUri");
+		p.setProperty(P+CREDENTIAL, "credential");
+		p.setProperty(P+DEFAULT_GROUP, "/");
+
+		MessageSource messageSource = mock(MessageSource.class);
+		X509Certificate x509Certificatecertificate = mock(X509Certificate.class);
+		NamedCertificate certificate = new NamedCertificate("certificate", x509Certificatecertificate);
+		PKIManagement pkiManagement = mock(PKIManagement.class);
+		when(pkiManagement.getCertificate("certificate")).thenReturn(certificate);
+		when(pkiManagement.getCredentialNames()).thenReturn(Set.of("credential"));
+		SAMLIdPConfigurationParser samlIdPConfigurationParser = new SAMLIdPConfigurationParser(pkiManagement, messageSource);
+
+		SAMLIdPConfiguration configuration = samlIdPConfigurationParser.parse(p);
+		assertThat(configuration.setNotBeforeConstraint).isEqualTo(false);
+
+	}
+	
+	
 	private static IdpPolicyAgreementsConfiguration getIdpPolicyAgreementsConfiguration()
 	{
 		return new IdpPolicyAgreementsConfiguration(new I18nString("title"), new I18nString("info"), 10, "10min", List.of(new PolicyAgreementConfiguration(List.of(10L), CHECKBOX_SELECTED, new I18nString("txt"))));

@@ -81,7 +81,9 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 	public final IdentityTypeMapper idTypeMapper;
 
 	public final boolean signMetadata;
+	public final boolean setNotBeforeConstraint;
 
+	
 	private boolean signRespNever;
 	private boolean signRespAlways;
 	private ReplayAttackChecker replayChecker;
@@ -101,7 +103,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			TranslationProfile translationProfile, boolean skipConsent, Set<ActiveValueClient> activeValueClient,
 			IdpPolicyAgreementsConfiguration policyAgreements, X509Credential credential,
 			X509CertChainValidator chainValidator, boolean signMetadata,
-			Optional<AdditionalyAdvertisedCredential> additionalyAdvertisedCredential)
+			Optional<AdditionalyAdvertisedCredential> additionalyAdvertisedCredential, 
+			boolean setNotBeforeConstraint)
 	{
 		super(trustedMetadataSources, publishMetadata, metadataURLPath, ourMetadataFilePath);
 		this.authenticationTimeout = authenticationTimeout;
@@ -127,6 +130,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		this.trustedValidator = chainValidator;
 		this.signMetadata = signMetadata;
 		this.additionallyAdvertisedCredential = additionalyAdvertisedCredential;
+		this.setNotBeforeConstraint = setNotBeforeConstraint;
 		load();
 	}
 
@@ -465,7 +469,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 				&& Objects.equals(idTypeMapper, that.idTypeMapper) && Objects.equals(replayChecker, that.replayChecker)
 				&& Objects.equals(authnTrustChecker, that.authnTrustChecker)
 				&& Objects.equals(soapTrustChecker, that.soapTrustChecker)
-				&& Objects.equals(allowedRequestersByIndex, that.allowedRequestersByIndex);
+				&& Objects.equals(allowedRequestersByIndex, that.allowedRequestersByIndex)
+				&& Objects.equals(setNotBeforeConstraint, that.setNotBeforeConstraint);
 	}
 
 	@Override
@@ -476,7 +481,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 				returnSingleAssertion, spAcceptPolicy, userCanEditConsent, trustedServiceProviders, userImportConfigs,
 				translationProfile, skipConsent, activeValueClient, policyAgreements, credential,
 				trustedValidator, groupChooser, attributesMapper, idTypeMapper, signMetadata, signRespNever,
-				signRespAlways, replayChecker, authnTrustChecker, soapTrustChecker, allowedRequestersByIndex);
+				signRespAlways, replayChecker, authnTrustChecker, soapTrustChecker, allowedRequestersByIndex, setNotBeforeConstraint);
 	}
 
 	@Override
@@ -495,7 +500,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 				+ idTypeMapper + ", signMetadata=" + signMetadata + ", signRespNever=" + signRespNever
 				+ ", signRespAlways=" + signRespAlways + ", replayChecker=" + replayChecker + ", authnTrustChecker="
 				+ authnTrustChecker + ", soapTrustChecker=" + soapTrustChecker + ", allowedRequestersByIndex="
-				+ allowedRequestersByIndex + '}';
+				+ allowedRequestersByIndex + ", setNotBeforeConstraint="
+						+ setNotBeforeConstraint + '}';
 	}
 
 	public static SAMLIdPConfigurationBuilder builder()
@@ -532,7 +538,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		private X509CertChainValidator chainValidator;
 		private boolean signMetadata;
 		private Optional<AdditionalyAdvertisedCredential> additionallyAdvertisedCredential = Optional.empty();
-
+		private boolean setNotBeforeConstraint;
+		
 		private SAMLIdPConfigurationBuilder()
 		{
 		}
@@ -700,6 +707,13 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			this.signMetadata = signMetadata;
 			return this;
 		}
+		
+		public SAMLIdPConfigurationBuilder withSetNotBeforeConstraint(boolean setNotBeforeConstraint)
+		{
+			this.setNotBeforeConstraint = setNotBeforeConstraint;
+			return this;
+		}
+		
 
 		public SAMLIdPConfiguration build()
 		{
@@ -708,7 +722,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 					truststore, validityPeriod, requestValidityPeriod, issuerURI, returnSingleAssertion, spAcceptPolicy,
 					userCanEditConsent, trustedServiceProviders, groupChooser, identityTypeMapper, userImportConfigs,
 					translationProfile, skipConsent, activeValueClient, policyAgreements, credential, chainValidator,
-					signMetadata, additionallyAdvertisedCredential);
+					signMetadata, additionallyAdvertisedCredential, setNotBeforeConstraint);
 		}
 	}
 }

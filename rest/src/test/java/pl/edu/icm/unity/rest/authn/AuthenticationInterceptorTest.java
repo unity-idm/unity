@@ -55,7 +55,7 @@ public class AuthenticationInterceptorTest
 
 		AuthenticationProcessor mockProcessor = mock(AuthenticationProcessor.class);
 		AuthenticationFlow flow1 = new AuthenticationFlow("flow1", Policy.REQUIRE, Set.of(mockAuthenticator1),
-				Collections.emptyList(), 0);
+				Collections.emptyList(), null, 0);
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(null, mockProcessor, List.of(flow1),
 				new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0), mock(SessionManagement.class), Set.of("/p1"),
 				Set.of("/optional"), null, mock(EntityManagement.class));
@@ -71,7 +71,7 @@ public class AuthenticationInterceptorTest
 		AuthenticatorInstance mockAuthenticator1 = mock(AuthenticatorInstance.class);
 		AuthenticationProcessor mockProcessor = mock(AuthenticationProcessor.class);
 		AuthenticationFlow flow1 = new AuthenticationFlow("flow1", Policy.REQUIRE, Set.of(mockAuthenticator1),
-				Collections.emptyList(), 0);
+				Collections.emptyList(), null, 0);
 
 		when(mockAuthenticator1.getMetadata()).thenReturn(new AuthenticatorInstanceMetadata());
 		when(mockAuthenticator1.getRetrieval()).thenReturn(new DenyRetrieval());
@@ -95,9 +95,9 @@ public class AuthenticationInterceptorTest
 		AuthenticatorInstance mockAuthenticator2 = mock(AuthenticatorInstance.class);
 		AuthenticationProcessor mockProcessor = mock(AuthenticationProcessor.class);
 		AuthenticationFlow flow1 = new AuthenticationFlow("flow1", Policy.REQUIRE, Set.of(mockAuthenticator1),
-				Collections.emptyList(), 0);
+				Collections.emptyList(), null, 0);
 		AuthenticationFlow flow2 = new AuthenticationFlow("flow2", Policy.REQUIRE, Set.of(mockAuthenticator2),
-				Collections.emptyList(), 0);
+				Collections.emptyList(), null, 0);
 		SessionManagement sessionMan = mock(SessionManagement.class);
 
 		when(mockAuthenticator1.getMetadata()).thenReturn(new AuthenticatorInstanceMetadata());
@@ -112,7 +112,7 @@ public class AuthenticationInterceptorTest
 
 		when(mockProcessor.finalizeAfterPrimaryAuthentication(any(), eq(false)))
 				.thenReturn(new AuthenticatedEntity(1L, "", ""));
-		when(sessionMan.getCreateSession(eq(1L), any(), any(), any(), any(), any(), any()))
+		when(sessionMan.getCreateSession(eq(1L), any(), any(), any(), any(), any(), any(), any()))
 				.thenReturn(new LoginSession());
 
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(mock(MessageSource.class), mockProcessor,
@@ -129,9 +129,9 @@ public class AuthenticationInterceptorTest
 		AuthenticatorInstance mockAuthenticator2 = mock(AuthenticatorInstance.class);
 		AuthenticationProcessor mockProcessor = mock(AuthenticationProcessor.class);
 		AuthenticationFlow flow1 = new AuthenticationFlow("flow1", Policy.REQUIRE, Set.of(mockAuthenticator1),
-				Collections.emptyList(), 0);
+				Collections.emptyList(), null, 0);
 		AuthenticationFlow flow2 = new AuthenticationFlow("flow2", Policy.REQUIRE, Set.of(mockAuthenticator2),
-				Collections.emptyList(), 0);
+				Collections.emptyList(), null, 0);
 
 		when(mockAuthenticator1.getMetadata()).thenReturn(new AuthenticatorInstanceMetadata());
 		when(mockAuthenticator1.getRetrieval()).thenReturn(new DenyRetrieval());
