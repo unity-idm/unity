@@ -59,9 +59,9 @@ class GroupAddDialog extends DialogWithActionFooter
 		name.setRequiredIndicatorVisible(true);
 		
 		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale());
-		displayedName.setWidthFull();
+		displayedName.setWidth(TEXT_FIELD_MEDIUM.value());
 		description = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale());
-		description.setWidthFull();
+		description.setWidth(TEXT_FIELD_MEDIUM.value());
 
 		isPublic = new Checkbox(msg.getMessage("GroupEditDialog.public"));
 		
@@ -86,13 +86,12 @@ class GroupAddDialog extends DialogWithActionFooter
 			group.setDisplayedName(dispName);
 			group.setPublic(isPublic.getValue());
 			callback.onConfirm(group);
-		}
-		catch (Exception e)
+			close();
+		} catch (Exception e)
 		{
-			LOG.debug(e);
+			LOG.debug("error adding group", e);
 			name.setInvalid(true);
 			name.setErrorMessage(msg.getMessage("GroupEditDialog.invalidGroup"));
-			open();
 			nameFormItem.getElement().setAttribute("invalid", true);
 		}
 	}

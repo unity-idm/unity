@@ -316,15 +316,10 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	{
 		final TreeNode node = target.iterator().next();
 		new GroupAddDialog(msg, node.getGroup(), g -> {
-			createGroup(g);
+			controller.addGroup(g);
 			refreshNode(node);
 			expand(node);
 		}).open();
-	}
-
-	private void createGroup(Group toBeCreated)
-	{
-		controller.addGroup(toBeCreated);
 	}
 
 	private SingleActionHandler<TreeNode> getEditACsAction()

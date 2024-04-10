@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.*;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
+import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
@@ -141,10 +142,9 @@ class GroupBrowserController
 		try
 		{
 			groupsMan.addGroup(group);
-		} catch (Exception e)
+		} catch (EngineException e)
 		{
-			notificationPresenter.showError(
-					msg.getMessage("GroupBrowserController.addGroupError", group.getName()), e.getMessage());
+			throw new RuntimeEngineException(e);
 		}
 	}
 

@@ -16,6 +16,6 @@ class EntityDetailsDialog extends DialogWithActionFooter
 		setActionButton(msg.getMessage("close"), this::close);
 		setCancelButtonVisible(false);
 		add(contents);
-		setWidth("40em");
+		setWidth("70em");
 	}
 }
