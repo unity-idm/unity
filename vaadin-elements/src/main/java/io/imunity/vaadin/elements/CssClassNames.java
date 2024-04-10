@@ -52,7 +52,9 @@ public enum CssClassNames
 	ERROR("u-error"),
 	EDIT_VIEW_ACTION_BUTTONS_LAYOUT("u-edit-view-action-buttons-layout"),
 	TABSHEET_FULL("u-tabsheet-full"),
-	SPACE_PRE("u-space-pre");
+	SPACE_PRE("u-space-pre"),
+	AUTHN_SCREEN("u-authn-screen")
+	;
 	
 	private final String name;
 

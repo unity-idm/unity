@@ -16,6 +16,7 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import io.imunity.vaadin.auth.outdated.CredentialChangeConfiguration;
 import io.imunity.vaadin.auth.outdated.OutdatedCredentialController;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
@@ -122,6 +123,7 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 				unknownUserDialogProvider,
 				Optional.of(localeChoice), authnFlows,
 				interactiveAuthnProcessor, notificationPresenter);
+		getContent().addClassName(CssClassNames.AUTHN_SCREEN.getName());
 		loadInitialState();
 		getContent().setSizeFull();
 	}

@@ -15,6 +15,7 @@ import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.sandbox.SandboxAuthenticationScreen;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
@@ -119,6 +120,7 @@ public class SandboxView extends UnityViewComponent implements BeforeEnterObserv
 				notificationPresenter,
 				false);
 		getContent().removeAll();
+		getContent().addClassName(CssClassNames.AUTHN_SCREEN.getName());
 		getContent().add(components);
 	}
 
