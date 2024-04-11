@@ -32,6 +32,7 @@ import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 import java.util.List;
 import java.util.Optional;
@@ -50,7 +51,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 
 	@Autowired
 	public UpManMenu(VaddinWebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg,
-	                 HomeServiceLinkService homeServiceLinkService)
+	                 HomeServiceLinkService homeServiceLinkService, UnityServerConfiguration unityServerConfiguration)
 	{
 		super(Stream.of(
 						MenuComponent.builder(MembersView.class).tabName(msg.getMessage("UpManMenu.members"))
@@ -62,7 +63,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 						MenuComponent.builder(UserUpdatesView.class).tabName(msg.getMessage("UpManMenu.userUpdates"))
 								.icon(USER_CHECK).build()
 						)
-						.collect(toList()), standardWebLogoutHandler, msg, createHomeIcon(homeServiceLinkService)
+						.collect(toList()), standardWebLogoutHandler, msg, createHomeIcon(homeServiceLinkService), unityServerConfiguration
 		);
 		this.projectService = projectService;
 

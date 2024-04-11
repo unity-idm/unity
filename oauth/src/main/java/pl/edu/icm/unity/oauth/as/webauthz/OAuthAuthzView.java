@@ -4,11 +4,24 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_ROUTING_SERVLET_PATH;
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_UI_SERVLET_PATH;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.EopException;
@@ -20,10 +33,9 @@ import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
+import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import jakarta.annotation.security.PermitAll;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -53,13 +65,8 @@ import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 
-import java.util.*;
-
-import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_ROUTING_SERVLET_PATH;
-import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_UI_SERVLET_PATH;
-
 @PermitAll
-@Route(value = OAUTH_UI_SERVLET_PATH)
+@Route(value = OAUTH_UI_SERVLET_PATH,  layout =WrappedLayout.class)
 class OAuthAuthzView extends UnityViewComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthAuthzView.class);

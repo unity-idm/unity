@@ -4,6 +4,22 @@
  */
 package io.imunity.vaadin.auth.sandbox;
 
+import static io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint.SANDBOX_PATH_ASSOCIATION;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppAuthenticationFlows;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppCancelHandler;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppDisplayedName;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppResolvedEndpoint;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppVaadinProperties;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
@@ -11,14 +27,14 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
+import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -27,22 +43,14 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
-import java.util.List;
-import java.util.Optional;
-
-import static io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE;
-import static io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint.SANDBOX_PATH_ASSOCIATION;
-import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.*;
-
-@Route(SANDBOX_PATH_ASSOCIATION)
+@Route(value = SANDBOX_PATH_ASSOCIATION, layout=WrappedLayout.class)
 @AnonymousAllowed
 class AccountAssociationSandboxView extends UnityViewComponent implements BeforeEnterObserver
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AccountAssociationSandboxView.class);
 	private final MessageSource msg;
-	private final VaadinEndpointProperties config;
+	private final Vaadin82XEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	private final LocaleChoiceComponent localeChoice;
 	private final InteractiveAuthenticationProcessor authnProcessor;
@@ -51,6 +59,7 @@ class AccountAssociationSandboxView extends UnityViewComponent implements Before
 	private final List<AuthenticationFlow> authnFlows;
 	private final VaadinLogoImageLoader imageAccessService;
 	private final NotificationPresenter notificationPresenter;
+	private final UnityServerConfiguration unityServerConfiguration;
 
 	@Autowired
 	public AccountAssociationSandboxView(MessageSource msg, VaadinLogoImageLoader imageAccessService,
@@ -58,7 +67,7 @@ class AccountAssociationSandboxView extends UnityViewComponent implements Before
 			UnityServerConfiguration cfg,
 			ExecutorsService execService,
 			@Qualifier("insecure") EntityManagement idsMan,
-			NotificationPresenter notificationPresenter)
+			NotificationPresenter notificationPresenter, UnityServerConfiguration unityServerConfiguration)
 	{
 		this.msg = msg;
 		this.localeChoice = new LocaleChoiceComponent(cfg);
@@ -70,6 +79,7 @@ class AccountAssociationSandboxView extends UnityViewComponent implements Before
 		this.endpointDescription = getCurrentWebAppResolvedEndpoint();
 		this.config = getCurrentWebAppVaadinProperties();
 		this.authnFlows = List.copyOf(getCurrentWebAppAuthenticationFlows());
+		this.unityServerConfiguration = unityServerConfiguration;
 	}
 
 
@@ -106,7 +116,7 @@ class AccountAssociationSandboxView extends UnityViewComponent implements Before
 				title,
 				getCurrentWebAppSandboxAuthnRouter(),
 				notificationPresenter,
-				true);
+				true, unityServerConfiguration);
 		getContent().removeAll();
 		getContent().add(components);
 	}

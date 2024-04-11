@@ -16,6 +16,8 @@ import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
+import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,7 @@ import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguratio
 
 import java.util.List;
 
-@Route(value = "/confirmation")
+@Route(value = "/confirmation", layout = WrappedLayout.class)
 class EmailConfirmationView extends UnityViewComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailConfirmationView.class);

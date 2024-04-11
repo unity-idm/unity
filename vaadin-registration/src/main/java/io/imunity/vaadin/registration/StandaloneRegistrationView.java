@@ -26,6 +26,8 @@ import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessing
 import io.imunity.vaadin.endpoint.common.forms.RegCodeException;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
+import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +57,7 @@ import java.util.Optional;
 
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.REGISTRATION_PATH;
 
-@Route(value = REGISTRATION_PATH + ":" + StandaloneRegistrationView.FORM_PARAM)
+@Route(value = REGISTRATION_PATH + ":" + StandaloneRegistrationView.FORM_PARAM, layout = WrappedLayout.class)
 class StandaloneRegistrationView extends UnityViewComponent implements BeforeEnterObserver
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneRegistrationView.class);

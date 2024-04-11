@@ -27,6 +27,9 @@ public class Vaadin82XEndpointProperties extends VaadinEndpointProperties
 
 	public static final String SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING = "secondsBeforeShowingSessionExpirationWarning";
 
+	public static final String EXTRA_PANELS_AFTER_ATHENTICATION = "addExtraPanelsAfterAuthentication";
+
+	
 	public final String defaultWebContentPath;
 	public final String defaultCssFileName;
 
@@ -44,6 +47,8 @@ public class Vaadin82XEndpointProperties extends VaadinEndpointProperties
 				setDescription("Relative path(starts from web contents path) to an optional CSS file containing custom css file"));
 		VaadinEndpointProperties.META.put(SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING, new PropertyMD("30").
 				setDescription("Seconds before showing session expiration warning notification"));
+		VaadinEndpointProperties.META.put(EXTRA_PANELS_AFTER_ATHENTICATION, new PropertyMD("true").
+				setDescription("If true, extra panels will also be added to the endpoint's main view"));
 	}
 
 	public Vaadin82XEndpointProperties(Properties properties, String defaultWebContentPath, String defaultCssFileName)

@@ -28,6 +28,8 @@ import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormsService;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.vaadin.endpoint.common.layout.AuthenticationLayout;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +59,7 @@ import static pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.Unkno
 import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
 import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
 
-@Route("/authentication")
+@Route(value = "/authentication",  layout = AuthenticationLayout.class)
 public class AuthenticationView extends UnityViewComponent implements BeforeEnterObserver
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AuthenticationView.class);

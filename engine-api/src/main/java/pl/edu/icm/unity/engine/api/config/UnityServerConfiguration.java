@@ -11,6 +11,7 @@ package pl.edu.icm.unity.engine.api.config;
 import eu.unicore.util.configuration.*;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import eu.unicore.util.jetty.HttpServerProperties;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.CommandLinePropertySource;
@@ -181,6 +182,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String MAX_CONCURRENT_PASSWORD_CHECKS = "maxConcurrentPasswordChecks";
 
 	public static final String EXTENSION_PFX = "ext.";
+	
+	public static final String EXTRA_LEFT_PANEL = "extraLeftPanel";
+	public static final String EXTRA_RIGHT_PANEL = "extraRightPanel";
+	public static final String EXTRA_TOP_PANEL = "extraTopPanel";
+	public static final String EXTRA_BOTTOM_PANEL = "extraBottomPanel";
 	
 	
 	@DocumentationReferenceMeta
@@ -554,7 +560,17 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "like logo files."
 						+ "This connection timeout is not critical for "
 						+ "system operation."));
-
+		defaults.put(EXTRA_LEFT_PANEL, new PropertyMD("").
+				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html left panel"));
+		defaults.put(EXTRA_RIGHT_PANEL, new PropertyMD("").
+				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html right panel"));
+		defaults.put(EXTRA_TOP_PANEL, new PropertyMD("").
+				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html top panel"));
+		defaults.put(EXTRA_BOTTOM_PANEL, new PropertyMD("").
+				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html bottom panel"));
+		
+		
+		
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
 		SUPPORTED_LOCALES.put("de", new Locale("de"));
@@ -797,4 +813,34 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		int maxConcurrency = (int)Math.round(maxMemGB * 2);
 		return maxConcurrency > 0 ? maxConcurrency : 1;
 	}
+	
+	public Optional<File> getExtraLeftPanel()
+	{
+		return getFile(EXTRA_LEFT_PANEL);
+	}
+
+	public Optional<File> getExtraRightPanel()
+	{
+		return getFile(EXTRA_RIGHT_PANEL);
+	}
+
+	public Optional<File> getExtraTopPanel()
+	{
+		return getFile(EXTRA_TOP_PANEL);
+	}
+
+	public Optional<File> getExtraBottomPanel()
+	{
+		return getFile(EXTRA_BOTTOM_PANEL);
+	}
+	
+	private Optional<File> getFile(String key)
+	{
+		if(getValue(key).isBlank())
+			return Optional.empty();
+		String value = getValue(DEFAULT_WEB_CONTENT_PATH) + "/" + getValue(key);
+		return Optional.of(new File(value));
+	}
+	
+	
 }

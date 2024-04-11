@@ -59,6 +59,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	                                    RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter) throws EngineException
 	{
 		Properties properties = config.getProperties();
+		properties.setProperty(Vaadin82XEndpointProperties.PREFIX + Vaadin82XEndpointProperties.EXTRA_PANELS_AFTER_ATHENTICATION, "true");
 		Vaadin82XEndpointProperties vaadinEndpointProperties = new Vaadin82XEndpointProperties(
 				properties,
 				config.getValue(DEFAULT_WEB_CONTENT_PATH),

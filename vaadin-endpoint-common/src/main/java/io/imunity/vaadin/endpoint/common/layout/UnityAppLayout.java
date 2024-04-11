@@ -5,6 +5,10 @@
 
 package io.imunity.vaadin.endpoint.common.layout;
 
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppVaadinProperties;
+
+import java.util.List;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasElement;
@@ -19,17 +23,14 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
+
 import io.imunity.vaadin.elements.AfterSubNavigationEvent;
-import io.imunity.vaadin.elements.ExtraLayoutPanel;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
-
-import java.util.List;
-
-import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppVaadinProperties;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 
 @PreserveOnRefresh
@@ -38,15 +39,18 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 
 	private final UnityAppLayoutComponentsHolder appLayoutComponents;
 	private final Vaadin82XEndpointProperties vaadinEndpointProperties;
+	private final UnityServerConfiguration unityServerConfiguration;
 	private VerticalLayout leftContainerContent;
 
 	public UnityAppLayout(List<MenuComponent> menuComponents,
 	                      VaddinWebLogoutHandler authnProcessor,
 						  MessageSource msg,
-	                      List<Component> additionalIcons)
+	                      List<Component> additionalIcons, 
+	                      UnityServerConfiguration unityServerConfiguration)
 	{
 		appLayoutComponents = new UnityAppLayoutComponentsHolder(menuComponents, authnProcessor, msg, additionalIcons);
 		vaadinEndpointProperties = getCurrentWebAppVaadinProperties();
+		this.unityServerConfiguration = unityServerConfiguration;
 	}
 
 	@Override
@@ -58,13 +62,6 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 	protected void initView()
 	{
 		setClassName("u-main-layout");
-
-		ExtraLayoutPanel top = new ExtraLayoutPanel("unity-layout-top", vaadinEndpointProperties.getExtraTopPanel().orElse(null));
-		ExtraLayoutPanel left = new ExtraLayoutPanel("unity-layout-left", vaadinEndpointProperties.getExtraLeftPanel().orElse(null));
-		ExtraLayoutPanel right = new ExtraLayoutPanel("unity-layout-right", vaadinEndpointProperties.getExtraRightPanel().orElse(null));
-		ExtraLayoutPanel bottom = new ExtraLayoutPanel("unity-layout-bottom", vaadinEndpointProperties.getExtraBottomPanel().orElse(null));
-
-
 		HorizontalLayout mainLayout = new HorizontalLayout();
 		mainLayout.setClassName("u-main-layout-container");
 
@@ -78,10 +75,8 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 		HorizontalLayout horizontalLayout = new HorizontalLayout(this.leftContainerContent, rightContainerContent);
 		horizontalLayout.getStyle().set("gap", "0");
 		horizontalLayout.setWidthFull();
-
-		mainLayout.add(left, horizontalLayout, right);
-
-		add(top, mainLayout, bottom);
+		UnityLayoutWrapper.wrap(this, horizontalLayout, vaadinEndpointProperties, unityServerConfiguration, false);
+		
 	}
 
 	public void addToLeftContainerAsFirst(Component component)

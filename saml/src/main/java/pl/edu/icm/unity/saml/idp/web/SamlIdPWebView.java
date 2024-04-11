@@ -18,6 +18,7 @@ import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
+import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import jakarta.annotation.security.PermitAll;
 import org.apache.logging.log4j.Logger;
@@ -69,7 +70,7 @@ import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_ENTRY_SE
 import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_UI_SERVLET_PATH;
 
 @PermitAll
-@Route(value = SAML_UI_SERVLET_PATH)
+@Route(value = SAML_UI_SERVLET_PATH,  layout = WrappedLayout.class)
 class SamlIdPWebView extends UnityViewComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebView.class);

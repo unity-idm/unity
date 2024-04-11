@@ -33,6 +33,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,9 +54,9 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 	@Autowired
 	public HomeUiMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg,
 					  ProjectManagementHelper projectManagementHelper, AttributesManagement attributesMan,
-					  AttributeHandlerRegistry registry)
+					  AttributeHandlerRegistry registry, UnityServerConfiguration unityServerConfiguration)
 	{
-		super(createMenuComponents(msg), standardWebLogoutHandler, msg, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper)));
+		super(createMenuComponents(msg), standardWebLogoutHandler, msg, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper)), unityServerConfiguration);
 		this.attributesMan = attributesMan;
 		this.registry = registry;
 		this.homeEndpointProperties = new HomeEndpointProperties(getCurrentWebAppContextProperties());

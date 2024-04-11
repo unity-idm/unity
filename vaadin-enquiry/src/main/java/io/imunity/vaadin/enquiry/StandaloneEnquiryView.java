@@ -27,6 +27,7 @@ import io.imunity.vaadin.endpoint.common.forms.*;
 import io.imunity.vaadin.endpoint.common.forms.RegCodeException.ErrorCause;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
+import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
 import jakarta.annotation.security.PermitAll;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,8 +64,8 @@ import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.SE
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQUIRY_PATH;
 
 @PermitAll
-@RouteAlias(SEC_ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM)
-@Route(value = ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM)
+@RouteAlias(value = SEC_ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM, layout = WrappedLayout.class)
+@Route(value = ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM, layout = WrappedLayout.class)
 class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObserver
 {
 	public static final String FORM_PARAM = "form";

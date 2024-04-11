@@ -66,6 +66,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -78,7 +79,7 @@ public class ConsoleMenu extends UnityAppLayout
 {
 
 	@Autowired
-	public ConsoleMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg, AuthorizationManagement authorizationManagement)
+	public ConsoleMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg, AuthorizationManagement authorizationManagement, UnityServerConfiguration unityServerConfiguration)
 	{
 		super(Stream.of(
 						MenuComponent.builder(DirectoryBrowserView.class)
@@ -216,7 +217,7 @@ public class ConsoleMenu extends UnityAppLayout
 								.icon(VaadinIcon.TOOLS)
 								.build()
 						)
-						.collect(toList()), standardWebLogoutHandler, msg, List.of()
+						.collect(toList()), standardWebLogoutHandler, msg, List.of(), unityServerConfiguration
 		);
 
 		try

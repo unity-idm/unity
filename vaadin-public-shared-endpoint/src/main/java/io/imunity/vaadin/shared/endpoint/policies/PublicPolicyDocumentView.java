@@ -18,6 +18,8 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import io.imunity.vaadin.elements.UnityViewComponent;
+import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -30,7 +32,7 @@ import java.util.Optional;
 
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.POLICY_DOCUMENTS_PATH;
 
-@Route(value = POLICY_DOCUMENTS_PATH + ":" + PublicPolicyDocumentView.POLICY_DOC_PARAM)
+@Route(value = POLICY_DOCUMENTS_PATH + ":" + PublicPolicyDocumentView.POLICY_DOC_PARAM, layout = WrappedLayout.class)
 class PublicPolicyDocumentView extends UnityViewComponent implements BeforeEnterObserver
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, PublicPolicyDocumentView.class);

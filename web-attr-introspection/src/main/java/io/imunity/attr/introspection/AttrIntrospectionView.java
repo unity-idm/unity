@@ -22,8 +22,11 @@ import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.CancelHandler;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
+
 import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -35,6 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 
 import java.util.List;
@@ -44,8 +48,10 @@ import java.util.Properties;
 import static io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.*;
 import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.PREFIX;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_CSS_FILE_NAME;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
-@Route("/")
+@Route(value = "/", layout=WrappedLayout.class)
 @AnonymousAllowed
 class AttrIntrospectionView extends UnityViewComponent
 {
@@ -64,12 +70,13 @@ class AttrIntrospectionView extends UnityViewComponent
 	private final CancelHandler cancelHandler;
 	private final SandboxAuthnRouter sandboxRouter;
 	private final AttrIntrospectionAttributePoliciesConfiguration config;
+	private final UnityServerConfiguration serverConfiguration;
 
 	AttrIntrospectionView(MessageSource msg,
 			InteractiveAuthenticationProcessor authnProcessor, ExecutorsService execService,
 			@Qualifier("insecure") EntityManagement idsMan, AuthenticatorSupportService authenticatorSupport,
 			VaadinLogoImageLoader imageAccessService, PolicyProcessingSummaryComponentFactory summaryViewFactory,
-			NotificationPresenter notificationPresenter)
+			NotificationPresenter notificationPresenter, UnityServerConfiguration unityServerConfiguration)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -83,6 +90,7 @@ class AttrIntrospectionView extends UnityViewComponent
 		this.endpointDescription = getCurrentWebAppResolvedEndpoint();
 		this.cancelHandler = getCurrentWebAppCancelHandler();
 		this.sandboxRouter = getCurrentWebAppSandboxAuthnRouter();
+		this.serverConfiguration = unityServerConfiguration;
 
 		config = new AttrIntrospectionAttributePoliciesConfiguration();
 		config.fromProperties(new AttrIntrospectionEndpointProperties(properties), msg);
@@ -112,17 +120,18 @@ class AttrIntrospectionView extends UnityViewComponent
 		SandboxAuthenticationScreen ui = new SandboxAuthenticationScreen(msg, imageAccessService,
 				prepareConfigurationBasingOnEndpoint(properties), endpointDescription, cancelHandler,
 				idsMan, execService, authnProcessor, Optional.empty(), getAllRemoteVaadinAuthenticators(),
-				"", sandboxRouter, notificationPresenter, true);
+				"", sandboxRouter, notificationPresenter, true, serverConfiguration);
 		getContent().add(ui);
 		addSandboxListener();
 	}
 
-	private static VaadinEndpointProperties prepareConfigurationBasingOnEndpoint(Properties endpointProperties)
+	private Vaadin82XEndpointProperties prepareConfigurationBasingOnEndpoint(Properties endpointProperties)
 	{
 		Properties newConfig = new Properties();
 		newConfig.putAll(endpointProperties);
 		newConfig.setProperty(PREFIX + VaadinEndpointProperties.AUTHN_ADD_ALL, "false");
-		return new VaadinEndpointProperties(newConfig);
+		return new Vaadin82XEndpointProperties(newConfig, serverConfiguration.getValue(DEFAULT_WEB_CONTENT_PATH),
+				serverConfiguration.getValue(DEFAULT_CSS_FILE_NAME));
 	}
 
 	protected void addSandboxListener()
