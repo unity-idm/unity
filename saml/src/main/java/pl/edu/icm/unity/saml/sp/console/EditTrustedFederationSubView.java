@@ -21,8 +21,11 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.tooltip.TooltipExtension;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.saml.metadata.cfg.FederationIdPsFilterContextKey;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -30,6 +33,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.StandardButtonsHelper;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
+import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
@@ -126,6 +130,18 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 		url.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		binder.forField(excludedIdps).bind("excludedIdps");
 		header.addComponent(excludedIdps);
+		
+		MVELExpressionField federationIdpFilter = new MVELExpressionField(msg, msg.getMessage("EditTrustedFederationSubView.federationIdpsFilter"),
+				msg.getMessage("MVELExpressionField.conditionDesc"), MVELExpressionContext.builder()
+						.withTitleKey("EditTrustedFederationSubView.federationIdpsFilterTitle")
+						.withEvalToKey("MVELExpressionField.evalToBoolean")
+						.withVars(FederationIdPsFilterContextKey.toMap())
+						.build());
+		federationIdpFilter.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		federationIdpFilter.setDescription(msg.getMessage("EditTrustedFederationSubView.federationIdpsFilterDesc"));
+		binder.forField(federationIdpFilter).bind("federationIdpFilter");	
+		TooltipExtension.tooltip(federationIdpFilter);
+		header.addComponent(federationIdpFilter);
 
 		ComboBox<String> httpsTruststore = new ComboBox<>(
 				msg.getMessage("EditTrustedFederationSubView.httpsTruststore"));
