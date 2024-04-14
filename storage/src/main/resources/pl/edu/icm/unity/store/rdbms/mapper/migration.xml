@@ -103,5 +103,11 @@
 	<update id="updateSchema-018-00">
 		UPDATE UVOS_FLAG SET VAL = '18'
 	</update>
+	
+	<update id="updateSchema-019-00">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx"/>
+		UPDATE UVOS_FLAG SET VAL = '19';
+	</update>
+	
 
 </mapper>

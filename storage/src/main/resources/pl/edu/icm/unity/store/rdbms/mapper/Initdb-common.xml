@@ -253,6 +253,16 @@ CREATE TABLE IDP_STATISTICS (
 	<update id="initdb-24">
 		<include refid="sql-idpstatistics"/>
 	</update>
+	
+	
+	<sql id="sql-initTokenTableIdx">
+		CREATE INDEX IF NOT EXISTS EXPIRES_IDX ON TOKENS(EXPIRES) USING BTREE;
+		CREATE INDEX IF NOT EXISTS TYPE_IDX ON TOKENS(TYPE) USING HASH;
+	</sql>
+	
+	<update id="initdb-25">
+		<include refid="sql-initTokenTableIdx"/>
+	</update>
 
 	<update id="initdb-99">
 CREATE TABLE UVOS_FLAG(
