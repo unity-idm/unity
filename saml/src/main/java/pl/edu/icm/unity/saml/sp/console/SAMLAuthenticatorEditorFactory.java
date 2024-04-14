@@ -9,6 +9,7 @@ import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -38,13 +39,14 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	private final VaadinLogoImageLoader imageAccessService;
 	private final NotificationPresenter notificationPresenter;
 	private final SharedEndpointManagement sharedEndpointManagement;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
 	SAMLAuthenticatorEditorFactory(MessageSource msg, UnityServerConfiguration serverConfig,
 			RegistrationsManagement registrationMan, RealmsManagement realmMan, PKIManagement pkiMan,
 			IdentityTypesRegistry idTypesReg, InputTranslationProfileFieldFactory profileFieldFactory,
 			FileStorageService fileStorageService, URIAccessService uriAccessService,
 			VaadinLogoImageLoader imageAccessService, NotificationPresenter notificationPresenter,
-			SharedEndpointManagement sharedEndpointManagement)
+			SharedEndpointManagement sharedEndpointManagement, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
@@ -58,6 +60,7 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 		this.imageAccessService = imageAccessService;
 		this.notificationPresenter = notificationPresenter;
 		this.sharedEndpointManagement = sharedEndpointManagement;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -69,7 +72,7 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new SAMLAuthenticatorEditor(msg, serverConfig, pkiMan, profileFieldFactory, registrationMan,
+		return new SAMLAuthenticatorEditor(msg, htmlTooltipFactory, serverConfig, pkiMan, profileFieldFactory, registrationMan,
 				realmMan, idTypesReg, fileStorageService, uriAccessService, imageAccessService, notificationPresenter,
 				sharedEndpointManagement);
 	}

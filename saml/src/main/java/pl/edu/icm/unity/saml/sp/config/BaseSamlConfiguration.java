@@ -7,9 +7,12 @@ package pl.edu.icm.unity.saml.sp.config;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 
+import java.io.Serializable;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import org.mvel2.MVEL;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -66,6 +69,9 @@ public abstract class BaseSamlConfiguration
 		public final String registrationForm;
 		public final TranslationProfile translationProfile;
 		public final Set<String> excludedIdps;
+		public final String federationIdpsFilter;
+		public final Serializable compiledFederationIdpsFilter;
+
 		
 		private RemoteMetadataSource(Builder builder)
 		{
@@ -81,13 +87,18 @@ public abstract class BaseSamlConfiguration
 			this.registrationForm = builder.registrationForm;
 			this.translationProfile = builder.translationProfile;
 			this.excludedIdps = Set.copyOf(builder.excludedIdps);
+			this.federationIdpsFilter = builder.federationIdpsFilter;
+			this.compiledFederationIdpsFilter = federationIdpsFilter != null
+					? MVEL.compileExpression(federationIdpsFilter)
+					: null;
+
 		}
 		
 		@Override
 		public int hashCode()
 		{
 			return Objects.hash(httpsTruststore, issuerCertificate, refreshInterval,
-					registrationForm, signatureValidation, translationProfile, url, excludedIdps);
+					registrationForm, signatureValidation, translationProfile, url, excludedIdps, federationIdpsFilter);
 		}
 
 		@Override
@@ -107,7 +118,8 @@ public abstract class BaseSamlConfiguration
 					&& signatureValidation == other.signatureValidation
 					&& Objects.equals(translationProfile, other.translationProfile)
 					&& Objects.equals(url, other.url)
-					&& Objects.equals(excludedIdps, other.excludedIdps);
+					&& Objects.equals(excludedIdps, other.excludedIdps)
+					&& Objects.equals(federationIdpsFilter, other.federationIdpsFilter);
 		}
 
 		@Override
@@ -122,6 +134,7 @@ public abstract class BaseSamlConfiguration
 					", registrationForm='" + registrationForm + '\'' +
 					", translationProfile=" + translationProfile +
 					", excludedIdps=" + excludedIdps +
+					", federationIdpsFilter=" + federationIdpsFilter +
 					'}';
 		}
 
@@ -140,6 +153,7 @@ public abstract class BaseSamlConfiguration
 			private String registrationForm;
 			private TranslationProfile translationProfile;
 			private Set<String> excludedIdps = Collections.emptySet();
+			private String federationIdpsFilter;
 			
 			private Builder()
 			{
@@ -190,6 +204,12 @@ public abstract class BaseSamlConfiguration
 			public Builder withExcludedIdps(Set<String> excludedIdps)
 			{
 				this.excludedIdps = excludedIdps;
+				return this;
+			}
+			
+			public Builder withFederationIdpsFilter(String federationIdpsFilter)
+			{
+				this.federationIdpsFilter = federationIdpsFilter;
 				return this;
 			}
 			

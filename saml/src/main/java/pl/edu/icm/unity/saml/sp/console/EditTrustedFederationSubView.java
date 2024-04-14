@@ -5,6 +5,16 @@
 
 package pl.edu.icm.unity.saml.sp.console;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -18,29 +28,25 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
+
 import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.NoSpaceValidator;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.endpoint.common.api.UnitySubView;
-import pl.edu.icm.unity.base.message.MessageSource;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
+import pl.edu.icm.unity.saml.metadata.cfg.FederationIdPsFilterContextKey;
 
 
 class EditTrustedFederationSubView extends VerticalLayout implements UnitySubView
 {
 	private final MessageSource msg;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 	private final Binder<SAMLAuthnTrustedFederationConfiguration> binder;
 	private final boolean editMode;
 	private final Set<String> validators;
@@ -48,13 +54,14 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 	private final Set<String> registrationForms;
 	private final Set<String> usedNames;
 
-	EditTrustedFederationSubView(MessageSource msg,
+	EditTrustedFederationSubView(MessageSource msg, HtmlTooltipFactory htmlTooltipFactory,
 			InputTranslationProfileFieldFactory profileFieldFactory, SAMLAuthnTrustedFederationConfiguration toEdit,
 			SubViewSwitcher subViewSwitcher, Set<String> usedNames, Set<String> validators,
 			Set<String> certificates, Set<String> registrationForms,
 			Consumer<SAMLAuthnTrustedFederationConfiguration> onConfirm, Runnable onCancel, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 		this.validators = validators;
 		this.certificates = certificates;
 		this.registrationForms = registrationForms;
@@ -134,6 +141,21 @@ class EditTrustedFederationSubView extends VerticalLayout implements UnitySubVie
 				.bind(SAMLAuthnTrustedFederationConfiguration::getExcludedIdps, SAMLAuthnTrustedFederationConfiguration::setExcludedIdps);
 		header.addFormItem(excludedIdps, msg.getMessage("EditTrustedFederationSubView.excludedIdps"));
 
+		
+		MVELExpressionField federationIdpFilter = 
+		new MVELExpressionField(msg,
+				msg.getMessage("EditTrustedFederationSubView.federationIdpsFilterDesc"),
+				MVELExpressionContext.builder()
+				.withTitleKey("EditTrustedFederationSubView.federationIdpsFilterTitle")
+				.withEvalToKey("MVELExpressionField.evalToBoolean")
+				.withVars(FederationIdPsFilterContextKey.toMap())
+				.build(), htmlTooltipFactory);
+		
+		binder.forField(federationIdpFilter).bind("federationIdpFilter");	
+		header.addFormItem(federationIdpFilter, msg.getMessage("EditTrustedFederationSubView.federationIdpsFilter"));
+		
+		
+		
 		Select<String> httpsTruststore = new Select<>();
 		httpsTruststore.setItems(validators);
 		httpsTruststore.setEmptySelectionAllowed(true);

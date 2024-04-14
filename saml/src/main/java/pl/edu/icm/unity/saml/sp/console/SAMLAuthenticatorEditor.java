@@ -30,6 +30,7 @@ import io.imunity.vaadin.elements.TooltipFactory;
 import io.imunity.vaadin.elements.grid.EditableGrid;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.endpoint.common.file.FileField;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
@@ -77,6 +78,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	private final UnityServerConfiguration serverConfig;
 	private final InputTranslationProfileFieldFactory profileFieldFactory;
 	private final RegistrationsManagement registrationMan;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 	private Binder<SAMLAuthenticatorConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 
@@ -91,7 +93,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	private final NotificationPresenter notificationPresenter;
 	private final SharedEndpointManagement sharedEndpointManagement;
 
-	SAMLAuthenticatorEditor(MessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan,
+	SAMLAuthenticatorEditor(MessageSource msg, HtmlTooltipFactory htmlTooltipFactory, UnityServerConfiguration serverConfig, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			RegistrationsManagement registrationMan, RealmsManagement realmMan,
 			IdentityTypesRegistry idTypesReg, FileStorageService fileStorageService,
@@ -111,6 +113,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		this.idTypes = idTypesReg.getAll().stream().map(IdentityTypeDefinition::getId).collect(Collectors.toList());
 		this.notificationPresenter = notificationPresenter;
 		this.sharedEndpointManagement = sharedEndpointManagement;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -550,7 +553,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				return;
 			}
 
-			EditTrustedFederationSubView subView = new EditTrustedFederationSubView(msg,
+			EditTrustedFederationSubView subView = new EditTrustedFederationSubView(msg, htmlTooltipFactory,
 					profileFieldFactory, edited, subViewSwitcher, usedNames, validators,
 					certificates, forms, r -> {
 						onConfirm.accept(r);

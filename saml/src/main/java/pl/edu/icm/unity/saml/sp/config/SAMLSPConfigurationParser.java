@@ -173,6 +173,8 @@ public class SAMLSPConfigurationParser
 					.withTranslationProfile(generateMetadataTranslationProfile(samlProperties, key))
 					.withUrl(samlProperties.getValue(key + SAMLSPProperties.METADATA_URL))
 					.withExcludedIdps(samlProperties.getListOfValues(key + SAMLSPProperties.IDPMETA_EXCLUDED_IDPS).stream().collect(Collectors.toSet()))
+					.withFederationIdpsFilter(samlProperties.getValue(
+							key + SAMLSPProperties.IDPMETA_FEDERATION_IDP_FILTER))
 					.build())
 			.collect(Collectors.toList());
 	}
