@@ -46,6 +46,14 @@
 		select 1
 	</sql>
 
+	<sql id="sql-initTokenTableIdx1">
+		CREATE INDEX IF NOT EXISTS EXPIRES_IDX ON TOKENS (EXPIRES) USING BTREE;
+	</sql>
+
+	<sql id="sql-initTokenTableIdx2">
+		CREATE INDEX IF NOT EXISTS TYPE_IDX ON TOKENS(TYPE) USING HASH;	
+	</sql>
+
 	<update id="resetIndex-00">
 		ALTER TABLE TOKENS AUTO_INCREMENT=1;
 	</update>

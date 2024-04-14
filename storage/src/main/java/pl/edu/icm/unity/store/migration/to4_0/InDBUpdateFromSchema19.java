@@ -27,9 +27,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
-public class InDBUpdateFromSchema18 implements InDBContentsUpdater
+public class InDBUpdateFromSchema19 implements InDBContentsUpdater
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema18.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema19.class);
 
 	private static final Set<String> unwantedIdentityTypes = Set.of("fidoUserHandle", "persistent", "targetedPersistent", "transient");
 
@@ -38,7 +38,7 @@ public class InDBUpdateFromSchema18 implements InDBContentsUpdater
 
 
 	@Autowired
-	public InDBUpdateFromSchema18(RegistrationFormDB formsDB, ObjectStoreDAO genericObjectsDAO)
+	public InDBUpdateFromSchema19(RegistrationFormDB formsDB, ObjectStoreDAO genericObjectsDAO)
 	{
 		this.formsDB = formsDB;
 		this.genericObjectsDAO = genericObjectsDAO;
@@ -47,7 +47,7 @@ public class InDBUpdateFromSchema18 implements InDBContentsUpdater
 	@Override
 	public int getUpdatedVersion()
 	{
-		return 18;
+		return 19;
 	}
 
 	@Override

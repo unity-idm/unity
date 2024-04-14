@@ -82,6 +82,13 @@
 		CREATE INDEX TOKENS_ENTITY_ID_IDX ON TOKENS (ENTITY_ID);
 	</update>
 
+	<sql id="sql-initTokenTableIdx1">
+		CREATE INDEX IF NOT EXISTS EXPIRES_IDX ON TOKENS USING BTREE (EXPIRES);
+	</sql>
+
+	<sql id="sql-initTokenTableIdx2">
+		CREATE INDEX IF NOT EXISTS TYPE_IDX ON TOKENS USING HASH (TYPE);	
+	</sql>
 
 	<update id="resetIndex-00">
 		ALTER SEQUENCE TOKENS_id_seq RESTART WITH 1;

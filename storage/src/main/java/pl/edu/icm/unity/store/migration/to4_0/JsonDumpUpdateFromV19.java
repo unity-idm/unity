@@ -23,7 +23,7 @@ import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.store.export.JsonDumpUpdate;
 
 @Component
-public class JsonDumpUpdateFromV18 implements JsonDumpUpdate
+public class JsonDumpUpdateFromV19 implements JsonDumpUpdate
 {
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -31,7 +31,7 @@ public class JsonDumpUpdateFromV18 implements JsonDumpUpdate
 	@Override
 	public int getUpdatedVersion()
 	{
-		return 18;
+		return 19;
 	}
 
 	@Override

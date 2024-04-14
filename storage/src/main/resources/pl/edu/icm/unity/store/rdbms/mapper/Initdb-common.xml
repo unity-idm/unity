@@ -253,6 +253,16 @@ CREATE TABLE IDP_STATISTICS (
 	<update id="initdb-24">
 		<include refid="sql-idpstatistics"/>
 	</update>
+	
+
+	<update id="initdb-25-01">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx1"/>
+	</update>
+	
+	<update id="initdb-25-02">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx2"/>
+	</update>
+	
 
 	<update id="initdb-99">
 CREATE TABLE UVOS_FLAG(

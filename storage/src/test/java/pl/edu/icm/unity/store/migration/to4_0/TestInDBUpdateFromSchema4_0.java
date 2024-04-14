@@ -156,7 +156,7 @@ public class TestInDBUpdateFromSchema4_0
 		RegistrationForm first = new RegistrationForm((ObjectNode) Constants.MAPPER.readTree(FORM_WITH_FIDO));
 		RegistrationForm second = new RegistrationForm((ObjectNode) Constants.MAPPER.readTree(FORM_WITHOUT_FIDO));
 		when(registrationFormDB.getAll()).thenReturn(List.of(first, second));
-		InDBUpdateFromSchema18 hotfix = new InDBUpdateFromSchema18(registrationFormDB, objectStoreDAO);
+		InDBUpdateFromSchema19 hotfix = new InDBUpdateFromSchema19(registrationFormDB, objectStoreDAO);
 
 		hotfix.update();
 
@@ -188,7 +188,7 @@ public class TestInDBUpdateFromSchema4_0
 		when(objectStoreDAO.getObjectsOfType(EndpointHandler.ENDPOINT_OBJECT_TYPE)).thenReturn(List.of(endpoint));
 		when(endpoint.getId()).thenReturn(1L);
 		when(endpoint.getContents()).thenReturn(JsonUtil.serialize2Bytes(root));
-		InDBUpdateFromSchema18 hotfix = new InDBUpdateFromSchema18(registrationFormDB, objectStoreDAO);
+		InDBUpdateFromSchema19 hotfix = new InDBUpdateFromSchema19(registrationFormDB, objectStoreDAO);
 
 		hotfix.update();
 
