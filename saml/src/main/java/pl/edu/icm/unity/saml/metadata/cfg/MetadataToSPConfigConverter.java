@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.metadata.cfg;
 import static java.util.Collections.emptyList;
 
 import java.io.ByteArrayInputStream;
+import java.io.Serializable;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -25,6 +26,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.mvel2.MVEL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -139,13 +141,21 @@ class MetadataToSPConfigConverter
 			return emptyList();
 		}
 		
+		EntityAttributesType entityAttributes = parseMDAttributes(entityMeta.getExtensions(), entityId);
+		
+		if (!evaluateFilterCondition(metadataSource.federationIdpsFilter, metadataSource.compiledFederationIdpsFilter,
+				createMvelContextForFilter(entityAttributes, entityId)))
+		{
+			log.trace("IDP of entity {} is excluded by filter, ignoring.", entityId);
+			return emptyList();
+		}
+		
 		if (!MetaToConfigConverterHelper.supportsSaml2(idpDef))
 		{
 			log.trace("IDP of entity {} doesn't support SAML2 - ignoring.", entityId);
 			return emptyList();
 		}
 		
-		EntityAttributesType entityAttributes = parseMDAttributes(entityMeta.getExtensions(), entityId);
 		if (isDisabledWithREFEDSExtension(entityAttributes))
 		{
 			log.trace("IDP of entity {} is hidden from discovery - ignoring.", entityId);
@@ -196,6 +206,65 @@ class MetadataToSPConfigConverter
 		return ret;
 	}
 
+	private Map<String, Object> createMvelContextForFilter(EntityAttributesType entityAttributes, String entityId)
+	{
+		Map<String, Object> context = new HashMap<>();
+		context.put(FederationIdPsFilterContextKey.entityID.name(), entityId);
+		Map<String, List<String>> attributes = new HashMap<>();
+		if (entityAttributes != null)
+		{
+			AttributeType[] attributeArray = entityAttributes.getAttributeArray();
+			for (AttributeType a : attributeArray)
+			{
+				attributes.put(a.getName(), getAttributeValues(a));
+			}
+		}
+		context.put(FederationIdPsFilterContextKey.attributes.name(), attributes);
+		
+		return context;
+	}
+	
+	private List<String> getAttributeValues(AttributeType a)
+	{	
+		List<String> ret = new ArrayList<>();
+		for (XmlObject value : a.getAttributeValueArray())
+		{
+			XmlCursor c = value.newCursor();
+			String valueStr = c.getTextValue();
+			c.dispose();
+			ret.add(valueStr);
+		}
+		
+		return ret;	
+	}
+	
+	private boolean evaluateFilterCondition(String condition, Serializable compiledCondition, Object input) 
+	{
+		if (condition == null)
+		{
+			return true;
+		}
+		
+		Boolean result = null;
+		try
+		{
+			result = (Boolean) MVEL.executeExpression(compiledCondition, input, new HashMap<>());
+		} catch (Exception e)
+		{
+			log.warn("Error during expression execution.", e);
+		}
+
+		if (result == null)
+		{
+			log.trace("Condition evaluated to null value, assuming false");
+			return false;
+		}
+		if (result.booleanValue() == true)
+		log.trace("Condition \"{}\" evaluated to {}", condition, result.booleanValue());
+		return result.booleanValue();
+	}
+
+	
 
 	private void fillMetadataWideSettings(Builder builder, RemoteMetadataSource metadataSource, 
 			Set<String> pkiCertNames, List<X509Certificate> certs)

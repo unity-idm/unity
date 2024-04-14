@@ -19,8 +19,8 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
+import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -61,6 +61,44 @@ public class MetadataToSPConfigConverterTest
 		assertThat(trustedIdP.signRequest).isEqualTo(false);
 		assertThat(trustedIdP.translationProfile).isEqualTo(translationProfile1);
 		assertThat(trustedIdP.logoutEndpoints).isEmpty();
+	}
+		
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldSkipFilteredIdpByEntityID() throws EngineException
+	{
+		PKIManagement pkiManagement = mock(PKIManagement.class);
+		when(pkiManagement.getCertificate(any())).thenThrow(IllegalArgumentException.class);
+		MetadataToSPConfigConverter converter = new MetadataToSPConfigConverter(pkiManagement , "en");
+		EntitiesDescriptorDocument metadata = loadMetadata("src/test/resources/metadata.switchaai.xml");
+		RemoteMetadataSource metadataSrc = RemoteMetadataSource.builder()
+				.withRegistrationForm("regForm")
+				.withTranslationProfile(translationProfile1)
+				.withUrl("dummy")
+				.withRefreshInterval(Duration.ZERO)
+				.withFederationIdpsFilter("entityID!=\"https://aai.unifr.ch/idp/shibboleth\"")
+				.build();
+		
+		TrustedIdPs trustedIdps = converter.convertToTrustedIdPs(metadata, metadataSrc);
+		trustedIdps.get(metadataEntity("https://aai.unifr.ch/idp/shibboleth", 1));
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldSkipFilteredIdpByAttribute() throws EngineException
+	{
+		PKIManagement pkiManagement = mock(PKIManagement.class);
+		when(pkiManagement.getCertificate(any())).thenThrow(IllegalArgumentException.class);
+		MetadataToSPConfigConverter converter = new MetadataToSPConfigConverter(pkiManagement , "en");
+		EntitiesDescriptorDocument metadata = loadMetadata("src/test/resources/DFN-AAI-metadata-2certs.xml");
+		RemoteMetadataSource metadataSrc = RemoteMetadataSource.builder()
+				.withRegistrationForm("regForm")
+				.withTranslationProfile(translationProfile1)
+				.withUrl("dummy")
+				.withRefreshInterval(Duration.ZERO)
+				.withFederationIdpsFilter("attributes['http://macedir.org/entity-category'][0]!=\"http://aai.dfn.de/category/bwidm-member\"")
+				.build();
+		
+		TrustedIdPs trustedIdps = converter.convertToTrustedIdPs(metadata, metadataSrc);
+		trustedIdps.get(metadataEntity("https://idp.scc.kit.edu/idp/shibboleth", 1));
 	}
 	
 	private EntitiesDescriptorDocument loadMetadata(String path)

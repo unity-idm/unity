@@ -34,7 +34,8 @@ public class SAMLAuthnTrustedFederationConfiguration
 	private String registrationForm;
 	private TranslationProfile translationProfile;
 	private List<String> excludedIdps;
-
+	private String federationIdpFilter;
+	
 	public SAMLAuthnTrustedFederationConfiguration()
 	{
 		setRefreshInterval(SamlProperties.DEFAULT_METADATA_REFRESH);
@@ -78,6 +79,8 @@ public class SAMLAuthnTrustedFederationConfiguration
 		}
 		
 		setExcludedIdps(source.getListOfValues(prefix + SAMLSPProperties.IDPMETA_EXCLUDED_IDPS));
+		
+		setFederationIdpFilter(source.getValue(prefix + SAMLSPProperties.IDPMETA_FEDERATION_IDP_FILTER));
 	}
 
 	public void toProperties(Properties raw)
@@ -131,6 +134,12 @@ public class SAMLAuthnTrustedFederationConfiguration
 					prefix + SAMLSPProperties.IDPMETA_EXCLUDED_IDPS + (getExcludedIdps().indexOf(exIdp) + 1), exIdp));
 		}
 
+		if (getFederationIdpFilter() != null && !getFederationIdpFilter().isEmpty())
+		{
+			raw.put(prefix + SAMLSPProperties.IDPMETA_FEDERATION_IDP_FILTER, getFederationIdpFilter());
+		}
+
+		
 		
 	}
 
@@ -223,6 +232,16 @@ public class SAMLAuthnTrustedFederationConfiguration
 	{
 		this.excludedIdps = excludedIdps;
 	}
+
+	public String getFederationIdpFilter()
+	{
+		return federationIdpFilter;
+	}
+
+	public void setFederationIdpFilter(String federationIdpFilter)
+	{
+		this.federationIdpFilter = federationIdpFilter;
+	}
 	
 	public SAMLAuthnTrustedFederationConfiguration clone()
 	{
@@ -247,6 +266,9 @@ public class SAMLAuthnTrustedFederationConfiguration
 		clone.setTranslationProfile(
 				this.getTranslationProfile() != null ? this.getTranslationProfile().clone() : null);
 		clone.setExcludedIdps(getExcludedIdps());	
+		clone.setFederationIdpFilter(getFederationIdpFilter());	
 		return clone;
 	}
+
+
 }
