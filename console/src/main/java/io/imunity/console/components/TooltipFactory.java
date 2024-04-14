@@ -5,13 +5,13 @@
 
 package io.imunity.console.components;
 
+import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
+
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 
-import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 
 
 @org.springframework.stereotype.Component
@@ -20,7 +20,7 @@ public class TooltipFactory implements HtmlTooltipFactory
 	public static Component getWithHtmlContent(String tooltipText)
 	{
 		Icon icon = VaadinIcon.QUESTION_CIRCLE_O.create();
-		HtmlTooltipAttacher.to(icon, new Html("<div>" + tooltipText + "</div>"));
+		icon.setTooltipText(tooltipText);
 		icon.setClassName(FIELD_ICON_GAP.getName());
 		return icon;
 	}
