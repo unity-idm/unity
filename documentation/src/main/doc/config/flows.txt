@@ -30,6 +30,31 @@ There are the following policies available:
  * REQUIRE - the 2nd factor authentication is mandatory
  * USER_OPTIN - 2nd factor authentication is only performed if user opted in for it (what can be set on HomeUI in credentials tab)
  * NEVER - only 1st factor is used
- * STEP_UP_IF_AVAILABLE - only the 1st factor is used for authentication, but when a security sensitive operation is
- invoked then 2nd factor must be provided, if set for the user. If user has none of the 2nd factor credentials of the flow
- then this policy is the same as NEVER. 
+ * DYNAMIC_EXPRESSION - needs to be configured with additional MVEL expression. The expression has a context of the user who authenticated with the first factor. It allows for taking a decision basing on user's attributes, available credentials and even ACR obtained from upstream IdP if such was used for the first factor. Expression shall return true if 2nd factor authentication shall be requested.
+
+===== Dynamic activation of 2nd factor
+
+Context reference for the dynamic expression policy:
+
+. +attr+ Map indexed with principal's attribute names. Value of each entry is a single value of the attribute. If the attribute is multi-valued then the first value is returned. If the attribute has no value then empty string is returned.
+. +attrObj+ Map indexed with attribute names. Value of each entry is a list of all values provided as objects with attribute-type specific contents. Useful for inspecting complex types like email and accessing its confirmation status.
+. +authentication1F+  Name of the authenticator used as the first factor
+. +groups+  List of all groups the user is a member.
+. +hasValid2FCredential+  Boolean, true if user has at least one valid credential, from the ones enabled in the hosting authentication flow
+. +idsByType+  Map of identity values indexed by type.
+. +upstreamACRs+  List with names of authentication context class references as obtained from upstream 1st factor IdP. Empty list if no ACR was obtained or the 1st factor was not using remote IdP. 
+. +upstreamIdP+  Name of the upstream the 1st factor IdP or +null+ if the 1st factor was not using remote IdP. 
+. +upstreamProtocol+  Name of the authentication protocol used for the first factor, one of: +saml+, +oidc+, +other+ or +local+. 
+. +userOptIn+  Boolean, true if user opted to use 2nd factor
+
+
+Example use of dynamic 2nd factor policy, activating Fido based 2nd factor, in case when remote SAML authentication was not using MFA itself:  
+
+-----
+unityServer.core.authenticationFlow.dynamic.authenticationFlowName=dynamic2F
+unityServer.core.authenticationFlow.dynamic.authenticationFlowPolicy=DYNAMIC_EXPRESSION
+unityServer.core.authenticationFlow.dynamic.firstFactorAuthenticators=saml
+unityServer.core.authenticationFlow.dynamic.secondFactorAuthenticators=fido
+unityServer.core.authenticationFlow.dynamic.authenticationFlowPolicyConfiguration=!(upstreamACRs contains \'https://refeds.org/profile/mfa\')
+-----  
+
