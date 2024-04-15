@@ -37,9 +37,9 @@ class LogoExposingService
 
 	Image getAsResource(IdPVisalSettings configuration, TrustedIdPKey configKey)
 	{
-		if (configuration.getLogoURI() == null)
+		if (configuration.logoURI == null)
 			return null;
-		return (configuration.federationId == null || configuration.getLogoURI().startsWith("file:")) ?
+		return (configuration.federationId == null || configuration.logoURI.startsWith("file:")) ?
 			getDirectlyDefinedImage(configuration) :
 			getPrefetchedFederationLogo(configuration, configKey);
 	}
@@ -53,7 +53,7 @@ class LogoExposingService
 				.orElse(null);
 		} catch (Exception e)
 		{
-			log.debug("Can not load logo fetched from URI " + configuration.getLogoURI(), e);
+			log.debug("Can not load logo fetched from URI " + configuration.logoURI, e);
 			return null;
 		}
 	}
@@ -77,6 +77,6 @@ class LogoExposingService
 
 	private Image getDirectlyDefinedImage(IdPVisalSettings configuration)
 	{
-		return logoImageLoader.loadImageFromUri(configuration.getLogoURI()).orElse(null);
+		return logoImageLoader.loadImageFromUri(configuration.logoURI).orElse(null);
 	}
 }

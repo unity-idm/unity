@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public class IdPVisalSettings
 {
-	private final String logoURI;
+	public final String logoURI;
 	public final Set<String> tags;
 	public final String name;
 	public final String federationId;
@@ -25,15 +25,5 @@ public class IdPVisalSettings
 		this.tags = Set.copyOf(tags);
 		this.name = name;
 		this.federationId = federationId;
-	}
-
-	public String getLogoURI()
-	{
-		return logoURI;
-	}
-
-	public String getV8LogoURI()
-	{
-		return logoURI;
 	}
 }
