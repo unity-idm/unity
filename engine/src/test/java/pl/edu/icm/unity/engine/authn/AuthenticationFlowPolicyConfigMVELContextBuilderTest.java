@@ -28,6 +28,7 @@ import pl.edu.icm.unity.base.authn.CredentialInfo;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
@@ -85,7 +86,7 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 		when(tx.runInTransactionRetThrowing(any()))
 				.thenAnswer(i -> ((TxRunnableThrowingRet<?>) i.getArguments()[0]).run());
 		when(identitiesMan.getEntity(new EntityParam(1L)))
-				.thenReturn(new Entity(List.of(new Identity("type", "val", 1L, "val")), null, new CredentialInfo("id",
+				.thenReturn(new Entity(List.of(new Identity("type", "val", 1L, "val")), new EntityInformation(1), new CredentialInfo("id",
 						Map.of("pass", new CredentialPublicInformation(LocalCredentialState.correct, null)))));
 		when(attrConverter.internalValuesToExternal("a1", List.of("v1"))).thenReturn(List.of("v1"));
 		when(identitiesMan.getGroupsForPresentation(new EntityParam(1L)))
