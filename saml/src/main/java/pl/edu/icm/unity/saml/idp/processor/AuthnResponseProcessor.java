@@ -187,11 +187,14 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		Assertion assertion = new Assertion();
 		assertion.setIssuer(samlConfiguration.issuerURI, SAMLConstants.NFORMAT_ENTITY);
 		assertion.setSubject(authenticatedOne);
+		AssertionTimeConditionSetter.setDefaultNotOnOrAfterInAssertion(assertion);
+
 		this.sessionId = assertion.getXMLBean().getID();
 		assertion.addAuthStatement(getAuthnTime(), authContext, sessionId, null, null);
-		assertion.setAudienceRestriction(new String[]
+		assertion.setAudienceRestriction(new String[]		
 		{ context.getRequest().getIssuer().getStringValue() });
 
+		
 		if (attributes != null)
 			addAttributesToAssertion(assertion, attributes);
 
@@ -199,6 +202,8 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		{		
 			AssertionTimeConditionSetter.setDefaultNotBeforeCondition(assertion);
 		}
+		
+		
 		
 		AssertionSigningPolicy assertionSigningPolicy = samlConfiguration.signAssertion;
 		if (assertionSigningPolicy == AssertionSigningPolicy.always || !doSignResponse())

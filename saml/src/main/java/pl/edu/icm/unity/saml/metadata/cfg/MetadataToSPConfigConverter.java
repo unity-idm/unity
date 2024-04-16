@@ -141,19 +141,29 @@ class MetadataToSPConfigConverter
 			return emptyList();
 		}
 		
-		EntityAttributesType entityAttributes = parseMDAttributes(entityMeta.getExtensions(), entityId);
-		
-		if (!evaluateFilterCondition(metadataSource.federationIdpsFilter, metadataSource.compiledFederationIdpsFilter,
-				createMvelContextForFilter(entityAttributes, entityId)))
+		EntityAttributesType entityAttributes = null;
+		if (metadataSource.federationIdpsFilter != null)
 		{
-			log.trace("IDP of entity {} is excluded by filter, ignoring.", entityId);
-			return emptyList();
+			entityAttributes = parseMDAttributes(entityMeta.getExtensions(), entityId);
+			if (!evaluateFilterCondition(metadataSource.federationIdpsFilter,
+					metadataSource.compiledFederationIdpsFilter,
+					createMvelContextForFilter(entityAttributes, entityId), entityId))
+			{
+				log.trace("IDP of entity {} is excluded by filter, ignoring.", entityId);
+				return emptyList();
+			}
 		}
+		
 		
 		if (!MetaToConfigConverterHelper.supportsSaml2(idpDef))
 		{
 			log.trace("IDP of entity {} doesn't support SAML2 - ignoring.", entityId);
 			return emptyList();
+		}
+		
+		if (entityAttributes == null)
+		{
+			entityAttributes = parseMDAttributes(entityMeta.getExtensions(), entityId);
 		}
 		
 		if (isDisabledWithREFEDSExtension(entityAttributes))
@@ -220,7 +230,8 @@ class MetadataToSPConfigConverter
 			}
 		}
 		context.put(FederationIdPsFilterContextKey.attributes.name(), attributes);
-		
+		log.trace("Created MVEL context for entity {}: {}", entityId, context);
+
 		return context;
 	}
 	
@@ -238,7 +249,7 @@ class MetadataToSPConfigConverter
 		return ret;	
 	}
 	
-	private boolean evaluateFilterCondition(String condition, Serializable compiledCondition, Object input) 
+	private boolean evaluateFilterCondition(String condition, Serializable compiledCondition, Object input, String entityId) 
 	{
 		if (condition == null)
 		{
@@ -256,11 +267,10 @@ class MetadataToSPConfigConverter
 
 		if (result == null)
 		{
-			log.trace("Condition evaluated to null value, assuming false");
+			log.trace("Condition evaluated for IDP of entity {} is evaluated to null value, assuming false.", entityId);
 			return false;
 		}
-		if (result.booleanValue() == true)
-		log.trace("Condition \"{}\" evaluated to {}", condition, result.booleanValue());
+		log.trace("Condition \"{}\" evaluated for IDP of entity {} is evaluated to {}", condition, entityId, result.booleanValue());
 		return result.booleanValue();
 	}
 

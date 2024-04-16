@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,7 @@ import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.Identity;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -38,6 +40,8 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 @Component
 class AuthenticationFlowPolicyConfigMVELContextBuilder
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AuthenticationFlowPolicyConfigMVELContextBuilder.class);
+	
 	private final AttributesHelper attributesHelper;
 	private final EntityManagement identitiesMan;
 	private final AttributeValueConverter attrConverter;
@@ -98,6 +102,8 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 				firstFactorOptionId.getAuthenticatorKey());
 		ret.put(DynamicPolicyConfigurationMVELContextKey.hasValid2FCredential.name(),
 				hasValid2FCredential(entity, authenticationFlow));
+
+		log.debug("Created MVEL context for entity {}: {}", entity.getId(), context);
 
 		return ret;
 	}
