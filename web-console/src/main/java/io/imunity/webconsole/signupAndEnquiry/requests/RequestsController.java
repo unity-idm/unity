@@ -5,11 +5,8 @@
 
 package io.imunity.webconsole.signupAndEnquiry.requests;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,14 +17,15 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.EnquiryResponse;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
-import pl.edu.icm.unity.types.registration.UserRequestState;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.types.basic.*;
+import pl.edu.icm.unity.types.registration.*;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponsesChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
+
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Controller for all registration and enquiry request views.
@@ -38,10 +36,10 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestsChangedEvent;
 @Component
 class RequestsController
 {
-	private EntityManagement idMan;
-	private RegistrationsManagement regMan;
-	private EnquiryManagement enqMan;
-	private MessageSource msg;
+	private final EntityManagement idMan;
+	private final RegistrationsManagement regMan;
+	private final EnquiryManagement enqMan;
+	private final MessageSource msg;
 
 	@Autowired
 	RequestsController(EntityManagement idMan, RegistrationsManagement regMan, EnquiryManagement enqMan,
@@ -59,16 +57,54 @@ class RequestsController
 
 		try
 		{
-			regMan.getRegistrationRequests().stream()
-					.forEach(r -> res.add(new RequestEntry(r, msg, idMan)));
-			enqMan.getEnquiryResponses().stream().forEach(r -> res.add(new RequestEntry(r, msg, idMan)));
-
+			regMan.getRegistrationRequests().forEach(r -> res.add(new RequestEntry(r, msg, getRegisteredIdentity(r))));
+			res.addAll(prepareEnquiryResponsesForPresentation());
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("RequestsController.getAllError"), e);
 		}
-
 		return res;
+	}
+
+	private List<RequestEntry> prepareEnquiryResponsesForPresentation() throws EngineException
+	{
+		List<EnquiryResponseState> enquiryResponses = enqMan.getEnquiryResponses();
+		Set<Long> entityIds = enquiryResponses.stream().map(EnquiryResponseState::getEntityId).collect(toSet());
+		Map<Long, List<Identity>> idToEntity = idMan.getIdentitiesForEntities(entityIds);
+
+		return enquiryResponses.stream()
+				.map(r -> new RequestEntry(r, msg, getEnquiryIdentity(r, idToEntity)))
+				.collect(Collectors.toList());
+	}
+
+	private static String getRegisteredIdentity(UserRequestState<?> request)
+	{
+		List<IdentityParam> identities = request.getRequest().getIdentities();
+		if (identities.isEmpty())
+			return "-";
+		IdentityParam id = identities.get(0);
+		return id == null ? "-" : id.toHumanReadableString();
+	}
+
+	private String getEnquiryIdentity(EnquiryResponseState enqRequest, Map<Long, List<Identity>> idToEntity)
+	{
+		List<Identity> identities = idToEntity.get(enqRequest.getEntityId());
+		if (identities == null)
+			return "-";
+		List<IdentityParam> identityParams = identities.stream().map(i -> (IdentityParam) i)
+				.collect(Collectors.toList());
+		return getEmailIdentity(identityParams)
+				.orElse(identities.isEmpty() ? "-" : identities.get(0).toHumanReadableString());
+	}
+
+	private Optional<String> getEmailIdentity(List<IdentityParam> identities)
+	{
+		for (IdentityParam id : identities)
+		{
+			if (id != null && id.getTypeId().equals(EmailIdentity.ID))
+				return Optional.of(id.getValue());
+		}
+		return Optional.empty();
 	}
 
 	public void process(Collection<?> items, RegistrationRequestAction action, EventsBus bus)
@@ -80,7 +116,7 @@ class RequestsController
 		{
 			try
 			{
-				types.add(processSingle((RequestEntry) item, action, bus).type);
+				types.add(processSingle((RequestEntry) item, action).type);
 			} catch (EngineException e)
 			{
 				String info = msg.getMessage("RequestsController.processError." + action.toString(),
@@ -101,7 +137,7 @@ class RequestsController
 		
 	}
 
-	private InternalRequestProcessingResponse processSingle(RequestEntry item, RegistrationRequestAction action, EventsBus bus)
+	private InternalRequestProcessingResponse processSingle(RequestEntry item, RegistrationRequestAction action)
 			throws EngineException
 	{
 		UserRequestState<?> request = item.request;
