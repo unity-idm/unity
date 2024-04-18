@@ -41,7 +41,7 @@ public interface EntityManagement
 	 * with mandatory attributes. 
 	 * @return newly created identity
 	 */
-	Identity addEntity(IdentityParam toAdd, String credReqIdId, EntityState initialState,
+	Identity addEntity(IdentityParam toAdd, String credReqId, EntityState initialState,
 			List<Attribute> attributes) throws EngineException;	
 	
 	/**
@@ -126,7 +126,9 @@ public interface EntityManagement
 	 * Requires only the attributeModify capability (allowed for selfAccess).
 	 */
 	void scheduleRemovalByUser(EntityParam toChange, Date changeTime) throws EngineException;	
-	
+
+	Map<Long, List<Identity>> getIdentitiesForEntities(Set<Long> entityIds);
+
 	/**
 	 * Returns information about an entity along with its all identities with authorization in '/'.
 	 */
@@ -156,7 +158,7 @@ public interface EntityManagement
 	/**
 	 * Returns entities with assigned e-mail - as attribute or identity
 	 * 
-	 * @param contactEmail email assigned to the entity
+	 * @param contactEmails email assigned to the entity
 	 */
 	Set<EntityWithContactInfo> getAllEntitiesWithContactEmails(Set<String> contactEmails) throws EngineException;
 
