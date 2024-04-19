@@ -25,7 +25,6 @@ import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.sessionscope.WebSessionComponent;
@@ -73,7 +72,6 @@ public class DirectoryBrowser extends CustomComponent implements UnityView
 		setSizeFull();
 
 		setCompositionRoot(mainL);
-		WebSession.getCurrent().getEventBus().fireEvent(new RefreshAndSelectEvent());
 	}
 
 	@Override
