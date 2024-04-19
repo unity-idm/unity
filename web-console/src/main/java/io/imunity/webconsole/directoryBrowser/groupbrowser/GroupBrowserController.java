@@ -184,17 +184,6 @@ class GroupBrowserController
 
 	}
 
-	Map<String, GroupContents> getGroupAndSubgroups(GroupStructuralData bulkData) throws ControllerException
-	{
-		try
-		{
-			return bulkQueryService.getGroupAndSubgroups(bulkData);
-		} catch (Exception e)
-		{
-			throw new ControllerException(msg.getMessage("GroupBrowserController.getGroupError"), e);
-		}
-	}
-
 	GroupDelegationEditConfigDialog getGroupDelegationEditConfigDialog(EventsBus bus, Group group,
 			Consumer<Group> update) throws ControllerException
 	{
