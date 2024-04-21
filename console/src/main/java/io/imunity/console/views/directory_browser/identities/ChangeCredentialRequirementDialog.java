@@ -5,6 +5,7 @@
 package io.imunity.console.views.directory_browser.identities;
 
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.select.Select;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.vaadin.elements.DialogWithActionFooter;
@@ -15,6 +16,8 @@ import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 import java.util.Collection;
 
@@ -46,13 +49,13 @@ class ChangeCredentialRequirementDialog extends DialogWithActionFooter
 		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		setWidth("40em");
 		setHeight("18em");
+		add(new NativeLabel(msg.getMessage("CredentialRequirementDialog.changeFor", entity)));
 		add(getContents());
 	}
 
 	private FormLayout getContents()
 	{
 		credentialRequirement = new Select<>();
-		credentialRequirement.setLabel(msg.getMessage("CredentialRequirementDialog.changeFor", entity));
 		credentialRequirement.setWidthFull();
 		Collection<CredentialRequirements> credReqs;
 		try
@@ -75,10 +78,13 @@ class ChangeCredentialRequirementDialog extends DialogWithActionFooter
 		credentialRequirement.setValue(initialCR);
 
 		FormLayout main = new FormLayout();
-		FormLayout.FormItem formItem = main.addFormItem(credentialRequirement,
+		main.setWidthFull();
+	    main.addFormItem(credentialRequirement,
 				msg.getMessage("CredentialRequirementDialog.credReq"));
-		formItem.getStyle().set("align-items", "center");
-		formItem.getStyle().set("--vaadin-form-item-label-width", "9em");
+
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+
+		
 		return main;
 	}
 

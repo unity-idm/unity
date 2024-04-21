@@ -46,6 +46,7 @@ import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 import static io.imunity.vaadin.elements.CssClassNames.DISABLED_ICON;
 import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
@@ -206,15 +207,17 @@ class GroupDelegationEditConfigDialog extends DialogWithActionFooter
 
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+
 		main.addFormItem(enableDelegation, "");
 		main.addFormItem(logoUrl, msg.getMessage("GroupDelegationEditConfigDialog.logoUrlCaption"));
 		main.addFormItem(enableSubprojects, "");
 		main.addFormItem(attributes, msg.getMessage("GroupDelegationEditConfigDialog.attributes"));
 		main.addFormItem(policyDocuments, msg.getMessage("GroupDelegationEditConfigDialog.policyDocuments"));
 
-		main.addFormItem(registrationFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.registrationForm") + ":");
-		main.addFormItem(signupEnquiryFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry") + ":");
-		main.addFormItem(membershipUpdateEnquiryFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry") + ":");
+		main.addFormItem(registrationFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.registrationForm"));
+		main.addFormItem(signupEnquiryFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry"));
+		main.addFormItem(membershipUpdateEnquiryFormComboWithButtons, msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"));
 		return main;
 	}
 
@@ -400,7 +403,7 @@ class GroupDelegationEditConfigDialog extends DialogWithActionFooter
 					.collect(Collectors.toSet())))
 			{
 				ret.put(registrationFormName, new FormWithType(FormType.REGISTRATION,
-						msg.getMessage("GroupDelegationEditConfigDialog.registrationForm")));
+						msg.getMessage("GroupDelegationEditConfigDialog.registrationFormLabel")));
 			}
 		}
 		if (enquiryFormName != null)
@@ -413,7 +416,7 @@ class GroupDelegationEditConfigDialog extends DialogWithActionFooter
 					.collect(Collectors.toSet())))
 			{
 				ret.put(enquiryFormName, new FormWithType(FormType.ENQUIRY,
-						msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry")));
+						msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiryLabel")));
 			}
 		}
 
@@ -754,6 +757,7 @@ class GroupDelegationEditConfigDialog extends DialogWithActionFooter
 		protected Component getContents()
 		{
 			FormLayout main = new FormLayout();
+			main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 			if (messages.isEmpty())
 			{

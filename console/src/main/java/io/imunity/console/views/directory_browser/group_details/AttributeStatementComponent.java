@@ -39,7 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;;
 
 
 class AttributeStatementComponent extends VerticalLayout
@@ -151,7 +151,7 @@ class AttributeStatementComponent extends VerticalLayout
 
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		main.addFormItem(extraAttributesGroupCB, "");
 		main.addFormItem(extraAttributesGroupCombo, msg.getMessage("AttributeStatementComponent.extraGroupSelect"));
 		main.addFormItem(condition, msg.getMessage("AttributeStatementComponent.condition"));
