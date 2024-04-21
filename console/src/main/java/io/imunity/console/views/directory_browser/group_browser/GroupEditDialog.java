@@ -79,7 +79,6 @@ class GroupEditDialog extends DialogWithActionFooter
 
 		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale());
 		displayedName.setWidthFull();
-
 		description = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale());
 		description.setWidthFull();
 

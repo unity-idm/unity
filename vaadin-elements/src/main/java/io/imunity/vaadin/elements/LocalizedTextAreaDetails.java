@@ -126,7 +126,7 @@ public class LocalizedTextAreaDetails extends CustomField<Map<Locale, String>> i
 	@Override
 	public void setWidthFull()
 	{
-		super.setWidthFull();
+		getElement().getStyle().setWidth("100%");
 		fields.values().forEach(HasSize::setWidthFull);
 	}
 

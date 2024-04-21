@@ -281,6 +281,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		oauthWebAuthzBinder.forField(displayedName)
 				.withConverter(I18nString::new, I18nString::getLocalizedMap)
 				.bind(DefaultServiceDefinition::getDisplayedName, DefaultServiceDefinition::setDisplayedName);
+		displayedName.setWidth(TEXT_FIELD_BIG.value());
 		mainGeneralLayout.addFormItem(displayedName, msg.getMessage("ServiceEditorBase.displayedName"));
 
 		TextField description = new TextField();

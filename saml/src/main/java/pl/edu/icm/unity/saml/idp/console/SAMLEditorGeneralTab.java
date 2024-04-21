@@ -180,9 +180,12 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 		}).bind(DefaultServiceDefinition::getAddress, DefaultServiceDefinition::setAddress);
 		mainGeneralLayout.addFormItem(contextPath, msg.getMessage("SAMLEditorGeneralTab.contextPath"));
 
-		LocalizedTextFieldDetails displayedName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		LocalizedTextFieldDetails displayedName = new LocalizedTextFieldDetails(msg.getEnabledLocales()
+				.values(), msg.getLocale());
 		samlServiceBinder.forField(displayedName)
-				.withConverter(I18nString::new, I18nString::getLocalizedMap)				.bind(DefaultServiceDefinition::getDisplayedName, DefaultServiceDefinition::setDisplayedName);
+				.withConverter(I18nString::new, I18nString::getLocalizedMap)
+				.bind(DefaultServiceDefinition::getDisplayedName, DefaultServiceDefinition::setDisplayedName);
+		displayedName.setWidth(TEXT_FIELD_BIG.value());
 		mainGeneralLayout.addFormItem(displayedName, msg.getMessage("ServiceEditorBase.displayedName"));
 
 		TextField description = new TextField();
