@@ -4,30 +4,32 @@
  */
 package io.imunity.console.attribute;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.dependency.CssImport;
+
 import io.imunity.vaadin.elements.DialogWithActionFooter;
-import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 
 @CssImport(value = "./dialog.css", themeFor = "vaadin-confirm-dialog-overlay")
 public class AttributeEditDialog extends DialogWithActionFooter
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AttributeEditDialog.class);
+
+	
 	private final AttributeEditor editor;
 	private final Callback callback;
-	private final MessageSource msg;
-	private final NotificationPresenter notificationPresenter;
 
 	public AttributeEditDialog(MessageSource msg, String caption, Callback callback,
-			AttributeEditor attributeEditor, NotificationPresenter notificationPresenter)
+			AttributeEditor attributeEditor)
 	{
 		super(msg::getMessage);
 		setHeaderTitle(caption);
 		this.editor = attributeEditor;
 		this.callback = callback;
-		this.msg = msg;
-		this.notificationPresenter = notificationPresenter;
 		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		setWidth("40em");
 		setHeight("30em");
@@ -44,8 +46,7 @@ public class AttributeEditDialog extends DialogWithActionFooter
 				close();
 		} catch (FormValidationException e)
 		{
-			open();
-			notificationPresenter.showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
+			LOG.debug("error editing attribute", e);
 		}
 	}
 	

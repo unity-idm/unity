@@ -4,29 +4,28 @@
  */
 package io.imunity.console.attribute;
 
-import com.vaadin.flow.component.customfield.CustomField;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.base.attribute.AttributeType;
-import pl.edu.icm.unity.base.message.MessageSource;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
-
-import java.util.Collection;
-
 import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
 import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
+import java.util.Collection;
+
+import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.message.MessageSource;
+
 public class AttributeFieldWithEdit extends CustomField<Attribute>
 {
 	private final MessageSource msg;
-	private final NotificationPresenter notificationPresenter;
 	private final AttributeHandlerRegistry attrHandlerRegistry;
 	private final Collection<AttributeType> attributeTypes;
 	protected String group;
@@ -39,10 +38,9 @@ public class AttributeFieldWithEdit extends CustomField<Attribute>
 	public AttributeFieldWithEdit(MessageSource msg, String caption, 
 			AttributeHandlerRegistry attrHandlerRegistry,
 			Collection<AttributeType> attributeTypes, String group, Attribute initial,
-			boolean valuesRequired, NotificationPresenter notificationPresenter)
+			boolean valuesRequired)
 	{
 		this.msg = msg;
-		this.notificationPresenter = notificationPresenter;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.group = group;
 		this.valuesRequired = valuesRequired;
@@ -77,7 +75,7 @@ public class AttributeFieldWithEdit extends CustomField<Attribute>
 		{
 			setAttribute(newAttribute);
 			return true;
-		}, theEditor, notificationPresenter);
+		}, theEditor);
 		dialog.open();
 	}
 	

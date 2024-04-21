@@ -236,7 +236,7 @@ public class AttributesGrid extends VerticalLayout
 		AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, getEntityParam(),
 				registry);
 		AttributeEditDialog dialog = new AttributeEditDialog(msg, msg.getMessage("Attribute.editAttribute"),
-				this::updateAttribute, attributeEditor, notificationPresenter);
+				this::updateAttribute, attributeEditor);
 		dialog.addActionButtonListener(this::refresh);
 		dialog.open();
 	}
@@ -277,7 +277,7 @@ public class AttributesGrid extends VerticalLayout
 		AttributeEditor attributeEditor = new AttributeEditor(msg, allowed, getEntityParam(), groupPath,
 				registry, true);
 		AttributeEditDialog dialog = new AttributeEditDialog(msg, msg.getMessage("Attribute.addAttribute"),
-				this::addAttribute, attributeEditor, notificationPresenter);
+				this::addAttribute, attributeEditor);
 		dialog.open();
 	}
 

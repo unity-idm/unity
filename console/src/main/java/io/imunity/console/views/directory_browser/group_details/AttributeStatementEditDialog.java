@@ -64,7 +64,7 @@ class AttributeStatementEditDialog extends DialogWithActionFooter
 		}
 
 		component = new AttributeStatementComponent(
-				msg, groupsMan, attributeTypes, attrHandlerRegistry, group, notificationPresenter);
+				msg, groupsMan, attributeTypes, attrHandlerRegistry, group);
 		
 		if (statement != null)
 			setInitialData(statement);

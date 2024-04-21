@@ -4,6 +4,17 @@
  */
 package io.imunity.console.views.directory_browser.group_details;
 
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.collect.ImmutableMap;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -14,14 +25,13 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
+
 import io.imunity.console.attribute.AttributeFieldWithEdit;
 import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.AttributeSelectionComboBox;
-import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.attribute.AttributeStatement;
 import pl.edu.icm.unity.base.attribute.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -30,16 +40,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeStatementMVELContextKey;
-import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;;
+import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;;
 
 
 class AttributeStatementComponent extends VerticalLayout
@@ -49,7 +50,6 @@ class AttributeStatementComponent extends VerticalLayout
 	private static final String MODE_DYNAMIC = "dynamic";
 	
 	private final MessageSource msg;
-	private final NotificationPresenter notificationPresenter;
 	private final Set<String> groups;
 	private final Collection<AttributeType> attributeTypes;
 	private final AttributeHandlerRegistry attrHandlerRegistry;
@@ -64,14 +64,13 @@ class AttributeStatementComponent extends VerticalLayout
 	
 	AttributeStatementComponent(MessageSource msg, GroupsManagement groupsMan,
 	                            Collection<AttributeType> attributeTypes,
-	                            AttributeHandlerRegistry attrHandlerRegistry, String group, NotificationPresenter notificationPresenter)
+	                            AttributeHandlerRegistry attrHandlerRegistry, String group)
 	{
 		this.msg = msg;
 		this.groups = getGroupsOfHierarchy(groupsMan, group);
 		this.attributeTypes = attributeTypes;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.group = group;
-		this.notificationPresenter = notificationPresenter;
 		initUI();
 	}
 
@@ -141,7 +140,7 @@ class AttributeStatementComponent extends VerticalLayout
 						.withVars(AttributeStatementMVELContextKey.toMap()).build(), tooltipFactory);
 
 		AttributeFieldWithEdit fixedAttribute = new AttributeFieldWithEdit(msg, "",
-				attrHandlerRegistry, attributeTypes, group, null, true, notificationPresenter);
+				attrHandlerRegistry, attributeTypes, group, null, true);
 
 		ComboBox<ConflictResolution> conflictResolution = new ComboBox<>();
 		conflictResolution.setItems(ConflictResolution.values());
