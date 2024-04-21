@@ -16,6 +16,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.GenericElementsTable;
@@ -86,6 +87,8 @@ class EnumAttributeHandler implements WebAttributeHandler
 				field.setValue(sortedAllowed.get(0));
 			if (context.isCustomWidth())
 				field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			field.addValueChangeListener(e -> WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent()));
+
 			return new ComponentsContainer(field);
 		}
 

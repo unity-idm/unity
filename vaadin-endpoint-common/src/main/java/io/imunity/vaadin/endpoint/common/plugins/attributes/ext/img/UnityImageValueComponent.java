@@ -23,6 +23,9 @@ import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.vaadin.elements.ErrorLabel;
 import io.imunity.vaadin.elements.InputLabel;
+import io.imunity.vaadin.endpoint.common.WebSession;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
+
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.attribute.image.ImageType;
@@ -94,6 +97,8 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 			FileData fileData1 = memoryBuffer.getFileData();
 			setUnityImageValue(new UnityImage(((ByteArrayOutputStream)fileData1.getOutputBuffer()).toByteArray(), ImageType.fromMimeType(fileData1.getMimeType())));
 			showValue();
+			WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
+
 		});
 		upload.getElement().addEventListener("file-remove", e -> cleanImage());
 		upload.addFileRejectedListener(event -> showErrorNotification(event.getErrorMessage()));
@@ -116,6 +121,8 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		image.setSrc("");
 		image.setVisible(false);
 		Tooltip.forComponent(image).setText(null);
+		WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
+
 	}
 
 	private void setErrorMode()
@@ -135,6 +142,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 
 	private void showErrorNotification(String txt)
 	{
+		WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
 		Notification notification = Notification.show(txt, 5000, Notification.Position.MIDDLE);
 		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 	}

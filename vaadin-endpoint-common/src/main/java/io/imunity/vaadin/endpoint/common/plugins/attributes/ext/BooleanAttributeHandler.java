@@ -10,8 +10,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeValueEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
@@ -95,6 +97,7 @@ class BooleanAttributeHandler implements WebAttributeHandler
 			field.setRequiredIndicatorVisible(required);
 			if (label != null)
 				field.setId("ValueEditor."+label);
+			field.addValueChangeListener(e -> WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent()));
 			return new ComponentsContainer(field);
 		}
 

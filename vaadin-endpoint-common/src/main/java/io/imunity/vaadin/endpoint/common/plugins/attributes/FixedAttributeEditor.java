@@ -37,6 +37,11 @@ public class FixedAttributeEditor
 		initUI();
 	}
 	
+	public void addValueChangeListener(Runnable listener)
+	{
+		valuesComponent.setValueChangeListener(listener);
+	}
+	
 	public void setAttributeValues(List<String> values)
 	{
 		this.originalValues = new ArrayList<>(values);

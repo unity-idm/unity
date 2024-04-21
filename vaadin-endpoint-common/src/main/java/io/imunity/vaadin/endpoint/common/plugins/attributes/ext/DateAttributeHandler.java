@@ -6,6 +6,8 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.datepicker.DatePicker;
+
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,6 +104,8 @@ class DateAttributeHandler implements WebAttributeHandler
 				date.setValue(value);
 			if (context.isCustomWidth())
 				date.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			date.addValueChangeListener(e -> WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent()));
+
 			return new ComponentsContainer(date);
 		}
 

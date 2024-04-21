@@ -5,19 +5,34 @@
 
 package io.imunity.home.views.profile;
 
-import com.vaadin.flow.component.*;
+import static io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext.EMPTY;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextFieldBase;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
@@ -25,12 +40,19 @@ import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
+import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewer;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.ComponentsGroup;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.ConfirmationEditMode;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.FixedAttributeEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.LabelContext;
 import jakarta.annotation.security.PermitAll;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
@@ -46,10 +68,6 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
-
-import java.util.*;
-
-import static io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext.EMPTY;
 
 @PermitAll
 @Breadcrumb(key = "UserHomeUI.profile")
@@ -110,13 +128,13 @@ public class ProfileView extends HomeViewComponent
 
 		Set<String> disabledComponents = config.getDisabledComponents();
 		VerticalLayout mainLayout = new VerticalLayout();
+		HorizontalLayout buttonsLayout = createButtonsLayout(mainLayout, disabledComponents);		
 		if (!disabledComponents.contains(HomeEndpointProperties.Components.attributesManagement.toString()))
 		{
 			mainLayout = getAttributes(keys);
 		}
 
 		getContent().add(mainLayout);
-		HorizontalLayout buttonsLayout = createButtonsLayout(mainLayout, disabledComponents);
 		getContent().add(buttonsLayout);
 	}
 
@@ -188,17 +206,15 @@ public class ProfileView extends HomeViewComponent
 			if(attributes.isEmpty())
 				continue;
 			attributes.forEach(ProfileView::setAttributeWidth);
-			attributes.forEach(attr -> {
-				if(attr instanceof TextFieldBase textFieldBase)
-					textFieldBase.setValueChangeMode(ValueChangeMode.EAGER);
-			});
 			VerticalLayout innerLayout = new VerticalLayout();
-			innerLayout.getElement().addEventListener("keydown", e -> refreshButtons());
 			innerLayout.add(attributes);
 			innerLayout.setPadding(false);
 			innerLayout.setSpacing(false);
 			verticalLayout.add(innerLayout);
 		}
+		EventsBus eventBus = WebSession.getCurrent().getEventBus();
+		eventBus.addListener(event -> refreshButtons(), AttributeModyficationEvent.class);
+		
 		return verticalLayout;
 	}
 
@@ -247,6 +263,7 @@ public class ProfileView extends HomeViewComponent
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry,
 					editContext, labelContext, null);
+			editor.addValueChangeListener(() -> refreshButtons());
 			if (attribute != null)
 				editor.setAttributeValues(attribute.getValues());
 			attributeEditors.add(editor);

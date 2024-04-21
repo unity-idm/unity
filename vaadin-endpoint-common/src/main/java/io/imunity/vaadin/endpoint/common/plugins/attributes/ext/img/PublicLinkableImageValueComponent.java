@@ -7,6 +7,8 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 
+import io.imunity.vaadin.endpoint.common.WebSession;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.attribute.image.LinkableImage;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
@@ -94,6 +96,7 @@ class PublicLinkableImageValueComponent extends Component implements HasComponen
 			urlValueComponent.setVisible(true);
 		}
 		selector.setInvalid(false);
+		WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
 	}
 
 	public void setRequiredIndicatorVisible(boolean requiredIndicatorVisible)

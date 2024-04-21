@@ -13,6 +13,7 @@ import com.vaadin.flow.data.binder.ValueContext;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.StringBindingValue;
 import io.imunity.vaadin.elements.TextFieldWithVerifyButton;
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.confirmations.MobileNumberConfirmationConfigurationEditor;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
@@ -233,6 +234,8 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 					confirmationInfo = new ConfirmationInfo();
 				}
 				updateConfirmationStatusIconAndButtons();
+				WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
+
 			});
 			
 			editor.addAdminConfirmCheckBoxValueChangeListener(e -> {

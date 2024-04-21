@@ -8,6 +8,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,6 +124,7 @@ class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 				datetime.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 				zone.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 			}
+			datetime.addValueChangeListener(e -> WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent()));
 
 			return new ComponentsContainer(datetime, zone);
 		}

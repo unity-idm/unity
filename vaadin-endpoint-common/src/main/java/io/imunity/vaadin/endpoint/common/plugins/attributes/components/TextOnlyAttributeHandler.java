@@ -15,8 +15,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import io.imunity.vaadin.elements.StringBindingValue;
+import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeValueEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
@@ -116,6 +118,8 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 				.withValidator(this::validate)
 				.bind("value");
 			binder.setBean(new StringBindingValue(value == null ? "" : value));
+			field.addValueChangeListener(e -> WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent()));
+
 			
 			return new ComponentsContainer(field);
 		}

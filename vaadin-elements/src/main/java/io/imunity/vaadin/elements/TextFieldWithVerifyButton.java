@@ -5,6 +5,11 @@
 
 package io.imunity.vaadin.elements;
 
+import static io.imunity.vaadin.elements.CssClassNames.INVALID;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+import static io.imunity.vaadin.elements.CssClassNames.REQUIRED_LABEL;
+import static java.util.Optional.ofNullable;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Unit;
@@ -18,9 +23,6 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-
-import static io.imunity.vaadin.elements.CssClassNames.*;
-import static java.util.Optional.ofNullable;
 
 public class TextFieldWithVerifyButton extends CustomField<String>
 {
@@ -44,6 +46,8 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		verifyButtonIcon.setTooltipText(verifyButtonDesc);
 		verifyButtonIcon.addClassName(POINTER.getName());
 		editor = new TextField();
+		editor.addValueChangeListener(
+				e -> fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient())));
 		editor.setTitle("");
 		editor.setWidthFull();
 		adminConfirmCheckBox = new Checkbox(adminConfirmCheckBoxLabel);
