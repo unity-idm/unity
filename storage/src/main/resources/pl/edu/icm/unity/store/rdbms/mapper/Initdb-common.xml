@@ -255,6 +255,10 @@ CREATE TABLE IDP_STATISTICS (
 	</update>
 	
 
+	<update id="initdb-25-00">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx0"/>
+	</update>
+
 	<update id="initdb-25-01">
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx1"/>
 	</update>
