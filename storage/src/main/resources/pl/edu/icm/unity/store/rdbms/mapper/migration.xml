@@ -105,14 +105,18 @@
 	</update>
 	
 	<update id="updateSchema-019-01">
-		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx1"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx0"/>
 	</update>
 	
 	<update id="updateSchema-019-02">
-		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx2"/>	
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx1"/>
 	</update>
 	
 	<update id="updateSchema-019-03">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx2"/>	
+	</update>
+	
+	<update id="updateSchema-019-04">
 		UPDATE UVOS_FLAG SET VAL = '19';
 	</update>
 	

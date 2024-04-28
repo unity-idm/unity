@@ -41,13 +41,40 @@
 	<sql id="sql-auditEventsTimestampDescIdx">
 		select 1
 	</sql>
-
+	
+	
+	<sql id="sql-initTokenTableIdx0">
+		CREATE PROCEDURE create_index_if_not_exists
+		(
+		    given_index    VARCHAR(64),
+		    given_table    VARCHAR(64),
+		    given_columns  VARCHAR(64),
+		    given_type  VARCHAR(64)
+		)
+		BEGIN
+		    DECLARE IndexIsThere INTEGER;
+		    SELECT COUNT(1) INTO IndexIsThere
+		    FROM INFORMATION_SCHEMA.STATISTICS
+		    WHERE table_name   = given_table
+		    AND   index_name   = given_index;
+		
+		    IF IndexIsThere = 0 THEN
+		        SET @sqlstmt = CONCAT('CREATE INDEX ',given_index,' ON ',given_table,' (',given_columns,')',' USING ' , given_type);
+		        PREPARE st FROM @sqlstmt;
+		        EXECUTE st;
+		        DEALLOCATE PREPARE st;
+		    ELSE
+		        SELECT CONCAT('Index ',given_index,' already exists on Table ',given_table) CreateindexErrorMessage;   
+		    END IF;
+		END 
+	</sql>
+	
 	<sql id="sql-initTokenTableIdx1">
-		CREATE INDEX IF NOT EXISTS EXPIRES_IDX ON TOKENS (EXPIRES) USING BTREE;
+		CALL create_index_if_not_exists('EXPIRES_IDX', 'TOKENS', 'EXPIRES', 'BTREE');	
 	</sql>
 
 	<sql id="sql-initTokenTableIdx2">
-		CREATE INDEX IF NOT EXISTS TYPE_IDX ON TOKENS(TYPE) USING HASH;	
+		CALL create_index_if_not_exists('TYPE_IDX', 'TOKENS', 'TYPE', 'HASH');
 	</sql>
 
 	<update id="resetIndex-00">
