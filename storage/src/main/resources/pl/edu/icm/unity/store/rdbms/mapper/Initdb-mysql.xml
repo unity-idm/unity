@@ -44,6 +44,7 @@
 	
 	
 	<sql id="sql-initTokenTableIdx0">
+		DROP PROCEDURE IF EXISTS create_index_if_not_exists;
 		CREATE PROCEDURE create_index_if_not_exists
 		(
 		    given_index    VARCHAR(64),
