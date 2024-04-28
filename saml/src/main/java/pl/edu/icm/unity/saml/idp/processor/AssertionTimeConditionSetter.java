@@ -23,10 +23,6 @@ public class AssertionTimeConditionSetter
 		Calendar c = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 		c.setTime(assertion.getXMLBeanDoc().getAssertion().getIssueInstant().getTime());
 		conditions.setNotBefore(c);		
-		Optional<SubjectConfirmationDataType> subcjectConfirmationData = getSubcjectConfirmationData(assertion);
-		if (subcjectConfirmationData.isEmpty())
-			return;
-		subcjectConfirmationData.get().setNotBefore(c);
 	}
 	
 	public static void setDefaultNotOnOrAfterInAssertion(Assertion assertion)

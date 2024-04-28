@@ -36,31 +36,6 @@ public class AssertionTimeConditionSetterTest
 	}
 
 	@Test
-	public void shouldNotBeforeAlsoInSubjectConfirmationData()
-	{
-		Assertion assertion = new Assertion();
-
-		assertion.setSubject(establishSubject());
-
-		AssertionTimeConditionSetter.setDefaultNotBeforeCondition(assertion);
-
-		assertThat(assertion.getNotBefore()).isEqualTo(assertion.getXMLBeanDoc()
-				.getAssertion()
-				.getIssueInstant()
-				.getTime());
-		assertThat(assertion.getXMLBeanDoc()
-				.getAssertion()
-				.getSubject()
-				.getSubjectConfirmationArray()[0].getSubjectConfirmationData()
-						.getNotBefore()
-						.toInstant()).isEqualTo(assertion.getXMLBeanDoc()
-								.getAssertion()
-								.getIssueInstant()
-								.getTime()
-								.toInstant());
-	}
-
-	@Test
 	public void shouldSetNotOnOrAfterInAssertion()
 	{
 		Assertion assertion = new Assertion();
