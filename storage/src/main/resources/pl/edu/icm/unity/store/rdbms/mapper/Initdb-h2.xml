@@ -49,10 +49,13 @@
 	</sql>
 	
 	<sql id="sql-initTokenTableIdx1">
+	</sql>
+	
+	<sql id="sql-initTokenTableIdx2">
 		CREATE INDEX IF NOT EXISTS EXPIRES_IDX ON TOKENS (EXPIRES);
 	</sql>
 
-	<sql id="sql-initTokenTableIdx2">
+	<sql id="sql-initTokenTableIdx3">
 		CREATE INDEX IF NOT EXISTS TYPE_IDX ON TOKENS(TYPE);	
 	</sql>
 	
