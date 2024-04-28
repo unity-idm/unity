@@ -42,8 +42,11 @@
 		select 1
 	</sql>
 	
-	
 	<sql id="sql-initTokenTableIdx0">
+		DROP PROCEDURE IF EXISTS create_index_if_not_exists;
+	</sql>
+	
+	<sql id="sql-initTokenTableIdx1">
 		DROP PROCEDURE IF EXISTS create_index_if_not_exists;
 		CREATE PROCEDURE create_index_if_not_exists
 		(
@@ -70,11 +73,11 @@
 		END 
 	</sql>
 	
-	<sql id="sql-initTokenTableIdx1">
+	<sql id="sql-initTokenTableIdx2">
 		CALL create_index_if_not_exists('EXPIRES_IDX', 'TOKENS', 'EXPIRES', 'BTREE');	
 	</sql>
 
-	<sql id="sql-initTokenTableIdx2">
+	<sql id="sql-initTokenTableIdx3">
 		CALL create_index_if_not_exists('TYPE_IDX', 'TOKENS', 'TYPE', 'HASH');
 	</sql>
 
