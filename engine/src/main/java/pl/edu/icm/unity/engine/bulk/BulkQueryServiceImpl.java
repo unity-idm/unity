@@ -428,28 +428,30 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 
 		private void addGroup(String path)
 		{
-			if (!pathToGroupNode.containsKey(path))
+			if (pathToGroupNode.containsKey(path))
 			{
-				String[] parts = path.split("/");
-				GroupNode current = root;
-
-				StringBuilder processedPathBuilder = new StringBuilder();
-				for (String part : parts)
+				return;
+			}
+			
+			String[] parts = path.split("/");
+			GroupNode current = root;
+			StringBuilder processedPathBuilder = new StringBuilder();
+			for (String part : parts)
+			{
+				if (part.isEmpty())
 				{
-					if (!part.isEmpty())
-					{
-						processedPathBuilder.append("/").append(part);
-						String processedPath = processedPathBuilder.toString();
-						
-						if (!pathToGroupNode.containsKey(processedPath))
-						{
-							GroupNode newNode = new GroupNode(processedPath);
-							current.addChild(processedPath);
-							pathToGroupNode.put(processedPath, newNode);
-						}
-						current = pathToGroupNode.get(processedPath);
-					}
+					continue;
 				}
+				processedPathBuilder.append("/").append(part);
+				String processedPath = processedPathBuilder.toString();
+				
+				if (!pathToGroupNode.containsKey(processedPath))
+				{
+					GroupNode newNode = new GroupNode(processedPath);
+					current.addChild(processedPath);
+					pathToGroupNode.put(processedPath, newNode);
+				}
+				current = pathToGroupNode.get(processedPath);
 			}
 		}
 
