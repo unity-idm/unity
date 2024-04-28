@@ -46,7 +46,6 @@
 	</sql>
 	
 	<sql id="sql-initTokenTableIdx0">
-		select 1
 	</sql>
 	
 	<sql id="sql-initTokenTableIdx1">
