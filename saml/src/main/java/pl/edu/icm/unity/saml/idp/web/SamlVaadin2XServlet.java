@@ -12,7 +12,7 @@ import com.vaadin.flow.server.VaadinServletService;
 import io.imunity.vaadin.auth.SecuredSpringVaadin2XServletService;
 import io.imunity.vaadin.endpoint.common.SpringContextProvider;
 
-import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH;
+import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_CONSENT_DECIDER_SERVLET_PATH;
 
 public class SamlVaadin2XServlet extends VaadinServlet
 {
@@ -23,7 +23,7 @@ public class SamlVaadin2XServlet extends VaadinServlet
 				this,
 				deploymentConfiguration,
 				SpringContextProvider.getContext(),
-				getServletContext().getContextPath() + SAML_ENTRY_SERVLET_PATH
+				getServletContext().getContextPath() + SAML_CONSENT_DECIDER_SERVLET_PATH
 		);		service.init();
 		return service;
 	}

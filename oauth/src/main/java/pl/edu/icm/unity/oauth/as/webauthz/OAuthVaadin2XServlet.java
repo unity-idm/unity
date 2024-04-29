@@ -12,7 +12,7 @@ import com.vaadin.flow.server.VaadinServletService;
 import io.imunity.vaadin.auth.SecuredSpringVaadin2XServletService;
 import io.imunity.vaadin.endpoint.common.SpringContextProvider;
 
-import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_ROUTING_SERVLET_PATH;
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_CONSENT_DECIDER_SERVLET_PATH;
 
 public class OAuthVaadin2XServlet extends VaadinServlet
 {
@@ -23,7 +23,7 @@ public class OAuthVaadin2XServlet extends VaadinServlet
 				this,
 				deploymentConfiguration,
 				SpringContextProvider.getContext(),
-				getServletContext().getContextPath() + OAUTH_ROUTING_SERVLET_PATH
+				getServletContext().getContextPath() + OAUTH_CONSENT_DECIDER_SERVLET_PATH
 		);
 		service.init();
 		return service;

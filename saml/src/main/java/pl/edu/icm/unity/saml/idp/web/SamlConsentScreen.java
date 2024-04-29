@@ -39,7 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH;
+import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_CONSENT_DECIDER_SERVLET_PATH;
 
 /**
  * Consent screen of the SAML web IdP. Fairly simple: shows who asks, what is going to be sent,
@@ -172,7 +172,7 @@ class SamlConsentScreen extends VerticalLayout
 	
 	private void createButtonsPart(final SAMLAuthnContext samlCtx, VerticalLayout contents)
 	{
-		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, SAML_ENTRY_SERVLET_PATH, action ->
+		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, SAML_CONSENT_DECIDER_SERVLET_PATH, action ->
 		{
 			if (IdPButtonsBar.Action.ACCEPT == action)
 				confirm();

@@ -4,7 +4,23 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import com.nimbusds.oauth2.sdk.*;
+import static io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.noSignInContextException;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Optional;
+
+import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
+import org.eclipse.jetty.ee10.servlet.ServletHandler;
+import org.eclipse.jetty.security.AuthenticationState;
+
+import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
+import com.nimbusds.oauth2.sdk.AuthorizationResponse;
+import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
+import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.SerializeException;
+
 import io.imunity.vaadin.endpoint.common.EopException;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import jakarta.servlet.ServletException;
@@ -12,9 +28,6 @@ import jakarta.servlet.ServletRequestWrapper;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
-import org.eclipse.jetty.security.AuthenticationState;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityParam;
@@ -32,12 +45,6 @@ import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
-
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Optional;
-
-import static io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.noSignInContextException;
 
 /**
  * Invoked after authentication, main OAuth AS servlet. It decides whether the
@@ -76,8 +83,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 	@Override
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		ServletRequestWrapper requestWrapper = (ServletRequestWrapper) req;
-		ServletApiRequest apiRequest = (ServletApiRequest)requestWrapper.getRequest();
+		ServletApiRequest apiRequest = (ServletApiRequest) req;
 		if (AuthenticationState.getAuthenticationState(apiRequest.getRequest()) == null)
 		{
 			resp.sendRedirect(oauthUiServletPath);

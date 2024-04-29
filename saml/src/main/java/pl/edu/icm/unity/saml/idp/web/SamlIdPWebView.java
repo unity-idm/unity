@@ -66,7 +66,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppEndpoint;
-import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH;
+import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_CONSENT_DECIDER_SERVLET_PATH;
 import static pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint.SAML_UI_SERVLET_PATH;
 
 @PermitAll
@@ -261,7 +261,7 @@ class SamlIdPWebView extends UnityViewComponent
 				handlersRegistry, authnProcessor, 
 				config.singleSelectableAttributes, config.multiSelectableAttributes,
 				config.remainingAttributes,
-				SAML_ENTRY_SERVLET_PATH,
+				SAML_CONSENT_DECIDER_SERVLET_PATH,
 				this::onDecline,
 				this::gotoConsentStage);
 		getContent().removeAll();

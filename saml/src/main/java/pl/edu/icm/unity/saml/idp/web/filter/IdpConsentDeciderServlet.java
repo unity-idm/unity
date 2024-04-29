@@ -119,8 +119,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected void service(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException
 	{
-		ServletRequestWrapper requestWrapper = (ServletRequestWrapper) req;
-		ServletApiRequest apiRequest = (ServletApiRequest)requestWrapper.getRequest();
+		ServletApiRequest apiRequest = (ServletApiRequest) req;
 		if (AuthenticationState.getAuthenticationState(apiRequest.getRequest()) == null)
 		{
 			resp.sendRedirect(samlUiServletPath);

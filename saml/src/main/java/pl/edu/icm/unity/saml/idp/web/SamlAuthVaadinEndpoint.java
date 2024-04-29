@@ -82,7 +82,6 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SamlAuthVaadinEndpoint.class);
 
-	public static final String SAML_ENTRY_SERVLET_PATH = "/saml2idp-web-entry";
 	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2idp-web";
 	public static final String SAML_UI_SERVLET_PATH = "/saml2idp-web-ui";
 	public static final String SAML_CONSENT_DECIDER_SERVLET_PATH = "/saml2idp-web-consentdecider";
@@ -157,7 +156,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 			SandboxAuthnRouter sandboxAuthnRouter,
 			SAMLIdPConfigurationParser samlIdPConfigurationParser)
 	{
-		super(server, advertisedAddrProvider, msg, applicationContext, new SamlResourceProvider(), SAML_ENTRY_SERVLET_PATH,
+		super(server, advertisedAddrProvider, msg, applicationContext, new SamlResourceProvider(), SAML_CONSENT_DECIDER_SERVLET_PATH,
 				remoteAuthnResponseProcessingFilter, sandboxAuthnRouter, SamlVaadin2XServlet.class);
 		this.publicEntryPointPath = publicEntryServletPath;
 		this.freemarkerHandler = freemarkerHandler;
@@ -243,7 +242,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 
 		String samlPublicEntryPointUrl = getServletUrl(publicEntryPointPath);
 		Servlet samlParseServlet = getSamlParseServlet(samlPublicEntryPointUrl, 
-				getServletUrl(SAML_ENTRY_SERVLET_PATH));
+				getServletUrl(SAML_CONSENT_DECIDER_SERVLET_PATH));
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
 		servletContextHandler.addServlet(samlParseHolder, publicEntryPointPath + "/*");
 
@@ -251,13 +250,9 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 				EnumSet.of(DispatcherType.REQUEST));
 		
 		Filter samlGuardFilter = new SamlGuardFilter(new ErrorHandler(aTypeSupport, lastAccessAttributeManagement, freemarkerHandler));
-		servletContextHandler.addFilter(new FilterHolder(samlGuardFilter), SAML_ENTRY_SERVLET_PATH,
+		servletContextHandler.addFilter(new FilterHolder(samlGuardFilter), SAML_CONSENT_DECIDER_SERVLET_PATH,
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		ServletHolder routingServletHolder = createServletHolder(
-				new RoutingServlet(SAML_CONSENT_DECIDER_SERVLET_PATH));
-		servletContextHandler.addServlet(routingServletHolder, SAML_ENTRY_SERVLET_PATH + "/*");
-		
 		Servlet samlConsentDeciderServlet = dispatcherServletFactory.getInstance(
 				getServletUrl(SAML_UI_SERVLET_PATH), description.getEndpoint());
 		ServletHolder samlConsentDeciderHolder = createServletHolder(samlConsentDeciderServlet);
@@ -279,8 +274,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 		
-		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(
-						List.of(AUTHENTICATION_PATH, SAML_CONSENT_DECIDER_SERVLET_PATH))),
+		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(List.of(AUTHENTICATION_PATH))),
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
 		servletContextHandler.addFilter(new FilterHolder(authnFilter), "/*",
