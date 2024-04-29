@@ -396,4 +396,12 @@ The 3.13 release does not include database migration. However, it includes a hea
 a major step in preparation for the major release of Unity 4. Taking backup and testing the new release 
 before deploying it to production is especially advised.
 
- 
+==== From 3.13-3.15 to 3.16
+
+In case of MySQL DB, it is required to assign additional permissions to Unity DB user, before upgrading: CREATE ROUTINE and EXECUTE.
+
+For example:
+
+----
+GRANT CREATE ROUTINE, EXECUTE ON * to 'unity'@'localhost';
+----
