@@ -23,7 +23,6 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.openid.connect.sdk.OIDCError;
-import com.vaadin.flow.server.startup.ServletContextListeners;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.VaadinAuthentication;
@@ -156,17 +155,12 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		ServletContextHandler servletContextHandler;
 		try
 		{
-			servletContextHandler = getWebAppContext(webAppContext, uiServletPath,
-					resourceProvider.getChosenClassPathElement(),
-					getWebContentsDir(),
-					new ServletContextListeners()
-			);
+			servletContextHandler = getWebAppContext(webAppContext);
 		} catch (Exception e)
 		{
 			log.error("Creating of web context for endpoint {} failed", description.getEndpoint().getName(), e);
 			return context;
 		}
-		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
 		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_CONSENT_DECIDER_SERVLET_PATH),
 				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, scopeService, serverConfig);

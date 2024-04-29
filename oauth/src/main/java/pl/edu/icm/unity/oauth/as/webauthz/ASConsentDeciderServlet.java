@@ -12,7 +12,6 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
-import org.eclipse.jetty.ee10.servlet.ServletHandler;
 import org.eclipse.jetty.security.AuthenticationState;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
@@ -24,7 +23,6 @@ import com.nimbusds.oauth2.sdk.SerializeException;
 import io.imunity.vaadin.endpoint.common.EopException;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequestWrapper;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

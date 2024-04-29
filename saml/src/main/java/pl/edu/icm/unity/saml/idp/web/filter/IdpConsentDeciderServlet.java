@@ -4,16 +4,15 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.security.dsig.DSigException;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequestWrapper;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TimeZone;
+
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
 import org.eclipse.jetty.security.AuthenticationState;
@@ -22,6 +21,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.exceptions.SAMLRequesterException;
+import eu.unicore.security.dsig.DSigException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import io.imunity.vaadin.endpoint.common.EopException;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -56,11 +66,7 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
-import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
-
-import java.io.IOException;
-import java.util.*;
 
 /**
  * Invoked after authentication, main SAML web IdP servlet. It decides whether the request should be

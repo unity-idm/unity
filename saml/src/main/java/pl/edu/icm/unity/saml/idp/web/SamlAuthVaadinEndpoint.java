@@ -4,20 +4,9 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import com.vaadin.flow.server.startup.ServletContextListeners;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.webservice.SAMLLogoutInterface;
-import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import io.imunity.vaadin.auth.server.AuthenticationFilter;
-import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
-import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
-import io.imunity.vaadin.endpoint.common.InvocationContextSetupFilter;
-import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
-import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.Filter;
-import jakarta.servlet.Servlet;
+import java.util.EnumSet;
+import java.util.List;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
@@ -31,6 +20,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
+
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.webservice.SAMLLogoutInterface;
+import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import io.imunity.vaadin.auth.server.AuthenticationFilter;
+import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
+import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
+import io.imunity.vaadin.endpoint.common.InvocationContextSetupFilter;
+import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
+import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.Servlet;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -45,7 +49,10 @@ import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.utils.*;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfigurationParser;
@@ -67,13 +74,9 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
-import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import pl.edu.icm.unity.ws.CXFUtils;
 import pl.edu.icm.unity.ws.XmlBeansNsHackOutHandler;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
-
-import java.util.EnumSet;
-import java.util.List;
 
 
 @PrototypeComponent
@@ -228,17 +231,12 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 		ServletContextHandler servletContextHandler;
 		try
 		{
-			servletContextHandler = getWebAppContext(webAppContext, uiServletPath,
-					resourceProvider.getChosenClassPathElement(),
-					getWebContentsDir(),
-					new ServletContextListeners()
-			);
+			servletContextHandler = getWebAppContext(webAppContext);
 		} catch (Exception e)
 		{
 			log.error("Creating of web context for endpoint {} failed", description.getEndpoint().getName(), e);
 			return context;
 		}
-		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
 		String samlPublicEntryPointUrl = getServletUrl(publicEntryPointPath);
 		Servlet samlParseServlet = getSamlParseServlet(samlPublicEntryPointUrl, 
