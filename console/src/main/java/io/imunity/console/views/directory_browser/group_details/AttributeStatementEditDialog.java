@@ -84,13 +84,13 @@ class AttributeStatementEditDialog extends DialogWithActionFooter
 			ret = component.getStatementFromComponent();
 		} catch (FormValidationException e)
 		{
-			open();
 			notificationPresenter.showError(msg.getMessage("AttributeStatementEditDialog.invalidFormSettings"),
 					e.getMessage());
 			return;
 		}
 		
 		callback.onConfirm(ret);
+		close();
 	}
 
 	

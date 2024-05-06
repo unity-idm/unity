@@ -137,8 +137,8 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 			newInfo.setScheduledOperationTime(zonedDate);
 		}
 		
-		if (!callback.onChanged(newInfo))
-			open();
+		if (callback.onChanged(newInfo))
+			close();		
 	}
 	
 	interface Callback 
