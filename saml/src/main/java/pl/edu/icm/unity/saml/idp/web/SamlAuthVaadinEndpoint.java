@@ -4,20 +4,9 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import com.vaadin.flow.server.startup.ServletContextListeners;
-import eu.unicore.samly2.SAMLConstants;
-import eu.unicore.samly2.webservice.SAMLLogoutInterface;
-import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
-import io.imunity.vaadin.auth.server.AuthenticationFilter;
-import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
-import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
-import io.imunity.vaadin.endpoint.common.InvocationContextSetupFilter;
-import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
-import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.Filter;
-import jakarta.servlet.Servlet;
+import java.util.EnumSet;
+import java.util.List;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
@@ -31,6 +20,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
+
+import eu.unicore.samly2.SAMLConstants;
+import eu.unicore.samly2.webservice.SAMLLogoutInterface;
+import eu.unicore.util.configuration.ConfigurationException;
+import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import io.imunity.vaadin.auth.server.AuthenticationFilter;
+import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
+import io.imunity.vaadin.auth.server.SecureVaadin2XEndpoint;
+import io.imunity.vaadin.endpoint.common.InvocationContextSetupFilter;
+import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
+import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.Servlet;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -45,7 +49,10 @@ import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.utils.*;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfigurationParser;
@@ -67,13 +74,9 @@ import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessorFactory;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
-import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import pl.edu.icm.unity.ws.CXFUtils;
 import pl.edu.icm.unity.ws.XmlBeansNsHackOutHandler;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
-
-import java.util.EnumSet;
-import java.util.List;
 
 
 @PrototypeComponent
@@ -82,7 +85,6 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SamlAuthVaadinEndpoint.class);
 
-	public static final String SAML_ENTRY_SERVLET_PATH = "/saml2idp-web-entry";
 	public static final String SAML_CONSUMER_SERVLET_PATH = "/saml2idp-web";
 	public static final String SAML_UI_SERVLET_PATH = "/saml2idp-web-ui";
 	public static final String SAML_CONSENT_DECIDER_SERVLET_PATH = "/saml2idp-web-consentdecider";
@@ -157,7 +159,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 			SandboxAuthnRouter sandboxAuthnRouter,
 			SAMLIdPConfigurationParser samlIdPConfigurationParser)
 	{
-		super(server, advertisedAddrProvider, msg, applicationContext, new SamlResourceProvider(), SAML_ENTRY_SERVLET_PATH,
+		super(server, advertisedAddrProvider, msg, applicationContext, new SamlResourceProvider(), SAML_CONSENT_DECIDER_SERVLET_PATH,
 				remoteAuthnResponseProcessingFilter, sandboxAuthnRouter, SamlVaadin2XServlet.class);
 		this.publicEntryPointPath = publicEntryServletPath;
 		this.freemarkerHandler = freemarkerHandler;
@@ -229,21 +231,16 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 		ServletContextHandler servletContextHandler;
 		try
 		{
-			servletContextHandler = getWebAppContext(webAppContext, uiServletPath,
-					resourceProvider.getChosenClassPathElement(),
-					getWebContentsDir(),
-					new ServletContextListeners()
-			);
+			servletContextHandler = getWebAppContext(webAppContext);
 		} catch (Exception e)
 		{
 			log.error("Creating of web context for endpoint {} failed", description.getEndpoint().getName(), e);
 			return context;
 		}
-		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
 		String samlPublicEntryPointUrl = getServletUrl(publicEntryPointPath);
 		Servlet samlParseServlet = getSamlParseServlet(samlPublicEntryPointUrl, 
-				getServletUrl(SAML_ENTRY_SERVLET_PATH));
+				getServletUrl(SAML_CONSENT_DECIDER_SERVLET_PATH));
 		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
 		servletContextHandler.addServlet(samlParseHolder, publicEntryPointPath + "/*");
 
@@ -251,13 +248,9 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 				EnumSet.of(DispatcherType.REQUEST));
 		
 		Filter samlGuardFilter = new SamlGuardFilter(new ErrorHandler(aTypeSupport, lastAccessAttributeManagement, freemarkerHandler));
-		servletContextHandler.addFilter(new FilterHolder(samlGuardFilter), SAML_ENTRY_SERVLET_PATH,
+		servletContextHandler.addFilter(new FilterHolder(samlGuardFilter), SAML_CONSENT_DECIDER_SERVLET_PATH,
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		ServletHolder routingServletHolder = createServletHolder(
-				new RoutingServlet(SAML_CONSENT_DECIDER_SERVLET_PATH));
-		servletContextHandler.addServlet(routingServletHolder, SAML_ENTRY_SERVLET_PATH + "/*");
-		
 		Servlet samlConsentDeciderServlet = dispatcherServletFactory.getInstance(
 				getServletUrl(SAML_UI_SERVLET_PATH), description.getEndpoint());
 		ServletHolder samlConsentDeciderHolder = createServletHolder(samlConsentDeciderServlet);
@@ -279,8 +272,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 		
-		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(
-						List.of(AUTHENTICATION_PATH, SAML_CONSENT_DECIDER_SERVLET_PATH))),
+		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(List.of(AUTHENTICATION_PATH))),
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
 		servletContextHandler.addFilter(new FilterHolder(authnFilter), "/*",

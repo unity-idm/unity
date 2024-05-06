@@ -4,20 +4,20 @@
  */
 package io.imunity.vaadin.endpoint.common;
 
-import com.vaadin.flow.server.startup.ServletContextListeners;
-import jakarta.servlet.DispatcherType;
+import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
+
+import java.util.EnumSet;
+
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
+
+import jakarta.servlet.DispatcherType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-
-import java.util.EnumSet;
-
-import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
 
 public class InsecureVaadin2XEndpoint extends Vaadin2XEndpoint
 {
@@ -43,18 +43,13 @@ public class InsecureVaadin2XEndpoint extends Vaadin2XEndpoint
 		ServletContextHandler servletContextHandler;
 		try
 		{
-			servletContextHandler = getWebAppContext(webAppContext, uiServletPath,
-					resourceProvider.getChosenClassPathElement(),
-					getWebContentsDir(),
-					new ServletContextListeners()
-			);
+			servletContextHandler = getWebAppContext(webAppContext);
 		} catch (Exception e)
 		{
 			return context;
 		}
 
 		servletContextHandler.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(UNRESTRICTED_SESSION_TIMEOUT_VALUE.getSeconds()));
-		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
 		servletContextHandler.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
 			EnumSet.of(DispatcherType.REQUEST));

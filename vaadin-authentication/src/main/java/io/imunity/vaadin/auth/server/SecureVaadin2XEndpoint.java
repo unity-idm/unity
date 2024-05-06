@@ -4,19 +4,25 @@
  */
 package io.imunity.vaadin.auth.server;
 
-import com.vaadin.flow.server.startup.ServletContextListeners;
-import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
-import io.imunity.vaadin.endpoint.common.InvocationContextSetupFilter;
-import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
-import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.Servlet;
+import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
+
+import java.util.EnumSet;
+import java.util.List;
+
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.ee10.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
+
+import io.imunity.vaadin.endpoint.common.CustomResourceProvider;
+import io.imunity.vaadin.endpoint.common.InvocationContextSetupFilter;
+import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
+import io.imunity.vaadin.endpoint.common.Vaadin2XEndpoint;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Servlet;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -27,12 +33,6 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
-import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
-
-import java.util.EnumSet;
-import java.util.List;
-
-import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
 
 public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 {
@@ -64,18 +64,12 @@ public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 		ServletContextHandler servletContextHandler;
 		try
 		{
-			servletContextHandler = getWebAppContext(webAppContext, uiServletPath,
-					resourceProvider.getChosenClassPathElement(),
-					getWebContentsDir(),
-					new ServletContextListeners()
-			);
+			servletContextHandler = getWebAppContext(webAppContext);
 		} catch (Exception e)
 		{
 			log.error("Exception occurred, while web app context creating", e);
 			return context;
 		}
-
-		servletContextHandler.setContextPath(description.getEndpoint().getContextAddress());
 
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);

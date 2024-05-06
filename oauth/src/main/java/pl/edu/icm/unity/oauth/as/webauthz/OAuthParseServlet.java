@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
@@ -188,7 +187,6 @@ public class OAuthParseServlet extends HttpServlet
 		}
 
 		LoginInProgressService.SignInContextKey contextKey = OAuthSessionService.setContext(request.getSession(), context);
-		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with OAuth input handled successfully");
 

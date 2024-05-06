@@ -29,7 +29,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 	public static final String NAME = "SAMLWebIdP";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
 			"SAML 2 identity provider web endpoint", VaadinAuthentication.NAME,
-			Stream.of(new AbstractMap.SimpleEntry<>(SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH,
+			Stream.of(new AbstractMap.SimpleEntry<>(SamlAuthVaadinEndpoint.SAML_CONSENT_DECIDER_SERVLET_PATH,
 					"SAML 2 identity provider web endpoint"),
 					new AbstractMap.SimpleEntry<>(SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH,
 							"Metadata of the SAML 2 identity provider web endpoint"),

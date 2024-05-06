@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_ROUTING_SERVLET_PATH;
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_CONSENT_DECIDER_SERVLET_PATH;
 import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_UI_SERVLET_PATH;
 
 import java.util.ArrayList;
@@ -250,7 +250,7 @@ class OAuthAuthzView extends UnityViewComponent
 	{
 		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, handlersRegistry,
 				authnProcessor, config.singleSelectableAttributes, config.multiSelectableAttributes,
-				config.remainingAttributes, OAUTH_ROUTING_SERVLET_PATH, this::onDecline, this::gotoConsentStage);
+				config.remainingAttributes, OAUTH_CONSENT_DECIDER_SERVLET_PATH, this::onDecline, this::gotoConsentStage);
 		getContent().removeAll();
 		getContent().add(valueSelectionScreen);
 	}

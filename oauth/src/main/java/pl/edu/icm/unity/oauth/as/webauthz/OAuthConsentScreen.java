@@ -47,7 +47,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.function.BiConsumer;
 
-import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_ROUTING_SERVLET_PATH;
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_CONSENT_DECIDER_SERVLET_PATH;
 
 /**
  * Consent screen after resource owner login and obtaining set of effective attributes.
@@ -184,7 +184,7 @@ class OAuthConsentScreen extends VerticalLayout
 	
 	private void createButtonsPart(VerticalLayout contents)
 	{
-		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, OAUTH_ROUTING_SERVLET_PATH, action ->
+		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, OAUTH_CONSENT_DECIDER_SERVLET_PATH, action ->
 		{
 			if (IdPButtonsBar.Action.ACCEPT == action)
 				confirm();

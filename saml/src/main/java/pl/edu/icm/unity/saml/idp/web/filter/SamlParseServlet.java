@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
@@ -136,7 +135,6 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		}
 		
 		LoginInProgressService.SignInContextKey contextKey = SamlSessionService.setContext(request.getSession(), context);
-		RoutingServlet.clean(request);
 		if (log.isTraceEnabled())
 			log.trace("Request with SAML input handled successfully");
 		//Note - this is intended, even taking into account the overhead. We don't want to pass alongside
