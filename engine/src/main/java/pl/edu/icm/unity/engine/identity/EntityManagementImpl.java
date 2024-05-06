@@ -9,6 +9,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptySet;
 import static pl.edu.icm.unity.base.audit.AuditEventTag.USERS;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -53,6 +54,7 @@ import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.msg_template.UserNotificationTemplateDef;
+import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
@@ -62,6 +64,7 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.exceptions.CapacityLimitReachedException;
 import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.engine.api.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
@@ -89,7 +92,6 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
-import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 
@@ -104,6 +106,9 @@ import pl.edu.icm.unity.store.types.StoredIdentity;
 public class EntityManagementImpl implements EntityManagement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE,	EntityManagementImpl.class);
+
+	static final int ITERATIVE_IDENTITIES_RESOLVING_THRESHOLD = 20;
+
 	private final IdentityTypeDAO idTypeDAO;
 	private final IdentityTypeHelper idTypeHelper;
 	private final IdentityDAO idDAO;
@@ -726,7 +731,37 @@ public class EntityManagementImpl implements EntityManagement
 		EntityInformation theState = entityDAO.getByKey(entityId);
 		return new Entity(identities, theState, credInfo);
 	}
-	
+
+	@Transactional
+	@Override
+	public Map<Long, List<Identity>> getIdentitiesForEntities(Set<Long> entityIds)
+	{
+		authz.checkAuthorizationRT(AuthzCapability.read);
+		if (entityIds.size() < ITERATIVE_IDENTITIES_RESOLVING_THRESHOLD)
+		{
+			return entityIds.stream()
+					.map(entityId -> new AbstractMap.SimpleEntry<>(entityId, getIdentitiesForEntityNotThrowing(entityId)))
+					.filter(entry -> !entry.getValue().isEmpty())
+					.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+		}
+		List<StoredIdentity> storedIdentities = idDAO.getAll();
+		return storedIdentities.stream().map(StoredIdentity::getIdentity)
+				.filter(identity -> identity.getTarget() == null)
+				.filter(identity -> entityIds.contains(identity.getEntityId()))
+				.collect(Collectors.groupingBy(Identity::getEntityId));
+	}
+
+	private List<Identity> getIdentitiesForEntityNotThrowing(long entityId)
+	{
+		try
+		{
+			return identityHelper.getIdentitiesForEntity(entityId, null);
+		} catch (IllegalIdentityValueException e)
+		{
+			throw new RuntimeEngineException(e);
+		}
+	}
+
 	@Override
 	@Transactional
 	public Map<String, GroupMembership> getGroups(EntityParam entity) throws EngineException
@@ -805,7 +840,8 @@ public class EntityManagementImpl implements EntityManagement
 		else
 			scheduledOperationHelper.setScheduledRemovalByUser(entityId, changeTime);
 	}
-	
+
+
 	@Override
 	@Transactional
 	public void mergeEntities(EntityParam target, EntityParam merged, boolean safeMode) throws EngineException

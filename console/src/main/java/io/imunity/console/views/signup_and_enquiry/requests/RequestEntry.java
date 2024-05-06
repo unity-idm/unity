@@ -5,46 +5,26 @@
 
 package io.imunity.console.views.signup_and_enquiry.requests;
 
-import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.Logger;
 
 import io.imunity.vaadin.elements.grid.FilterableEntry;
-import pl.edu.icm.unity.base.entity.Entity;
-import pl.edu.icm.unity.base.entity.EntityParam;
-import pl.edu.icm.unity.base.identity.Identity;
-import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryResponseState;
 import pl.edu.icm.unity.base.registration.UserRequestState;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
-import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
-import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 
-/**
- * Represents grid request entry
- * 
- * @author P.Piernik
- *
- */
-class RequestEntry implements FilterableEntry
+public class RequestEntry implements FilterableEntry
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, RequestEntry.class);
-	
-	final UserRequestState<?> request;
+	public final UserRequestState<?> request;
 	private final MessageSource msg;
 	private final String identity;
 
-	public RequestEntry(UserRequestState<?> request, MessageSource msg, EntityManagement idMan)
+	public RequestEntry(UserRequestState<?> request, MessageSource msg, String identity)
 	{
 		this.request = request;
 		this.msg = msg;
-		this.identity = resolveIdentity(idMan);
+		this.identity = identity;
 	}
 
 	public String getTypeAsString()
@@ -83,53 +63,8 @@ class RequestEntry implements FilterableEntry
 		return identity;
 	}
 
-	private String resolveIdentity(EntityManagement idMan)
-	{
-		if (getType().equals(RequestType.Registration))
-		{
-			List<IdentityParam> identities = request.getRequest().getIdentities();
-			if (identities.isEmpty())
-				return "-";
-			IdentityParam id = identities.get(0);
-			return id == null ? "-" : id.toHumanReadableString();
-		} else
-		{
-			EnquiryResponseState enqRequest = (EnquiryResponseState) request;
-			Entity entity;
-			try
-			{
-				entity = idMan.getEntity(new EntityParam(enqRequest.getEntityId()));
-				List<Identity> identities = entity.getIdentities();
-				VerifiableElementBase email = getEmailIdentity(identities.stream()
-						.map(i -> (IdentityParam) i).collect(Collectors.toList()));
-				if (email != null)
-				{
-					return email.getValue();
-				} else
-				{
-					return identities.stream().findFirst().get().toHumanReadableString();
-				}
-
-			} catch (Exception e)
-			{
-				LOG.error("Failed to resolve identity {}", identity, e);
-				return "-";
-			}
-		}
-	}
-	
-	private VerifiableElementBase getEmailIdentity(List<IdentityParam> identities)
-	{
-		for (IdentityParam id : identities)
-		{
-			if (id != null && id.getTypeId().equals(EmailIdentity.ID))
-				return new VerifiableElementBase(id.getValue(), id.getConfirmationInfo());
-		}
-		return null;
-	}
-
 	@Override
-	public boolean anyFieldContains(String searched, Function<String, String> msg)
+	public boolean anyFieldContains(String searched, Function<String, String>  msg)
 	{
 		String textLower = searched.toLowerCase();
 

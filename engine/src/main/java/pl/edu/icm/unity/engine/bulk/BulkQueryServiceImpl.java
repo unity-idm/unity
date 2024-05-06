@@ -4,7 +4,20 @@
  */
 package pl.edu.icm.unity.engine.bulk;
 
-import com.google.common.base.Stopwatch;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -19,6 +32,8 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
+import com.google.common.base.Stopwatch;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
@@ -37,18 +52,6 @@ import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.forms.enquiry.EnquiryTargetCondEvaluator;
 import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.stream.Collectors;
 
 @Component
 @Primary
@@ -274,14 +277,14 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		Stopwatch watch = Stopwatch.createStarted();
 		Map<String, GroupContents> ret = new HashMap<>();
 		GroupStructuralDataImpl data = (GroupStructuralDataImpl) dataO;
-		Set<String> allGroups = data.getGroups().keySet();
+		GroupsTree groupsTree = new GroupsTree(data.getGroups().keySet());
 		for (Group group: data.getGroups().values())
 		{
 			if (!Group.isChildOrSame(group.toString(), data.getGroup()))
 				continue;
 			GroupContents entry = new GroupContents();
 			entry.setGroup(group);
-			entry.setSubGroups(getDirectSubGroups(group.toString(), allGroups));
+			entry.setSubGroups(groupsTree.getDirectSubGroups(group.toString()));
 			ret.put(group.toString(), entry);
 		}
 		log.debug("Bulk group and subgroups resolve: {}", watch.toString());
@@ -300,27 +303,18 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		Stopwatch watch = Stopwatch.createStarted();
 		Map<String, GroupContents> ret = new HashMap<>();
 
-		Set<String> allGroups = data.getGroups().keySet();
+		GroupsTree groupsTree = new GroupsTree(data.getGroups().keySet());
 		for (Group group : data.getGroups().values())
 		{
 			if (!Group.isChildOrSame(group.toString(), subGroup))
 				continue;
 			GroupContents entry = new GroupContents();
 			entry.setGroup(group);
-			entry.setSubGroups(getDirectSubGroups(group.toString(), allGroups));
+			entry.setSubGroups(groupsTree.getDirectSubGroups(group.toString()));
 			ret.put(group.toString(), entry);
 		}
 		log.debug("Bulk group and subgroups resolve: {}", watch.toString());
 		return ret;
-	}
-	
-	private List<String> getDirectSubGroups(String root, Set<String> allGroups)
-	{
-		int prefix = root.length() + 1;
-		return allGroups.stream().
-				filter(g -> Group.isChild(g, root)).
-				filter(g -> !g.substring(prefix).contains("/")).
-				collect(Collectors.toList());
 	}
 	
 	private Map<Long, Entity> getGroupEntitiesNoContext(boolean includeTargeted, 
@@ -382,5 +376,90 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 			throw new InternalException("Unknown credential assigned to entity", e);
 		}
 		return credentialsHelper.getCredentialInfoNoQuery(entityId, attributes, credReq, credentialRequirementId);
+	}
+	
+	static class GroupNode
+	{
+		private final String path;
+		private final List<String> children;
+
+		GroupNode(String path)
+		{
+			this.path = path;
+			this.children = new ArrayList<>();
+		}
+
+		void addChild(String childPath)
+		{
+			children.add(childPath);
+		}
+
+		List<String> getDirectChildrenPaths()
+		{
+			return Collections.unmodifiableList(children);
+		}
+
+		String getPath()
+		{
+			return path;
+		}
+	}
+
+	static class GroupsTree
+	{
+		private final GroupNode root;
+		private final Map<String, GroupNode> pathToGroupNode;
+
+		GroupsTree(Collection<String> paths)
+		{
+			this.root = new GroupNode("/");
+			this.pathToGroupNode = new HashMap<>();
+			this.pathToGroupNode.put("/", root);
+			buildTree(paths);
+		}
+
+		private void buildTree(Collection<String> paths)
+		{
+			for (String path : paths)
+			{
+				addGroup(path);
+			}
+		}
+
+		private void addGroup(String path)
+		{
+			if (pathToGroupNode.containsKey(path))
+			{
+				return;
+			}
+			
+			String[] parts = path.split("/");
+			GroupNode current = root;
+			StringBuilder processedPathBuilder = new StringBuilder();
+			for (String part : parts)
+			{
+				if (part.isEmpty())
+				{
+					continue;
+				}
+				processedPathBuilder.append("/").append(part);
+				String processedPath = processedPathBuilder.toString();
+				
+				if (!pathToGroupNode.containsKey(processedPath))
+				{
+					GroupNode newNode = new GroupNode(processedPath);
+					current.addChild(processedPath);
+					pathToGroupNode.put(processedPath, newNode);
+				}
+				current = pathToGroupNode.get(processedPath);
+			}
+		}
+
+		List<String> getDirectSubGroups(String path)
+		{
+			GroupNode node = pathToGroupNode.get(path);
+			return node == null ? List.of() : node.getDirectChildrenPaths();
+		}
+
 	}
 }

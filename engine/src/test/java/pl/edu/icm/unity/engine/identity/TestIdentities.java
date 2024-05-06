@@ -13,11 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -520,7 +518,75 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertThat(error).isInstanceOf(UnknownEmailException.class);
 	}
 	
-	
+	@Test
+	public void shouldReturnIdentitiesForExistingEntities() throws EngineException
+	{
+		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "username01"),
+				CR_MOCK, EntityState.valid);
+		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "username02"),
+				CR_MOCK, EntityState.valid);
+		idsMan.addIdentity(new IdentityParam(UsernameIdentity.ID, "username03"), new EntityParam(added2));
+
+		Entity entity1 = idsMan.getEntity(new EntityParam(added1));
+		Entity entity2 = idsMan.getEntity(new EntityParam(added2));
+
+		Map<Long, List<Identity>> identitiesForEntities = idsMan.getIdentitiesForEntities(
+				Set.of(added1.getEntityId(), added2.getEntityId()));
+
+		assertThat(identitiesForEntities).containsOnlyKeys(added1.getEntityId(), added2.getEntityId());
+		assertThat(identitiesForEntities.get(added1.getEntityId()))
+				.containsExactlyInAnyOrderElementsOf(entity1.getIdentities());
+		assertThat(identitiesForEntities.get(added2.getEntityId()))
+				.containsExactlyInAnyOrderElementsOf(entity2.getIdentities());
+	}
+
+	@Test
+	public void shouldIgnoreReturningIdentitiesForMissingEntities() throws EngineException
+	{
+		Identity added1 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "username01"),
+				CR_MOCK, EntityState.valid);
+		Entity entity1 = idsMan.getEntity(new EntityParam(added1));
+
+		Map<Long, List<Identity>> identitiesForEntities = idsMan.getIdentitiesForEntities(
+				Set.of(added1.getEntityId(), 999999L));
+
+		assertThat(identitiesForEntities).containsOnlyKeys(added1.getEntityId());
+		assertThat(identitiesForEntities.get(added1.getEntityId()))
+				.containsExactlyInAnyOrderElementsOf(entity1.getIdentities());
+	}
+
+	@Test
+	public void shouldReturnIdentitiesForExistingEntitiesBulk() throws EngineException
+	{
+		List<Entity> added = new ArrayList<>();
+		for (int i=10; i<EntityManagementImpl.ITERATIVE_IDENTITIES_RESOLVING_THRESHOLD + 11; i++)
+		{
+			Identity id = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "username" + i),
+					CR_MOCK, EntityState.valid);
+			added.add(idsMan.getEntity(new EntityParam(id)));
+		}
+
+
+		Map<Long, List<Identity>> identitiesForEntities = idsMan.getIdentitiesForEntities(
+				added.stream().map(Entity::getId).collect(Collectors.toSet()));
+
+		assertThat(identitiesForEntities).hasSize(added.size());
+		for (Entity entity : added)
+			assertThat(identitiesForEntities.get(entity.getId()))
+				.containsExactlyInAnyOrderElementsOf(entity.getIdentities());
+	}
+
+	@Test
+	public void shouldIgnoreReturningIdentitiesForMissingEntitiesBulk() throws EngineException
+	{
+		Map<Long, List<Identity>> identitiesForEntities = idsMan.getIdentitiesForEntities(
+				LongStream.range(10, EntityManagementImpl.ITERATIVE_IDENTITIES_RESOLVING_THRESHOLD + 11)
+						.boxed()
+						.collect(Collectors.toSet()));
+
+		assertThat(identitiesForEntities).isEmpty();
+	}
+
 	private Identity getByType(Entity e, String type)
 	{
 		for (Identity id: e.getIdentities())
