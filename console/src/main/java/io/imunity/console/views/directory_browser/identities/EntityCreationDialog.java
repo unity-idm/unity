@@ -121,7 +121,6 @@ class EntityCreationDialog extends IdentityCreationDialog
 
 		main.add(tabs);
 		main.setPadding(false);
-		main.setSizeFull();
 		setWidth("50em");
 		setHeight("50em");
 		return main;
@@ -244,7 +243,6 @@ class EntityCreationDialog extends IdentityCreationDialog
 			toAdd = identityEditor.getValue();
 		} catch (IllegalIdentityValueException e)
 		{
-			open();
 			return;
 		}
 
@@ -255,7 +253,6 @@ class EntityCreationDialog extends IdentityCreationDialog
 		{
 			tabs.setSelectedIndex(1);
 			notificationPresenter.showError(msg.getMessage("EntityCreation.invalidCredential"), e.getCause().getMessage());
-			open();
 			return;
 		}
 		
@@ -315,7 +312,6 @@ class EntityCreationDialog extends IdentityCreationDialog
 		} catch (Exception e)
 		{
 			notificationPresenter.showError(msg.getMessage("EntityCreation.entityCreateError"), e.getMessage());
-			open();
 			return;
 		}
 		

@@ -146,7 +146,6 @@ class IdentityCreationDialog extends DialogWithActionFooter
 
 		VerticalLayout main = new VerticalLayout();
 		main.add(typeSelectionLayout, idLayout);
-		main.setSizeFull();
 		return main;
 	}
 
