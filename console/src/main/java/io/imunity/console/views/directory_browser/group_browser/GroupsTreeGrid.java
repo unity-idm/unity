@@ -135,10 +135,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		loadNode("/", null);
 		expand(treeData.getRootItems());
-		if (!treeData.getRootItems().isEmpty())
-		{
-			select(treeData.getRootItems().get(0));
-		}
 	}
 
 	private void addSelectionListeners(ActionMenuWithHandlerSupport<TreeNode> hamburgerMenu)

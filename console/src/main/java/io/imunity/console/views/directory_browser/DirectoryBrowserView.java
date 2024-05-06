@@ -8,6 +8,7 @@ package io.imunity.console.views.directory_browser;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.directory_browser.attributes.AttributesComponentPanel;
@@ -15,7 +16,6 @@ import io.imunity.console.views.directory_browser.group_browser.GroupBrowserPane
 import io.imunity.console.views.directory_browser.group_details.GroupDetailsPanel;
 import io.imunity.console.views.directory_browser.identities.IdentitiesPanel;
 import io.imunity.vaadin.elements.Breadcrumb;
-import io.imunity.vaadin.endpoint.common.WebSession;
 import jakarta.annotation.security.PermitAll;
 
 @PermitAll
@@ -52,6 +52,6 @@ public class DirectoryBrowserView extends ConsoleViewComponent
 
 		getContent().add(mainLayout);
 		getContent().setHeightFull();
-		WebSession.getCurrent().getEventBus().fireEvent(new RefreshAndSelectEvent());
+	
 	}
 }
