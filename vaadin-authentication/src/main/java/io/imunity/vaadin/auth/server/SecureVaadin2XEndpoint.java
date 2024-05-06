@@ -32,7 +32,6 @@ import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 
 public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 {
@@ -77,9 +76,6 @@ public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 
 		servletContextHandler.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
 			EnumSet.of(DispatcherType.REQUEST));
-		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(
-				List.of(AUTHENTICATION_PATH))),
-			"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(
 			description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
 		servletContextHandler.addFilter(new FilterHolder(authnFilter), "/*",

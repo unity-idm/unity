@@ -7,7 +7,6 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
@@ -56,7 +55,6 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
-import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
@@ -182,9 +180,6 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		Filter oauthGuardFilter = new OAuthGuardFilter(new ErrorHandler(freemarkerHandler));
 		servletContextHandler.addFilter(new FilterHolder(oauthGuardFilter), OAUTH_CONSENT_DECIDER_SERVLET_PATH + "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
-
-		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(List.of(AUTHENTICATION_PATH))),
-				"/*", EnumSet.of(DispatcherType.REQUEST));
 
 		authnFilter = new AuthenticationFilter(description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor, new NoSessionFilterImpl());
 		servletContextHandler.addFilter(new FilterHolder(authnFilter), "/*",

@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.saml.idp.web;
 
 import java.util.EnumSet;
-import java.util.List;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
@@ -51,7 +50,6 @@ import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
-import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
@@ -272,8 +270,6 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 		
-		servletContextHandler.addFilter(new FilterHolder(new HiddenResourcesFilter(List.of(AUTHENTICATION_PATH))),
-				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
 		servletContextHandler.addFilter(new FilterHolder(authnFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
