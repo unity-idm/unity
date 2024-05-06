@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Stopwatch;
+
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.authn.CredentialInfo;
 import pl.edu.icm.unity.base.entity.Entity;
@@ -32,8 +34,7 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
-import com.google.common.base.Stopwatch;
-
+import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
@@ -50,7 +51,6 @@ import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.credential.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.forms.enquiry.EnquiryTargetCondEvaluator;
-import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 @Component
@@ -277,7 +277,7 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		Stopwatch watch = Stopwatch.createStarted();
 		Map<String, GroupContents> ret = new HashMap<>();
 		GroupStructuralDataImpl data = (GroupStructuralDataImpl) dataO;
-		GroupsTree groupsTree = new GroupsTree(data.getGroups().keySet());
+		GroupsTree groupsTree = new GroupsTree(data.getGroups().values());
 		for (Group group: data.getGroups().values())
 		{
 			if (!Group.isChildOrSame(group.toString(), data.getGroup()))
@@ -303,7 +303,7 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		Stopwatch watch = Stopwatch.createStarted();
 		Map<String, GroupContents> ret = new HashMap<>();
 
-		GroupsTree groupsTree = new GroupsTree(data.getGroups().keySet());
+		GroupsTree groupsTree = new GroupsTree(data.getGroups().values());
 		for (Group group : data.getGroups().values())
 		{
 			if (!Group.isChildOrSame(group.toString(), subGroup))
@@ -410,33 +410,29 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		private final GroupNode root;
 		private final Map<String, GroupNode> pathToGroupNode;
 
-		GroupsTree(Collection<String> paths)
+		GroupsTree(Collection<Group> groups)
 		{
 			this.root = new GroupNode("/");
 			this.pathToGroupNode = new HashMap<>();
 			this.pathToGroupNode.put("/", root);
-			buildTree(paths);
+			buildTree(groups);
 		}
 
-		private void buildTree(Collection<String> paths)
+		private void buildTree(Collection<Group> groups)
 		{
-			for (String path : paths)
-			{
-				addGroup(path);
-			}
+			groups.forEach(this::addGroup);
 		}
 
-		private void addGroup(String path)
+		private void addGroup(Group group)
 		{
-			if (pathToGroupNode.containsKey(path))
+			if (pathToGroupNode.containsKey(group.getPathEncoded()))
 			{
 				return;
 			}
 			
-			String[] parts = path.split("/");
 			GroupNode current = root;
 			StringBuilder processedPathBuilder = new StringBuilder();
-			for (String part : parts)
+			for (String part : group.getPath())
 			{
 				if (part.isEmpty())
 				{
