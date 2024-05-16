@@ -5,6 +5,15 @@
 
 package io.imunity.console;
 
+import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasElement;
@@ -12,6 +21,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsEditView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsView;
 import io.imunity.console.views.authentication.credentials.CredentialsEditView;
@@ -61,25 +71,17 @@ import io.imunity.console.views.signup_and_enquiry.requests.RequestsView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
-import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfiguration;
+import io.imunity.vaadin.endpoint.common.layout.LeftNavbarAppLayout;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
-import java.util.List;
-import java.util.stream.Stream;
-
-import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
-import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
-import static java.util.stream.Collectors.toList;
-
-public class ConsoleMenu extends UnityAppLayout
+public class ConsoleMenu extends LeftNavbarAppLayout
 {
 
 	@Autowired
-	public ConsoleMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg, AuthorizationManagement authorizationManagement, UnityServerConfiguration unityServerConfiguration)
+	public ConsoleMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg, AuthorizationManagement authorizationManagement, ExtraPanelsConfiguration extraPanelsConfiguration)
 	{
 		super(Stream.of(
 						MenuComponent.builder(DirectoryBrowserView.class)
@@ -217,7 +219,7 @@ public class ConsoleMenu extends UnityAppLayout
 								.icon(VaadinIcon.TOOLS)
 								.build()
 						)
-						.collect(toList()), standardWebLogoutHandler, msg, List.of(), unityServerConfiguration
+						.collect(toList()), standardWebLogoutHandler, msg, List.of(), extraPanelsConfiguration
 		);
 
 		try

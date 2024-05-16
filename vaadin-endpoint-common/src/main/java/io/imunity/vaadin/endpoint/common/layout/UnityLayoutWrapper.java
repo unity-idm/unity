@@ -13,71 +13,50 @@ import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.ExtraLayoutPanel;
 import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 public class UnityLayoutWrapper
 {
 	public static void wrap(HasComponents main, Component toWrap,
-			Vaadin82XEndpointProperties currentWebAppVaadinProperties, UnityServerConfiguration config,
+			Vaadin82XEndpointProperties currentWebAppVaadinProperties, ExtraPanelsConfiguration config,
 			boolean authenticationView)
 	{
 
 		if (!authenticationView && currentWebAppVaadinProperties != null && !currentWebAppVaadinProperties
 				.getBooleanValue(Vaadin82XEndpointProperties.EXTRA_PANELS_AFTER_ATHENTICATION))
 		{
-			HorizontalLayout mainLayout = new HorizontalLayout();
-			mainLayout.setClassName("u-main-layout-container");
-			mainLayout.add(toWrap);
-			main.add(mainLayout);
+			addWithoutExtraPanels(main, toWrap);
 			return;
 		}
 
-		Optional<File> extraTopPanel = currentWebAppVaadinProperties != null
-				? currentWebAppVaadinProperties.getExtraTopPanel()
-				: Optional.empty();
-		Optional<File> extraBottomPanel = currentWebAppVaadinProperties != null
-				? currentWebAppVaadinProperties.getExtraBottomPanel()
-				: Optional.empty();
-		Optional<File> extraLeftPanel = currentWebAppVaadinProperties != null
-				? currentWebAppVaadinProperties.getExtraLeftPanel()
-				: Optional.empty();
-		Optional<File> extraRightPanel = currentWebAppVaadinProperties != null
-				? currentWebAppVaadinProperties.getExtraRightPanel()
-				: Optional.empty();
+		ExtraLayoutPanel top = getExtraTopPanel(currentWebAppVaadinProperties, config);
+		ExtraLayoutPanel bottom = getExtraBottomPanel(currentWebAppVaadinProperties, config);
+		ExtraLayoutPanel left = getExtraLeftPanel(currentWebAppVaadinProperties, config);
+		ExtraLayoutPanel right = getExtraRightPanel(currentWebAppVaadinProperties, config);
 
-		if (extraTopPanel.isEmpty())
-		{
-			extraTopPanel = config.getExtraTopPanel();
-		}
-
-		if (extraBottomPanel.isEmpty())
-		{
-			extraBottomPanel = config.getExtraBottomPanel();
-		}
-
-		if (extraLeftPanel.isEmpty())
-		{
-			extraLeftPanel = config.getExtraLeftPanel();
-		}
-
-		if (extraRightPanel.isEmpty())
-		{
-			extraRightPanel = config.getExtraRightPanel();
-		}
-
-		ExtraLayoutPanel top = new ExtraLayoutPanel("unity-layout-top", extraTopPanel.orElse(null));
 		top.setWidthFull();
-		ExtraLayoutPanel left = new ExtraLayoutPanel("unity-layout-left", extraLeftPanel.orElse(null));
 		left.setHeightFull();
-		ExtraLayoutPanel right = new ExtraLayoutPanel("unity-layout-right", extraRightPanel.orElse(null));
 		right.setHeightFull();
-		ExtraLayoutPanel bottom = new ExtraLayoutPanel("unity-layout-bottom", extraBottomPanel.orElse(null));
 		bottom.setWidthFull();
-			
+
+		wrapMainLayout(main, toWrap, right, left, top, bottom);
+	}
+	
+	private static void addWithoutExtraPanels(HasComponents main, Component toWrap)
+	{
 		HorizontalLayout mainLayout = new HorizontalLayout();
-		mainLayout.setClassName("u-main-layout-container");
+		mainLayout.setClassName(CssClassNames.MAIN_LAYOUT_CONTAINER.getName());
+		mainLayout.add(toWrap);
+		main.add(mainLayout);	
+	}
+
+	private static void wrapMainLayout(HasComponents main, Component toWrap, Component right, Component left,
+			Component top, Component bottom)
+	{
+		HorizontalLayout mainLayout = new HorizontalLayout();
+		mainLayout.setClassName(CssClassNames.MAIN_LAYOUT_CONTAINER.getName());
 		toWrap.getStyle()
 				.set("overflow", "auto");
 		mainLayout.add(left, toWrap, right);
@@ -90,5 +69,49 @@ public class UnityLayoutWrapper
 		wrapper.setSpacing(false);
 		main.add(wrapper);
 
+	}
+
+	private static ExtraLayoutPanel getExtraTopPanel(Vaadin82XEndpointProperties currentWebAppVaadinProperties,
+			ExtraPanelsConfiguration config)
+	{
+		Optional<File> extraPanel = currentWebAppVaadinProperties != null
+				? currentWebAppVaadinProperties.getExtraTopPanel()
+				: Optional.empty();
+
+		return new ExtraLayoutPanel("unity-layout-top",
+				(extraPanel.isEmpty() ? config.getExtraTopPanel() : extraPanel).orElse(null));
+	}
+
+	private static ExtraLayoutPanel getExtraBottomPanel(Vaadin82XEndpointProperties currentWebAppVaadinProperties,
+			ExtraPanelsConfiguration config)
+	{
+		Optional<File> extraPanel = currentWebAppVaadinProperties != null
+				? currentWebAppVaadinProperties.getExtraBottomPanel()
+				: Optional.empty();
+
+		return new ExtraLayoutPanel("unity-layout-bottom",
+				(extraPanel.isEmpty() ? config.getExtraBottomPanel() : extraPanel).orElse(null));
+	}
+
+	private static ExtraLayoutPanel getExtraRightPanel(Vaadin82XEndpointProperties currentWebAppVaadinProperties,
+			ExtraPanelsConfiguration config)
+	{
+		Optional<File> extraPanel = currentWebAppVaadinProperties != null
+				? currentWebAppVaadinProperties.getExtraRightPanel()
+				: Optional.empty();
+
+		return new ExtraLayoutPanel("unity-layout-right",
+				(extraPanel.isEmpty() ? config.getExtraRightPanel() : extraPanel).orElse(null));
+	}
+
+	private static ExtraLayoutPanel getExtraLeftPanel(Vaadin82XEndpointProperties currentWebAppVaadinProperties,
+			ExtraPanelsConfiguration config)
+	{
+		Optional<File> extraPanel = currentWebAppVaadinProperties != null
+				? currentWebAppVaadinProperties.getExtraLeftPanel()
+				: Optional.empty();
+
+		return new ExtraLayoutPanel("unity-layout-left",
+				(extraPanel.isEmpty() ? config.getExtraLeftPanel() : extraPanel).orElse(null));
 	}
 }

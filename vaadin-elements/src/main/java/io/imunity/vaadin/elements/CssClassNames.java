@@ -53,8 +53,8 @@ public enum CssClassNames
 	EDIT_VIEW_ACTION_BUTTONS_LAYOUT("u-edit-view-action-buttons-layout"),
 	TABSHEET_FULL("u-tabsheet-full"),
 	SPACE_PRE("u-space-pre"),
-	AUTHN_SCREEN("u-authn-screen")
-	;
+	AUTHN_SCREEN("u-authn-screen"),
+	MAIN_LAYOUT_CONTAINER("u-main-layout-container");
 	
 	private final String name;
 

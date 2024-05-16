@@ -5,6 +5,20 @@
 
 package io.imunity.upman.front.views;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ENVELOPE_OPEN_O;
+import static com.vaadin.flow.component.icon.VaadinIcon.FAMILY;
+import static com.vaadin.flow.component.icon.VaadinIcon.FILE_TREE;
+import static com.vaadin.flow.component.icon.VaadinIcon.USER_CHECK;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+import static java.util.stream.Collectors.toList;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasElement;
@@ -18,6 +32,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NavigationTrigger;
+
 import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.groups.GroupsView;
@@ -28,22 +43,12 @@ import io.imunity.upman.utils.HomeServiceLinkService;
 import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
-import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfiguration;
+import io.imunity.vaadin.endpoint.common.layout.LeftNavbarAppLayout;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
-import static java.util.stream.Collectors.toList;
-
-public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
+public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserver
 {
 	private final ProjectService projectService;
 	private final ProjectsLayout projectsLayout;
@@ -51,7 +56,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 
 	@Autowired
 	public UpManMenu(VaddinWebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg,
-	                 HomeServiceLinkService homeServiceLinkService, UnityServerConfiguration unityServerConfiguration)
+	                 HomeServiceLinkService homeServiceLinkService, ExtraPanelsConfiguration extraPanelsConfiguration)
 	{
 		super(Stream.of(
 						MenuComponent.builder(MembersView.class).tabName(msg.getMessage("UpManMenu.members"))
@@ -63,7 +68,7 @@ public class UpManMenu extends UnityAppLayout implements BeforeEnterObserver
 						MenuComponent.builder(UserUpdatesView.class).tabName(msg.getMessage("UpManMenu.userUpdates"))
 								.icon(USER_CHECK).build()
 						)
-						.collect(toList()), standardWebLogoutHandler, msg, createHomeIcon(homeServiceLinkService), unityServerConfiguration
+						.collect(toList()), standardWebLogoutHandler, msg, createHomeIcon(homeServiceLinkService), extraPanelsConfiguration
 		);
 		this.projectService = projectService;
 

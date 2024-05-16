@@ -30,27 +30,26 @@ import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 
 @PreserveOnRefresh
-public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNavigationObserver
+public class LeftNavbarAppLayout extends FlexLayout implements RouterLayout, AfterNavigationObserver
 {
 
 	private final UnityAppLayoutComponentsHolder appLayoutComponents;
 	private final Vaadin82XEndpointProperties vaadinEndpointProperties;
-	private final UnityServerConfiguration unityServerConfiguration;
+	private final ExtraPanelsConfiguration extraPanelsConfiguration;
 	private VerticalLayout leftContainerContent;
 
-	public UnityAppLayout(List<MenuComponent> menuComponents,
+	public LeftNavbarAppLayout(List<MenuComponent> menuComponents,
 	                      VaddinWebLogoutHandler authnProcessor,
 						  MessageSource msg,
 	                      List<Component> additionalIcons, 
-	                      UnityServerConfiguration unityServerConfiguration)
+	                      ExtraPanelsConfiguration extraPanelsConfiguration)
 	{
 		appLayoutComponents = new UnityAppLayoutComponentsHolder(menuComponents, authnProcessor, msg, additionalIcons);
 		vaadinEndpointProperties = getCurrentWebAppVaadinProperties();
-		this.unityServerConfiguration = unityServerConfiguration;
+		this.extraPanelsConfiguration = extraPanelsConfiguration;
 	}
 
 	@Override
@@ -75,7 +74,7 @@ public class UnityAppLayout extends FlexLayout implements RouterLayout, AfterNav
 		HorizontalLayout horizontalLayout = new HorizontalLayout(this.leftContainerContent, rightContainerContent);
 		horizontalLayout.getStyle().set("gap", "0");
 		horizontalLayout.setWidthFull();
-		UnityLayoutWrapper.wrap(this, horizontalLayout, vaadinEndpointProperties, unityServerConfiguration, false);
+		UnityLayoutWrapper.wrap(this, horizontalLayout, vaadinEndpointProperties, extraPanelsConfiguration, false);
 		
 	}
 

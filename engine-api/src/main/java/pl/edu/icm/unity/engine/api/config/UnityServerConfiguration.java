@@ -561,13 +561,13 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "This connection timeout is not critical for "
 						+ "system operation."));
 		defaults.put(EXTRA_LEFT_PANEL, new PropertyMD("").
-				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html left panel"));
+				setDescription("Relative to web contents directory path, pointing to an optional HTML file containing a fixed left sidebar, which will wrap the main Unity UI."));
 		defaults.put(EXTRA_RIGHT_PANEL, new PropertyMD("").
-				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html right panel"));
+				setDescription("Relative to web contents directory path, pointing to an optional HTML file containing a fixed right sidebar, which will wrap the main Unity UI."));
 		defaults.put(EXTRA_TOP_PANEL, new PropertyMD("").
-				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html top panel"));
+				setDescription("Relative to web contents directory path, pointing to an optional HTML file containing a fixed top sidebar, which will wrap the main Unity UI."));
 		defaults.put(EXTRA_BOTTOM_PANEL, new PropertyMD("").
-				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html bottom panel"));
+				setDescription("Relative to web contents directory path, pointing to an optional HTML file containing a fixed bottom sidebar, which will wrap the main Unity UI."));
 		
 		
 		
@@ -813,34 +813,4 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		int maxConcurrency = (int)Math.round(maxMemGB * 2);
 		return maxConcurrency > 0 ? maxConcurrency : 1;
 	}
-	
-	public Optional<File> getExtraLeftPanel()
-	{
-		return getFile(EXTRA_LEFT_PANEL);
-	}
-
-	public Optional<File> getExtraRightPanel()
-	{
-		return getFile(EXTRA_RIGHT_PANEL);
-	}
-
-	public Optional<File> getExtraTopPanel()
-	{
-		return getFile(EXTRA_TOP_PANEL);
-	}
-
-	public Optional<File> getExtraBottomPanel()
-	{
-		return getFile(EXTRA_BOTTOM_PANEL);
-	}
-	
-	private Optional<File> getFile(String key)
-	{
-		if(getValue(key).isBlank())
-			return Optional.empty();
-		String value = getValue(DEFAULT_WEB_CONTENT_PATH) + "/" + getValue(key);
-		return Optional.of(new File(value));
-	}
-	
-	
 }

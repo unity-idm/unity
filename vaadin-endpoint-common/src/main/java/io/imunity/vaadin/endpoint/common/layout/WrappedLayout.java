@@ -19,17 +19,16 @@ import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.RouterLayout;
 
 import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 @Tag("vaadin-wrapped-layout")
 public class WrappedLayout extends Component implements RouterLayout, HasComponents
 {
-	private UnityServerConfiguration config;
+	private ExtraPanelsConfiguration config;
 	
 	@Autowired
-	public WrappedLayout(UnityServerConfiguration unityServerConfiguration)
+	public WrappedLayout(ExtraPanelsConfiguration extraPanelsConfiguration)
 	{
-		this.config = unityServerConfiguration;
+		this.config = extraPanelsConfiguration;
 	}
 	
 	@Override
@@ -48,7 +47,7 @@ public class WrappedLayout extends Component implements RouterLayout, HasCompone
 
 	
 	protected void wrap(HasComponents main, Component toWrap,
-			Vaadin82XEndpointProperties currentWebAppVaadinProperties, UnityServerConfiguration config)
+			Vaadin82XEndpointProperties currentWebAppVaadinProperties, ExtraPanelsConfiguration config)
 	{
 		UnityLayoutWrapper.wrap(main, toWrap, getCurrentWebAppVaadinProperties(), config, false);
 	}

@@ -36,19 +36,20 @@ public class Vaadin82XEndpointProperties extends VaadinEndpointProperties
 	static
 	{
 		VaadinEndpointProperties.META.put(EXTRA_LEFT_PANEL, new PropertyMD("").
-				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html left panel"));
+				setDescription("Relative to web contents directory path, pointing to an optional HTML file containing a fixed left sidebar, which will wrap the main Unity UI."));
 		VaadinEndpointProperties.META.put(EXTRA_RIGHT_PANEL, new PropertyMD("").
-				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html right panel"));
+				setDescription("Relative to web contents directory path, pointing to an optional HTML file containing a fixed right sidebar, which will wrap the main Unity UI."));
 		VaadinEndpointProperties.META.put(EXTRA_TOP_PANEL, new PropertyMD("").
-				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html top panel"));
+				setDescription("Relative to web contents directory path, pointing to an optional HTML file containing a fixed top sidebar, which will wrap the main Unity UI."));
 		VaadinEndpointProperties.META.put(EXTRA_BOTTOM_PANEL, new PropertyMD("").
-				setDescription("Relative path(starts from web contents path) to an optional HTML file containing extra html bottom panel"));
+				setDescription("Relative to web contents directory path, pointing to an optional HTML file containing a fixed bottom sidebar, which will wrap the main Unity UI."));
+		
 		VaadinEndpointProperties.META.put(CUSTOM_CSS_FILE_NAME, new PropertyMD("").
-				setDescription("Relative path(starts from web contents path) to an optional CSS file containing custom css file"));
+				setDescription("Path to an optional CSS file, containing custom stylesheet. Path is relative to the server web contents directory."));
 		VaadinEndpointProperties.META.put(SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING, new PropertyMD("30").
 				setDescription("Seconds before showing session expiration warning notification"));
 		VaadinEndpointProperties.META.put(EXTRA_PANELS_AFTER_ATHENTICATION, new PropertyMD("true").
-				setDescription("If true, extra panels will also be added to the endpoint's main view"));
+				setDescription("If false the UI wrapping panels will be only added to the authentication screen. If true, the panels will be also added to the endpoint's main view."));
 	}
 
 	public Vaadin82XEndpointProperties(Properties properties, String defaultWebContentPath, String defaultCssFileName)

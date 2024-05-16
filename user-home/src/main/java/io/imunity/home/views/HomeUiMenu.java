@@ -5,7 +5,22 @@
 
 package io.imunity.home.views;
 
-import com.vaadin.flow.component.*;
+import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppContextProperties;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.HasElement;
+import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
@@ -14,6 +29,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.ProjectManagementHelper;
 import io.imunity.home.views.profile.ProfileView;
@@ -22,10 +38,10 @@ import io.imunity.home.views.trusted_application.TrustedApplicationsView;
 import io.imunity.home.views.trusted_device.TrustedDeviceView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
-import io.imunity.vaadin.endpoint.common.layout.UnityAppLayout;
+import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfiguration;
+import io.imunity.vaadin.endpoint.common.layout.LeftNavbarAppLayout;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -33,18 +49,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
-import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
-import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppContextProperties;
-
-public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
+public class HomeUiMenu extends LeftNavbarAppLayout implements BeforeEnterObserver
 {
 	private final static int imageSize = 7;
 	private final AttributesManagement attributesMan;
@@ -54,9 +60,9 @@ public class HomeUiMenu extends UnityAppLayout implements BeforeEnterObserver
 	@Autowired
 	public HomeUiMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg,
 					  ProjectManagementHelper projectManagementHelper, AttributesManagement attributesMan,
-					  AttributeHandlerRegistry registry, UnityServerConfiguration unityServerConfiguration)
+					  AttributeHandlerRegistry registry, ExtraPanelsConfiguration extraPanelsConfiguration)
 	{
-		super(createMenuComponents(msg), standardWebLogoutHandler, msg, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper)), unityServerConfiguration);
+		super(createMenuComponents(msg), standardWebLogoutHandler, msg, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper)), extraPanelsConfiguration);
 		this.attributesMan = attributesMan;
 		this.registry = registry;
 		this.homeEndpointProperties = new HomeEndpointProperties(getCurrentWebAppContextProperties());
