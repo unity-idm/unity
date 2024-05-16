@@ -95,7 +95,10 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		upload.addSucceededListener(event ->
 		{
 			FileData fileData1 = memoryBuffer.getFileData();
-			setUnityImageValue(new UnityImage(((ByteArrayOutputStream)fileData1.getOutputBuffer()).toByteArray(), ImageType.fromMimeType(fileData1.getMimeType())));
+			UnityImage image = new UnityImage(((ByteArrayOutputStream)fileData1.getOutputBuffer()).toByteArray(), ImageType.fromMimeType(fileData1.getMimeType()));
+			if (scale.getValue())
+				image.scaleDown(imgConfig.getMaxWidth(), imgConfig.getMaxHeight());
+			setUnityImageValue(image);
 			showValue();
 			WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
 
@@ -189,6 +192,9 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 	
 	Optional<UnityImage> getValue(boolean required, ImageValidator validator) throws IllegalAttributeValueException
 	{
+		
+	
+		
 		if (value == null && !required)
 			return Optional.empty();
 		if (value == null)
