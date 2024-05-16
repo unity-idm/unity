@@ -317,7 +317,8 @@ public class ProfileView extends HomeViewComponent
 				return;
 			} catch (EngineException e)
 			{
-				throw new RuntimeException(e);
+				notificationPresenter.showError(msg.getMessage("UserAttributesPanel.attributeUpdateError"), "");				
+				return;
 			}
 		}
 		notificationPresenter.showSuccess(msg.getMessage("ProfileView.saved"));
