@@ -119,10 +119,10 @@ class AttributesController
 		{
 			if (removed.isEmpty())
 			{
-				notificationPresenter.showError(msg.getMessage("Attribute.removeError"), e.getMessage());
+				notificationPresenter.showError(msg.getMessage("Attribute.removeAttributeError"), e.getMessage());
 			} else
 			{
-				notificationPresenter.showError(msg.getMessage("Attribute.removeError",
+				notificationPresenter.showError(msg.getMessage("Attribute.removeAttributeError",
 						msg.getMessage("AttributesController.partiallyRemoved", removed)), e.getMessage());
 			}
 		}

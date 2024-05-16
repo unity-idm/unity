@@ -18,9 +18,7 @@ import java.util.Set;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
-import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -28,7 +26,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
@@ -49,6 +46,7 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegi
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewer;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ComponentsGroup;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.CompositeLayoutAdapter;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ConfirmationEditMode;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.FixedAttributeEditor;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.LabelContext;
@@ -202,12 +200,12 @@ public class ProfileView extends HomeViewComponent
 		VerticalLayout verticalLayout = new VerticalLayout();
 		for (String aKey: keys)
 		{
-			List<Component> attributes = getAttributes(atTypes, aKey, groups, verticalLayout);
-			if(attributes.isEmpty())
+			ComponentsGroup attributes = getAttributes(atTypes, aKey, groups, verticalLayout);
+			if(attributes.getComponents().isEmpty())
 				continue;
-			attributes.forEach(ProfileView::setAttributeWidth);
 			VerticalLayout innerLayout = new VerticalLayout();
-			innerLayout.add(attributes);
+			innerLayout.setSizeFull();
+			new CompositeLayoutAdapter(innerLayout, attributes);
 			innerLayout.setPadding(false);
 			innerLayout.setSpacing(false);
 			verticalLayout.add(innerLayout);
@@ -225,12 +223,7 @@ public class ProfileView extends HomeViewComponent
 		reset.setVisible(savable);
 	}
 
-	private static Style setAttributeWidth(HasStyle attr)
-	{
-		return attr.getStyle().set("width", "20em");
-	}
-
-	private List<Component> getAttributes(Map<String, AttributeType> atTypes, String key, Set<Group> groups, VerticalLayout layout)
+	private ComponentsGroup getAttributes(Map<String, AttributeType> atTypes, String key, Set<Group> groups, VerticalLayout layout)
 	{
 		String groupPath = config.getValue(key+ HomeEndpointProperties.GWA_GROUP);
 		String attributeName = config.getValue(key+HomeEndpointProperties.GWA_ATTRIBUTE);
@@ -240,13 +233,13 @@ public class ProfileView extends HomeViewComponent
 		if (attributeType == null)
 		{
 			log.warn("No attribute type " + attributeName + " defined in the system.");
-			return List.of();
+			return new ComponentsGroup();
 		}
 		AttributeExt attribute = getAttribute(attributeName, groupPath);
 
 		Optional<Group> group = groups.stream().filter(grp -> grp.toString().equals(groupPath)).findFirst();
 		if (group.isEmpty())
-			return List.of();
+			return new ComponentsGroup();
 		LabelContext labelContext = new LabelContext(
 				attributeType.getDisplayedName().getValue(msg),
 				showGroup,
@@ -267,41 +260,16 @@ public class ProfileView extends HomeViewComponent
 			if (attribute != null)
 				editor.setAttributeValues(attribute.getValues());
 			attributeEditors.add(editor);
-			ComponentsGroup componentsGroup = editor.getComponentsGroup();
-			componentsGroup.setAfterComponentInsertionListener((comp, before) ->
-					findLayout(layout, before).ifPresent(innerLayout ->
-					{
-						innerLayout.addComponentAtIndex(innerLayout.indexOf(before) + 1, comp);
-						setAttributeWidth(comp);
-					})
-			);
-			componentsGroup.setComponentRemovalListener(component ->
-					findLayout(layout, component).ifPresent(innerLayout -> innerLayout.remove(component))
-			);
-			return componentsGroup.getComponents();
+			return editor.getComponentsGroup();
 		} else
 		{
 			if (attribute == null)
-				return List.of();
+				return new ComponentsGroup();
 
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, attributeType,
 					attribute, labelContext, EMPTY);
-			return viewer.getComponentsGroup().getComponents();
+			return viewer.getComponentsGroup();
 		}
-	}
-
-	private static Optional<VerticalLayout> findLayout(VerticalLayout layout, Component before)
-	{
-		for(int i = 0; i < layout.getComponentCount(); i++)
-		{
-			if(layout.getComponentAt(i) instanceof VerticalLayout innerLayout)
-			{
-				int index = innerLayout.indexOf(before);
-				if(index != -1)
-					return Optional.of(innerLayout);
-			}
-		}
-		return Optional.empty();
 	}
 
 	public boolean iSavable()

@@ -5,22 +5,22 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Hr;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import io.imunity.vaadin.elements.CssClassNames;
-import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
-import pl.edu.icm.unity.base.message.MessageSource;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
+import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static io.imunity.vaadin.elements.CssClassNames.POINTER;
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+
+import io.imunity.vaadin.elements.CssClassNames;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
+import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 public class ListOfEmbeddedElementsStub<T>
 {
@@ -30,11 +30,10 @@ public class ListOfEmbeddedElementsStub<T>
 	private final int max;
 	private final boolean showLine;
 	private final HorizontalLayout lonelyBar;
-	private final Button lonelyAdd = new Button();
+	private final Icon lonelyAdd;
 	private final List<Entry> components;
 	private final ComponentsGroup group;
 	private Runnable valueChangeListener;
-	
 	
 	public ListOfEmbeddedElementsStub(MessageSource msg, EditorProvider<T> editorProvider,
 	                                  int min, int max, boolean showLine)
@@ -48,7 +47,7 @@ public class ListOfEmbeddedElementsStub<T>
 
 		components = new ArrayList<>();
 
-		Icon lonelyAdd = VaadinIcon.PLUS_CIRCLE_O.create();
+		lonelyAdd = VaadinIcon.PLUS_CIRCLE_O.create();
 		lonelyAdd.addClassName(POINTER.name());
 		lonelyAdd.setTooltipText(msg.getMessage("add"));
 		lonelyAdd.addClickListener(event -> addEntry(null, null));
@@ -68,7 +67,7 @@ public class ListOfEmbeddedElementsStub<T>
 
 	public void setLonelyLabel(String label)
 	{
-		lonelyAdd.setText(label);
+		lonelyAdd.setTooltipText(label);
 	}
 	
 	public void refresh()
