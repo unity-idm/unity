@@ -401,6 +401,12 @@ vaadin-button.u-text-left::part(label) {
     margin-right: auto;
 }
 
+.u-logo-idp-image {
+    max-width: 4.5rem;
+    max-height: 1.5rem;
+   	padding-top: 0.25rem;
+}
+
 .u-logo-grid-image {
     max-height: 2rem;
 }

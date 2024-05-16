@@ -101,8 +101,7 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 		Image logo = getImage();
 		if (logo == null)
 			logo = new Image();
-		logo.getStyle().set("max-height", "1.5rem");
-		logo.getStyle().set("padding-top", "0.25em");
+		logo.setClassName("u-logo-idp-image");
 
 		String signInLabel;
 		if (context == VaadinAuthentication.Context.LOGIN)

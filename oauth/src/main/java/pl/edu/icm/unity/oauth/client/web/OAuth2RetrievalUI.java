@@ -110,8 +110,8 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 
 		Image logo = imageAccessService.loadImageFromUri(logoURI)
 				.orElse(new LocalOrRemoteResource());
-		logo.getStyle().set("max-height", "1.5rem");
-		logo.getStyle().set("padding-top", "0.25em");
+		logo.setClassName("u-logo-idp-image");
+
 
 		String signInLabel;
 		if (context == VaadinAuthentication.Context.LOGIN)
