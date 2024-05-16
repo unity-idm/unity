@@ -11,6 +11,7 @@ import java.util.Optional;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import io.imunity.vaadin.elements.ExtraLayoutPanel;
 import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
@@ -67,13 +68,27 @@ public class UnityLayoutWrapper
 		}
 
 		ExtraLayoutPanel top = new ExtraLayoutPanel("unity-layout-top", extraTopPanel.orElse(null));
+		top.setWidthFull();
 		ExtraLayoutPanel left = new ExtraLayoutPanel("unity-layout-left", extraLeftPanel.orElse(null));
+		left.setHeightFull();
 		ExtraLayoutPanel right = new ExtraLayoutPanel("unity-layout-right", extraRightPanel.orElse(null));
+		right.setHeightFull();
 		ExtraLayoutPanel bottom = new ExtraLayoutPanel("unity-layout-bottom", extraBottomPanel.orElse(null));
-
+		bottom.setWidthFull();
+			
 		HorizontalLayout mainLayout = new HorizontalLayout();
 		mainLayout.setClassName("u-main-layout-container");
+		toWrap.getStyle()
+				.set("overflow", "auto");
 		mainLayout.add(left, toWrap, right);
-		main.add(top, mainLayout, bottom);
+		mainLayout.setSizeFull();
+
+		VerticalLayout wrapper = new VerticalLayout(top, mainLayout, bottom);
+		wrapper.setSizeFull();
+		wrapper.setPadding(false);
+		wrapper.setMargin(false);
+		wrapper.setSpacing(false);
+		main.add(wrapper);
+
 	}
 }
