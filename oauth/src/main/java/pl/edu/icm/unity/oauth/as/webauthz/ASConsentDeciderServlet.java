@@ -84,7 +84,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		ServletApiRequest apiRequest = (ServletApiRequest) req;
 		if (AuthenticationState.getAuthenticationState(apiRequest.getRequest()) == null)
 		{
-			resp.sendRedirect(oauthUiServletPath);
+			sendRedirect(req, resp);
 			return;
 		}
 		super.service(req, resp);
@@ -124,7 +124,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		if (consentDecider.forceConsentIfConsentPrompt(oauthCtx))
 		{
 			log.trace("Consent is required for OAuth request, 'consent' prompt was given , redirect to consent UI");
-			resp.sendRedirect(oauthUiServletPath);
+			sendRedirect(req, resp);
 		} 
 		else if (consentDecider.isInteractiveUIRequired(preferences, oauthCtx))
 		{
@@ -135,12 +135,25 @@ public class ASConsentDeciderServlet extends HttpServlet
 			}
 			
 			log.trace("Consent is required for OAuth request, forwarding to consent UI");
-			resp.sendRedirect(oauthUiServletPath);
+			sendRedirect(req, resp);
 		} else
 		{
 			log.trace("Consent is not required for OAuth request, processing immediatelly");
 			autoReplay(preferences, oauthCtx, req, resp);
 		}
+	}
+	
+	private void sendRedirect(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	{
+		resp.sendRedirect(oauthUiServletPath + getQueryToAppend(req));
+	}
+	
+	private String getQueryToAppend(HttpServletRequest req)
+	{
+		String signInContextKey = req.getParameter(OAuthSessionService.URL_PARAM_CONTEXT_KEY);
+		return signInContextKey == null 
+				? "" 
+				: "?" + OAuthSessionService.URL_PARAM_CONTEXT_KEY + "=" + signInContextKey;
 	}
 	
 	private void sendNonePromptError(OAuthAuthzContext oauthCtx, HttpServletRequest req, HttpServletResponse resp)

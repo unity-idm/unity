@@ -4,6 +4,23 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.stream.Collectors;
+
+import org.apache.commons.codec.binary.Base64;
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.collect.Sets;
 import com.nimbusds.langtag.LangTag;
 import com.nimbusds.langtag.LangTagException;
@@ -17,15 +34,14 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+
+import io.imunity.vaadin.endpoint.common.EopException;
 import io.imunity.vaadin.endpoint.common.LanguageCookie;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.hc.core5.net.URIBuilder;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -36,14 +52,6 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
-import io.imunity.vaadin.endpoint.common.EopException;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 /**
  * Low level servlet performing the initial OAuth handling.
@@ -116,9 +124,12 @@ public class OAuthParseServlet extends HttpServlet
 	{
 		String requestFromHoldOn = request.getParameter("oAuthRequest");
 		if (requestFromHoldOn != null)
+		{
 			return new String(Base64.decodeBase64(requestFromHoldOn), StandardCharsets.UTF_8);
-		else
+		} else
+		{
 			return request.getQueryString();
+		}
 	}
 
 	protected void processRequestInterruptible(HttpServletRequest request, HttpServletResponse response)
@@ -133,8 +144,10 @@ public class OAuthParseServlet extends HttpServlet
 		} catch (Exception e)
 		{
 			if (log.isTraceEnabled())
+			{
 				log.trace("Request to OAuth2 endpoint address, " + "with invalid/missing parameters, error: "
 						+ e.toString());
+			}
 			errorHandler.showErrorPage("Error parsing OAuth request parameters", e.getMessage(), response);
 			return;
 		}
@@ -145,8 +158,10 @@ public class OAuthParseServlet extends HttpServlet
 		} catch (ParseException e)
 		{
 			if (log.isTraceEnabled())
+			{
 				log.trace("Request to OAuth2 endpoint address, which is not OIDC request, "
 						+ "will try plain OAuth. OIDC parse error: " + e.toString());
+			}
 			try
 			{
 				authzRequest = AuthorizationRequest.parse(null, parsedRequestParametersWithUILocales.parsedRequestParameters);
@@ -161,8 +176,10 @@ public class OAuthParseServlet extends HttpServlet
 			} catch (ParseException ee)
 			{
 				if (log.isTraceEnabled())
+				{
 					log.trace("Request to OAuth2 endpoint address, " + "with invalid/missing parameters, error: "
 							+ e.toString());
+				}
 				errorHandler.showErrorPage("Error parsing OAuth request", e.getMessage(), response);
 				return;
 			}
@@ -171,12 +188,16 @@ public class OAuthParseServlet extends HttpServlet
 		// ok, we do have a new request.
 		OAuthAuthzContext context;
 		if (log.isTraceEnabled())
+		{
 			log.trace("Request to protected address, with OAuth2 input, will be processed: " + request.getRequestURI());
+		}
 
 		try
 		{
 			if (log.isTraceEnabled())
+			{
 				log.trace("Parsed OAuth request: " + request.getQueryString());
+			}
 			context = new OAuthAuthzContext(authzRequest, oauthConfig);
 			validator.validate(context);
 		} catch (OAuthValidationException e)
@@ -188,7 +209,9 @@ public class OAuthParseServlet extends HttpServlet
 
 		LoginInProgressService.SignInContextKey contextKey = OAuthSessionService.setContext(request.getSession(), context);
 		if (log.isTraceEnabled())
-			log.trace("Request with OAuth input handled successfully");
+		{
+			log.trace("Request with OAuth input handled successfully ({})", contextKey);
+		}
 
 		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
 		setLanguageCookie(response, parsedRequestParametersWithUILocales.uiLocales);
@@ -247,9 +270,12 @@ public class OAuthParseServlet extends HttpServlet
 	private AuthenticationPolicy mapPromptToAuthenticationPolicy(Set<Prompt> prompts)
 	{
 		if (prompts.contains(Prompt.NONE))
+		{
 			return AuthenticationPolicy.REQUIRE_EXISTING_SESSION;
-		else if (prompts.contains(Prompt.LOGIN))
+		} else if (prompts.contains(Prompt.LOGIN))
+		{
 			return AuthenticationPolicy.FORCE_LOGIN;
+		}
 
 		return AuthenticationPolicy.DEFAULT;
 	}
@@ -265,7 +291,9 @@ public class OAuthParseServlet extends HttpServlet
 		for (Entry<String, List<String>> entry : customParameters.entrySet())
 		{
 			for (String value : entry.getValue())
+			{
 				b.addParameter(entry.getKey(), value);
+			}
 		}
 		if (!LoginInProgressService.SignInContextKey.DEFAULT.equals(contextKey))
 		{

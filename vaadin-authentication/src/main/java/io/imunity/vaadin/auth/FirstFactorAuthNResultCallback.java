@@ -4,22 +4,28 @@
  */
 package io.imunity.vaadin.auth;
 
+import java.util.function.Supplier;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import io.imunity.vaadin.endpoint.common.SessionStorage;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.*;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationRetrievalContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
-
-import java.util.function.Supplier;
 
 /**
  * Collects authN result from the first authenticator of the selected flow
@@ -96,7 +102,9 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 	public void onStartedAuthentication()
 	{
 		if (authNListener != null)
+		{
 			authNListener.authenticationStarted();
+		}
 	}
 
 	@Override
@@ -117,29 +125,37 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 	private void setAuthenticationAborted()
 	{
 		if (authNListener != null)
+		{
 			authNListener.authenticationAborted();
+		}
 	}
 
 	private void setAuthenticationCompleted()
 	{
 		if (authNListener != null)
+		{
 			authNListener.authenticationCompleted();
+		}
 		UI ui = UI.getCurrent();
 		if (ui == null)
 		{
 			log.error("BUG Can't get UI to redirect the authenticated user.");
 			throw new IllegalStateException("AuthenticationProcessor.authnInternalError");
 		}
-		SessionStorage.getItem(
-				"redirect-url",
-				value -> UI.getCurrent().getPage().setLocation(value)
-		);
+		SessionStorage.consumeRedirectUrl((redirectUrl, currentRelativeURI) ->
+		{
+			String queryParams =  currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "";
+			UI.getCurrent().getPage().setLocation(redirectUrl + queryParams);
+			
+		});
 	}
 
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
 	{
 		if (authNListener != null)
+		{
 			authNListener.switchTo2ndFactor(partialState);
+		}
 	}
 
 

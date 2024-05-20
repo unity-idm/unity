@@ -160,9 +160,9 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 			return context;
 		}
 
-		Servlet samlParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_CONSENT_DECIDER_SERVLET_PATH),
+		Servlet oauthParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_CONSENT_DECIDER_SERVLET_PATH),
 				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, scopeService, serverConfig);
-		ServletHolder samlParseHolder = createServletHolder(samlParseServlet);
+		ServletHolder samlParseHolder = createServletHolder(oauthParseServlet);
 		servletContextHandler.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);

@@ -5,16 +5,31 @@
 
 package io.imunity.vaadin.endpoint.common;
 
-import com.vaadin.flow.component.UI;
+import java.net.URL;
 
-import java.util.function.Consumer;
+import com.vaadin.flow.component.UI;
 
 public class SessionStorage
 {
-	public static void getItem(String key, Consumer<String> consumer)
+	public static final String REDIRECT_URL_SESSION_STORAGE_KEY = "redirect-url";
+	
+	public static void consumeRedirectUrl(StoredValueConsumer consumer)
 	{
-		UI.getCurrent().getPage()
+		consumeSessionStorageItem(REDIRECT_URL_SESSION_STORAGE_KEY, consumer);
+	}
+	
+	private static void consumeSessionStorageItem(String key, StoredValueConsumer consumer)
+	{
+		UI.getCurrent().getPage().fetchCurrentURL(currentRelativeURI ->
+		{
+			UI.getCurrent().getPage()
 				.executeJs("return window.sessionStorage.getItem($0);", key)
-				.then(String.class, consumer::accept);
+				.then(String.class, storedValue -> consumer.consume(storedValue, currentRelativeURI));
+		});
+	}
+
+	public interface StoredValueConsumer
+	{
+		void consume(String storedValue, URL currentRelativeURI);
 	}
 }

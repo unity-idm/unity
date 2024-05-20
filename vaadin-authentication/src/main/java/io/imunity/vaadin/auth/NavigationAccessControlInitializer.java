@@ -8,25 +8,33 @@ package io.imunity.vaadin.auth;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.auth.NavigationAccessControl;
+
+import io.imunity.vaadin.endpoint.common.SessionStorage;
+
+import static io.imunity.vaadin.endpoint.common.SessionStorage.REDIRECT_URL_SESSION_STORAGE_KEY;
+
 import org.jsoup.nodes.Document;
 
 public class NavigationAccessControlInitializer implements VaadinServiceInitListener
 {
-
 	private final NavigationAccessControl navigationAccessControl;
 	private final String afterSuccessLoginRedirect;
 
-
-	public NavigationAccessControlInitializer() {
-		navigationAccessControl = new NavigationAccessControl();
-		navigationAccessControl.setLoginView(AuthenticationView.class);
-		afterSuccessLoginRedirect = "window.location.href";
+	static NavigationAccessControlInitializer defaultInitializer()
+	{
+		return new NavigationAccessControlInitializer("window.location.href");
 	}
 
-	public NavigationAccessControlInitializer(String afterSuccessLoginRedirect) {
+	static NavigationAccessControlInitializer withAfterSuccessLoginRedirect(String afterSuccessLoginRedirect)
+	{
+		return new NavigationAccessControlInitializer("\"" + afterSuccessLoginRedirect + "\"");
+	}
+
+	private NavigationAccessControlInitializer(String afterSuccessLoginRedirect)
+	{
 		navigationAccessControl = new NavigationAccessControl();
 		navigationAccessControl.setLoginView(AuthenticationView.class);
-		this.afterSuccessLoginRedirect = "\"" + afterSuccessLoginRedirect + "\"";
+		this.afterSuccessLoginRedirect = afterSuccessLoginRedirect;
 	}
 
 	@Override
@@ -37,9 +45,11 @@ public class NavigationAccessControlInitializer implements VaadinServiceInitList
 
 	private void saveOriginalUrlRequestInSessionStorageBeforeAllRedirects(ServiceInitEvent serviceInitEvent)
 	{
-		serviceInitEvent.addIndexHtmlRequestListener(response -> {
+		serviceInitEvent.addIndexHtmlRequestListener(response -> 
+		{
 			Document document = response.getDocument();
-			document.body().append("<script>window.sessionStorage.setItem(\"redirect-url\", " + afterSuccessLoginRedirect + ");</script>");
+			document.body().append("<script>window.sessionStorage.setItem("
+					+ "\"" + REDIRECT_URL_SESSION_STORAGE_KEY + "\", " + afterSuccessLoginRedirect + ");</script>");
 		});
 	}
 }

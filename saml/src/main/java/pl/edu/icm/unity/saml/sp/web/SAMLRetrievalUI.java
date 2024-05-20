@@ -4,19 +4,25 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.server.RequestHandler;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
+
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
 import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import io.imunity.vaadin.endpoint.common.SessionStorage;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -26,10 +32,6 @@ import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * The UI part of the remote SAML authn. Shows widget with a single, chosen IdP,
@@ -100,14 +102,18 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 		redirectParam = installRequestHandler();
 		Image logo = getImage();
 		if (logo == null)
+		{
 			logo = new Image();
 		logo.setClassName("u-logo-idp-image");
 
 		String signInLabel;
 		if (context == VaadinAuthentication.Context.LOGIN)
+		{
 			signInLabel = msg.getMessage("AuthenticationUI.signInWith", configuration.name);
-		else
+		} else
+		{
 			signInLabel = msg.getMessage("AuthenticationUI.signUpWith", configuration.name);
+		}
 		idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
 		idpComponent.addClickListener(event -> startLogin());
 		idpComponent.setWidthFull();
@@ -147,33 +153,31 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 
 	private void startFreshLogin(WrappedSession session)
 	{
-		SessionStorage.getItem("redirect-url", ultimateReturnURL ->
-			UI.getCurrent().getPage().fetchCurrentURL(currentRelativeURI ->
-				{
-					RemoteAuthnContext context;
-					String path = currentRelativeURI.getPath() + (currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "");
-					try
-					{
-						LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
-						context = credentialExchange.createSAMLRequest(configKey, path,
-								authenticationStepContext,
-								loginMachineDetails, ultimateReturnURL, callback.getTriggeringContext());
-					} catch (Exception e)
-					{
-						notificationPresenter.showError(msg.getMessage("WebSAMLRetrieval.configurationError"), e.getMessage());
-						log.error("Can not create SAML request", e);
-						clear();
-						return;
-					}
-					log.info("Starting remote SAML authn, current relative URI is {}", currentRelativeURI);
-					idpComponent.setEnabled(false);
-					callback.onStartedAuthentication();
-					session.setAttribute(VaadinRedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
-					samlContextManagement.addAuthnContext(context);
+		SessionStorage.consumeRedirectUrl((ultimateReturnURL, currentRelativeURI) ->
+		{
+			RemoteAuthnContext context;
+			String path = currentRelativeURI.getPath() + (currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "");
+			try
+			{
+				LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
+				context = credentialExchange.createSAMLRequest(configKey, path,
+						authenticationStepContext,
+						loginMachineDetails, ultimateReturnURL, callback.getTriggeringContext());
+			} catch (Exception e)
+			{
+				notificationPresenter.showError(msg.getMessage("WebSAMLRetrieval.configurationError"), e.getMessage());
+				log.error("Can not create SAML request", e);
+				clear();
+				return;
+			}
+			log.info("Starting remote SAML authn, current relative URI is {}", currentRelativeURI);
+			idpComponent.setEnabled(false);
+			callback.onStartedAuthentication();
+			session.setAttribute(VaadinRedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
+			samlContextManagement.addAuthnContext(context);
 
-					UI.getCurrent().getPage().open(path + "?" + redirectParam, SELF_WINDOW_NAME);
-				})
-		);
+			UI.getCurrent().getPage().open(path + "?" + redirectParam, SELF_WINDOW_NAME);
+		});
 	}
 
 	@Override
