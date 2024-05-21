@@ -270,6 +270,8 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		groupTree = controller.getAllGroupWithSubgroups(path);
 
+		if (groupTree.isEmpty())
+			return;
 		List<Group> rootGrs = groupTree.get(null);
 		if (rootGrs == null)
 			return;
