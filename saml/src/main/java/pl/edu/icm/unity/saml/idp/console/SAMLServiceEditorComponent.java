@@ -47,8 +47,7 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 			URIAccessService uriAccessService,
 			VaadinLogoImageLoader imageAccessService,
 			FileStorageService fileStorageService,
-			ServiceDefinition toEdit, List<Group> allGroups,
-			String systemTheme)
+			ServiceDefinition toEdit, List<Group> allGroups)
 	{
 		super(msg);
 		this.fileStorageService = fileStorageService;
@@ -85,9 +84,9 @@ class SAMLServiceEditorComponent extends ServiceEditorBase
 			serviceBean = (DefaultServiceDefinition) toEdit;
 			if (serviceBean.getConfiguration() != null)
 			{
-				webConfig.fromProperties(serviceBean.getConfiguration(), msg, imageAccessService, systemTheme);
+				webConfig.fromProperties(serviceBean.getConfiguration(), msg, imageAccessService);
 				samlConfig.fromProperties(serviceBean.getConfiguration(), msg, uriAccessService, 
-						imageAccessService, pkiMan, allGroups);
+						imageAccessService, allGroups);
 			}
 		}
 

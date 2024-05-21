@@ -30,8 +30,7 @@ public class Vaadin82XEndpointProperties extends VaadinEndpointProperties
 	public static final String EXTRA_PANELS_AFTER_ATHENTICATION = "addExtraPanelsAfterAuthentication";
 
 	
-	public final String defaultWebContentPath;
-	public final String defaultCssFileName;
+	private final String defaultWebContentPath;
 
 	static
 	{
@@ -52,11 +51,10 @@ public class Vaadin82XEndpointProperties extends VaadinEndpointProperties
 				setDescription("If false the UI wrapping panels will be only added to the authentication screen. If true, the panels will be also added to the endpoint's main view."));
 	}
 
-	public Vaadin82XEndpointProperties(Properties properties, String defaultWebContentPath, String defaultCssFileName)
+	public Vaadin82XEndpointProperties(Properties properties, String defaultWebContentPath)
 	{
 		super(properties);
 		this.defaultWebContentPath = defaultWebContentPath;
-		this.defaultCssFileName = defaultCssFileName;
 	}
 
 	public Optional<File> getExtraLeftPanel()

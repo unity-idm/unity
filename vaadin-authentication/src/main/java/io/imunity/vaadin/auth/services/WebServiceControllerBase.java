@@ -41,7 +41,6 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 	private final AuthenticatorSupportService authenticatorSupportService;
 	private final NetworkServer networkServer;
 	private final EndpointTypeDescription type;
-	private final String defaultMainTheme;
 	private final VaadinLogoImageLoader imageAccessService;
 
 	public WebServiceControllerBase(EndpointTypeDescription type, MessageSource msg,
@@ -54,8 +53,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		this(type, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan, imageAccessService,
-				fileStorageService, serverConfig, authenticatorSupportService, networkServer, serviceFileConfigController, 
-				null);
+				fileStorageService, serverConfig, authenticatorSupportService, networkServer, serviceFileConfigController);
 	}
 
 	public WebServiceControllerBase(EndpointTypeDescription type, MessageSource msg,
@@ -65,7 +63,7 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 			VaadinLogoImageLoader imageAccessService,
 			FileStorageService fileStorageService, UnityServerConfiguration serverConfig,
 			AuthenticatorSupportService authenticatorSupportService, NetworkServer networkServer,
-			EndpointFileConfigurationManagement serviceFileConfigController, String defaultMainTheme)
+			EndpointFileConfigurationManagement serviceFileConfigController)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
@@ -77,7 +75,6 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 		this.serverConfig = serverConfig;
 		this.authenticatorSupportService = authenticatorSupportService;
 		this.type = type;
-		this.defaultMainTheme = defaultMainTheme;
 		this.networkServer = networkServer;
 	}
 
@@ -98,6 +95,6 @@ public class WebServiceControllerBase extends DefaultServicesControllerBase impl
 				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(
 						Collectors.toList()), endpointMan.getEndpoints().stream().map(e -> e.getName()).collect(
 								Collectors.toList()) , networkServer.getUsedContextPaths(),
-				authenticatorSupportService, defaultMainTheme);
+				authenticatorSupportService);
 	}
 }

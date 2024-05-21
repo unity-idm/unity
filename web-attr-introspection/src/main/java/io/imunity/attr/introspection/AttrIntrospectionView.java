@@ -5,12 +5,27 @@
 
 package io.imunity.attr.introspection;
 
+import static io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppCancelHandler;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppContextProperties;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppResolvedEndpoint;
+import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppSandboxAuthnRouter;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.PREFIX;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
+
 import io.imunity.attr.introspection.config.AttrIntrospectionAttributePoliciesConfiguration;
 import io.imunity.attr.introspection.config.AttrIntrospectionEndpointProperties;
 import io.imunity.attr.introspection.summary.PolicyProcessingSummaryComponent;
@@ -26,8 +41,6 @@ import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
-
-import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -40,16 +53,6 @@ import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnNotifier.AuthnResul
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-
-import static io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter.DECISION_SESSION_ATTRIBUTE;
-import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.*;
-import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.PREFIX;
-import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_CSS_FILE_NAME;
-import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
 @Route(value = "/", layout=WrappedLayout.class)
 @AnonymousAllowed
@@ -130,8 +133,7 @@ class AttrIntrospectionView extends UnityViewComponent
 		Properties newConfig = new Properties();
 		newConfig.putAll(endpointProperties);
 		newConfig.setProperty(PREFIX + VaadinEndpointProperties.AUTHN_ADD_ALL, "false");
-		return new Vaadin82XEndpointProperties(newConfig, serverConfiguration.getValue(DEFAULT_WEB_CONTENT_PATH),
-				serverConfiguration.getValue(DEFAULT_CSS_FILE_NAME));
+		return new Vaadin82XEndpointProperties(newConfig, serverConfiguration.getValue(DEFAULT_WEB_CONTENT_PATH));
 	}
 
 	protected void addSandboxListener()

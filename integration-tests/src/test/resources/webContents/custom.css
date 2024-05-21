@@ -1,3 +1,36 @@
-body {
-	background-image: url('../unitygw/assets/img/other/mobile-sms.png');
+.u-authn-screen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff url("../unitygw/assets/img/favicon-64.png") repeat scroll center center;
+  opacity: 0.1;
+  z-index: -1;
+}
+
+
+.u-authn-screen vaadin-button {
+   background-color: #52A899;
+   color: white;
+   width: 100%;
+   text-transform: uppercase;
+}
+
+
+html {	
+  --lumo-font-size-xxxl: 3rem;
+  --lumo-font-family: Verdana, "Verdana Ref", sans-serif;
+  --lumo-size-xl: 5rem;
+  --lumo-primary-text-color: rgb(0, 105, 151);
+  --lumo-primary-color-50pct: rgba(0, 105, 151, 0.5);
+  --lumo-primary-color-10pct: rgba(0, 105, 151, 0.1);
+  --lumo-primary-color: #006997;
+  --lumo-shade-90pct: hsla(214, 40%, 16%, 0.94);
+  --lumo-header-text-color: #006997;
+  --lumo-error-color: #FF4637;
+  --lumo-success-color: #00B720;  
+  --unity-font-weight: 500;
+  --vaadin-text-field-default-width: 16em;
 }

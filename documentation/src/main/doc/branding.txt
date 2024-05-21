@@ -6,185 +6,137 @@ There are two ways (which can be combined) to perform such customizations:
 
 * Change of the default CSS style, allowing for customizing colors, decorations and sizing of the whole UI
 * Change of the default web page template, allowing for adding a custom header, footer or even side bars to the Unity UI.
+* Favicon can be customized.
+* All messages produced by Unity can be changed and new translations can be created.
 
-IMPORTANT: Since version 3.11.0, part of Unity UI was updated to use a more recent technology: Vaadin 23+. Branding
-of the updated *UpMan endpoint* is using different (and significantly simplified) configuration method than the legacy UI.
-The following two sections are discussing branding in the case of the legacy endpoints as well as branding of the authentication
-screen (likely the most important one). Vaadin 23 branding, specific to UpMan, is described in the section <<v2x-branding>>.
-Please note, that in the version 4 of Unity all UIs will be upgraded and only the new style of branding will be used. 
 
-=== Modification of web page styles
+=== Accessing local resources & web assets
 
-Customization is based on SASS http://sass-lang.com/ (a superset of CSS), using its preferred SCSS syntax. 
-Theoretically it is possible to prepare the theme purely in CSS but due to complex requirements in practice 
-SASS usage is mandatory.
+Files with custom resources like images or fonts can be served by Unity after placing them in the web contents directory.
 
-Unity themes are placed in a configured directory. Each theme is named and the server is configured with a selected
-theme as follows (in +unityServer.conf+):
+When referencing such resources from configuration file, all relative paths will be resolved automatically against the web contents directory.
+
+The situation is more complex when a resource file needs to be referenced from a CSS file or custom HTML frame. The file will be loaded directly by a web browser and so a proper base path needs to be prepended to each file path manually. To simplify this task, all files from the web contents directory are available from the always available (i.e. not specific to any dynamic endpoint) +/unitygw/+ path. Therefore the following path should be used e.g. in a custom CSS to reference a file +example.png+ placed directly in the web contents directory root:
 
 ----
-unityServer.core.defaultWebContentDirectory=webContents
-unityServer.core.defaultTheme=unityThemeValo
-----
+../unitygw/example.png
+----  
 
-What is more the theme can be changed per endpoint in endpoint's configuration. Actually two themes can be set:
-one for the main user interface and one for the endpoint's authentication screen. Endpoint
-can also use a separate directory with theme files and other web resources. For instance: 
-
-----
-unity.endpoint.web.mainTheme=customTheme
-unity.endpoint.web.authnTheme=customAuthnTheme
-unity.endpoint.web.webContentDirectory=webContents-homeEndpoint
-----
-
-There are couple of facts that it might be useful to know:
- 
-* All files (e.g. images) served by Unity must be present in the web content directory used for the 
-  endpoint in question. 
-* While authentication screen and the main endpoint UI can have different themes the web contents directory is 
-  always common.
-* Sandboxed authentication UI (used during account association or during translation profile wizard run) uses
-  the same theme as the endpoint's main authentication UI.
-* Confirmation screen shown after email confirmation uses the default theme or the one configured separately 
-  with the +unityServer.core.confirmationUITheme+ option.
-* Templates used for generating generic server-wide error pages (e.g. 404 - page not found) are always using a template
-  defined in the +defaultWebContentDirectory+.
+Note the leading "../": it is needed to go one level up, from an endpoint specific context path.
 
 
-==== Preparing a custom theme
+=== Modification of web page styling
 
-Each theme is placed in a separate subdirectory of the +VAADIN/themes+ folder (placed in the web contents directory
-as described above). Subdirectory must be named as the style. Unity uses the +styles.css+ file in the theme directory
-as the web interface style. If the +styles.css+ is not found but there is a +styless.scss+ file then it is 
-compiled on the fly to CSS and used. This later scenario is not suggested for production, see below how to compile the
-theme. 
+Styling customization is achieved by providing a custom, plain CSS file. The CSS rules from this file are added after all other default CSS rules. The custom CSS file should be placed in the configured web contents directory. 
 
-Distribution contains one production theme called +unityThemeValo+ which is based on the Vaadin's Valo theme (Vaadin
-is underlying technology of the Unity's web interface). Usage of the Valo theme as the base is not mandatory,
-but highly preferred and easiest choice. Valo theme is highly configurable and can be customized to a large degree.
-Valo theme is documented here is: https://vaadin.com/valo and API is documented https://vaadin.com/api/valo/ .
-
-There is also one example theme called +customTheme+.
-Both of them are based on SASS partial placed in the +common+ directory. +unityThemeValo+ is simply reusing the 
-whole partial as-is. +customTheme+ is introducing several small changes as disabling the 
-blue background of the top bar and displaying a Unity logo there. 
-
-
-Strongly suggested structure of a theme is using two SCSS files: +styles.scss+ (this name is mandatory) 
-and +STYLE-NAME.scss+. The first file should merely include the definitions from the second file allowing to 
-store the style in properly named file.  
-
-Typically the custom theme should be created basing on the +customTheme+ example:
-
- - create a theme folder under +VAADIN/themes+ e.g. +myTheme+
- - create +myTheme/styles.scss+, +myTheme/favicon.ico+ and +myTheme/myTheme.scss+ basing on the 
- custom theme as template.
- - introduce changes in the +myTheme/myTheme.scss+
- 
-The +exampleTheme+ contains a lot of comments which should help to understand the structure. In case when large changes
-are introduced it might be easier to copy the common partial and modify it directly.
-
-==== Compiling SASS theme
-
-Manual compilation of a theme is a suggested approach as it improves server performance and allow to detect 
-syntax errors early.
-
-Unity provides a simple command line utility that compiles a given theme.
+It is possible to configure a shared CSS for a whole server in as follows in +unityServer.conf+:
 
 ----
-$> unity-idm-scss-compile conf/VAADIN/themes/myTheme
+unityServer.core.defaultCssFileName=custom.css
 ----
 
-The sole argument to the utility is a directory with the source +styles.scss+ file.
-
-
-=== Customizing the template of web pages
-
-Unity uses a Freemarker template engine to produce a web page. By default the whole visible contents of this
-page is generated by Vaadin framework and this contents can not be manipulated (besides styling described above and
-system configuration allowing for many customization). 
-
-However, the 'main' interface can be wrapped with custom decorations. For instance it is possible to add a 
-foot bar with logos of partners of the infrastructure using Unity.
-
-==== Structure of a template
-
-The default template looks as follows:
+What is more each endpoint can have its own custom CSS, used _instead of_ the serve wide one (if it is defined). For instance: 
 
 ----
-<!DOCTYPE html>
-<html>
-  <head>
-    <#include "system/header-mandatory.ftl">
-
-    <#include "system/header-std.ftl">
-  </head>
- 
-  <body>
-  
-    <#assign appId="main-element">
-    <#include "system/body-main-ui.ftl">
-    <#include "system/body-mandatory-end.ftl">
-    
-  </body>
-</html>
+unity.endpoint.web.customCssFileName=custom-endpoint.css
 ----
 
-The statements including +system/header-mandatory.ftl+ and +system/body-mandatory-end.ftl+ files as well as 
-the +assign+ instruction are mandatory and must be enclosed in the HTML head and body parts as in the default file.
+==== Custom CSS preparation hints
 
-The include of the +system/header-std.ftl+ is not mandatory. It can be replaced with custom contents. The default
-file sets a web page title (if defined by the UI), the favicon and size of the page.
-Also other header elements, as keywords can be inserted.
+Contents of the new CSS is arbitrary and simple changes can be made after inspection of the Unity UI in the browser's web tools.
 
-The body defines first a variable with HTML id of the root +div+ element where Unity displays its contents.
-The subsequent include simply creates this element (it is empty as will be filled by Unity JavaScript code).
-The final include adds a code necessary to load the Unity contents and is mandatory.
+* In case when certain styles shall be applied to the authentication screen only, it is useful to use the HTML class +u-authn-screen+, which is always present on the (mostly) root HTML element of each authentication screen. 
+* Checking the default Unity +styles.css+ will provide information on many useful CSS variables.
+* In case of more complex redesign it might be useful to know that Unity default theme is based on the Lumo Vaadin theme. It is documented in here: https://vaadin.com/docs/latest/styling[Lumo documentation]. Among others it is possible to use Lumo variables in the custom CSS, as well as use https://demo.vaadin.com/lumo-editor/[Lumo editor] to generate generic CSS which can be used to configure cross-cutting UI options. 
 
-The modifications of the body part typically will include additional HTML code before and/or after the  
-+system/body-main-ui.ftl+ include. Optionally this include can be removed, but then a +div+ element with 
-the same id as defined in the +appId+ must be inserted somewhere.
-
-Of course also the full power of the Freemarker template engine is available, as documented at: 
-http://freemarker.org/docs/dgui.html 
-
-Example template with a simple header and footer added:
+Couple of example CSS modifications follows:
 
 ----
-<!DOCTYPE html>
-<html>
-  <head>
-    <#include "system/header-mandatory.ftl">
+/* insert a semi-transparent background image, only on the authentication page */ 
+.u-authn-screen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff url("../unitygw/assets/img/favicon-64.png") repeat scroll center center;
+  opacity: 0.1;
+  z-index: -1;
+}
 
-    <#include "system/header-std.ftl">
-  </head>
- 
-  <body>
-  
-    <#assign appId="main-element">
-    
-    <div style="background-color: blue;">CUSTOM HEADER</div>
-    <#include "system/body-main-ui.ftl">
-    <div style="background-color: blue;">UNITY ROCKS!</div>
-    
-    <#include "system/body-mandatory-end.ftl">
-    
-  </body>
-</html>
+/* all buttons on the authentication page shall have this style */ 
+.u-authn-screen vaadin-button {
+   background-color: #52A899;
+   color: white;
+   width: 100%;
+   text-transform: uppercase;
+}
+
+/* couple of general changes, applicable to all screens */
+html {	
+  --lumo-font-size-xxxl: 3rem;
+  --lumo-font-family: Verdana, "Verdana Ref", sans-serif;
+  --lumo-size-xl: 5rem;
+  --lumo-primary-text-color: rgb(0, 105, 151);
+  --lumo-primary-color-50pct: rgba(0, 105, 151, 0.5);
+  --lumo-primary-color-10pct: rgba(0, 105, 151, 0.1);
+  --lumo-primary-color: #006997;
+  --lumo-shade-90pct: hsla(214, 40%, 16%, 0.94);
+  --lumo-header-text-color: #006997;
+  --lumo-error-color: #FF4637;
+  --lumo-success-color: #00B720;  
+  --unity-font-weight: 500;
+  --vaadin-text-field-default-width: 16em;
+}
 ----
 
-==== Configuration settings   
+=== Controlling favicon
 
-Modification of the default template influences all UIs of Unity. However, it is possible to use different
-templates for every endpoint, what is configured with the +unity.endpoint.web.template+ setting.
+Configuration of favicon shall be provided in a file located in the default web contents directory (which is by default the +webContents/+ directory of distribution), in a file under path: +favicon.html+.
 
-There are also options to set templates for the shared (not endpoint specific UIs), as the email confirmation
-screen. See the main server reference documentation: <<configuration>>. 
+The file may look like the default one found in Unity's distribution:
+
+----
+<link rel="icon" type="image/png" sizes="16x16" href="../unitygw/assets/img/favicon-16.png">
+<link rel="icon" type="image/png" sizes="24x24" href="../unitygw/assets/img/favicon-24.png">
+---- 
+
+Note, that contents of this file will be placed as-is in the HTML header section of the web pages generated by Unity.
 
 
-include::branding-v2x.txt[]
 
+=== Wrapping Unity web pages in custom frames
 
+Unity allows for adding frames around the Unity main UI. The frames are composed from up to four panels: top, bottom, left and right. Naturally all panels are optional. 
+
+Panel content must be a static HTML file. It is advised to use a constant height for top and bottom panels, as well as constant width for left and right ones.
+
+Default panels can be set server-wide with the following settings in  +unityServer.conf+:
+
+----
+unityServer.core.extraTopPanel=topbar.html
+unityServer.core.extraBottomPanel=bottombar.html
+unityServer.core.extraLeftPanel=vertbar.html
+unityServer.core.extraRightPanel=vertbar.html
+----
+
+It is also possible to define frames for an individual endpoint, in its configuration:
+
+----
+unity.endpoint.web.extraTopPanel=endp-topbar.html
+unity.endpoint.web.extraBottomPanel=endp-bottombar.html
+unity.endpoint.web.extraLeftPanel=endp-leftbar.html
+unity.endpoint.web.extraRightPanel=endp-rightbar.html
+----
+
+There is one additional option which is helpful, if the frames are to be added only on the sign in screen of the endpoint:
+
+----
+unity.endpoint.web.addExtraPanelsAfterAuthentication=false
+----
+
+Note: as of now this configuration is not supported over Web Console, i.e. it requires file-based configuration.
 
 [[i18n]]
 === Controlling translation of messages

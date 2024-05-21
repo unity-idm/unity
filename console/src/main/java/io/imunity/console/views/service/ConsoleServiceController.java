@@ -41,7 +41,6 @@ class ConsoleServiceController extends WebServiceControllerBase
 	{
 		super(ConsoleEndpointFactory.TYPE, msg, endpointMan, realmsMan, flowsMan, authMan, registrationMan,
 				imageAccessService, fileStorageService, serverConfig, 
-				authenticatorSupportService, networkServer, serviceFileConfigController, 
-				"def");
+				authenticatorSupportService, networkServer, serviceFileConfigController);
 	}
 }

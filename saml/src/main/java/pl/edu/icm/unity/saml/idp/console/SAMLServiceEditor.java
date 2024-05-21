@@ -131,8 +131,7 @@ public class SAMLServiceEditor implements ServiceEditor
 		PolicyAgreementsTab policyAgreementTab = new PolicyAgreementsTab(msg, policyDocuments);
 		
 		editor = new SAMLServiceEditorComponent(msg, samlEditorGeneralTab, clientsTab, usersTab, webServiceAuthenticationTab,
-				policyAgreementTab, type, pkiMan, uriAccessService, imageAccessService, fileStorageService, endpoint, allGroups, 
-				serverConfig.getValue(UnityServerConfiguration.THEME));
+				policyAgreementTab, type, pkiMan, uriAccessService, imageAccessService, fileStorageService, endpoint, allGroups);
 		return editor;
 	}
 

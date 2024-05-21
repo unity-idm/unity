@@ -34,7 +34,7 @@ public class WebServiceEditorComponent extends ServiceEditorBase
 	public WebServiceEditorComponent(MessageSource msg, GeneralTab generalTab, 
 			WebServiceAuthenticationTab authTab,  EndpointTypeDescription type,
 			VaadinLogoImageLoader imageAccessService, FileStorageService fileStorageService,  
-			DefaultServiceDefinition toEdit, String defaultMainTheme)
+			DefaultServiceDefinition toEdit)
 	{
 		super(msg);
 		boolean editMode = toEdit != null;
@@ -47,12 +47,12 @@ public class WebServiceEditorComponent extends ServiceEditorBase
 		authTab.initUI(serviceBinder, webConfigBinder);
 		registerTab(authTab);
 		DefaultServiceDefinition service = new DefaultServiceDefinition(type.getName());
-		ServiceWebConfiguration webConfig = new ServiceWebConfiguration(defaultMainTheme);
+		ServiceWebConfiguration webConfig = new ServiceWebConfiguration();
 		if (editMode)
 		{
 			service = (DefaultServiceDefinition) toEdit;
 			if (service.getConfiguration() != null)
-				webConfig.fromProperties(service.getConfiguration(), msg, imageAccessService, null);
+				webConfig.fromProperties(service.getConfiguration(), msg, imageAccessService);
 		}
 		serviceBinder.setBean(service);
 		webConfigBinder.setBean(webConfig);

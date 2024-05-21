@@ -282,7 +282,7 @@ public class SAMLServiceConfiguration
 
 	public void fromProperties(String properties, MessageSource msg, URIAccessService uriAccessService,
 			VaadinLogoImageLoader imageAccessService,
-			PKIManagement pkiManagement, List<Group> allGroups) throws ConfigurationException
+			List<Group> allGroups) throws ConfigurationException
 	{
 		Properties raw = new Properties();
 
@@ -293,7 +293,7 @@ public class SAMLServiceConfiguration
 		{
 			throw new InternalException("Invalid configuration of the SAML idp service", e);
 		}
-		VaadinEndpointProperties vProperties = new VaadinEndpointProperties(raw);
+		new VaadinEndpointProperties(raw);
 		
 		SamlIdpProperties samlIdpProperties = new SamlIdpProperties(raw);
 		issuerURI = samlIdpProperties.getValue(SamlIdpProperties.ISSUER_URI);
@@ -437,8 +437,7 @@ public class SAMLServiceConfiguration
 					SAMLIndividualTrustedSPConfiguration idp = new SAMLIndividualTrustedSPConfiguration();
 					key = key.substring(SamlIdpProperties.ALLOWED_SP_PREFIX.length(),
 							key.length() - 1);
-					idp.fromProperties(msg, imageAccessService, samlIdpProperties, key,
-							vProperties.getEffectiveMainTheme());
+					idp.fromProperties(msg, imageAccessService, samlIdpProperties, key);
 					individualTrustedSPs.add(idp);
 				});
 

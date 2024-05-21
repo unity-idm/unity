@@ -52,7 +52,7 @@ public class SAMLIndividualTrustedSPConfiguration
 	}
 
 	public void fromProperties(MessageSource msg, VaadinLogoImageLoader imageAccessService, SamlIdpProperties source,
-			String name, String theme)
+			String name)
 	{
 		setName(name);
 		String prefix = SamlIdpProperties.ALLOWED_SP_PREFIX + name + ".";

@@ -5,7 +5,6 @@
 package io.imunity.vaadin.endpoint.common;
 
 import static org.eclipse.jetty.ee10.webapp.MetaInfConfiguration.CONTAINER_JAR_PATTERN;
-import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_CSS_FILE_NAME;
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
 import java.io.StringReader;
@@ -94,8 +93,7 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 			properties.load(new StringReader(cfg));
 			genericEndpointProperties = new Vaadin82XEndpointProperties(
 					properties,
-					serverConfig.getValue(DEFAULT_WEB_CONTENT_PATH),
-					serverConfig.getValue(DEFAULT_CSS_FILE_NAME)
+					serverConfig.getValue(DEFAULT_WEB_CONTENT_PATH)
 			);
 
 		} catch (Exception e)

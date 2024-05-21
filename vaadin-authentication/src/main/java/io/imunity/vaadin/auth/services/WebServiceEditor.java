@@ -42,7 +42,6 @@ public class WebServiceEditor implements ServiceEditor
 	private final List<String> usedNames;
 	private final Set<String> serverContextPaths;
 	private final EndpointTypeDescription type;
-	private final String defaultMainTheme;
 	private  WebServiceEditorComponent editor;
 
 	public WebServiceEditor(EndpointTypeDescription type, MessageSource msg,
@@ -52,7 +51,7 @@ public class WebServiceEditor implements ServiceEditor
 			List<String> allRealms, List<AuthenticationFlowDefinition> flows,
 			List<AuthenticatorInfo> authenticators, List<String> registrationForms, List<String> usedPaths, List<String> usedNames,
 			Set<String> serverContextPaths,
-			AuthenticatorSupportService authenticatorSupportService, String defaultMainTheme)
+			AuthenticatorSupportService authenticatorSupportService)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
@@ -67,7 +66,6 @@ public class WebServiceEditor implements ServiceEditor
 		this.usedNames = usedNames;
 		this.serverContextPaths = serverContextPaths;
 		this.type = type;
-		this.defaultMainTheme = defaultMainTheme;
 	}
 
 	@Override
@@ -80,7 +78,7 @@ public class WebServiceEditor implements ServiceEditor
 				allRealms, registrationForms, type.getSupportedBinding());
 
 		editor = new WebServiceEditorComponent(msg, generalTab, webServiceAuthenticationTab, type,
-				imageAccessService, fileStorageService, (DefaultServiceDefinition) endpoint, defaultMainTheme);
+				imageAccessService, fileStorageService, (DefaultServiceDefinition) endpoint);
 
 		return editor;
 	}

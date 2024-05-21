@@ -56,7 +56,7 @@ public class SAMLServiceConfigurationTest
 				.get();
 		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(msg, Collections.emptyList());
 		
-		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, imageAccessSrv, pkiMan, Lists.newArrayList());
+		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, imageAccessSrv, Lists.newArrayList());
 		String converted = processor.toProperties(pkiMan, msg, fileStorageSrv, "name");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
@@ -84,7 +84,7 @@ public class SAMLServiceConfigurationTest
 		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(msg, Collections.emptyList());
 		
 		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, 
-				imageAccessSrv, pkiMan, Lists.newArrayList());
+				imageAccessSrv, Lists.newArrayList());
 		String converted = processor.toProperties(pkiMan, msg, fileStorageSrv, "name");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
@@ -115,7 +115,7 @@ public class SAMLServiceConfigurationTest
 		SAMLServiceConfiguration processor = new SAMLServiceConfiguration(msg, Collections.emptyList());
 		
 		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, uriAccessSrv, 
-				imageAccessSrv, pkiMan, Lists.newArrayList());
+				imageAccessSrv, Lists.newArrayList());
 		String converted = processor.toProperties(pkiMan, msg, fileStorageSrv, "name");
 		
 		Properties result = ConfigurationComparator.fromString(converted, P).get();

@@ -53,7 +53,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			IdpEditorUsersTab usersTab, WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab,
 			FileStorageService fileStorageService, VaadinLogoImageLoader imageAccessService,
 			OAuthScopesService scopeService, ServiceDefinition toEdit,
-			List<Group> allGroups, Function<String, List<OAuthClient>> systemClientsSupplier, String systemTheme)
+			List<Group> allGroups, Function<String, List<OAuthClient>> systemClientsSupplier)
 	{
 		super(msg);
 		this.fileStorageService = fileStorageService;
@@ -120,7 +120,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 			if (webAuthzService != null && webAuthzService.getConfiguration() != null)
 			{
 				oauthConfig.fromProperties(msg, webAuthzService.getConfiguration(), allGroups, scopeService);
-				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, imageAccessService, systemTheme);
+				webConfig.fromProperties(webAuthzService.getConfiguration(), msg, imageAccessService);
 			}
 			clientsBean.setClients(cloneClients(
 					systemClientsSupplier.apply(oauthConfig.getClientGroup().group().toString())));

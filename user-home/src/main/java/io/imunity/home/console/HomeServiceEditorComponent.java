@@ -56,8 +56,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 		if (editMode && toEdit.getConfiguration() != null)
 		{
 			config.fromProperties(toEdit.getConfiguration(), msg, allGroups);
-			webConfig.fromProperties(toEdit.getConfiguration(), msg, imageAccessService, 
-					serverConfig.getValue(UnityServerConfiguration.THEME));
+			webConfig.fromProperties(toEdit.getConfiguration(), msg, imageAccessService);
 		}
 		homeBinder.setBean(config);
 		webConfigBinder.setBean(webConfig);

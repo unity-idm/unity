@@ -4,9 +4,18 @@
  */
 package io.imunity.vaadin.shared.endpoint;
 
-import com.vaadin.flow.server.InitParameters;
-import com.vaadin.flow.server.startup.ServletContextListeners;
-import io.imunity.vaadin.endpoint.common.*;
+import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
+import static java.util.Collections.emptyList;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
+
+import java.net.URL;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
@@ -16,6 +25,16 @@ import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import com.vaadin.flow.server.InitParameters;
+import com.vaadin.flow.server.startup.ServletContextListeners;
+
+import io.imunity.vaadin.endpoint.common.InvocationContextSetupFilter;
+import io.imunity.vaadin.endpoint.common.JarGetter;
+import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
+import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
+import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
+import jakarta.servlet.DispatcherType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -24,20 +43,6 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
-
-import jakarta.servlet.DispatcherType;
-import java.net.URL;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
-
-import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
-import static java.util.Collections.emptyList;
-import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_CSS_FILE_NAME;
-import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
 @Primary
 @Component
@@ -62,8 +67,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		properties.setProperty(Vaadin82XEndpointProperties.PREFIX + Vaadin82XEndpointProperties.EXTRA_PANELS_AFTER_ATHENTICATION, "true");
 		Vaadin82XEndpointProperties vaadinEndpointProperties = new Vaadin82XEndpointProperties(
 				properties,
-				config.getValue(DEFAULT_WEB_CONTENT_PATH),
-				config.getValue(DEFAULT_CSS_FILE_NAME)
+				config.getValue(DEFAULT_WEB_CONTENT_PATH)
 		);
 		WebAppContext context = new Vaadin2XWebAppContext(properties, vaadinEndpointProperties, msg, null);
 		context.setBaseResource(new URLResourceFactory().newResource(getWebContentsDir(config)));

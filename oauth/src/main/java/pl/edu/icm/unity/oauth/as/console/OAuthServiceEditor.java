@@ -139,8 +139,7 @@ class OAuthServiceEditor implements ServiceEditor
 		PolicyAgreementsTab policyAgreementTab = new PolicyAgreementsTab(msg, policyDocuments);
 		
 		editor = new OAuthServiceEditorComponent(msg, generalTab, clientsTab, usersTab, webAuthTab, policyAgreementTab,
-				fileStorageService, imageService, scopeService, endpoint, allGroups, systemClientsSupplier, 
-				serverConfig.getValue(UnityServerConfiguration.THEME));
+				fileStorageService, imageService, scopeService, endpoint, allGroups, systemClientsSupplier);
 		return editor;
 	}
 

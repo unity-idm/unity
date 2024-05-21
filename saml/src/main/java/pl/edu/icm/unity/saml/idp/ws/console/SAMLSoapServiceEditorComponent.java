@@ -75,7 +75,7 @@ class SAMLSoapServiceEditorComponent extends ServiceEditorBase
 			if (serviceBean.getConfiguration() != null)
 			{
 				samlConfig.fromProperties(serviceBean.getConfiguration(), msg, uriAccessService, 
-						imageAccessService, pkiMan, allGroups);
+						imageAccessService, allGroups);
 			}
 		}
 

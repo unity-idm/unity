@@ -4,17 +4,43 @@
  */
 package io.imunity.vaadin.auth.sandbox;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_ADD_ALL;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_GRIDS_PFX;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_GRID_CONTENTS;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_GRID_ROWS;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_SHOW_SEARCH;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_TITLE;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.PREFIX;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import io.imunity.vaadin.auth.*;
+
+import io.imunity.vaadin.auth.ColumnInstantAuthenticationScreen;
+import io.imunity.vaadin.auth.CredentialResetLauncher;
+import io.imunity.vaadin.auth.FirstFactorAuthNPanel;
+import io.imunity.vaadin.auth.SecondFactorAuthNPanel;
+import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.CancelHandler;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
@@ -30,17 +56,6 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemot
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.*;
-import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_CSS_FILE_NAME;
-import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
 /**
  * Extends authentication screen, reconfiguring it to work as sandbox one.
@@ -105,8 +120,7 @@ public class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScre
 		sandboxConfig.setProperty(PREFIX + AUTHN_COLUMNS_PFX + "1." + AUTHN_COLUMN_WIDTH, "28");
 
 		log.debug("Configuration for the sandbox screen with all options:\n{}", sandboxConfig);
-		return new Vaadin82XEndpointProperties(sandboxConfig, unityServerConfiguration.getValue(DEFAULT_WEB_CONTENT_PATH),
-				unityServerConfiguration.getValue(DEFAULT_CSS_FILE_NAME));
+		return new Vaadin82XEndpointProperties(sandboxConfig, unityServerConfiguration.getValue(DEFAULT_WEB_CONTENT_PATH));
 	}
 
 	private static String getGridFlowsSpec(List<AuthenticationFlow> authenticators)
@@ -140,8 +154,7 @@ public class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScre
 		stripDown.setProperty(PREFIX + AUTHN_TITLE, title);
 		stripDown.setProperty(PREFIX + AUTHN_SHOW_LAST_OPTION_ONLY, "false");
 		stripDown.setProperty(PREFIX + AUTHN_SHOW_SEARCH, "true");
-		return new Vaadin82XEndpointProperties(stripDown, unityServerConfiguration.getValue(DEFAULT_WEB_CONTENT_PATH),
-				unityServerConfiguration.getValue(DEFAULT_CSS_FILE_NAME));
+		return new Vaadin82XEndpointProperties(stripDown, unityServerConfiguration.getValue(DEFAULT_WEB_CONTENT_PATH));
 	}
 
 	private static boolean filterProperties(Map.Entry<Object, Object> entry)

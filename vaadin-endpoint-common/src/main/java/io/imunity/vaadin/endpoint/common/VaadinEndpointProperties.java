@@ -42,11 +42,6 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	
 	public static final String PRODUCTION_MODE = "productionMode";
 	public static final String WEB_CONTENT_PATH = "webContentDirectory";
-	public static final String DEF_THEME = "defaultTheme";
-	public static final String THEME = "mainTheme";
-	public static final String AUTHN_THEME = "authnTheme";
-	public static final String TEMPLATE = "template";
-	public static final String DEFAULT_TEMPLATE = "default.ftl";
 	public static final String AUTO_LOGIN = "autoLogin";
 	
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
@@ -94,19 +89,6 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 		META.put(WEB_CONTENT_PATH, new PropertyMD().setPath().setDescription(
 				"Defines a folder from which the endpoint will serve static content, "
 				+ "configured locally. If undefined the default value from the server's main configration is used."));
-		META.put(DEF_THEME, new PropertyMD().setHidden().setDescription(
-				"Placeholder, filled automatically with the copy of the main server's "
-				+ "configuration setting, so the endpoints need not to access the main config for this single default value."));
-		META.put(THEME, new PropertyMD().setDescription(
-				"Overrides the default theme name as used for rendering the endpoint contents."));
-		META.put(AUTHN_THEME, new PropertyMD().setDescription(
-				"Overrides the default theme name as used for rendering the endpoint's "
-				+ "authentication screen contents. If undefined the same setting as for the "
-				+ "main endpoint UI is used."));
-		META.put(TEMPLATE, new PropertyMD(DEFAULT_TEMPLATE).setDescription(
-				"The name of a Freemarker template, relative to templates directory, with a "
-				+ "template of the endpoint web interface. Custom template can be used to add "
-				+ "static header/footer etc."));
 		META.put(AUTO_LOGIN, new PropertyMD("false").setDescription(
 				"If set to true and the endpoint has a single authentication option configured "
 				+ " and this option supports automated login (as remote SAML or OAuth login), then this "
@@ -209,6 +191,11 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 						+ "will be ignored." +
 						"If there are no forms defined with this property, then all public "
 						+ "forms are made available."));
+		
+		META.put("defaultTheme", new PropertyMD().setDeprecated());
+		META.put("mainTheme", new PropertyMD().setDeprecated());
+		META.put("authnTheme", new PropertyMD().setDeprecated());
+		META.put("template", new PropertyMD().setDeprecated());
 	}
 	
 	public VaadinEndpointProperties(Properties properties)
@@ -217,32 +204,11 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 		super(PREFIX, properties, META, log);
 	}
 
-	/**
-	 * Returns either a theme configured with the key given as argument or the default theme if the
-	 * specific one is not defined. Can return null if neither is available.
-	 * @param themeConfigKey
-	 * @return configuration theme
-	 */
-	public String getConfiguredTheme(String themeConfigKey)
-	{
-		if (isSet(themeConfigKey))
-			return getValue(themeConfigKey);
-		else if (isSet(VaadinEndpointProperties.DEF_THEME))
-			return getValue(VaadinEndpointProperties.DEF_THEME);
-		return null;
-	}
-
 	public Properties getProperties()
 	{
 		return properties;
 	}
 	
-	public String getEffectiveMainTheme()
-	{
-		String configuredTheme = getConfiguredTheme(VaadinEndpointProperties.THEME);
-		return configuredTheme != null ? configuredTheme : "def";
-	}
-
 	public String getAuthnLogo()
 	{
 		return getValue(VaadinEndpointProperties.AUTHN_LOGO);

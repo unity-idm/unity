@@ -9,10 +9,12 @@ import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.communication.IndexHtmlRequestListener;
 import com.vaadin.flow.server.communication.IndexHtmlResponse;
+
+import pl.edu.icm.unity.base.utils.Log;
+
+import org.apache.logging.log4j.Logger;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StreamUtils;
 
 import java.io.File;
@@ -27,7 +29,7 @@ import static java.lang.String.format;
 
 class CustomStylesInitializer implements VaadinServiceInitListener
 {
-	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, MethodHandles.lookup().lookupClass());
 
 	private final DefaultCssFileLoader defaultCssFileLoader;
 
@@ -86,7 +88,6 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 
 	private static class CustomStylesContentProvider
 	{
-
 		private final CssFileLoader defaultCssFileLoader;
 		private final CssFileLoader customCssFileLoader;
 
@@ -98,24 +99,20 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 
 		private Optional<String> getCustomStyles()
 		{
-			File cssFile = customCssFileLoader.getCssFile();
-			if (isCssFileAvailable(cssFile, "custom"))
-			{
-				return getContentAsString(cssFile);
-			}
-			return Optional.empty();
+			return getStyle(customCssFileLoader.getCssFile(), "custom endpoint");
 		}
 
 		private Optional<String> getDefaultStyles()
 		{
-			File cssFile = defaultCssFileLoader.getCssFile();
-			if (isCssFileAvailable(cssFile, "default"))
-			{
-				return getContentAsString(cssFile);
-			}
-			return Optional.empty();
+			return getStyle(defaultCssFileLoader.getCssFile(), "custom server");
 		}
 
+		private Optional<String> getStyle(File cssFile, String type)
+		{
+			return isCssFileAvailable(cssFile, type) ?
+				getContentAsString(cssFile) : Optional.empty();
+		}
+		
 		private Optional<String> getContentAsString(File cssFile)
 		{
 			String msg = null;
@@ -133,19 +130,19 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 		{
 			if (cssFile == null)
 			{
-				LOG.debug("{} style is not configured.", styleType);
+				LOG.debug("{} style is not configured", styleType);
 				return false;
 			}
 
 			if (!cssFile.exists())
 			{
-				LOG.error("Could not load {} styles: file does not exists, {}.", cssFile, styleType);
+				LOG.error("Could not load {} styles: file does not exists, {}", cssFile, styleType);
 				return false;
 			}
 
 			if (!cssFile.isFile())
 			{
-				LOG.error("Could not load {} styles: unable to read file content, {}.", cssFile, styleType);
+				LOG.error("Could not load {} styles: unable to read file content, {}", cssFile, styleType);
 				return false;
 			}
 

@@ -46,22 +46,14 @@ public class ServiceWebConfiguration
 	private List<String> registrationForms;
 	private LocalOrRemoteResource logo;
 	private I18nString title;
-	private String defaultMainTheme;
-	private String defaultAuthnTheme;
 	private String webContentDir;
 	private boolean productionMode;
-	private String template;
 	private boolean compactCredentialReset;
 
 	private AuthnLayoutConfiguration authenticationLayoutConfiguration;
 	private List<AuthnElementConfiguration> retUserLayoutConfiguration;
 
 	public ServiceWebConfiguration()
-	{
-		this(null);
-	}
-	
-	public ServiceWebConfiguration(String overridenMainTheme)
 	{
 		registrationForms = new ArrayList<>();
 
@@ -75,9 +67,7 @@ public class ServiceWebConfiguration
 				new SeparatorConfig(new I18nString()),
 				new ExpandConfig());
 
-		defaultMainTheme = overridenMainTheme;
 		productionMode = true;
-		template = VaadinEndpointProperties.DEFAULT_TEMPLATE;
 		compactCredentialReset = true;
 	}
 
@@ -100,8 +90,6 @@ public class ServiceWebConfiguration
 		raw.put(PREFIX + VaadinEndpointProperties.PRODUCTION_MODE, String.valueOf(productionMode));
 		if (webContentDir != null)
 			raw.put(PREFIX + VaadinEndpointProperties.WEB_CONTENT_PATH, webContentDir);
-
-		raw.put(PREFIX + VaadinEndpointProperties.TEMPLATE, template);
 
 		raw.put(PREFIX + VaadinEndpointProperties.CRED_RESET_COMPACT, String.valueOf(compactCredentialReset));
 
@@ -128,10 +116,6 @@ public class ServiceWebConfiguration
 			raw.put(PREFIX + VaadinEndpointProperties.AUTHN_LOGO, "");
 		}
 
-		if (defaultMainTheme != null)
-			raw.put(PREFIX + VaadinEndpointProperties.THEME, defaultMainTheme);
-		if (defaultAuthnTheme != null)
-			raw.put(PREFIX + VaadinEndpointProperties.AUTHN_THEME, defaultAuthnTheme);
 		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
 		raw.putAll(parser.toProperties(authenticationLayoutConfiguration));
 		raw.putAll(parser.returningUserColumnElementToProperties(retUserLayoutConfiguration));
@@ -139,8 +123,7 @@ public class ServiceWebConfiguration
 		return raw;
 	}
 
-	public void fromProperties(String vaadinProperties, MessageSource msg, VaadinLogoImageLoader imageAccessService,
-			String systemDefaultTheme)
+	public void fromProperties(String vaadinProperties, MessageSource msg, VaadinLogoImageLoader imageAccessService)
 	{
 		Properties raw = new Properties();
 		try
@@ -152,22 +135,16 @@ public class ServiceWebConfiguration
 		}
 
 		VaadinEndpointProperties vProperties = new VaadinEndpointProperties(raw);
-		fromProperties(vProperties, msg, imageAccessService, systemDefaultTheme);
+		fromProperties(vProperties, msg, imageAccessService);
 	}
 
 	private void fromProperties(VaadinEndpointProperties vaadinProperties, MessageSource msg,
-			VaadinLogoImageLoader imageAccessService, String systemDefaultTheme)
+			VaadinLogoImageLoader imageAccessService)
 	{
-		//this is set for effective endpoint configuration at endpoint loading - we copy this here 
-		//to have consistent setup. However this property is not persisted.
-		if (systemDefaultTheme != null)
-			vaadinProperties.setProperty(VaadinEndpointProperties.DEF_THEME, systemDefaultTheme);
-		
 		if (vaadinProperties.isSet(VaadinEndpointProperties.WEB_CONTENT_PATH))
 			webContentDir = vaadinProperties.getValue(VaadinEndpointProperties.WEB_CONTENT_PATH);
 
 		productionMode = vaadinProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
-		template = vaadinProperties.getValue(VaadinEndpointProperties.TEMPLATE);
 		compactCredentialReset = vaadinProperties.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT);
 		showSearch = vaadinProperties.getBooleanValue(VaadinEndpointProperties.AUTHN_SHOW_SEARCH);
 		addAllAuthnOptions = vaadinProperties.getBooleanValue(VaadinEndpointProperties.AUTHN_ADD_ALL);
@@ -197,11 +174,6 @@ public class ServiceWebConfiguration
 		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
 		authenticationLayoutConfiguration = parser.fromProperties(vaadinProperties);
 		retUserLayoutConfiguration = parser.getReturingUserColumnElementsFromProperties(vaadinProperties);
-		
-		if (vaadinProperties.isSet(VaadinEndpointProperties.THEME))
-			defaultMainTheme = vaadinProperties.getValue(VaadinEndpointProperties.THEME);
-		if (vaadinProperties.isSet(VaadinEndpointProperties.AUTHN_THEME))
-			defaultAuthnTheme = vaadinProperties.getValue(VaadinEndpointProperties.AUTHN_THEME);
 	}
 
 	public boolean isShowSearch()
@@ -332,16 +304,6 @@ public class ServiceWebConfiguration
 	public void setProductionMode(boolean productionMode)
 	{
 		this.productionMode = productionMode;
-	}
-
-	public String getTemplate()
-	{
-		return template;
-	}
-
-	public void setTemplate(String template)
-	{
-		this.template = template;
 	}
 
 	public boolean isCompactCredentialReset()

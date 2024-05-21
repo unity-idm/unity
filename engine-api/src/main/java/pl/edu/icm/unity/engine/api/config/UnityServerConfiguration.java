@@ -73,12 +73,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String LOGOUT_MODE = "logoutMode";
 	public static final String DEFAULT_WEB_CONTENT_PATH = "defaultWebContentDirectory";
 	public static final String MESSAGES_DIRECTORY = "i18nMessagesDirectory";
-	public static final String THEME = "defaultTheme";
 	public static final String DEFAULT_CSS_FILE_NAME = "defaultCssFileName";
-	public static final String CONFIRMATION_THEME = "confirmationUITheme";
-	public static final String CONFIRMATION_TEMPLATE = "confirmationUITemplate";
-	public static final String WELL_KNOWN_URL_THEME = "wellKnownUrlUITheme";
-	public static final String WELL_KNOWN_URL_TEMPLATE = "wellKnownUrlUITemplate";
+
 	public static final String UNITYGW_WEB_CONTENT_PATH = "unityGWWebContentDirectory";
 	public static final String ALLOW_FULL_HTML = "allowFullHtml"; 
 	public static final String DEFAULT_WEB_PATH = "defaultWebPath";
@@ -286,9 +282,6 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(DEFAULT_WEB_CONTENT_PATH, new PropertyMD("webContent").setPath().setCategory(mainCat).setDescription(
 				"Defines a default folder from which the web endpoints will serve static content, configured locally. "
 				+ "Also used for the shared endpoint under /unitygw path."));
-		defaults.put(THEME, new PropertyMD().setCategory(mainCat).setDescription(
-				"Overrides the default theme name as used for rendering the web endpoints. "
-				+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
 		defaults.put(DEFAULT_CSS_FILE_NAME, new PropertyMD("styles.css").setCategory(mainCat).setDescription(
 				"Set the default css file name as used for rendering the web endpoints. "
 				+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
@@ -309,21 +302,6 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				"Defines a folder from which all the web applications operating on the shared unitygw path "
 				+ "(e.g. the email confirmation screen) "
 				+ "will serve static content as images. Overrides the default webContent path."));
-		defaults.put(CONFIRMATION_THEME, new PropertyMD().setCategory(mainCat).setDescription(
-				"Sets the theme used for rendering the confirmation UI (shown after confirming email etc)."
-				+ "This setting overrides the default server theme."));
-		defaults.put(CONFIRMATION_TEMPLATE, new PropertyMD("default.ftl").setCategory(mainCat).setDescription(
-				"The name of a Freemarker template, relative to templates directory, with a "
-				+ "template of the confirmation UI. Custom template can be used to add "
-				+ "static header/footer etc."));
-		defaults.put(WELL_KNOWN_URL_THEME, new PropertyMD().setCategory(mainCat).setDescription(
-				"Sets the theme used for rendering the well known links UI "
-				+ "(used for standalone registration forms and others)."
-				+ "This setting overrides the default server theme."));
-		defaults.put(WELL_KNOWN_URL_TEMPLATE, new PropertyMD("default.ftl").setCategory(mainCat).setDescription(
-				"The name of a Freemarker template, relative to templates directory, with a "
-				+ "template of the well-known links web interface. Custom template can be used to add "
-				+ "static header/footer etc."));
 		defaults.put(INITIAL_ADMIN_USER, new PropertyMD().setCategory(mainCat).
 				setDescription("Username of the administrator to be installed to the database upon startup. Remove the property if no admin should be added."));
 		defaults.put(INITIAL_ADMIN_PASSWORD, new PropertyMD("admin").setCategory(mainCat).
@@ -576,6 +554,12 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		SUPPORTED_LOCALES.put("de", new Locale("de"));
 		SUPPORTED_LOCALES.put("nb", new Locale("nb"));
 		SUPPORTED_LOCALES.put("fr", new Locale("fr"));
+
+		defaults.put("defaultTheme", new PropertyMD().setDeprecated());
+		defaults.put("confirmationUITheme", new PropertyMD().setDeprecated());
+		defaults.put("confirmationUITemplate", new PropertyMD().setDeprecated());
+		defaults.put("wellKnownUrlUITheme", new PropertyMD().setDeprecated());
+		defaults.put("wellKnownUrlUITemplate", new PropertyMD().setDeprecated());
 	}
 
 	private UnityHttpServerConfiguration jp;
@@ -737,22 +721,6 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	}
 	
 	
-	/**
-	 * Returns either a theme configured with the key given as argument or the default theme if the
-	 * specific one is not defined. If neither is available returns default theme.
-	 * @param themeConfigKey
-	 * @return configuration theme
-	 */
-	public String getConfiguredTheme(String themeConfigKey, String defaultTheme)
-	{
-		if (isSet(themeConfigKey))
-			return getValue(themeConfigKey);
-		else if (isSet(THEME))
-			return getValue(THEME);
-		return defaultTheme;
-	}
-	
-
 	public List<ScriptConfiguration> getContentInitializersConfiguration()
 	{
 		Set<String> initializersList = getStructuredListKeys(UnityServerConfiguration.SCRIPTS);
