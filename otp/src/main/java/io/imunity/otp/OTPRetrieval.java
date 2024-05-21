@@ -21,6 +21,7 @@ import io.imunity.otp.credential_reset.OTPCredentialResetController;
 import io.imunity.vaadin.auth.AuthNGridTextWrapper;
 import io.imunity.vaadin.auth.CredentialResetLauncher;
 import io.imunity.vaadin.auth.VaadinAuthentication;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
@@ -161,7 +162,9 @@ class OTPRetrieval extends AbstractCredentialRetrieval<OTPExchange> implements V
 			authenticateButton.addClickListener(event -> triggerAuthentication());
 			authenticateButton.setWidthFull();
 			authenticateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			authenticateButton.addClassName(CssClassNames.SIGNIN_BUTTON.getName());
 			authenticateButton.addClassName("u-otpSignInButton");
+			
 
 			codeField.addFocusListener(event ->
 			{

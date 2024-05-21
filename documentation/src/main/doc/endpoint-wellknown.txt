@@ -19,6 +19,3 @@ Available paths:
 from the HomeUI. 
 |==== 
 
-The following settings are allowed for the endpoint:
-
-include::ref-connectIdWellKnownURLProperties.txt[]

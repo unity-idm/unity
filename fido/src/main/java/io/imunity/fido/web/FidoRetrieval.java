@@ -19,6 +19,7 @@ import io.imunity.fido.FidoExchange;
 import io.imunity.fido.service.FidoCredentialVerificator;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.extensions.SMSRetrievalProperties;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
@@ -156,7 +157,8 @@ public class FidoRetrieval extends AbstractCredentialRetrieval<FidoExchange> imp
 
 			authenticateButton = new Button(msg.getMessage("Fido.WebRetrieval.signIn"));
 			authenticateButton.addClickListener(event -> triggerAuthentication());
-			authenticateButton.addClassName("u-passwordSignInButton");
+			authenticateButton.addClassName(CssClassNames.SIGNIN_BUTTON.getName());
+			authenticateButton.addClassName("u-fidoSignInButton");
 			authenticateButton.setWidthFull();
 			authenticateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			visiblePart.add(authenticateButton);

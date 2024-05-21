@@ -32,10 +32,12 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, MethodHandles.lookup().lookupClass());
 
 	private final DefaultCssFileLoader defaultCssFileLoader;
+	private final GlobalCustomCssFileLoader globalCustomCssLoader;
 
-	CustomStylesInitializer(DefaultCssFileLoader defaultCssFileLoader)
+	CustomStylesInitializer(DefaultCssFileLoader defaultCssFileLoader, GlobalCustomCssFileLoader globalCustomCssLoader)
 	{
 		this.defaultCssFileLoader = defaultCssFileLoader;
+		this.globalCustomCssLoader = globalCustomCssLoader;
 	}
 
 	@Override
@@ -46,29 +48,40 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 		String customCssFilePath = currentWebAppVaadinProperties.getCustomCssFilePath(defaultCssFileLoader.getDefaultWebConentPath()).orElse(null);
 		CssFileLoader customCssFileLoader = new CssFileLoader(customCssFilePath);
 
-		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(defaultCssFileLoader.get(), customCssFileLoader));
+		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(defaultCssFileLoader.get(),
+				globalCustomCssLoader.get(), customCssFileLoader));
 	}
 
 	private static class CustomStylesInjector implements IndexHtmlRequestListener
 	{
-
 		private final CustomStylesContentProvider contentProvider;
+		private final CssFileLoader defaultCssFileLoader;
+		private final CssFileLoader globalCustomCssLoader;
+		private final CssFileLoader endpointCustomCssLoader;
 
-		CustomStylesInjector(CssFileLoader defaultCssFileLoader, CssFileLoader externalCssFileLoader)
+		CustomStylesInjector(CssFileLoader defaultCssFileLoader, CssFileLoader globalCustomCssLoader,
+				CssFileLoader endpointCustomCssLoader)
 		{
-			this.contentProvider = new CustomStylesContentProvider(defaultCssFileLoader, externalCssFileLoader);
+			this.defaultCssFileLoader = defaultCssFileLoader;
+			this.globalCustomCssLoader = globalCustomCssLoader;
+			this.endpointCustomCssLoader = endpointCustomCssLoader;
+			this.contentProvider = new CustomStylesContentProvider();
 		}
 
 		@Override
 		public void modifyIndexHtmlResponse(IndexHtmlResponse indexHtmlResponse)
 		{
-			contentProvider.getDefaultStyles().ifPresent(customStyles ->
-			{
-				Document document = indexHtmlResponse.getDocument();
-				org.jsoup.nodes.Element head = document.head();
-				head.appendChild(createStyle(document, customStyles));
-			});
-			contentProvider.getCustomStyles().ifPresent(customStyles ->
+			injectIfPresent(indexHtmlResponse, 
+					contentProvider.getStyle(defaultCssFileLoader.getCssFile(), "custom server"));
+			injectIfPresent(indexHtmlResponse, 
+					contentProvider.getStyle(globalCustomCssLoader.getCssFile(), "custom global"));
+			injectIfPresent(indexHtmlResponse, 
+					contentProvider.getStyle(endpointCustomCssLoader.getCssFile(), "custom endpoint"));
+		}
+
+		private void injectIfPresent(IndexHtmlResponse indexHtmlResponse, Optional<String> css)
+		{
+			css.ifPresent(customStyles ->
 			{
 				Document document = indexHtmlResponse.getDocument();
 				org.jsoup.nodes.Element head = document.head();
@@ -88,25 +101,6 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 
 	private static class CustomStylesContentProvider
 	{
-		private final CssFileLoader defaultCssFileLoader;
-		private final CssFileLoader customCssFileLoader;
-
-		CustomStylesContentProvider(CssFileLoader defaultCssFileLoader, CssFileLoader customCssFileLoader)
-		{
-			this.defaultCssFileLoader = defaultCssFileLoader;
-			this.customCssFileLoader = customCssFileLoader;
-		}
-
-		private Optional<String> getCustomStyles()
-		{
-			return getStyle(customCssFileLoader.getCssFile(), "custom endpoint");
-		}
-
-		private Optional<String> getDefaultStyles()
-		{
-			return getStyle(defaultCssFileLoader.getCssFile(), "custom server");
-		}
-
 		private Optional<String> getStyle(File cssFile, String type)
 		{
 			return isCssFileAvailable(cssFile, type) ?

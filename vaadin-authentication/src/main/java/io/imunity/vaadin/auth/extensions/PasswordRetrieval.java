@@ -19,6 +19,7 @@ import io.imunity.vaadin.auth.AuthNGridTextWrapper;
 import io.imunity.vaadin.auth.CredentialResetLauncher;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.extensions.credreset.password.PasswordCredentialResetController;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
@@ -168,6 +169,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			
 			
 			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+			authenticateButton.addClassName(CssClassNames.SIGNIN_BUTTON.getName());
 			authenticateButton.addClassName("u-passwordSignInButton");
 			authenticateButton.addClickListener(event -> triggerAuthentication());
 			authenticateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);

@@ -11,6 +11,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+import io.imunity.vaadin.elements.CssClassNames;
+
 /**
  * Simplified version of {@link IdPAuthNComponent} - no logo, other style, same otherwise
  */
@@ -21,6 +23,7 @@ public class IdPAuthNGridComponent extends VerticalLayout
 	public IdPAuthNGridComponent(String id, String name)
 	{
 		providerB = new Button();
+		providerB.addClassName(CssClassNames.SIGNIN_BUTTON.getName());
 		providerB.addClassName("u-idpAuthentication-" + id);
 		providerB.setText(name);
 		providerB.setTooltipText(name);

@@ -2,7 +2,7 @@
 == Web interface customization and branding
 
 Unity interface appearance can be customized to match the owning organization preferences.
-There are two ways (which can be combined) to perform such customizations:
+There are several options (which can be combined) to perform such customizations:
 
 * Change of the default CSS style, allowing for customizing colors, decorations and sizing of the whole UI
 * Change of the default web page template, allowing for adding a custom header, footer or even side bars to the Unity UI.
@@ -14,9 +14,9 @@ There are two ways (which can be combined) to perform such customizations:
 
 Files with custom resources like images or fonts can be served by Unity after placing them in the web contents directory.
 
-When referencing such resources from configuration file, all relative paths will be resolved automatically against the web contents directory.
+When referencing such resources from the configuration file, all relative paths will be resolved automatically against the web contents directory.
 
-The situation is more complex when a resource file needs to be referenced from a CSS file or custom HTML frame. The file will be loaded directly by a web browser and so a proper base path needs to be prepended to each file path manually. To simplify this task, all files from the web contents directory are available from the always available (i.e. not specific to any dynamic endpoint) +/unitygw/+ path. Therefore the following path should be used e.g. in a custom CSS to reference a file +example.png+ placed directly in the web contents directory root:
+The situation is more complex when a resource file needs to be referenced from a CSS file or custom HTML frame. The file will be loaded directly by a web browser, so a proper base path needs to be prepended to each file path manually. To simplify this task, all files from the web contents directory are available from the always available (i.e., not specific to any dynamic endpoint) +/unitygw/+ path. Therefore, the following path should be used, e.g., in a custom CSS to reference a file +example.png+ placed directly in the web contents directory root:
 
 ----
 ../unitygw/example.png
@@ -32,10 +32,10 @@ Styling customization is achieved by providing a custom, plain CSS file. The CSS
 It is possible to configure a shared CSS for a whole server in as follows in +unityServer.conf+:
 
 ----
-unityServer.core.defaultCssFileName=custom.css
+unityServer.core.customCssFileName=custom.css
 ----
 
-What is more each endpoint can have its own custom CSS, used _instead of_ the serve wide one (if it is defined). For instance: 
+What is more each endpoint can have its own custom CSS, used _in addition to_ the global one (if it is defined). For instance: 
 
 ----
 unity.endpoint.web.customCssFileName=custom-endpoint.css

@@ -31,7 +31,7 @@ public class SecuredSharedEndpointFactory implements EndpointFactory
 	public static final String SERVLET_PATH = "/well-known";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(NAME,
 			"Provides access to public links which can be used to access parts of Unity UIs directly", VaadinAuthentication.NAME,
-			Collections.singletonMap(SERVLET_PATH, "Group management endpoint"));
+			Collections.singletonMap(SERVLET_PATH, "Root path"));
 
 	private final ApplicationContext applicationContext;
 	private final NetworkServer server;

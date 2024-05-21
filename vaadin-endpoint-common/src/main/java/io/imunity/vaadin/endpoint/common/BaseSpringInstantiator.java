@@ -31,7 +31,8 @@ public class BaseSpringInstantiator extends DefaultInstantiator
 		return Stream.concat(super.getServiceInitListeners(), Stream.of(
 				new RedirectUrlSessionStorageServiceInitListener(),
 				new CustomErrorPageInitializer(context.getBean(MessageSource.class)),
-				new CustomStylesInitializer(context.getBean(DefaultCssFileLoader.class)))
+				new CustomStylesInitializer(context.getBean(DefaultCssFileLoader.class),
+						context.getBean(GlobalCustomCssFileLoader.class)))
 		);
 	}
 

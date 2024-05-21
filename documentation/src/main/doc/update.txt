@@ -54,11 +54,11 @@ for the 1.2.0->1.3.0 applies also to 1.2.0->1.3.1 and all other 1.3.x versions.
 
 ==== Updates to versions 2.x
 
-Please check documentation of the 2.y version. Below we are only focused on Unity 4 updates. 
+Please check documentation of the 2.x version. Below we are only focused on Unity 4 updates. 
 
 ==== Updates to versions 3.x
 
-Please check documentation of the 3.y version. Below we are only focused on Unity 4 updates. 
+Please check documentation of the 3.x version. Below we are only focused on Unity 4 updates. 
 
 
 ==== From 3.LATEST to 4.0
@@ -66,6 +66,18 @@ Please check documentation of the 3.y version. Below we are only focused on Unit
 ===== Java platform requirement
 
 The minimum Java version required to run Unity 4.0.0 is Java 17.
+
+
+===== Custom styling and branding
+
+Unity 4 completely changes the web rendering technology. While it is still Vaadin based, the new generation is not using under the hood the GWT framework, all components were fully recreated.
+
+All UI customizations needs to be recreated from scratch, basing on the Unity 4 branding documentation. Here we only provide a list of most notable changes:
+
+* In general the whole infrastructure around custom styling is much simpler in Unity 4.
+* Styling is done with plain CSS. SAAS/SCSS and compilation of styles is not needed.
+* Freemarker templates are not used to wrap Unity pages with custom headers, footers etc. Instead separate HTML panels can be configured as frames of the main UI.
+* CSS is controlled with simple files which can be set on global and/or endpoint level. Concept of "theme" is not used anymore. 
 
 
 ===== UNICORE IdP endpoints dropped
@@ -84,8 +96,17 @@ Unity v4.0+ won't start if any UNICORE endpoint is still present in configuratio
 
 Public links to exposed policy documents has been changed as follows:
 
-OLD: https://<UNITY>/unitygw/pub?id={policyId}#!policyDoc
-NEW: https://<UNITY>/unitygw/pub/policyDocuments/{policyId}
+OLD:
+ 
+----
+https://<UNITY>/unitygw/pub?id={policyId}#!policyDoc+
+----
+
+NEW:
+
+----
+https://<UNITY>/unitygw/pub/policyDocuments/{policyId}
+----
 
 
 ===== Migration in case of H2 users

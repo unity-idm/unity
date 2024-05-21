@@ -23,6 +23,7 @@ import io.imunity.vaadin.auth.AuthNGridTextWrapper;
 import io.imunity.vaadin.auth.CredentialResetLauncher;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.extensions.credreset.sms.SMSCredentialResetController;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
@@ -182,6 +183,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			icon.setColor("white");
 			sendCodeButton.setIcon(icon);
 			sendCodeButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+			sendCodeButton.addClassName("u-smsSendCodeButton");
 			sendCodeButton.setWidthFull();
 			sendCodeButton.addClickListener(e -> sendCode());
 			usernameField.addFocusListener(event ->
@@ -217,6 +219,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			add(authenticateButton);
 			authenticateButton.addClickListener(event -> triggerAuthentication());
+			authenticateButton.addClassName(CssClassNames.SIGNIN_BUTTON.getName());
 			authenticateButton.addClassName("u-smsSignInButton");
 			authenticateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 			authenticateButton.setWidthFull();

@@ -73,7 +73,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String LOGOUT_MODE = "logoutMode";
 	public static final String DEFAULT_WEB_CONTENT_PATH = "defaultWebContentDirectory";
 	public static final String MESSAGES_DIRECTORY = "i18nMessagesDirectory";
-	public static final String DEFAULT_CSS_FILE_NAME = "defaultCssFileName";
+	public static final String CUSTOM_CSS_FILE_NAME = "customCssFileName";
 
 	public static final String UNITYGW_WEB_CONTENT_PATH = "unityGWWebContentDirectory";
 	public static final String ALLOW_FULL_HTML = "allowFullHtml"; 
@@ -282,9 +282,10 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(DEFAULT_WEB_CONTENT_PATH, new PropertyMD("webContent").setPath().setCategory(mainCat).setDescription(
 				"Defines a default folder from which the web endpoints will serve static content, configured locally. "
 				+ "Also used for the shared endpoint under /unitygw path."));
-		defaults.put(DEFAULT_CSS_FILE_NAME, new PropertyMD("styles.css").setCategory(mainCat).setDescription(
-				"Set the default css file name as used for rendering the web endpoints. "
-				+ "This setting can be overriden per-endpoint. Applicable only for the web endpoints."));
+		defaults.put(CUSTOM_CSS_FILE_NAME, new PropertyMD().setCategory(mainCat).setDescription(
+				"Set the custom, global CSS file name, which contents, if defined will be appended "
+				+ "to CSS of all Unity we endpoints."
+				+ "This setting can be suplemented with a per-endpoint CSS files."));
 		defaults.put(ALLOW_FULL_HTML, new PropertyMD("false").setCategory(mainCat).setDescription(
 				"If set to true then Unity will render full HTML in admin-configured descriptions"
 				+ " of elements intended for end-user presentation "

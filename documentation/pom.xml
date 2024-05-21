@@ -228,12 +228,11 @@
 								<argument>pl.edu.icm.unity.oauth.as.OAuthASProperties|ref-oauthASProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.rp.OAuthRPProperties|ref-oauthRPProperties.txt|</argument>
 								<argument>io.imunity.home.HomeEndpointProperties|ref-homeEndpointProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWellKnownURLProperties|ref-connectIdWellKnownURLProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.engine.userimport.UserImportProperties|ref-genericUserImportProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.pam.PAMProperties|ref-PAMProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalProperties|ref-PasswordRetrievalProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties|ref-SMSRetrievalProperties.txt|</argument>
-								<argument>pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalProperties|ref-TLSRetrievalProperties.txt|</argument>
+								<argument>io.imunity.vaadin.auth.extensions.PasswordRetrievalProperties|ref-PasswordRetrievalProperties.txt|</argument>
+								<argument>io.imunity.vaadin.auth.extensions.SMSRetrievalProperties|ref-SMSRetrievalProperties.txt|</argument>
+								<argument>io.imunity.vaadin.auth.extensions.TLSRetrievalProperties|ref-TLSRetrievalProperties.txt|</argument>
 								<argument>io.imunity.otp.ldap.OTPWithLDAPProperties|ref-OTPLDAPProperties.txt|</argument>
 								<argument>io.imunity.upman.UpmanEndpointProperties|ref-UpmanProperties.txt|</argument>
 								<argument>io.imunity.scim.config.SCIMEndpointProperties|ref-scimEndpointProperties.txt|</argument>
@@ -314,21 +313,6 @@
 								<argument>-D</argument>
 								<argument>${project.reporting.outputDirectory}</argument>
 								<argument>target/workspace/upman-rest-api-v1.txt</argument>
-							</arguments>
-						</configuration>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>asciidoctor-unicorehowto</id>
-						<phase>pre-site</phase>
-						<configuration>
-							<executable>asciidoctor</executable>
-							<arguments>
-								<argument>-D</argument>
-								<argument>${project.reporting.outputDirectory}</argument>
-								<argument>target/workspace/unicore-howto.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>

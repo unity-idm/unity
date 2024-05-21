@@ -54,7 +54,8 @@ public enum CssClassNames
 	TABSHEET_FULL("u-tabsheet-full"),
 	SPACE_PRE("u-space-pre"),
 	AUTHN_SCREEN("u-authn-screen"),
-	MAIN_LAYOUT_CONTAINER("u-main-layout-container");
+	MAIN_LAYOUT_CONTAINER("u-main-layout-container"),
+	SIGNIN_BUTTON("u-signin-button");
 	
 	private final String name;
 
