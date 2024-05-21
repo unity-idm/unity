@@ -71,7 +71,7 @@ import io.imunity.console.views.signup_and_enquiry.requests.RequestsView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
-import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfiguration;
+import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfigurationProvider;
 import io.imunity.vaadin.endpoint.common.layout.LeftNavbarAppLayout;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
@@ -81,7 +81,7 @@ public class ConsoleMenu extends LeftNavbarAppLayout
 {
 
 	@Autowired
-	public ConsoleMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg, AuthorizationManagement authorizationManagement, ExtraPanelsConfiguration extraPanelsConfiguration)
+	public ConsoleMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg, AuthorizationManagement authorizationManagement, ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
 		super(Stream.of(
 						MenuComponent.builder(DirectoryBrowserView.class)

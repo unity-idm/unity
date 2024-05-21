@@ -35,7 +35,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
-import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
@@ -59,7 +59,7 @@ public class SandboxView extends UnityViewComponent implements BeforeEnterObserv
 
 	private final MessageSource msg;
 	private final AuthenticatorSupportService authenticatorSupport;
-	private final Vaadin82XEndpointProperties config;
+	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	private final LocaleChoiceComponent localeChoice;
 	private final InteractiveAuthenticationProcessor authnProcessor;
@@ -68,7 +68,6 @@ public class SandboxView extends UnityViewComponent implements BeforeEnterObserv
 	private final List<AuthenticationFlow> authnFlows;
 	private final VaadinLogoImageLoader imageAccessService;
 	private final NotificationPresenter notificationPresenter;
-	private final UnityServerConfiguration unityServerConfiguration;
 
 	@Autowired
 	SandboxView(MessageSource msg, VaadinLogoImageLoader imageAccessService,
@@ -77,7 +76,7 @@ public class SandboxView extends UnityViewComponent implements BeforeEnterObserv
 			ExecutorsService execService,
 			@Qualifier("insecure") EntityManagement idsMan,
 			AuthenticatorSupportService authenticatorSupport,
-			NotificationPresenter notificationPresenter, UnityServerConfiguration unityServerConfiguration)
+			NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.authenticatorSupport = authenticatorSupport;
@@ -90,7 +89,6 @@ public class SandboxView extends UnityViewComponent implements BeforeEnterObserv
 		this.endpointDescription = getCurrentWebAppResolvedEndpoint();
 		this.config = getCurrentWebAppVaadinProperties();
 		this.authnFlows = getAllRemoteVaadinAuthenticators();
-		this.unityServerConfiguration = unityServerConfiguration;
 	}
 
 
@@ -127,7 +125,7 @@ public class SandboxView extends UnityViewComponent implements BeforeEnterObserv
 				getTitle(validationMode),
 				getCurrentWebAppSandboxAuthnRouter(),
 				notificationPresenter,
-				false , unityServerConfiguration);
+				false);
 		getContent().removeAll();
 		getContent().addClassName(CssClassNames.AUTHN_SCREEN.getName());
 		getContent().add(components);

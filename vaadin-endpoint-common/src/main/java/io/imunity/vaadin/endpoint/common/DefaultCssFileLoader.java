@@ -17,16 +17,22 @@ import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAUL
 class DefaultCssFileLoader
 {
 	private final CssFileLoader cssFileLoader;
-
+	private final String defaultWebContentPath;
+	
 	DefaultCssFileLoader(UnityServerConfiguration configuration) throws IOException
 	{
-		String folder = configuration.getValue(DEFAULT_WEB_CONTENT_PATH);
+		defaultWebContentPath = configuration.getValue(DEFAULT_WEB_CONTENT_PATH);
 		String filename = configuration.getValue(DEFAULT_CSS_FILE_NAME);
-		cssFileLoader = new CssFileLoader(folder + "/" + filename);
+		cssFileLoader = new CssFileLoader(defaultWebContentPath + "/" + filename);
 	}
 
 	public CssFileLoader get()
 	{
 		return cssFileLoader;
+	}
+	
+	public String getDefaultWebConentPath()
+	{
+		return defaultWebContentPath;
 	}
 }

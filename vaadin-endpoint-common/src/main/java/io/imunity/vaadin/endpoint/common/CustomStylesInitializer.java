@@ -41,9 +41,9 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 	@Override
 	public void serviceInit(ServiceInitEvent serviceInitEvent)
 	{
-		Vaadin82XEndpointProperties currentWebAppVaadinProperties = getCurrentWebAppVaadinProperties();
+		VaadinEndpointProperties currentWebAppVaadinProperties = getCurrentWebAppVaadinProperties();
 
-		String customCssFilePath = currentWebAppVaadinProperties.getCustomCssFilePath().orElse(null);
+		String customCssFilePath = currentWebAppVaadinProperties.getCustomCssFilePath(defaultCssFileLoader.getDefaultWebConentPath()).orElse(null);
 		CssFileLoader customCssFileLoader = new CssFileLoader(customCssFilePath);
 
 		serviceInitEvent.addIndexHtmlRequestListener(new CustomStylesInjector(defaultCssFileLoader.get(), customCssFileLoader));

@@ -13,20 +13,20 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.Tag;
 
-import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 @Tag("vaadin-authentication-layout")
 public class AuthenticationLayout extends WrappedLayout
 {
 	@Autowired
-	public AuthenticationLayout(ExtraPanelsConfiguration extraPanelsConfiguration)
+	public AuthenticationLayout(ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
 		super(extraPanelsConfiguration);
 	}
 	
 	@Override
 	protected void wrap(HasComponents main, Component toWrap,
-			Vaadin82XEndpointProperties currentWebAppVaadinProperties, ExtraPanelsConfiguration config)
+			VaadinEndpointProperties currentWebAppVaadinProperties, ExtraPanelsConfigurationProvider config)
 	{
 		UnityLayoutWrapper.wrap(main, toWrap, getCurrentWebAppVaadinProperties(), config, true);
 	}

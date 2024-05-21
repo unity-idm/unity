@@ -20,7 +20,7 @@ import java.util.Properties;
 public class Vaadin2XWebAppContext extends WebAppContext
 {
 	public final Properties properties;
-	public final Vaadin82XEndpointProperties vaadin23Properties;
+	public final VaadinEndpointProperties vaadin23Properties;
 	public final MessageSource messageSource;
 	public final ResolvedEndpoint description;
 	public final CancelHandler cancelHandler;
@@ -28,7 +28,7 @@ public class Vaadin2XWebAppContext extends WebAppContext
 
 	public List<AuthenticationFlow> authenticationFlows;
 
-	public Vaadin2XWebAppContext(Properties properties, Vaadin82XEndpointProperties vaadinEndpointProperties,
+	public Vaadin2XWebAppContext(Properties properties, VaadinEndpointProperties vaadinEndpointProperties,
 	                             MessageSource messageSource, ResolvedEndpoint description)
 	{
 		this(properties, vaadinEndpointProperties, messageSource, description, List.of(), null);
@@ -39,14 +39,14 @@ public class Vaadin2XWebAppContext extends WebAppContext
 		this.authenticationFlows = authenticationFlows;
 	}
 
-	public Vaadin2XWebAppContext(Properties properties, Vaadin82XEndpointProperties vaadinEndpointProperties,
+	public Vaadin2XWebAppContext(Properties properties, VaadinEndpointProperties vaadinEndpointProperties,
 	                             MessageSource messageSource, ResolvedEndpoint description, List<AuthenticationFlow> authenticationFlows,
 	                             CancelHandler cancelHandler)
 	{
 		this(properties, vaadinEndpointProperties, messageSource, description, authenticationFlows, cancelHandler, null);
 	}
 
-	public Vaadin2XWebAppContext(Properties properties, Vaadin82XEndpointProperties vaadinEndpointProperties,
+	public Vaadin2XWebAppContext(Properties properties, VaadinEndpointProperties vaadinEndpointProperties,
 	                             MessageSource messageSource, ResolvedEndpoint description, List<AuthenticationFlow> authenticationFlows,
 	                             CancelHandler cancelHandler, SandboxAuthnRouter sandboxRouter)
 	{
@@ -67,7 +67,7 @@ public class Vaadin2XWebAppContext extends WebAppContext
 				.orElse(null);
 	}
 
-	public static Vaadin82XEndpointProperties getCurrentWebAppVaadinProperties()
+	public static VaadinEndpointProperties getCurrentWebAppVaadinProperties()
 	{
 		return Optional.ofNullable(getCurrentWebAppContext())
 				.map(context -> (Vaadin2XWebAppContext) context)

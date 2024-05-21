@@ -18,15 +18,15 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.RouterLayout;
 
-import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 @Tag("vaadin-wrapped-layout")
 public class WrappedLayout extends Component implements RouterLayout, HasComponents
 {
-	private ExtraPanelsConfiguration config;
+	private ExtraPanelsConfigurationProvider config;
 	
 	@Autowired
-	public WrappedLayout(ExtraPanelsConfiguration extraPanelsConfiguration)
+	public WrappedLayout(ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
 		this.config = extraPanelsConfiguration;
 	}
@@ -47,7 +47,7 @@ public class WrappedLayout extends Component implements RouterLayout, HasCompone
 
 	
 	protected void wrap(HasComponents main, Component toWrap,
-			Vaadin82XEndpointProperties currentWebAppVaadinProperties, ExtraPanelsConfiguration config)
+			VaadinEndpointProperties currentWebAppVaadinProperties, ExtraPanelsConfigurationProvider config)
 	{
 		UnityLayoutWrapper.wrap(main, toWrap, getCurrentWebAppVaadinProperties(), config, false);
 	}

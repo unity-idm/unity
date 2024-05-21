@@ -38,7 +38,7 @@ import io.imunity.home.views.trusted_application.TrustedApplicationsView;
 import io.imunity.home.views.trusted_device.TrustedDeviceView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
-import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfiguration;
+import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfigurationProvider;
 import io.imunity.vaadin.endpoint.common.layout.LeftNavbarAppLayout;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
@@ -60,7 +60,7 @@ public class HomeUiMenu extends LeftNavbarAppLayout implements BeforeEnterObserv
 	@Autowired
 	public HomeUiMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg,
 					  ProjectManagementHelper projectManagementHelper, AttributesManagement attributesMan,
-					  AttributeHandlerRegistry registry, ExtraPanelsConfiguration extraPanelsConfiguration)
+					  AttributeHandlerRegistry registry, ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
 		super(createMenuComponents(msg), standardWebLogoutHandler, msg, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper)), extraPanelsConfiguration);
 		this.attributesMan = attributesMan;

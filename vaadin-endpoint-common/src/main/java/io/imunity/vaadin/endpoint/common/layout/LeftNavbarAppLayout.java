@@ -27,7 +27,7 @@ import com.vaadin.flow.router.RouterLayout;
 import io.imunity.vaadin.elements.AfterSubNavigationEvent;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.elements.UnityViewComponent;
-import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 
@@ -37,15 +37,15 @@ public class LeftNavbarAppLayout extends FlexLayout implements RouterLayout, Aft
 {
 
 	private final UnityAppLayoutComponentsHolder appLayoutComponents;
-	private final Vaadin82XEndpointProperties vaadinEndpointProperties;
-	private final ExtraPanelsConfiguration extraPanelsConfiguration;
+	private final VaadinEndpointProperties vaadinEndpointProperties;
+	private final ExtraPanelsConfigurationProvider extraPanelsConfiguration;
 	private VerticalLayout leftContainerContent;
 
 	public LeftNavbarAppLayout(List<MenuComponent> menuComponents,
 	                      VaddinWebLogoutHandler authnProcessor,
 						  MessageSource msg,
 	                      List<Component> additionalIcons, 
-	                      ExtraPanelsConfiguration extraPanelsConfiguration)
+	                      ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
 		appLayoutComponents = new UnityAppLayoutComponentsHolder(menuComponents, authnProcessor, msg, additionalIcons);
 		vaadinEndpointProperties = getCurrentWebAppVaadinProperties();

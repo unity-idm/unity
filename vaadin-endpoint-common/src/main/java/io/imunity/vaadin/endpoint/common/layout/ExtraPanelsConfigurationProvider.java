@@ -13,11 +13,11 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
 @Component
-public class ExtraPanelsConfiguration
+public class ExtraPanelsConfigurationProvider
 {
 	private final UnityServerConfiguration unityServerConfiguration;
 	
-	public ExtraPanelsConfiguration(UnityServerConfiguration unityServerConfiguration)
+	public ExtraPanelsConfigurationProvider(UnityServerConfiguration unityServerConfiguration)
 	{
 		this.unityServerConfiguration = unityServerConfiguration;
 	}
@@ -43,11 +43,17 @@ public class ExtraPanelsConfiguration
 		return getFile(UnityServerConfiguration.EXTRA_BOTTOM_PANEL);
 	}
 	
+	
 	private Optional<File> getFile(String key)
 	{
 		if(unityServerConfiguration.getValue(key).isBlank())
 			return Optional.empty();
-		String value = unityServerConfiguration.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH) + "/" + unityServerConfiguration.getValue(key);
+		String value = getDefaultWebConentPath() + "/" + unityServerConfiguration.getValue(key);
 		return Optional.of(new File(value));
+	}
+	
+	public String getDefaultWebConentPath()
+	{
+		return unityServerConfiguration.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
 	}
 }

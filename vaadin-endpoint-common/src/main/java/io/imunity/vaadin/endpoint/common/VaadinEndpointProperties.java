@@ -14,6 +14,9 @@ import org.apache.logging.log4j.util.Strings;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 
+import static java.util.Optional.ofNullable;
+
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -82,6 +85,15 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 
 	private static final String DEFAULT_AUTH_LOGO = "assets/img/other/logo.png";
 
+	public static final String EXTRA_LEFT_PANEL = "extraLeftPanel";
+	public static final String EXTRA_RIGHT_PANEL = "extraRightPanel";
+	public static final String EXTRA_TOP_PANEL = "extraTopPanel";
+	public static final String EXTRA_BOTTOM_PANEL = "extraBottomPanel";
+	public static final String CUSTOM_CSS_FILE_NAME = "customCssFileName";
+	public static final String SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING = "secondsBeforeShowingSessionExpirationWarning";
+	public static final String EXTRA_PANELS_AFTER_ATHENTICATION = "addExtraPanelsAfterAuthentication";
+	
+	
 	static
 	{
 		META.put(PRODUCTION_MODE, new PropertyMD("true").setHidden().
@@ -190,12 +202,31 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 						"Values are form names. If the form with given name doesn't exist it "
 						+ "will be ignored." +
 						"If there are no forms defined with this property, then all public "
-						+ "forms are made available."));
+						+ "forms are made available."));	
+		
+		META.put(EXTRA_LEFT_PANEL, new PropertyMD("").setDescription(
+				"Relative to web contents directory path, pointing to an optional HTML file containing a fixed left sidebar, which will wrap the main Unity UI."));
+		META.put(EXTRA_RIGHT_PANEL, new PropertyMD("").setDescription(
+				"Relative to web contents directory path, pointing to an optional HTML file containing a fixed right sidebar, which will wrap the main Unity UI."));
+		META.put(EXTRA_TOP_PANEL, new PropertyMD("").setDescription(
+				"Relative to web contents directory path, pointing to an optional HTML file containing a fixed top sidebar, which will wrap the main Unity UI."));
+		META.put(EXTRA_BOTTOM_PANEL, new PropertyMD("").setDescription(
+				"Relative to web contents directory path, pointing to an optional HTML file containing a fixed bottom sidebar, which will wrap the main Unity UI."));
+		META.put(CUSTOM_CSS_FILE_NAME, new PropertyMD("").setDescription(
+				"Path to an optional CSS file, containing custom stylesheet. Path is relative to the server web contents directory."));
+		META.put(SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING,
+				new PropertyMD("30").setDescription("Seconds before showing session expiration warning notification"));
+		META.put(EXTRA_PANELS_AFTER_ATHENTICATION, new PropertyMD("true").setDescription(
+				"If false the UI wrapping panels will be only added to the authentication screen. If true, the panels will be also added to the endpoint's main view."));
+	
 		
 		META.put("defaultTheme", new PropertyMD().setDeprecated());
 		META.put("mainTheme", new PropertyMD().setDeprecated());
 		META.put("authnTheme", new PropertyMD().setDeprecated());
 		META.put("template", new PropertyMD().setDeprecated());
+		
+		
+		
 	}
 	
 	public VaadinEndpointProperties(Properties properties)
@@ -212,6 +243,58 @@ public class VaadinEndpointProperties extends UnityPropertiesHelper
 	public String getAuthnLogo()
 	{
 		return getValue(VaadinEndpointProperties.AUTHN_LOGO);
+	}
+	
+	public Optional<File> getExtraLeftPanel(String defaultWebContentPath)
+	{
+		return getFile(EXTRA_LEFT_PANEL, defaultWebContentPath);
+	}
+
+	public Optional<File> getExtraRightPanel(String defaultWebContentPath)
+	{
+		return getFile(EXTRA_RIGHT_PANEL, defaultWebContentPath);
+	}
+
+	public Optional<File> getExtraTopPanel(String defaultWebContentPath)
+	{
+		return getFile(EXTRA_TOP_PANEL, defaultWebContentPath);
+	}
+
+	public Optional<File> getExtraBottomPanel(String defaultWebContentPath)
+	{
+		return getFile(EXTRA_BOTTOM_PANEL, defaultWebContentPath);
+	}
+
+	public Optional<String> getCustomCssFilePath(String defaultWebContentPath)
+	{
+		return getPath(CUSTOM_CSS_FILE_NAME, defaultWebContentPath);
+	}
+	
+	private Optional<File> getFile(String key, String defaultWebContentPath)
+	{
+		if(getValue(key).isBlank())
+			return Optional.empty();
+		String value = getWebContentPath(defaultWebContentPath) + "/" + getValue(key);
+		return Optional.of(new File(value));
+	}
+
+	private Optional<String> getPath(String key, String defaultWebContentPath)
+	{
+		if(getValue(key).isBlank())
+			return Optional.empty();
+		String value = getWebContentPath(defaultWebContentPath) + "/" + getValue(key);
+		return Optional.of(value);
+	}
+
+	private String getWebContentPath(String defaultWebContentPath)
+	{
+		return ofNullable(getValue(WEB_CONTENT_PATH)).orElse(defaultWebContentPath);
+	}
+
+	public int getSecondsBeforeShowingSessionExpirationWarning()
+	{
+		String value = getValue(SECONDS_BEFORE_SHOWING_SESSION_EXPIRATION_WARNING);
+		return Integer.parseInt(value);
 	}
 
 	public EndpointRegistrationConfiguration getRegistrationConfiguration()

@@ -52,6 +52,13 @@ public class ServiceWebConfiguration
 
 	private AuthnLayoutConfiguration authenticationLayoutConfiguration;
 	private List<AuthnElementConfiguration> retUserLayoutConfiguration;
+	
+	private String extraTopPanel;
+	private String extraBottomPanel;
+	private String extraRightPanel;
+	private String extraLeftPanel;
+	private Boolean addExtraPanelsAfterAuthentication;
+	
 
 	public ServiceWebConfiguration()
 	{
@@ -115,6 +122,32 @@ public class ServiceWebConfiguration
 		{
 			raw.put(PREFIX + VaadinEndpointProperties.AUTHN_LOGO, "");
 		}
+		
+
+		if (extraTopPanel != null)
+		{
+			raw.put(PREFIX + VaadinEndpointProperties.EXTRA_TOP_PANEL, extraTopPanel);
+		}
+		
+		if (extraBottomPanel != null)
+		{
+			raw.put(PREFIX + VaadinEndpointProperties.EXTRA_BOTTOM_PANEL, extraBottomPanel);
+		}
+		
+		if (extraRightPanel != null)
+		{
+			raw.put(PREFIX + VaadinEndpointProperties.EXTRA_RIGHT_PANEL, extraRightPanel);
+		}
+		
+		if (extraLeftPanel != null)
+		{
+			raw.put(PREFIX + VaadinEndpointProperties.EXTRA_LEFT_PANEL, extraLeftPanel);
+		}
+		
+		if (addExtraPanelsAfterAuthentication != null)
+		{
+			raw.put(PREFIX + VaadinEndpointProperties.EXTRA_PANELS_AFTER_ATHENTICATION, String.valueOf(addExtraPanelsAfterAuthentication));
+		}
 
 		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
 		raw.putAll(parser.toProperties(authenticationLayoutConfiguration));
@@ -170,6 +203,21 @@ public class ServiceWebConfiguration
 				VaadinEndpointProperties.AUTHN_TITLE);
 		if (title.isEmpty())
 			title = null;
+		
+		if (vaadinProperties.isSet(VaadinEndpointProperties.EXTRA_TOP_PANEL))
+			extraTopPanel = vaadinProperties.getValue(VaadinEndpointProperties.EXTRA_TOP_PANEL);
+
+		if (vaadinProperties.isSet(VaadinEndpointProperties.EXTRA_BOTTOM_PANEL))
+			extraBottomPanel = vaadinProperties.getValue(VaadinEndpointProperties.EXTRA_BOTTOM_PANEL);
+
+		if (vaadinProperties.isSet(VaadinEndpointProperties.EXTRA_LEFT_PANEL))
+			extraLeftPanel = vaadinProperties.getValue(VaadinEndpointProperties.EXTRA_LEFT_PANEL);
+
+		if (vaadinProperties.isSet(VaadinEndpointProperties.EXTRA_RIGHT_PANEL))
+			extraRightPanel = vaadinProperties.getValue(VaadinEndpointProperties.EXTRA_RIGHT_PANEL);
+		
+		if (vaadinProperties.isSet(VaadinEndpointProperties.EXTRA_PANELS_AFTER_ATHENTICATION))
+			addExtraPanelsAfterAuthentication = vaadinProperties.getBooleanValue(VaadinEndpointProperties.EXTRA_PANELS_AFTER_ATHENTICATION);
 
 		AuthnLayoutPropertiesParser parser = new AuthnLayoutPropertiesParser(msg);
 		authenticationLayoutConfiguration = parser.fromProperties(vaadinProperties);

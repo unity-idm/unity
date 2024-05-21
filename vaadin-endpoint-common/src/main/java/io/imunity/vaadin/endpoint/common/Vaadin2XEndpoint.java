@@ -55,7 +55,7 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 	protected MessageSource msg;
 
 	protected InvocationContextSetupFilter contextSetupFilter;
-	protected Vaadin82XEndpointProperties genericEndpointProperties;
+	protected VaadinEndpointProperties genericEndpointProperties;
 	protected final RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter;
 	protected final SandboxAuthnRouter sandboxAuthnRouter;
 	protected final Class<? extends VaadinServlet> servletClass;
@@ -91,9 +91,8 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 		try
 		{
 			properties.load(new StringReader(cfg));
-			genericEndpointProperties = new Vaadin82XEndpointProperties(
-					properties,
-					serverConfig.getValue(DEFAULT_WEB_CONTENT_PATH)
+			genericEndpointProperties = new VaadinEndpointProperties(
+					properties
 			);
 
 		} catch (Exception e)

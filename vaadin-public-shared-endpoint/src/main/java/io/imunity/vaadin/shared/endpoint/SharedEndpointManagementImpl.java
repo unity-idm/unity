@@ -6,7 +6,6 @@ package io.imunity.vaadin.shared.endpoint;
 
 import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PARAM;
 import static java.util.Collections.emptyList;
-import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH;
 
 import java.net.URL;
 import java.time.Duration;
@@ -33,7 +32,7 @@ import io.imunity.vaadin.endpoint.common.InvocationContextSetupFilter;
 import io.imunity.vaadin.endpoint.common.JarGetter;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
-import io.imunity.vaadin.endpoint.common.Vaadin82XEndpointProperties;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import jakarta.servlet.DispatcherType;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
@@ -64,10 +63,9 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 	                                    RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter) throws EngineException
 	{
 		Properties properties = config.getProperties();
-		properties.setProperty(Vaadin82XEndpointProperties.PREFIX + Vaadin82XEndpointProperties.EXTRA_PANELS_AFTER_ATHENTICATION, "true");
-		Vaadin82XEndpointProperties vaadinEndpointProperties = new Vaadin82XEndpointProperties(
-				properties,
-				config.getValue(DEFAULT_WEB_CONTENT_PATH)
+		properties.setProperty(VaadinEndpointProperties.PREFIX + VaadinEndpointProperties.EXTRA_PANELS_AFTER_ATHENTICATION, "true");
+		VaadinEndpointProperties vaadinEndpointProperties = new VaadinEndpointProperties(
+				properties		
 		);
 		WebAppContext context = new Vaadin2XWebAppContext(properties, vaadinEndpointProperties, msg, null);
 		context.setBaseResource(new URLResourceFactory().newResource(getWebContentsDir(config)));
