@@ -405,7 +405,8 @@ public class RuleComponent extends VerticalLayout
 	public void setEditorContext(EditorContext editorContext)
 	{
 		if (editorContext.equals(EditorContext.WIZARD))
-		{	condition.setWidthFull();
+		{
+			condition.getElement().getStyle().setWidth("100%");
 			condition.addClassNameToField(CssClassNames.WIDTH_FULL.getName());
 		}
 		actionEditor.setContext(editorContext);

@@ -30,7 +30,6 @@ public class ExpressionActionParameterComponent extends MVELExpressionField impl
 		binder = new Binder<>(StringValueBean.class);
 		configureBinding(binder, "value", param.isMandatory());
 		binder.setBean(new StringValueBean());	
-		setWidthFull();
 	}
 
 	@Override
@@ -78,6 +77,7 @@ public class ExpressionActionParameterComponent extends MVELExpressionField impl
 	{
 		if (editorContext.equals(EditorContext.WIZARD))
 		{
+			getElement().getStyle().setWidth("100%");
 			addClassNameToField(CssClassNames.WIDTH_FULL.getName());
 		}
 		return this;

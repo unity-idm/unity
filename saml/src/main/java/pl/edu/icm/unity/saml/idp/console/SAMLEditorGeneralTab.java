@@ -122,7 +122,7 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 		HorizontalLayout main = new HorizontalLayout();
 
 		FormLayout mainGeneralLayout = new FormLayout();
-		mainGeneralLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		mainGeneralLayout.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		mainGeneralLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		main.add(mainGeneralLayout);
