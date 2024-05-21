@@ -85,7 +85,6 @@ class AddFilterDialog extends DialogWithActionFooter
 			argument.setErrorMessage(msg.getMessage(
 					"AddFilterDialog.argumentMustBePresent"));
 			argument.setInvalid(true);
-			open();
 			return;
 		}
 		
@@ -101,6 +100,7 @@ class AddFilterDialog extends DialogWithActionFooter
 		String description = colCaption + " " + msg.getMessage("AddFilterDialog.operand." + opLabel) + " '" + argumentV + "'";
 		
 		callback.onConfirm(filter, description);
+		close();
 	}
 	
 	private boolean testForContain(IdentityEntry ie, String key, String searched)

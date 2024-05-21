@@ -157,7 +157,6 @@ class IdentityCreationDialog extends DialogWithActionFooter
 			toAdd = identityEditor.getValue();
 		} catch (IllegalIdentityValueException e)
 		{
-			open();
 			idLayout.getChildren().forEach(child -> child.getElement().setAttribute("invalid", true));
 			return;
 		}
@@ -171,5 +170,6 @@ class IdentityCreationDialog extends DialogWithActionFooter
 			return;
 		}
 		callback.accept(added);
+		close();
 	}
 }
