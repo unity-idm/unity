@@ -90,7 +90,7 @@ class OAuthTokenViewer extends VerticalLayout
 		main.addFormItem(userInfoComponent, msg.getMessage("OAuthTokenViewer.userInfo"));
 
 		add(main);
-		setPadding(false);
+		setPadding(true);
 		setSpacing(false);
 	}
 

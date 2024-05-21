@@ -4,17 +4,17 @@
  */
 package pl.edu.icm.unity.oauth.as.console.tokens;
 
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.splitlayout.SplitLayout;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.Panel;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
+import static io.imunity.vaadin.elements.CssClassNames.AVOID_MAIN_LAYOUT_Y_SCROLLER;
 
 import java.util.Collection;
 
-import static io.imunity.vaadin.elements.CssClassNames.AVOID_MAIN_LAYOUT_Y_SCROLLER;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.splitlayout.SplitLayout;
+
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
  * Allows for viewing and removing tokens
@@ -61,11 +61,7 @@ class OAuthTokensComponent extends VerticalLayout
 		viewer.setVisible(false);
 		tokensGrid.addValueChangeListener(e -> viewer.setInput(e.getFirstSelectedItem()));
 
-		Panel viewerPanel = new Panel();
-		viewerPanel.add(viewer);
-		viewerPanel.setSizeFull();
-
-		SplitLayout splitPanel = new SplitLayout(tokensGrid, viewerPanel);
+		SplitLayout splitPanel = new SplitLayout(tokensGrid, viewer);
 		splitPanel.setOrientation(SplitLayout.Orientation.VERTICAL);
 		splitPanel.setSplitterPosition(50);
 		splitPanel.setWidthFull();
