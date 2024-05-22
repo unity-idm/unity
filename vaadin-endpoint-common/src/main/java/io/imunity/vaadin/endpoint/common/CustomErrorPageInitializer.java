@@ -5,10 +5,7 @@
 
 package io.imunity.vaadin.endpoint.common;
 
-import java.lang.invoke.MethodHandles;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.SessionInitEvent;
@@ -16,10 +13,11 @@ import com.vaadin.flow.server.SessionInitListener;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 
 class CustomErrorPageInitializer implements VaadinServiceInitListener, SessionInitListener
 {
-	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CustomErrorPageInitializer.class);
 
 	private final MessageSource messageSource;
 
@@ -39,7 +37,7 @@ class CustomErrorPageInitializer implements VaadinServiceInitListener, SessionIn
 	{
 		event.getSession().setErrorHandler(errorEvent ->
 		{
-			LOG.error("Vaadin initialization error:", errorEvent.getThrowable());
+			log.error("Vaadin initialization error:", errorEvent.getThrowable());
 			errorEvent.getElement().ifPresent(el -> el.setText(messageSource.getMessage("Error")));
 		});
 	}

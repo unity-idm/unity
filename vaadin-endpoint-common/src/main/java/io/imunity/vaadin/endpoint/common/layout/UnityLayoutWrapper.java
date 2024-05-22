@@ -14,7 +14,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import io.imunity.vaadin.elements.CssClassNames;
-import io.imunity.vaadin.elements.ExtraLayoutPanel;
 import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 public class UnityLayoutWrapper

@@ -3,24 +3,25 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.vaadin.elements;
-
-import com.vaadin.flow.component.Html;
-import com.vaadin.flow.component.html.Div;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package io.imunity.vaadin.endpoint.common.layout;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 
-public class ExtraLayoutPanel extends Div
+import org.apache.logging.log4j.Logger;
+
+import com.vaadin.flow.component.Html;
+import com.vaadin.flow.component.html.Div;
+
+import pl.edu.icm.unity.base.utils.Log;
+
+class ExtraLayoutPanel extends Div
 {
-	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ExtraLayoutPanel.class);
 	private boolean empty;
 
-	public ExtraLayoutPanel(String id, File panelFile) {
+	ExtraLayoutPanel(String id, File panelFile) {
 		setId(id);
 		if (panelFile != null)
 		{
@@ -33,20 +34,20 @@ public class ExtraLayoutPanel extends Div
 					empty = false;
 				} else
 				{
-					LOG.error("Configured Panel File: {}, couldn't be read, file is unreachable",
+					log.error("Configured Panel File: {}, couldn't be read, file is unreachable",
 							panelFile.getParent());
 					empty = true;
 				}
 			} catch (IOException | IllegalArgumentException exception)
 			{
-				LOG.error("Could not load panel: " + id, exception);
+				log.error("Could not load panel: " + id, exception);
 				empty = true;
 			}
 		}
 	}
 
 
-	public boolean isEmpty()
+	boolean isEmpty()
 	{
 		return empty;
 	}

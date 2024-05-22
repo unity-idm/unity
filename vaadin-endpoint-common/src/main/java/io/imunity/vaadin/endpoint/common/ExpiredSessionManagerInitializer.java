@@ -5,25 +5,32 @@
 
 package io.imunity.vaadin.endpoint.common;
 
-import com.vaadin.flow.server.*;
-import io.imunity.vaadin.elements.VaadinInitParameters;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import static java.util.Optional.ofNullable;
 
-import pl.edu.icm.unity.base.authn.AuthenticationRealm;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-
-import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
-import static java.util.Optional.ofNullable;
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+
+import com.vaadin.flow.server.CustomizedSystemMessages;
+import com.vaadin.flow.server.ServiceInitEvent;
+import com.vaadin.flow.server.SessionInitEvent;
+import com.vaadin.flow.server.SessionInitListener;
+import com.vaadin.flow.server.VaadinService;
+import com.vaadin.flow.server.VaadinServiceInitListener;
+import com.vaadin.flow.server.VaadinServlet;
+import com.vaadin.flow.server.WrappedSession;
+
+import io.imunity.vaadin.elements.VaadinInitParameters;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 
 @Component
 class ExpiredSessionManagerInitializer implements VaadinServiceInitListener, SessionInitListener
 {
-	private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ExpiredSessionManagerInitializer.class);
 
 	private final MessageSource messageSource;
 
@@ -46,7 +53,7 @@ class ExpiredSessionManagerInitializer implements VaadinServiceInitListener, Ses
 				.map(AuthenticationRealm::getMaxInactivity)
 				.or(() -> getMaxInactivityFormServletConfig(event))
 				.ifPresent(wrappedSession::setMaxInactiveInterval);
-		LOG.debug("Session {} created, max inactivity set to {}",
+		log.debug("Session {} created, max inactivity set to {}",
 				wrappedSession.getId(),
 				wrappedSession.getMaxInactiveInterval());
 
