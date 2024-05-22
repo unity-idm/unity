@@ -128,7 +128,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		ServletApiRequest apiRequest = (ServletApiRequest) req;
 		if (AuthenticationState.getAuthenticationState(apiRequest.getRequest()) == null)
 		{
-			resp.sendRedirect(samlUiServletPath);
+			sendRedirect(req, resp);
 			return;
 		}
 		super.service(req, resp);
@@ -182,12 +182,25 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		if (isInteractiveUIRequired(preferences, samlCtx))
 		{
 			log.trace("Interactive step is required for SAML request, redirect to UI");
-			resp.sendRedirect(samlUiServletPath);
+			sendRedirect(req, resp);
 		} else
 		{
 			log.trace("Consent is not required for SAML request, processing immediatelly");
 			autoReplay(preferences, samlCtx, req, resp);
 		}
+	}
+	
+	private void sendRedirect(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	{
+		resp.sendRedirect(samlUiServletPath + getQueryToAppend(req));
+	}
+	
+	private String getQueryToAppend(HttpServletRequest req)
+	{
+		String signInContextKey = req.getParameter(SamlSessionService.URL_PARAM_CONTEXT_KEY);
+		return signInContextKey == null 
+				? "" 
+				: "?" + SamlSessionService.URL_PARAM_CONTEXT_KEY + "=" + signInContextKey;
 	}
 	
 	protected SPSettings loadPreferences(SAMLAuthnContext samlCtx) throws EngineException
@@ -216,11 +229,15 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	private boolean isConsentRequired(SPSettings preferences, SAMLAuthnContext samlCtx)
 	{
 		if (preferences.isDoNotAsk())
+		{
 			return false;
+		}
 		
 		boolean skipConsent = samlCtx.getSamlConfiguration().skipConsent;
 		if (skipConsent)
+		{
 			return false;
+		}
 		
 		return true;
 	}

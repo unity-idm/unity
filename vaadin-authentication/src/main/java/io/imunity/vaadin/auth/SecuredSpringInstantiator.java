@@ -27,9 +27,9 @@ class SecuredSpringInstantiator extends BaseSpringInstantiator
 	{
 		NavigationAccessControlInitializer initializer;
 		if(afterSuccessLoginRedirect == null)
-			initializer = new NavigationAccessControlInitializer();
+			initializer = NavigationAccessControlInitializer.defaultInitializer();
 		else
-			initializer = new NavigationAccessControlInitializer(afterSuccessLoginRedirect);
+			initializer = NavigationAccessControlInitializer.withAfterSuccessLoginRedirect(afterSuccessLoginRedirect);
 
 		Stream<VaadinServiceInitListener> serviceInitListeners = super.getServiceInitListeners();
 		return Stream.concat(serviceInitListeners, Stream.of(initializer));

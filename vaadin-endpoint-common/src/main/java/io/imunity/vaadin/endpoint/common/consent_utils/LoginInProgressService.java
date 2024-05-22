@@ -4,20 +4,30 @@
  */
 package io.imunity.vaadin.endpoint.common.consent_utils;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Supplier;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.net.WWWFormCodec;
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.base.MoreObjects;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 
-import pl.edu.icm.unity.base.utils.Log;
-
-import org.apache.logging.log4j.Logger;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import java.util.*;
-import java.util.function.Supplier;
+import pl.edu.icm.unity.base.utils.Log;
 
 public class LoginInProgressService<AUTHZ_CTX>
 {
@@ -54,11 +64,15 @@ public class LoginInProgressService<AUTHZ_CTX>
 	{
 		SignInContexts<AUTHZ_CTX> contexts = getAttribute(session);
 		if (contexts == null)
+		{
 			return Optional.empty();
+		}
 		
 		AUTHZ_CTX ctx = contexts.get(session.get());
 		if (ctx == null)
+		{
 			return Optional.empty();
+		}
 
 		return Optional.of(ctx);
 	}
@@ -77,7 +91,9 @@ public class LoginInProgressService<AUTHZ_CTX>
 	{
 		Optional<SignInContextSession> session = VaadinContextSession.getCurrent();
 		if (!session.isPresent())
+		{
 			return false;
+		}
 		
 		return getContextFromVaadinSession().isPresent();
 	}
@@ -118,7 +134,15 @@ public class LoginInProgressService<AUTHZ_CTX>
 	
 	public static Supplier<IllegalStateException> noSignInContextException()
 	{
-		return () -> new IllegalStateException("No sign in context after authentication");
+		return () -> new NoSignInContextException("No sign in context after authentication");
+	}
+	
+	private static class NoSignInContextException extends IllegalStateException
+	{
+		NoSignInContextException(String message)
+		{
+			super(message);
+		}
 	}
 
 	public interface SignInContextSession
@@ -213,6 +237,12 @@ public class LoginInProgressService<AUTHZ_CTX>
 			}
 			return false;
 		}
+		
+		@Override
+		public String toString()
+		{
+			return key;
+		}
 	}
 
 	public static class HttpContextSession implements SignInContextSession
@@ -230,7 +260,9 @@ public class LoginInProgressService<AUTHZ_CTX>
 		{
 			String key = request.getParameter(URL_PARAM_CONTEXT_KEY);
 			if (key != null)
+			{
 				return new SignInContextKey(key);
+			}
 			return SignInContextKey.DEFAULT;
 		}
 
@@ -292,16 +324,43 @@ public class LoginInProgressService<AUTHZ_CTX>
 		@Override
 		public SignInContextKey get()
 		{
-			SignInContextKey key = SignInContextKey.DEFAULT;
-			
 			Map<String, String[]> queryString = UI.getCurrent() != null
 					? VaadinService.getCurrentRequest().getParameterMap()
 					: Map.of();
-
 			if (queryString.get(URL_PARAM_CONTEXT_KEY) != null && queryString.get(URL_PARAM_CONTEXT_KEY).length == 1)
-				key = new SignInContextKey(queryString.get(URL_PARAM_CONTEXT_KEY)[0]);
+			{
+				return new SignInContextKey(queryString.get(URL_PARAM_CONTEXT_KEY)[0]);
+			}
 
-			return key;
+			return getRefererQuery().map(this::getSignInKey).orElse(SignInContextKey.DEFAULT);
+		}
+		
+		private SignInContextKey getSignInKey(String urlString)
+		{
+			return WWWFormCodec.parse(urlString, StandardCharsets.UTF_8).stream()
+				.filter(pair -> URL_PARAM_CONTEXT_KEY.equals(pair.getName()))
+				.map(NameValuePair::getValue)
+				.findFirst()
+				.map(SignInContextKey::new)
+				.orElse(SignInContextKey.DEFAULT);
+		}
+		
+		private Optional<String> getRefererQuery()
+		{
+			String urlString = VaadinService.getCurrentRequest().getHeader("Referer");
+			if (StringUtils.isEmpty(urlString))
+			{
+				return Optional.empty();
+			}
+			try
+			{
+				 URL url = new URL(urlString);
+				 String queryString = url.getQuery();
+				 return Optional.ofNullable(queryString);
+			} catch (MalformedURLException e)
+			{
+				throw new IllegalStateException("Error while encoding the URL from client", e);
+			}
 		}
 	}
 }

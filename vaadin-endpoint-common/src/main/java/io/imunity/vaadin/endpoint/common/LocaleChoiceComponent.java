@@ -4,6 +4,10 @@
  */
 package io.imunity.vaadin.endpoint.common;
 
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -13,14 +17,11 @@ import com.vaadin.flow.component.shared.SlotUtils;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServletResponse;
+
 import io.imunity.vaadin.elements.FlagIcon;
 import jakarta.servlet.http.Cookie;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 
 public class LocaleChoiceComponent extends Div
@@ -39,14 +40,16 @@ public class LocaleChoiceComponent extends Div
 			chooser.addValueChangeListener(event ->
 			{
 				if(!event.isFromClient())
+				{
 					return;
+				}
 				Locale l = event.getValue();
 				Cookie languageCookie = new LanguageCookie(l.toString());
 				((VaadinServletResponse)VaadinService.getCurrentResponse()).addCookie(languageCookie);
-				SessionStorage.getItem(
-						"redirect-url",
-						value -> UI.getCurrent().getPage().setLocation(value)
-				);
+				SessionStorage.consumeRedirectUrl((redirectUrl, currentRelativeURI) ->
+				{
+					UI.getCurrent().getPage().setLocation(redirectUrl);
+				});
 			});
 			chooser.setRenderer(new ComponentRenderer<>(
 					locale -> new Span(new FlagIcon(locale.getLanguage()), getLabel(collect, locale)))
