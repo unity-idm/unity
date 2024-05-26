@@ -4,13 +4,19 @@
  */
 package io.imunity.vaadin.auth.outdated;
 
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
+
+import java.util.Optional;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Focusable;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
 import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -20,6 +26,7 @@ import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
+import io.imunity.vaadin.endpoint.common.plugins.credentials.MissingCredentialException;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -29,11 +36,6 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
-import io.imunity.vaadin.endpoint.common.plugins.credentials.MissingCredentialException;
-
-import java.util.Optional;
-
-import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
 
 /**
  * Panel allowing to set a credential.
@@ -111,9 +113,12 @@ class CredentialChangePanel extends VerticalLayout
 		Button update = new Button(msg.getMessage("OutdatedCredentialDialog.update"));
 		update.setWidthFull();
 		update.addClassName("u-outdatedcred-update");
+		update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		update.addClickListener(event -> {
 			if (updateCredential(false))
+			{
 				updatedCallback.run();
+			}
 		});
 		update.addClickShortcut(Key.ENTER);
 		fixedWidthCol.add(update);
@@ -139,8 +144,12 @@ class CredentialChangePanel extends VerticalLayout
 	Focusable<?> getFocussedComponent()
 	{
 		for (Component component: credEditorComp.getComponents())
+		{
 			if (component instanceof Focusable)
+			{
 				return (Focusable<?>) component;
+			}
+		}
 		return null;
 	}
 	
@@ -191,7 +200,9 @@ class CredentialChangePanel extends VerticalLayout
 		}
 		credEditor.setCredentialError(null);
 		if (showSuccess)
+		{
 			notificationPresenter.showSuccess(msg.getMessage("CredentialChangeDialog.credentialUpdated"));
+		}
 		changed = true;
 		loadEntity(entityP);
 		return true;

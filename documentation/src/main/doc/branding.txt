@@ -4,8 +4,8 @@
 Unity interface appearance can be customized to match the owning organization preferences.
 There are several options (which can be combined) to perform such customizations:
 
-* Change of the default CSS style, allowing for customizing colors, decorations and sizing of the whole UI
-* Change of the default web page template, allowing for adding a custom header, footer or even side bars to the Unity UI.
+* Change of the default CSS style, allowing for customizing colors, decorations and sizing of the whole UI.
+* Customization of the Unity main UI by adding top, bottom, left and right panels.
 * Favicon can be customized.
 * All messages produced by Unity can be changed and new translations can be created.
 
