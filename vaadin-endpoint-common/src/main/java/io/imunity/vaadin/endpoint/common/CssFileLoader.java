@@ -26,7 +26,7 @@ class CssFileLoader
 		try
 		{
 			watchService = FileSystems.getDefault().newWatchService();
-			if(path == null)
+			if (path == null)
 				return;
 			Path defaultCssFilePath = Paths.get(path);
 			cssFile = defaultCssFilePath.toFile();

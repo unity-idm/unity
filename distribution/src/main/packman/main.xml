@@ -310,7 +310,7 @@
 		</copy>
 	</target>
 
-	<target name="copy-webContents" depends="update-webContents" unless="skip.copy.jars">
+	<target name="copy-webContents" unless="skip.copy.jars">
 		<echo message="-- copy web resources to rpm lib dir" />
 		<copy todir="${distribution.webContents}">
 			<fileset dir="${webContents}">
