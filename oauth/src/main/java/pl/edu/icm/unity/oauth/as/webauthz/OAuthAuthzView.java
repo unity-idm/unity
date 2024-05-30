@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.openid.connect.sdk.OIDCError;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Route;
 
@@ -231,7 +232,7 @@ class OAuthAuthzView extends UnityViewComponent
 	{
 		log.error("Consent is required but 'none' prompt was given");
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
-				OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getState(),
+				OIDCError.CONSENT_REQUIRED, oauthCtx.getRequest().getState(),
 				oauthCtx.getRequest().impliedResponseMode());
 		oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, true);
 	}

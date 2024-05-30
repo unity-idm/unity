@@ -19,6 +19,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.SerializeException;
+import com.nimbusds.openid.connect.sdk.OIDCError;
 
 import io.imunity.vaadin.endpoint.common.EopException;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
@@ -161,8 +162,10 @@ public class ASConsentDeciderServlet extends HttpServlet
 	{
 		log.error("Consent is required but 'none' prompt was given");
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
-				OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getState(),
+				OIDCError.CONSENT_REQUIRED, oauthCtx.getRequest().getState(),
 				oauthCtx.getRequest().impliedResponseMode());
+		
+		
 		sendReturnRedirect(oauthResponse, req, resp, true);
 	}
 

@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.as.token;
 
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.util.List;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
@@ -18,6 +21,7 @@ import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.util.Base64;
 
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -40,7 +44,7 @@ public class KeysResource extends BaseOAuthResource
 	@Path("/")
 	@GET
 	@Produces(JWKSet.MIME_TYPE)	
-	public String getKeys()
+	public String getKeys() 
 	{
 		if (!config.getTokenSigner().isPKIEnabled())
 			return new JWKSet().toString();
@@ -49,15 +53,21 @@ public class KeysResource extends BaseOAuthResource
 		if (Family.RSA.contains(signAlg))
 		{
 			set = new JWKSet(new RSAKey.Builder((RSAPublicKey) config.getTokenSigner()
-					.getCredentialCertificate().getPublicKey())
-							.keyUse(KeyUse.SIGNATURE).build());
+					.getCredentialCertificate()
+					.getPublicKey()).keyUse(KeyUse.SIGNATURE)
+							.x509CertChain(getCertAsX5CAttribute(config.getTokenSigner()
+									.getCredentialCertificate()))
+							.build());
 		} else if (Family.EC.contains(signAlg))
 		{
-			set = new JWKSet(new ECKey.Builder(
-					Curve.forJWSAlgorithm(signAlg).iterator().next(),
+			set = new JWKSet(new ECKey.Builder(Curve.forJWSAlgorithm(signAlg)
+					.iterator()
+					.next(),
 					(ECPublicKey) config.getTokenSigner()
-							.getCredentialCertificate().getPublicKey())
-									.keyUse(KeyUse.SIGNATURE)
+							.getCredentialCertificate()
+							.getPublicKey()).keyUse(KeyUse.SIGNATURE)
+									.x509CertChain(getCertAsX5CAttribute(config.getTokenSigner()
+											.getCredentialCertificate()))
 									.build());
 		} else if (Family.HMAC_SHA.contains(signAlg))
 		{
@@ -69,5 +79,18 @@ public class KeysResource extends BaseOAuthResource
 		}
 
 		return set.toString();
+	}
+	
+	private List<Base64> getCertAsX5CAttribute(X509Certificate cert)
+	{
+		try
+		{
+			return List.of(Base64.encode(config.getTokenSigner()
+					.getCredentialCertificate().getEncoded()));
+		} catch (CertificateEncodingException e)
+		{
+			throw new InternalException(
+					"Can not encode certificate", e);
+		}
 	}
 }
