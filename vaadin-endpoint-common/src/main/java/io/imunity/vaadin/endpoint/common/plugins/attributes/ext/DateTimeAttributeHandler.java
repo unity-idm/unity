@@ -107,7 +107,15 @@ class DateTimeAttributeHandler implements WebAttributeHandler
 			if (value != null)
 				datetime.setValue(value);
 			if (context.isCustomWidth())
-				datetime.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			{
+				if (!context.isCustomWidthAsString())
+				{
+					datetime.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+				} else
+				{
+					datetime.setWidth(context.getCustomWidthAsString());
+				}
+			}
 			datetime.addValueChangeListener(e -> WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent()));
 
 			return new ComponentsContainer(datetime);

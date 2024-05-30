@@ -62,7 +62,7 @@ class GroupEditDialog extends DialogWithActionFooter
 		this.originalGroup = group;
 		this.callback = callback;
 		setWidth("60em");
-		setHeight("60em");
+		setHeight("45em");
 		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());
 	}

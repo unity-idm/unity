@@ -23,6 +23,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 public class TextFieldWithVerifyButton extends CustomField<String>
 {
@@ -74,6 +75,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 			main.add(adminConfirmCheckBox);
 		}
 		add(main);
+		setWidthFull();
 	}
 
 	@Override
@@ -256,5 +258,12 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	{
 		if (editor != null)
 			editor.setWidth(width, unit);
+	}
+
+	public void setValueChangeMode(ValueChangeMode valueChangeMode)
+	{
+		if (valueChangeMode != null)
+			editor.setValueChangeMode(valueChangeMode);
+		
 	}
 }

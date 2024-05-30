@@ -303,7 +303,7 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 	{
 		FormLayout metadataPublishing = new FormLayout();
 		metadataPublishing.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		metadataPublishing.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		metadataPublishing.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
 		Checkbox publishMetadata = new Checkbox(msg.getMessage("SAMLEditorGeneralTab.publishMetadata"));
 		configBinder.forField(publishMetadata).withValidator((v, c) -> {

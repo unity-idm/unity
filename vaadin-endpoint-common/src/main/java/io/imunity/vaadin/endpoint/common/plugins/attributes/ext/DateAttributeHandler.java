@@ -102,8 +102,19 @@ class DateAttributeHandler implements WebAttributeHandler
 			setLabel(label);
 			if (value != null)
 				date.setValue(value);
+			
 			if (context.isCustomWidth())
-				date.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			{
+				if (!context.isCustomWidthAsString())
+				{
+					date.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+				} else
+				{
+					date.setWidth(context.getCustomWidthAsString());
+				}
+			}
+			
+			
 			date.addValueChangeListener(e -> WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent()));
 
 			return new ComponentsContainer(date);

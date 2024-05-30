@@ -26,6 +26,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
@@ -35,6 +36,7 @@ import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
 import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.WebSession;
@@ -252,7 +254,10 @@ public class ProfileView extends HomeViewComponent
 					.withAttributeType(attributeType)
 					.withAttributeGroup(groupPath)
 					.withLabelContext(labelContext)
+					.withValueChangeMode(ValueChangeMode.EAGER)
+					.withCustomWidth(CSSVars.TEXT_FIELD_MEDIUM.value())
 					.withAttributeOwner(new EntityParam(theUser.getEntityId())).build();
+					
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry,
 					editContext, labelContext, null);

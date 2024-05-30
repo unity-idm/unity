@@ -6,6 +6,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.data.value.ValueChangeMode;
 
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -21,6 +22,8 @@ public class AttributeEditContext
 	private boolean showLabelInline = false;
 	private Float customWidth = null;
 	private Unit customWidthUnit = null;
+	private ValueChangeMode valueChangeMode;
+	public String customWidthAsString;
 
 	private AttributeEditContext()
 	{
@@ -69,7 +72,12 @@ public class AttributeEditContext
 	
 	public boolean isCustomWidth()
 	{
-		return customWidth != null && customWidthUnit != null;
+		return (customWidth != null && customWidthUnit != null) || customWidthAsString != null;
+	}
+	
+	public boolean isCustomWidthAsString()
+	{
+		return customWidthAsString != null;
 	}
 
 	public Float getCustomWidth()
@@ -80,6 +88,16 @@ public class AttributeEditContext
 	public Unit getCustomWidthUnit()
 	{
 		return customWidthUnit;
+	}
+
+	public ValueChangeMode getValueChangeMode()
+	{
+		return valueChangeMode;
+	}
+	
+	public String getCustomWidthAsString()
+	{
+		return customWidthAsString;
 	}
 
 	public static class Builder
@@ -145,9 +163,21 @@ public class AttributeEditContext
 			return this;
 		}
 		
+		public Builder withCustomWidth(String customWidth)
+		{
+			this.obj.customWidthAsString = customWidth;
+			return this;
+		}
+		
 		public Builder withCustomWidthUnit(Unit customWidthUnit)
 		{
 			this.obj.customWidthUnit = customWidthUnit;
+			return this;
+		}
+		
+		public Builder withValueChangeMode(ValueChangeMode valueChangeMode)
+		{
+			this.obj.valueChangeMode = valueChangeMode;
 			return this;
 		}
 

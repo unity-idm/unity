@@ -4,6 +4,8 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.components;
 
+import java.util.List;
+
 import com.vaadin.flow.component.AbstractSinglePropertyField;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -14,6 +16,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
+
 import io.imunity.vaadin.elements.StringBindingValue;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
@@ -27,8 +30,6 @@ import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-
-import java.util.List;
 
 public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 {
@@ -94,16 +95,27 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 				TextArea textArea = new TextArea();
 				textArea.setWidthFull();
 				textArea.setTitle("");
+				if (context.getValueChangeMode() != null)
+				{
+					textArea.setValueChangeMode(context.getValueChangeMode());
+				}
 				field = textArea;
 			}
 			else
 			{
 				TextField textField = new TextField();
 				textField.setTitle("");
+				if (context.getValueChangeMode() != null)
+				{
+					textField.setValueChangeMode(context.getValueChangeMode());
+				}
+				
 				field = textField;
 			}
 			setLabel(label);
-
+			
+			
+			
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints())
 				sb.append(hint).append("\n");
@@ -112,7 +124,17 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 				field.setId("ValueEditor."+label);
 			
 			if (context.isCustomWidth())
-				field.getElement().getStyle().set("width", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
+			{
+				if (!context.isCustomWidthAsString())
+				{
+					field.getElement().getStyle().set("width", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
+				}else 
+				{
+					field.getElement().getStyle().set("width", context.getCustomWidthAsString());
+
+				}
+			}
+			
 			
 			binder.forField(field, required)
 				.withValidator(this::validate)

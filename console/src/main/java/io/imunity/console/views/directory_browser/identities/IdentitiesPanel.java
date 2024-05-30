@@ -281,7 +281,6 @@ public class IdentitiesPanel extends VerticalLayout
 	{
 		removeAll();
 		main.removeAll();
-		identitiesTable.clearFilters();
 		searchText.clear();
 
 		if (group == null)

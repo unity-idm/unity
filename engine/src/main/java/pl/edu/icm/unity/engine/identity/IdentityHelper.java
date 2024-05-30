@@ -224,7 +224,7 @@ public class IdentityHelper
 					.tags(USERS));
 		} catch (Exception e)
 		{
-			throw new IllegalIdentityValueException("Can not add identity " + toAdd, e);
+			throw new IllegalIdentityValueException("Can not add identity " + toAdd.toHumanReadableString(), e);
 		}
 		
 		return identity;

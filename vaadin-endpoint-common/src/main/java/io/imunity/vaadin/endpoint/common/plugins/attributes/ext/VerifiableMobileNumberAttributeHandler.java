@@ -187,6 +187,8 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 					VaadinIcon.MOBILE_RETRO.create(),
 					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"),
 					context.isShowLabelInline());
+			editor.setValueChangeMode(context.getValueChangeMode());
+			
 			if (label != null)
 				editor.setTextFieldId("MobileNumberValueEditor." + label);
 
@@ -249,7 +251,15 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 			updateConfirmationStatusIconAndButtons();
 			
 			if (context.isCustomWidth())
-				editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			{
+				if (!context.isCustomWidthAsString())
+				{
+					editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+				} else
+				{
+					editor.setWidth(context.getCustomWidthAsString());
+				}
+			}
 			
 			binder = new SingleStringFieldBinder(msg);
 			binder.forField(editor, context.isRequired())

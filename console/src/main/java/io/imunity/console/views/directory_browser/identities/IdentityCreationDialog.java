@@ -166,7 +166,7 @@ class IdentityCreationDialog extends DialogWithActionFooter
 			added = identitiesMan.addIdentity(toAdd, new EntityParam(entityId));
 		} catch (Exception e)
 		{
-			notificationPresenter.showError(msg.getMessage("IdentityCreation.entityCreateError"), e.getMessage());
+			notificationPresenter.showError("", msg.getMessage("IdentityCreation.entityCreateError", toAdd.toHumanReadableString()));
 			return;
 		}
 		callback.accept(added);

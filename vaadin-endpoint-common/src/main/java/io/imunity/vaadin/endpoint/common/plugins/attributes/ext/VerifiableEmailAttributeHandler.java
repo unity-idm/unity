@@ -164,6 +164,7 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 					VaadinIcon.ENVELOPE_O.create(),
 					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"),
 					context.isShowLabelInline());
+			editor.setValueChangeMode(context.getValueChangeMode());
 			if (label != null)
 				editor.setTextFieldId("EmailValueEditor.Email");
 
@@ -213,8 +214,16 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 			updateConfirmationStatusIcon();
 			
 			if (context.isCustomWidth())
-				editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			{	if (!context.isCustomWidthAsString())
+				{
+					editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+				}else
+				{
+					editor.setWidth(context.getCustomWidthAsString());
+				}
 			
+			}
+				
 			binder = new SingleStringFieldBinder(msg);
 			binder.forField(editor, context.isRequired())
 				.withValidator(this::validate)
