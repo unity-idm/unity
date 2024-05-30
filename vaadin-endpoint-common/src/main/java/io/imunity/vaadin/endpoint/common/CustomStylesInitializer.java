@@ -130,7 +130,7 @@ class CustomStylesInitializer implements VaadinServiceInitListener
 
 			if (!cssFile.exists())
 			{
-				LOG.error("Could not load {} styles: file does not exists, {}", cssFile, styleType);
+				LOG.error("Could not load {} styles: file does not exist, {}", cssFile, styleType);
 				return false;
 			}
 
