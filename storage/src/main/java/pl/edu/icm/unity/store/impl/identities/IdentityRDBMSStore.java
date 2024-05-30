@@ -34,6 +34,13 @@ public class IdentityRDBMSStore extends GenericNamedRDBMSCRUD<StoredIdentity, Id
 	}
 
 	@Override
+	public String getRepresentationForError(StoredIdentity obj)
+	{
+		
+		return obj.getIdentity().toHumanReadableString();
+	}
+	
+	@Override
 	public List<StoredIdentity> getByEntityFull(long entityId)
 	{
 		IdentitiesMapper mapper = SQLTransactionTL.getSql().getMapper(IdentitiesMapper.class);

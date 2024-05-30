@@ -55,12 +55,16 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 			SQLException cause = (SQLException) causeO;
 			if (cause.getSQLState().equals(SQL_DUP_1_ERROR) || 
 					cause.getSQLState().equals(SQL_DUP_2_ERROR))
-				throw new IllegalArgumentException(elementName + " [" + obj.getName() + 
+				throw new IllegalArgumentException(elementName + " [" + getRepresentationForError(obj) + 
 						"] already exist", e);
 			throw e;
 		}
 	}
-
+	
+	public String getRepresentationForError(T obj)
+	{
+		return obj.getName();
+	}
 	@Override
 	public void updateByKey(long key, T obj)
 	{
