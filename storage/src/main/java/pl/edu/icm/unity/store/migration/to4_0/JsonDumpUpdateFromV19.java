@@ -8,6 +8,7 @@ package pl.edu.icm.unity.store.migration.to4_0;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,7 @@ public class JsonDumpUpdateFromV19 implements JsonDumpUpdate
 		JsonNode contents = root.get("contents");
 		migrateHomeUiDisabledComponentsConfiguration(contents.withArray("endpointDefinition"));
 		removeFidoIdentityFromForms(contents.withArray("registrationForm"));
+		updateAuthenticatorIcons(contents);
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 	}
 
@@ -70,6 +72,22 @@ public class JsonDumpUpdateFromV19 implements JsonDumpUpdate
 			}
 			((ObjectNode)obj).remove("IdentityParams");
 			((ObjectNode)obj).putArray("IdentityParams").addAll(filtered);
+		}
+	}
+	
+	private void updateAuthenticatorIcons(JsonNode contents)
+	{
+		ArrayNode generics = (ArrayNode) contents.get("authenticator");
+		if (generics == null)
+			return;
+		
+		Iterator<JsonNode> elements = generics.elements();
+		
+		while (elements.hasNext())
+		{
+			ObjectNode next = (ObjectNode) elements.next();
+			ObjectNode genericObject = (ObjectNode)next.get("obj");
+			UpdateHelperTo4_0.updateOAuthAuthenticatorIcons(genericObject).ifPresent(o -> next.set("obj", o) );
 		}
 	}
 }

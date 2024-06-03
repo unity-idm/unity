@@ -143,5 +143,24 @@ class TestUpdateHelperTo4_0
 		assertThat(configuration.get().asText()).contains("unity.userhome.disabledComponents.4=accountRemoval");
 		assertThat(configuration.get().asText()).doesNotContain("unity.userhome.disabledComponents.5=identitiesManagement");
 	}
+	
+	@Test
+	void shouldUpdateOAuthAuthenticatorDefaultIcons()
+	{
+		String properties = """
+				unity.oauth2.client.providers.local.iconUrl=file:../common/img/other/logo-hand.png
+				""".replaceAll("\n", System.lineSeparator());
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode root = mapper.createObjectNode();
+
+		root.set("name", new TextNode("OAuth"));
+		root.set("verificationMethod", new TextNode("oauth2"));
+		root.set("configuration", new TextNode(properties));
+
+		ObjectNode auth = UpdateHelperTo4_0.updateOAuthAuthenticatorIcons(root).get();
+		assertThat(auth.get("configuration")
+				.asText()).contains("unity.oauth2.client.providers.local.iconUrl=assets/img/other/logo-square.png");
+
+	}
 
 }

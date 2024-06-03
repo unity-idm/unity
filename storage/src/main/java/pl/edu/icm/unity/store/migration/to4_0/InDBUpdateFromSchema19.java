@@ -18,6 +18,7 @@ import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
+import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationHandler;
 import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
 
 import java.io.IOException;
@@ -55,6 +56,7 @@ public class InDBUpdateFromSchema19 implements InDBContentsUpdater
 	{
 		removeFidoIdentityFromForms();
 		migrateHomeUiDisabledComponentsConfiguration();
+		updateAuthenticatorIcons();
 	}
 
 	public void migrateHomeUiDisabledComponentsConfiguration()
@@ -89,6 +91,23 @@ public class InDBUpdateFromSchema19 implements InDBContentsUpdater
 						registrationForm.getName()
 				);
 			}
+		}
+	}
+	
+	void updateAuthenticatorIcons()
+	{
+		List<GenericObjectBean> genereicObjects = genericObjectsDAO
+				.getObjectsOfType(AuthenticatorConfigurationHandler.AUTHENTICATOR_OBJECT_TYPE);
+		for (GenericObjectBean genericObject : genereicObjects)
+		{
+			ObjectNode objContent = JsonUtil.parse(genericObject.getContents());
+			UpdateHelperTo4_0.updateOAuthAuthenticatorIcons(objContent)
+					.ifPresent(o ->
+					{
+						genericObject.setContents(JsonUtil.serialize2Bytes(o));
+						genericObjectsDAO.updateByKey(genericObject.getId(), genericObject);
+					});
+
 		}
 	}
 }

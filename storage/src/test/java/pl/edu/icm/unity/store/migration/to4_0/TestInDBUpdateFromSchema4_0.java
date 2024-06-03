@@ -14,6 +14,7 @@ import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
+import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationHandler;
 import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
 
 import java.io.IOException;
@@ -193,6 +194,36 @@ public class TestInDBUpdateFromSchema4_0
 		hotfix.update();
 
 		verify(objectStoreDAO).updateByKey(1L, endpoint);
+	}
+
+	
+	@Test
+	public void checkOAuthIconsMigration() throws IOException
+	{
+
+		ObjectStoreDAO objectStoreDAO = mock(ObjectStoreDAO.class);
+		GenericObjectBean authenticator = mock(GenericObjectBean.class);
+		RegistrationFormDB registrationFormDB = mock(RegistrationFormDB.class);
+
+		String properties = """
+				unity.oauth2.client.providers.local.iconUrl=file:../common/img/other/logo-hand.png
+
+				""".replaceAll("\n", System.lineSeparator());
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode root = mapper.createObjectNode();
+		root.set("name", new TextNode("oauth"));
+		root.set("verificationMethod", new TextNode("oauth2"));
+		root.set("configuration", new TextNode(properties));
+
+		when(objectStoreDAO.getObjectsOfType(AuthenticatorConfigurationHandler.AUTHENTICATOR_OBJECT_TYPE))
+				.thenReturn(List.of(authenticator));
+		when(authenticator.getContents()).thenReturn(JsonUtil.serialize2Bytes(root));
+		when(authenticator.getId()).thenReturn(1L);
+		InDBUpdateFromSchema19 hotfix = new InDBUpdateFromSchema19(registrationFormDB, objectStoreDAO);
+
+		hotfix.update();
+
+		verify(objectStoreDAO).updateByKey(1L, authenticator);
 	}
 
 }
