@@ -160,6 +160,13 @@ public class TokenSigner
 		return credential.getCertificate();
 	}
 	
+	public X509Certificate[] getCredentialCertificateChain()
+	{
+		if (!isPKIEnabled())
+			throw new InternalException("Token signer is not initialized");
+		return credential.getCertificateChain();
+	}
+	
 	public JWSAlgorithm getSigningAlgorithm()
 	{
 		if (!isPKIEnabled())
