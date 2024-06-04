@@ -37,10 +37,6 @@ public class UpdateHelperTo4_0
 			"file:../common/img/external/orcid-small.png", "assets/img/external/orcid-small.png"
 	);
 	
-	
-	
-	
-	
 	public static Optional<TextNode> updateHomeUIConfiguration(ObjectNode node)
 	{
 		if (node.get("typeId").textValue().equals("UserHomeUI"))
