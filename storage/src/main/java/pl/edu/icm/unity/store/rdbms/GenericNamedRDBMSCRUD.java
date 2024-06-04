@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.ibatis.exceptions.PersistenceException;
+import org.springframework.util.StringUtils;
 
 import pl.edu.icm.unity.base.describedObject.NamedObject;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
@@ -55,8 +56,8 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 			SQLException cause = (SQLException) causeO;
 			if (cause.getSQLState().equals(SQL_DUP_1_ERROR) || 
 					cause.getSQLState().equals(SQL_DUP_2_ERROR))
-				throw new IllegalArgumentException(elementName + " [" + getRepresentationForError(obj) + 
-						"] already exist", e);
+				throw new IllegalArgumentException(StringUtils.capitalize(elementName) + " [" + getRepresentationForError(obj) + 
+						"] already exists", e);
 			throw e;
 		}
 	}
