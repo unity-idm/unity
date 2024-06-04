@@ -81,7 +81,7 @@ public class VaddinWebLogoutHandler implements WebLogoutHandler
 		if(!logoutRedirectPath.endsWith("/"))
 			logoutRedirectPath += "/";
 		logoutSessionPeers(URI.create(contextPath + logoutRedirectPath), soft);
-		UI.getCurrent().getPage().setLocation(VaadinServlet.getCurrent().getServletContext().getContextPath());
+		UI.getCurrent().getPage().setLocation(URI.create(contextPath + logoutRedirectPath));
 	}
 
 	private void logoutSessionPeers(URI currentLocation, boolean soft)
@@ -106,6 +106,8 @@ public class VaddinWebLogoutHandler implements WebLogoutHandler
 						+ "won't be performed", e);
 			}
 			destroySession(soft);
+			
+			
 		} else
 		{
 			VaadinSession vSession = VaadinSession.getCurrent();
