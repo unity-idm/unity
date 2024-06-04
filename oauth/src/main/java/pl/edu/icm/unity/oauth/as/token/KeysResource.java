@@ -9,6 +9,8 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -52,22 +54,16 @@ public class KeysResource extends BaseOAuthResource
 		JWKSet set;
 		if (Family.RSA.contains(signAlg))
 		{
-			set = new JWKSet(new RSAKey.Builder((RSAPublicKey) config.getTokenSigner()
-					.getCredentialCertificate()
-					.getPublicKey()).keyUse(KeyUse.SIGNATURE)
-							.x509CertChain(getCertAsX5CAttribute(config.getTokenSigner()
-									.getCredentialCertificate()))
-							.build());
+			set = new JWKSet(new RSAKey.Builder((RSAPublicKey) config.getTokenSigner().getCredentialCertificate().getPublicKey())
+					.keyUse(KeyUse.SIGNATURE)
+					.x509CertChain(getCertAsX5CAttribute(config.getTokenSigner().getCredentialCertificateChain()))
+					.build());
 		} else if (Family.EC.contains(signAlg))
 		{
-			set = new JWKSet(new ECKey.Builder(Curve.forJWSAlgorithm(signAlg)
-					.iterator()
-					.next(),
-					(ECPublicKey) config.getTokenSigner()
-							.getCredentialCertificate()
-							.getPublicKey()).keyUse(KeyUse.SIGNATURE)
-									.x509CertChain(getCertAsX5CAttribute(config.getTokenSigner()
-											.getCredentialCertificate()))
+			set = new JWKSet(new ECKey.Builder(Curve.forJWSAlgorithm(signAlg).iterator().next(),
+									(ECPublicKey) config.getTokenSigner().getCredentialCertificate().getPublicKey())
+									.keyUse(KeyUse.SIGNATURE)
+									.x509CertChain(getCertAsX5CAttribute(config.getTokenSigner().getCredentialCertificateChain()))
 									.build());
 		} else if (Family.HMAC_SHA.contains(signAlg))
 		{
@@ -81,16 +77,19 @@ public class KeysResource extends BaseOAuthResource
 		return set.toString();
 	}
 	
-	private List<Base64> getCertAsX5CAttribute(X509Certificate cert)
+	private List<Base64> getCertAsX5CAttribute(X509Certificate[] certs)
 	{
-		try
-		{
-			return List.of(Base64.encode(config.getTokenSigner()
-					.getCredentialCertificate().getEncoded()));
-		} catch (CertificateEncodingException e)
-		{
-			throw new InternalException(
-					"Can not encode certificate", e);
-		}
+		return Stream.of(certs)
+				.map(c ->
+				{
+					try
+					{
+						return Base64.encode(c.getEncoded());
+					} catch (CertificateEncodingException e)
+					{
+						throw new InternalException("Can not encode certificate", e);
+					}
+				})
+				.collect(Collectors.toList());
 	}
 }
