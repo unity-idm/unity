@@ -79,6 +79,22 @@ All UI customizations needs to be recreated from scratch, basing on the Unity 4 
 * Freemarker templates are not used to wrap Unity pages with custom headers, footers etc. Instead separate HTML panels can be configured as frames of the main UI.
 * CSS is controlled with simple files which can be set on global and/or endpoint level. Concept of "theme" is not used anymore. 
 
+===== Configured images/logo
+
+In many cases placement and configuration of images used in various places of Unity configuration will need to be updated. In particular:
+
+* All images configured with simple local paths 
+* All images configured using +file:+ URLs
+
+The migration is generally straightforward:
+
+. Place all your images in the +webContents/+ directory of the Unity 4 installation. The default sub-folder +assets/img/+ may be used to group them, but it is not mandatory.
+. Update all paths to images in configuration files or through console. Set the new path. 
+
+For example a Unity 3.x file placed in +webContents/VAADIN/themes/common/img/logo.png+ can be placed in Unity 4 in +webContents/assets/img/logo.png+. Then old paths referencing it (either +file:../common/img/logo.png+ or +../common/img/logo.png+) shall be replaced with +assets/img/logo.png+.
+
+NOTE: pay attention to images configured as endpoint logos. In many cases those will need to be updated.
+
 
 ===== UNICORE IdP endpoints dropped
 
