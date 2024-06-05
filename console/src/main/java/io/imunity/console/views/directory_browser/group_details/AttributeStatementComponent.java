@@ -4,7 +4,7 @@
  */
 package io.imunity.console.views.directory_browser.group_details;
 
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -150,7 +150,7 @@ class AttributeStatementComponent extends VerticalLayout
 
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		main.addFormItem(extraAttributesGroupCB, "");
 		main.addFormItem(extraAttributesGroupCombo, msg.getMessage("AttributeStatementComponent.extraGroupSelect"));
 		main.addFormItem(condition, msg.getMessage("AttributeStatementComponent.condition"));
