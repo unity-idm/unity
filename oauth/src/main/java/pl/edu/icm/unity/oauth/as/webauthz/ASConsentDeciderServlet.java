@@ -124,7 +124,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		}
 		if (consentDecider.forceConsentIfConsentPrompt(oauthCtx))
 		{
-			log.trace("Consent is required for OAuth request, 'consent' prompt was given , redirect to consent UI");
+			log.debug("Consent is required for OAuth request, 'consent' prompt was requested, redirect to consent UI");
 			sendRedirect(req, resp);
 		} 
 		else if (consentDecider.isInteractiveUIRequired(preferences, oauthCtx))
@@ -135,11 +135,11 @@ public class ASConsentDeciderServlet extends HttpServlet
 				return;
 			}
 			
-			log.trace("Consent is required for OAuth request, forwarding to consent UI");
+			log.debug("Consent is required for OAuth request, forwarding to consent UI");
 			sendRedirect(req, resp);
 		} else
 		{
-			log.trace("Consent is not required for OAuth request, processing immediatelly");
+			log.debug("Consent is not required for OAuth request, processing immediatelly");
 			autoReplay(preferences, oauthCtx, req, resp);
 		}
 	}
@@ -160,7 +160,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private void sendNonePromptError(OAuthAuthzContext oauthCtx, HttpServletRequest req, HttpServletResponse resp)
 			throws IOException
 	{
-		log.error("Consent is required but 'none' prompt was given");
+		log.info("Consent is required but 'none' prompt was requested");
 		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
 				OIDCError.CONSENT_REQUIRED, oauthCtx.getRequest().getState(),
 				oauthCtx.getRequest().impliedResponseMode());
@@ -183,7 +183,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 	{
 		if (!clientPreferences.isDefaultAccept())
 		{
-			log.trace("User preferences are set to decline authZ from the client");
+			log.debug("User preferences are set to decline authZ from the client");
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
 					OAuth2Error.ACCESS_DENIED, oauthCtx.getRequest().getState(),
 					oauthCtx.getRequest().impliedResponseMode());
