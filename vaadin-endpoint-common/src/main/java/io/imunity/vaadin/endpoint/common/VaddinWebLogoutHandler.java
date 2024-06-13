@@ -80,8 +80,10 @@ public class VaddinWebLogoutHandler implements WebLogoutHandler
 		String contextPath = VaadinServlet.getCurrent().getServletContext().getContextPath();
 		if(!logoutRedirectPath.endsWith("/"))
 			logoutRedirectPath += "/";
-		logoutSessionPeers(URI.create(contextPath + logoutRedirectPath), soft);
-		UI.getCurrent().getPage().setLocation(URI.create(contextPath + logoutRedirectPath));
+		
+		URI redirectURI= URI.create(contextPath + logoutRedirectPath);
+		logoutSessionPeers(redirectURI, soft);
+		UI.getCurrent().getPage().setLocation(redirectURI);
 	}
 
 	private void logoutSessionPeers(URI currentLocation, boolean soft)
@@ -105,9 +107,7 @@ public class VaddinWebLogoutHandler implements WebLogoutHandler
 				log.warn("Can not refresh the state of the current session. Logout of session participants "
 						+ "won't be performed", e);
 			}
-			destroySession(soft);
-			
-			
+			destroySession(soft);		
 		} else
 		{
 			VaadinSession vSession = VaadinSession.getCurrent();
