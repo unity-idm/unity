@@ -233,9 +233,12 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		
 		private void returnOAuthError(HttpServletRequest request, HttpServletResponse response) throws IOException
 		{
+			String sessionId = request.getSession().getId();
+			log.debug(sessionId);
+			
 			OAuthAuthzContext ctx = OAuthSessionService.getContext(request).get();
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
-					OIDCError.LOGIN_REQUIRED,  State.parse(request.getParameter("state")),
+					OIDCError.LOGIN_REQUIRED,  ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
 			try
 			{
