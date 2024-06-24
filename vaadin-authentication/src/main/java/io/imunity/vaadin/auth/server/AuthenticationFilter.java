@@ -83,7 +83,7 @@ public class AuthenticationFilter implements Filter
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		String clientIp = HTTPRequestContext.getCurrent().getClientIP();
-		log.info("Calling Authentication filter: {}", httpRequest.getRequestURI());
+		log.trace("Calling Authentication filter on: {}", httpRequest.getRequestURI());
 		try 
 		{
 			handleNotProtectedResource(httpRequest, httpResponse, chain);
