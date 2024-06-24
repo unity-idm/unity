@@ -11,7 +11,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class OutdatedCredentialController
 	private CredentialChangePanel ui;
 	private CredentialChangeConfiguration uiConfig;
 	private final MessageSource msg;
-	private VaddinWebLogoutHandler authnProcessor;
+	private VaadinWebLogoutHandler authnProcessor;
 	private Runnable finishHandler;
 	private final NotificationPresenter notificationPresenter;
 
@@ -72,7 +72,7 @@ public class OutdatedCredentialController
 		this.notificationPresenter = notificationPresenter;
 	}
 
-	public void init(CredentialChangeConfiguration uiConfig, VaddinWebLogoutHandler authnProcessor,
+	public void init(CredentialChangeConfiguration uiConfig, VaadinWebLogoutHandler authnProcessor,
 	                 Runnable finishHandler)
 	{
 		this.authnProcessor = authnProcessor;

@@ -28,12 +28,12 @@ import java.net.URI;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class VaddinWebLogoutHandler implements WebLogoutHandler
+public class VaadinWebLogoutHandler implements WebLogoutHandler
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, VaddinWebLogoutHandler.class);
-	private static final String LOGOUT_REDIRECT_TRIGGERING = VaddinWebLogoutHandler.class.getName() +
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, VaadinWebLogoutHandler.class);
+	private static final String LOGOUT_REDIRECT_TRIGGERING = VaadinWebLogoutHandler.class.getName() +
 			".invokeLogout";
-	private static final String LOGOUT_REDIRECT_RET_URI = VaddinWebLogoutHandler.class.getName() +
+	private static final String LOGOUT_REDIRECT_RET_URI = VaadinWebLogoutHandler.class.getName() +
 			".returnUri";
 
 	private final UnityServerConfiguration config;
@@ -41,7 +41,7 @@ public class VaddinWebLogoutHandler implements WebLogoutHandler
 	private final LogoutProcessorsManager logoutProcessorsManager;
 	private final RememberMeProcessor rememberMeProcessor;
 
-	public VaddinWebLogoutHandler(UnityServerConfiguration config, SessionManagement sessionMan,
+	public VaadinWebLogoutHandler(UnityServerConfiguration config, SessionManagement sessionMan,
 	                              LogoutProcessorsManager logoutProcessorsManager, RememberMeProcessor rememberMeProcessor)
 	{
 		this.config = config;

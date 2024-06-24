@@ -14,7 +14,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
@@ -53,7 +53,7 @@ public class AccessBlockedDialog extends Dialog
 		Span info = new Span(msg.getMessage("AccessBlockedDialog.info"));
 		ProgressBar progress = new ProgressBar();
 		String ip = HTTPRequestContext.getCurrent().getClientIP();		
-		UnsuccessfulAuthenticationCounter counter = VaddinWebLogoutHandler.getLoginCounter();
+		UnsuccessfulAuthenticationCounter counter = VaadinWebLogoutHandler.getLoginCounter();
 		int initial = getRemainingBlockedTime(counter, ip);
 
 		Span label = new Span(msg.getMessage("AccessBlockedDialog.remaining", initial));

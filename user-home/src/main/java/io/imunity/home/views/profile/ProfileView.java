@@ -38,7 +38,7 @@ import io.imunity.vaadin.auth.additional.AdditionalAuthnHandler;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
@@ -82,7 +82,7 @@ public class ProfileView extends HomeViewComponent
 	private final AttributeHandlerRegistry attributeHandlerRegistry;
 	private final AdditionalAuthnHandler additionalAuthnHandler;
 	private final AssociationAccountWizardProvider associationAccountWizardProvider;
-	private final VaddinWebLogoutHandler authnProcessor;
+	private final VaadinWebLogoutHandler authnProcessor;
 	private final EntityManagement idsMan;
 	private final EntityManagement insecureIdsMan;
 	private final AttributeSupport atMan;
@@ -97,7 +97,7 @@ public class ProfileView extends HomeViewComponent
 
 	ProfileView(AttributesManagement attributesMan, MessageSource msg, AttributeHandlerRegistry attributeHandlerRegistry,
 					   AdditionalAuthnHandler additionalAuthnHandler, AssociationAccountWizardProvider associationAccountWizardProvider,
-					   VaddinWebLogoutHandler authnProcessor1, EntityManagement idsMan, @Qualifier("insecure") EntityManagement insecureIdsMan,
+					   VaadinWebLogoutHandler authnProcessor1, EntityManagement idsMan, @Qualifier("insecure") EntityManagement insecureIdsMan,
 					   AttributeSupport atMan, NotificationPresenter notificationPresenter)
 	{
 		this.attributesMan = attributesMan;

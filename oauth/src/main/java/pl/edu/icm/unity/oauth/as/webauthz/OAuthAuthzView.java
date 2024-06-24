@@ -27,7 +27,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.EopException;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
 import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
@@ -76,7 +76,7 @@ class OAuthAuthzView extends UnityViewComponent
 	private final OAuthIdPEngine idpEngine;
 	private final AttributeHandlerRegistry handlersRegistry;
 	private final PreferencesManagement preferencesMan;
-	private final VaddinWebLogoutHandler authnProcessor;
+	private final VaadinWebLogoutHandler authnProcessor;
 	private final IdentityTypeSupport idTypeSupport;
 	private final AttributeTypeSupport aTypeSupport;
 	private final OAuthSessionService oauthSessionService;
@@ -96,7 +96,7 @@ class OAuthAuthzView extends UnityViewComponent
 	                      OAuthProcessor oauthProcessor,
 	                      AttributeHandlerRegistry handlersRegistry,
 	                      PreferencesManagement preferencesMan,
-	                      VaddinWebLogoutHandler authnProcessor,
+	                      VaadinWebLogoutHandler authnProcessor,
 	                      IdPEngine idpEngine,
 	                      IdentityTypeSupport idTypeSupport,
 	                      AttributeTypeSupport aTypeSupport,

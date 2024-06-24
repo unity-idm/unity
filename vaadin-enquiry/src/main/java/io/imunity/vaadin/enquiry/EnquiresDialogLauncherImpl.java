@@ -6,7 +6,7 @@ package io.imunity.vaadin.enquiry;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -33,12 +33,12 @@ class EnquiresDialogLauncherImpl implements EnquiresDialogLauncher
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
 	private final EnquiryResponseEditorController enquiryController;
-	private final VaddinWebLogoutHandler authnProcessor;
+	private final VaadinWebLogoutHandler authnProcessor;
 	
 	EnquiresDialogLauncherImpl(MessageSource msg,
 	                                  NotificationPresenter notificationPresenter,
 	                                  EnquiryResponseEditorController enquiryController,
-	                                  VaddinWebLogoutHandler authnProcessor)
+	                                  VaadinWebLogoutHandler authnProcessor)
 	{
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;

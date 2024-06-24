@@ -11,7 +11,7 @@ import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
 import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
@@ -100,7 +100,7 @@ class SamlIdPWebView extends UnityViewComponent
 	public SamlIdPWebView(MessageSource msg, VaadinLogoImageLoader imageAccessService,
 	                      FreemarkerAppHandler freemarkerHandler,
 	                      AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-	                      VaddinWebLogoutHandler authnProcessor, IdPEngine idpEngine,
+	                      VaadinWebLogoutHandler authnProcessor, IdPEngine idpEngine,
 	                      IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan,
 	                      AttributeTypeManagement attrsMan,
 	                      AttributeTypeSupport aTypeSupport,

@@ -9,7 +9,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.HomeEndpointProperties.RemovalModes;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 
@@ -18,7 +18,7 @@ class EntityRemovalButton extends Button
 	EntityRemovalButton(MessageSource msg, long entity,
 			EntityManagement identitiesManagement,
 			EntityManagement insecureIdentitiesManagement,
-			VaddinWebLogoutHandler authnProcessor,
+			VaadinWebLogoutHandler authnProcessor,
 			NotificationPresenter notificationPresenter,
 			HomeEndpointProperties config)
 	{

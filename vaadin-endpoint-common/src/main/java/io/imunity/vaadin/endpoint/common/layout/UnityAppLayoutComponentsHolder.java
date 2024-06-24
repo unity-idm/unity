@@ -17,7 +17,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.dom.Element;
 import io.imunity.vaadin.elements.*;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.util.List;
@@ -31,13 +31,13 @@ class UnityAppLayoutComponentsHolder
 	private final Div viewContainer = new Div();
 	private final Tabs tabs;
 
-	private final VaddinWebLogoutHandler authnProcessor;
+	private final VaadinWebLogoutHandler authnProcessor;
 
 	private final VerticalLayout leftContainerWithNavigation;
 	private final VerticalLayout rightContainerWithNavbarAndViewContent;
 
 
-	UnityAppLayoutComponentsHolder(List<MenuComponent> menuContent, VaddinWebLogoutHandler authnProcessor, MessageSource msg,
+	UnityAppLayoutComponentsHolder(List<MenuComponent> menuContent, VaadinWebLogoutHandler authnProcessor, MessageSource msg,
 								   List<Component> additionalIcons)
 	{
 		this.breadCrumbComponent = new BreadCrumbComponent(menuContent, msg::getMessage);

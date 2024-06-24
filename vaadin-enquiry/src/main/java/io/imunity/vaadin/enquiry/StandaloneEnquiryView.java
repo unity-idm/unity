@@ -22,7 +22,7 @@ import com.vaadin.flow.router.RouteAlias;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.forms.*;
 import io.imunity.vaadin.endpoint.common.forms.RegCodeException.ErrorCause;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
@@ -78,7 +78,7 @@ class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObs
 	private final MessageSource msg;
 	private final URLQueryPrefillCreator urlQueryPrefillCreator;
 	private final EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory entityChooserComponentFactory;
-	private final VaddinWebLogoutHandler authnProcessor;
+	private final VaadinWebLogoutHandler authnProcessor;
 
 	private String registrationCode;
 	private final EnquiryResponseEditorController editorController;
@@ -98,7 +98,7 @@ class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObs
 	                             URLQueryPrefillCreator urlQueryPrefillCreator,
 	                             EnquiryInvitationEntityChooser.InvitationEntityChooserComponentFactory entityChooserComponentFactory,
 	                             EnquiryManagement enqMan, VaadinLogoImageLoader logoImageLoader,
-	                             VaddinWebLogoutHandler authnProcessor,
+	                             VaadinWebLogoutHandler authnProcessor,
 	                             NotificationPresenter notificationPresenter)
 	{
 		this.editorController = editorController;

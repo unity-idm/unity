@@ -7,7 +7,7 @@ package io.imunity.vaadin.auth;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.dialog.Dialog;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -90,7 +90,7 @@ class RedirectedAuthnResultProcessor
 	
 	private void showWaitScreenIfNeeded(String clientIp)
 	{
-		UnsuccessfulAuthenticationCounter counter = VaddinWebLogoutHandler.getLoginCounter();
+		UnsuccessfulAuthenticationCounter counter = VaadinWebLogoutHandler.getLoginCounter();
 		if (counter.getRemainingBlockedTime(clientIp) > 0)
 		{
 			AccessBlockedDialog dialog = new AccessBlockedDialog(msg, execService);

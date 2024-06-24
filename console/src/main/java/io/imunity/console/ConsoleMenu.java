@@ -70,7 +70,7 @@ import io.imunity.console.views.signup_and_enquiry.invitations.InvitationsView;
 import io.imunity.console.views.signup_and_enquiry.requests.RequestsView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfigurationProvider;
 import io.imunity.vaadin.endpoint.common.layout.LeftNavbarAppLayout;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -81,7 +81,7 @@ public class ConsoleMenu extends LeftNavbarAppLayout
 {
 
 	@Autowired
-	public ConsoleMenu(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg, AuthorizationManagement authorizationManagement, ExtraPanelsConfigurationProvider extraPanelsConfiguration)
+	public ConsoleMenu(VaadinWebLogoutHandler standardWebLogoutHandler, MessageSource msg, AuthorizationManagement authorizationManagement, ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
 		super(Stream.of(
 						MenuComponent.builder(DirectoryBrowserView.class)
@@ -243,7 +243,7 @@ public class ConsoleMenu extends LeftNavbarAppLayout
 		activateLeftContainerMinimization(image);
 	}
 
-	private void showCriticalException(VaddinWebLogoutHandler standardWebLogoutHandler, MessageSource msg)
+	private void showCriticalException(VaadinWebLogoutHandler standardWebLogoutHandler, MessageSource msg)
 	{
 		UI current = UI.getCurrent();
 		String criticalError = "criticalError";
