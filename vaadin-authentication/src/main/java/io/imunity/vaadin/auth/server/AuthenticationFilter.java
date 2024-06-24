@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.utils.MDCKeys;
 
 import javax.security.auth.Subject;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -48,15 +49,16 @@ public class AuthenticationFilter implements Filter
 	private final RememberMeProcessor rememberMeHelper;
 	private final AuthenticationRealm realm;
 	private final NoSessionFilter noSessionFilter;
+	private final List<String> notProtectedPaths;
 	
 	public AuthenticationFilter(AuthenticationRealm realm,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeProcessor rememberMeHelper)
 	{
-		this(realm, sessionMan, sessionBinder, rememberMeHelper, (req,resp) -> {});
+		this(List.of(),realm, sessionMan, sessionBinder, rememberMeHelper, (req,resp) -> {});
 	}
 	
 	
-	public AuthenticationFilter(AuthenticationRealm realm,
+	public AuthenticationFilter(List<String> notProtectedPaths, AuthenticationRealm realm,
 			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeProcessor rememberMeHelper,
 			NoSessionFilter noSessionFilter)
 	{
@@ -64,6 +66,7 @@ public class AuthenticationFilter implements Filter
 		// this is 'cos we need to separate regular net traffic (and not to block it - otherwise even 
 		// notification about blocking woudn't show up). Still we need to prevent brute force attacks using 
 		// fake session cookies - this object is responsible only for that.
+		this.notProtectedPaths = List.copyOf(notProtectedPaths);
 		dosGauard = new DefaultUnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()* 1000L);
 		sessionCookieName = SessionCookie.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
@@ -80,9 +83,10 @@ public class AuthenticationFilter implements Filter
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		String clientIp = HTTPRequestContext.getCurrent().getClientIP();
-	
+		log.info("Calling Authentication filter: {}", httpRequest.getRequestURI());
 		try 
 		{
+			handleNotProtectedResource(httpRequest, httpResponse, chain);
 			handleForceLogin(httpRequest, httpResponse, chain);
 			handleBoundSession(httpRequest, httpResponse, chain, clientIp);
 			handleBlockedIP(httpResponse, clientIp);
@@ -96,6 +100,18 @@ public class AuthenticationFilter implements Filter
 		{
 
 		} 
+	}
+	
+	private void handleNotProtectedResource(HttpServletRequest httpRequest,
+			ServletResponse response, FilterChain chain)
+			throws IOException, ServletException, EopException
+	{
+		String servletPath = httpRequest.getServletPath();
+		if (notProtectedPaths.contains(servletPath))
+		{
+			chain.doFilter(httpRequest, response);
+			throw new EopException();
+		}
 	}
 	
 	private void handleForceLogin(HttpServletRequest httpRequest,
@@ -308,5 +324,4 @@ public class AuthenticationFilter implements Filter
 				"heartbeat".equalsIgnoreCase(request.getParameter("v-r")) &&
 				request.getPathInfo().equals("/");
 	}
-
 }

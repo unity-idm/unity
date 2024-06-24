@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.mockito.Mockito.*;
 
@@ -41,7 +42,7 @@ class AuthenticationFilterTest
 		FilterChain chain = Mockito.mock(FilterChain.class);
 
 		AuthenticationRealm adminRealm = new AuthenticationRealm("admin", "description", 1000, 1000, RememberMePolicy.allowForWholeAuthn, 1000, 1000);
-		AuthenticationFilter filter = new AuthenticationFilter(adminRealm, null, null, null, noSessionFilter);
+		AuthenticationFilter filter = new AuthenticationFilter(List.of(),adminRealm, null, null, null, noSessionFilter);
 
 		HTTPRequestContext.setCurrent(new HTTPRequestContext("client", "agent"));
 		when(request.getServletPath()).thenReturn("/secured");

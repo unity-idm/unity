@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
@@ -182,7 +183,7 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		servletContextHandler.addFilter(new FilterHolder(oauthGuardFilter), OAUTH_CONSENT_DECIDER_SERVLET_PATH + "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		authnFilter = new AuthenticationFilter(description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor, new NoSessionFilterImpl());
+		authnFilter = new AuthenticationFilter(List.of(OAUTH_CONSUMER_SERVLET_PATH),description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor, new NoSessionFilterImpl());
 		servletContextHandler.addFilter(new FilterHolder(authnFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
@@ -219,7 +220,7 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		{
 			OAuthAuthzContext ctx = OAuthSessionService.getContext(request).get();
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
-					OIDCError.LOGIN_REQUIRED,  State.parse(request.getParameter("state")),
+					OIDCError.LOGIN_REQUIRED,  ctx.getRequest().getState(),
 					ctx.getRequest().impliedResponseMode());
 			try
 			{
