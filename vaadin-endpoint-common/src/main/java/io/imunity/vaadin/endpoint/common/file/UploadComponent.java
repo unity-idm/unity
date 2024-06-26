@@ -78,6 +78,7 @@ class UploadComponent extends CustomField<LocalOrRemoteResource>
 			image.setLocal(null);
 			clear.setVisible(false);
 			downloader.setVisible(false);
+			upload.clearFileList();
 			upload.setVisible(true);
 			fireEvent(new ComponentValueChangeEvent<>(this, this, image, true));
 		});

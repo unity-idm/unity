@@ -43,7 +43,7 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 		uploadComponent.addValueChangeListener(event ->
 		{
 			if(event.isFromClient())
-				updateValue();
+				setValue(getValue());
 		});
 		remoteUrlComponent = new RemoteUrlComponent(msg);
 
@@ -122,6 +122,11 @@ public class FileField extends CustomField<LocalOrRemoteResource>
 	{
 		if(localOrRemoteResource == null)
 			return;
+		if (localOrRemoteResource.getLocal() == null && localOrRemoteResource.getSrc() == null
+				|| localOrRemoteResource.getSrc()
+						.isEmpty())
+			return;
+		
 		if(localOrRemoteResource.getLocal() == null)
 		{
 			tab.setSelectedTab(remoteTab);
