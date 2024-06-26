@@ -213,9 +213,17 @@ public class AuthenticationFilter implements Filter
 
 		} catch (IllegalArgumentException e)
 		{
-			log.trace("Got request with invalid login session id " + loginSessionId
-					+ " to " + httpRequest.getRequestURI());
-			dosGauard.unsuccessfulAttempt(clientIp);
+			if (!isVaadinBackgroundRequest(httpRequest))
+			{
+				log.debug("Got request with invalid login session id " + loginSessionId + " to "
+						+ httpRequest.getRequestURI());
+				dosGauard.unsuccessfulAttempt(clientIp);
+			} else
+			{
+				log.trace("Ignoring VAADIN backgroud request with invalid login session id " + loginSessionId + " to "
+						+ httpRequest.getRequestURI());
+			}
+			
 			clearSessionCookie(httpResponse);
 		}
 	}
@@ -313,9 +321,8 @@ public class AuthenticationFilter implements Filter
 
 	private static boolean isVaadin23PushRequest(HttpServletRequest request)
 	{
-		return request.getMethod().equalsIgnoreCase("get") &&
-				ofNullable(request.getParameter("v-r")).orElse("").equalsIgnoreCase("push") &&
-				request.getPathInfo().equals("/");
+		return ofNullable(request.getParameter("v-r")).orElse("").equalsIgnoreCase("push") && 
+				(request.getPathInfo().equals("/") || request.getPathInfo().equals("/VAADIN/push"));
 	}
 
 	private static boolean isVaadin23HeartbeatRequest(HttpServletRequest request)
