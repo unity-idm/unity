@@ -18,13 +18,13 @@
 	<scm>
 		<connection>${scm.base}/${m.name}</connection>
 		<developerConnection>${scm.base}/${m.name}</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<distributionManagement>
 		<site>
       		<id>unity-idm.eu</id>
-      		<url>ftps://ftp.unity-idm.eu/documentation/unity-${project.version}</url>
+      		<url>scpexe://109.106.246.117:65002/home/u455073191/domains/unity-idm.eu/public_html/documentation/unity-${project.version}</url>
     	</site>
 	</distributionManagement>
 
@@ -113,10 +113,10 @@
 
 	<build>
 		<extensions>
-			<!-- Enabling the use of FTP -->
+			<!-- Enabling the use of SCP -->
 			<extension>
 				<groupId>org.apache.maven.wagon</groupId>
-				<artifactId>wagon-ftp</artifactId>
+				<artifactId>wagon-ssh-external</artifactId>
 			</extension>
 		</extensions>
 

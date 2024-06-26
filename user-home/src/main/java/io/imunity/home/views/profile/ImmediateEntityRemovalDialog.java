@@ -8,7 +8,7 @@ import com.vaadin.flow.component.html.Span;
 import io.imunity.home.HomeEndpointProperties.RemovalModes;
 import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.entity.EntityState;
@@ -31,14 +31,14 @@ class ImmediateEntityRemovalDialog extends DialogWithActionFooter
 
 	private final long entity;
 	private final MessageSource msg;
-	private final VaddinWebLogoutHandler authnProcessor;
+	private final VaadinWebLogoutHandler authnProcessor;
 	private final EntityManagement identitiesMan;
 	private final RemovalModes removalMode;
 	private final NotificationPresenter notificationPresenter;
 
 	ImmediateEntityRemovalDialog(MessageSource msg, long entityId,
 								 EntityManagement identitiesManagement,
-								 VaddinWebLogoutHandler authnProcessor,
+								 VaadinWebLogoutHandler authnProcessor,
 								 RemovalModes removalMode, NotificationPresenter notificationPresenter)
 	{
 		super(msg::getMessage);

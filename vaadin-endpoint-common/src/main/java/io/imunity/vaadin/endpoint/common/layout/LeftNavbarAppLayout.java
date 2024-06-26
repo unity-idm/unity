@@ -28,7 +28,7 @@ import io.imunity.vaadin.elements.AfterSubNavigationEvent;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 
@@ -42,7 +42,7 @@ public class LeftNavbarAppLayout extends FlexLayout implements RouterLayout, Aft
 	private VerticalLayout leftContainerContent;
 
 	public LeftNavbarAppLayout(List<MenuComponent> menuComponents,
-	                      VaddinWebLogoutHandler authnProcessor,
+	                      VaadinWebLogoutHandler authnProcessor,
 						  MessageSource msg,
 	                      List<Component> additionalIcons, 
 	                      ExtraPanelsConfigurationProvider extraPanelsConfiguration)

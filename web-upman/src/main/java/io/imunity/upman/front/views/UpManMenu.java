@@ -42,7 +42,7 @@ import io.imunity.upman.front.views.user_updates.UserUpdatesView;
 import io.imunity.upman.utils.HomeServiceLinkService;
 import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.MenuComponent;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfigurationProvider;
 import io.imunity.vaadin.endpoint.common.layout.LeftNavbarAppLayout;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -55,7 +55,7 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 	private Optional<UpmanViewComponent> currentView = Optional.empty();
 
 	@Autowired
-	public UpManMenu(VaddinWebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg,
+	public UpManMenu(VaadinWebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg,
 	                 HomeServiceLinkService homeServiceLinkService, ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
 		super(Stream.of(

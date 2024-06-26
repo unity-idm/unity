@@ -20,7 +20,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToIntegerConverter;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -44,7 +44,7 @@ class ScheduledEntityRemovalDialog extends Dialog
 			
 	private final long entity;
 	private final MessageSource msg;
-	private final VaddinWebLogoutHandler authnProcessor;
+	private final VaadinWebLogoutHandler authnProcessor;
 	private final EntityManagement identitiesMan;
 	private final NotificationPresenter notificationPresenter;
 
@@ -53,7 +53,7 @@ class ScheduledEntityRemovalDialog extends Dialog
 	private Binder<Integer> daysBinder;
 	
 	ScheduledEntityRemovalDialog(MessageSource msg, long entityId,
-			EntityManagement identitiesManagement, VaddinWebLogoutHandler authnProcessor, NotificationPresenter notificationPresenter)
+			EntityManagement identitiesManagement, VaadinWebLogoutHandler authnProcessor, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.entity = entityId;

@@ -25,7 +25,7 @@ import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
 import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -44,7 +44,7 @@ public class TestProjectService
 	@Mock
 	private DelegatedGroupsHelper delGroupHelper;
 	@Mock
-	private VaddinWebLogoutHandler logoutHandler;
+	private VaadinWebLogoutHandler logoutHandler;
 	@Mock
 	private NotificationPresenter notificationPresenter;
 

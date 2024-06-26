@@ -17,7 +17,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.CancelHandler;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
@@ -352,7 +352,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 
 	void showWaitScreenIfNeeded(String clientIp)
 	{
-		UnsuccessfulAuthenticationCounter counter = VaddinWebLogoutHandler.getLoginCounter();
+		UnsuccessfulAuthenticationCounter counter = VaadinWebLogoutHandler.getLoginCounter();
 		if (counter.getRemainingBlockedTime(clientIp) > 0)
 			new AccessBlockedDialog(msg, execService).show();
 	}

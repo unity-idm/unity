@@ -16,7 +16,7 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.server.StreamResource;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.consent_utils.ExposedAttributesComponent;
 import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
 import io.imunity.vaadin.endpoint.common.consent_utils.IdentitySelectorComponent;
@@ -59,7 +59,7 @@ class OAuthConsentScreen extends VerticalLayout
 	
 	private final AttributeHandlerRegistry handlersRegistry;
 	private final PreferencesManagement preferencesMan;
-	private final VaddinWebLogoutHandler authnProcessor;
+	private final VaadinWebLogoutHandler authnProcessor;
 	private final OAuthResponseHandler oauthResponseHandler;
 	private final IdentityTypeSupport idTypeSupport;
 	private final AttributeTypeSupport aTypeSupport; 
@@ -77,7 +77,7 @@ class OAuthConsentScreen extends VerticalLayout
 	OAuthConsentScreen(MessageSource msg, 
 			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan,
-			VaddinWebLogoutHandler authnProcessor,
+			VaadinWebLogoutHandler authnProcessor,
 			IdentityTypeSupport idTypeSupport, 
 			AttributeTypeSupport aTypeSupport,
 			IdentityParam identity,

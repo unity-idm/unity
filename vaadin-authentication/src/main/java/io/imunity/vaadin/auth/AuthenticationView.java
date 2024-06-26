@@ -22,7 +22,7 @@ import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.LocaleChoiceComponent;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
-import io.imunity.vaadin.endpoint.common.VaddinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.api.AssociationAccountWizardProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormDialogProvider;
 import io.imunity.vaadin.endpoint.common.api.RegistrationFormsService;
@@ -66,7 +66,7 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 	private final MessageSource msg;
 	private final VaadinLogoImageLoader imageAccessService;
 	private final LocaleChoiceComponent localeChoice;
-	private final VaddinWebLogoutHandler authnProcessor;
+	private final VaadinWebLogoutHandler authnProcessor;
 	private final ExecutorsService execService;
 	private final EntityManagement idsMan;
 	private final ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory;
@@ -84,7 +84,7 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 
 	@Autowired
 	public AuthenticationView(MessageSource msg, VaadinLogoImageLoader imageAccessService, UnityServerConfiguration cfg,
-			VaddinWebLogoutHandler authnProcessor,
+			VaadinWebLogoutHandler authnProcessor,
 			InteractiveAuthenticationProcessor interactiveProcessor,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
 			ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory,
