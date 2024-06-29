@@ -4,20 +4,24 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
-import com.nimbusds.oauth2.sdk.AuthorizationResponse;
-import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
-import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import java.util.Optional;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
+
+import com.nimbusds.oauth2.sdk.AuthorizationResponse;
+import com.vaadin.flow.server.WrappedSession;
+
+import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.SignInContextKey;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-
-import java.util.Optional;
 
 /**
  * Provides unified API to perform OAuth session bootstrap and cleanup.
@@ -39,6 +43,11 @@ class OAuthSessionService
 	OAuthSessionService(SessionManagement sessionMan)
 	{
 		this.sessionMan = sessionMan;
+	}
+	
+	static void putExistingContextUnderNewKey(WrappedSession session, SignInContextKey existingKey, SignInContextKey newKey)
+	{
+		LOGIN_IN_PROGRESS_SERVICE.putExistingContextUnderNewKey(session, existingKey, newKey);
 	}
 
 	static LoginInProgressService.SignInContextKey setContext(HttpSession session, OAuthAuthzContext context)

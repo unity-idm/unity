@@ -5,15 +5,17 @@
 
 package io.imunity.vaadin.endpoint.common;
 
+import java.util.stream.Stream;
+
+import org.springframework.beans.BeanInstantiationException;
+import org.springframework.context.ApplicationContext;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.di.DefaultInstantiator;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinServiceInitListener;
-import org.springframework.beans.BeanInstantiationException;
-import org.springframework.context.ApplicationContext;
-import pl.edu.icm.unity.base.message.MessageSource;
 
-import java.util.stream.Stream;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 public class BaseSpringInstantiator extends DefaultInstantiator
 {
@@ -46,11 +48,15 @@ public class BaseSpringInstantiator extends DefaultInstantiator
 	public <T> T getOrCreate(Class<T> type)
 	{
 		if (context.getBeanNamesForType(type).length == 1)
+		{
 			return context.getBean(type);
-		else if (context.getBeanNamesForType(type).length > 1)
+		} else if (context.getBeanNamesForType(type).length > 1)
+		{
 			return createBean(type);
-		else
+		} else
+		{
 			return context.getAutowireCapableBeanFactory().createBean(type);
+		}
 	}
 
 	private <T> T createBean(Class<T> type)

@@ -4,23 +4,22 @@
  */
 package io.imunity.vaadin.endpoint.common.consent_utils;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import static com.vaadin.flow.shared.ApplicationConstants.UI_ID_PARAMETER;
+import static io.imunity.vaadin.endpoint.common.SignInToUIIdContextBinder.getUrlParamSignInContextKey;
+import static java.util.stream.Collectors.joining;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.net.WWWFormCodec;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.MoreObjects;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
@@ -44,20 +43,29 @@ public class LoginInProgressService<AUTHZ_CTX>
 
 	public SignInContextKey setContext(HttpSession session, AUTHZ_CTX context)
 	{
-		SignInContextKey key;
 		SignInContexts<AUTHZ_CTX> sessionContext = getAttribute(new HttpContextSession(session));
 		if (sessionContext == null)
 		{
 			sessionContext = new SignInContexts<>();
 			session.setAttribute(contextAttributeName, sessionContext);
-			
-			key = SignInContextKey.DEFAULT;
-		} else
-		{
-			key = SignInContextKey.randomKey();
 		}
+		
+		SignInContextKey key = sessionContext.isEmpty()
+				? UrlParamSignInContextKey.DEFAULT
+				: UrlParamSignInContextKey.randomKey();
+		
 		sessionContext.put(key, context);
 		return key;
+	}
+	
+	public void putExistingContextUnderNewKey(WrappedSession wrappedSession, SignInContextKey existingKey, SignInContextKey newKey)
+	{
+		SignInContexts<AUTHZ_CTX> sessionContext = getAttribute(new VaadinContextSession(wrappedSession));
+		if (sessionContext == null)
+		{
+			throw new IllegalStateException("No signin context in session for " + existingKey.getKey());
+		}
+		sessionContext.putExistingContextUnderNewKey(existingKey, newKey);
 	}
 	
 	public Optional<AUTHZ_CTX> getContext(SignInContextSession session)
@@ -152,31 +160,55 @@ public class LoginInProgressService<AUTHZ_CTX>
 		SignInContextKey get();
 	}
 
-	public static class SignInContexts<T>
+	static class SignInContexts<T>
 	{
 		private final Map<SignInContextKey, T> contexts;
+		private final Map<SignInContextKey, List<SignInContextKey>> urlParamKeyToUIIdKeys;
 
-		public SignInContexts()
+		SignInContexts()
 		{
 			this.contexts = new HashMap<>();
+			this.urlParamKeyToUIIdKeys = new HashMap<>();
 		}
 
-		public void put(SignInContextKey key, T ctx)
+		void putExistingContextUnderNewKey(SignInContextKey existingKey, SignInContextKey newKey)
 		{
+			T context = contexts.get(existingKey);
+			if (context == null)
+			{
+				throw new IllegalStateException("No login context for " + existingKey.getKey());
+			}
+			contexts.put(newKey, context);
+			urlParamKeyToUIIdKeys.computeIfAbsent(existingKey, __ -> new ArrayList<>()).add(newKey);
+		}
+
+		void put(SignInContextKey key, T ctx)
+		{
+			if (contexts.containsKey(key))
+			{
+				throw new IllegalStateException("context already exists for key: " + key.getKey());
+			}
 			contexts.put(key, ctx);
 		}
 
-		public T get(SignInContextKey ctxKey)
+		T get(SignInContextKey ctxKey)
 		{
 			return contexts.get(ctxKey);
 		}
 
-		public void remove(SignInContextKey key)
+		void remove(SignInContextKey key)
 		{
+			StringBuilder removedKeys = new StringBuilder(key.getKey());
 			contexts.remove(key);
+			Optional.ofNullable(urlParamKeyToUIIdKeys.remove(key)).ifPresent(keys -> 
+			{
+				keys.forEach(contexts::remove);
+				removedKeys.append(";").append(keys.stream().map(SignInContextKey::getKey).collect(joining(";")));
+			});
+			LOG.debug("removed keys: {}", removedKeys.toString());
 		}
 
-		public boolean isEmpty()
+		boolean isEmpty()
 		{
 			return contexts.isEmpty();
 		}
@@ -204,21 +236,70 @@ public class LoginInProgressService<AUTHZ_CTX>
 			return false;
 		}
 	}
-
-	public static class SignInContextKey
+	
+	public interface SignInContextKey
 	{
-		public static final SignInContextKey DEFAULT = new SignInContextKey("default");
+		String getKey();
+	}
+
+	public static class VaadinUIIdSignInContextKey implements SignInContextKey
+	{
+		public final String key;
+		
+		public VaadinUIIdSignInContextKey(int uiId, WrappedSession session)
+		{
+			this.key = uiId + "@" + session.getId();
+		}
+		
+		@Override
+		public String getKey()
+		{
+			return key;
+		}
+	
+		@Override
+		public int hashCode()
+		{
+			return Objects.hashCode(key);
+		}
+
+		@Override
+		public boolean equals(Object object)
+		{
+			if (object instanceof VaadinUIIdSignInContextKey that)
+			{
+				return Objects.equals(this.key, that.key);
+			}
+			return false;
+		}
+		
+		@Override
+		public String toString()
+		{
+			return key;
+		}
+	}
+	
+	public static class UrlParamSignInContextKey implements SignInContextKey
+	{
+		public static final UrlParamSignInContextKey DEFAULT = new UrlParamSignInContextKey("default");
 
 		public final String key;
 
-		public SignInContextKey(String key)
+		public UrlParamSignInContextKey(String key)
 		{
 			this.key = key;
 		}
 
-		public static SignInContextKey randomKey()
+		public static UrlParamSignInContextKey randomKey()
 		{
-			return new SignInContextKey(UUID.randomUUID().toString());
+			return new UrlParamSignInContextKey(UUID.randomUUID().toString());
+		}
+		
+		@Override
+		public String getKey()
+		{
+			return key;
 		}
 
 		@Override
@@ -230,9 +311,8 @@ public class LoginInProgressService<AUTHZ_CTX>
 		@Override
 		public boolean equals(Object object)
 		{
-			if (object instanceof SignInContextKey)
+			if (object instanceof UrlParamSignInContextKey that)
 			{
-				SignInContextKey that = (SignInContextKey) object;
 				return Objects.equals(this.key, that.key);
 			}
 			return false;
@@ -261,9 +341,9 @@ public class LoginInProgressService<AUTHZ_CTX>
 			String key = request.getParameter(URL_PARAM_CONTEXT_KEY);
 			if (key != null)
 			{
-				return new SignInContextKey(key);
+				return new UrlParamSignInContextKey(key);
 			}
-			return SignInContextKey.DEFAULT;
+			return UrlParamSignInContextKey.DEFAULT;
 		}
 
 		public HttpContextSession(HttpSession session)
@@ -324,43 +404,19 @@ public class LoginInProgressService<AUTHZ_CTX>
 		@Override
 		public SignInContextKey get()
 		{
-			Map<String, String[]> queryString = UI.getCurrent() != null
-					? VaadinService.getCurrentRequest().getParameterMap()
-					: Map.of();
-			if (queryString.get(URL_PARAM_CONTEXT_KEY) != null && queryString.get(URL_PARAM_CONTEXT_KEY).length == 1)
-			{
-				return new SignInContextKey(queryString.get(URL_PARAM_CONTEXT_KEY)[0]);
-			}
-
-			return getRefererQuery().map(this::getSignInKey).orElse(SignInContextKey.DEFAULT);
+			return getVaadinUIIdSignInContextKey()
+					.orElse(getUrlParamSignInContextKey());
 		}
 		
-		private SignInContextKey getSignInKey(String urlString)
+		private Optional<SignInContextKey> getVaadinUIIdSignInContextKey()
 		{
-			return WWWFormCodec.parse(urlString, StandardCharsets.UTF_8).stream()
-				.filter(pair -> URL_PARAM_CONTEXT_KEY.equals(pair.getName()))
-				.map(NameValuePair::getValue)
-				.findFirst()
-				.map(SignInContextKey::new)
-				.orElse(SignInContextKey.DEFAULT);
-		}
-		
-		private Optional<String> getRefererQuery()
-		{
-			String urlString = VaadinService.getCurrentRequest().getHeader("Referer");
-			if (StringUtils.isEmpty(urlString))
+			Map<String, String[]> queryString = VaadinService.getCurrentRequest().getParameterMap();
+			if (queryString.get(UI_ID_PARAMETER) != null && queryString.get(UI_ID_PARAMETER).length == 1)
 			{
-				return Optional.empty();
+				Integer uiId = Integer.valueOf(queryString.get(UI_ID_PARAMETER)[0]);
+				return Optional.of(new VaadinUIIdSignInContextKey(uiId, session));
 			}
-			try
-			{
-				 URL url = new URL(urlString);
-				 String queryString = url.getQuery();
-				 return Optional.ofNullable(queryString);
-			} catch (MalformedURLException e)
-			{
-				throw new IllegalStateException("Error while encoding the URL from client", e);
-			}
+			return Optional.empty();
 		}
 	}
 }

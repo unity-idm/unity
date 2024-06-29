@@ -4,17 +4,20 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import com.vaadin.flow.server.VaadinRequest;
-import com.vaadin.flow.server.VaadinSession;
-import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
-import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
+import static io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.noSignInContextException;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import java.util.Optional;
 
-import static io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.noSignInContextException;
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
+
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.SignInContextKey;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
+import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 /**
  * Methods responsible for SAML context handling
@@ -31,6 +34,11 @@ public class SamlSessionService
 
 	public static final String URL_PARAM_CONTEXT_KEY = LoginInProgressService.URL_PARAM_CONTEXT_KEY;
 
+	static void putExistingContextUnderNewKey(WrappedSession session, SignInContextKey existingKey, SignInContextKey newKey)
+	{
+		LOGIN_IN_PROGRESS_SERVICE.putExistingContextUnderNewKey(session, existingKey, newKey);
+	}
+	
 	public static LoginInProgressService.SignInContextKey setContext(HttpSession session, SAMLAuthnContext context)
 	{
 		return LOGIN_IN_PROGRESS_SERVICE.setContext(session, context);
@@ -86,8 +94,10 @@ public class SamlSessionService
 		{
 			String key = request.getParameter(URL_PARAM_CONTEXT_KEY);
 			if (key != null)
-				return new LoginInProgressService.SignInContextKey(key);
-			return LoginInProgressService.SignInContextKey.DEFAULT;
+			{
+				return new LoginInProgressService.UrlParamSignInContextKey(key);
+			}
+			return LoginInProgressService.UrlParamSignInContextKey.DEFAULT;
 		}
 		
 		@Override

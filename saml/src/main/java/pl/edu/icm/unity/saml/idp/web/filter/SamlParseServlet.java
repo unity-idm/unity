@@ -4,32 +4,32 @@
  */
 package pl.edu.icm.unity.saml.idp.web.filter;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+
+import org.apache.hc.core5.net.URIBuilder;
+import org.apache.logging.log4j.Logger;
+import org.apache.xmlbeans.XmlException;
+
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.messages.RedirectedMessage;
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
-import org.apache.hc.core5.net.URIBuilder;
-import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlException;
-
+import io.imunity.vaadin.endpoint.common.EopException;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.SamlHttpRequestServlet;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
-import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.metadata.cfg.IdpRemoteMetaManager;
 import pl.edu.icm.unity.saml.validator.WebAuthRequestValidator;
-import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
-
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 /**
  * Low level servlet performing the initial SAML handling. Supports both POST and HTTP-Redirect (GET) 
@@ -107,8 +107,10 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		if (samlRequestStr == null)
 		{
 			if (log.isTraceEnabled())
+			{
 				log.trace("Request to SAML endpoint address, without SAML input, error: " + 
 						request.getRequestURI());
+			}
 			errorHandler.showErrorPage(new SAMLProcessingException("No SAML request"), 
 					response);
 			return;
@@ -118,25 +120,33 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		
 		SAMLAuthnContext context; 
 		if (log.isTraceEnabled())
+		{
 			log.trace("Got request with SAML input to: " + request.getRequestURI());
+		}
 		try
 		{
 			AuthnRequestDocument samlRequest = parse(request);
 			if (log.isTraceEnabled())
+			{
 				log.trace("Parsed SAML request:\n" + samlRequest.xmlText());
+			}
 			context = createSamlContext(request, samlRequest, samlIdPConfiguration, isHTTPGet);
 			validate(context, response, samlIdPConfiguration);
 		} catch (SAMLProcessingException e)
 		{
 			if (log.isDebugEnabled())
+			{
 				log.warn("Processing of SAML input failed", e);
+			}
 			errorHandler.showErrorPage(e, response);
 			return;
 		}
 		
 		LoginInProgressService.SignInContextKey contextKey = SamlSessionService.setContext(request.getSession(), context);
 		if (log.isTraceEnabled())
+		{
 			log.trace("Request with SAML input handled successfully");
+		}
 		//Note - this is intended, even taking into account the overhead. We don't want to pass alongside
 		//original HTTP query params, we want a clean URL in HTTP redirect case. In HTTP POST case it is
 		//even more important: web browser would warn the user about doubled POST.
@@ -146,9 +156,9 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 	private String getQueryToAppend(LoginInProgressService.SignInContextKey contextKey)
 	{
 		URIBuilder b = new URIBuilder();
-		if (!LoginInProgressService.SignInContextKey.DEFAULT.equals(contextKey))
+		if (!LoginInProgressService.UrlParamSignInContextKey.DEFAULT.equals(contextKey))
 		{
-			b.addParameter(SamlSessionService.URL_PARAM_CONTEXT_KEY, contextKey.key);
+			b.addParameter(SamlSessionService.URL_PARAM_CONTEXT_KEY, contextKey.getKey());
 		}
 		String query = null;
 		try
@@ -170,7 +180,9 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		SAMLAuthnContext ret = new SAMLAuthnContext(samlRequest, samlIdPConfiguration, verifiableMessage);
 		String rs = httpReq.getParameter(SAMLConstants.RELAY_STATE);
 		if (rs != null)
+		{
 			ret.setRelayState(rs);
+		}
 		return ret;
 	}
 	
@@ -186,11 +198,15 @@ public class SamlParseServlet extends SamlHttpRequestServlet
 		try
 		{
 			if (req.getMethod().equals("POST"))
+			{
 				decodedReq = extractRequestFromPostBinding(samlRequest);
-			else if (req.getMethod().equals("GET"))
+			} else if (req.getMethod().equals("GET"))
+			{
 				decodedReq = extractRequestFromRedirectBinding(samlRequest);
-			else
+			} else
+			{
 				throw new SAMLProcessingException("Received a request which is neither POST nor GET");
+			}
 		} catch (Exception e)
 		{
 			throw new SAMLProcessingException("Received a request which can't be decoded", e);

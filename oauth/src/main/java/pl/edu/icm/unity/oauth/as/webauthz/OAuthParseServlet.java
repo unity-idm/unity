@@ -295,9 +295,9 @@ public class OAuthParseServlet extends HttpServlet
 				b.addParameter(entry.getKey(), value);
 			}
 		}
-		if (!LoginInProgressService.SignInContextKey.DEFAULT.equals(contextKey))
+		if (!LoginInProgressService.UrlParamSignInContextKey.DEFAULT.equals(contextKey))
 		{
-			b.addParameter(OAuthSessionService.URL_PARAM_CONTEXT_KEY, contextKey.key);
+			b.addParameter(OAuthSessionService.URL_PARAM_CONTEXT_KEY, contextKey.getKey());
 		}
 		String query = null;
 		try
