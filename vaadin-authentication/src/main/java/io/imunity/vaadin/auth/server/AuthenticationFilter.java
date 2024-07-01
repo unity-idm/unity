@@ -40,7 +40,7 @@ import static java.util.Optional.ofNullable;
 public class AuthenticationFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationFilter.class);
-	public static final int BACKGROUD_DOC_GUARD_LIMIT = 10;
+	public static final int BACKGROUD_DOS_GUARD_LIMIT = 10;
 	public static final String VAADIN_ROLE = "USER";
 
 	private final String sessionCookieName;
@@ -70,7 +70,7 @@ public class AuthenticationFilter implements Filter
 		// fake session cookies - this object is responsible only for that.
 		this.notProtectedPaths = List.copyOf(notProtectedPaths);
 		dosGauard = new DefaultUnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()* 1000L);
-		backagroudDosGauard = new UnsuccessfulBackgroudVaadinRequestCounter(BACKGROUD_DOC_GUARD_LIMIT, realm.getBlockFor()* 1000L);
+		backagroudDosGauard = new UnsuccessfulBackgroudVaadinRequestCounter(BACKGROUD_DOS_GUARD_LIMIT, realm.getBlockFor()* 1000L);
 
 		sessionCookieName = SessionCookie.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
