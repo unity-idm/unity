@@ -352,7 +352,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 
 	void showWaitScreenIfNeeded(String clientIp)
 	{
-		UnsuccessfulAuthenticationCounter counter = VaadinWebLogoutHandler.getLoginCounter();
+		UnsuccessfulAccessCounter counter = VaadinWebLogoutHandler.getLoginCounter();
 		if (counter.getRemainingBlockedTime(clientIp) > 0)
 			new AccessBlockedDialog(msg, execService).show();
 	}

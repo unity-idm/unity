@@ -15,7 +15,7 @@ import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.engine.api.authn.DefaultUnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.NoOpLoginCounter;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAccessCounter;
 
 import java.util.Optional;
 
@@ -46,16 +46,16 @@ public class SpringVaadin2XServletService extends VaadinServletService
 		context.getBeansOfType(UIInitListener.class)
 				.values()
 				.forEach(this::addUIInitListener);
-		Object counter = servlet.getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
+		Object counter = servlet.getServletContext().getAttribute(UnsuccessfulAccessCounter.class.getName());
 		if (counter == null)
 		{
 			ResolvedEndpoint description = getCurrentWebAppResolvedEndpoint();
-			UnsuccessfulAuthenticationCounter newCounter = description != null && description.getRealm() != null?
+			UnsuccessfulAccessCounter newCounter = description != null && description.getRealm() != null?
 					new DefaultUnsuccessfulAuthenticationCounter(
 							description.getRealm().getBlockAfterUnsuccessfulLogins(),
 							description.getRealm().getBlockFor()* 1000L) :
 					new NoOpLoginCounter();
-			servlet.getServletContext().setAttribute(UnsuccessfulAuthenticationCounter.class.getName(), newCounter);
+			servlet.getServletContext().setAttribute(UnsuccessfulAccessCounter.class.getName(), newCounter);
 		}
 	}
 }

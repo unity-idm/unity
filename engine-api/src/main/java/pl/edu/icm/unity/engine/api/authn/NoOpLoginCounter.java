@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-public class NoOpLoginCounter implements UnsuccessfulAuthenticationCounter
+public class NoOpLoginCounter implements UnsuccessfulAccessCounter
 {
 	@Override
 	public long getRemainingBlockedTime(String ip)

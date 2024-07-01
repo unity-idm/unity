@@ -46,7 +46,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAccessCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.MDCKeys;
@@ -64,7 +64,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	private MessageSource msg;
 	private AuthenticationProcessor authenticationProcessor;
 	protected List<AuthenticationFlow> authenticators;
-	protected UnsuccessfulAuthenticationCounter UnsuccessfulAuthenticationCounterImpl;
+	protected UnsuccessfulAccessCounter UnsuccessfulAuthenticationCounterImpl;
 	protected SessionManagement sessionMan;
 	protected AuthenticationRealm realm;
 	protected final Set<String> notProtectedPaths;

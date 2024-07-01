@@ -42,7 +42,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.SessionCookie;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAccessCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
@@ -289,7 +289,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			HttpServletRequest httpRequest,
 			String ip)
 	{
-		UnsuccessfulAuthenticationCounter counter = getLoginCounter(httpRequest);
+		UnsuccessfulAccessCounter counter = getLoginCounter(httpRequest);
 		if (e instanceof UnknownRemoteUserException)
 		{
 			log.info("Unknown remote user for {}", e.getResult().asRemote().getUnknownRemotePrincipalResult());
@@ -367,10 +367,10 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	}
 	
 	
-	private static UnsuccessfulAuthenticationCounter getLoginCounter(HttpServletRequest httpRequest)
+	private static UnsuccessfulAccessCounter getLoginCounter(HttpServletRequest httpRequest)
 	{
-		UnsuccessfulAuthenticationCounter servletSet = (UnsuccessfulAuthenticationCounter) 
-				httpRequest.getServletContext().getAttribute(UnsuccessfulAuthenticationCounter.class.getName());
+		UnsuccessfulAccessCounter servletSet = (UnsuccessfulAccessCounter) 
+				httpRequest.getServletContext().getAttribute(UnsuccessfulAccessCounter.class.getName());
 		if (servletSet == null)
 			throw new IllegalStateException("No authn failures counter in servlet context");
 		return servletSet;

@@ -40,10 +40,12 @@ import static java.util.Optional.ofNullable;
 public class AuthenticationFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationFilter.class);
+	public static final int BACKGROUD_DOC_GUARD_LIMIT = 10;
 	public static final String VAADIN_ROLE = "USER";
 
 	private final String sessionCookieName;
-	private final UnsuccessfulAuthenticationCounter dosGauard;
+	private final UnsuccessfulAccessCounter dosGauard;
+	private final UnsuccessfulAccessCounter backagroudDosGauard;
 	private final SessionManagement sessionMan;
 	private final LoginToHttpSessionBinder sessionBinder;
 	private final RememberMeProcessor rememberMeHelper;
@@ -68,6 +70,8 @@ public class AuthenticationFilter implements Filter
 		// fake session cookies - this object is responsible only for that.
 		this.notProtectedPaths = List.copyOf(notProtectedPaths);
 		dosGauard = new DefaultUnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()* 1000L);
+		backagroudDosGauard = new UnsuccessfulBackgroudVaadinRequestCounter(BACKGROUD_DOC_GUARD_LIMIT, realm.getBlockFor()* 1000L);
+
 		sessionCookieName = SessionCookie.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
@@ -151,6 +155,8 @@ public class AuthenticationFilter implements Filter
 			return;
 		
 		dosGauard.successfulAttempt(clientIp);
+		backagroudDosGauard.successfulAttempt(clientIp);
+
 		if (!loginSession.isUsedOutdatedCredential())
 		{
 			String loginSessionId = loginSession.getId();
@@ -181,14 +187,15 @@ public class AuthenticationFilter implements Filter
 			throws IOException, EopException
 	{
 		long blockedTime = dosGauard.getRemainingBlockedTime(clientIp);
-		if (blockedTime > 0)
+		long backgroudBlockedTime = backagroudDosGauard.getRemainingBlockedTime(clientIp);
+		if (blockedTime > 0 || backgroudBlockedTime > 0)
 		{
 			log.warn("Blocked potential DoS/brute force authN attack from "
 					+ clientIp);
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
 					"Access is blocked for "
 							+ TimeUnit.MILLISECONDS
-									.toSeconds(blockedTime)
+									.toSeconds(blockedTime > 0 ? blockedTime : backgroudBlockedTime)
 							+ "s more, due to sending too many invalid session cookies.");
 			throw new EopException();
 		}
@@ -213,15 +220,16 @@ public class AuthenticationFilter implements Filter
 
 		} catch (IllegalArgumentException e)
 		{
-			if (!isVaadinBackgroundRequest(httpRequest))
+			if (isVaadinBackgroundRequest(httpRequest))
+			{
+				log.trace("Ignoring VAADIN backgroud request with invalid login session id " + loginSessionId + " to "
+						+ httpRequest.getRequestURI());
+				backagroudDosGauard.unsuccessfulAttempt(clientIp);
+			} else
 			{
 				log.debug("Got request with invalid login session id " + loginSessionId + " to "
 						+ httpRequest.getRequestURI());
 				dosGauard.unsuccessfulAttempt(clientIp);
-			} else
-			{
-				log.trace("Ignoring VAADIN backgroud request with invalid login session id " + loginSessionId + " to "
-						+ httpRequest.getRequestURI());
 			}
 			
 			clearSessionCookie(httpResponse);
@@ -261,6 +269,7 @@ public class AuthenticationFilter implements Filter
 			String clientIp) throws IOException, ServletException
 	{
 		dosGauard.successfulAttempt(clientIp);
+		backagroudDosGauard.successfulAttempt(clientIp);
 		sessionBinder.bindHttpSession(httpRequest.getSession(true), loginSession);
 		gotoProtectedResource(httpRequest, response, chain, loginSession);
 	}

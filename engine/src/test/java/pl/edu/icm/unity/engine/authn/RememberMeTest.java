@@ -34,7 +34,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAccessCounter;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 
 public class RememberMeTest extends DBIntegrationTestBase
@@ -197,7 +197,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 	{
 		ArgumentCaptor<Cookie> addedCookieArgument = ArgumentCaptor.forClass(Cookie.class);
 		HttpServletResponse response = mock(HttpServletResponse.class);
-		UnsuccessfulAuthenticationCounter counter = mock(UnsuccessfulAuthenticationCounter.class);
+		UnsuccessfulAccessCounter counter = mock(UnsuccessfulAccessCounter.class);
 		
 		AuthenticationRealm realm = getRealm(RememberMePolicy.allowForWholeAuthn);
 		addCookieAndToken(realm, response);

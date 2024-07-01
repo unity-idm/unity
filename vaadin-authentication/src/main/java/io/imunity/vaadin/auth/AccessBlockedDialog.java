@@ -16,7 +16,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAccessCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 
@@ -53,7 +53,7 @@ public class AccessBlockedDialog extends Dialog
 		Span info = new Span(msg.getMessage("AccessBlockedDialog.info"));
 		ProgressBar progress = new ProgressBar();
 		String ip = HTTPRequestContext.getCurrent().getClientIP();		
-		UnsuccessfulAuthenticationCounter counter = VaadinWebLogoutHandler.getLoginCounter();
+		UnsuccessfulAccessCounter counter = VaadinWebLogoutHandler.getLoginCounter();
 		int initial = getRemainingBlockedTime(counter, ip);
 
 		Span label = new Span(msg.getMessage("AccessBlockedDialog.remaining", initial));
@@ -68,7 +68,7 @@ public class AccessBlockedDialog extends Dialog
 		execService.getScheduledService().submit(new WaiterThread(initial, label, progress, ip, counter, ui));
 	}
 	
-	private int getRemainingBlockedTime(UnsuccessfulAuthenticationCounter counter, String ip)
+	private int getRemainingBlockedTime(UnsuccessfulAccessCounter counter, String ip)
 	{
 		return (int) Math.ceil(counter.getRemainingBlockedTime(ip)/1000.0);
 	}
@@ -79,11 +79,11 @@ public class AccessBlockedDialog extends Dialog
 		private final Span label;
 		private final ProgressBar progress;
 		private final String ip;
-		private final UnsuccessfulAuthenticationCounter counter;
+		private final UnsuccessfulAccessCounter counter;
 		private final UI ui;
 		
 		public WaiterThread(int initial, Span label, ProgressBar progress, String ip,
-				UnsuccessfulAuthenticationCounter counter, UI ui)
+				UnsuccessfulAccessCounter counter, UI ui)
 		{
 			this.initial = initial;
 			this.label = label;

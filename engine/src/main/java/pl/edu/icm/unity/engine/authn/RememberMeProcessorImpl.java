@@ -65,7 +65,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 	@Override
 	public Optional<LoginSession> processRememberedWholeAuthn(HttpServletRequest httpRequest,
 			ServletResponse response, String clientIp, AuthenticationRealm realm,
-			UnsuccessfulAuthenticationCounter dosGuard)
+			UnsuccessfulAccessCounter dosGuard)
 	{
 
 		return processRememberedFactor(httpRequest, response, clientIp, realm, dosGuard,
@@ -75,7 +75,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 	@Override
 	public Optional<LoginSession> processRememberedSecondFactor(HttpServletRequest httpRequest,
 			ServletResponse response, long entityId, String clientIp,
-			AuthenticationRealm realm, UnsuccessfulAuthenticationCounter dosGuard)
+			AuthenticationRealm realm, UnsuccessfulAccessCounter dosGuard)
 	{
 		Optional<LoginSession> loginSession = processRememberedFactor(httpRequest, response,
 				clientIp, realm, dosGuard, RememberMePolicy.allowFor2ndFactor);
@@ -99,7 +99,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 	
 	private Optional<LoginSession> processRememberedFactor(HttpServletRequest httpRequest,
 			ServletResponse response, String clientIp, AuthenticationRealm realm,
-			UnsuccessfulAuthenticationCounter dosGuard, RememberMePolicy policy)
+			UnsuccessfulAccessCounter dosGuard, RememberMePolicy policy)
 	{
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		Optional<LoginSession> loginSessionFromRememberMe = Optional.empty();

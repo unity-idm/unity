@@ -15,7 +15,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAccessCounter;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -123,11 +123,11 @@ public class VaadinWebLogoutHandler implements WebLogoutHandler
 
 	}
 
-	public static UnsuccessfulAuthenticationCounter getLoginCounter()
+	public static UnsuccessfulAccessCounter getLoginCounter()
 	{
 		HttpSession httpSession = ((WrappedHttpSession) VaadinSession.getCurrent().getSession()).getHttpSession();
-		return (UnsuccessfulAuthenticationCounter) httpSession.getServletContext().getAttribute(
-				UnsuccessfulAuthenticationCounter.class.getName());
+		return (UnsuccessfulAccessCounter) httpSession.getServletContext().getAttribute(
+				UnsuccessfulAccessCounter.class.getName());
 	}
 
 	private class LogoutRedirectHandler extends SynchronizedRequestHandler

@@ -15,7 +15,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAccessCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 
@@ -90,7 +90,7 @@ class RedirectedAuthnResultProcessor
 	
 	private void showWaitScreenIfNeeded(String clientIp)
 	{
-		UnsuccessfulAuthenticationCounter counter = VaadinWebLogoutHandler.getLoginCounter();
+		UnsuccessfulAccessCounter counter = VaadinWebLogoutHandler.getLoginCounter();
 		if (counter.getRemainingBlockedTime(clientIp) > 0)
 		{
 			AccessBlockedDialog dialog = new AccessBlockedDialog(msg, execService);

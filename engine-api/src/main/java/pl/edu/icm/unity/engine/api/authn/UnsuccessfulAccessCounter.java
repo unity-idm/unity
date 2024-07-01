@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.api.authn;
 /**
  * Counts unsuccessful authentication attempts per client's IP address.
  */
-public interface UnsuccessfulAuthenticationCounter
+public interface UnsuccessfulAccessCounter
 {
 	long getRemainingBlockedTime(String ip);
 	void unsuccessfulAttempt(String ip);

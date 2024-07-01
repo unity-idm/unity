@@ -19,11 +19,11 @@ public interface RememberMeProcessor
 	String REMEMBER_ME_TOKEN_TYPE = "rememberMe";
 	
 	Optional<LoginSession> processRememberedWholeAuthn(HttpServletRequest httpRequest, ServletResponse response,
-			String clientIp, AuthenticationRealm realm, UnsuccessfulAuthenticationCounter dosGauard);
+			String clientIp, AuthenticationRealm realm, UnsuccessfulAccessCounter dosGauard);
 
 	Optional<LoginSession> processRememberedSecondFactor(HttpServletRequest httpRequest, ServletResponse response,
 			long entityId, String clientIp, AuthenticationRealm realm,
-			UnsuccessfulAuthenticationCounter dosGauard);
+			UnsuccessfulAccessCounter dosGauard);
 
 	void addRememberMeCookieAndUnityToken(HttpServletResponse response, AuthenticationRealm realm,
 			LoginMachineDetails machineDetails, long entityId, Date loginTime,
