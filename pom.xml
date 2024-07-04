@@ -4,7 +4,7 @@
 	<groupId>io.imunity</groupId>
 	<artifactId>unity-server-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>3.13.0-SNAPSHOT</version>
+	<version>4.0.0-SNAPSHOT</version>
 	<name>UNITY aggregation and parent module</name>
 	<description>UNITY aggregation and parent module</description>
 	<url>https://unity-idm.eu</url>
@@ -87,9 +87,9 @@
 		<module>vaadin-account-association</module>
 		<module>console</module>
 		<module>vaadin-styles</module>
-        <module>console-utils</module>
-        <module>unity-rest-api-docs</module>
-    </modules>
+		<module>console-utils</module>
+		<module>unity-rest-api-docs</module>
+	</modules>
 
 	<developers>
 		<developer>
