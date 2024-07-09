@@ -6,6 +6,7 @@ package pl.edu.icm.unity.rest.authn.ext;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -66,6 +67,13 @@ public class TestHttpBasicParser
 		assertThat(tokens.getPasswd()).isEqualTo("");
 	}
 
+	@Test
+	public void shouldNotThrowErrorWhenNotParsableHeader()
+	{
+		String authorizationHeader = "Basic b2F1dGgtY2xpZW50Om9hdXRoLXBhc3M=,Bearer 5xtorQM7p_Vn5SYIfTqlXmUA8fYab0jxnoc-rofuJ5";
+		assertDoesNotThrow(() -> HttpBasicParser.getHTTPCredentials(authorizationHeader, log, false));
+	}
+	
 	private String toHeaderWithUrlEnc(String username, String pass) throws UnsupportedEncodingException
 	{
 		String src = URLEncoder.encode(username, HttpBasicParser.UTF8_CHARSET) + ":" 
@@ -78,4 +86,6 @@ public class TestHttpBasicParser
 		String src = username + ":" + pass;
 		return "Basic " + Base64.encode(src.getBytes(HttpBasicParser.UTF8_CHARSET));
 	}
+	
+	
 }
