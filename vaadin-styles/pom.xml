@@ -21,6 +21,7 @@
     <description>UNITY Vaadin CSS files</description>
     <properties>
         <m.name>vaadin-styles</m.name>
+        <sonar.skip>true</sonar.skip>
     </properties>
 
     <scm>
