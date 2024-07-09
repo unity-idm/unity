@@ -31,12 +31,11 @@ public class HttpBasicParser
 			return null;
 		
 		String encoded = authorizationHeader.substring(6);
-		String decoded = new String(Base64.decode(encoded.getBytes(StandardCharsets.US_ASCII)),
-				StandardCharsets.US_ASCII);
-		if (decoded.isEmpty())
+		byte[] decodedBytes = Base64.decode(encoded.getBytes(StandardCharsets.US_ASCII));
+		String decoded = decodedBytes == null ? null : new String(decodedBytes, StandardCharsets.US_ASCII);
+		if (decoded == null || decoded.isEmpty())
 		{
-			log.warn("Ignoring malformed Authorization HTTP header element" +
-					" (empty string after decode)");
+			log.warn("Ignoring malformed Authorization HTTP header element" + " (empty string after decode)");
 			return null;
 		}
 
