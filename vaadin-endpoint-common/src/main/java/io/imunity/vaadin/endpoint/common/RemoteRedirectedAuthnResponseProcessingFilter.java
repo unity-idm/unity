@@ -11,6 +11,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
 import pl.edu.icm.unity.engine.api.authn.remote.*;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,12 +30,15 @@ public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 	public static final String DECISION_SESSION_ATTRIBUTE = "__ff_post_authn_decision";
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
 	private final RemoteAuthnResponseProcessor remoteAuthnResponseProcessor;
-	
+	private final LoginToHttpSessionBinder sessionBinder;
+
 	public RemoteRedirectedAuthnResponseProcessingFilter(SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
-			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor)
+			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor,
+			LoginToHttpSessionBinder sessionBinder)
 	{
 		this.remoteAuthnContextStore = remoteAuthnContextStore;
 		this.remoteAuthnResponseProcessor = remoteAuthnResponseProcessor;
+		this.sessionBinder = sessionBinder;
 	}
 
 	@Override
@@ -66,7 +70,7 @@ public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 		
 		PostAuthenticationStepDecision postAuthnStepDecision = remoteAuthnResponseProcessor
 				.processResponse(authnContext, httpRequest, httpResponse, 
-						new BareSessionReinitializer(httpRequest));
+						new BareSessionReinitializer(httpRequest, sessionBinder));
 
 		httpRequest.getSession().setAttribute(DECISION_SESSION_ATTRIBUTE, 
 				new PostAuthenticationDecissionWithContext(postAuthnStepDecision, 

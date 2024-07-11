@@ -10,25 +10,31 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.Sess
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+
+import static pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder.USER_SESSION_KEY;
 
 class BareSessionReinitializer implements SessionReinitializer
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, BareSessionReinitializer.class);
 
 	private final HttpServletRequest httpRequest;
+	private final LoginToHttpSessionBinder sessionBinder;
 
-	BareSessionReinitializer(HttpServletRequest httpRequest)
+	BareSessionReinitializer(HttpServletRequest httpRequest, LoginToHttpSessionBinder sessionBinder)
 	{
 		this.httpRequest = httpRequest;
+		this.sessionBinder = sessionBinder;
 	}
 
 	@Override
 	public HttpSession reinitialize()
 	{
-		LOG.debug("Bare session reinitialization.");
 		bareSessionReinitialization();
 		return httpRequest.getSession();
 	}
@@ -44,18 +50,26 @@ class BareSessionReinitializer implements SessionReinitializer
 			while (attributeNames.hasMoreElements())
 			{
 				String name = attributeNames.nextElement();
-				Object value = oldSession.getAttribute(name);
-				attrs.put(name, value);
+				if (!name.equals(LoginToHttpSessionBinder.WRAPPER_ATTRIBUTE))
+				{
+					Object value = oldSession.getAttribute(name);
+					attrs.put(name, value);
+				}
 			}
 
 			oldSession.invalidate();
 
 			HttpSession newSession = httpRequest.getSession(true);
+			LOG.debug("Plain HTTP session reinitialization {} -> {}", oldSession.getId(), newSession.getId());
 
 			for (String name : attrs.keySet())
 			{
 				Object value = attrs.get(name);
 				newSession.setAttribute(name, value);
+				if (name.equals(USER_SESSION_KEY))
+				{
+					sessionBinder.bindHttpSession(newSession, (LoginSession) value);
+				}
 			}
 		}
 	}

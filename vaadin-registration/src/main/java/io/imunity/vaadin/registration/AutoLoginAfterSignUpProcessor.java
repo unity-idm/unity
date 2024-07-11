@@ -8,7 +8,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.vaadin.flow.server.VaadinServletResponse;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
-import io.imunity.vaadin.endpoint.common.VaadinSessionReinitializer;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,6 +25,8 @@ import pl.edu.icm.unity.engine.api.authn.RememberMeToken;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import io.imunity.vaadin.auth.VaadinSessionReinitializer;
+
 
 import java.time.Instant;
 import java.util.List;

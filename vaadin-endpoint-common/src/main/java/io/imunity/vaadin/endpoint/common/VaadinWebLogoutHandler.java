@@ -6,19 +6,18 @@ package io.imunity.vaadin.endpoint.common;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.*;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.RememberMeProcessor;
-import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAccessCounter;
+import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.LogoutMode;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 
 import java.io.IOException;
 import java.net.URI;
@@ -55,9 +54,20 @@ public class VaadinWebLogoutHandler implements WebLogoutHandler
 		InvocationContext invocationContext = InvocationContext.getCurrent();
 		LoginSession ls = invocationContext.getLoginSession();
 		if (ls != null)
+		{
+			clearSessionCookie(ls.getRealm());
 			sessionMan.removeSession(ls.getId(), soft);
-		else
+		} else
 			throw new IllegalStateException("There is no login session");
+	}
+
+	private void clearSessionCookie(String realmName)
+	{
+		VaadinResponse response = VaadinResponse.getCurrent();
+		if (response == null)
+			return;
+		Cookie cookie = CookieHelper.setupHttpCookie(SessionCookie.getSessionCookieName(realmName), "", 0);
+		response.addCookie(cookie);
 	}
 	
 	@Override

@@ -144,6 +144,8 @@ public class AuthenticationFilter implements Filter
 				.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		if (loginSession == null)
 			return;
+		log.debug("Handling bound login session {} received from HTTP session {}",
+				loginSession.getId(), httpSession.getId());
 		if(!loginSession.getRealm().equals(realm.getName()))
 		{
 			log.error("Critical error - wrong realm {} has been bound to login session, expected {}",
@@ -222,13 +224,13 @@ public class AuthenticationFilter implements Filter
 		{
 			if (isVaadinBackgroundRequest(httpRequest))
 			{
-				log.trace("Ignoring VAADIN backgroud request with invalid login session id " + loginSessionId + " to "
-						+ httpRequest.getRequestURI());
+				log.trace("Ignoring VAADIN background request with invalid login session id {} to {}",
+						loginSessionId, httpRequest.getRequestURI());
 				backagroudDosGauard.unsuccessfulAttempt(clientIp);
 			} else
 			{
-				log.debug("Got request with invalid login session id " + loginSessionId + " to "
-						+ httpRequest.getRequestURI());
+				log.debug("Got request with invalid login session id {} passed in cookie to {}",
+						loginSessionId,	httpRequest.getRequestURI());
 				dosGauard.unsuccessfulAttempt(clientIp);
 			}
 			

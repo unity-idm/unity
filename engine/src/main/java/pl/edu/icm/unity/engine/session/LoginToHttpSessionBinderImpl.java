@@ -32,6 +32,7 @@ public class LoginToHttpSessionBinderImpl implements LoginToHttpSessionBinder
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, LoginToHttpSessionBinderImpl.class);
 
+
 	private Map<String, Collection<HttpSessionWrapper>> bindings = 
 			new HashMap<String, Collection<HttpSessionWrapper>>(1000);
 	
@@ -76,7 +77,7 @@ public class LoginToHttpSessionBinderImpl implements LoginToHttpSessionBinder
 		HttpSessionWrapper wrapper = new HttpSessionWrapper(session, owning.getId());
 		httpSessions.add(wrapper);
 		//to receive unbound event when the session is invalidated
-		session.setAttribute(HttpSessionWrapper.class.getName(), wrapper);
+		session.setAttribute(WRAPPER_ATTRIBUTE, wrapper);
 		session.setAttribute(USER_SESSION_KEY, owning);
 	}
 	
@@ -94,7 +95,6 @@ public class LoginToHttpSessionBinderImpl implements LoginToHttpSessionBinder
 		
 		public HttpSessionWrapper(HttpSession session, String loginSessionId)
 		{
-			super();
 			this.session = session;
 			this.loginSessionId = loginSessionId;
 		}
@@ -107,7 +107,7 @@ public class LoginToHttpSessionBinderImpl implements LoginToHttpSessionBinder
 		@Override
 		public void valueUnbound(HttpSessionBindingEvent event)
 		{
-			log.trace("Value unbound for session " + loginSessionId);
+			log.debug("Value unbound for session {}", loginSessionId);
 			unbindHttpSession(this, loginSessionId);
 		}
 	}
