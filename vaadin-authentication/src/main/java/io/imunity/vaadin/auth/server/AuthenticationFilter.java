@@ -40,12 +40,13 @@ import static java.util.Optional.ofNullable;
 public class AuthenticationFilter implements Filter
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationFilter.class);
-	public static final int BACKGROUD_DOS_GUARD_LIMIT = 10;
+	public static final int MAX_VAADIN_INTERNAL_REQUESTS_WITH_INVALID_COOKIE_PER_IP = 16;
+	public static final int MAX_REGULAR_REQUESTS_WITH_INVALID_COOKIE_PER_IP = 16;
 	public static final String VAADIN_ROLE = "USER";
 
 	private final String sessionCookieName;
-	private final UnsuccessfulAccessCounter dosGauard;
-	private final UnsuccessfulAccessCounter backagroudDosGauard;
+	private final UnsuccessfulAccessCounter dosGauardForRegularTraffic;
+	private final UnsuccessfulAccessCounter dosGauardForVaadingInternalTraffic;
 	private final SessionManagement sessionMan;
 	private final LoginToHttpSessionBinder sessionBinder;
 	private final RememberMeProcessor rememberMeHelper;
@@ -68,9 +69,10 @@ public class AuthenticationFilter implements Filter
 		// this is 'cos we need to separate regular net traffic (and not to block it - otherwise even 
 		// notification about blocking woudn't show up). Still we need to prevent brute force attacks using 
 		// fake session cookies - this object is responsible only for that.
+		dosGauardForRegularTraffic = new RegularInvalidRequestsCounter(MAX_REGULAR_REQUESTS_WITH_INVALID_COOKIE_PER_IP, realm.getBlockFor()* 1000L);
+		dosGauardForVaadingInternalTraffic = new VaadinInternalUnsuccessfulRequestsCounter(
+				MAX_VAADIN_INTERNAL_REQUESTS_WITH_INVALID_COOKIE_PER_IP, realm.getBlockFor()* 1000L);
 		this.notProtectedPaths = List.copyOf(notProtectedPaths);
-		dosGauard = new DefaultUnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()* 1000L);
-		backagroudDosGauard = new UnsuccessfulBackgroudVaadinRequestCounter(BACKGROUD_DOS_GUARD_LIMIT, realm.getBlockFor()* 1000L);
 
 		sessionCookieName = SessionCookie.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
@@ -100,10 +102,7 @@ public class AuthenticationFilter implements Filter
 			log.error("Unprocessed request, should not happen, forward to authn for safety only");
 			//it should not happen, for safety only  
 			forwardtoAuthn(httpRequest, httpResponse, chain);
-		} catch (EopException e)
-		{
-
-		} 
+		} catch (EopException e) { /*pass through */ }
 	}
 	
 	private void handleNotProtectedResource(HttpServletRequest httpRequest,
@@ -156,8 +155,8 @@ public class AuthenticationFilter implements Filter
 		if (loginSession.isExpiredAt(System.currentTimeMillis()))
 			return;
 		
-		dosGauard.successfulAttempt(clientIp);
-		backagroudDosGauard.successfulAttempt(clientIp);
+		dosGauardForRegularTraffic.successfulAttempt(clientIp);
+		dosGauardForVaadingInternalTraffic.successfulAttempt(clientIp);
 
 		if (!loginSession.isUsedOutdatedCredential())
 		{
@@ -188,8 +187,8 @@ public class AuthenticationFilter implements Filter
 	private void handleBlockedIP(HttpServletResponse httpResponse, String clientIp)
 			throws IOException, EopException
 	{
-		long blockedTime = dosGauard.getRemainingBlockedTime(clientIp);
-		long backgroudBlockedTime = backagroudDosGauard.getRemainingBlockedTime(clientIp);
+		long blockedTime = dosGauardForRegularTraffic.getRemainingBlockedTime(clientIp);
+		long backgroudBlockedTime = dosGauardForVaadingInternalTraffic.getRemainingBlockedTime(clientIp);
 		if (blockedTime > 0 || backgroudBlockedTime > 0)
 		{
 			log.warn("Blocked potential DoS/brute force authN attack from "
@@ -226,12 +225,12 @@ public class AuthenticationFilter implements Filter
 			{
 				log.trace("Ignoring VAADIN background request with invalid login session id {} to {}",
 						loginSessionId, httpRequest.getRequestURI());
-				backagroudDosGauard.unsuccessfulAttempt(clientIp);
+				dosGauardForVaadingInternalTraffic.unsuccessfulAttempt(clientIp);
 			} else
 			{
 				log.debug("Got request with invalid login session id {} passed in cookie to {}",
 						loginSessionId,	httpRequest.getRequestURI());
-				dosGauard.unsuccessfulAttempt(clientIp);
+				dosGauardForRegularTraffic.unsuccessfulAttempt(clientIp);
 			}
 			
 			clearSessionCookie(httpResponse);
@@ -245,7 +244,7 @@ public class AuthenticationFilter implements Filter
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		Optional<LoginSession> loginSessionFromRememberMe = rememberMeHelper
 				.processRememberedWholeAuthn(httpRequest, httpResponse, clientIp,
-						realm, dosGauard);
+						realm, dosGauardForRegularTraffic);
 		if (loginSessionFromRememberMe.isEmpty())
 		{
 			forwardtoAuthn(httpRequest, httpResponse, chain);
@@ -270,8 +269,8 @@ public class AuthenticationFilter implements Filter
 			ServletResponse response, FilterChain chain, LoginSession loginSession,
 			String clientIp) throws IOException, ServletException
 	{
-		dosGauard.successfulAttempt(clientIp);
-		backagroudDosGauard.successfulAttempt(clientIp);
+		dosGauardForRegularTraffic.successfulAttempt(clientIp);
+		dosGauardForVaadingInternalTraffic.successfulAttempt(clientIp);
 		sessionBinder.bindHttpSession(httpRequest.getSession(true), loginSession);
 		gotoProtectedResource(httpRequest, response, chain, loginSession);
 	}
