@@ -329,9 +329,9 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	
 	private void logged(AuthenticatedEntity authenticatedEntity,
 			LoginSession ls,
-			final AuthenticationRealm realm,
+			AuthenticationRealm realm,
 			LoginMachineDetails machineDetails,
-			final boolean rememberMe,
+			boolean rememberMe,
 			List<SessionParticipant> participants,
 			SessionReinitializer sessionReinitializer,
 			HttpServletResponse httpResponse)
@@ -343,8 +343,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 
 		//prevent session fixation
 		HttpSession httpSession = sessionReinitializer.reinitialize();
-		if(realm.getName().equals(InvocationContext.safeGetRealm()))
-			sessionBinder.bindHttpSession(httpSession, ls);
+		bindReinitializedHttpSession(httpSession, ls, realm);
 
 		if (rememberMe)
 		{
@@ -365,8 +364,20 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 				ls.toString(), ls.getLogin1stFactorOptionId(), ls.getLogin2ndFactorOptionId(),
 				ls.getRememberMeInfo().firstFactorSkipped, ls.getRememberMeInfo().secondFactorSkipped);
 	}
-	
-	
+
+	private void bindReinitializedHttpSession(HttpSession httpSession, LoginSession ls, AuthenticationRealm realm)
+	{
+		LoginSession previouslyBoundLoginSession = (LoginSession)httpSession.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
+		boolean httpSessionWasAlreadyBoundToThisLoginSession = previouslyBoundLoginSession != null
+				&& previouslyBoundLoginSession.getId().equals(ls.getId());
+		//this may be false during synthetic authentication into another realm
+		// or simply when we don't have realm set yet in invocation context. Ideally we should always have it,
+		// would require to split InvocationContextSetupFilter into two
+		boolean authenticationRealmMatchesCurrentRealm = realm.getName().equals(InvocationContext.safeGetRealm());
+		if (httpSessionWasAlreadyBoundToThisLoginSession || authenticationRealmMatchesCurrentRealm)
+			sessionBinder.bindHttpSession(httpSession, ls);
+	}
+
 	private static UnsuccessfulAccessCounter getLoginCounter(HttpServletRequest httpRequest)
 	{
 		UnsuccessfulAccessCounter servletSet = (UnsuccessfulAccessCounter) 

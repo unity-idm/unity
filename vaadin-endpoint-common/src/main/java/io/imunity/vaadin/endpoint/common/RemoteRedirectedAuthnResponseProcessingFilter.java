@@ -30,15 +30,12 @@ public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 	public static final String DECISION_SESSION_ATTRIBUTE = "__ff_post_authn_decision";
 	private final SharedRemoteAuthenticationContextStore remoteAuthnContextStore;
 	private final RemoteAuthnResponseProcessor remoteAuthnResponseProcessor;
-	private final LoginToHttpSessionBinder sessionBinder;
 
 	public RemoteRedirectedAuthnResponseProcessingFilter(SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
-			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor,
-			LoginToHttpSessionBinder sessionBinder)
+			RemoteAuthnResponseProcessor remoteAuthnResponseProcessor)
 	{
 		this.remoteAuthnContextStore = remoteAuthnContextStore;
 		this.remoteAuthnResponseProcessor = remoteAuthnResponseProcessor;
-		this.sessionBinder = sessionBinder;
 	}
 
 	@Override
@@ -70,7 +67,7 @@ public class RemoteRedirectedAuthnResponseProcessingFilter implements Filter
 		
 		PostAuthenticationStepDecision postAuthnStepDecision = remoteAuthnResponseProcessor
 				.processResponse(authnContext, httpRequest, httpResponse, 
-						new BareSessionReinitializer(httpRequest, sessionBinder));
+						new BareSessionReinitializer(httpRequest));
 
 		httpRequest.getSession().setAttribute(DECISION_SESSION_ATTRIBUTE, 
 				new PostAuthenticationDecissionWithContext(postAuthnStepDecision, 

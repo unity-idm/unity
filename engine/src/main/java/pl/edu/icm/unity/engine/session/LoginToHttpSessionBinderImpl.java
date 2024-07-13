@@ -33,8 +33,8 @@ public class LoginToHttpSessionBinderImpl implements LoginToHttpSessionBinder
 	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, LoginToHttpSessionBinderImpl.class);
 
 
-	private Map<String, Collection<HttpSessionWrapper>> bindings = 
-			new HashMap<String, Collection<HttpSessionWrapper>>(1000);
+	private Map<String, Collection<SelfHttpSessionWrappingAttribute>> bindings =
+			new HashMap<String, Collection<SelfHttpSessionWrappingAttribute>>(1000);
 	
 	/**
 	 * @param toRemove
@@ -44,10 +44,10 @@ public class LoginToHttpSessionBinderImpl implements LoginToHttpSessionBinder
 	@Override
 	public synchronized void removeLoginSession(String toRemove, boolean soft)
 	{
-		Collection<HttpSessionWrapper> httpSessions = bindings.remove(toRemove);
+		Collection<SelfHttpSessionWrappingAttribute> httpSessions = bindings.remove(toRemove);
 		if (httpSessions != null)
 		{
-			for (HttpSessionWrapper sw: httpSessions)
+			for (SelfHttpSessionWrappingAttribute sw: httpSessions)
 			{
 				if (!soft)
 				{
@@ -67,33 +67,33 @@ public class LoginToHttpSessionBinderImpl implements LoginToHttpSessionBinder
 	@Override
 	public synchronized void bindHttpSession(HttpSession session, LoginSession owning)
 	{
-		Collection<HttpSessionWrapper> httpSessions = bindings.get(owning.getId());
+		Collection<SelfHttpSessionWrappingAttribute> httpSessions = bindings.get(owning.getId());
 		if (httpSessions == null)
 		{
-			httpSessions = new HashSet<HttpSessionWrapper>();
+			httpSessions = new HashSet<SelfHttpSessionWrappingAttribute>();
 			bindings.put(owning.getId(), httpSessions);
 		}
 		log.debug("Binding HTTP session " + session.getId() + " to login session " + owning.getId());
-		HttpSessionWrapper wrapper = new HttpSessionWrapper(session, owning.getId());
+		SelfHttpSessionWrappingAttribute wrapper = new SelfHttpSessionWrappingAttribute(session, owning.getId());
 		httpSessions.add(wrapper);
 		//to receive unbound event when the session is invalidated
-		session.setAttribute(WRAPPER_ATTRIBUTE, wrapper);
+		session.setAttribute(SELF_REFERENCING_ATTRIBUTE, wrapper);
 		session.setAttribute(USER_SESSION_KEY, owning);
 	}
 	
-	private synchronized void unbindHttpSession(HttpSessionWrapper session, String owning)
+	private synchronized void unbindHttpSession(SelfHttpSessionWrappingAttribute session, String owning)
 	{
-		Collection<HttpSessionWrapper> httpSessions = bindings.get(owning);
+		Collection<SelfHttpSessionWrappingAttribute> httpSessions = bindings.get(owning);
 		if (httpSessions != null)
 			httpSessions.remove(session);
 	}
 	
-	class HttpSessionWrapper implements HttpSessionBindingListener
+	class SelfHttpSessionWrappingAttribute implements HttpSessionBindingListener
 	{
 		private HttpSession session;
 		private String loginSessionId;
 		
-		public HttpSessionWrapper(HttpSession session, String loginSessionId)
+		public SelfHttpSessionWrappingAttribute(HttpSession session, String loginSessionId)
 		{
 			this.session = session;
 			this.loginSessionId = loginSessionId;

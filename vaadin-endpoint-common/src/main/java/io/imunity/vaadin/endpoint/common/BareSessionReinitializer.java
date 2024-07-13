@@ -24,12 +24,10 @@ class BareSessionReinitializer implements SessionReinitializer
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, BareSessionReinitializer.class);
 
 	private final HttpServletRequest httpRequest;
-	private final LoginToHttpSessionBinder sessionBinder;
 
-	BareSessionReinitializer(HttpServletRequest httpRequest, LoginToHttpSessionBinder sessionBinder)
+	BareSessionReinitializer(HttpServletRequest httpRequest)
 	{
 		this.httpRequest = httpRequest;
-		this.sessionBinder = sessionBinder;
 	}
 
 	@Override
@@ -50,7 +48,7 @@ class BareSessionReinitializer implements SessionReinitializer
 			while (attributeNames.hasMoreElements())
 			{
 				String name = attributeNames.nextElement();
-				if (!name.equals(LoginToHttpSessionBinder.WRAPPER_ATTRIBUTE))
+				if (!name.equals(LoginToHttpSessionBinder.SELF_REFERENCING_ATTRIBUTE))
 				{
 					Object value = oldSession.getAttribute(name);
 					attrs.put(name, value);
@@ -66,10 +64,6 @@ class BareSessionReinitializer implements SessionReinitializer
 			{
 				Object value = attrs.get(name);
 				newSession.setAttribute(name, value);
-				if (name.equals(USER_SESSION_KEY))
-				{
-					sessionBinder.bindHttpSession(newSession, (LoginSession) value);
-				}
 			}
 		}
 	}

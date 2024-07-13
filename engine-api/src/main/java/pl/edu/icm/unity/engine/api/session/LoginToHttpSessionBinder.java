@@ -23,7 +23,8 @@ public interface LoginToHttpSessionBinder
 	 * Under this key the {@link LoginSession} id is stored in the HTTP session.
 	 */
 	String USER_SESSION_KEY = "pl.edu.icm.unity.web.WebSession";
-	String WRAPPER_ATTRIBUTE = "io.imunity.Wrapped_Session";
+	String SELF_REFERENCING_ATTRIBUTE = "io.imunity.Wrapped_Session";
+
 	/**
 	 * @param toRemove
 	 * @param soft if true then only the login data is removed from the HTTP session. Otherwise the whole
