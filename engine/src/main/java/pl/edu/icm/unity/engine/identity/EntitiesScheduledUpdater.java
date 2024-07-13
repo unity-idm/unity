@@ -45,13 +45,13 @@ public class EntitiesScheduledUpdater
 	@Transactional
 	public synchronized Date updateEntities()
 	{
-		log.debug("Performing scheduled operations on entities");
+		log.trace("Performing scheduled operations on entities");
 		Date ret = performScheduledEntityOperations();
 		
 		long maxAsyncWait = config.getIntValue(UnityServerConfiguration.UPDATE_INTERVAL) * 1000;
 		Date maxWait = new Date(System.currentTimeMillis() + maxAsyncWait);
 		Date finalRet = ret.after(maxWait) ? maxWait : ret;
-		log.debug("Scheduled operations on entities executed, next round scheduled at " + finalRet);
+		log.trace("Scheduled operations on entities executed, next round scheduled at " + finalRet);
 		return finalRet;
 	}
 	

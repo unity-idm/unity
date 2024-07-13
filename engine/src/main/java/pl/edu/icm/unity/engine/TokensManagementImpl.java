@@ -172,7 +172,7 @@ public class TokensManagementImpl implements TokensManagement
 
 	private void transactionalRemoveExpired()
 	{
-		log.debug("Removing expired tokens");
+		log.trace("Removing expired tokens");
 		int removed = 0;
 		
 		List<Token> tokens = dbTokens.getExpired();
@@ -194,6 +194,7 @@ public class TokensManagementImpl implements TokensManagement
 						"] " + t.getValue(), e);
 			}
 		}
-		log.debug("Removed " + removed + " tokens in this round");
+		if (removed > 0)
+			log.debug("Removed {} tokens in this round", removed);
 	}
 }

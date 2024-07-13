@@ -80,8 +80,8 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		Map<String, EndpointInstance> endpointsDeployed = new HashMap<>();
 		for (EndpointInstance endpoint: deployedEndpoints)
 			endpointsDeployed.put(endpoint.getEndpointDescription().getName(), endpoint);
-		log.debug("Running periodic endpoints update task. There are " + deployedEndpoints.size() + 
-				" deployed endpoints.");
+		log.trace("Running periodic endpoints update task; there are {} deployed endpoints",
+				deployedEndpoints.size());
 		try
 		{
 			tx.runInTransactionThrowing(() ->
@@ -90,7 +90,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 				
 				long roundedUpdateTime = roundToS(System.currentTimeMillis());
 				List<Endpoint> endpointsInDBMap = endpointDB.getAll();
-				log.debug("There are " + endpointsInDBMap.size() + " endpoints in DB.");
+				log.trace("There are " + endpointsInDBMap.size() + " endpoints in DB.");
 				for (Endpoint endpointInDB : endpointsInDBMap)
 				{
 					if (endpointInDB.getState().equals(EndpointState.UNDEPLOYED))
