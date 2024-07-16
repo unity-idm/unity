@@ -4,14 +4,12 @@
   ~ See LICENCE.txt file for licensing information.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>io.imunity</groupId>
         <artifactId>unity-server-parent</artifactId>
-        <version>4.0.0-SNAPSHOT</version>
+        <version>4.0.0-rc1</version>
     </parent>
 
     <artifactId>unity-vaadin-styles</artifactId>
@@ -27,7 +25,7 @@
     <scm>
         <connection>${scm.base}/${m.name}</connection>
         <developerConnection>${scm.base}/${m.name}</developerConnection>
-        <tag>HEAD</tag>
+        <tag>unity-server-parent-4.0.0-rc1</tag>
     </scm>
 
     <build>
