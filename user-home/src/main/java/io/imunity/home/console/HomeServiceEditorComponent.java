@@ -32,6 +32,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 	private Binder<DefaultServiceDefinition> serviceBinder;
 	private Binder<ServiceWebConfiguration> webConfigBinder;
 	private final FileStorageService fileStorageService;
+	private final HomeServiceEditorGeneralTab generalTab;
 
 	HomeServiceEditorComponent(MessageSource msg, HomeServiceEditorGeneralTab generalTab, WebServiceAuthenticationTab authTab,
 			VaadinLogoImageLoader imageAccessService,
@@ -39,6 +40,7 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 			DefaultServiceDefinition toEdit, List<Group> allGroups)
 	{
 		super(msg);
+		this.generalTab = generalTab;
 		this.fileStorageService = fileStorageService;
 		boolean editMode = toEdit != null;
 		serviceBinder = new Binder<>(DefaultServiceDefinition.class);
@@ -81,12 +83,14 @@ class HomeServiceEditorComponent extends ServiceEditorBase
 
 	public ServiceDefinition getServiceDefiniton() throws FormValidationException
 	{
+		generalTab.setExposedAttributeValidatorsDisabled(false);	
 		boolean hasErrors = serviceBinder.validate().hasErrors();
 		hasErrors |= homeBinder.validate().hasErrors();
 		hasErrors |= webConfigBinder.validate().hasErrors();
 		if (hasErrors)
 		{
 			setErrorInTabs();
+			generalTab.setExposedAttributeValidatorsDisabled(true);
 			throw new FormValidationException();
 		}
 

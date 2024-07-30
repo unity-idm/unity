@@ -19,6 +19,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Binder.Binding;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 
@@ -43,7 +44,8 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 	private Binder<HomeServiceConfiguration> homeBinder;
 	private MultiSelectComboBox<String> enabledControls;
 	private Checkbox allowRemovalSheduling;
-
+	private Binding<HomeServiceConfiguration, List<ExposedAttribute>> exposedAttributeBinding;
+	
 	public HomeServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths, List<String> usedNames,
 			Set<String> serverContextPaths, List<String> allAttributes, List<String> allImageAttributes,
 			List<Group> allGroups, List<String> upManServices, List<String> enquiryForms,
@@ -92,8 +94,8 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 		exposedAttributes.setEnabled(false);
 		exposedAttributes.setWidthFull();
 		exposedAttributes.addComboBoxColumn(ExposedAttribute::getName, ExposedAttribute::setName, allAttributes)
-				.setHeader(msg.getMessage("HomeServiceEditorComponent.attribute"))
-				.setAutoWidth(true);
+				.setHeader(msg.getMessage("HomeServiceEditorComponent.attribute")).setAutoWidth(true).setResizable(true);
+				
 
 		exposedAttributes.addCheckboxColumn(ExposedAttribute::isEditable, ExposedAttribute::setEditable)
 				.setHeader(msg.getMessage("HomeServiceEditorComponent.attributeEditable"));
@@ -109,10 +111,20 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 				.group()
 				.getDisplayedName()
 				.getValue(msg))), (t, v) -> t.setGroup(v), groupCombo);
-		homeBinder.forField(exposedAttributes)
+		exposedAttributeBinding = homeBinder.forField(exposedAttributes)
+				.withValidator((v, c) ->
+				{
+					if (exposedAttributes.isEditorOpen())
+					{
+						return ValidationResult.error(msg.getMessage("HomeServiceEditorComponent.attributeNotSaved"));
+					}
+					return ValidationResult.ok();
+				})
 				.bind("exposedAttributes");
+		exposedAttributeBinding.setValidatorsDisabled(true);
+		
 		main.addFormItem(exposedAttributes, msg.getMessage("HomeServiceEditorComponent.exposedAttributes"));
-
+		
 		enabledTabs.addValueChangeListener(e ->
 		{
 			boolean userDetTabEnabled = e.getValue()
@@ -212,4 +224,9 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 				&& allowRemovalSheduling.getValue();
 	}
 
+	public void setExposedAttributeValidatorsDisabled(boolean disabled)
+	{
+		exposedAttributeBinding.setValidatorsDisabled(disabled);
+	}
+	
 }

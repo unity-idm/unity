@@ -106,7 +106,7 @@ public class EditableGrid<T> extends CustomField<List<T>>
 		addActionColumn();
 		enableRowReordering();
 	}
-
+	
 	private void addActionColumn()
 	{
 		actions = grid.addComponentColumn(bean ->
@@ -271,6 +271,7 @@ public class EditableGrid<T> extends CustomField<List<T>>
 	private Select<String> getSelectEditorComponent(ValueProvider<T, String> get, Setter<T, String> set, List<String> items)
 	{
 		Select<String> field = new Select<>();
+		field.setWidthFull();
 		field.setItems(items);
 		editor.getBinder().forField(field).bind(get, set);
 		return field;
