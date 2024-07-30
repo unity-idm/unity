@@ -150,7 +150,7 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 				}).bind(PolicyDocumentEntry::getName, PolicyDocumentEntry::setName);
 		binder.forField(displayedName)
 				.bind(PolicyDocumentEntry::getDisplayedName, PolicyDocumentEntry::setDisplayedName);
-		binder.forField(optional).bind(PolicyDocumentEntry::isMandatory, PolicyDocumentEntry::setMandatory);
+		binder.forField(optional).bind(PolicyDocumentEntry::isOptional, PolicyDocumentEntry::setOptional);
 		binder.forField(type).bind(PolicyDocumentEntry::getContentType, PolicyDocumentEntry::setContentType);
 	}
 

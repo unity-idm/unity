@@ -73,16 +73,17 @@ public class PolicyDocumentEntry implements FilterableEntry
 		this.displayedName = displayedName;
 	}
 
-	boolean isMandatory()
+	boolean isOptional()
 	{
-		return mandatory;
+		return !mandatory;
 	}
 
-	void setMandatory(boolean mandatory)
+	void setOptional(boolean optional)
 	{
-		this.mandatory = mandatory;
+		this.mandatory = !optional;
 	}
-
+	
+	
 	PolicyDocumentContentType getContentType()
 	{
 		return contentType;
