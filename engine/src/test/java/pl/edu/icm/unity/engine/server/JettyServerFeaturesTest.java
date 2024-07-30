@@ -92,7 +92,7 @@ public class JettyServerFeaturesTest
 	{
 		UnityHttpServerConfiguration httpConfig = prepareHttpServerConfig();
 		IAuthnAndTrustConfiguration securityConfiguration = prepareSSLCredential();
-		httpServer = new JettyServer(httpConfig, "webContents", securityConfiguration, 
+		httpServer = new JettyServer(httpConfig, "webContents", null, securityConfiguration, 
 				new URL[] {new URL("https://0.0.0.0:0")});
 	}
 

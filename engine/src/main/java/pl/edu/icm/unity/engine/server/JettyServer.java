@@ -75,12 +75,14 @@ public class JettyServer implements Lifecycle, NetworkServer
 	{
 		this(cfg.getJettyProperties(), 
 				cfg.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH), 
+				cfg.getValue(UnityServerConfiguration.DEFAULT_WEB_PATH),
 				pkiManagement.getMainAuthnAndTrust(), 
 				listenUrlsProvider.getListenUrls());
 	}
 
 	JettyServer(UnityHttpServerConfiguration serverSettings,
 			String defaultWebContentsPath, 
+			String defaultWebPath,
 			IAuthnAndTrustConfiguration securityConfiguration,
 			URL[] listenUrls)
 	{
@@ -90,6 +92,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		this.defaultWebContentsPath = defaultWebContentsPath;
 		initServer();
 		dosFilter = createDoSFilterInstance();
+		addRedirectHandler(defaultWebPath);
 	}
 	
 	@Override
@@ -107,6 +110,21 @@ public class JettyServer implements Lifecycle, NetworkServer
 		}
 	}
 
+	private void addRedirectHandler(String defaultWebPath) throws ConfigurationException
+	{
+		if (defaultWebPath != null && !defaultWebPath.isEmpty())
+		{
+			try
+			{
+				deployHandler(new RedirectHandler(defaultWebPath), "sys:redirect");
+			} catch (EngineException e)
+			{
+				log.error("Cannot deploy redirect handler " + e.getMessage(), e);
+			}
+		}
+
+	}
+	
 	@Override
 	public void stop()
 	{
