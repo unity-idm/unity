@@ -5,8 +5,6 @@
 
 package io.imunity.home.views.profile;
 
-import static io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext.EMPTY;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -47,6 +45,7 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewer;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ComponentsGroup;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.CompositeLayoutAdapter;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.ConfirmationEditMode;
@@ -272,7 +271,11 @@ public class ProfileView extends HomeViewComponent
 				return new ComponentsGroup();
 
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, attributeType,
-					attribute, labelContext, EMPTY);
+					attribute, labelContext, AttributeViewerContext.builder()
+					.withCustomWidth(CSSVars.TEXT_FIELD_MEDIUM.value())
+					.withImageScaleHeight(500)
+					.withImageScaleWidth(500)
+					.build());
 			return viewer.getComponentsGroup();
 		}
 	}

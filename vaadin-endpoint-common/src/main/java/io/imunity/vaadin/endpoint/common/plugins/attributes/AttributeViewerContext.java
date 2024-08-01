@@ -6,6 +6,7 @@ package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
 import com.vaadin.flow.component.Unit;
 
+
 public class AttributeViewerContext
 {
 	public static final AttributeViewerContext EMPTY = AttributeViewerContext.builder().build();
@@ -21,6 +22,7 @@ public class AttributeViewerContext
 	private boolean showAsLabel = false;
 	private Float borderRadius = null;
 	private Unit borderUnit = null;
+	private String customWidthAsString = null;
 
 	private AttributeViewerContext()
 	{
@@ -38,7 +40,12 @@ public class AttributeViewerContext
 
 	public boolean isCustomWidth()
 	{
-		return customWidth != null && customWidthUnit != null;
+		return (customWidth != null && customWidthUnit != null) || customWidthAsString != null;
+	}
+	
+	public boolean isCustomWidthAsString()
+	{
+		return customWidthAsString != null;
 	}
 
 	public boolean isShowCaption()
@@ -100,6 +107,11 @@ public class AttributeViewerContext
 	{
 		return borderUnit;
 	}
+	
+	public String getCustomWidthAsString()
+	{
+		return customWidthAsString;
+	}
 
 	public static class Builder
 	{
@@ -119,6 +131,12 @@ public class AttributeViewerContext
 		public Builder withCustomWidthUnit(Unit customWidthUnit)
 		{
 			this.obj.customWidthUnit = customWidthUnit;
+			return this;
+		}
+		
+		public Builder withCustomWidth(String customWidth)
+		{
+			this.obj.customWidthAsString = customWidth;
 			return this;
 		}
 

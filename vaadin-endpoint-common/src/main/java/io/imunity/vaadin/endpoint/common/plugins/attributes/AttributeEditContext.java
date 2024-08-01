@@ -23,7 +23,7 @@ public class AttributeEditContext
 	private Float customWidth = null;
 	private Unit customWidthUnit = null;
 	private ValueChangeMode valueChangeMode;
-	public String customWidthAsString;
+	private String customWidthAsString;
 
 	private AttributeEditContext()
 	{

@@ -41,5 +41,4 @@ class LayoutWithIcon extends VerticalLayout implements HasLabel
 	{
 		return label.getText();
 	}
-
 }

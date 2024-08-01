@@ -48,13 +48,19 @@ public class AttributeHandlerHelper
 
 			if (context.isCustomWidth())
 			{
+				if (!context.isCustomWidthAsString())
+				{
+					if (context.getCustomWidth() > 0)
+					{
+						component.getElement().getStyle().set("width", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
+					} else
+					{
+						component.getElement().getStyle().set("width", "unset");
+					}
+				}else 
+				{
+					component.getElement().getStyle().set("width", context.getCustomWidthAsString());
 
-				if (context.getCustomWidth() > 0)
-				{
-					component.getElement().getStyle().set("width", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
-				} else
-				{
-					component.getElement().getStyle().set("width", "unset");
 				}
 			}
 			if (context.isCustomHeight())

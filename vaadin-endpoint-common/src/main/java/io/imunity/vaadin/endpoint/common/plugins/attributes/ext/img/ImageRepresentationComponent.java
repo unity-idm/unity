@@ -65,13 +65,19 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 		Image image = new Image(streamResource, "");
 		if (context.isCustomWidth() && !context.isScaleImage())
 		{
-			if (context.getCustomWidth() > 0)
-			{
-				image.setWidth(context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
-			} else
-			{
-				image.setWidth("unset");
-			}
+				if (!context.isCustomWidthAsString())
+				{
+					if (context.getCustomWidth() > 0)
+					{
+						image.getElement().getStyle().set("width", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
+					} else
+					{
+						image.getElement().getStyle().set("width", "unset");
+					}
+				}else 
+				{
+					image.getElement().getStyle().set("width", context.getCustomWidthAsString());
+				}
 		}
 		if (context.isCustomHeight() && !context.isScaleImage())
 		{
