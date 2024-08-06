@@ -55,6 +55,7 @@ import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguratio
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.Map.Entry;
@@ -181,7 +182,7 @@ class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObs
 		if (!editorController.isFormApplicableForLoggedEntity(form.getName(), registrationCode == null))
 		{
 			log.debug("Enquiry form {} is not applicable", form.getName());
-			handleError(ErrorCause.INVITATION_OF_OTHER_FORM);
+			handleError(TriggeringState.NOT_APPLICABLE_ENQUIRY);
 			return;
 		}
 
@@ -519,8 +520,13 @@ class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObs
 
 	private void handleError(ErrorCause cause)
 	{
+		handleError(cause.getTriggerState());
+	}
+	
+	private void handleError(TriggeringState cause)
+	{
 		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
-				.getFinalRegistrationConfigurationOnError(cause.getTriggerState());
+				.getFinalRegistrationConfigurationOnError(cause);
 		gotoFinalStep(finalScreenConfig);
 	}
 
@@ -553,7 +559,7 @@ class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObs
 		VerticalLayout layout = new VerticalLayout(
 				new LinkButton(
 						buttonTxt,
-						e -> authnProcessor.logout(true, SEC_ENQUIRY_PATH + form.getName())
+						e -> authnProcessor.logout(true, SEC_ENQUIRY_PATH + URLEncoder.encode(form.getName(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
 				)
 		);
 		layout.setAlignItems(FlexComponent.Alignment.END);
