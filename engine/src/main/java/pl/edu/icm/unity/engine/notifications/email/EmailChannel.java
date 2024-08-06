@@ -11,21 +11,15 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.concurrent.Future;
 
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.MimeMessage;
 import javax.net.ssl.SSLSocketFactory;
 
 import com.sun.mail.util.MailSSLSocketFactory;
-
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import jakarta.mail.*;
+import jakarta.mail.internet.MimeMessage;
 import pl.edu.icm.unity.base.msg_template.MessageTemplate;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
@@ -57,29 +51,35 @@ class EmailChannel implements NotificationChannelInstance
 		Authenticator smtpAuthn = (smtpUser != null && smtpPassword != null) ? 
 				new SimpleAuthenticator(smtpUser, smtpPassword) : null;
 		String trustAll = props.getProperty(EmailFacility.CFG_TRUST_ALL);
-		if (trustAll != null && "true".equalsIgnoreCase(trustAll))
-		{
-			MailSSLSocketFactory trustAllSF;
-			try
-			{
-				trustAllSF = new MailSSLSocketFactory();
-			} catch (GeneralSecurityException e)
-			{
-				//really shouldn't happen
-				throw new IllegalStateException("Can't init trust-all SSL socket factory", e);
-			}
-			trustAllSF.setTrustAllHosts(true);
-			props.put("mail.smtp.ssl.socketFactory", trustAllSF);
-		} else
-		{
-			X509CertChainValidator validator = pkiManagement.getMainAuthnAndTrust().getValidator();
-			SSLSocketFactory factory = new SocketFactoryCreator2(validator, 
-					new HostnameMismatchCallbackImpl(ServerHostnameCheckingMode.FAIL)).getSocketFactory();
-			props.put("mail.smtp.ssl.socketFactory", factory);
-		}
+		SSLSocketFactory socketFactory = (trustAll != null && "true".equalsIgnoreCase(trustAll)) ?
+				createTrustAllSocketFactory() : createVerifyingSocketFactory(pkiManagement);
+		props.put("mail.smtp.ssl.socketFactory", socketFactory);
 		session = Session.getInstance(props, smtpAuthn);
 	}
-	
+
+	private SSLSocketFactory createTrustAllSocketFactory()
+	{
+		MailSSLSocketFactory trustAllSF;
+		try
+		{
+			trustAllSF = new MailSSLSocketFactory();
+		} catch (GeneralSecurityException e)
+		{
+			//really shouldn't happen
+			throw new IllegalStateException("Can't init trust-all SSL socket factory", e);
+		}
+		trustAllSF.setTrustAllHosts(true);
+		return trustAllSF;
+	}
+
+	private SSLSocketFactory createVerifyingSocketFactory(PKIManagement pkiManagement)
+	{
+		X509CertChainValidator validator = pkiManagement.getMainAuthnAndTrust().getValidator();
+		return new SocketFactoryCreator2(validator,
+				new HostnameMismatchCallbackImpl(ServerHostnameCheckingMode.FAIL)).getSocketFactory();
+	}
+
+
 	@Override
 	public Future<NotificationStatus> sendNotification(final String recipientAddress, 
 			final MessageTemplate.Message message)
@@ -147,7 +147,7 @@ class EmailChannel implements NotificationChannelInstance
 		}
 
 		@Override
-		protected PasswordAuthentication getPasswordAuthentication() 
+		protected PasswordAuthentication getPasswordAuthentication()
 		{
 			return new PasswordAuthentication(user, password);
 		}
