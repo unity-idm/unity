@@ -23,6 +23,10 @@ public class AttributeViewerContext
 	private Float borderRadius = null;
 	private Unit borderUnit = null;
 	private String customWidthAsString = null;
+	private Float customMaxWidth = null;
+	private Unit customMaxWidthUnit = null;
+	private Float customMaxHeight = null;
+	private Unit customMaxHeightUnit = null;
 
 	private AttributeViewerContext()
 	{
@@ -38,9 +42,24 @@ public class AttributeViewerContext
 		return customWidthUnit;
 	}
 
+	public Float getCustomMaxWidth()
+	{
+		return customMaxWidth;
+	}
+
+	public Unit getCustomMaxWidthUnit()
+	{
+		return customMaxWidthUnit;
+	}
+	
 	public boolean isCustomWidth()
 	{
 		return (customWidth != null && customWidthUnit != null) || customWidthAsString != null;
+	}
+	
+	public boolean isCustomMaxWidth()
+	{
+		return customMaxWidth != null && customMaxWidthUnit != null;
 	}
 	
 	public boolean isCustomWidthAsString()
@@ -68,11 +87,26 @@ public class AttributeViewerContext
 		return customHeightUnit;
 	}
 
+	public Float getCustomMaxHeight()
+	{
+		return customMaxHeight;
+	}
+
+	public Unit getCustomMaxHeightUnit()
+	{
+		return customMaxHeightUnit;
+	}
+	
 	public boolean isCustomHeight()
 	{
 		return customHeight != null && customHeightUnit != null;
 	}
 
+	public boolean isCustomMaxHeight()
+	{
+		return customMaxHeight != null && customMaxHeightUnit != null;
+	}
+	
 	public Integer getMaxTextSize()
 	{
 		return maxTextSize;
@@ -149,6 +183,30 @@ public class AttributeViewerContext
 		public Builder withCustomHeightUnit(Unit customHeightUnit)
 		{
 			this.obj.customHeightUnit = customHeightUnit;
+			return this;
+		}
+		
+		public Builder withCustomMaxWidth(float customWidth)
+		{
+			this.obj.customMaxWidth = customWidth;
+			return this;
+		}
+
+		public Builder withCustomMaxWidthUnit(Unit customWidthUnit)
+		{
+			this.obj.customMaxWidthUnit = customWidthUnit;
+			return this;
+		}
+
+		public Builder withCustomMaxHeight(float customHeight)
+		{
+			this.obj.customMaxHeight = customHeight;
+			return this;
+		}
+
+		public Builder withCustomMaxHeightUnit(Unit customHeightUnit)
+		{
+			this.obj.customMaxHeightUnit = customHeightUnit;
 			return this;
 		}
 

@@ -722,6 +722,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			AttributeViewerContext context = AttributeViewerContext.builder()
 					.withCustomWidth(formWidth())
 					.withCustomWidthUnit(formWidthUnit())
+					.withCustomMaxHeight(20)
+					.withCustomMaxHeightUnit(Unit.EM)
+					.withCustomMaxWidth(20)
+					.withCustomMaxWidthUnit(Unit.EM)
 					.withShowCaption(!(form.getLayoutSettings().isCompactInputs()))
 					.build();
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry,

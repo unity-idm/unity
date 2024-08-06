@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -273,8 +274,10 @@ public class ProfileView extends HomeViewComponent
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, attributeType,
 					attribute, labelContext, AttributeViewerContext.builder()
 					.withCustomWidth(CSSVars.TEXT_FIELD_MEDIUM.value())
-					.withImageScaleHeight(500)
-					.withImageScaleWidth(500)
+					.withCustomMaxHeight(20)
+					.withCustomMaxHeightUnit(Unit.EM)
+					.withCustomMaxWidth(20)
+					.withCustomMaxWidthUnit(Unit.EM)
 					.build());
 			return viewer.getComponentsGroup();
 		}

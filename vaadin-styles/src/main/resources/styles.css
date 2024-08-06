@@ -186,8 +186,7 @@ vaadin-text-field > label {
 }
 
 img {
-    max-width: 20em;
-    max-height: 20em;
+ 
     object-fit: cover;
 }
 

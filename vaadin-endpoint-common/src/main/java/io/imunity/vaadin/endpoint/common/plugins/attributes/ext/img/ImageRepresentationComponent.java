@@ -63,7 +63,7 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 	private static Image getImage(AttributeViewerContext context, StreamResource streamResource)
 	{
 		Image image = new Image(streamResource, "");
-		if (context.isCustomWidth() && !context.isScaleImage())
+		if (context.isCustomWidth() && !context.isScaleImage() && !context.isCustomMaxWidth())
 		{
 				if (!context.isCustomWidthAsString())
 				{
@@ -79,7 +79,7 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 					image.getElement().getStyle().set("width", context.getCustomWidthAsString());
 				}
 		}
-		if (context.isCustomHeight() && !context.isScaleImage())
+		if (context.isCustomHeight() && !context.isScaleImage() && !context.isCustomMaxHeight())
 		{
 			if (context.getCustomHeight() > 0)
 			{
@@ -89,6 +89,30 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 				image.setHeight("unset");
 			}
 		}
+		
+		
+		if (context.isCustomMaxWidth())
+		{
+			if (context.getCustomMaxWidth() > 0)
+			{
+				image.setMaxWidth(context.getCustomMaxWidth() + context.getCustomMaxWidthUnit().getSymbol());
+			} else
+			{
+				image.setMaxWidth("unset");
+			}
+		}
+		
+		if (context.isCustomMaxHeight())
+		{
+			if (context.getCustomMaxHeight() > 0)
+			{
+				image.setMaxHeight(context.getCustomMaxHeight() + context.getCustomMaxHeightUnit().getSymbol());
+			} else
+			{
+				image.setMaxHeight("unset");
+			}
+		}
+		
 		return image;
 	}
 
