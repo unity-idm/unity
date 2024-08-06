@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 /**
  * Handles logouts in Vaadin 24 way
@@ -79,9 +80,21 @@ public class VaadinWebLogoutHandler implements WebLogoutHandler
 	@Override
 	public void logout(boolean soft)
 	{
-		String contextPath = VaadinServlet.getCurrent().getServletContext().getContextPath();
-		logoutSessionPeers(URI.create(contextPath), soft);
-		UI.getCurrent().getPage().setLocation(VaadinServlet.getCurrent().getServletContext().getContextPath());
+		UI.getCurrent().getPage().fetchCurrentURL(url ->
+				{
+					try
+					{
+						URI pageURI = url.toURI();
+						logoutSessionPeers(pageURI, soft);
+						UI.getCurrent()
+								.getPage()
+								.setLocation(pageURI);
+
+					} catch (URISyntaxException e)
+					{
+						log.error("Logout failed", e);
+					}
+				});
 	}
 
 	@Override
