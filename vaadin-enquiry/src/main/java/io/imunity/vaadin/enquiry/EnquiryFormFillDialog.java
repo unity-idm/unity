@@ -34,7 +34,7 @@ public class EnquiryFormFillDialog extends ConfirmDialog
 		this.notificationPresenter = notificationPresenter;
 		this.editor = editor;
 		this.callback = callback;
-		setSizeFull();
+
 		setHeader(header);
 
 		setConfirmText(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
