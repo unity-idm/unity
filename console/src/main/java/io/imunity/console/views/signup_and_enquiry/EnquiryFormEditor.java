@@ -244,7 +244,8 @@ public class EnquiryFormEditor extends BaseFormEditor
 
 		targetGroups = new MultiSelectComboBox<>();
 		allGroups = groupsMan.getAllGroups();
-		targetGroups.setItems(allGroups.values());
+	
+		targetGroups.setItems(allGroups.values().stream().sorted().toList());
 		targetGroups.setRequiredIndicatorVisible(true);
 		targetGroups.setWidth(TEXT_FIELD_BIG.value());
 		targetGroups.setItemLabelGenerator(group -> group.getDisplayedName().getValue(msg));

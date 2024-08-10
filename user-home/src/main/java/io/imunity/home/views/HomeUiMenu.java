@@ -38,6 +38,7 @@ import io.imunity.home.views.trusted_application.TrustedApplicationsView;
 import io.imunity.home.views.trusted_device.TrustedDeviceView;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfigurationProvider;
 import io.imunity.vaadin.endpoint.common.layout.LeftNavbarAppLayout;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
@@ -56,16 +57,19 @@ public class HomeUiMenu extends LeftNavbarAppLayout implements BeforeEnterObserv
 	private final AttributesManagement attributesMan;
 	private final AttributeHandlerRegistry registry;
 	private final HomeEndpointProperties homeEndpointProperties;
-
+	private final EnquiresDialogLauncher enquiresDialogLauncher;
+	private boolean enquiryChecked = false;
+	
 	@Autowired
 	public HomeUiMenu(VaadinWebLogoutHandler standardWebLogoutHandler, MessageSource msg,
 					  ProjectManagementHelper projectManagementHelper, AttributesManagement attributesMan,
-					  AttributeHandlerRegistry registry, ExtraPanelsConfigurationProvider extraPanelsConfiguration)
+					  AttributeHandlerRegistry registry, ExtraPanelsConfigurationProvider extraPanelsConfiguration, EnquiresDialogLauncher enquiresDialogLauncher)
 	{
 		super(createMenuComponents(msg), standardWebLogoutHandler, msg, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper)), extraPanelsConfiguration);
 		this.attributesMan = attributesMan;
 		this.registry = registry;
 		this.homeEndpointProperties = new HomeEndpointProperties(getCurrentWebAppContextProperties());
+		this.enquiresDialogLauncher = enquiresDialogLauncher;
 		ComponentUtil.setData(UI.getCurrent(), HomeEndpointProperties.class, homeEndpointProperties);
 
 		HorizontalLayout imageLayout = createImageLayout(homeEndpointProperties);
@@ -181,6 +185,13 @@ public class HomeUiMenu extends LeftNavbarAppLayout implements BeforeEnterObserv
 	@Override
 	public void showRouterLayoutContent(HasElement content)
 	{
-		super.showRouterLayoutContent(content);
+		if (!enquiryChecked)
+		{
+			enquiresDialogLauncher.showEnquiryDialogIfNeeded(() -> super.showRouterLayoutContent(content));
+		} else
+		{
+			super.showRouterLayoutContent(content);
+		}
+		enquiryChecked = true;
 	}
 }
