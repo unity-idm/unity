@@ -29,6 +29,7 @@ import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 
@@ -39,23 +40,47 @@ public class LeftNavbarAppLayout extends FlexLayout implements RouterLayout, Aft
 	private final UnityAppLayoutComponentsHolder appLayoutComponents;
 	private final VaadinEndpointProperties vaadinEndpointProperties;
 	private final ExtraPanelsConfigurationProvider extraPanelsConfiguration;
+	private final EnquiresDialogLauncher enquiresDialogLauncher;
+	private final boolean showEnquiry;
+	private boolean enquiryChecked = false;
+	
+	
 	private VerticalLayout leftContainerContent;
 
+	
 	public LeftNavbarAppLayout(List<MenuComponent> menuComponents,
 	                      VaadinWebLogoutHandler authnProcessor,
 						  MessageSource msg,
+						  EnquiresDialogLauncher enquiresDialogLauncher,
+						  boolean showEnquiry,
 	                      List<Component> additionalIcons, 
 	                      ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
 		appLayoutComponents = new UnityAppLayoutComponentsHolder(menuComponents, authnProcessor, msg, additionalIcons);
 		vaadinEndpointProperties = getCurrentWebAppVaadinProperties();
 		this.extraPanelsConfiguration = extraPanelsConfiguration;
+		this.enquiresDialogLauncher = enquiresDialogLauncher;
+		this.showEnquiry = showEnquiry;
 	}
 
 	@Override
 	public void showRouterLayoutContent(HasElement content)
 	{
-		appLayoutComponents.addViewToMainLayout(content);
+		if (!showEnquiry)
+		{
+			appLayoutComponents.addViewToMainLayout(content);
+		} else
+		{
+			if (!enquiryChecked)
+			{
+				enquiresDialogLauncher
+						.showEnquiryDialogIfNeeded(() -> appLayoutComponents.addViewToMainLayout(content));
+			} else
+			{
+				appLayoutComponents.addViewToMainLayout(content);
+			}
+			enquiryChecked = true;
+		}
 	}
 
 	protected void initView()

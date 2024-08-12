@@ -80,9 +80,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 
 public class ConsoleMenu extends LeftNavbarAppLayout
 {
-	private final EnquiresDialogLauncher enquiresDialogLauncher;
-	private boolean enquiryChecked = false;
-
 	@Autowired
 	public ConsoleMenu(EnquiresDialogLauncher enquiresDialogLauncher, VaadinWebLogoutHandler standardWebLogoutHandler,
 			MessageSource msg, AuthorizationManagement authorizationManagement,
@@ -212,8 +209,8 @@ public class ConsoleMenu extends LeftNavbarAppLayout
 						.tabName(msg.getMessage("WebConsoleMenu.maintenance"))
 						.icon(VaadinIcon.TOOLS)
 						.build())
-				.collect(toList()), standardWebLogoutHandler, msg, List.of(), extraPanelsConfiguration);
-		this.enquiresDialogLauncher = enquiresDialogLauncher;
+				.collect(toList()), standardWebLogoutHandler, msg, enquiresDialogLauncher, true, List.of(),
+				extraPanelsConfiguration);
 
 		try
 		{
@@ -269,13 +266,6 @@ public class ConsoleMenu extends LeftNavbarAppLayout
 	@Override
 	public void showRouterLayoutContent(HasElement content)
 	{
-		if (!enquiryChecked)
-		{
-			enquiresDialogLauncher.showEnquiryDialogIfNeeded(() -> super.showRouterLayoutContent(content));
-		} else
-		{
-			super.showRouterLayoutContent(content);
-		}
-		enquiryChecked = true;
+		super.showRouterLayoutContent(content);
 	}
 }

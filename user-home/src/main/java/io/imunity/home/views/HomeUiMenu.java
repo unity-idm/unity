@@ -57,19 +57,16 @@ public class HomeUiMenu extends LeftNavbarAppLayout implements BeforeEnterObserv
 	private final AttributesManagement attributesMan;
 	private final AttributeHandlerRegistry registry;
 	private final HomeEndpointProperties homeEndpointProperties;
-	private final EnquiresDialogLauncher enquiresDialogLauncher;
-	private boolean enquiryChecked = false;
-	
+
 	@Autowired
-	public HomeUiMenu(VaadinWebLogoutHandler standardWebLogoutHandler, MessageSource msg,
+	public HomeUiMenu(VaadinWebLogoutHandler standardWebLogoutHandler, MessageSource msg, EnquiresDialogLauncher enquiresDialogLauncher,
 					  ProjectManagementHelper projectManagementHelper, AttributesManagement attributesMan,
-					  AttributeHandlerRegistry registry, ExtraPanelsConfigurationProvider extraPanelsConfiguration, EnquiresDialogLauncher enquiresDialogLauncher)
+					  AttributeHandlerRegistry registry, ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
-		super(createMenuComponents(msg), standardWebLogoutHandler, msg, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper)), extraPanelsConfiguration);
+		super(createMenuComponents(msg), standardWebLogoutHandler, msg, enquiresDialogLauncher, true, List.of(createLoggedAsLabel(msg), createUpmanIcon(projectManagementHelper)), extraPanelsConfiguration);
 		this.attributesMan = attributesMan;
 		this.registry = registry;
 		this.homeEndpointProperties = new HomeEndpointProperties(getCurrentWebAppContextProperties());
-		this.enquiresDialogLauncher = enquiresDialogLauncher;
 		ComponentUtil.setData(UI.getCurrent(), HomeEndpointProperties.class, homeEndpointProperties);
 
 		HorizontalLayout imageLayout = createImageLayout(homeEndpointProperties);
@@ -185,13 +182,6 @@ public class HomeUiMenu extends LeftNavbarAppLayout implements BeforeEnterObserv
 	@Override
 	public void showRouterLayoutContent(HasElement content)
 	{
-		if (!enquiryChecked)
-		{
-			enquiresDialogLauncher.showEnquiryDialogIfNeeded(() -> super.showRouterLayoutContent(content));
-		} else
-		{
-			super.showRouterLayoutContent(content);
-		}
-		enquiryChecked = true;
+		super.showRouterLayoutContent(content);
 	}
 }

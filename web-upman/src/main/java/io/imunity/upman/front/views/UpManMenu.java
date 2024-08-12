@@ -43,6 +43,7 @@ import io.imunity.upman.utils.HomeServiceLinkService;
 import io.imunity.upman.utils.ProjectService;
 import io.imunity.vaadin.elements.MenuComponent;
 import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfigurationProvider;
 import io.imunity.vaadin.endpoint.common.layout.LeftNavbarAppLayout;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -55,7 +56,7 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 	private Optional<UpmanViewComponent> currentView = Optional.empty();
 
 	@Autowired
-	public UpManMenu(VaadinWebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg,
+	public UpManMenu(VaadinWebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg, EnquiresDialogLauncher enquiresDialogLauncher,
 	                 HomeServiceLinkService homeServiceLinkService, ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
 		super(Stream.of(
@@ -68,7 +69,7 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 						MenuComponent.builder(UserUpdatesView.class).tabName(msg.getMessage("UpManMenu.userUpdates"))
 								.icon(USER_CHECK).build()
 						)
-						.collect(toList()), standardWebLogoutHandler, msg, createHomeIcon(homeServiceLinkService), extraPanelsConfiguration
+						.collect(toList()), standardWebLogoutHandler, msg, enquiresDialogLauncher, false, createHomeIcon(homeServiceLinkService), extraPanelsConfiguration
 		);
 		this.projectService = projectService;
 
