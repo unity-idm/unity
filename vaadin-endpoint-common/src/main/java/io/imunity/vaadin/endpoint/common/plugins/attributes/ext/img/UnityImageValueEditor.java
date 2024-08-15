@@ -37,6 +37,7 @@ class UnityImageValueEditor implements AttributeValueEditor
 	{
 		required = context.isRequired();
 		imageValueComponent.setRequired(required);
+		imageValueComponent.setContext(context);
 		return new ComponentsContainer(imageValueComponent);
 	}
 	

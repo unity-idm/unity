@@ -10,10 +10,12 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
+import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.io.ByteArrayInputStream;
 import java.util.UUID;
@@ -21,13 +23,16 @@ import java.util.UUID;
 class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 {
 	private final Span label;
-	ImageRepresentationComponent(UnityImage value, AttributeViewerContext context)
+	private final MessageSource msg;
+	
+	ImageRepresentationComponent(MessageSource msg, UnityImage value, AttributeViewerContext context)
 	{
-		this(value, context, null);
+		this(msg, value, context, null);
 	}
 
-	ImageRepresentationComponent(UnityImage value, AttributeViewerContext context, String linkURL)
+	ImageRepresentationComponent(MessageSource msg, UnityImage value, AttributeViewerContext context, String linkURL)
 	{
+		this.msg = msg;
 		add(getRepresentation(value, context, linkURL));
 		this.label = new InputLabel("");
 		addComponentAsFirst(label);
@@ -48,6 +53,9 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(value.getImage());
 		StreamResource streamResource = new StreamResource("imgattribute-" + UUID.randomUUID() + "." + value.getType().toExt(), () -> byteArrayInputStream);
 		Image image = getImage(context, streamResource);
+		image.addClickListener(event -> ImagePreviewDialogFactory.getPreviewDialog(msg, value).open());
+
+		Tooltip.forComponent(image).setText(msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
 		if(context.getBorderRadius() != null && context.getBorderUnit() != null)
 			image.getStyle().set("border-radius", context.getBorderRadius() + context.getBorderUnit().getSymbol());
 		if (linkURL != null && context.isScaleImage())
