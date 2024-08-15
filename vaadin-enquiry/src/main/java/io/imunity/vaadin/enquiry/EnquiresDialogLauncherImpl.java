@@ -69,8 +69,7 @@ class EnquiresDialogLauncherImpl implements EnquiresDialogLauncher
 			log.error("Can't create an editor for enquiry form " + enquiry.getName(), e);
 			return;
 		}
-		EnquiryFormFillDialog dialog = new EnquiryFormFillDialog(msg, notificationPresenter,
-				msg.getMessage("EnquiresDialogLauncher.caption"), editor, 
+		EnquiryFormFillDialog dialog = new EnquiryFormFillDialog(msg, notificationPresenter, editor, 
 				new CallbackImpl(currentFormIndex, formsToFill, gotoNextUI), enquiry.getType());
 		dialog.open();
 	}
