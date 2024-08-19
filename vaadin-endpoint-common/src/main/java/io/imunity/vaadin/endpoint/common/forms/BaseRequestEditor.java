@@ -722,10 +722,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			AttributeViewerContext context = AttributeViewerContext.builder()
 					.withCustomWidth(formWidth())
 					.withCustomWidthUnit(formWidthUnit())
-					.withCustomMaxHeight(20)
-					.withCustomMaxHeightUnit(Unit.EM)
-					.withCustomMaxWidth(20)
-					.withCustomMaxWidthUnit(Unit.EM)
+					.withCustomMaxHeight(formWidth())
+					.withCustomMaxHeightUnit(formWidthUnit())
+					.withCustomMaxWidth(formWidth())
+					.withCustomMaxWidthUnit(formWidthUnit())
 					.withShowCaption(!(form.getLayoutSettings().isCompactInputs()))
 					.build();
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry,
@@ -750,6 +750,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.withLabelInline(form.getLayoutSettings().isCompactInputs())
 					.withCustomWidth(formWidth())
 					.withCustomWidthUnit(formWidthUnit())
+					.withCustomMaxHeight(formWidth())
+					.withCustomMaxHeightUnit(formWidthUnit())
+					.withCustomMaxWidth(formWidth())
+					.withCustomMaxWidthUnit(formWidthUnit())
 					.build();
 
 			LabelContext labelContext = new LabelContext(

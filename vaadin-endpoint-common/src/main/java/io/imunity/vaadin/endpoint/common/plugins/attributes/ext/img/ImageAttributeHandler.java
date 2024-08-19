@@ -38,7 +38,7 @@ class ImageAttributeHandler implements WebAttributeHandler
 	public Component getRepresentation(String valueRaw, AttributeViewerContext context)
 	{
 		UnityImage value = syntax.convertFromString(valueRaw);
-		return new ImageRepresentationComponent(value, context);
+		return new ImageRepresentationComponent(msg, value, context);
 	}
 
 	@Override

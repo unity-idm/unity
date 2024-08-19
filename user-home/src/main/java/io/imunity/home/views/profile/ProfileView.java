@@ -256,6 +256,10 @@ public class ProfileView extends HomeViewComponent
 					.withLabelContext(labelContext)
 					.withValueChangeMode(ValueChangeMode.EAGER)
 					.withCustomWidth(CSSVars.TEXT_FIELD_MEDIUM.value())
+					.withCustomMaxHeight(22)
+					.withCustomMaxHeightUnit(Unit.EM)
+					.withCustomMaxWidth(22)
+					.withCustomMaxWidthUnit(Unit.EM)					
 					.withAttributeOwner(new EntityParam(theUser.getEntityId())).build();
 					
 
@@ -274,9 +278,9 @@ public class ProfileView extends HomeViewComponent
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, attributeType,
 					attribute, labelContext, AttributeViewerContext.builder()
 					.withCustomWidth(CSSVars.TEXT_FIELD_MEDIUM.value())
-					.withCustomMaxHeight(20)
+					.withCustomMaxHeight(22)
 					.withCustomMaxHeightUnit(Unit.EM)
-					.withCustomMaxWidth(20)
+					.withCustomMaxWidth(22)
 					.withCustomMaxWidthUnit(Unit.EM)
 					.build());
 			return viewer.getComponentsGroup();

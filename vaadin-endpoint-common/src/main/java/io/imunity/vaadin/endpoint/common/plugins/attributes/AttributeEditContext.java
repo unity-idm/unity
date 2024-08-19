@@ -24,7 +24,11 @@ public class AttributeEditContext
 	private Unit customWidthUnit = null;
 	private ValueChangeMode valueChangeMode;
 	private String customWidthAsString;
-
+	private Float customMaxWidth = null;
+	private Unit customMaxWidthUnit = null;
+	private Float customMaxHeight = null;
+	private Unit customMaxHeightUnit = null;
+	
 	private AttributeEditContext()
 	{
 	}
@@ -100,6 +104,36 @@ public class AttributeEditContext
 		return customWidthAsString;
 	}
 
+	public Float getCustomMaxHeight()
+	{
+		return customMaxHeight;
+	}
+
+	public Unit getCustomMaxHeightUnit()
+	{
+		return customMaxHeightUnit;
+	}
+	
+	public Float getCustomMaxWidth()
+	{
+		return customMaxWidth;
+	}
+
+	public Unit getCustomMaxWidthUnit()
+	{
+		return customMaxWidthUnit;
+	}
+	
+	public boolean isCustomMaxWidth()
+	{
+		return customMaxWidth != null && customMaxWidthUnit != null;
+	}
+	
+	public boolean isCustomMaxHeight()
+	{
+		return customMaxHeight != null && customMaxHeightUnit != null;
+	}
+	
 	public static class Builder
 	{
 		private final AttributeEditContext obj;
@@ -168,6 +202,31 @@ public class AttributeEditContext
 			this.obj.customWidthAsString = customWidth;
 			return this;
 		}
+		
+		public Builder withCustomMaxWidth(float customWidth)
+		{
+			this.obj.customMaxWidth = customWidth;
+			return this;
+		}
+
+		public Builder withCustomMaxWidthUnit(Unit customWidthUnit)
+		{
+			this.obj.customMaxWidthUnit = customWidthUnit;
+			return this;
+		}
+
+		public Builder withCustomMaxHeight(float customHeight)
+		{
+			this.obj.customMaxHeight = customHeight;
+			return this;
+		}
+
+		public Builder withCustomMaxHeightUnit(Unit customHeightUnit)
+		{
+			this.obj.customMaxHeightUnit = customHeightUnit;
+			return this;
+		}
+
 		
 		public Builder withCustomWidthUnit(Unit customWidthUnit)
 		{

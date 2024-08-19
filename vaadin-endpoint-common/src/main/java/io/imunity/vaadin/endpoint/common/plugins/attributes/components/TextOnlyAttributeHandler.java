@@ -11,7 +11,6 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -115,11 +114,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			setLabel(label);
 			
 			
-			
-			StringBuilder sb = new StringBuilder();
-			for (String hint: getHints())
-				sb.append(hint).append("\n");
-			Tooltip.forComponent(field).setText(sb.toString());
+
 			if (label != null)
 				field.setId("ValueEditor."+label);
 			
@@ -149,8 +144,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		private ValidationResult validate(Object value, ValueContext context)
 		{
 			String val = (String) value;
-			if (val.isEmpty())
-				return ValidationResult.ok(); //fall back to default checking
+
 			try
 			{
 				syntax.validateStringValue(val);

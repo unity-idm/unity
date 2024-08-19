@@ -69,7 +69,7 @@ public class AttributeViewer
 				.map(value ->
 				{
 					Component representation = getRepresentation(value);
-					if(description != null)
+					if(description != null && (attributeType.getDisplayedName() == null || !description.equals(attributeType.getDisplayedName().getValue(msg))))
 					{
 						String descSafe = HtmlConfigurableLabel.conditionallyEscape(description);
 						Tooltip.forComponent(representation).setText(descSafe);

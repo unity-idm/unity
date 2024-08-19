@@ -4,10 +4,16 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -21,23 +27,18 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileData;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.server.StreamResource;
+
 import io.imunity.vaadin.elements.ErrorLabel;
 import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.endpoint.common.WebSession;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
-
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.attribute.image.ImageType;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.util.Optional;
-import java.util.UUID;
 
 class UnityImageValueComponent extends VerticalLayout implements HasLabel
 {
@@ -62,7 +63,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		error.setVisible(false);
 
 		image = new Image();
-		image.addClickListener(event -> getConfirmDialog().open());
+		image.addClickListener(event -> ImagePreviewDialogFactory.getPreviewDialog(msg, value).open());
 
 		if (value != null)
 			showValue();
@@ -73,19 +74,19 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		scaleLayout.getStyle().set("gap", "0.5em");
 		scaleLayout.getStyle().set("margin-top", "0.5em");
 		scaleLayout.getStyle().set("margin-bottom", "0.5em");
-		scale.addValueChangeListener(event ->
-		{
-			if(event.getValue())
-			{
-				image.setMaxWidth(imgConfig.getMaxWidth() + "px");
-				image.setMaxHeight(imgConfig.getMaxHeight() + "px");
-			}
-			else
-			{
-				image.getStyle().remove("max-width");
-				image.getStyle().remove("max-height");
-			}
-		});
+//		scale.addValueChangeListener(event ->
+//		{	
+//			if(event.getValue())
+//			{
+//				image.setMaxWidth(imgConfig.getMaxWidth() + "px");
+//				image.setMaxHeight(imgConfig.getMaxHeight() + "px");
+//			}
+//			else
+//			{
+//				image.getStyle().remove("max-width");
+//				image.getStyle().remove("max-height");
+//			}
+//		});
 		scale.setValue(true);
 
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
@@ -171,18 +172,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		}
 	}
 
-	private ConfirmDialog getConfirmDialog()
-	{
-		ConfirmDialog confirmDialog = new ConfirmDialog();
-		confirmDialog.setHeader(msg.getMessage("ImageAttributeHandler.image"));
-		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(value.getImage());
-		StreamResource streamResource = new StreamResource("imgattribute-" + UUID.randomUUID() + "." + value.getType().toExt(), () -> byteArrayInputStream);
-		Image image = new Image(streamResource, "");
-		confirmDialog.add(image);
-		confirmDialog.addConfirmListener(event -> confirmDialog.close());
-		confirmDialog.setSizeFull();
-		return confirmDialog;
-	}
+	
 
 	private void setUnityImageValue(UnityImage value)
 	{
@@ -245,6 +235,23 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		verticalLayout.setMargin(false);
 		verticalLayout.setPadding(false);
 		verticalLayout.getStyle().set("gap", "0");
+		verticalLayout.getStyle().set("font-size", "var(--lumo-font-size-xxs)");
+
 		return verticalLayout;
 	}
+	
+	public void setContext(AttributeEditContext context)
+	{
+		if (context.isCustomMaxWidth())
+		{
+			image.setMaxWidth(context.getCustomMaxWidth() + context.getCustomMaxWidthUnit().getSymbol());
+		}
+		
+		if (context.isCustomMaxHeight())
+		{
+			image.setMaxHeight(context.getCustomMaxHeight() + context.getCustomMaxHeightUnit().getSymbol());
+		}
+		
+	}
+	
 }

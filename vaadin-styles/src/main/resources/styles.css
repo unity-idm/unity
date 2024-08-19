@@ -73,7 +73,7 @@ html {
   --unity-auth-component-margin: var(--lumo-space-xs);
   --unity-auth-full-component-margin: calc(2 * var(--unity-auth-component-margin));
 
-  --unity-text-field-medium: 20em;
+  --unity-text-field-medium: 22em;
   --unity-field-medium: 12em;
   --unity-text-field-big: 40em;
   --unity-rich-field-big: 55em;
