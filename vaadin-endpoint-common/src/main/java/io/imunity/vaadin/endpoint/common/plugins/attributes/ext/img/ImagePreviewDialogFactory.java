@@ -27,7 +27,8 @@ class ImagePreviewDialogFactory
 		Dialog confirmDialog = new Dialog();
 		confirmDialog.setResizable(true);
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(value.getImage());
-		StreamResource streamResource = new StreamResource("imgattribute-" + UUID.randomUUID() + "." + value.getType().toExt(), () -> byteArrayInputStream);
+		StreamResource streamResource = new StreamResource("imgattribute-" + UUID.randomUUID() + "." + value.getType()
+				.toExt(), () -> byteArrayInputStream);
 		Image image = new Image(streamResource, "");
 		image.setWidth(value.getWidth(), Unit.PIXELS);
 		image.setHeight(value.getHeight(), Unit.PIXELS);
@@ -36,17 +37,17 @@ class ImagePreviewDialogFactory
 		confirmDialog.add(dialogLayout);
 		return confirmDialog;
 	}
-	
-	private static VerticalLayout createDialogLayout(Dialog dialog, MessageSource msg, Image image) {
-        H3 headline = new H3(msg.getMessage("ImageAttributeHandler.image"));
-        Button closeButton = new Button(msg.getMessage("close"));
-        closeButton.addClickListener(e -> dialog.close());
-        VerticalLayout dialogLayout = new VerticalLayout(headline, image,
-                closeButton);
-        dialogLayout.setSizeFull();
-        dialogLayout.setPadding(false);
-        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
-        dialogLayout.setAlignSelf(FlexComponent.Alignment.END, closeButton);
-        return dialogLayout;
-    }
+
+	private static VerticalLayout createDialogLayout(Dialog dialog, MessageSource msg, Image image)
+	{
+		H3 headline = new H3(msg.getMessage("ImageAttributeHandler.image"));
+		Button closeButton = new Button(msg.getMessage("close"));
+		closeButton.addClickListener(e -> dialog.close());
+		VerticalLayout dialogLayout = new VerticalLayout(headline, image, closeButton);
+		dialogLayout.setSizeFull();
+		dialogLayout.setPadding(false);
+		dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+		dialogLayout.setAlignSelf(FlexComponent.Alignment.END, closeButton);
+		return dialogLayout;
+	}
 }
