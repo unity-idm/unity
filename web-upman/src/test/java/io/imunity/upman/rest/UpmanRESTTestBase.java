@@ -88,11 +88,13 @@ abstract class UpmanRESTTestBase extends DBIntegrationTestBase
 		host = getHost();
 	}
 
-	protected HttpHost getHost() {
-		return new HttpHost("https", "localhost", 53458);
+	protected HttpHost getHost()
+	{
+		int port = httpServer.getUrls()[0].getPort();
+		return new HttpHost("https", "localhost", port);
 	}
 
-	protected HttpClient getClient() throws Exception
+	private HttpClient getClient() throws Exception
 	{
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setCredential(getDemoCredential());
@@ -100,7 +102,8 @@ abstract class UpmanRESTTestBase extends DBIntegrationTestBase
 		clientCfg.setSslEnabled(true);
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
-		return HttpUtils.createClient("https://localhost:53456", clientCfg);
+		int port = httpServer.getUrls()[0].getPort();
+		return HttpUtils.createClient("https://localhost:"+port, clientCfg);
 	}
 
 	protected HttpClientContext getClientContext(HttpHost host)
