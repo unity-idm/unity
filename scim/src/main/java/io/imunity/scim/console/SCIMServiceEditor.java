@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.scim.SCIMEndpoint;
 import io.imunity.scim.console.SCIMServiceEditorSchemaTab.SCIMServiceEditorSchemaTabFactory;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceDefinition;
@@ -48,12 +49,13 @@ class SCIMServiceEditor implements ServiceEditor
 	private SCIMServiceEditorComponent editor;
 	private final SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory;
 	private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
 	SCIMServiceEditor(MessageSource msg, SubViewSwitcher subViewSwitcher, List<String> allRealms,
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators, List<String> usedPaths, List<String> usedNames,
 			Set<String> serverContextPaths, List<Group> allGroups,
 			SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory,
-			ConfigurationVaadinBeanMapper configurationVaadinBeanMapper)
+			ConfigurationVaadinBeanMapper configurationVaadinBeanMapper, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.allRealms = allRealms;
@@ -66,6 +68,7 @@ class SCIMServiceEditor implements ServiceEditor
 		this.subViewSwitcher = subViewSwitcher;
 		this.editorSchemaTabFactory = editorSchemaTabFactory;
 		this.configurationVaadinBeanMapper = configurationVaadinBeanMapper;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -73,7 +76,7 @@ class SCIMServiceEditor implements ServiceEditor
 	{
 
 		SCIMServiceEditorGeneralTab restAdminServiceEditorGeneralTab = new SCIMServiceEditorGeneralTab(msg,
-				SCIMEndpoint.TYPE, usedPaths, usedNames, serverContextPaths, allGroups);
+				SCIMEndpoint.TYPE, usedPaths, usedNames, serverContextPaths, allGroups, htmlTooltipFactory);
 
 		AuthenticationTab authenticationTab = new AuthenticationTab(msg, flows, authenticators, allRealms,
 				JWTManagementEndpoint.TYPE.getSupportedBinding());
@@ -103,13 +106,14 @@ class SCIMServiceEditor implements ServiceEditor
 		private final BulkGroupQueryService bulkService;
 		private final SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory;
 		private final ConfigurationVaadinBeanMapper configurationVaadinBeanMapper;
+		private final HtmlTooltipFactory htmlTooltipFactory;
 
 		@Autowired
 		SCIMServiceEditorFactory(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
 				AuthenticationFlowManagement flowsMan, AuthenticatorManagement authMan, NetworkServer networkServer,
 				BulkGroupQueryService bulkService,
 				SCIMServiceEditorSchemaTabFactory editorSchemaTabFactory,
-				ConfigurationVaadinBeanMapper configurationVaadinBeanMapper)
+				ConfigurationVaadinBeanMapper configurationVaadinBeanMapper, HtmlTooltipFactory htmlTooltipFactory)
 		{
 			this.msg = msg;
 			this.endpointMan = endpointMan;
@@ -120,6 +124,7 @@ class SCIMServiceEditor implements ServiceEditor
 			this.bulkService = bulkService;
 			this.editorSchemaTabFactory = editorSchemaTabFactory;
 			this.configurationVaadinBeanMapper = configurationVaadinBeanMapper;
+			this.htmlTooltipFactory = htmlTooltipFactory;
 		}
 
 		public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
@@ -133,7 +138,7 @@ class SCIMServiceEditor implements ServiceEditor
 					networkServer.getUsedContextPaths(),
 					bulkService.getGroupAndSubgroups(bulkService.getBulkStructuralData("/")).values().stream()
 							.map(g -> g.getGroup()).collect(Collectors.toList()),
-					editorSchemaTabFactory, configurationVaadinBeanMapper);
+					editorSchemaTabFactory, configurationVaadinBeanMapper, htmlTooltipFactory);
 		}
 	}
 

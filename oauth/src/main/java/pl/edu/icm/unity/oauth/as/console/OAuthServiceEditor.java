@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as.console;
 
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.auth.services.ServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceEditor;
@@ -64,6 +65,7 @@ class OAuthServiceEditor implements ServiceEditor
 	private final OAuthScopesService scopeService;
 	private final Set<String> validators;
 	private final Set<String> certificates;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
 	OAuthServiceEditor(MessageSource msg, 
 			SubViewSwitcher subViewSwitcher,
@@ -90,7 +92,7 @@ class OAuthServiceEditor implements ServiceEditor
 			Collection<PolicyDocumentWithRevision> policyDocuments,
 			OAuthScopesService scopeService,	
 			Set<String> validators,
-			Set<String> certificates)
+			Set<String> certificates, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
@@ -118,12 +120,13 @@ class OAuthServiceEditor implements ServiceEditor
 		this.scopeService = scopeService;
 		this.validators = validators;
 		this.certificates = certificates;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, serverPrefix, serverContextPaths,
+		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, htmlTooltipFactory, serverPrefix, serverContextPaths,
 				subViewSwitcher, outputTranslationProfileFieldFactory, endpoint != null, credentials, idTypes,
 				allAttributes, usedPaths, scopeService.getSystemScopes(), validators, certificates);
 		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig,

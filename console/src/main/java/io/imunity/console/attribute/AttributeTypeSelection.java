@@ -116,7 +116,7 @@ class AttributeTypeSelection extends VerticalLayout
 
 	private void setTooltipComponent(String message)
 	{
-		formItemTooltip = TooltipFactory.getWithHtmlContent(message);
+		formItemTooltip = TooltipFactory.getWithHtmlContent(message).component();
 		formItemTooltip.getStyle().set("margin-bottom", "0.9em");
 	}
 }

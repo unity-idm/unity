@@ -13,7 +13,7 @@ import com.vaadin.flow.component.UI;
 
 public class HtmlTooltipAttacher
 {
-	public static void to(Component component, Html tooltipContent)
+	public static Tooltip to(Component component, Html tooltipContent)
 	{
 		Tooltip tooltip = new Tooltip();
 		tooltip.attachToComponent(component);
@@ -21,15 +21,11 @@ public class HtmlTooltipAttacher
 		tooltip.add(tooltipContent);
 		tooltip.setThemeName("light");
 		UI.getCurrent().add(tooltip);
+		return tooltip;
 	}
 	
-	public static void to(Component component, String tooltipContent)
+	public static Tooltip to(Component component, String tooltipContent)
 	{
-		Tooltip tooltip = new Tooltip();
-		tooltip.attachToComponent(component);
-		tooltip.setPosition(TooltipPosition.BOTTOM);
-		tooltip.add(new Html("<div>" + tooltipContent + "</div>"));
-		tooltip.setThemeName("light");
-		UI.getCurrent().add(tooltip);
+		return to(component, new Html("<div>" + tooltipContent + "</div>"));
 	}
 }

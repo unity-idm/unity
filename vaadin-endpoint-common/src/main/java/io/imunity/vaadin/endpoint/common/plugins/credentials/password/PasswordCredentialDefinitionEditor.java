@@ -14,7 +14,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.Binder;
 import io.imunity.vaadin.elements.DialogWithActionFooter;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.TooltipFactory;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionViewer;
@@ -43,19 +43,21 @@ class PasswordCredentialDefinitionEditor implements CredentialDefinitionEditor, 
 	private final MessageTemplateManagement msgTplMan;
 	private final SCryptEncoder scryptEncoder;
 	private final NotificationPresenter notificationPresenter;
-
+	private final HtmlTooltipFactory htmlTooltipFactory;
+	
 	private Checkbox limitMaxAge;
 	private IntegerField maxAge;
 	private PasswordCredentialResetSettingsEditor resetSettings;
 	private Binder<PasswordCredential> binder;
 
 	PasswordCredentialDefinitionEditor(MessageSource msg, MessageTemplateManagement msgTplMan,
-			PasswordEncodingPoolProvider poolProvider, NotificationPresenter notificationPresenter)
+			PasswordEncodingPoolProvider poolProvider, NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.msgTplMan = msgTplMan;
 		this.notificationPresenter = notificationPresenter;
 		this.scryptEncoder = new SCryptEncoder(poolProvider.pool);
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -161,7 +163,7 @@ class PasswordCredentialDefinitionEditor implements CredentialDefinitionEditor, 
 		form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		form.addFormItem(testMe, "");
 		form.addFormItem(minScore, msg.getMessage("PasswordDefinitionEditor.minScore"))
-				.add(TooltipFactory.get(msg.getMessage("PasswordDefinitionEditor.minScoreDesc")));
+				.add(htmlTooltipFactory.get(msg.getMessage("PasswordDefinitionEditor.minScoreDesc")));
 		form.addFormItem(scoreNote, "");
 		form.addFormItem(minLength, msg.getMessage("PasswordDefinitionEditor.minLength"));
 		form.addFormItem(minClasses, msg.getMessage("PasswordDefinitionEditor.minClasses"));
@@ -170,10 +172,10 @@ class PasswordCredentialDefinitionEditor implements CredentialDefinitionEditor, 
 		form.addFormItem(limitMaxAge, "");
 		form.addFormItem(maxAge, msg.getMessage("PasswordDefinitionEditor.maxAge"));
 		form.addFormItem(workFactor, msg.getMessage("PasswordDefinitionEditor.workFactor"))
-				.add(TooltipFactory.get(msg.getMessage("PasswordDefinitionEditor.workFactorDesc")));
+				.add(htmlTooltipFactory.get(msg.getMessage("PasswordDefinitionEditor.workFactorDesc")));
 		form.addFormItem(testWorkFactor, "");
 		form.addFormItem(allowLegacy, "")
-				.add(TooltipFactory.get(msg.getMessage("PasswordDefinitionEditor.allowLegacyDesc")));
+				.add(htmlTooltipFactory.get(msg.getMessage("PasswordDefinitionEditor.allowLegacyDesc")));
 
 		PasswordCredential helper = new PasswordCredential();
 		if (credentialDefinitionConfiguration != null)

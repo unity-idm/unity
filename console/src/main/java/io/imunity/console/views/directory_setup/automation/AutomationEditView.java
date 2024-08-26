@@ -84,7 +84,7 @@ public class AutomationEditView extends ConsoleViewComponent
 
 		CronExpressionField cronExpression = new CronExpressionField(msg, "");
 		cronExpression.setWidth(TEXT_FIELD_MEDIUM.value());
-		Component tooltip = TooltipFactory.getWithHtmlContent(msg.getMessage("CronExpressionField.cronExpressionDescription"));
+		Component tooltip = TooltipFactory.getWithHtmlContent(msg.getMessage("CronExpressionField.cronExpressionDescription")).component();
 
 		MVELExpressionField condition = new MVELExpressionField(msg, "",
 				msg.getMessage("MVELExpressionField.conditionDesc"),

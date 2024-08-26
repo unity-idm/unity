@@ -45,6 +45,7 @@ import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import io.imunity.vaadin.endpoint.common.TooltipFactory;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.ArrayList;
@@ -86,7 +87,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private RegistrationTranslationProfileEditor profileEditor;
 	private EnquiryFormLayoutEditorTab layoutEditor;
 	private final VaadinLogoImageLoader imageAccessService;
-
+	private final HtmlTooltipFactory htmlTooltipFactory;
 	//binder is only for targetCondition validation
 	private Binder<EnquiryForm> binder;
 	private Map<String, Group> allGroups;
@@ -99,7 +100,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService,
 			VaadinLogoImageLoader imageAccessService,
 			PolicyAgreementConfigurationList.PolicyAgreementConfigurationListFactory policyAgreementConfigurationListFactory,
-			AttributeTypeSupport attributeTypeSupport, NotificationPresenter notificationPresenter)
+			AttributeTypeSupport attributeTypeSupport, NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory)
 			throws EngineException
 	{
 		super(msg, identitiesMan, attributeMan, authenticationMan, policyAgreementConfigurationListFactory,
@@ -113,6 +114,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		this.serverConfig = serverConfig;
 		this.imageAccessService = imageAccessService;
 		this.notificationPresenter = notificationPresenter;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 	
 	public EnquiryFormEditor init(boolean copyMode)
@@ -304,7 +306,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		main.addFormItem(pageTitle, msg.getMessage("RegistrationFormEditor.registrationPageTitle"));
 
 		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService,
-				imageAccessService);
+				imageAccessService, htmlTooltipFactory);
 
 		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
 		wrapper.setPadding(false);

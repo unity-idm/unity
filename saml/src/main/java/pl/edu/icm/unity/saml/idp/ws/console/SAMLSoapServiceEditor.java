@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.idp.ws.console;
 
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.auth.services.ServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceEditor;
@@ -65,6 +66,7 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 	private final List<String> usedPaths;
 	private final VaadinLogoImageLoader imageAccessService;
 	private final NotificationPresenter notificationPresenter;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
 	public SAMLSoapServiceEditor(MessageSource msg, EndpointTypeDescription type, PKIManagement pkiMan,
 			SubViewSwitcher subViewSwitcher,
@@ -76,7 +78,7 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 			List<AuthenticationFlowDefinition> flows, List<AuthenticatorInfo> authenticators,
 			List<String> allAttributes, List<Group> allGroups, List<IdpUser> allUsers,
 			Set<String> credentials, Set<String> truststores, Collection<IdentityType> idTypes,
-			List<String> usedPaths, NotificationPresenter notificationPresenter)
+			List<String> usedPaths, NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.type = type;
@@ -100,6 +102,7 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 		this.truststores = truststores;
 		this.pkiMan = pkiMan;
 		this.notificationPresenter = notificationPresenter;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -109,7 +112,7 @@ public class SAMLSoapServiceEditor implements ServiceEditor
 		SAMLEditorGeneralTab samlEditorGeneralTab = new SAMLEditorGeneralTab(msg, serverPrefix, serverContextPaths,
 				serverConfig, subViewSwitcher,
 				outputTranslationProfileFieldFactory,
-				usedPaths, credentials, truststores, idTypes);
+				usedPaths, credentials, truststores, idTypes, htmlTooltipFactory);
 		
 		SAMLEditorClientsTab clientsTab = new SAMLEditorClientsTab(msg, pkiMan, serverConfig, uriAccessService,
 				fileStorageService, subViewSwitcher, notificationPresenter);
