@@ -3,12 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.components;
+package io.imunity.vaadin.endpoint.common;
 
 import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
 
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 
@@ -21,7 +20,7 @@ public class TooltipFactory implements HtmlTooltipFactory
 	public static Component getWithHtmlContent(String tooltipText)
 	{
 		Icon icon = VaadinIcon.QUESTION_CIRCLE_O.create();
-		HtmlTooltipAttacher.to(icon, new Html("<div>" + tooltipText + "</div>"));
+		HtmlTooltipAttacher.to(icon, tooltipText);
 		icon.setClassName(FIELD_ICON_GAP.getName());
 		return icon;
 	}

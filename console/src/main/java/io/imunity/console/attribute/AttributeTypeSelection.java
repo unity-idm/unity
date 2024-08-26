@@ -8,8 +8,10 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import io.imunity.console.components.TooltipFactory;
+
 import io.imunity.console.tprofile.AttributeSelectionComboBox;
+import io.imunity.vaadin.endpoint.common.TooltipFactory;
+
 import org.apache.commons.lang3.StringUtils;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;

@@ -7,8 +7,9 @@ package io.imunity.vaadin.auth;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.elements.LinkButton;
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
+
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
@@ -71,7 +72,7 @@ public class SecondFactorAuthNPanel extends AuthNPanelBase implements Authentica
 				msg.getMessage("AuthenticationUI.resetMfaButton"),
 				event -> switchToFirstFactor.run()
 		);
-		Tooltip.forComponent(resetMfaButton).setText(msg.getMessage("AuthenticationUI.resetMfaButtonDesc"));
+		HtmlTooltipAttacher.to(resetMfaButton, msg.getMessage("AuthenticationUI.resetMfaButtonDesc"));
 		resetMfaButton.addClassName("u-authn-resetMFAButton");
 		authenticatorContainer.add(resetMfaButton);
 		authenticatorContainer.setAlignItems(FlexComponent.Alignment.END);

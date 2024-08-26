@@ -10,9 +10,9 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.vaadin.elements.InputLabel;
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -55,7 +55,7 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 		Image image = getImage(context, streamResource);
 		image.addClickListener(event -> ImagePreviewDialogFactory.getPreviewDialog(msg, value).open());
 
-		Tooltip.forComponent(image).setText(msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
+		HtmlTooltipAttacher.to(image, msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
 		if(context.getBorderRadius() != null && context.getBorderUnit() != null)
 			image.getStyle().set("border-radius", context.getBorderRadius() + context.getBorderUnit().getSymbol());
 		if (linkURL != null && context.isScaleImage())

@@ -9,9 +9,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.elements.BlankPageAnchor;
 import io.imunity.vaadin.elements.MultiSelectGrid;
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.time.Instant;
@@ -74,8 +74,7 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 	{
 		String groups = String.join(", ", model.groupsDisplayedNames);
 		Span label = new Span(groups);
-		Tooltip.forComponent(label)
-				.withText(groups);
+		HtmlTooltipAttacher.to(label, groups);
 		return label;
 	}
 }

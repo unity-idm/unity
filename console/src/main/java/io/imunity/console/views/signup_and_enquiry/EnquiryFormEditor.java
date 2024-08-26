@@ -14,7 +14,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
-import io.imunity.console.components.TooltipFactory;
+
 import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.console.tprofile.RegistrationTranslationProfileEditor;
 import io.imunity.vaadin.elements.CssClassNames;
@@ -44,6 +44,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.mvel.MVELExpressionContext;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import io.imunity.vaadin.endpoint.common.TooltipFactory;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.ArrayList;

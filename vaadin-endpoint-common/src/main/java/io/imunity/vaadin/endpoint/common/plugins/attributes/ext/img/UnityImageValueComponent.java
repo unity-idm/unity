@@ -22,7 +22,6 @@ import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileData;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
@@ -30,6 +29,7 @@ import com.vaadin.flow.server.StreamResource;
 
 import io.imunity.vaadin.elements.ErrorLabel;
 import io.imunity.vaadin.elements.InputLabel;
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
@@ -74,19 +74,6 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		scaleLayout.getStyle().set("gap", "0.5em");
 		scaleLayout.getStyle().set("margin-top", "0.5em");
 		scaleLayout.getStyle().set("margin-bottom", "0.5em");
-//		scale.addValueChangeListener(event ->
-//		{	
-//			if(event.getValue())
-//			{
-//				image.setMaxWidth(imgConfig.getMaxWidth() + "px");
-//				image.setMaxHeight(imgConfig.getMaxHeight() + "px");
-//			}
-//			else
-//			{
-//				image.getStyle().remove("max-width");
-//				image.getStyle().remove("max-height");
-//			}
-//		});
 		scale.setValue(true);
 
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
@@ -124,7 +111,6 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 	{
 		image.setSrc("");
 		image.setVisible(false);
-		Tooltip.forComponent(image).setText(null);
 		WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
 
 	}
@@ -159,11 +145,16 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 			UnityImage scaledDown = new UnityImage(value.getImage(), value.getType());
 
 			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(scaledDown.getImage());
-			StreamResource streamResource = new StreamResource("imgattribute-" + UUID.randomUUID() + "." + scaledDown.getType().toExt(), () -> byteArrayInputStream);
+			StreamResource streamResource = new StreamResource(
+					"imgattribute-" + UUID.randomUUID() + "." + scaledDown.getType()
+							.toExt(),
+					() -> byteArrayInputStream);
 			image.setSrc(streamResource);
 			error.setVisible(false);
 			image.setVisible(true);
-			Tooltip.forComponent(image).setText(msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
+			HtmlTooltipAttacher.to(image,
+					msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
+
 		} catch (Exception e)
 		{
 			LOG.warn("Problem getting value's image as resource for editing: " + e, e);

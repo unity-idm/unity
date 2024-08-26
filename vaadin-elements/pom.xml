@@ -50,10 +50,14 @@
                     <execution>
                         <goals>
                             <goal>clean-frontend</goal>
+                            <goal>prepare-frontend</goal>
                             <goal>build-frontend</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <optimizeBundle>false</optimizeBundle>
+                </configuration>
             </plugin>
         </plugins>
     </build>
