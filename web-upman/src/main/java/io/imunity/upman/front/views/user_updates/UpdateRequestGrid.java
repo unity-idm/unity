@@ -9,8 +9,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HtmlContainer;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.shared.Tooltip;
 import io.imunity.vaadin.elements.MultiSelectGrid;
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.time.ZoneId;
@@ -58,7 +58,7 @@ class UpdateRequestGrid extends MultiSelectGrid<UpdateRequestModel>
 	{
 		String groups = String.join(", ", model.groupsDisplayedNames);
 		Span label = new Span();
-		Tooltip.forComponent(label).withText(groups);
+		HtmlTooltipAttacher.to(label, groups);
 		if(groups.length() > 30)
 			groups = groups.substring(0, 30) + "...";
 		label.setText(groups);

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.idp.ws.console;
 
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.auth.services.DefaultServicesControllerBase;
 import io.imunity.vaadin.auth.services.ServiceEditor;
@@ -47,6 +48,7 @@ abstract class SAMLSoapServiceControllerBase extends DefaultServicesControllerBa
 	private VaadinLogoImageLoader imageAccessService;
 	private AdvertisedAddressProvider advertisedAddrProvider;
 	private NotificationPresenter notificationPresenter;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
 	public SAMLSoapServiceControllerBase(MessageSource msg, EndpointManagement endpointMan, MessageSource msg2,
 			EndpointManagement endpointMan2, RealmsManagement realmsMan, AuthenticationFlowManagement flowsMan,
@@ -55,7 +57,7 @@ abstract class SAMLSoapServiceControllerBase extends DefaultServicesControllerBa
 			UnityServerConfiguration serverConfig, IdentityTypeSupport idTypeSupport, PKIManagement pkiMan,
 			NetworkServer server, OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
 			IdpUsersHelper idpUserHelper, AdvertisedAddressProvider advertisedAddrProvider,
-			EndpointFileConfigurationManagement serviceFileConfigController, NotificationPresenter notificationPresenter)
+			EndpointFileConfigurationManagement serviceFileConfigController, NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
@@ -74,6 +76,7 @@ abstract class SAMLSoapServiceControllerBase extends DefaultServicesControllerBa
 		this.idpUserHelper = idpUserHelper;
 		this.advertisedAddrProvider = advertisedAddrProvider;
 		this.notificationPresenter = notificationPresenter;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -96,7 +99,7 @@ abstract class SAMLSoapServiceControllerBase extends DefaultServicesControllerBa
 						.stream().map(g -> g.getGroup()).collect(Collectors.toList()),
 				idpUserHelper.getAllUsers(), pkiMan.getCredentialNames(), pkiMan.getValidatorNames(),
 				idTypeSupport.getIdentityTypes(), endpointMan.getEndpoints().stream()
-						.map(e -> e.getContextAddress()).collect(Collectors.toList()), notificationPresenter);
+						.map(e -> e.getContextAddress()).collect(Collectors.toList()), notificationPresenter, htmlTooltipFactory);
 	}
 
 	public abstract EndpointTypeDescription getType();

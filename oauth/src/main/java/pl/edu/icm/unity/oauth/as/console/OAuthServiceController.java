@@ -9,6 +9,7 @@ import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.vaadin.flow.server.StreamResource;
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceDefinition;
@@ -116,6 +117,7 @@ class OAuthServiceController implements IdpServiceController
 	private final EndpointFileConfigurationManagement serviceFileConfigController;
 	private final OAuthScopesService scopesService;
 	private final NotificationPresenter notificationPresenter;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
 	@Autowired
 	OAuthServiceController(MessageSource msg, EndpointManagement endpointMan, RealmsManagement realmsMan,
@@ -131,7 +133,7 @@ class OAuthServiceController implements IdpServiceController
 			VaadinLogoImageLoader imageService, IdpUsersHelper idpUsersHelper,
 			PolicyDocumentManagement policyDocumentManagement,
 			EndpointFileConfigurationManagement serviceFileConfigController,
-			OAuthScopesService scopesService, NotificationPresenter notificationPresenter)
+			OAuthScopesService scopesService, NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.endpointMan = endpointMan;
@@ -161,6 +163,7 @@ class OAuthServiceController implements IdpServiceController
 		this.serviceFileConfigController = serviceFileConfigController;
 		this.scopesService = scopesService;
 		this.notificationPresenter = notificationPresenter;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -721,6 +724,6 @@ class OAuthServiceController implements IdpServiceController
 						.collect(Collectors.toList()),
 				pkiMan.getCredentialNames(), authenticatorSupportService, idTypeSupport.getIdentityTypes(),
 				endpointMan.getEndpoints().stream().map(e -> e.getContextAddress()).collect(Collectors.toList()),
-				policyDocumentManagement.getPolicyDocuments(), scopesService, pkiMan.getValidatorNames(), pkiMan.getAllCertificateNames());
+				policyDocumentManagement.getPolicyDocuments(), scopesService, pkiMan.getValidatorNames(), pkiMan.getAllCertificateNames(), htmlTooltipFactory);
 	}
 }

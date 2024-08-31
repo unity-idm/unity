@@ -14,7 +14,6 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.converter.StringToFloatConverter;
 import com.vaadin.flow.data.validator.FloatRangeValidator;
 import io.imunity.vaadin.elements.NotEmptyComboBox;
-import io.imunity.vaadin.elements.TooltipFactory;
 import io.imunity.vaadin.endpoint.common.file.FileField;
 import io.imunity.vaadin.endpoint.common.file.FileFieldUtils;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
@@ -23,6 +22,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.stream.Stream;
@@ -40,16 +40,17 @@ public class RegistrationFormLayoutSettingsEditor extends VerticalLayout
 	private final FileStorageService fileStorageService;
 	private final UnityServerConfiguration serverConfig;
 	private final VaadinLogoImageLoader imageAccessService;
-
+	private final HtmlTooltipFactory htmlTooltipFactory;
 	private Binder<FormLayoutSettingsWithLogo> binder;
 
 	public RegistrationFormLayoutSettingsEditor(MessageSource msg, UnityServerConfiguration serverConfig,
-			FileStorageService fileStorageService, VaadinLogoImageLoader imageAccessService)
+			FileStorageService fileStorageService, VaadinLogoImageLoader imageAccessService, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.fileStorageService = fileStorageService;
 		this.serverConfig = serverConfig;
 		this.imageAccessService = imageAccessService;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 		initUI();
 	}
 
@@ -69,7 +70,7 @@ public class RegistrationFormLayoutSettingsEditor extends VerticalLayout
 		columnWidthUnit.setItems(Stream.of(Unit.values()).map(Unit::toString).toList());
 
 		main.addFormItem(logo, msg.getMessage("FormLayoutEditor.logo"))
-				.add(TooltipFactory.get(msg.getMessage("FormLayoutEditor.logoDesc")));
+				.add(htmlTooltipFactory.get(msg.getMessage("FormLayoutEditor.logoDesc")));
 		main.addFormItem(columnWidth, msg.getMessage("FormLayoutEditor.columnWidth"));
 		main.addFormItem(columnWidthUnit, msg.getMessage("FormLayoutEditor.columnWidthUnit"));
 		main.addFormItem(compactInputs, "");

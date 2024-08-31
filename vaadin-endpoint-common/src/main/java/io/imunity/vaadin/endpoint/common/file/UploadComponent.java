@@ -12,11 +12,12 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileData;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.server.StreamResource;
+
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import java.io.ByteArrayInputStream;
@@ -66,7 +67,7 @@ class UploadComponent extends CustomField<LocalOrRemoteResource>
 		downloader = new Anchor();
 		downloader.getElement().setAttribute("download", true);
 		downloader.addClassName(POINTER.getName());
-		Tooltip.forComponent(downloader).setText(msg.getMessage("FileField.download"));
+		HtmlTooltipAttacher.to(downloader, msg.getMessage("FileField.download"));
 		downloader.add(VaadinIcon.DOWNLOAD.create());
 		downloader.setVisible(false);
 		clear = new Button(msg.getMessage("FileField.clear"));

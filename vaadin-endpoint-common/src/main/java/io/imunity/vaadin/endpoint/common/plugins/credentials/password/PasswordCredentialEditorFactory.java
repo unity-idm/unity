@@ -5,6 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.credentials.password;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionViewer;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
@@ -22,14 +23,16 @@ class PasswordCredentialEditorFactory implements CredentialEditorFactory
 	private final MessageTemplateManagement msgTplMan;
 	private final PasswordEncodingPoolProvider poolProvider;
 	private final NotificationPresenter notificationPresenter;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 	
 	PasswordCredentialEditorFactory(MessageSource msg, MessageTemplateManagement msgTplMan,
-	                                       PasswordEncodingPoolProvider poolProvider, NotificationPresenter notificationPresenter)
+	                                       PasswordEncodingPoolProvider poolProvider, NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.msgTplMan = msgTplMan;
 		this.poolProvider = poolProvider;
 		this.notificationPresenter = notificationPresenter;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -47,12 +50,12 @@ class PasswordCredentialEditorFactory implements CredentialEditorFactory
 	@Override
 	public CredentialDefinitionEditor creteCredentialDefinitionEditor()
 	{
-		return new PasswordCredentialDefinitionEditor(msg, msgTplMan, poolProvider, notificationPresenter);
+		return new PasswordCredentialDefinitionEditor(msg, msgTplMan, poolProvider, notificationPresenter, htmlTooltipFactory);
 	}
 
 	@Override
 	public CredentialDefinitionViewer creteCredentialDefinitionViewer()
 	{
-		return new PasswordCredentialDefinitionEditor(msg, msgTplMan, poolProvider, notificationPresenter);
+		return new PasswordCredentialDefinitionEditor(msg, msgTplMan, poolProvider, notificationPresenter, htmlTooltipFactory);
 	}
 }

@@ -4,19 +4,21 @@
  */
 package io.imunity.console.tprofile;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasLabel;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.shared.HasTooltip;
-import io.imunity.vaadin.elements.TooltipFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import io.imunity.vaadin.endpoint.common.TooltipFactory;
+import io.imunity.vaadin.endpoint.common.TooltipFactory.ComponentWithTooltip;
 
 /**
  * This class links a layout with other class which provides components to it. It is useful
@@ -73,17 +75,24 @@ public class FormLayoutEmbeddable
 		else
 			item = layout.addFormItem(component, "");
 		components.add(item);
-		if(component instanceof HasTooltip hasTooltip)
+		if (component instanceof HasTooltip hasTooltip)
 		{
-			String text = hasTooltip.getTooltip().getText();
+			String text = hasTooltip.getTooltip()
+					.getText();
 			if (text != null)
 			{
 				hasTooltip.setTooltipText("");
-				Icon tooltip = TooltipFactory.get(text);
-				item.add(tooltip);
+				ComponentWithTooltip tooltip = TooltipFactory.getWithHtmlContent(text);
+				item.add(tooltip.component());
 				if (component instanceof SelectWithDynamicTooltip<?> select)
 				{
-					select.setTooltipChangeListener(tooltip::setTooltipText);
+					select.setTooltipChangeListener(t ->
+					{
+						tooltip.tooltip()
+								.removeAll();
+						tooltip.tooltip()
+								.add(new Html("<div>" + t + "</div>"));
+					});
 				}
 			}
 		}

@@ -27,8 +27,8 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 
 import io.imunity.console.attribute.AttributeFieldWithEdit;
-import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.AttributeSelectionComboBox;
+import io.imunity.vaadin.endpoint.common.TooltipFactory;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;

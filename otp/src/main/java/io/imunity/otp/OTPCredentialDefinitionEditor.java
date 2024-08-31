@@ -17,7 +17,6 @@ import com.vaadin.flow.data.binder.Validator;
 import io.imunity.otp.OTPResetSettings.ConfirmationMode;
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.ImageField;
-import io.imunity.vaadin.elements.TooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.message_templates.CompatibleTemplatesComboBox;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
@@ -76,13 +75,13 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 
 		TextField issuer = new TextField();
 		formLayout.addFormItem(issuer, msg.getMessage("OTPCredentialDefinitionEditor.issuer"))
-				.add(TooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.issuer.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.issuer.tip")));
 		issuer.setWidth(TEXT_FIELD_MEDIUM.value());
 		binder.forField(issuer).asRequired().bind("issuerName");
 
 		IntegerField allowedTimeDrift = new IntegerField();
 		formLayout.addFormItem(allowedTimeDrift, msg.getMessage("OTPCredentialDefinitionEditor.allowedTimeDrift"))
-				.add(TooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.allowedTimeDrift.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.allowedTimeDrift.tip")));
 		allowedTimeDrift.setMin(0);
 		allowedTimeDrift.setMax(2880);
 		allowedTimeDrift.setStepButtonsVisible(true);
@@ -90,7 +89,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 
 		IntegerField timeStep = new IntegerField();
 		formLayout.addFormItem(timeStep, msg.getMessage("OTPCredentialDefinitionEditor.timeStep"))
-				.add(TooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.timeStep.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.timeStep.tip")));
 		timeStep.setMin(5);
 		timeStep.setMax(180);
 		timeStep.setStepButtonsVisible(true);
@@ -98,7 +97,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 
 		Select<Integer> codeLength = new Select<>();
 		formLayout.addFormItem(codeLength, msg.getMessage("OTPCredentialDefinitionEditor.codeLength"))
-				.add(TooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.codeLength.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.codeLength.tip")));
 		codeLength.setItems(6, 8);
 		codeLength.setWidth(TEXT_FIELD_MEDIUM.value());
 		binder.forField(codeLength).asRequired().bind("codeLength");
@@ -108,7 +107,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		hashAlgorithm.setValue(HashFunction.SHA1);
 		hashAlgorithm.setItemLabelGenerator(item -> msg.getMessage("OTPCredentialDefinitionEditor.hashAlgorithm." + item));
 		formLayout.addFormItem(hashAlgorithm, msg.getMessage("OTPCredentialDefinitionEditor.hashAlgorithm"))
-				.add(TooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.hashAlgorithm.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.hashAlgorithm.tip")));
 		hashAlgorithm.setWidth(TEXT_FIELD_MEDIUM.value());
 		binder.forField(hashAlgorithm).asRequired().bind("hashFunction");
 
@@ -138,7 +137,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		resetEmailMsgTemplateCombo.setDefaultValue();
 		formLayout.addFormItem(resetEmailMsgTemplateCombo,
 						msg.getMessage("OTPCredentialDefinitionEditor.emailResetTemaplate"))
-				.add(TooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.emailResetTemaplate.tooltip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.emailResetTemaplate.tooltip")));
 		binder.forField(resetEmailMsgTemplateCombo)
 			.asRequired(Validator.from(arg -> !(isNullOrEmpty(arg) && enableReset.getValue()
 						&& confirmationMode.getValue().requiresEmailConfirmation()), 
@@ -151,7 +150,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		resetSMSCodeTemplateCombo.setDefaultValue();
 		formLayout.addFormItem(resetSMSCodeTemplateCombo,
 						msg.getMessage("OTPCredentialDefinitionEditor.mobileResetTemaplate"))
-				.add(TooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.mobileResetTemaplate.tooltip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.mobileResetTemaplate.tooltip")));
 		binder.forField(resetSMSCodeTemplateCombo)
 			.asRequired(Validator.from(arg -> !(isNullOrEmpty(arg) && enableReset.getValue() 
 					&& confirmationMode.getValue().requiresMobileConfirmation()), 

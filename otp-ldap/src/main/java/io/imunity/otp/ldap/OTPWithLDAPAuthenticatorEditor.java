@@ -24,8 +24,8 @@ import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
 import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import io.imunity.vaadin.elements.TooltipFactory;
 import io.imunity.vaadin.elements.grid.EditableGrid;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,18 +53,19 @@ import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_L
 class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 	private final PKIManagement pkiMan;
-
+	private final HtmlTooltipFactory htmlTooltipFactory;
 	private Binder<OTPWithLDAPConfiguration> configBinder;
 	private final Set<String> validators;
 	private RadioButtonGroup<UserDNResolving> userDNResolvingMode;
 
 
 	@Autowired
-	OTPWithLDAPAuthenticatorEditor(MessageSource msg, PKIManagement pkiMan) throws EngineException
+	OTPWithLDAPAuthenticatorEditor(MessageSource msg, PKIManagement pkiMan, HtmlTooltipFactory htmlTooltipFactory) throws EngineException
 	{
 		super(msg);
 		this.pkiMan = pkiMan;
 		this.validators = pkiMan.getValidatorNames();
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -134,7 +135,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		codeLength.setItems(6, 8);
 		configBinder.forField(codeLength).asRequired().bind("codeLength");
 		otp.addFormItem(codeLength, msg.getMessage("OTPCredentialDefinitionEditor.codeLength"))
-				.add(TooltipFactory.get(msg.getMessage("OTPWithLDAPAuthenticatorEditor.codeLength.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPWithLDAPAuthenticatorEditor.codeLength.tip")));
 
 		IntegerField allowedTimeDrift = new IntegerField();
 		allowedTimeDrift.setStepButtonsVisible(true);
@@ -142,7 +143,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		allowedTimeDrift.setMax(2880);
 		configBinder.forField(allowedTimeDrift).asRequired().bind("allowedTimeDriftSteps");
 		otp.addFormItem(allowedTimeDrift, msg.getMessage("OTPWithLDAPAuthenticatorEditor.allowedTimeDrift"))
-				.add(TooltipFactory.get(msg.getMessage("OTPWithLDAPAuthenticatorEditor.allowedTimeDrift.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPWithLDAPAuthenticatorEditor.allowedTimeDrift.tip")));
 
 		IntegerField timeStep = new IntegerField();
 		timeStep.setStepButtonsVisible(true);
@@ -150,7 +151,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		timeStep.setMax(180);
 		configBinder.forField(timeStep).asRequired().bind("timeStepSeconds");
 		otp.addFormItem(timeStep, msg.getMessage("OTPWithLDAPAuthenticatorEditor.timeStep"))
-				.add(TooltipFactory.get(msg.getMessage("OTPWithLDAPAuthenticatorEditor.timeStep.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPWithLDAPAuthenticatorEditor.timeStep.tip")));
 
 		Select<HashFunction> hashAlgorithm = new Select<>();
 		hashAlgorithm.setItemLabelGenerator(item -> msg.getMessage("OTPWithLDAPAuthenticatorEditor.hashAlgorithm." + item));
@@ -158,7 +159,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		hashAlgorithm.setValue(HashFunction.SHA1);
 		configBinder.forField(hashAlgorithm).asRequired().bind("hashFunction");
 		otp.addFormItem(hashAlgorithm, msg.getMessage("OTPWithLDAPAuthenticatorEditor.hashAlgorithm"))
-				.add(TooltipFactory.get(msg.getMessage("OTPWithLDAPAuthenticatorEditor.hashAlgorithm.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OTPWithLDAPAuthenticatorEditor.hashAlgorithm.tip")));
 
 		return new AccordionPanel(msg.getMessage("OTPWithLDAPAuthenticatorEditor.otp"),
 				otp);
@@ -243,7 +244,7 @@ class OTPWithLDAPAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		}).bind("userDNTemplate");
 
 		userDNResolvingLayout.addFormItem(userDNtemplate, msg.getMessage("LdapAuthenticatorEditor.userDNtemplate"))
-				.add(TooltipFactory.get(msg.getMessage("LdapAuthenticatorEditor.userDNtemplate.desc")));
+				.add(htmlTooltipFactory.get(msg.getMessage("LdapAuthenticatorEditor.userDNtemplate.desc")));
 		
 		
 		TextField ldapSearchBaseName = new TextField();

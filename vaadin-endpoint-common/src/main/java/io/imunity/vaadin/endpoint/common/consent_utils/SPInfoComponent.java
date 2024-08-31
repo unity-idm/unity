@@ -9,7 +9,8 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
+
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
@@ -49,7 +50,7 @@ public class SPInfoComponent extends VerticalLayout
 
 		if (logo != null)
 		{
-			Tooltip.forComponent(this).setText(msg.getMessage("SPInfoComponent.requesterName", name));
+			HtmlTooltipAttacher.to(this, msg.getMessage("SPInfoComponent.requesterName", name));
 			add(logo);
 			setAlignItems(Alignment.CENTER);
 

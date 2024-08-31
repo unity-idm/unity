@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.idp.console;
 
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.auth.services.DefaultServicesControllerBase;
 import io.imunity.vaadin.auth.services.ServiceEditor;
@@ -51,6 +52,7 @@ abstract class SAMLServiceControllerBase extends DefaultServicesControllerBase i
 	private final PolicyDocumentManagement policyDocumentManagement;
 	private final NetworkServer server;
 	private final NotificationPresenter notificationPresenter;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
 	public SAMLServiceControllerBase(MessageSource msg,
 			EndpointManagement endpointMan,
@@ -75,7 +77,8 @@ abstract class SAMLServiceControllerBase extends DefaultServicesControllerBase i
 			VaadinLogoImageLoader imageAccessService,
 			PolicyDocumentManagement policyDocumentManagement,
 			EndpointFileConfigurationManagement serviceFileConfigController,
-			NotificationPresenter notificationPresenter)
+			NotificationPresenter notificationPresenter, 
+			HtmlTooltipFactory htmlTooltipFactory)
 	{
 		super(msg, endpointMan, serviceFileConfigController);
 		this.realmsMan = realmsMan;
@@ -97,6 +100,7 @@ abstract class SAMLServiceControllerBase extends DefaultServicesControllerBase i
 		this.imageAccessService = imageAccessService;
 		this.policyDocumentManagement = policyDocumentManagement;
 		this.notificationPresenter = notificationPresenter;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -124,7 +128,7 @@ abstract class SAMLServiceControllerBase extends DefaultServicesControllerBase i
 				pkiMan.getCredentialNames(), pkiMan.getValidatorNames(), authenticatorSupportService,
 				idTypeSupport.getIdentityTypes(), endpointMan.getEndpoints().stream()
 						.map(e -> e.getContextAddress()).collect(Collectors.toList()),
-						policyDocumentManagement.getPolicyDocuments(), notificationPresenter);
+						policyDocumentManagement.getPolicyDocuments(), notificationPresenter, htmlTooltipFactory);
 	}
 
 	public abstract EndpointTypeDescription getType();

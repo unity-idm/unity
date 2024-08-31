@@ -16,13 +16,13 @@ import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.FileData;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
@@ -30,6 +30,7 @@ import com.vaadin.flow.server.StreamResource;
 
 import io.imunity.vaadin.elements.ErrorLabel;
 import io.imunity.vaadin.elements.InputLabel;
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
@@ -51,6 +52,8 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 	private final MessageSource msg;
 
 	private UnityImage value;
+	private VerticalLayout uploadNewLayout;
+	private VerticalLayout clearImageLayout;
 	
 	UnityImageValueComponent(UnityImage initialValue, ImageConfiguration imgConfig, MessageSource msg)
 	{
@@ -63,30 +66,15 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		error.setVisible(false);
 
 		image = new Image();
-		image.addClickListener(event -> ImagePreviewDialogFactory.getPreviewDialog(msg, value).open());
+		image.addClickListener(event -> ImagePreviewTabFactory.openTab(value));
 
-		if (value != null)
-			showValue();
-
+		
 		Checkbox scale = new Checkbox();
 		HorizontalLayout scaleLayout = new HorizontalLayout(scale, new Span(msg.getMessage("ImageAttributeHandler.scaleIfNeeded")));
 		scaleLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 		scaleLayout.getStyle().set("gap", "0.5em");
 		scaleLayout.getStyle().set("margin-top", "0.5em");
 		scaleLayout.getStyle().set("margin-bottom", "0.5em");
-//		scale.addValueChangeListener(event ->
-//		{	
-//			if(event.getValue())
-//			{
-//				image.setMaxWidth(imgConfig.getMaxWidth() + "px");
-//				image.setMaxHeight(imgConfig.getMaxHeight() + "px");
-//			}
-//			else
-//			{
-//				image.getStyle().remove("max-width");
-//				image.getStyle().remove("max-height");
-//			}
-//		});
 		scale.setValue(true);
 
 		MemoryBuffer memoryBuffer = new MemoryBuffer();
@@ -101,8 +89,8 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 				image.scaleDown(imgConfig.getMaxWidth(), imgConfig.getMaxHeight());
 			setUnityImageValue(image);
 			showValue();
+			switchView();
 			WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
-
 		});
 		upload.getElement().addEventListener("file-remove", e -> cleanImage());
 		upload.addFileRejectedListener(event -> showErrorNotification(event.getErrorMessage()));
@@ -112,9 +100,41 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		setPadding(false);
 		setMargin(false);
 		getStyle().set("gap", "0");
-		add(label, image, upload, error, scaleLayout, getHints(imgConfig, msg));
+		add(label, image);
+		uploadNewLayout = new VerticalLayout();
+		uploadNewLayout.setMargin(false);
+		uploadNewLayout.setPadding(false);
+		uploadNewLayout.getStyle().set("gap", "0");
+		uploadNewLayout.add( upload, error, scaleLayout, getHints(imgConfig, msg));
+		clearImageLayout = new VerticalLayout();
+		Icon reaupload = new Icon(VaadinIcon.CLOSE_SMALL);
+		reaupload.setTooltipText(msg.getMessage("ImageAttributeHandler.uploadAnotherImage"));
+		clearImageLayout.add(reaupload);
+		clearImageLayout.setPadding(false);
+		reaupload.addClickListener(e -> {
+			switchView();
+			setUnityImageValue(null);
+			cleanImage();
+			upload.clearFileList();
+		});
+		clearImageLayout.setVisible(false);
+		
+		add(uploadNewLayout);
+		add(clearImageLayout);
+		
+		if (value != null)
+		{
+			switchView();
+			showValue();
+		}
 	}
 
+	private void switchView()
+	{
+		uploadNewLayout.setVisible(!uploadNewLayout.isVisible());
+		clearImageLayout.setVisible(!clearImageLayout.isVisible());
+	}
+	
 	void addChangeListener(Runnable runnable)
 	{
 		upload.addStartedListener(e -> runnable.run());
@@ -124,7 +144,6 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 	{
 		image.setSrc("");
 		image.setVisible(false);
-		Tooltip.forComponent(image).setText(null);
 		WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
 
 	}
@@ -157,13 +176,16 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		{
 			image.setVisible(true);
 			UnityImage scaledDown = new UnityImage(value.getImage(), value.getType());
-
-			ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(scaledDown.getImage());
-			StreamResource streamResource = new StreamResource("imgattribute-" + UUID.randomUUID() + "." + scaledDown.getType().toExt(), () -> byteArrayInputStream);
+			StreamResource streamResource = new StreamResource(
+					"imgattribute-" + UUID.randomUUID() + "." + scaledDown.getType()
+							.toExt(),
+					() -> new ByteArrayInputStream(scaledDown.getImage()));
 			image.setSrc(streamResource);
 			error.setVisible(false);
 			image.setVisible(true);
-			Tooltip.forComponent(image).setText(msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
+			HtmlTooltipAttacher.to(image,
+					msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
+			
 		} catch (Exception e)
 		{
 			LOG.warn("Problem getting value's image as resource for editing: " + e, e);
@@ -182,9 +204,6 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 	
 	Optional<UnityImage> getValue(boolean required, ImageValidator validator) throws IllegalAttributeValueException
 	{
-		
-	
-		
 		if (value == null && !required)
 			return Optional.empty();
 		if (value == null)
@@ -251,7 +270,6 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		{
 			image.setMaxHeight(context.getCustomMaxHeight() + context.getCustomMaxHeightUnit().getSymbol());
 		}
-		
 	}
 	
 }

@@ -9,3 +9,4 @@
 /package.json
 /vite.config.ts
 /vite.generated.ts
+/src/main/bundles/prod.bundle

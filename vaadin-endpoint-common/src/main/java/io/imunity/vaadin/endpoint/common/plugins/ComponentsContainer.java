@@ -4,12 +4,13 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.shared.Tooltip;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import com.vaadin.flow.component.Component;
+
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 
 public class ComponentsContainer
 {
@@ -28,7 +29,7 @@ public class ComponentsContainer
 	
 	public void setDescription(String description)
 	{
-		Tooltip.forComponent(components.get(0)).setText(description);
+		HtmlTooltipAttacher.to(components.get(0), description);
 	}
 	
 	public void setLabel(String label)

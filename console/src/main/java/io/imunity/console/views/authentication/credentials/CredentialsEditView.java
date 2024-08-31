@@ -20,6 +20,7 @@ import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.*;
 import io.imunity.vaadin.endpoint.common.WebSession;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorFactory;
@@ -48,7 +49,8 @@ public class CredentialsEditView extends ConsoleViewComponent
 	private final CredentialsController credentialsController;
 	private final CredentialEditorRegistry credentialEditorReg;
 	private final EventsBus bus;
-
+	private final HtmlTooltipFactory htmlTooltipFactory;
+	
 	private Select<LocalCredentialState> newCredState;
 	private ComboBox<String> credentialType;
 	private Panel credentialEditorPanel;
@@ -57,11 +59,12 @@ public class CredentialsEditView extends ConsoleViewComponent
 	private BreadCrumbParameter breadCrumbParameter;
 	private Binder<CredentialDefinition> binder;
 
-	CredentialsEditView(MessageSource msg, CredentialEditorRegistry credentialEditorReg, CredentialsController credentialsController)
+	CredentialsEditView(MessageSource msg, CredentialEditorRegistry credentialEditorReg, CredentialsController credentialsController, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.credentialEditorReg = credentialEditorReg;
 		this.credentialsController = credentialsController;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 		this.bus = WebSession.getCurrent().getEventBus();
 
 	}
@@ -112,7 +115,7 @@ public class CredentialsEditView extends ConsoleViewComponent
 				msg.getEnabledLocales().values(), msg.getLocale());
 		displayedName.setWidth(TEXT_FIELD_BIG.value());
 		main.addFormItem(displayedName, msg.getMessage("displayedNameF"))
-				.add(TooltipFactory.get(msg.getMessage("CredentialDefinition.displayedNameDescription")));
+				.add(htmlTooltipFactory.get(msg.getMessage("CredentialDefinition.displayedNameDescription")));
 
 		LocalizedTextAreaDetails description = new LocalizedTextAreaDetails(
 				msg.getEnabledLocales().values(), msg.getLocale());

@@ -13,7 +13,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.yubico.webauthn.data.AttestationConveyancePreference;
 import com.yubico.webauthn.data.UserVerificationRequirement;
 import io.imunity.fido.credential.FidoCredential;
-import io.imunity.vaadin.elements.TooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialDefinitionViewer;
@@ -65,7 +64,7 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 		ret.addFormItem(userVerification, msg.getMessage("Fido.credEditor.userVerification"))
 				.add(htmlTooltipFactory.get(msg.getMessage("Fido.credEditor.userVerification.tip")));
 		ret.addFormItem(hostName, msg.getMessage("Fido.credEditor.hostName"))
-				.add(TooltipFactory.get(msg.getMessage("Fido.credEditor.hostName.tip")));
+				.add(htmlTooltipFactory.get(msg.getMessage("Fido.credEditor.hostName.tip")));
 		ret.addFormItem(loginLessAllowed, "")
 				.add(htmlTooltipFactory.get(msg.getMessage("Fido.credEditor.loginLess.tip")));
 

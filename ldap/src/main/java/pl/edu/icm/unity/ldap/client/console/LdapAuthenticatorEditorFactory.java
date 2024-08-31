@@ -8,6 +8,8 @@ package pl.edu.icm.unity.ldap.client.console;
 import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
@@ -27,15 +29,17 @@ public class LdapAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 	private final PKIManagement pkiMan;
 	private final RegistrationsManagement regMan;
 	private final InputTranslationProfileFieldFactory profileFieldFactory;
-
+	private final HtmlTooltipFactory htmlTooltipFactory;
+	
 	@Autowired
 	public LdapAuthenticatorEditorFactory(MessageSource msg, PKIManagement pkiMan,
-			RegistrationsManagement regMan, InputTranslationProfileFieldFactory profileFieldFactory)
+			RegistrationsManagement regMan, InputTranslationProfileFieldFactory profileFieldFactory, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
 		this.regMan = regMan;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	@Override
@@ -47,7 +51,7 @@ public class LdapAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new LdapAuthenticatorEditor(msg, pkiMan, profileFieldFactory,
+		return new LdapAuthenticatorEditor(msg, pkiMan, htmlTooltipFactory, profileFieldFactory,
 				regMan.getForms().stream().map(DescribedObjectROImpl::getName).collect(Collectors.toList()),
 				LdapPasswordVerificator.NAME);
 	}

@@ -6,35 +6,65 @@
 package io.imunity.console.views.signup_and_enquiry;
 
 
+import static io.imunity.console.tprofile.Constants.FORM_PROFILE;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.TabSheet;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
+
 import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.console.tprofile.RegistrationTranslationProfileEditor;
-import io.imunity.vaadin.elements.*;
-import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.auth.services.idp.PolicyAgreementConfigurationList;
+import io.imunity.vaadin.elements.CSSVars;
+import io.imunity.vaadin.elements.LocalizedTextAreaDetails;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import io.imunity.vaadin.elements.NotEmptyComboBox;
+import io.imunity.vaadin.elements.NotEmptyIntegerField;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionsSelector;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.registration.*;
+import pl.edu.icm.unity.base.registration.ExternalSignupGridSpec;
+import pl.edu.icm.unity.base.registration.ExternalSignupSpec;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.base.registration.RegistrationFormLayouts;
+import pl.edu.icm.unity.base.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig;
 import pl.edu.icm.unity.base.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.*;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -43,18 +73,6 @@ import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static io.imunity.console.tprofile.Constants.FORM_PROFILE;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 
 @PrototypeComponent
@@ -291,7 +309,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		realmNames = new ComboBox<>();
 		realmNames.setItems(realmsManagement.getRealms().stream().map(AuthenticationRealm::getName).toList());
 		main.addFormItem(realmNames, msg.getMessage("RegistrationFormEditor.autoLoginAutoAcceptedToRealm"))
-				.add(TooltipFactory.get(msg.getMessage("RegistrationFormEditor.autoLoginAutoAcceptedToRealm.description")));
+				.add(htmlTooltipFactory.get(msg.getMessage("RegistrationFormEditor.autoLoginAutoAcceptedToRealm.description")));
 
 		captcha = new NotEmptyIntegerField();
 		captcha.setMin(0);
@@ -299,7 +317,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		captcha.setStepButtonsVisible(true);
 
 		main.addFormItem(captcha, msg.getMessage("RegistrationFormViewer.captcha"))
-				.add(TooltipFactory.get(msg.getMessage("RegistrationFormEditor.captchaDescription")));
+				.add(htmlTooltipFactory.get(msg.getMessage("RegistrationFormEditor.captchaDescription")));
 	}
 
 	private void initWrapUpTab()
@@ -355,7 +373,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addFormItem(title2ndStage, msg.getMessage("RegistrationFormViewer.title2ndStage"));
 		main.addFormItem(formInformation, msg.getMessage("RegistrationFormViewer.formInformation"));
 		main.addFormItem(formInformation2ndStage, msg.getMessage("RegistrationFormViewer.formInformation2ndStage"));
-		Icon icon = TooltipFactory.get(msg.getMessage("RegistrationFormEditor.switchToEnquiryInfo.tip"));
+		Component icon = htmlTooltipFactory.get(msg.getMessage("RegistrationFormEditor.switchToEnquiryInfo.tip"));
 		icon.getStyle().set("margin-top", CSSVars.BASE_MARGIN.value());
 		main.addFormItem(switchToEnquiryInfo, msg.getMessage("RegistrationFormEditor.switchToEnquiryInfo"))
 				.add(icon);
@@ -366,7 +384,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addFormItem(localSignupEmbeddedAsButton, "");
 
 		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService,
-				imageAccessService);
+				imageAccessService, htmlTooltipFactory);
 		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
 		wrapper.setPadding(false);
 		wrapper.setSpacing(false);
@@ -405,9 +423,9 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		main.addFormItem(remoteAuthnSelections, msg.getMessage("RegistrationFormEditor.remoteAuthenOptions"))
-				.add(TooltipFactory.get(msg.getMessage("RegistrationFormEditor.remoteAuthenOptions.description")));
+				.add(htmlTooltipFactory.get(msg.getMessage("RegistrationFormEditor.remoteAuthenOptions.description")));
 		main.addFormItem(remoteAuthnGridSelections, msg.getMessage("RegistrationFormEditor.remoteAuthenGridOptions"))
-				.add(TooltipFactory.get(msg.getMessage("RegistrationFormEditor.remoteAuthenGridOptions.description")));
+				.add(htmlTooltipFactory.get(msg.getMessage("RegistrationFormEditor.remoteAuthenGridOptions.description")));
 		main.addFormItem(remoteAuthnGridSearchable, "");
 		main.addFormItem(remoteAuthnGridHeight, msg.getMessage("RegistrationFormEditor.remoteAuthGridHeight"));
 
