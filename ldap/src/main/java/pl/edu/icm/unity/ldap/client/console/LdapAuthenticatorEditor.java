@@ -26,8 +26,8 @@ import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import io.imunity.vaadin.elements.TooltipFactory;
 import io.imunity.vaadin.elements.grid.EditableGrid;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -76,14 +76,16 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 	private final String forType;
 	private final List<String> registrationForms;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
-	LdapAuthenticatorEditor(MessageSource msg, PKIManagement pkiMan,
+	LdapAuthenticatorEditor(MessageSource msg, PKIManagement pkiMan, HtmlTooltipFactory htmlTooltipFactory,
 			InputTranslationProfileFieldFactory profileFieldFactory, List<String> registrationForms,
 			String forType) throws EngineException
 	{
 		super(msg);
 		this.pkiMan = pkiMan;
 		this.validators = pkiMan.getValidatorNames();
+		this.htmlTooltipFactory = htmlTooltipFactory;
 		this.profileFieldFactory = profileFieldFactory;
 		this.forType = forType;
 		this.registrationForms = registrationForms;
@@ -276,7 +278,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		}).bind(LdapConfiguration::getUserDNTemplate, LdapConfiguration::setUserDNTemplate);
 
 		userDNResolvingLayout.addFormItem(userDNtemplate, msg.getMessage("LdapAuthenticatorEditor.userDNtemplate"))
-			.add(TooltipFactory.get(msg.getMessage("LdapAuthenticatorEditor.userDNtemplate.desc")));
+			.add(htmlTooltipFactory.get(msg.getMessage("LdapAuthenticatorEditor.userDNtemplate.desc")));
 
 		systemDN = new TextField();
 		configBinder.forField(systemDN).asRequired(getLdapSearchRequiredValidator()).bind(

@@ -26,7 +26,6 @@ import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.elements.TooltipFactory;
 import io.imunity.vaadin.elements.grid.EditableGrid;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
@@ -184,7 +183,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		configBinder.forField(additionalCredential)
 				.bind(SAMLAuthenticatorConfiguration::getAdditionalCredential, SAMLAuthenticatorConfiguration::setAdditionalCredential);
 		header.addFormItem(additionalCredential, msg.getMessage("SAMLAuthenticatorEditor.additionalCredential"))
-				.add(TooltipFactory.get(msg.getMessage("SAMLAuthenticatorEditor.additionalCredentialDesc")));
+				.add(htmlTooltipFactory.get(msg.getMessage("SAMLAuthenticatorEditor.additionalCredentialDesc")));
 
 		Checkbox includeAddtionalCredentialInMetadata = new Checkbox(msg.getMessage("SAMLAuthenticatorEditor.includeAddtionalCredentialInMetadata"));
 		configBinder.forField(includeAddtionalCredentialInMetadata)

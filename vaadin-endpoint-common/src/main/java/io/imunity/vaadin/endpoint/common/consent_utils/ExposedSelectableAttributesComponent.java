@@ -9,7 +9,8 @@ import com.vaadin.flow.component.details.Details;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
+
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -129,7 +130,7 @@ public class ExposedSelectableAttributesComponent extends Details implements Sel
 		Span content = new Span(identityPresenter.getIdentityVisualValue(identity));
 		if (!content.getText().equals(identity.getValue()))
 		{
-			Tooltip.forComponent(content).setText(msg.getMessage(
+			HtmlTooltipAttacher.to(content, msg.getMessage(
 					"IdentitySelectorComponent.fullValue", identity.getValue()));
 		}
 		VerticalLayout verticalLayout = new VerticalLayout(title, content);

@@ -18,6 +18,7 @@
 
     <properties>
         <m.name>vaadin-endpoint-common</m.name>
+        <vaadin.productionMode>true</vaadin.productionMode>
     </properties>
 
     <scm>
@@ -78,6 +79,11 @@
             <groupId>io.imunity.simplecaptcha</groupId>
             <artifactId>simplecaptcha</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.vaadin.componentfactory</groupId>
+            <artifactId>tooltip</artifactId>
+        </dependency>
+        
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

@@ -14,9 +14,9 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
-import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.ActionEditor;
 import io.imunity.console.views.ConsoleViewComponent;
+import io.imunity.vaadin.endpoint.common.TooltipFactory;
 import io.imunity.vaadin.endpoint.common.mvel.MVELExpressionField;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import jakarta.annotation.security.PermitAll;
@@ -84,7 +84,7 @@ public class AutomationEditView extends ConsoleViewComponent
 
 		CronExpressionField cronExpression = new CronExpressionField(msg, "");
 		cronExpression.setWidth(TEXT_FIELD_MEDIUM.value());
-		Component tooltip = TooltipFactory.getWithHtmlContent(msg.getMessage("CronExpressionField.cronExpressionDescription"));
+		Component tooltip = TooltipFactory.getWithHtmlContent(msg.getMessage("CronExpressionField.cronExpressionDescription")).component();
 
 		MVELExpressionField condition = new MVELExpressionField(msg, "",
 				msg.getMessage("MVELExpressionField.conditionDesc"),

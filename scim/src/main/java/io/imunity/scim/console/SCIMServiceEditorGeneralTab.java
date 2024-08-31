@@ -19,7 +19,7 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
-import io.imunity.vaadin.elements.TooltipFactory;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
 import io.imunity.vaadin.auth.services.idp.MandatoryGroupSelection;
 import io.imunity.vaadin.auth.services.tabs.GeneralTab;
@@ -31,12 +31,14 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 {
 	private Binder<SCIMServiceConfigurationBean> restBinder;
 	private final List<Group> allGroups;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
 	public SCIMServiceEditorGeneralTab(MessageSource msg, EndpointTypeDescription type, List<String> usedEndpointsPaths,
 			List<String> usedNames,
-			Set<String> serverContextPaths, List<Group> allGroups)
+			Set<String> serverContextPaths, List<Group> allGroups, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		super(msg, type, usedEndpointsPaths, usedNames, serverContextPaths);
+		this.htmlTooltipFactory = htmlTooltipFactory;
 		this.allGroups = List.copyOf(allGroups);
 	}
 
@@ -67,7 +69,7 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 		restAdminGroup.setItems(allGroups);
 		restAdminGroup.setWidth(TEXT_FIELD_BIG.value());
 		main.addFormItem(restAdminGroup, msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroup"))
-				.add(TooltipFactory.get(msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroupDesc")));
+				.add(htmlTooltipFactory.get(msg.getMessage("SCIMServiceEditorGeneralTab.restAdminGroupDesc")));
 		restBinder.forField(restAdminGroup)
 				.bind("restAdminGroup");
 
@@ -75,7 +77,7 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 		memeberShipGroups.setItems(allGroups);
 		memeberShipGroups.setWidth(TEXT_FIELD_BIG.value());
 		main.addFormItem(memeberShipGroups, msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroups"))
-				.add(TooltipFactory.get(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroupsDesc")));
+				.add(htmlTooltipFactory.get(msg.getMessage("SCIMServiceEditorGeneralTab.memebershipGroupsDesc")));
 		restBinder.forField(memeberShipGroups)
 				.withConverter(List::copyOf, HashSet::new)
 				.asRequired()
@@ -91,7 +93,7 @@ public class SCIMServiceEditorGeneralTab extends GeneralTab
 		excludedMembershipGroups.setItems(allGroups);
 		main.addFormItem(excludedMembershipGroups,
 				msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroups"))
-				.add(TooltipFactory.get(msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroupsDesc")));
+				.add(htmlTooltipFactory.get(msg.getMessage("SCIMServiceEditorGeneralTab.excludedMembershipGroupsDesc")));
 		excludedMembershipGroups.setWidth(TEXT_FIELD_BIG.value());
 		restBinder.forField(excludedMembershipGroups)
 				.withConverter(List::copyOf, HashSet::new)

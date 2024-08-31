@@ -8,7 +8,8 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.shared.Tooltip;
+
+import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -48,7 +49,7 @@ class SelectableAttributeWithValues extends VerticalLayout
 		setSpacing(false);
 
 		Span attrNameLabel = new Span(customAttrName);
-		Tooltip.forComponent(attrNameLabel).setText(customAttrDesc);
+		HtmlTooltipAttacher.to(attrNameLabel, customAttrDesc);
 		add(attrNameLabel);
 		
 		listOfValues = new ListOfSelectableElements(null, null, ListOfSelectableElements.DisableMode.WHEN_DESELECTED);

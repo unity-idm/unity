@@ -91,11 +91,24 @@
                     <execution>
                         <goals>
                             <goal>clean-frontend</goal>
+                            <goal>prepare-frontend</goal>
                             <goal>build-frontend</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <optimizeBundle>false</optimizeBundle>
+                </configuration>
             </plugin>
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>META-INF/VAADIN/config/flow-build-info.json</exclude>
+					</excludes>
+				</configuration>	
+			</plugin>
         </plugins>
     </build>
 

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.console.components;
+package io.imunity.vaadin.endpoint.common;
 
 import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.componentfactory.TooltipPosition;
@@ -11,9 +11,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 
-class HtmlTooltipAttacher
+public class HtmlTooltipAttacher
 {
-	static void to(Component component, Html tooltipContent)
+	public static Tooltip to(Component component, Html tooltipContent)
 	{
 		Tooltip tooltip = new Tooltip();
 		tooltip.attachToComponent(component);
@@ -21,5 +21,11 @@ class HtmlTooltipAttacher
 		tooltip.add(tooltipContent);
 		tooltip.setThemeName("light");
 		UI.getCurrent().add(tooltip);
+		return tooltip;
+	}
+	
+	public static Tooltip to(Component component, String tooltipContent)
+	{
+		return to(component, new Html("<div>" + tooltipContent + "</div>"));
 	}
 }

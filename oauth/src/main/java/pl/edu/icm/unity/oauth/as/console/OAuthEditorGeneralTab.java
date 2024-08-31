@@ -35,6 +35,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.*;
 import io.imunity.vaadin.elements.grid.GridWithEditorInDetails;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceEditorBase;
@@ -95,8 +96,9 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 	private List<OAuthScope> systemScopes;
 	private GridWithEditorInDetails<TrustedUpstreamASBean> trustedUpstreamAsGrid;
 	private Set<String> validators;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 
-	OAuthEditorGeneralTab(MessageSource msg, String serverPrefix, Set<String> serverContextPaths,
+	OAuthEditorGeneralTab(MessageSource msg, HtmlTooltipFactory htmlTooltipFactory, String serverPrefix, Set<String> serverContextPaths,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory, boolean editMode,
 			Set<String> credentials, Collection<IdentityType> identityTypes, List<String> attrTypes,
 			List<String> usedEndpointsPaths, List<OAuthScope> systemScopes, Set<String> validators, Set<String> certificates)
@@ -115,6 +117,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		this.systemScopes = List.copyOf(systemScopes);
 		this.validators = validators;
 		this.certificates = certificates;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	void initUI(Binder<DefaultServiceDefinition> oauthWebAuthzBinder, Binder<DefaultServiceDefinition> oauthTokenBinder,
@@ -346,7 +349,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 				.bind("refreshTokenExpiration");
 		refreshTokenExp.setEnabled(false);
 		mainGeneralLayout.addFormItem(refreshTokenExp, msg.getMessage("OAuthEditorGeneralTab.refreshTokenExpiration"))
-				.add(TooltipFactory.get(msg.getMessage("OAuthEditorGeneralTab.refreshTokenExpirationDescription")));
+				.add(htmlTooltipFactory.get(msg.getMessage("OAuthEditorGeneralTab.refreshTokenExpirationDescription")));
 
 		Checkbox refreshTokenRotationForPublicClients = new Checkbox(
 				msg.getMessage("OAuthEditorGeneralTab.refreshTokenRotationForPublicClients"));

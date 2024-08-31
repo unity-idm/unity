@@ -24,8 +24,8 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
-import io.imunity.vaadin.elements.TooltipFactory;
 import io.imunity.vaadin.elements.grid.EditableGrid;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceEditorBase;
@@ -73,6 +73,7 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 	private final Set<String> serverContextPaths;
 	private final String serverPrefix;
 	private final Collection<IdentityType> idTypes;
+	private final HtmlTooltipFactory htmlTooltipFactory;
 	private boolean editMode;
 	private Checkbox signMetadata;
 	private boolean initialValidation;
@@ -83,7 +84,7 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 	public SAMLEditorGeneralTab(MessageSource msg, String serverPrefix, Set<String> serverContextPaths, UnityServerConfiguration serverConfig,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory,
 			List<String> usedEndpointsPaths,
-			Set<String> credentials, Set<String> truststores, Collection<IdentityType> idTypes)
+			Set<String> credentials, Set<String> truststores, Collection<IdentityType> idTypes, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
 		this.serverConfig = serverConfig;
@@ -95,6 +96,7 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 		this.idTypes = idTypes;
 		this.serverPrefix = serverPrefix;
 		this.serverContextPaths = serverContextPaths;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 		
 	}
 
@@ -226,7 +228,7 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 		configBinder.forField(additionallyAdvertisedCredential)
 				.bind(SAMLServiceConfiguration::getAdditionallyAdvertisedCredential, SAMLServiceConfiguration::setAdditionallyAdvertisedCredential);
 		mainGeneralLayout.addFormItem(additionallyAdvertisedCredential, msg.getMessage("SAMLEditorGeneralTab.additionallyAdvertisedCredential"))
-				.add(TooltipFactory.get(msg.getMessage("SAMLEditorGeneralTab.additionallyAdvertisedCredentialDesc")));
+				.add(htmlTooltipFactory.get(msg.getMessage("SAMLEditorGeneralTab.additionallyAdvertisedCredentialDesc")));
 		
 		ComboBox<String> httpsTruststore = new ComboBox<>();
 		httpsTruststore.setItems(truststores);

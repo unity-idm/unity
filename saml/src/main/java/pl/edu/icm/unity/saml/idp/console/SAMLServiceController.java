@@ -8,6 +8,7 @@ package pl.edu.icm.unity.saml.idp.console;
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.auth.services.idp.IdpUsersHelper;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
@@ -51,13 +52,13 @@ class SAMLServiceController extends SAMLServiceControllerBase
 			IdpUsersHelper idpUserHelper,
 			PolicyDocumentManagement policyDocumentManagement, 
 			EndpointFileConfigurationManagement serviceFileConfigController,
-			NotificationPresenter notificationPresenter)
+			NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		super(msg, endpointMan, msg2, endpointMan2, realmsMan, flowsMan, authMan, atMan, bulkService,
 				registrationMan, uriAccessService, fileStorageService, serverConfig,
 				authenticatorSupportService, idTypeSupport, pkiMan, advertisedAddrProvider, server,
 				outputTranslationProfileFieldFactory, idpUserHelper, imageAccessService, policyDocumentManagement,
-				serviceFileConfigController, notificationPresenter);
+				serviceFileConfigController, notificationPresenter, htmlTooltipFactory);
 	}
 
 	@Override

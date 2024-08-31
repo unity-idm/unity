@@ -5,10 +5,10 @@
 
 package io.imunity.console.views.translation_profiles;
 
-import io.imunity.console.components.TooltipFactory;
 import io.imunity.console.tprofile.ActionParameterComponentProvider;
 import io.imunity.console.tprofile.TranslationProfileEditor;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.TooltipFactory;
 import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.message.MessageSource;
