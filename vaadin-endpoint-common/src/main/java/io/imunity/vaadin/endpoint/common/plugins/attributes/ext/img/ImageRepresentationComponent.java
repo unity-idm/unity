@@ -53,7 +53,7 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(value.getImage());
 		StreamResource streamResource = new StreamResource("imgattribute-" + UUID.randomUUID() + "." + value.getType().toExt(), () -> byteArrayInputStream);
 		Image image = getImage(context, streamResource);
-		image.addClickListener(event -> ImagePreviewDialogFactory.getPreviewDialog(msg, value).open());
+		image.addClickListener(event -> ImagePreviewTabFactory.openTab(value));
 
 		HtmlTooltipAttacher.to(image, msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
 		if(context.getBorderRadius() != null && context.getBorderUnit() != null)
