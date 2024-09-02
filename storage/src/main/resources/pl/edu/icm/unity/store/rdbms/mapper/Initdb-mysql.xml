@@ -43,7 +43,7 @@
 	
 	<!-- Empty query - descending index is not needed in MySQL DB-->
 	<sql id="sql-auditEventsTimestampDescIdx">
-		select 1
+		update AUDIT_ENTITIES SET NAME = "dummy" where 1 = 2
 	</sql>
 	
 	<sql id="sql-initTokenTableIdx0">
