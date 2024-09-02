@@ -75,6 +75,8 @@ import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredExcep
 @Route(value = "/profile", layout = HomeUiMenu.class)
 public class ProfileView extends HomeViewComponent
 {
+	private static final int IMAGE_ATTRIBUTE_MAX_SIZE = 22;
+
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ProfileView.class);
 
 	private final AttributesManagement attributesMan;
@@ -256,9 +258,9 @@ public class ProfileView extends HomeViewComponent
 					.withLabelContext(labelContext)
 					.withValueChangeMode(ValueChangeMode.EAGER)
 					.withCustomWidth(CSSVars.TEXT_FIELD_MEDIUM.value())
-					.withCustomMaxHeight(22)
+					.withCustomMaxHeight(IMAGE_ATTRIBUTE_MAX_SIZE)
 					.withCustomMaxHeightUnit(Unit.EM)
-					.withCustomMaxWidth(22)
+					.withCustomMaxWidth(IMAGE_ATTRIBUTE_MAX_SIZE)
 					.withCustomMaxWidthUnit(Unit.EM)					
 					.withAttributeOwner(new EntityParam(theUser.getEntityId())).build();
 					
@@ -278,9 +280,9 @@ public class ProfileView extends HomeViewComponent
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, attributeType,
 					attribute, labelContext, AttributeViewerContext.builder()
 					.withCustomWidth(CSSVars.TEXT_FIELD_MEDIUM.value())
-					.withCustomMaxHeight(22)
+					.withCustomMaxHeight(IMAGE_ATTRIBUTE_MAX_SIZE)
 					.withCustomMaxHeightUnit(Unit.EM)
-					.withCustomMaxWidth(22)
+					.withCustomMaxWidth(IMAGE_ATTRIBUTE_MAX_SIZE)
 					.withCustomMaxWidthUnit(Unit.EM)
 					.build());
 			return viewer.getComponentsGroup();
