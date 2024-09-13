@@ -7,6 +7,8 @@ package io.imunity.console.attribute;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import io.imunity.vaadin.elements.CSSVars;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -20,6 +22,8 @@ import java.util.Optional;
 
 public class AttributeEditor extends VerticalLayout
 {
+	private static final int IMAGE_ATTRIBUTE_MAX_SIZE = 22;
+	
 	private final VerticalLayout attrValuesContainer;
 	private final AttributeTypeSelection attrTypePanel;
 	private final String groupPath;
@@ -53,8 +57,11 @@ public class AttributeEditor extends VerticalLayout
 			AttributeEditContext newEditContext = AttributeEditContext.builder()
 					.withConfirmationMode(ConfirmationEditMode.ADMIN).withRequired(required).withAttributeType(newType)
 					.withAttributeGroup(AttributeEditor.this.groupPath).withAttributeOwner(owner)
-					.withCustomWidth(100)
-					.withCustomWidthUnit(Unit.PERCENTAGE)
+					.withCustomWidth(CSSVars.TEXT_FIELD_MEDIUM.value())
+					.withCustomMaxHeight(IMAGE_ATTRIBUTE_MAX_SIZE)
+					.withCustomMaxHeightUnit(Unit.EM)
+					.withCustomMaxWidth(IMAGE_ATTRIBUTE_MAX_SIZE)
+					.withCustomMaxWidthUnit(Unit.EM)		
 					.build();
 
 			valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newEditContext,
@@ -86,8 +93,11 @@ public class AttributeEditor extends VerticalLayout
 				.withAttributeType(attributeType)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
 				.withAttributeOwner(owner)
-				.withCustomWidth(100)
-				.withCustomWidthUnit(Unit.PERCENTAGE)
+				.withCustomWidth(CSSVars.TEXT_FIELD_MEDIUM.value())
+				.withCustomMaxHeight(IMAGE_ATTRIBUTE_MAX_SIZE)
+				.withCustomMaxHeightUnit(Unit.EM)
+				.withCustomMaxWidth(IMAGE_ATTRIBUTE_MAX_SIZE)
+				.withCustomMaxWidthUnit(Unit.EM)				
 				.build();
 		
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext,
@@ -110,8 +120,11 @@ public class AttributeEditor extends VerticalLayout
 				.withAttributeType(attributeType)
 				.withAttributeGroup(AttributeEditor.this.groupPath)
 				.withAttributeOwner(owner)
-				.withCustomWidth(100)
-				.withCustomWidthUnit(Unit.PERCENTAGE)
+				.withCustomWidth(CSSVars.TEXT_FIELD_MEDIUM.value())
+				.withCustomMaxHeight(IMAGE_ATTRIBUTE_MAX_SIZE)
+				.withCustomMaxHeightUnit(Unit.EM)
+				.withCustomMaxWidth(IMAGE_ATTRIBUTE_MAX_SIZE)
+				.withCustomMaxWidthUnit(Unit.EM)		
 				.build();
 
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext,  null, null);
