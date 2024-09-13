@@ -108,7 +108,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		uploadNewLayout.add( upload, error, scaleLayout, getHints(imgConfig, msg));
 		clearImageLayout = new VerticalLayout();
 		Icon reaupload = new Icon(VaadinIcon.CLOSE_SMALL);
-		reaupload.setTooltipText(msg.getMessage("ImageAttributeHandler.uploadAnotherImage"));
+		reaupload.setTooltipText(msg.getMessage("ImageAttributeHandler.removeImage"));
 		clearImageLayout.add(reaupload);
 		clearImageLayout.setPadding(false);
 		reaupload.addClickListener(e -> {
