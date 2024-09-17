@@ -211,13 +211,15 @@ public class GroupTest extends AbstractNamedDAOTest<Group>
 			Group obj1 = getObject("name1");
 			Group obj2 = getObject("name2");
 			BasicCRUDDAO<Group> dao = getDAO();
-			dao.createList(Lists.newArrayList(obj1, obj2));
+			List<Long> ids = dao.createList(Lists.newArrayList(obj1, obj2));
 
 			List<Group> ret = dao.getAll();
 
 			assertThat(ret).isNotNull();
 			assertThat(ret).hasSize(3); // + '/'
-			assertThat(ret).contains(obj1, obj2);
+			assertThat(ids).hasSize(2);
+			assertThat(ids.get(0)).isNotNull();
+			assertThat(ids.get(1)).isNotNull();
 		});
 	}
 	

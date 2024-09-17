@@ -112,7 +112,7 @@ public class IdpStatisticsRDBMSStore implements IdpStatisticDAO, RDBMSDAO
 	}
 
 	@Override
-	public void createList(List<IdpStatistic> objs)
+	public List<Long> createList(List<IdpStatistic> objs)
 	{
 		throw new UnsupportedOperationException();
 	}

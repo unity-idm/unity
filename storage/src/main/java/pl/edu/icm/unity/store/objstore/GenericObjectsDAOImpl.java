@@ -242,7 +242,7 @@ public class GenericObjectsDAOImpl<T extends NamedObject> implements NamedCRUDDA
 	}
 
 	@Override
-	public void createList(List<T> objs)
+	public List<Long> createList(List<T> objs)
 	{
 		throw new UnsupportedOperationException();
 	}
