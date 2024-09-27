@@ -863,7 +863,7 @@ public class EntityManagementImpl implements EntityManagement
 	@Transactional
 	public Set<EntityWithContactInfo> getAllEntitiesWithContactEmails(Set<String> contactEmails) throws EngineException
 	{
-		Set<EntityWithContactInfo> entitiesIds = byEmailUserFinder.getEntitiesIdsByContactAddresses(contactEmails);
+		Set<EntityWithContactInfo> entitiesIds = byEmailUserFinder.getEntitiesIdsByContactAddressesWithDirectAttributeCheck(contactEmails);
 		if (entitiesIds.isEmpty())
 			throw new UnknownEmailException("Contact emails " + contactEmails + " are not assigned to any entity");
 		
