@@ -194,6 +194,25 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		return getGroupUsersAttributes(group, data.entitiesData, data.globalSystemData);
 	}
 	
+	@Override
+	public Map<Long, Map<String, AttributeExt>> getGroupUsersDirectAttributes(String group, GroupMembershipData dataO)
+	{
+		GroupMembershipDataImpl data = (GroupMembershipDataImpl) dataO;
+		Stopwatch watch = Stopwatch.createStarted();
+		
+		Map<Long, Map<String, AttributeExt>> ret = new HashMap<>();
+		for (Long entityId: data.entitiesData.getEntityInfo().keySet())
+		{
+			Set<String> memberships = data.entitiesData.getMemberships().get(entityId);
+			if (memberships != null && memberships.contains(group))
+			{
+				ret.put(entityId, data.entitiesData.getDirectAttributes().get(entityId).get(group));
+			}
+		}
+		log.debug("Bulk direct attributes assembly of {}: {}", group, watch.toString());
+		return ret;
+	}
+	
 	private Map<Long, Map<String, AttributeExt>> getGroupUsersAttributes(String group, EntitiesData entitiesData, 
 			GlobalSystemData globalSystemData)
 	{
@@ -239,6 +258,13 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		return ret;
 	}
 
+	@Override
+	public Map<Long, Set<String>> getEntitiesGroups(GroupMembershipData dataO)
+	{
+		GroupMembershipDataImpl data = (GroupMembershipDataImpl) dataO;
+		return data.entitiesData.getMemberships();
+	}
+	
 	private Set<String> getEnquiryForms(Long e, GroupMembershipDataImpl data, CredentialInfo credentialInfo)
 	{
 		Set<String> forms = new HashSet<>();

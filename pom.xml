@@ -21,7 +21,7 @@
 		<log4j.version>2.23.1</log4j.version>
 		<spring.version>5.3.33</spring.version>
 		<vaadin.version>24.3.8</vaadin.version>
-		<cxf.version>4.0.4</cxf.version>
+		<cxf.version>4.0.5</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
 		<bc.version>1.78.1</bc.version>
 		<selenium.version>4.19.0</selenium.version>
@@ -639,6 +639,13 @@
 				<artifactId>freemarker</artifactId>
 				<version>2.3.32</version>
 			</dependency>
+
+			<dependency>
+				<groupId>org.eclipse.angus</groupId>
+				<artifactId>angus-mail</artifactId>
+				<version>2.0.3</version>
+			</dependency>
+
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
 				<artifactId>cxf-rt-databinding-xmlbeans</artifactId>
@@ -659,11 +666,7 @@
 				<artifactId>cxf-rt-frontend-jaxrs</artifactId>
 				<version>${cxf.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.sun.mail</groupId>
-				<artifactId>jakarta.mail</artifactId>
-				<version>2.0.1</version>
-			</dependency>
+
 			<dependency>
 				<groupId>io.imunity.simplecaptcha</groupId>
 				<artifactId>simplecaptcha</artifactId>
