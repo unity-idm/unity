@@ -16,7 +16,7 @@ public interface BasicCRUDDAO<T>
 	
 	void createWithId(long id, T obj);
 	
-	List<Long> createList(List<T> objs);
+	void createList(List<T> objs);
 	
 	void updateByKey(long id, T obj);
 

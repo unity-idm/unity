@@ -69,7 +69,7 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 	}
 	
 	@Override
-	public List<Long> createList(List<Group> objs)
+	public void createList(List<Group> objs)
 	{
 		Set<String> parentsUsed = new HashSet<>();
 		for (Group grp: objs)
@@ -91,9 +91,7 @@ public class GroupRDBMSStore extends GenericNamedRDBMSCRUD<Group, GroupBean> imp
 			toAdd.setParentId((int)(long)(resolvedParents.get(obj.getParentPath()).getId()));
 			converted.add(toAdd);
 		}
-		List<GroupBean> allBeforeAdd = mapper.getAll();
 		mapper.createList(converted);
-		return mapper.getAll().stream().filter(g -> !allBeforeAdd.contains(g)).map(g -> g.getId()).toList();
 	}
 	
 	@Override

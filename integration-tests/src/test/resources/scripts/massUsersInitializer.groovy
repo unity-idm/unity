@@ -169,7 +169,7 @@ List<AttributeStatement> createAttributeStatements()
 	statements.add(emailStmt)
 	for (int i=0; i<ATTRIBUTE_STATEMENTS; i++)
 	{
-		AttributeStatement stm = new AttributeStatement("idsByType['userName'][0] contains ('" + i + "')", "/root", ConflictResolution.skip,
+		AttributeStatement stm = new AttributeStatement("idsByType['userName']!= null&&idsByType['userName'][0] contains ('" + i + "')", "/root", ConflictResolution.skip,
 			ATTRIBUTE_FOR_STATEMENT_PREFIX + i, "idsByType['identifier'][0] + eattr['" + ATTRIBUTE_PREFIX + (i%TEXT_ATTRIBUTES) +"']");
 		statements.add(stm);
 	}
@@ -203,8 +203,10 @@ void createExampleUsers()
 		
 		List<Long> ids = tx.runInTransactionRet(new TxRunnableRet() 
 		{
-			public List<Long> run() { 
-				return dbEntities.createList(list);
+			public List<Long> run() { 	
+				List<EntityInformation> allBeforeAdd = dbEntities.getAll();
+				dbEntities.createList(list);
+				return dbEntities.getAll().stream().filter(o -> !allBeforeAdd.contains(o)).map(o -> o.getId()).toList();
 			}
 		});
 		log.info("Added {} entities", list.size());
