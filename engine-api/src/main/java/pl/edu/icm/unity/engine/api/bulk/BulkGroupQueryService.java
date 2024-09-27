@@ -29,12 +29,15 @@ public interface BulkGroupQueryService
 
 	Map<Long, Map<String, AttributeExt>> getGroupUsersAttributes(String group, GroupMembershipData dataO);
 
+	Map<Long, Map<String, AttributeExt>> getGroupUsersDirectAttributes(String group, GroupMembershipData dataO);
+	
 	Map<Long, Entity> getGroupEntitiesNoContextWithTargeted(GroupMembershipData dataO);
 
 	Map<Long, Entity> getGroupEntitiesNoContextWithoutTargeted(GroupMembershipData dataO);
 
 	Map<Long, EntityInGroupData> getMembershipInfo(GroupMembershipData dataO);
 	
+	Map<Long, Set<String>> getEntitiesGroups(GroupMembershipData dataO);
 	
 	GroupStructuralData getBulkStructuralData(String group) throws EngineException;
 

@@ -13,13 +13,13 @@ import java.util.concurrent.Future;
 
 import javax.net.ssl.SSLSocketFactory;
 
-import com.sun.mail.util.MailSSLSocketFactory;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import jakarta.mail.*;
 import jakarta.mail.internet.MimeMessage;
+import org.eclipse.angus.mail.util.MailSSLSocketFactory;
 import pl.edu.icm.unity.base.msg_template.MessageTemplate;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
