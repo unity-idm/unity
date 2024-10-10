@@ -79,8 +79,6 @@ log.info("Creating demo content...");
 
 try
 {
-	GroupContents rootContents = groupsManagement.getContents("/", GroupContents.GROUPS);
-	
 	Map<String, AttributeType> existingATs = attributeTypeManagement.getAttributeTypesAsMap();
 	if (!existingATs.containsKey(FNAME_ATTR) || !existingATs.containsKey(EMAIL_ATTR))
 	{
@@ -131,7 +129,17 @@ void createAttributeTypes()
 
 void createExampleGroups()
 {
-	groupsManagement.addGroup(new Group("/root"));
+	Group massRoot = new Group("/root");
+	List<AttributeStatement> massStatements = createAttributeStatementsForMassRoot();
+	massRoot.setAttributeStatements(massStatements.toArray(AttributeStatement[]::new));
+	groupsManagement.addGroup(massRoot);
+	
+	GroupContents rootContents = groupsManagement.getContents("/", GroupContents.METADATA);
+	Group root = rootContents.getGroup();
+	List<AttributeStatement> statements = createAttributeStatementsForRoot();
+	root.setAttributeStatements(statements.toArray(AttributeStatement[]::new));
+	groupsManagement.updateGroup("/", root);
+		
 	GroupDAO dbGroups = applicationContext.getBean(GroupDAO.class);
 	TransactionalRunner tx = applicationContext.getBean(TransactionalRunner.class);
 	for (int j=0; j<GROUPS; j++)
@@ -140,8 +148,6 @@ void createExampleGroups()
 		for (int i=0; i<IN_BATCH; i++)
 		{
 			Group grp = new Group("/root/grp" + (IN_BATCH*j + i));
-			List<AttributeStatement> statements = createAttributeStatements();
-			grp.setAttributeStatements(statements.toArray(AttributeStatement[]::new));
 			list.add(grp);
 		}
 		
@@ -155,7 +161,19 @@ void createExampleGroups()
 	}
 }
 
-List<AttributeStatement> createAttributeStatements()
+List<AttributeStatement> createAttributeStatementsForRoot()
+{
+	List<AttributeStatement> statements = new ArrayList<>();
+	for (int i=0; i<ATTRIBUTE_STATEMENTS; i++)
+	{
+		AttributeStatement stm = new AttributeStatement("idsByType['userName']!= null&&idsByType['userName'][0] contains ('" + i + "')", "/root", ConflictResolution.skip,
+			ATTRIBUTE_FOR_STATEMENT_PREFIX + i, "idsByType['identifier']!=null ? idsByType['identifier'][0] : '' + eattr['" + ATTRIBUTE_PREFIX + (i%TEXT_ATTRIBUTES) +"']");
+		statements.add(stm);
+	}
+	return statements
+}
+
+List<AttributeStatement> createAttributeStatementsForMassRoot()
 {
 	List<AttributeStatement> statements = new ArrayList<>();
 	AttributeStatement fnameStmt = new AttributeStatement("true", "/", ConflictResolution.skip,
@@ -167,12 +185,7 @@ List<AttributeStatement> createAttributeStatements()
 	statements.add(fnameStmt);
 	statements.add(lnameStmt)
 	statements.add(emailStmt)
-	for (int i=0; i<ATTRIBUTE_STATEMENTS; i++)
-	{
-		AttributeStatement stm = new AttributeStatement("idsByType['userName']!= null&&idsByType['userName'][0] contains ('" + i + "')", "/root", ConflictResolution.skip,
-			ATTRIBUTE_FOR_STATEMENT_PREFIX + i, "idsByType['identifier'][0] + eattr['" + ATTRIBUTE_PREFIX + (i%TEXT_ATTRIBUTES) +"']");
-		statements.add(stm);
-	}
+	
 	return statements
 }
 
