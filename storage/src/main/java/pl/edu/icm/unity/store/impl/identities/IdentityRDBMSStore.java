@@ -6,6 +6,7 @@ package pl.edu.icm.unity.store.impl.identities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,5 +90,14 @@ public class IdentityRDBMSStore extends GenericNamedRDBMSCRUD<StoredIdentity, Id
 	{
 		IdentitiesMapper mapper = SQLTransactionTL.getSql().getMapper(IdentitiesMapper.class);
 		return mapper.getCountByType(types);
+	}
+	
+	@Override
+	public Set<Long> getIdByTypeAndValues(String type, List<String> values)
+	{
+		IdentitiesMapper mapper = SQLTransactionTL.getSql().getMapper(IdentitiesMapper.class);
+		return mapper.getIdByTypeAndNames(type, values.stream()
+				.map(v -> StoredIdentity.toInDBIdentityValue(type, v))
+				.collect(Collectors.toList()));
 	}
 }
