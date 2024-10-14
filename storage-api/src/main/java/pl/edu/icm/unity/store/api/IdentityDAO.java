@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.api;
 
 import java.util.List;
+import java.util.Set;
 
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.store.types.StoredIdentity;
@@ -22,4 +23,5 @@ public interface IdentityDAO extends NamedCRUDDAO<StoredIdentity>
 	List<StoredIdentity> getByEntityFull(long entityId);
 	List<StoredIdentity> getByGroup(String group);
 	long getCountByType(List<String> types);
+	Set<Long> getIdByTypeAndValues(String type, List<String> values);
 }
