@@ -310,7 +310,7 @@ List<Identity> createIdentities(List<Long> ids, int base)
 			ids.get(i), "username:" + value)));
 		
 		identities1.add(new StoredIdentity(new Identity(EmailIdentity.ID, value + "@email.com",
-			ids.get(i), "email:" + value)));
+			ids.get(i), value + "@email.com")));
 		
 		for (int k=0; k<IDENTIFIER_IDENTITIES; k++)
 		{
