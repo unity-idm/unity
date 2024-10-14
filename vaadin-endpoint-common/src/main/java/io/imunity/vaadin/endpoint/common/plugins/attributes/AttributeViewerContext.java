@@ -27,7 +27,9 @@ public class AttributeViewerContext
 	private Unit customMaxWidthUnit = null;
 	private Float customMaxHeight = null;
 	private Unit customMaxHeightUnit = null;
+	private boolean showDescriptionAsTooltip = false;
 
+	
 	private AttributeViewerContext()
 	{
 	}
@@ -147,6 +149,11 @@ public class AttributeViewerContext
 		return customWidthAsString;
 	}
 
+	public boolean isShowDescriptionAsTooltip()
+	{
+		return showDescriptionAsTooltip;
+	}
+
 	public static class Builder
 	{
 		private final AttributeViewerContext obj;
@@ -251,6 +258,13 @@ public class AttributeViewerContext
 			this.obj.borderUnit = borderUnit;
 			return this;
 		}
+		
+		public Builder withShowDescriptionAsTooltip(boolean show)
+		{
+			this.obj.showDescriptionAsTooltip = show;
+			return this;
+		}
+
 
 		public AttributeViewerContext build()
 		{

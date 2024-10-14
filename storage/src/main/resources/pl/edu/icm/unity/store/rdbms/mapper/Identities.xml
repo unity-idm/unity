@@ -83,4 +83,11 @@
 		select IDENTITIES.*, IDENTITY_TYPES.NAME AS TYPE_NAME from IDENTITIES, IDENTITY_TYPES 
 		WHERE IDENTITIES.ENTITY_ID = #{value} AND IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID 
 	</select>
+	
+	<select id="getIdByTypeAndNames"  resultType="long">
+		SELECT IDENTITIES.ENTITY_ID from IDENTITIES, IDENTITY_TYPES
+		WHERE IDENTITIES.TYPE_ID = IDENTITY_TYPES.ID AND IDENTITY_TYPES.NAME = #{identityType} AND IDENTITIES.NAME IN  
+		<foreach item="name" index="index" collection="names" open="(" separator="," close=")"> #{name} </foreach>
+	</select>
+	
 </mapper>

@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -135,6 +136,23 @@ public class IdentityTest extends AbstractNamedDAOTest<StoredIdentity>
 
 			assertThat(obj).isEqualTo(ret.get(0));
 			assertThat(obj2).isEqualTo(ret.get(1));
+		});
+	}
+	
+	@Test
+	public void shouldReturnByTypeAndValues()
+	{
+		tx.runInTransaction(() -> {
+			StoredIdentity obj = getObject("name1");
+			long id1 = dao.create(obj);
+			StoredIdentity obj2 = getObject("name2");
+			obj2.getIdentity().setEntityId(entity2);
+			long id2 = dao.create(obj2);
+			
+			Set<Long> idByTypeAndValues = dao.getIdByTypeAndValues("username", List.of("name1", "name2"));
+			
+			assertThat(idByTypeAndValues.size()).isEqualTo(2);
+			assertThat(idByTypeAndValues).contains(id1, id2);
 		});
 	}
 	
