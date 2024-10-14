@@ -20,26 +20,31 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeStatement;
 import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.authn.CredentialInfo;
 import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.GroupContents;
-import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.identity.Identity;
+import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
 import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
-import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
+import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
+import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.store.api.AttributeDAO;
+import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
+import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
 
@@ -49,20 +54,29 @@ class ExistingUserFinder
 	private final BulkGroupQueryService bulkService;
 	private final AttributesHelper attrHelper;
 	private final GroupsManagement groupsManagement;
-	private final EntityManagement entityManagement;
 	private final IdentityDAO identityDAO;
 	private final AttributeDAO attributeDAO;
-	
+	private final EntityDAO entityDAO;
+	private final EntityResolver idResolver;
+	private final EntityCredentialsHelper credentialsHelper;
+	private final IdentityHelper identityHelper;
+	private final MembershipDAO membershipDAO;
+
 	@Autowired
 	ExistingUserFinder(@Qualifier("insecure") BulkGroupQueryService bulkService, AttributesHelper attrHelper, @Qualifier("insecure") GroupsManagement groupsManagement, 
-			EntityManagement entityManagement, IdentityDAO identityDAO, AttributeDAO attributeDAO)
+			IdentityDAO identityDAO, AttributeDAO attributeDAO, EntityDAO entityDAO, EntityResolver idResolver, EntityCredentialsHelper credentialsHelper, IdentityHelper identityHelper,
+			MembershipDAO membershipDAO)
 	{
 		this.bulkService = bulkService;
 		this.attrHelper = attrHelper;
 		this.groupsManagement = groupsManagement;
-		this.entityManagement = entityManagement;
 		this.attributeDAO = attributeDAO;
 		this.identityDAO = identityDAO;
+		this.entityDAO = entityDAO;
+		this.idResolver = idResolver;
+		this.credentialsHelper = credentialsHelper;
+		this.identityHelper = identityHelper;
+		this.membershipDAO = membershipDAO;
 		
 	}
 
@@ -133,9 +147,9 @@ class ExistingUserFinder
 		for (Long entityId : searchedEntitiesByEmailAttrs.keySet())
 		{
 			EntityParam entityParam =  new EntityParam(entityId);
-			Entity entity = entityManagement.getEntity(entityParam);
-			Map<String, GroupMembership> groups = entityManagement.getGroups(entityParam);
-			entitiesWithContactAddress.add(new EntityWithContactInfo(entity, searchedEntitiesByEmailAttrs.get(entityId), groups.keySet()));
+			Entity entity = getEntity(entityParam);
+			Set<String> groups = getGroups(entity.getId());
+			entitiesWithContactAddress.add(new EntityWithContactInfo(entity, searchedEntitiesByEmailAttrs.get(entityId), groups));
 		}
 		
 		return entitiesWithContactAddress;
@@ -156,15 +170,16 @@ class ExistingUserFinder
 		
 		
 	}
+	
 	private EntityWithContactInfo resolveToEntityWithContactAddress(EntityParam entityParam, Set<String> searchedComparableEmails ) throws EngineException
 	{
-		Entity entity = entityManagement.getEntity(entityParam);
-		Map<String, GroupMembership> groups = entityManagement.getGroups(entityParam);
+		Entity entity = getEntity(entityParam);
+		Set<String> groups = getGroups(entity.getId());
 		Identity emailId = entity.getIdentities().stream()
 				.filter(id -> id.getTypeId().equals(EmailIdentity.ID))
 				.filter(id -> emailsEqual(searchedComparableEmails, id))
 				.findAny().orElse(null);
-		return new EntityWithContactInfo(entity, emailId.getComparableValue(), groups.keySet());
+		return new EntityWithContactInfo(entity, emailId.getComparableValue(), groups);
 	}
 	
 	private Map<Long, String> searchEntitiesByEmailAttrs(Set<String> searchedComparableEmails, List<StoredAttribute> attributes) throws EngineException
@@ -260,4 +275,30 @@ class ExistingUserFinder
 
 		return entitiesWithContactAddressAttr;
 	}	
+
+	private Entity getEntity(EntityParam entity) throws EngineException
+	{
+		entity.validateInitialization();
+		long entityId = idResolver.getEntityId(entity);
+		CredentialInfo credInfo = credentialsHelper.getCredentialInfo(entityId);
+		EntityInformation theState = entityDAO.getByKey(entityId);
+		return new Entity(getIdentitiesForEntity(entityId), theState, credInfo);
+	}
+
+	private List<Identity> getIdentitiesForEntity(long entityId) throws IllegalIdentityValueException
+	{
+		List<Identity> ret = identityHelper.getIdentitiesForEntity(entityId, null);
+		identityHelper.addDynamic(entityId, ret.stream()
+				.map(Identity::getTypeId)
+				.collect(Collectors.toSet()), ret, null);
+		return ret;
+	}
+
+	private Set<String> getGroups(long entityId)
+	{
+		return membershipDAO.getEntityMembership(entityId)
+				.stream()
+				.map(g -> g.getGroup())
+				.collect(Collectors.toSet());
+	}
 }

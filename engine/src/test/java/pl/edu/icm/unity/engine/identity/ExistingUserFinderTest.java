@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,17 +38,20 @@ import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
-import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
+import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
+import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.store.api.AttributeDAO;
+import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
+import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
 public class ExistingUserFinderTest
@@ -58,10 +60,13 @@ public class ExistingUserFinderTest
 	private BulkGroupQueryService bulkService = mock(BulkGroupQueryService.class);
 	private AttributesHelper attrHelper = mock(AttributesHelper.class);
 	private GroupsManagement groupsManagement = mock(GroupsManagement.class);
-	private EntityManagement entityManagement = mock(EntityManagement.class);
 	private IdentityDAO identityDAO = mock(IdentityDAO.class);
 	private AttributeDAO attributeDAO = mock(AttributeDAO.class);
-	
+	private EntityDAO entityDAO = mock(EntityDAO.class);
+	private EntityResolver idResolver = mock(EntityResolver.class);
+	private EntityCredentialsHelper credentialsHelper = mock(EntityCredentialsHelper.class);
+	private IdentityHelper identityHelper = mock(IdentityHelper.class);
+	private MembershipDAO membershipDAO = mock(MembershipDAO.class);
 	
 	
 	@Test
@@ -70,7 +75,7 @@ public class ExistingUserFinderTest
 		EntityInGroupData entityData = new EntityInGroupData(createEmailEntity("addr1@EXample.com", 13), null, null,
 				null, null, null);
 		when(bulkService.getMembershipInfo(any())).thenReturn(ImmutableMap.of(13l, entityData));
-		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper, groupsManagement, entityManagement, identityDAO, attributeDAO);
+		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper, groupsManagement, identityDAO, attributeDAO, entityDAO, idResolver, credentialsHelper, identityHelper, membershipDAO);
 
 		Set<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
 
@@ -86,7 +91,7 @@ public class ExistingUserFinderTest
 		when(bulkService.getMembershipInfo(any())).thenReturn(ImmutableMap.of(13l, entityData));
 		when(attrHelper.getFirstVerifiableAttributeValueFilteredByMeta(eq(ContactEmailMetadataProvider.NAME), any()))
 				.thenReturn(Optional.of(VerifiableEmail.fromJsonString(emailAttr.getValues().get(0))));
-		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper, groupsManagement, entityManagement, identityDAO, attributeDAO);
+		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper, groupsManagement, identityDAO, attributeDAO, entityDAO, idResolver, credentialsHelper, identityHelper, membershipDAO);
 
 		Set<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
 
@@ -109,7 +114,7 @@ public class ExistingUserFinderTest
 				eq(Arrays.asList(emailAttr))))
 						.thenReturn(Optional.of(VerifiableEmail.fromJsonString(emailAttr.getValues().get(0))));
 
-		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper, groupsManagement, entityManagement, identityDAO, attributeDAO);
+		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper, groupsManagement, identityDAO, attributeDAO, entityDAO, idResolver, credentialsHelper, identityHelper, membershipDAO);
 		Set<Entity> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddress("Addr1@examplE.com");
 		assertThat(entityIdByContactAddress.size()).isEqualTo(2);
 		assertThat(entityIdByContactAddress.stream().map(e -> e.getId()).collect(Collectors.toSet())).contains(14L, 13L);
@@ -138,12 +143,18 @@ public class ExistingUserFinderTest
 		
 		when(identityDAO.getIdByTypeAndValues(EmailIdentity.ID, List.of("addr1@example.com"))).thenReturn(Set.of(14L));
 		when(attributeDAO.getAttributesOfGroupMembers(List.of(ContactEmailMetadataProvider.NAME), List.of("/"))).thenReturn(List.of(new StoredAttribute(emailAttr, 13L)));
-		when(entityManagement.getEntity(new EntityParam(13L))).thenReturn(entityWithEmailAttrData);
-		when(entityManagement.getEntity(new EntityParam(14L))).thenReturn(entityWithIdEmailData);
-		when(entityManagement.getGroups(new EntityParam(14L))).thenReturn(Map.of("/", new GroupMembership("/", 14L, new Date()), "/B", new GroupMembership("/B", 14L, new Date())));
-		when(entityManagement.getGroups(new EntityParam(13L))).thenReturn(Map.of("/", new GroupMembership("/", 13L, new Date()), "/A", new GroupMembership("/A", 14L, new Date())));
-	
-		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper, groupsManagement, entityManagement, identityDAO, attributeDAO);
+		
+		when(idResolver.getEntityId(new EntityParam(13L))).thenReturn(13L);
+		when(entityDAO.getByKey(13L)).thenReturn(entityWithEmailAttrData.getEntityInformation());
+		when(identityHelper.getIdentitiesForEntity(13L, null)).thenReturn(entityWithEmailAttrData.getIdentities());
+		when(membershipDAO.getEntityMembership(13L)).thenReturn(List.of(new GroupMembership("/", 13L, new Date()), new GroupMembership("/A", 13L, new Date())));
+		
+		when(idResolver.getEntityId(new EntityParam(14L))).thenReturn(14L);
+		when(entityDAO.getByKey(14L)).thenReturn(entityWithIdEmailData.getEntityInformation());
+		when(identityHelper.getIdentitiesForEntity(14L, null)).thenReturn(entityWithIdEmailData.getIdentities());
+		when(membershipDAO.getEntityMembership(14L)).thenReturn(List.of(new GroupMembership("/", 14L, new Date()), new GroupMembership("/B", 14L, new Date())));
+		
+		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper, groupsManagement, identityDAO, attributeDAO, entityDAO, idResolver, credentialsHelper, identityHelper, membershipDAO);
 		Set<EntityWithContactInfo> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddressesWithDirectAttributeCheck(Set.of("Addr1@examplE.com"));
 		assertThat(entityIdByContactAddress.stream().map(e -> e.entity.getId()).collect(Collectors.toSet())).contains(14L, 13L);	
 		assertThat(entityIdByContactAddress.stream().filter(e -> e.entity.getId().equals(13l)).findFirst().get().groups).containsExactlyElementsOf(Set.of("/A", "/"));	
@@ -160,14 +171,17 @@ public class ExistingUserFinderTest
 		when(attrHelper.getAttributeTypeWithSingeltonMetadata(ContactEmailMetadataProvider.NAME)).thenReturn(null);
 		
 		when(identityDAO.getIdByTypeAndValues(EmailIdentity.ID, List.of("addr1@example.com", "addr2@example.com"))).thenReturn(Set.of(14L, 15L));
-		when(entityManagement.getEntity(new EntityParam(14L))).thenReturn(entityWithIdEmailData1);
-		when(entityManagement.getGroups(new EntityParam(14L))).thenReturn(Map.of("/", new GroupMembership("/", 15L, new Date()), "/B", new GroupMembership("/B", 14L, new Date())));
-		when(entityManagement.getEntity(new EntityParam(15L))).thenReturn(entityWithIdEmailData2);
-		when(entityManagement.getGroups(new EntityParam(15L))).thenReturn(Map.of("/", new GroupMembership("/", 15L, new Date()), "/C", new GroupMembership("/C", 14L, new Date())));
-	
+		when(idResolver.getEntityId(new EntityParam(14L))).thenReturn(14L);
+		when(entityDAO.getByKey(14L)).thenReturn(entityWithIdEmailData1.getEntityInformation());
+		when(identityHelper.getIdentitiesForEntity(14L, null)).thenReturn(entityWithIdEmailData1.getIdentities());
+		when(membershipDAO.getEntityMembership(14L)).thenReturn(List.of(new GroupMembership("/", 14L, new Date()), new GroupMembership("/B", 14L, new Date())));
 		
+		when(idResolver.getEntityId(new EntityParam(15L))).thenReturn(15L);
+		when(entityDAO.getByKey(15L)).thenReturn(entityWithIdEmailData2.getEntityInformation());
+		when(identityHelper.getIdentitiesForEntity(15L, null)).thenReturn(entityWithIdEmailData2.getIdentities());
+		when(membershipDAO.getEntityMembership(15L)).thenReturn(List.of(new GroupMembership("/", 15L, new Date()), new GroupMembership("/C", 15L, new Date())));
 		
-		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper, groupsManagement, entityManagement, identityDAO, attributeDAO);
+		ExistingUserFinder userFinder = new ExistingUserFinder(bulkService, attrHelper, groupsManagement, identityDAO, attributeDAO, entityDAO, idResolver, credentialsHelper, identityHelper, membershipDAO);
 		Set<EntityWithContactInfo> entityIdByContactAddress = userFinder.getEntitiesIdsByContactAddressesWithDirectAttributeCheck(Set.of("Addr1@examplE.com", "addr2@EXample.com"));
 		
 		assertThat(entityIdByContactAddress.stream().map(e -> e.entity.getId()).collect(Collectors.toSet())).contains(14L, 15L);	
