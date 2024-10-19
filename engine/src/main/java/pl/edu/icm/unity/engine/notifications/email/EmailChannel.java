@@ -50,11 +50,19 @@ class EmailChannel implements NotificationChannelInstance
 		String smtpPassword = props.getProperty(EmailFacility.CFG_PASSWD);
 		Authenticator smtpAuthn = (smtpUser != null && smtpPassword != null) ? 
 				new SimpleAuthenticator(smtpUser, smtpPassword) : null;
-		String trustAll = props.getProperty(EmailFacility.CFG_TRUST_ALL);
-		SSLSocketFactory socketFactory = (trustAll != null && "true".equalsIgnoreCase(trustAll)) ?
+		boolean trustAllServers = isTrustingAllServers(props);
+		SSLSocketFactory socketFactory =  trustAllServers ?
 				createTrustAllSocketFactory() : createVerifyingSocketFactory(pkiManagement);
 		props.put("mail.smtp.ssl.socketFactory", socketFactory);
+		if (trustAllServers)
+			props.put("mail.smtp.ssl.checkserveridentity", false);
 		session = Session.getInstance(props, smtpAuthn);
+	}
+
+	private static boolean isTrustingAllServers(Properties props)
+	{
+		String trustAll = props.getProperty(EmailFacility.CFG_TRUST_ALL);
+		return (trustAll != null && "true".equalsIgnoreCase(trustAll));
 	}
 
 	private SSLSocketFactory createTrustAllSocketFactory()
@@ -63,6 +71,7 @@ class EmailChannel implements NotificationChannelInstance
 		try
 		{
 			trustAllSF = new MailSSLSocketFactory();
+			//trustAllSF.setTrustManagers(new CommonX509TrustManager(new BinaryCertChainValidator(true)));
 		} catch (GeneralSecurityException e)
 		{
 			//really shouldn't happen
