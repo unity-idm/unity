@@ -71,7 +71,6 @@ class EmailChannel implements NotificationChannelInstance
 		try
 		{
 			trustAllSF = new MailSSLSocketFactory();
-			//trustAllSF.setTrustManagers(new CommonX509TrustManager(new BinaryCertChainValidator(true)));
 		} catch (GeneralSecurityException e)
 		{
 			//really shouldn't happen
