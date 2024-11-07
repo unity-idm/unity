@@ -5,6 +5,23 @@
 
 package pl.edu.icm.unity.oauth.as.console;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.IDP_INFO_LAYOUT;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
+import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableSet;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -31,19 +48,26 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
+
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
-import io.imunity.vaadin.elements.*;
-import io.imunity.vaadin.elements.grid.GridWithEditorInDetails;
-import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceEditorBase;
 import io.imunity.vaadin.auth.services.ServiceEditorComponent;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.EnumComboBox;
+import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
+import io.imunity.vaadin.elements.NoSpaceValidator;
+import io.imunity.vaadin.elements.grid.GridWithEditorInDetails;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
@@ -52,17 +76,6 @@ import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
-
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.IDP_INFO_LAYOUT;
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 /**
  * OAuth service editor general tab
@@ -72,7 +85,8 @@ import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_L
  */
 class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.EditorTab
 {
-	private MessageSource msg;
+	private final MessageSource msg;
+	private final PKIManagement pkiManagement;
 	private Binder<DefaultServiceDefinition> oauthWebAuthzBinder;
 	private Binder<DefaultServiceDefinition> oauthTokenBinder;
 	private Binder<OAuthServiceConfiguration> configBinder;
@@ -98,13 +112,14 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 	private Set<String> validators;
 	private final HtmlTooltipFactory htmlTooltipFactory;
 
-	OAuthEditorGeneralTab(MessageSource msg, HtmlTooltipFactory htmlTooltipFactory, String serverPrefix, Set<String> serverContextPaths,
+	OAuthEditorGeneralTab(MessageSource msg, PKIManagement pkiManagement, HtmlTooltipFactory htmlTooltipFactory, String serverPrefix, Set<String> serverContextPaths,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory, boolean editMode,
 			Set<String> credentials, Collection<IdentityType> identityTypes, List<String> attrTypes,
 			List<String> usedEndpointsPaths, List<OAuthScope> systemScopes, Set<String> validators, Set<String> certificates)
 	{
 		this.msg = msg;
-
+		this.pkiManagement = pkiManagement;
+		
 		this.editMode = editMode;
 		this.credentials = credentials;
 		this.idTypes = identityTypes;
@@ -406,17 +421,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		credential.setItems(credentials);
 		configBinder.forField(credential)
 				.asRequired((v, c) ->
-				{
-					if (credential.isEnabled() && (v == null || v.isEmpty())
-							&& !Family.HMAC_SHA.contains(JWSAlgorithm.parse(signingAlg.getValue()
-									.toString())))
-					{
-						return ValidationResult.error(msg.getMessage("fieldRequired"));
-					}
-
-					return ValidationResult.ok();
-
-				})
+					validateCredential(v, credential.isEnabled(), signingAlg.getValue() != null ? signingAlg.getValue().toString() : null))
 				.bind("credential");
 
 		credential.setEnabled(false);
@@ -461,6 +466,51 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		return main;
 	}
 
+	private PrivateKey getPrivateKey(String cred) throws EngineException
+	{
+		return pkiManagement.getCredential(cred).getKey();	
+	}
+	
+	private ValidationResult validateCredential(String credential, boolean isEnabled,  String signingAlg)
+	{
+		if (signingAlg == null)
+		{
+			return ValidationResult.ok();
+		}
+		
+		if (isEnabled && (credential == null || credential.isEmpty())
+				&& !Family.HMAC_SHA.contains(JWSAlgorithm.parse(signingAlg)))
+		{
+			return ValidationResult.error(msg.getMessage("fieldRequired"));
+		}	
+		
+		PrivateKey pk;
+		try
+		{
+			pk = getPrivateKey(credential);
+		} catch (EngineException e1)
+		{
+			return ValidationResult.error(msg.getMessage("OAuthEditorGeneralTab.credentialError"));
+		}
+		if (pk == null)
+		{
+			return ValidationResult.error(msg.getMessage("OAuthEditorGeneralTab.credentialError"));
+		}
+		
+		if (!(pk instanceof RSAPrivateKey) && Family.RSA.contains(JWSAlgorithm.parse(signingAlg)))
+		{
+			return ValidationResult.error(msg.getMessage("OAuthEditorGeneralTab.privateKeyError", "RSA", "RS"));
+		}
+		
+		if (!(pk instanceof ECPrivateKey) && Family.EC.contains(JWSAlgorithm.parse(signingAlg)))
+		{
+			return ValidationResult.error(msg.getMessage("OAuthEditorGeneralTab.privateKeyError", "EC", "ES"));
+		}
+		
+
+		return ValidationResult.ok();
+	}
+	
 	private void refreshScope(boolean add, OIDCScopeValue value)
 	{
 		Optional<OAuthScopeBean> scope = configBinder.getBean()
@@ -626,6 +676,8 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 			credential.setEnabled(false);
 			signingAlg.setEnabled(false);
 		}
+		
+		configBinder.getBinding("credential").get().validate();
 
 	}
 
