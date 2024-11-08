@@ -56,12 +56,14 @@ public class KeysResource extends BaseOAuthResource
 		{
 			set = new JWKSet(new RSAKey.Builder((RSAPublicKey) config.getTokenSigner().getCredentialCertificate().getPublicKey())
 					.keyUse(KeyUse.SIGNATURE)
+					.keyID(KeyIdExtractor.getKeyId(config.getTokenSigner().getCredentialCertificate()))
 					.x509CertChain(getCertAsX5CAttribute(config.getTokenSigner().getCredentialCertificateChain()))
 					.build());
 		} else if (Family.EC.contains(signAlg))
 		{
 			set = new JWKSet(new ECKey.Builder(Curve.forJWSAlgorithm(signAlg).iterator().next(),
 									(ECPublicKey) config.getTokenSigner().getCredentialCertificate().getPublicKey())
+									.keyID(KeyIdExtractor.getKeyId(config.getTokenSigner().getCredentialCertificate()))
 									.keyUse(KeyUse.SIGNATURE)
 									.x509CertChain(getCertAsX5CAttribute(config.getTokenSigner().getCredentialCertificateChain()))
 									.build());

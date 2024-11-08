@@ -31,6 +31,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.oauth.as.token.KeyIdExtractor;
 
 /**
  * Wrapper for  {@link JWSSigner}. Can signs token using RSA, EC or HMAC algorithm. 
@@ -192,6 +193,10 @@ public class TokenSigner
 		if (!isPKIEnabled())
 			throw new InternalException("Token signer is not initialized");
 		JWSHeader.Builder jwsHeaderBuilder = new JWSHeader.Builder(algorithm);
+		if (credential != null)
+		{
+			jwsHeaderBuilder.keyID(KeyIdExtractor.getKeyId(getCredentialCertificate()));
+		}
 		if (type != null)
 			jwsHeaderBuilder.type(new JOSEObjectType(type));
 		SignedJWT ret = new SignedJWT(jwsHeaderBuilder.build(), claims);	

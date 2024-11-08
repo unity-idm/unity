@@ -15,6 +15,7 @@ import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementsConfiguration;
@@ -112,7 +113,7 @@ public class OAuthServiceConfiguration
 		trustedUpstreamAS = new ArrayList<>();
 	}
 
-	public String toProperties(MessageSource msg)
+	public String toProperties(MessageSource msg, PKIManagement pkiForValidation)
 	{
 		Properties raw = new Properties();
 
@@ -293,7 +294,7 @@ public class OAuthServiceConfiguration
 					OAuthASProperties.P));
 		}
 
-		OAuthASProperties oauthProperties = new OAuthASProperties(raw);
+		OAuthASProperties oauthProperties = pkiForValidation != null ? new OAuthASProperties(raw, pkiForValidation, null) : new OAuthASProperties(raw);
 		return oauthProperties.getAsString();
 	}
 

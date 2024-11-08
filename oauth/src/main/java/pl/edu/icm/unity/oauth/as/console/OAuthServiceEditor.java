@@ -21,6 +21,7 @@ import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.identity.IdentityType;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -66,10 +67,12 @@ class OAuthServiceEditor implements ServiceEditor
 	private final Set<String> validators;
 	private final Set<String> certificates;
 	private final HtmlTooltipFactory htmlTooltipFactory;
+	private final PKIManagement pkiManagement;
 
 	OAuthServiceEditor(MessageSource msg, 
 			SubViewSwitcher subViewSwitcher,
 			OutputTranslationProfileFieldFactory outputTranslationProfileFieldFactory,
+			PKIManagement pkiManagement,
 			String serverPrefix,
 			Set<String> serverContextPaths,
 			VaadinLogoImageLoader imageService,
@@ -95,6 +98,7 @@ class OAuthServiceEditor implements ServiceEditor
 			Set<String> certificates, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.msg = msg;
+		this.pkiManagement = pkiManagement;
 		this.notificationPresenter = notificationPresenter;
 		this.allRealms = allRealms;
 		this.authenticators = authenticators;
@@ -126,7 +130,7 @@ class OAuthServiceEditor implements ServiceEditor
 	@Override
 	public ServiceEditorComponent getEditor(ServiceDefinition endpoint)
 	{
-		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, htmlTooltipFactory, serverPrefix, serverContextPaths,
+		OAuthEditorGeneralTab generalTab = new OAuthEditorGeneralTab(msg, pkiManagement,  htmlTooltipFactory, serverPrefix, serverContextPaths,
 				subViewSwitcher, outputTranslationProfileFieldFactory, endpoint != null, credentials, idTypes,
 				allAttributes, usedPaths, scopeService.getSystemScopes(), validators, certificates);
 		OAuthEditorClientsTab clientsTab = new OAuthEditorClientsTab(msg, serverConfig,
@@ -141,7 +145,7 @@ class OAuthServiceEditor implements ServiceEditor
 		
 		PolicyAgreementsTab policyAgreementTab = new PolicyAgreementsTab(msg, policyDocuments);
 		
-		editor = new OAuthServiceEditorComponent(msg, generalTab, clientsTab, usersTab, webAuthTab, policyAgreementTab,
+		editor = new OAuthServiceEditorComponent(msg, pkiManagement, generalTab, clientsTab, usersTab, webAuthTab, policyAgreementTab,
 				fileStorageService, imageService, scopeService, endpoint, allGroups, systemClientsSupplier);
 		return editor;
 	}

@@ -46,7 +46,7 @@ public class OAuthServiceConfigurationTest
 
 		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList(),
 				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
-		String converted = processor.toProperties(msg);
+		String converted = processor.toProperties(msg, null);
 
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
 
@@ -64,7 +64,7 @@ public class OAuthServiceConfigurationTest
 
 		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList(),
 				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
-		String converted = processor.toProperties(msg);
+		String converted = processor.toProperties(msg, null);
 
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
 
@@ -91,7 +91,7 @@ public class OAuthServiceConfigurationTest
 
 		processor.fromProperties(msg, ConfigurationComparator.getAsString(sourceCfg), Collections.emptyList(),
 				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
-		String converted = processor.toProperties(msg);
+		String converted = processor.toProperties(msg, null);
 
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
 

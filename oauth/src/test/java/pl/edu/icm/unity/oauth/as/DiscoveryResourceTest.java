@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
@@ -22,6 +23,7 @@ import com.nimbusds.jose.jwk.KeyType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
+import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.token.DiscoveryResource;
 import pl.edu.icm.unity.oauth.as.token.KeysResource;
 
@@ -49,15 +51,18 @@ public class DiscoveryResourceTest
 		assertEquals(7, parsed.getResponseTypes().size());
 	}
 	
+	@Test
 	public void testJWK() throws java.text.ParseException
 	{
-		OAuthASProperties config = OAuthTestUtils.getConfig();
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
+		config.setProperty(OAuthASProperties.ACCESS_TOKEN_FORMAT, AccessTokenFormat.JWT.name());
 		KeysResource keysResource = new KeysResource(config);
 		String keys = keysResource.getKeys();
 		JWKSet parsedKeys = JWKSet.parse(keys);
 		assertEquals(1, parsedKeys.getKeys().size());
 		JWK key = parsedKeys.getKeys().get(0);
 		assertEquals(KeyType.RSA, key.getKeyType());
+		assertThat(key.getKeyID()).isNotEmpty();
 	}
 
 }

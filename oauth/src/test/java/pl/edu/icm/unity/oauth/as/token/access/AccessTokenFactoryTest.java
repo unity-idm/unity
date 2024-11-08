@@ -146,6 +146,18 @@ public class AccessTokenFactoryTest
 		jwt.verify(verifier);
 	}
 
+	@Test
+	public void shouldAddKidToJWTToken() throws OAuthErrorException, ParseException
+	{
+		AccessTokenFactory factory = getFactory(AccessTokenFormat.JWT);
+		
+		AccessToken accessToken = factory.create(getFakeToken(), new Date(1000));
+		
+		assertThat(isJWTToken(accessToken)).isTrue();
+		SignedJWT jwt = SignedJWT.parse(accessToken.getValue());
+		assertThat(jwt.getHeader().getKeyID()).isNotEmpty();
+		
+	}
 	
 	private boolean isJWTToken(AccessToken accessToken)
 	{
