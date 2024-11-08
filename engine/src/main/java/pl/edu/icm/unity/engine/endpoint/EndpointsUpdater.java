@@ -151,6 +151,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 			return loader.createEndpointInstance(endpointInDB);
 		} catch (ConfigurationException e)
 		{
+			log.error("Can not create endpoint instance" ,e);
 			throw new EndpointConfigurationException(endpointInDB, e);
 		}
 	}

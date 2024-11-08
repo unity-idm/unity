@@ -6,6 +6,8 @@
 package pl.edu.icm.unity.oauth.as.console;
 
 import com.vaadin.flow.data.binder.Binder;
+
+import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceEditorBase;
@@ -19,6 +21,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.console.OAuthClient.OAuthClientsBean;
@@ -46,10 +49,11 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 	private final Binder<ServiceWebConfiguration> webConfigBinder;
 	private final Binder<OAuthClientsBean> clientsBinder;
 	private final FileStorageService fileStorageService;
+	private final PKIManagement pkiManagement;
 	private final Group generatedIdPGroup;
 	private final boolean editMode;
 
-	OAuthServiceEditorComponent(MessageSource msg, OAuthEditorGeneralTab generalTab, OAuthEditorClientsTab clientsTab,
+	OAuthServiceEditorComponent(MessageSource msg, PKIManagement pkiMan, OAuthEditorGeneralTab generalTab, OAuthEditorClientsTab clientsTab,
 			IdpEditorUsersTab usersTab, WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab,
 			FileStorageService fileStorageService, VaadinLogoImageLoader imageAccessService,
 			OAuthScopesService scopeService, ServiceDefinition toEdit,
@@ -57,6 +61,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 	{
 		super(msg);
 		this.fileStorageService = fileStorageService;
+		this.pkiManagement = pkiMan;
 		editMode = toEdit != null;
 		oauthServiceWebAuthzBinder = new Binder<>(DefaultServiceDefinition.class);
 		oauthConfigBinder = new Binder<>(OAuthServiceConfiguration.class);
@@ -193,13 +198,21 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		}
 
 		DefaultServiceDefinition webAuthz = oauthServiceWebAuthzBinder.getBean();
-		VaadinEndpointProperties prop = new VaadinEndpointProperties(
-				webConfigBinder.getBean().toProperties(msg, fileStorageService, webAuthz.getName()));
-		webAuthz.setConfiguration(oauthConfigBinder.getBean().toProperties(msg) + "\n" + prop.getAsString());
+		DefaultServiceDefinition token;
+		try
+		{
+			VaadinEndpointProperties prop = new VaadinEndpointProperties(webConfigBinder.getBean()
+					.toProperties(msg, fileStorageService, webAuthz.getName()));
+			webAuthz.setConfiguration(oauthConfigBinder.getBean()
+					.toProperties(msg, pkiManagement) + "\n" + prop.getAsString());
 
-		DefaultServiceDefinition token = oauthServiceTokenBinder.getBean();
-		token.setConfiguration(oauthConfigBinder.getBean().toProperties(msg));
-
+			token = oauthServiceTokenBinder.getBean();
+			token.setConfiguration(oauthConfigBinder.getBean()
+					.toProperties(msg, pkiManagement));
+		} catch (ConfigurationException e)
+		{
+			throw new FormValidationException(e.getMessage());
+		}
 		if (token.getName() == null || token.getName().isEmpty())
 		{
 			token.setName(webAuthz.getName() + TOKEN_SERVICE_NAME_SUFFIX);

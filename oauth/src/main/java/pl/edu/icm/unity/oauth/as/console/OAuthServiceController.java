@@ -710,7 +710,7 @@ class OAuthServiceController implements IdpServiceController
 	public ServiceEditor getEditor(SubViewSwitcher subViewSwitcher) throws EngineException
 	{
 
-		return new OAuthServiceEditor(msg, subViewSwitcher, outputTranslationProfileFieldFactory,
+		return new OAuthServiceEditor(msg, subViewSwitcher, outputTranslationProfileFieldFactory, pkiMan,
 				advertisedAddrProvider.get().toString(), server.getUsedContextPaths(), imageService, notificationPresenter,
 				fileStorageService, serverConfig,
 				realmsMan.getRealms().stream().map(r -> r.getName()).collect(Collectors.toList()),
