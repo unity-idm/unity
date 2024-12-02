@@ -417,6 +417,11 @@ vaadin-button.u-text-left::part(label) {
     max-height: 2rem;
 }
 
+.u-logo-authn-grid-image {
+    max-height: 2.2rem;
+    max-width: 2.2rem;
+}
+
 .u-breadcrumb {
     display: flex;
     align-items: center;
@@ -496,7 +501,10 @@ vaadin-button.u-text-left::part(label) {
 }
 
 .u-authnGrid > vaadin-grid-cell-content {
-    padding: 0;
+    padding-right: 0.8em;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0.8em;
 }
 
 .u-multi-tab-details > vaadin-details-summary:hover {

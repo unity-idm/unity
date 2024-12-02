@@ -46,6 +46,7 @@ public enum CssClassNames
 	LOGO_IMAGE("u-logo-image"),
 	LOGO_IMAGE_SMALL("u-logo-image-small"),
 	LOGO_GRID_IMAGE("u-logo-grid-image"),
+	LOGO_AUTHN_GRID_IMAGE("u-logo-authn-grid-image"),
 	WIDTH_FULL("u-width-full"),
 	HIDDEN_COMBO_CHECKMARK("u-combobox-hidden-checkmark"),
 	HIDDEN_COMBO_TOGGLE_BUTTON("u-combobox-hidden-toggle-button"),
