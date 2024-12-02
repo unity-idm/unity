@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 
 import static com.vaadin.flow.component.icon.VaadinIcon.FOLDER_OPEN_O;
 import static com.vaadin.flow.component.icon.VaadinIcon.TAGS;
-import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
 
 @PrototypeComponent
 public class GroupsTreeGrid extends TreeGrid<TreeNode>
@@ -53,7 +52,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	private final GroupBrowserController controller;
 	private final boolean authzError;
 	private TreeData<TreeNode> treeData;
-	private boolean multiselectHasClicked;
 
 	GroupsTreeGrid(MessageSource msg, GroupBrowserController controller)
 	{
@@ -94,7 +92,6 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		hamburgerMenu.add(new Hr());
 		hamburgerMenu.addItem(msg.getMessage("GroupDetails.multiselect"), event ->
 		{
-			multiselectHasClicked = true;
 			if(event.getSource().isChecked())
 				setSelectionMode(SelectionMode.MULTI);
 			else
@@ -126,7 +123,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 				.setFrozen(true)
 				.setAutoWidth(true);
 		addComponentColumn(this::getRowHamburgerMenuComponent)
-				.setAutoWidth(true)
+				.setWidth("3em")
 				.setFlexGrow(0);
 
 		setSizeFull();
@@ -185,11 +182,8 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		addSelectionListener(
 				event ->  target.setVisible(menuVisibleOnSelection(event.getAllSelectedItems(), node))
 		);
-
-		Div div = new Div(target);
-		if(multiselectHasClicked) //fixed vaadin bug
-			div.getStyle().set("padding-right", BASE_MARGIN.value());
-		return div;
+		
+		return new Div(target);	
 	}
 
 	private void configExpandCollapseNode(TreeNode node, MenuItem expandItem, MenuItem collapseItem)

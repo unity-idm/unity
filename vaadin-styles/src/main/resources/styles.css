@@ -860,4 +860,14 @@ vaadin-accordion-heading[opened]::part(toggle) {
 	transform: rotate(270deg);
 }
 
+.u-directory-browser-groups-grid::part(last-column-cell){
+	padding-right: 1em;
+}
 
+.u-directory-browser-members-grid::part(last-column-cell){
+	padding-right: 1em;
+}
+
+.u-directory-browser-members-grid::part(last-header-row-cell){
+	padding: 0;
+}
