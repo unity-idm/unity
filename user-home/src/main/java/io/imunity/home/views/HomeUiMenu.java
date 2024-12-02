@@ -6,6 +6,7 @@
 package io.imunity.home.views;
 
 import static io.imunity.vaadin.elements.CSSVars.MEDIUM_MARGIN;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
 import static io.imunity.vaadin.elements.CssClassNames.POINTER;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppContextProperties;
 
@@ -127,10 +128,10 @@ public class HomeUiMenu extends LeftNavbarAppLayout implements BeforeEnterObserv
 		else
 		{
 			AttributeViewerContext context = AttributeViewerContext.builder()
-					.withCustomHeight(imageSize)
-					.withCustomHeightUnit(Unit.EM)
-					.withCustomWidth(imageSize)
-					.withCustomWidthUnit(Unit.EM)
+					.withCustomMaxHeight(imageSize)
+					.withCustomMaxHeightUnit(Unit.EM)
+					.withCustomMaxWidth(imageSize)
+					.withCustomMaxWidthUnit(Unit.EM)
 					.withBorderRadius(50)
 					.withBorderRadiusUnit(Unit.PERCENTAGE)
 					.build();
@@ -141,8 +142,7 @@ public class HomeUiMenu extends LeftNavbarAppLayout implements BeforeEnterObserv
 	private static Image createDefaultImage()
 	{
 		Image tmpImage = new Image("assets/img/other/logo-square.png", "");
-		tmpImage.setWidth(imageSize + "em");
-		tmpImage.setHeight(imageSize + "em");
+		tmpImage.setClassName(LOGO_IMAGE.getName());
 		return tmpImage;
 	}
 

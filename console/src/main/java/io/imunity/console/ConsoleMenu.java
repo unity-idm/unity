@@ -21,6 +21,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.router.PreserveOnRefresh;
 
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsEditView;
 import io.imunity.console.views.authentication.credential_requirements.CredentialRequirementsView;
@@ -78,6 +79,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AuthorizationManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 
+@PreserveOnRefresh
 public class ConsoleMenu extends LeftNavbarAppLayout
 {
 	@Autowired
