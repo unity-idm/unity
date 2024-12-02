@@ -44,6 +44,7 @@ public enum CssClassNames
 	REQUIRED_LABEL("u-required-label"),
 	ERROR_INDICATOR("u-error-indicator"),
 	LOGO_IMAGE("u-logo-image"),
+	LOGO_IMAGE_SMALL("u-logo-image-small"),
 	LOGO_GRID_IMAGE("u-logo-grid-image"),
 	WIDTH_FULL("u-width-full"),
 	HIDDEN_COMBO_CHECKMARK("u-combobox-hidden-checkmark"),

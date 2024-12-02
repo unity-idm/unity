@@ -394,8 +394,15 @@ vaadin-button.u-text-left::part(label) {
 }
 
 .u-logo-image {
-    max-width: 100%;
-    max-height: 5rem;
+    max-width: 7rem;
+    max-height: 7rem;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.u-logo-image-small {
+    max-width: 2.5rem;
+    max-height: 2.5rem;
     margin-left: auto;
     margin-right: auto;
 }
