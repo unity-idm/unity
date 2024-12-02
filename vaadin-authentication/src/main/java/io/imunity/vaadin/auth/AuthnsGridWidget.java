@@ -10,6 +10,9 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import io.imunity.vaadin.elements.CssClassNames;
+
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -115,7 +118,7 @@ public class AuthnsGridWidget extends VerticalLayout
 			NameWithTags nameWithTags = new NameWithTags(name,
 					entry.authenticatorUI.getTags(), collator);
 			Image logoImage = logo == null ? new Image() : logo;
-			logoImage.getStyle().set("max-height", "2.2rem");
+			logoImage.addClassName(CssClassNames.LOGO_AUTHN_GRID_IMAGE.getName());			
 			AuthenticationOptionGridEntry providerEntry = new AuthenticationOptionGridEntry(globalId, nameWithTags,
 					logoImage, authnPanel);
 			providers.add(providerEntry);

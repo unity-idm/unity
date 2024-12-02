@@ -98,7 +98,7 @@ class MenuItemFactory
 		}
 		if(isCurrentUserSelected(models))
 		{
-			String message = msg.getMessage("GroupMembersComponent.confirmSelfRemoveFromProject", projectGroup.displayedName);
+			String message = msg.getMessage("GroupMembersComponent.confirmSelfRemoveFromGroup", group.currentDisplayedName);
 			createSelfRemoveDialog(
 				message, () ->
 					{

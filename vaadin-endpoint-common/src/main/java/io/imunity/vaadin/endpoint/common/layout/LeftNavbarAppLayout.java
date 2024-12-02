@@ -5,6 +5,8 @@
 
 package io.imunity.vaadin.endpoint.common.layout;
 
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE_SMALL;
 import static io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext.getCurrentWebAppVaadinProperties;
 
 import java.util.List;
@@ -21,7 +23,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
-import com.vaadin.flow.router.PreserveOnRefresh;
 import com.vaadin.flow.router.RouterLayout;
 
 import io.imunity.vaadin.elements.AfterSubNavigationEvent;
@@ -33,7 +34,7 @@ import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 
-@PreserveOnRefresh
+
 public class LeftNavbarAppLayout extends FlexLayout implements RouterLayout, AfterNavigationObserver
 {
 
@@ -119,7 +120,7 @@ public class LeftNavbarAppLayout extends FlexLayout implements RouterLayout, Aft
 			leftArrow.setVisible(false);
 			rightArrow.setVisible(true);
 			leftContainerContent.getStyle().set("width", "4em");
-			image.getStyle().set("max-width", "2.5em");
+			image.setClassName(LOGO_IMAGE_SMALL.getName());
 			verticalLayout.setAlignItems(Alignment.CENTER);
 			appLayoutComponents.hiddeTextInTabs();
 		});
@@ -128,7 +129,7 @@ public class LeftNavbarAppLayout extends FlexLayout implements RouterLayout, Aft
 			leftArrow.setVisible(true);
 			rightArrow.setVisible(false);
 			leftContainerContent.getStyle().remove("width");
-			image.getStyle().set("max-width", "5rem");
+			image.setClassName(LOGO_IMAGE.getName());
 			verticalLayout.setAlignItems(Alignment.END);
 			appLayoutComponents.showTextInTabs();
 

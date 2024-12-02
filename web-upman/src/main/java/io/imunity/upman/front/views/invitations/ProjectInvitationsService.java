@@ -140,7 +140,7 @@ class ProjectInvitationsService
 						String.join(",", addInvitations.projectAlreadyMemberEmails)));
 			}
 
-		} catch (EngineException e)
+		} catch (EngineException|IllegalArgumentException e)
 		{
 			log.warn("Can not add invitations", e);
 			notificationPresenter.showError(msg.getMessage("InvitationsController.addInvitationError"),
