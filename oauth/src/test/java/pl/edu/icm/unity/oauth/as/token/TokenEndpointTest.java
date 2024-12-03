@@ -10,6 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.net.URI;
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -221,6 +223,29 @@ public class TokenEndpointTest extends TokenTestBase
 		assertThat(bearerToken.getType()).isEqualTo(AccessTokenType.BEARER);
 	}
 
+	@Test
+	public void shouldReturnFullyFilledJWTAccessTokenAfterClientCredentialsFlow() throws Exception
+	{
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+		TokenRequest request = new TokenRequest(
+				new URI("https://localhost:52443/oauth/token"), ca,
+				new ClientCredentialsGrant(), new Scope("foo"));
+		HTTPRequest bare = request.toHTTPRequest();
+		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
+				ServerHostnameCheckingMode.NONE);
+
+		HTTPResponse resp2 = wrapped.send();
+
+		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
+		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
+		
+		assertThat(bearerToken.getType()).isEqualTo(AccessTokenType.BEARER);
+		
+		Optional<JWTClaimsSet> jwtClaimSet = BearerJWTAccessToken.tryParseJWTClaimSet(bearerToken.getValue());
+		assertThat(jwtClaimSet.get().getIssuer()).isEqualTo("https://localhost:2443/oauth2");
+		assertThat(jwtClaimSet.get().getAudience()).isEqualTo(List.of("client1"));		
+	}
 	
 	@Test
 	public void shouldReturnUserInfoAfterCompleteClientCredentialsFlow() throws Exception
