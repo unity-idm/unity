@@ -78,7 +78,8 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			+ "unity.oauth2.as.scopes.2.description=Provides access to bar info\n"
 			+ "unity.oauth2.as.scopes.2.attributes.1=c\n"
 			+ "unity.oauth2.as.scopes.99.name=" + OIDCScopeValue.OFFLINE_ACCESS.getValue() + "\n"
-			+ "unity.oauth2.as.refreshTokenValidity=3600\n";
+			+ "unity.oauth2.as.refreshTokenValidity=3600\n"
+			+ "unity.oauth2.as.tokenFormat=JWT\n";
 			
 	
 
