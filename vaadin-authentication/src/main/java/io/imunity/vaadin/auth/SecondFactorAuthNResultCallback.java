@@ -9,6 +9,8 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.endpoint.common.SessionStorage;
+
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -154,6 +156,13 @@ class SecondFactorAuthNResultCallback implements VaadinAuthentication.Authentica
 			log.error("BUG Can't get UI to redirect the authenticated user.");
 			throw new IllegalStateException("AuthenticationProcessor.authnInternalError");
 		}
-		ui.getPage().reload();
+		
+		SessionStorage.consumeRedirectUrl((redirectUrl, currentRelativeURI) ->
+		{
+			String queryParams =  currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "";
+			UI.getCurrent().getPage().setLocation(redirectUrl + queryParams);
+			
+		});
+		
 	}
 }
