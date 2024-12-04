@@ -53,6 +53,7 @@ class AttributeStatementsComponent extends VerticalLayout
 		this.bus = WebSession.getCurrent().getEventBus();
 
 		attrStatementsGrid = new GridWithActionColumn<>(msg::getMessage, Collections.emptyList());
+		attrStatementsGrid.addClassName("u-grid-with-action-padding");
 		attrStatementsGrid.addThemeVariants(GridVariant.LUMO_COMPACT);
 		attrStatementsGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
 		attrStatementsGrid.addColumn(attrStatementWithId -> msg.getMessage("AttributeStatements.nameValue", attrStatementWithId.toShortString()))
