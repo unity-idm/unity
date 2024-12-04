@@ -870,4 +870,10 @@ vaadin-accordion-heading[opened]::part(toggle) {
 
 .u-directory-browser-members-grid::part(last-header-row-cell){
 	padding: 0;
+}	
+
+.u-grid-with-action-padding::part(last-column-cell){
+	padding-right: 1em;
 }
+
+
