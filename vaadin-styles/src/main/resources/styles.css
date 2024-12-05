@@ -408,8 +408,8 @@ vaadin-button.u-text-left::part(label) {
 }
 
 .u-logo-idp-image {
-    max-width: 4.5rem;
-    max-height: 1.5rem;
+    max-width: 2rem;
+    max-height: 2rem;
    	padding-top: 0.25rem;
 }
 
@@ -501,10 +501,15 @@ vaadin-button.u-text-left::part(label) {
 }
 
 .u-authnGrid > vaadin-grid-cell-content {
-    padding-right: 0.8em;
-    padding-top: 0;
-    padding-bottom: 0;
-    padding-left: 0.8em;
+    padding: 0;
+}
+
+.u-authnGrid::part(first-column-cell) {
+    width: 2rem;
+}
+
+.u-authnGrid::part(last-column-cell) {
+   padding-right: 0.8rem;
 }
 
 .u-multi-tab-details > vaadin-details-summary:hover {
