@@ -128,10 +128,10 @@ public class HomeUiMenu extends LeftNavbarAppLayout implements BeforeEnterObserv
 		else
 		{
 			AttributeViewerContext context = AttributeViewerContext.builder()
-					.withCustomMaxHeight(imageSize)
-					.withCustomMaxHeightUnit(Unit.EM)
-					.withCustomMaxWidth(imageSize)
-					.withCustomMaxWidthUnit(Unit.EM)
+					.withCustomHeight(imageSize)
+					.withCustomHeightUnit(Unit.EM)
+					.withCustomWidth(imageSize)
+					.withCustomWidthUnit(Unit.EM)
 					.withBorderRadius(50)
 					.withBorderRadiusUnit(Unit.PERCENTAGE)
 					.build();
