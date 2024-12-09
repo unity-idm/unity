@@ -9,6 +9,7 @@ import com.vaadin.flow.server.VaadinServletRequest;
 import com.vaadin.flow.server.VaadinServletResponse;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.endpoint.common.QueryParamCopier;
 import io.imunity.vaadin.endpoint.common.SessionStorage;
 
 import org.apache.logging.log4j.Logger;
@@ -19,6 +20,8 @@ import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.Post
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.function.Supplier;
 
 /**
@@ -159,9 +162,14 @@ class SecondFactorAuthNResultCallback implements VaadinAuthentication.Authentica
 		
 		SessionStorage.consumeRedirectUrl((redirectUrl, currentRelativeURI) ->
 		{
-			String queryParams =  currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "";
-			UI.getCurrent().getPage().setLocation(redirectUrl + queryParams);
-			
+			try
+			{
+				URI redirectWithParams = QueryParamCopier.copyParam(redirectUrl, currentRelativeURI);
+				UI.getCurrent().getPage().setLocation(redirectWithParams.toString());
+			} catch (URISyntaxException e)
+			{
+				UI.getCurrent().getPage().setLocation(redirectUrl);
+			}			
 		});
 		
 	}
