@@ -4,6 +4,8 @@
  */
 package io.imunity.vaadin.auth;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Logger;
@@ -14,6 +16,7 @@ import com.vaadin.flow.server.VaadinServletResponse;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
+import io.imunity.vaadin.endpoint.common.QueryParamCopier;
 import io.imunity.vaadin.endpoint.common.SessionStorage;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
@@ -144,9 +147,14 @@ class FirstFactorAuthNResultCallback implements VaadinAuthentication.Authenticat
 		}
 		SessionStorage.consumeRedirectUrl((redirectUrl, currentRelativeURI) ->
 		{
-			String queryParams =  currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "";
-			UI.getCurrent().getPage().setLocation(redirectUrl + queryParams);
-			
+			try
+			{
+				URI redirectWithParams = QueryParamCopier.copyParam(redirectUrl, currentRelativeURI);
+				UI.getCurrent().getPage().setLocation(redirectWithParams.toString());
+			} catch (URISyntaxException e)
+			{
+				UI.getCurrent().getPage().setLocation(redirectUrl);
+			}			
 		});
 	}
 
