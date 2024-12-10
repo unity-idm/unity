@@ -59,7 +59,7 @@ public class EditTranslationProfileSubView extends VerticalLayout implements Uni
 		main.add(editor);
 		Button cancelButton = new Button(msg.getMessage("cancel"), event -> onCancel.run());
 		cancelButton.setWidthFull();
-		Button updateButton = new Button(msg.getMessage("create"), event ->
+		Button updateButton = new Button(msg.getMessage("update"), event ->
 		{
 			try
 			{
