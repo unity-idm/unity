@@ -103,7 +103,7 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 		ret.put(DynamicPolicyConfigurationMVELContextKey.hasValid2FCredential.name(),
 				hasValid2FCredential(entity, authenticationFlow));
 
-		log.debug("Created MVEL context for entity {}: {}", entity.getId(), context);
+		log.debug("Created MVEL context for entity {}: {}", entity.getId(), ret);
 
 		return ret;
 	}

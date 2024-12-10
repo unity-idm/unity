@@ -116,6 +116,7 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 								.withAccessStatus(AccessStatus.disallowWithoutAsking)
 								.withApplicationName(oauAuthClientInfo.name)
 								.withApplicationDomain(oauAuthClientInfo.redirectURI)
+								.withAccessDeniedTime(Optional.of(perClientData.get(client).preferences.get().getTimestamp()))
 								.build());
 					}
 
