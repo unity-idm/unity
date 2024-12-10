@@ -114,14 +114,17 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		addComponentHierarchyColumn(n ->
 		{
-			Div div = new Div(getIcon(n), new Span(" " + n.toString()));
+			
+			Span text = new Span(n.toString());
+			text.getStyle().set("white-space", "unset");
+			text.getStyle().set("padding-left", "0.2em");
+			Div div = new Div(getIcon(n), text);
 			div.getStyle().set("display", "flex");
 			div.getElement().setAttribute("onclick", "event.stopPropagation();");
 			div.addSingleClickListener(event -> select(n));
 			return div;
-		})
-				.setFrozen(true)
-				.setAutoWidth(true);
+		}).setFlexGrow(10).setAutoWidth(true);
+				
 		addComponentColumn(this::getRowHamburgerMenuComponent)
 				.setWidth("3em")
 				.setFlexGrow(0);
@@ -129,9 +132,13 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		setSizeFull();
 		ComponentUtil.setData(UI.getCurrent(), GroupsTreeGrid.class, this);
 		setupDropListener();
-
+		
 		loadNode("/", null);
 		expand(treeData.getRootItems());
+		
+		this.addExpandListener((event) -> {
+			  this.recalculateColumnWidths();
+			});
 	}
 
 	private void addSelectionListeners(ActionMenuWithHandlerSupport<TreeNode> hamburgerMenu)

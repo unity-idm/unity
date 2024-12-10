@@ -69,16 +69,45 @@ public class TrustedApplicationsView extends HomeViewComponent
 			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
 			return;
 		}
-		Accordion accordion = new Accordion();
-		accordion.setWidthFull();
-		accordion.close();
-		controller.filterAllowedApplications(applications).forEach(app -> accordion.add(createPanel(app)));
+		
 		VerticalLayout mainLayout = new VerticalLayout();
-		H2 title = new H2(msg.getMessage("UserHomeUI.trustedApplications"));
-		title.getStyle().set("margin", "0");
-		mainLayout.add(title);
-		mainLayout.add(accordion);
 		getContent().add(mainLayout);
+
+		if (applications.isEmpty())
+		{
+			H3 info = new H3(msg.getMessage("TrustedApplications.noneTrustedApplications"));
+			mainLayout.add(info);
+			return;
+		}
+
+		List<IdPClientData> allowedApplications = controller.filterAllowedApplications(applications);
+		if (!allowedApplications.isEmpty())
+		{
+			Accordion accordion = new Accordion();
+			accordion.setWidthFull();
+			accordion.close();
+			allowedApplications.forEach(app -> accordion.add(createPanel(app)));
+			H2 title = new H2(msg.getMessage("TrustedApplications.applicationsWithAccess"));
+			title.getStyle()
+					.set("margin", "0");
+			mainLayout.add(title);
+			mainLayout.add(accordion);
+		}
+
+		List<IdPClientData> disallowedApplications = controller.filterDisallowedApplications(applications);
+		if (!disallowedApplications.isEmpty())
+		{
+			Accordion uaccordion = new Accordion();
+			uaccordion.setWidthFull();
+			uaccordion.close();
+			disallowedApplications.forEach(app -> uaccordion.add(createPanel(app)));
+			H2 utitle = new H2(msg.getMessage("TrustedApplications.applicationsWithDenied"));
+			utitle.getStyle()
+					.set("margin", "0");
+			mainLayout.add(utitle);
+			mainLayout.add(uaccordion);
+		}
+
 	}
 
 	private AccordionPanel createPanel(IdPClientData application)
@@ -135,9 +164,17 @@ public class TrustedApplicationsView extends HomeViewComponent
 			content.addFormItem(label, msg.getMessage("TrustedApplications.accessGrantedTo"));
 		}
 
-		application.accessGrantTime.ifPresent(instant -> content.addFormItem(new Span(TimeUtil.formatStandardInstant(instant)), msg.getMessage("TrustedApplications.accessGrantedOn")));
+		application.accessGrantTime
+				.ifPresent(instant -> content.addFormItem(new Span(TimeUtil.formatStandardInstant(instant)),
+						msg.getMessage("TrustedApplications.accessGrantedOn")));
 
-		application.lastAccessTime.ifPresent(instant -> content.addFormItem(new Span(TimeUtil.formatStandardInstant(instant)), msg.getMessage("TrustedApplications.lastAccessTime")));
+		application.accessDeniedTime
+				.ifPresent(instant -> content.addFormItem(new Span(TimeUtil.formatStandardInstant(instant)),
+						msg.getMessage("TrustedApplications.accessDeniedOn")));
+
+		application.lastAccessTime
+				.ifPresent(instant -> content.addFormItem(new Span(TimeUtil.formatStandardInstant(instant)),
+						msg.getMessage("TrustedApplications.lastAccessTime")));
 
 		if (!application.accessStatus.equals(IdPClientData.AccessStatus.allow))
 		{

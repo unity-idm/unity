@@ -85,6 +85,10 @@ class SAMLTrustedApplicationManagement implements TrustedIdPClientsManagement
 							.withAccessGrantTime(
 									Optional.ofNullable(!preferences.getSPSettings(client.id).isDefaultAccept() ? null
 											: preferences.getSPSettings(client.id).getTimestamp()))
+							.withAccessDeniedTime(Optional.ofNullable(preferences.getSPSettings(client.id)
+									.isDefaultAccept() ? null
+											: preferences.getSPSettings(client.id)
+													.getTimestamp()))				
 							.withLastAccessTime(Optional.ofNullable(getLastAccessByClient()
 									.get(new LastIdPClientAccessKey(AccessProtocol.SAML, client.id))))
 							.withAccessProtocol(AccessProtocol.SAML).build());

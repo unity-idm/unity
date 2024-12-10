@@ -23,6 +23,7 @@ public class IdPClientData
 	public final AccessProtocol accessProtocol;
 	public final Optional<List<String>> accessScopes;
 	public final Optional<Instant> accessGrantTime;
+	public final Optional<Instant> accessDeniedTime;
 	public final Optional<Instant> lastAccessTime;
 	public final Optional<String> applicationDomain;
 	public final Optional<byte[]> logo;
@@ -37,6 +38,7 @@ public class IdPClientData
 		this.accessProtocol = builder.accessProtocol;
 		this.accessScopes = builder.accessScopes;
 		this.accessGrantTime = builder.accessGrantTime;
+		this.accessDeniedTime = builder.accessDeniedTime;
 		this.lastAccessTime = builder.lastAccessTime;
 		this.applicationDomain = builder.applicationDomain;
 		this.logo = builder.logo;
@@ -56,6 +58,7 @@ public class IdPClientData
 		private AccessProtocol accessProtocol;
 		private Optional<List<String>> accessScopes = Optional.empty();
 		private Optional<Instant> accessGrantTime = Optional.empty();
+		private Optional<Instant> accessDeniedTime = Optional.empty();
 		private Optional<Instant> lastAccessTime = Optional.empty();
 		private Optional<String> applicationDomain = Optional.empty();
 		private Optional<byte[]> logo = Optional.empty();
@@ -98,6 +101,12 @@ public class IdPClientData
 		public Builder withAccessGrantTime(Optional<Instant> accessGrantTime)
 		{
 			this.accessGrantTime = accessGrantTime;
+			return this;
+		}
+		
+		public Builder withAccessDeniedTime(Optional<Instant> accessDeniedTime)
+		{
+			this.accessDeniedTime = accessDeniedTime;
 			return this;
 		}
 
