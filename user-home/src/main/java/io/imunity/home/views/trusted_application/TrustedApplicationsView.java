@@ -73,24 +73,23 @@ public class TrustedApplicationsView extends HomeViewComponent
 		VerticalLayout mainLayout = new VerticalLayout();
 		getContent().add(mainLayout);
 
-		if (applications.isEmpty())
-		{
-			H3 info = new H3(msg.getMessage("TrustedApplications.noneTrustedApplications"));
-			mainLayout.add(info);
-			return;
-		}
-
+		
+	
 		List<IdPClientData> allowedApplications = controller.filterAllowedApplications(applications);
-		if (!allowedApplications.isEmpty())
+		H2 title = new H2(msg.getMessage("TrustedApplications.applicationsWithAccess"));
+		title.getStyle()
+				.set("margin", "0");
+		mainLayout.add(title);		
+		if (allowedApplications.isEmpty())
+		{
+			mainLayout.add(new H4(msg.getMessage("TrustedApplications.noneTrustedApplications")));
+
+		} else
 		{
 			Accordion accordion = new Accordion();
 			accordion.setWidthFull();
 			accordion.close();
 			allowedApplications.forEach(app -> accordion.add(createPanel(app)));
-			H2 title = new H2(msg.getMessage("TrustedApplications.applicationsWithAccess"));
-			title.getStyle()
-					.set("margin", "0");
-			mainLayout.add(title);
 			mainLayout.add(accordion);
 		}
 
