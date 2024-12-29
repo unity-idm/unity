@@ -8,11 +8,12 @@ import static io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressSer
 
 import java.util.Optional;
 
-import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
 
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.SignInContextSession;
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.VaadinContextSession;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.SignInContextKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -59,12 +60,12 @@ public class SamlSessionService
 		return LOGIN_IN_PROGRESS_SERVICE.getVaadinContext();
 	}
 
-	public static SAMLAuthnContext getVaadinContext(VaadinContextSessionWithRequest session)
+	public static SAMLAuthnContext getVaadinContext(VaadinContextSession session)
 	{
 		return LOGIN_IN_PROGRESS_SERVICE.getContext(session).orElseThrow(noSignInContextException());
 	}
 
-	public static void cleanContext(LoginInProgressService.SignInContextSession session)
+	public static void cleanContext(SignInContextSession session)
 	{
 		LOGIN_IN_PROGRESS_SERVICE.cleanUpSignInContextAttribute(session);
 		session.removeAttribute(ResponseDocument.class.getName());
@@ -78,32 +79,5 @@ public class SamlSessionService
 	public static <T> T getAttribute(VaadinSession session, Class<T> clazz)
 	{
 		return clazz.cast(session.getSession().getAttribute(clazz.getName()));
-	}
-	
-	static class VaadinContextSessionWithRequest extends LoginInProgressService.VaadinContextSession
-	{
-		private final LoginInProgressService.SignInContextKey key;
-		
-		VaadinContextSessionWithRequest(VaadinSession session, VaadinRequest request)
-		{
-			super(session.getSession());
-			this.key = get(request);
-		}
-
-		private static LoginInProgressService.SignInContextKey get(VaadinRequest request)
-		{
-			String key = request.getParameter(URL_PARAM_CONTEXT_KEY);
-			if (key != null)
-			{
-				return new LoginInProgressService.UrlParamSignInContextKey(key);
-			}
-			return LoginInProgressService.UrlParamSignInContextKey.DEFAULT;
-		}
-		
-		@Override
-		public LoginInProgressService.SignInContextKey get()
-		{
-			return key;
-		}
 	}
 }

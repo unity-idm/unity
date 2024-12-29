@@ -63,7 +63,8 @@ public class LoginInProgressService<AUTHZ_CTX>
 		SignInContexts<AUTHZ_CTX> sessionContext = getAttribute(new VaadinContextSession(wrappedSession));
 		if (sessionContext == null)
 		{
-			throw new IllegalStateException("No signin context in session for " + existingKey.getKey());
+			throw new NoSignInContextException(String.format("No signin contexts in session to map: %s -> %s",
+					newKey.getKey(), existingKey.getKey()));
 		}
 		sessionContext.putExistingContextUnderNewKey(existingKey, newKey);
 	}
@@ -176,7 +177,7 @@ public class LoginInProgressService<AUTHZ_CTX>
 			T context = contexts.get(existingKey);
 			if (context == null)
 			{
-				throw new IllegalStateException("No login context for " + existingKey.getKey());
+				throw new NoSignInContextException("No login context for " + existingKey.getKey());
 			}
 			contexts.put(newKey, context);
 			urlParamKeyToUIIdKeys.computeIfAbsent(existingKey, __ -> new ArrayList<>()).add(newKey);
@@ -216,7 +217,10 @@ public class LoginInProgressService<AUTHZ_CTX>
 		@Override
 		public String toString()
 		{
-			return MoreObjects.toStringHelper(this).add("contexts", contexts).toString();
+			return MoreObjects.toStringHelper(this)
+					.add("contexts", contexts)
+					.add("urlParamKeyToUIIdKeys", urlParamKeyToUIIdKeys)
+					.toString();
 		}
 
 		@Override
@@ -407,7 +411,7 @@ public class LoginInProgressService<AUTHZ_CTX>
 			return getVaadinUIIdSignInContextKey()
 					.orElse(getUrlParamSignInContextKey());
 		}
-		
+
 		private Optional<SignInContextKey> getVaadinUIIdSignInContextKey()
 		{
 			Map<String, String[]> queryString = VaadinService.getCurrentRequest().getParameterMap();
@@ -420,3 +424,4 @@ public class LoginInProgressService<AUTHZ_CTX>
 		}
 	}
 }
+
