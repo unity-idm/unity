@@ -13,6 +13,8 @@ import eu.unicore.samly2.exceptions.SAMLServerException;
 import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
 import io.imunity.vaadin.endpoint.common.EopException;
 import org.apache.logging.log4j.Logger;
+
+import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.VaadinContextSession;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.utils.Log;
@@ -21,7 +23,6 @@ import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.idp.web.SamlSessionService.VaadinContextSessionWithRequest;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
 import java.io.IOException;
@@ -104,8 +105,7 @@ public class SamlResponseHandler
 			String encodedAssertion = Base64.getEncoder().encodeToString(assertion.getBytes(StandardCharsets.UTF_8));
 			SessionDisposal error = (SessionDisposal)session.getSession().getAttribute(SessionDisposal.class.getName());
 
-			VaadinContextSessionWithRequest signInContextSession = new VaadinContextSessionWithRequest(session,
-					request);
+			VaadinContextSession signInContextSession = new VaadinContextSession(session.getSession());
 			SAMLAuthnContext samlCtx = SamlSessionService.getVaadinContext(signInContextSession);
 			String serviceUrl = samlCtx.getResponseDestination();
 			Map<String, String> data = new HashMap<>();
