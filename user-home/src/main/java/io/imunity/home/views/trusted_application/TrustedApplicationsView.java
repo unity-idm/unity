@@ -5,35 +5,41 @@
 
 package io.imunity.home.views.trusted_application;
 
-import com.vaadin.flow.component.Html;
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
+
+import java.io.ByteArrayInputStream;
+import java.util.List;
+
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.*;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.StreamResource;
+
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
 import io.imunity.idp.IdPClientData;
 import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
-import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
-
-import java.io.ByteArrayInputStream;
-import java.util.List;
-
-import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
 
 @PermitAll
 @Breadcrumb(key = "UserHomeUI.trustedApplications")
@@ -102,7 +108,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 			disallowedApplications.forEach(app -> uaccordion.add(createPanel(app)));
 			H2 utitle = new H2(msg.getMessage("TrustedApplications.applicationsWithDenied"));
 			utitle.getStyle()
-					.set("margin", "0");
+					.set("margin-top", "2em");
 			mainLayout.add(utitle);
 			mainLayout.add(uaccordion);
 		}
@@ -208,10 +214,20 @@ public class TrustedApplicationsView extends HomeViewComponent
 		technicalInfoContent.setSizeUndefined();
 		technicalInfoContent.setId("technical-info-content");
 		application.technicalInformations.forEach(es ->
-				technicalInfoContent.addFormItem(new Html("<div>" + es.value + "</div>"), es.titleKey));
+				technicalInfoContent.addFormItem(getTechField(es.value), es.titleKey));
 		return content;
 	}
 
+	private TextArea getTechField(String text)
+	{
+		TextArea textArea = new TextArea();
+		textArea.setValue(text);
+		textArea.setWidthFull();
+		textArea.addClassName(CssClassNames.MONOSPACE.getName());
+		textArea.setReadOnly(true);
+		return textArea;
+	}
+	
 	private void unblockAccess(IdPClientData application)
 	{
 		try

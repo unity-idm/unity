@@ -147,7 +147,7 @@ public class FacilitiesView extends ConsoleViewComponent
 	private void gotoEdit(AuthenticationFlowEntry e)
 	{
 		UI.getCurrent()
-				.navigate(AuthenticatorEditView.class, e.flow.getName());
+				.navigate(AuthenticationFlowEditView.class, e.flow.getName());
 	}
 
 	private FormLayout getDetailsComponent(AuthenticationFlowEntry flow)
