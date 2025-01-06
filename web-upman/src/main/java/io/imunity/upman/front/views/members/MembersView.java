@@ -177,7 +177,13 @@ public class MembersView extends UpmanViewComponent
 		{
 			grid = createMembersGrid(groupMembersService.getAdditionalAttributeNamesForProject(projectGroup));
 			getContent().add(grid);
+		}else
+		{
+			getContent().remove(grid);
+			grid = createMembersGrid(groupMembersService.getAdditionalAttributeNamesForProject(projectGroup));
+			getContent().add(grid);
 		}
+		
 		List<MemberModel> members = groupMembersService.getGroupMembers(projectGroup, selectedGroup).stream()
 				.filter(member -> member.anyFieldContains(searchField.getValue()))
 				.collect(Collectors.toList());
