@@ -253,7 +253,7 @@ public class FormsView extends ConsoleViewComponent
 			return registrationFormsController.getRegistrationForms();
 		} catch (ControllerException e)
 		{
-			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			notificationPresenter.showError(e.getCaption(), e.getCause().getMessage());
 		}
 		return Collections.emptyList();
 	}
@@ -265,7 +265,7 @@ public class FormsView extends ConsoleViewComponent
 			return enquiryFormsController.getEnquiryForms();
 		} catch (ControllerException e)
 		{
-			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			notificationPresenter.showError(e.getCaption(), e.getCause().getMessage());
 		}
 		return Collections.emptyList();
 	}
@@ -278,7 +278,7 @@ public class FormsView extends ConsoleViewComponent
 			registrationFormsList.removeElement(form);
 		} catch (ControllerException e)
 		{
-			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			notificationPresenter.showError(e.getCaption(), e.getCause().getMessage());
 		}
 	}
 
@@ -290,7 +290,7 @@ public class FormsView extends ConsoleViewComponent
 			enquiryFormsList.removeElement(form);
 		} catch (ControllerException e)
 		{
-			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			notificationPresenter.showError(e.getCaption(), e.getCause().getMessage());
 		}
 	}
 
