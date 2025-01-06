@@ -188,13 +188,13 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 
 	private String getTokenRepresentation(Instant createTime, Instant expired, String value)
 	{
-		return value + "<br>"
+		return value + "\n"
 				+ ((createTime != null
 						? (msg.getMessage("OAuthApplicationProvider.issuedOn") + " "
 								+ TimeUtil.formatStandardInstant(createTime))
 						: "")
 						+ (expired != null
-								? "<br>" + msg.getMessage("OAuthApplicationProvider.expiresOn") + " "
+								? "\n" + msg.getMessage("OAuthApplicationProvider.expiresOn") + " "
 										+ TimeUtil.formatStandardInstant(expired)
 								: ""));
 
