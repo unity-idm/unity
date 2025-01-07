@@ -67,18 +67,19 @@ public class LeftNavbarAppLayout extends FlexLayout implements RouterLayout, Aft
 	@Override
 	public void showRouterLayoutContent(HasElement content)
 	{
-		if (!showEnquiry)
-		{
-			appLayoutComponents.addViewToMainLayout(content);
-		} else
+
+		appLayoutComponents.addViewToMainLayout(content);
+		if (showEnquiry)
 		{
 			if (!enquiryChecked)
 			{
-				enquiresDialogLauncher
-						.showEnquiryDialogIfNeeded(() -> appLayoutComponents.addViewToMainLayout(content));
-			} else
-			{
-				appLayoutComponents.addViewToMainLayout(content);
+				content.getElement()
+						.setVisible(false);
+				enquiresDialogLauncher.showEnquiryDialogIfNeeded(() ->
+				{
+					content.getElement()
+							.setVisible(true);
+				});
 			}
 			enquiryChecked = true;
 		}
