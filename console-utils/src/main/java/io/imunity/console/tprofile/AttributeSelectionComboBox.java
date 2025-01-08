@@ -29,8 +29,8 @@ public class AttributeSelectionComboBox extends NotEmptyComboBox<AttributeType>
 	private boolean filterImmutable = true;
 	private String label;
 
-	public AttributeSelectionComboBox(String caption, Collection<AttributeType> attributeTypes,
-									  boolean filterImmutable, MessageSource msg)
+	public AttributeSelectionComboBox(String caption, Collection<AttributeType> attributeTypes, boolean filterImmutable,
+			MessageSource msg)
 	{
 		this.msg = msg;
 		this.filterImmutable = filterImmutable;
@@ -41,27 +41,27 @@ public class AttributeSelectionComboBox extends NotEmptyComboBox<AttributeType>
 	{
 		this(caption, attributeTypes, true, msg);
 	}
-	
+
 	private void initContents(String caption, Collection<AttributeType> attributeTypes)
 	{
 		this.attributeTypesByName = attributeTypes.stream()
 				.collect(Collectors.toMap(AttributeType::getName, Function.identity()));
 		this.label = caption;
-		
+
 		setSizeUndefined();
 		setLabel(caption);
-		
+
 		List<AttributeType> items = attributeTypes.stream()
-			.filter(attrType -> !(filterImmutable && attrType.isInstanceImmutable()))
-			.sorted(Comparator.comparing(AttributeType::getName))
-			.collect(Collectors.toList());
-			
+				.filter(attrType -> !(filterImmutable && attrType.isInstanceImmutable()))
+				.sorted(Comparator.comparing(AttributeType::getName))
+				.collect(Collectors.toList());
+
 		setItems(items);
-		setItemLabelGenerator(attributeType -> attributeType.getDisplayedName().getValue(msg));
+		setItemLabelGenerator(attributeType -> getLabel(attributeType));
 		setRenderer(new ComponentRenderer<>(attributeType ->
 		{
 			Div displayedName = new Div();
-			displayedName.setText(attributeType.getDisplayedName().getValue(msg));
+			displayedName.setText(getLabel(attributeType));
 			displayedName.addClassName(BOLD.getName());
 			Div id = new Div();
 			id.setText(attributeType.getName());
@@ -72,13 +72,23 @@ public class AttributeSelectionComboBox extends NotEmptyComboBox<AttributeType>
 		if (!items.isEmpty())
 			setValue(items.get(0));
 	}
-	
+
+	private String getLabel(AttributeType attributeType)
+	{
+		return attributeType.getDisplayedName() != null ? attributeType.getDisplayedName()
+				.getValue(msg)
+				.isEmpty() ? attributeType.getName()
+						: attributeType.getDisplayedName()
+								.getValue(msg)
+				: attributeType.getName();
+	}
+
 	public void setSelectedItemByName(String name)
 	{
 		if (attributeTypesByName.containsKey(name))
 			setValue(attributeTypesByName.get(name));
 	}
-	
+
 	@Override
 	public String getLabel()
 	{
