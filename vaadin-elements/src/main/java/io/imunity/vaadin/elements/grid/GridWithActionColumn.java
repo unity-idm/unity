@@ -104,9 +104,17 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	}
 
 	public void addElement(int index, T el)
-	{
+	{		
 		contents.add(index, el);
-		dataProvider.addItemAfter(contents.get(index), el);
+		if (index < 1)
+		{
+			dataProvider.addItemBefore(el, dataProvider.getItem(0));
+		}
+		else
+		{
+			dataProvider.addItemAfter(el, contents.get(index -1));
+		}
+		
 		deselectAll();
 	}
 
