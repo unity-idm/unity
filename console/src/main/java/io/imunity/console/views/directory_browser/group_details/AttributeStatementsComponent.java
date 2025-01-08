@@ -79,10 +79,10 @@ class AttributeStatementsComponent extends VerticalLayout
 			AttrStatementWithId dropOverItem = event.getDropTargetItem().get();
 			if (!dropOverItem.equals(draggedItem))
 			{
-				attrStatementsGrid.getElements().remove(draggedItem);
+				attrStatementsGrid.removeElement(draggedItem);
 				int dropIndex =
 						attrStatementsGrid.getElements().indexOf(dropOverItem) + (event.getDropLocation() == GridDropLocation.BELOW ? 1 : 0);
-				attrStatementsGrid.getElements().add(dropIndex, draggedItem);
+				attrStatementsGrid.addElement(dropIndex, draggedItem);
 				attrStatementsGrid.getDataProvider().refreshAll();
 				updateGroup();
 			}
