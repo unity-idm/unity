@@ -85,10 +85,8 @@ public class SecureVaadin2XEndpoint extends Vaadin2XEndpoint
 			description.getEndpoint().getContextAddress(),
 			genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN),
 			description.getRealm());
-		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), "/",
+		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), "/*",
 			EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
-//		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
-//				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		contextSetupFilter = new InvocationContextSetupFilter(serverConfig, description.getRealm(),
 			getServletUrl(uiServletPath), getAuthenticationFlows());

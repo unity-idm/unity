@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.SerializeException;
-import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.OIDCError;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -164,8 +163,8 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 
 		Servlet oauthParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_CONSENT_DECIDER_SERVLET_PATH),
 				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, scopeService, serverConfig);
-		ServletHolder samlParseHolder = createServletHolder(oauthParseServlet);
-		servletContextHandler.addServlet(samlParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
+		ServletHolder oauthParseHolder = createServletHolder(oauthParseServlet);
+		servletContextHandler.addServlet(oauthParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
@@ -190,7 +189,7 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows,
 				description.getEndpoint().getContextAddress(),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN), description.getRealm());
-		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
+		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), OAUTH_UI_SERVLET_PATH + "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm(), null,

@@ -6,12 +6,15 @@ package pl.edu.icm.unity.saml.idp.web.filter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
@@ -27,6 +30,7 @@ import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.security.dsig.DSigException;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import io.imunity.vaadin.endpoint.common.EopException;
+import io.imunity.vaadin.endpoint.common.QueryBuilder;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -197,10 +201,12 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	
 	private String getQueryToAppend(HttpServletRequest req)
 	{
-		String signInContextKey = req.getParameter(SamlSessionService.URL_PARAM_CONTEXT_KEY);
-		return signInContextKey == null 
-				? "" 
-				: "?" + SamlSessionService.URL_PARAM_CONTEXT_KEY + "=" + signInContextKey;
+		Map<String, List<String>> urlParameters = req.getParameterMap().entrySet().stream()
+			.collect(Collectors.toMap(
+				Map.Entry::getKey,
+				entry -> Arrays.asList(entry.getValue())
+			));
+		return QueryBuilder.buildQuery(urlParameters);
 	}
 	
 	protected SPSettings loadPreferences(SAMLAuthnContext samlCtx) throws EngineException

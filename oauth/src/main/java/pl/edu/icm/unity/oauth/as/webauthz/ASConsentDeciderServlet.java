@@ -7,8 +7,12 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 import static io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.noSignInContextException;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
@@ -22,6 +26,7 @@ import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.openid.connect.sdk.OIDCError;
 
 import io.imunity.vaadin.endpoint.common.EopException;
+import io.imunity.vaadin.endpoint.common.QueryBuilder;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -151,10 +156,12 @@ public class ASConsentDeciderServlet extends HttpServlet
 	
 	private String getQueryToAppend(HttpServletRequest req)
 	{
-		String signInContextKey = req.getParameter(OAuthSessionService.URL_PARAM_CONTEXT_KEY);
-		return signInContextKey == null 
-				? "" 
-				: "?" + OAuthSessionService.URL_PARAM_CONTEXT_KEY + "=" + signInContextKey;
+		Map<String, List<String>> urlParameters = req.getParameterMap().entrySet().stream()
+			.collect(Collectors.toMap(
+				Map.Entry::getKey,
+				entry -> Arrays.asList(entry.getValue())
+			));
+		return QueryBuilder.buildQuery(urlParameters);
 	}
 	
 	private void sendNonePromptError(OAuthAuthzContext oauthCtx, HttpServletRequest req, HttpServletResponse resp)
