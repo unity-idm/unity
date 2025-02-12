@@ -81,21 +81,32 @@ public class OAuthProcessor
 	/**
 	 * Returns only requested attributes for which we have mapping.
 	 */
+	
 	public static Set<DynamicAttribute> filterAttributes(TranslationResult userInfo, 
 			Set<String> requestedAttributes)
 	{
+		return filterAttributes(userInfo, requestedAttributes, null);
+	}
+	
+	
+	public static Set<DynamicAttribute> filterAttributes(TranslationResult userInfo, 
+			Set<String> requestedAttributes, List<AttributeValueFilter> attrsValuesFilter)
+	{
 		Set<DynamicAttribute> ret = filterNotRequestedAttributes(userInfo, requestedAttributes);
-		return filterUnsupportedAttributes(ret);
+		return attrsValuesFilter == null ? filterUnsupportedAttributes(ret)
+				: AttributeValueFilterApplier.filterAttributes(attrsValuesFilter, filterUnsupportedAttributes(ret));
 	}
 
 	/**
 	 * Returns Authorization response to be returned and records (if needed) 
 	 * the internal state token, which is needed to associate further use of the code and/or id tokens with
 	 * the authorization that currently takes place.
+	 * @param attributeWhiteList 
 	 */
 	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(
 			Collection<DynamicAttribute> attributes,
-			IdentityParam identity,	OAuthAuthzContext ctx, OAuthIdpStatisticReporter statReporter, Instant authenticationTime) 
+			IdentityParam identity,	OAuthAuthzContext ctx, OAuthIdpStatisticReporter statReporter, Instant authenticationTime,
+			List<AttributeValueFilter> attributeWhiteList) 
 					throws EngineException, JsonProcessingException, ParseException, JOSEException
 	{
 		OAuthToken internalToken = new OAuthToken();
@@ -114,6 +125,7 @@ public class OAuthProcessor
 		internalToken.setClientType(ctx.getClientType());
 		internalToken.setClaimsInTokenAttribute(ctx.getClaimsInTokenAttribute());
 		internalToken.setAuthenticationTime(authenticationTime);
+		internalToken.setAttributeValueFilters(attributeWhiteList);
 		
 		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
 				null : ctx.getRequest().getCodeChallenge().getValue();

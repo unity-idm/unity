@@ -4,21 +4,22 @@
  */
 package io.imunity.vaadin.endpoint.common.active_value_select;
 
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import io.imunity.vaadin.endpoint.common.WebLogoutHandler;
-import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
-import static com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment.CENTER;
+import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import io.imunity.vaadin.endpoint.common.WebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 
 
 public class ActiveValueSelectionScreen extends VerticalLayout
@@ -29,7 +30,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 
 	private Map<DynamicAttribute, ValueSelector> selectors;
 	private final Runnable declineHandler;
-	private final Consumer<List<DynamicAttribute>> acceptHandler;
+	private final BiConsumer<List<DynamicAttribute>, List<DynamicAttribute>> acceptHandler;
 	private final List<DynamicAttribute> remainingAttributes;
 	private final String logoutRedirectPath;
 
@@ -40,7 +41,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 			List<DynamicAttribute> remainingAttributes,
 			String logoutRedirectPath,
 			Runnable declineHandler,
-			Consumer<List<DynamicAttribute>> acceptHandler)
+			BiConsumer<List<DynamicAttribute>, List<DynamicAttribute>> acceptHandler)
 	{
 		this.msg = msg;
 		this.remainingAttributes = remainingAttributes;
@@ -85,7 +86,12 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 		IdPButtonsBar buttons = new IdPButtonsBar(msg, authnProcessor, logoutRedirectPath, action ->
 		{
 			if (action == IdPButtonsBar.Action.ACCEPT)
-				acceptHandler.accept(getFilteredAttributes());
+			{
+				List<DynamicAttribute> filteredAttributes = getFilteredAttributes();
+				List<DynamicAttribute> ret = new ArrayList<>(remainingAttributes);
+				ret.addAll(filteredAttributes);	
+				acceptHandler.accept(ret.stream().filter(da -> !da.getAttribute().getValues().isEmpty()).toList(), filteredAttributes);
+			}
 			else if(action == IdPButtonsBar.Action.DENY)
 				declineHandler.run();
 		});
@@ -99,10 +105,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 	{
 		List<DynamicAttribute> subjectToSelection = selectors.entrySet().stream()
 				.map(entry -> attrProcessor.getAttributeWithActiveValues(entry.getKey(),
-						entry.getValue().getSelectedValueIndices()))
-				.filter(da -> !da.getAttribute().getValues().isEmpty()).toList();
-		List<DynamicAttribute> ret = new ArrayList<>(remainingAttributes);
-		ret.addAll(subjectToSelection);
-		return ret;
+						entry.getValue().getSelectedValueIndices())).toList();
+		return subjectToSelection;
 	}
 }

@@ -48,7 +48,8 @@ public class OAuthToken
 	private PKCSInfo pkcsInfo;
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute;
 	private Instant authenticationTime;
-	
+	private List<AttributeValueFilter> attributeValueFilters;
+		
 	public OAuthToken()
 	{
 		claimsInTokenAttribute = Optional.empty();
@@ -82,7 +83,7 @@ public class OAuthToken
 		setFirstRefreshRollingToken(source.getFirstRefreshRollingToken());
 		setClaimsInTokenAttribute(source.getClaimsInTokenAttribute());
 		setAuthenticationTime(source.getAuthenticationTime());
-		
+		setAttributeValueFilters(source.getAttributeValueFilters());
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -350,6 +351,16 @@ public class OAuthToken
 	public void setAuthenticationTime(Instant authenticationTime)
 	{
 		this.authenticationTime = authenticationTime;
+	}	
+	
+	public List<AttributeValueFilter> getAttributeValueFilters()
+	{
+		return attributeValueFilters;
+	}
+
+	public void setAttributeValueFilters(List<AttributeValueFilter> attributeValueFilters)
+	{
+		this.attributeValueFilters = attributeValueFilters;
 	}
 	
 	@Override
@@ -362,6 +373,7 @@ public class OAuthToken
 		result = prime * result + Objects.hash(accessToken, audience, authzCode, clientEntityId, clientName,
 				clientType, clientUsername, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
 				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo, firstRefreshRollingToken, authenticationTime);
+		result = prime * result + Objects.hash(attributeValueFilters);
 		return result;
 	}
 
@@ -391,7 +403,8 @@ public class OAuthToken
 				&& Objects.equals(subject, other.subject) && tokenValidity == other.tokenValidity
 				&& Objects.equals(userInfo, other.userInfo)
 				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken)
-				&& Objects.equals(authenticationTime, other.authenticationTime);
+				&& Objects.equals(authenticationTime, other.authenticationTime)
+				&& Objects.equals(attributeValueFilters, other.attributeValueFilters);
 	}
 
 
@@ -408,6 +421,7 @@ public class OAuthToken
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
 				+ pkcsInfo + "]";
 	}
+	
 
 	public static class PKCSInfo
 	{

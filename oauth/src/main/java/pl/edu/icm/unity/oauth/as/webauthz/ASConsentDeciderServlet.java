@@ -208,11 +208,11 @@ public class ASConsentDeciderServlet extends HttpServlet
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo,
 					oauthCtx.getConfig().getSubjectIdentityType());
 			log.info("Authentication of " + selectedIdentity);
-			Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfo,
-					oauthCtx.getEffectiveRequestedAttrs());
+			Collection<DynamicAttribute> attributes =  OAuthProcessor.filterAttributes(userInfo,
+					oauthCtx.getEffectiveRequestedAttrs(), oauthCtx.getClaimValueFilters());
 			ACRConsistencyValidator.verifyACRAttribute(oauthCtx, attributes);
 			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, oauthCtx,
-					statReporter, InvocationContext.getCurrent().getLoginSession().getAuthenticationTime());
+					statReporter, InvocationContext.getCurrent().getLoginSession().getAuthenticationTime(), oauthCtx.getClaimValueFilters());
 		} catch (OAuthErrorResponseException e)
 		{
 
