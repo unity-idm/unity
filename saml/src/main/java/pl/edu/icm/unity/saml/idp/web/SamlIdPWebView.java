@@ -263,7 +263,7 @@ class SamlIdPWebView extends UnityViewComponent
 				config.remainingAttributes,
 				SAML_CONSENT_DECIDER_SERVLET_PATH,
 				this::onDecline,
-				this::gotoConsentStage);
+				(a, fa) -> gotoConsentStage(a));
 		getContent().removeAll();
 		getContent().add(valueSelectionScreen);
 	}

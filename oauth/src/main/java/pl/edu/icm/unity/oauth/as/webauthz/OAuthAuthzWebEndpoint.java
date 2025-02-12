@@ -22,7 +22,6 @@ import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.SerializeException;
-import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.openid.connect.sdk.OIDCError;
 
 import eu.unicore.util.configuration.ConfigurationException;

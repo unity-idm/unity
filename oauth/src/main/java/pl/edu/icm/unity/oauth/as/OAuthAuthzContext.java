@@ -52,7 +52,7 @@ public class OAuthAuthzContext
 	private ClientType clientType;
 	private boolean openIdMode;
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute = Optional.empty();
-	
+	private List<AttributeValueFilter> claimValueFilters;
 	
 	
 	public OAuthAuthzContext(AuthorizationRequest request, OAuthASProperties properties)
@@ -264,5 +264,15 @@ public class OAuthAuthzContext
 			return false;
 		
 		return claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.id_token);	
+	}
+
+	public List<AttributeValueFilter> getClaimValueFilters()
+	{
+		return claimValueFilters;
+	}
+
+	public void setClaimValueFilters(List<AttributeValueFilter> claimValueFilters)
+	{
+		this.claimValueFilters = claimValueFilters;
 	}
 }
