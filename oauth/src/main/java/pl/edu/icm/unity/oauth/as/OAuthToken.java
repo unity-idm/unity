@@ -46,8 +46,6 @@ public class OAuthToken
 	private ClientType clientType;
 	private PKCSInfo pkcsInfo;
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute;
-	private List<AttributeValueFilter> attributeValueFilters;
-	
 	
 	public OAuthToken()
 	{
@@ -81,7 +79,7 @@ public class OAuthToken
 		setClientType(source.getClientType());
 		setFirstRefreshRollingToken(source.getFirstRefreshRollingToken());
 		setClaimsInTokenAttribute(source.getClaimsInTokenAttribute());
-		setAttributeValueFilters(source.getAttributeValueFilters());
+		
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -341,16 +339,6 @@ public class OAuthToken
 		return claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.token);	
 	}
 	
-	public List<AttributeValueFilter> getAttributeValueFilters()
-	{
-		return attributeValueFilters;
-	}
-
-	public void setAttributeValueFilters(List<AttributeValueFilter> attributeValueFilters)
-	{
-		this.attributeValueFilters = attributeValueFilters;
-	}
-	
 	@Override
 	public int hashCode()
 	{
@@ -361,7 +349,6 @@ public class OAuthToken
 		result = prime * result + Objects.hash(accessToken, audience, authzCode, clientEntityId, clientName,
 				clientType, clientUsername, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
 				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo, firstRefreshRollingToken);
-		result = prime * result + Objects.hash(attributeValueFilters);
 		return result;
 	}
 
@@ -390,8 +377,7 @@ public class OAuthToken
 				&& Objects.equals(responseType, other.responseType)
 				&& Objects.equals(subject, other.subject) && tokenValidity == other.tokenValidity
 				&& Objects.equals(userInfo, other.userInfo)
-				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken)
-				&& Objects.equals(attributeValueFilters, other.attributeValueFilters);
+				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken);
 	}
 
 
@@ -408,7 +394,6 @@ public class OAuthToken
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
 				+ pkcsInfo + "]";
 	}
-	
 
 	public static class PKCSInfo
 	{

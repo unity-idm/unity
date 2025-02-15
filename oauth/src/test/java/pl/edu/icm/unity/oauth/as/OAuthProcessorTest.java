@@ -56,7 +56,7 @@ public class OAuthProcessorTest
 		long start = System.currentTimeMillis();
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, null, null);
+				attributes, identity, ctx, null);
 		long end = System.currentTimeMillis();
 		
 		assertNull(resp.getAccessToken());
@@ -82,7 +82,7 @@ public class OAuthProcessorTest
 
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(attributes, identity,
-				ctx, null, null);
+				ctx, null);
 
 		assertNull(resp.getAccessToken());
 		assertNotNull(resp.getAuthorizationCode());
@@ -114,7 +114,7 @@ public class OAuthProcessorTest
 		long start = System.currentTimeMillis();
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), null);
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
 		long end = System.currentTimeMillis();
 		
 		assertNotNull(resp.getAccessToken());
@@ -142,7 +142,7 @@ public class OAuthProcessorTest
 		long start = System.currentTimeMillis();
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), null);
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
 		long end = System.currentTimeMillis();
 		
 		assertNotNull(resp.getAccessToken());

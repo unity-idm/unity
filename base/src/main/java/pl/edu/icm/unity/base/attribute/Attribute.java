@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSetter;
@@ -234,7 +233,16 @@ public class Attribute implements NamedObject
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(groupPath, name, remoteIdp, translationProfile, valueSyntax, values);
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((groupPath == null) ? 0 : groupPath.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((remoteIdp == null) ? 0 : remoteIdp.hashCode());
+		result = prime * result + ((translationProfile == null) ? 0
+				: translationProfile.hashCode());
+		result = prime * result + ((valueSyntax == null) ? 0 : valueSyntax.hashCode());
+		result = prime * result + ((values == null) ? 0 : values.hashCode());
+		return result;
 	}
 
 	@Override
@@ -247,75 +255,42 @@ public class Attribute implements NamedObject
 		if (getClass() != obj.getClass())
 			return false;
 		Attribute other = (Attribute) obj;
-		return Objects.equals(groupPath, other.groupPath) && Objects.equals(name, other.name)
-				&& Objects.equals(remoteIdp, other.remoteIdp)
-				&& Objects.equals(translationProfile, other.translationProfile)
-				&& Objects.equals(valueSyntax, other.valueSyntax) && Objects.equals(values, other.values);
+		if (groupPath == null)
+		{
+			if (other.groupPath != null)
+				return false;
+		} else if (!groupPath.equals(other.groupPath))
+			return false;
+		if (name == null)
+		{
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		if (remoteIdp == null)
+		{
+			if (other.remoteIdp != null)
+				return false;
+		} else if (!remoteIdp.equals(other.remoteIdp))
+			return false;
+		if (translationProfile == null)
+		{
+			if (other.translationProfile != null)
+				return false;
+		} else if (!translationProfile.equals(other.translationProfile))
+			return false;
+		if (valueSyntax == null)
+		{
+			if (other.valueSyntax != null)
+				return false;
+		} else if (!valueSyntax.equals(other.valueSyntax))
+			return false;
+		if (values == null)
+		{
+			if (other.values != null)
+				return false;
+		} else if (!values.equals(other.values))
+			return false;
+		return true;
 	}
-
-//	@Override
-//	public int hashCode()
-//	{
-//		final int prime = 31;
-//		int result = 1;
-//		result = prime * result + ((groupPath == null) ? 0 : groupPath.hashCode());
-//		result = prime * result + ((name == null) ? 0 : name.hashCode());
-//		result = prime * result + ((remoteIdp == null) ? 0 : remoteIdp.hashCode());
-//		result = prime * result + ((translationProfile == null) ? 0
-//				: translationProfile.hashCode());
-//		result = prime * result + ((valueSyntax == null) ? 0 : valueSyntax.hashCode());
-//		result = prime * result + ((values == null) ? 0 : values.hashCode());
-//		return result;
-//	}
-
-//	@Override
-//	public boolean equals(Object obj)
-//	{
-//		if (this == obj)
-//			return true;
-//		if (obj == null)
-//			return false;
-//		if (getClass() != obj.getClass())
-//			return false;
-//		Attribute other = (Attribute) obj;
-//		if (groupPath == null)
-//		{
-//			if (other.groupPath != null)
-//				return false;
-//		} else if (!groupPath.equals(other.groupPath))
-//			return false;
-//		if (name == null)
-//		{
-//			if (other.name != null)
-//				return false;
-//		} else if (!name.equals(other.name))
-//			return false;
-//		if (remoteIdp == null)
-//		{
-//			if (other.remoteIdp != null)
-//				return false;
-//		} else if (!remoteIdp.equals(other.remoteIdp))
-//			return false;
-//		if (translationProfile == null)
-//		{
-//			if (other.translationProfile != null)
-//				return false;
-//		} else if (!translationProfile.equals(other.translationProfile))
-//			return false;
-//		if (valueSyntax == null)
-//		{
-//			if (other.valueSyntax != null)
-//				return false;
-//		} else if (!valueSyntax.equals(other.valueSyntax))
-//			return false;
-//		if (values == null)
-//		{
-//			if (other.values != null)
-//				return false;
-//		} else if (!values.equals(other.values))
-//			return false;
-//		return true;
-//	}
-	
-	
 }

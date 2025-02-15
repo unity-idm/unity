@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.oauth.as.token.access;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -49,8 +50,6 @@ import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.oauth.as.AttributeValueFilter;
-import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
@@ -85,38 +84,33 @@ class TokenService
 			throws OAuthErrorException
 	{
 		OAuthToken newToken = new OAuthToken(oldToken);
-		
-		Scope newRequestedScopeList = new Scope();
+
+		List<String> newRequestedScopeList = new ArrayList<>();
 		if (scope != null && !scope.isEmpty())
 		{
-			newRequestedScopeList = Scope.parse(scope);
+			newRequestedScopeList.addAll(Arrays.asList(scope.split(" ")));
 		}
-		
-		List<String> filteredScopes = AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList).stream().map(v -> v.getValue()).toList();
-		
-		if (!oldRequestedScopesList.containsAll(filteredScopes))
+
+		if (!oldRequestedScopesList.containsAll(newRequestedScopeList))
 		{
 			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_SCOPE, "wrong scope"));
 		}
-		newToken.setRequestedScope(filteredScopes.stream().toArray(String[]::new));
+		newToken.setRequestedScope(newRequestedScopeList.stream().toArray(String[]::new));
 
 		// get new attributes for identity
 		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
 
 		List<OAuthScope> newValidRequestedScopes = requestValidator.getValidRequestedScopes(
 				clientAttributesProvider.getClientAttributes(new EntityParam(clientId)),
-				AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList));
+				Scope.parse(String.join(" ", newRequestedScopeList)));
 		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.name).toArray(String[]::new));
 
-		List<AttributeValueFilter> claimFiltersFromScopes = AttributeValueFilterUtils.getFiltersFromScopes(newRequestedScopeList);
-		List<AttributeValueFilter> mergedFilters = AttributeValueFilterUtils.mergeFiltersWithPreservingLast(newToken.getAttributeValueFilters(), claimFiltersFromScopes);
-		UserInfo userInfoClaimSet = createUserInfo(newValidRequestedScopes, newToken.getSubject(), userInfoRes, mergedFilters);
+		UserInfo userInfoClaimSet = createUserInfo(newValidRequestedScopes, newToken.getSubject(), userInfoRes);
 		newToken.setUserInfo(userInfoClaimSet.toJSONObject().toJSONString());
-		newToken.setAttributeValueFilters(mergedFilters);
-		
+
 		Date now = new Date();
 		// if openid mode build new id_token using new userinfo.
-		if (filteredScopes.contains(OIDCScopeValue.OPENID.getValue()) && createIdToken)
+		if (newRequestedScopeList.contains(OIDCScopeValue.OPENID.getValue()) && createIdToken)
 		{
 			try
 			{
@@ -143,8 +137,6 @@ class TokenService
 
 		return newToken;
 	}
-	
-	
 	
 	AccessTokenResponse getAccessTokenResponse(OAuthToken internalToken, AccessToken accessToken,
 			RefreshToken refreshToken, Map<String, Object> additionalParams)
@@ -183,15 +175,13 @@ class TokenService
 		return userInfoRes;
 	}
 
-	private UserInfo createUserInfo(List<OAuthScope> validScopes, String userIdentity, TranslationResult userInfoRes,
-			List<AttributeValueFilter> claimValueFilters)
+	private UserInfo createUserInfo(List<OAuthScope> validScopes, String userIdentity, TranslationResult userInfoRes)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
 		for (OAuthScope si : validScopes)
 			requestedAttributes.addAll(si.attributes);
 
-		Collection<DynamicAttribute> attributes = 
-				OAuthProcessor.filterAttributes(userInfoRes, requestedAttributes, claimValueFilters);
+		Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfoRes, requestedAttributes);
 		return OAuthProcessor.prepareUserInfoClaimSet(userIdentity, attributes);
 	}
 

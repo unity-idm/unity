@@ -35,7 +35,6 @@ import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
@@ -162,7 +161,7 @@ class OAuthWebRequestValidator
 
 		validateAndRecordPrompt(context, authzRequest);
 
-		validateAndRecordScopesAndClaimFilters(attributes, context, authzRequest);
+		validateAndRecordScopes(attributes, context, authzRequest);
 
 		validateAndRecordResources(context, authzRequest);
 
@@ -259,12 +258,10 @@ class OAuthWebRequestValidator
 		}
 	}
 
-	private void validateAndRecordScopesAndClaimFilters(Map<String, AttributeExt> clientAttributes, OAuthAuthzContext context,
+	private void validateAndRecordScopes(Map<String, AttributeExt> clientAttributes, OAuthAuthzContext context,
 			AuthorizationRequest authzRequest) throws OAuthValidationException
 	{
-		context.setClaimValueFilters(AttributeValueFilterUtils.getFiltersFromScopes(authzRequest.getScope()));
-		Scope requestedScopes = AttributeValueFilterUtils.getScopesWithoutFilterClaims(authzRequest.getScope());
-	
+		Scope requestedScopes = authzRequest.getScope();
 		if (requestedScopes != null)
 		{
 			List<OAuthScope> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes,
@@ -287,7 +284,7 @@ class OAuthWebRequestValidator
 			requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
 		}
 	}
-	
+
 	private void assertScopeSupportedByServer(OIDCScopeValue scope, Scope requestedScopes,
 			List<OAuthScope> validRequestedScopes) throws OAuthValidationException
 	{
