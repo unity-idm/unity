@@ -12,7 +12,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,8 +59,6 @@ import pl.edu.icm.unity.engine.api.translation.StopAuthenticationException;
 import pl.edu.icm.unity.engine.api.translation.out.AuthenticationFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
-import pl.edu.icm.unity.oauth.as.AttributeValueFilter;
-import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
@@ -198,7 +195,7 @@ class OAuthAuthzView extends UnityViewComponent
 		identity = idpEngine.getIdentity(translationResult, ctx.getConfig().getSubjectIdentityType());
 
 		Set<DynamicAttribute> allAttributes = OAuthProcessor.filterAttributes(translationResult,
-				ctx.getEffectiveRequestedAttrs(), ctx.getClaimValueFilters());
+				ctx.getEffectiveRequestedAttrs());
 
 		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = ActiveValueClientHelper
 				.getActiveValueSelectionConfig(config.getActiveValueClients(), ctx.getClientUsername(), allAttributes);
@@ -206,17 +203,17 @@ class OAuthAuthzView extends UnityViewComponent
 		if (activeValueSelectionConfig.isPresent())
 			showActiveValueSelectionScreen(activeValueSelectionConfig.get());
 		else
-			gotoConsentStage(allAttributes, null);
+			gotoConsentStage(allAttributes);
 	}
 
-	private void gotoConsentStage(Collection<DynamicAttribute> attributes, Collection<DynamicAttribute> filteredAttributes)
+	private void gotoConsentStage(Collection<DynamicAttribute> attributes)
 	{
 		OAuthAuthzContext context = OAuthSessionService.getVaadinContext();
 		if (!forceConsentIfConsentPrompt(context))
 		{
 			if (context.getConfig().isSkipConsent())
 			{
-				onFinalConfirm(identity, attributes, filteredAttributes);
+				onFinalConfirm(identity, attributes);
 				return;
 			} else if (isNonePrompt(context))
 			{
@@ -226,7 +223,7 @@ class OAuthAuthzView extends UnityViewComponent
 		}
 		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, preferencesMan,
 				authnProcessor, idTypeSupport, aTypeSupport, identity, attributes,
-				this::onDecline,  (i,a) -> onFinalConfirm(i, a, filteredAttributes), oauthResponseHandler);
+				this::onDecline, this::onFinalConfirm, oauthResponseHandler);
 		getContent().removeAll();
 		getContent().add(consentScreen);
 	}
@@ -254,7 +251,7 @@ class OAuthAuthzView extends UnityViewComponent
 	{
 		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, handlersRegistry,
 				authnProcessor, config.singleSelectableAttributes, config.multiSelectableAttributes,
-				config.remainingAttributes, OAUTH_CONSENT_DECIDER_SERVLET_PATH, this::onDecline, (allAttributes, filteredAttribtue) -> gotoConsentStage(allAttributes, filteredAttribtue));
+				config.remainingAttributes, OAUTH_CONSENT_DECIDER_SERVLET_PATH, this::onDecline, this::gotoConsentStage);
 		getContent().removeAll();
 		getContent().add(valueSelectionScreen);
 	}
@@ -326,16 +323,13 @@ class OAuthAuthzView extends UnityViewComponent
 		oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, false, ctx, Status.FAILED);
 	}
 
-	private void onFinalConfirm(IdentityParam identity, Collection<DynamicAttribute> attributes, Collection<DynamicAttribute> filteredAttributes)
+	private void onFinalConfirm(IdentityParam identity, Collection<DynamicAttribute> attributes)
 	{
 		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
 		try
 		{
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor
-					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx,
-							oauthResponseHandler.statReporter,
-							AttributeValueFilterUtils.mergeFiltersWithPreservingLast(
-									ctx.getClaimValueFilters(), mapSelectedAttributesToFilters(filteredAttributes)));
+					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, oauthResponseHandler.statReporter);
 
 			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
 		} catch (Exception e)
@@ -347,21 +341,6 @@ class OAuthAuthzView extends UnityViewComponent
 			
 			oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, false, ctx, Status.FAILED);
 		}
-	}
-
-	private List<AttributeValueFilter> mapSelectedAttributesToFilters(Collection<DynamicAttribute> attributes)
-	{
-		if (attributes == null)
-			return null;
-		
-		return attributes.stream()
-				.map(a -> new AttributeValueFilter(a.getAttribute()
-						.getName(),
-						a.getAttribute()
-								.getValues()
-								.stream()
-								.collect(Collectors.toSet())))
-				.toList();
 	}
 
 	@Override

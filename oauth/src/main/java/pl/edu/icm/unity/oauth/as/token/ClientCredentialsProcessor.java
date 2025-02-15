@@ -27,7 +27,6 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
@@ -80,8 +79,7 @@ public class ClientCredentialsProcessor
 					"' is not authorized to use the '" + GrantFlow.client + "' grant flow.");
 		}
 		OAuthToken internalToken = new OAuthToken();
-		Scope parsedScope = Scope.parse(scope);
-		Set<String> requestedAttributes = establishFlowsAndAttributes(internalToken, parsedScope, attributes);
+		Set<String> requestedAttributes = establishFlowsAndAttributes(internalToken, scope, attributes);
 		internalToken.setClientId(loginSession.getEntityId());
 		internalToken.setClientUsername(client);
 		internalToken.setSubject(client);
@@ -110,18 +108,19 @@ public class ClientCredentialsProcessor
 			throw new OAuthValidationException("Internal error");
 		}
 		Set<DynamicAttribute> filteredAttributes = OAuthProcessor.filterAttributes(
-				translationResult, requestedAttributes, AttributeValueFilterUtils.getFiltersFromScopes(parsedScope));
+				translationResult, requestedAttributes);
 		UserInfo userInfo = OAuthProcessor.prepareUserInfoClaimSet(client, filteredAttributes);
 		internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());
 		return internalToken;
 	}
 	
-	private Set<String> establishFlowsAndAttributes(OAuthToken internalToken, Scope scope, Map<String, AttributeExt> clientAttributes)
+	private Set<String> establishFlowsAndAttributes(OAuthToken internalToken, String scope, Map<String, AttributeExt> clientAttributes)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
 		if (scope != null && !scope.isEmpty())
-		{	
-			List<OAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, AttributeValueFilterUtils.getScopesWithoutFilterClaims(scope));
+		{
+			Scope parsed = Scope.parse(scope);
+			List<OAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, parsed);
 			String[] array = validRequestedScopes.stream().
 					map(si -> si.name).
 					toArray(String[]::new);

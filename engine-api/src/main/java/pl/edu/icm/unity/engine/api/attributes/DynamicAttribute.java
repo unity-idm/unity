@@ -5,8 +5,6 @@
 
 package pl.edu.icm.unity.engine.api.attributes;
 
-import java.util.Objects;
-
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 
@@ -133,26 +131,47 @@ public class DynamicAttribute
 		sb.append("]");
 		return sb.toString();
 	}
-
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(attribute, attributeType, description, displayedName, mandatory);
-	}
-
+	
 	@Override
 	public boolean equals(Object obj)
 	{
 		if (this == obj)
 			return true;
-		if (obj == null)
+		if (!super.equals(obj))
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		DynamicAttribute other = (DynamicAttribute) obj;
-		return Objects.equals(attribute, other.attribute) && Objects.equals(attributeType, other.attributeType)
-				&& Objects.equals(description, other.description) && Objects.equals(displayedName, other.displayedName)
-				&& mandatory == other.mandatory;
+		if (attribute == null)
+		{
+			if (other.attribute != null)
+				return false;
+		} else if (!attribute.equals(other.attribute))
+			return false;
+		if (displayedName == null)
+		{
+			if (other.displayedName != null)
+				return false;
+		} else if (!displayedName.equals(other.displayedName))
+			return false;
+		if (description == null)
+		{
+			if (other.description != null)
+				return false;
+		} else if (!description.equals(other.description))
+			return false;
+
+		if (!(mandatory == other.mandatory))
+			return false;
+
+		if (attributeType == null)
+		{
+			if (other.attributeType != null)
+				return false;
+		} else if (!attributeType.equals(other.attributeType))
+			return false;
+		
+		
+		return true;
 	}
-	
 }
