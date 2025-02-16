@@ -112,7 +112,7 @@ public class RevocationResourceAuthnHintTest
 				null, null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
-		httpResp.setContent(resp.getEntity().toString());
+		httpResp.setBody(resp.getEntity().toString());
 		httpResp.setContentType("application/json");
 		OIDCTokenResponse tokensResponse = OIDCTokenResponse.parse(httpResp);
 		

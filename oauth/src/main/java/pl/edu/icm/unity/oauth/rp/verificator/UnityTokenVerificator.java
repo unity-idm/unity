@@ -66,13 +66,13 @@ public class UnityTokenVerificator implements TokenVerificatorProtocol
 		}
 		
 		if (log.isTraceEnabled())
-			log.trace("Received tokens's status:\n" + resp.getContent());
+			log.trace("Received tokens's status:\n" + resp.getBody());
 
 		if (resp.getEntityContentType() == null || !ContentType.APPLICATION_JSON.matches(resp.getEntityContentType()))
 			throw new AuthenticationException("Token status query was successful "
 					+ "but it has non-JSON content type: " + resp.getEntityContentType());
 		
-		JSONObject status = resp.getContentAsJSONObject();
+		JSONObject status = resp.getBodyAsJSONObject();
 		
 		Date exp = null;
 		Scope scope = new Scope();

@@ -173,7 +173,7 @@ public class AccessTokenResourceTest
 				null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
-		httpResp.setContent(resp.getEntity().toString());
+		httpResp.setBody(resp.getEntity().toString());
 		httpResp.setContentType("application/json");
 		OIDCTokenResponse parsed = OIDCTokenResponse.parse(httpResp);
 		assertNotNull(parsed.getOIDCTokens().getAccessToken());
@@ -203,7 +203,7 @@ public class AccessTokenResourceTest
 				null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
-		httpResp.setContent(resp.getEntity().toString());
+		httpResp.setBody(resp.getEntity().toString());
 		httpResp.setContentType("application/json");
 		AccessTokenResponse parsed = AccessTokenResponse.parse(httpResp);
 		AccessToken accessToken = parsed.getTokens().getAccessToken();
@@ -232,7 +232,7 @@ public class AccessTokenResourceTest
 				null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
-		httpResp.setContent(resp.getEntity().toString());
+		httpResp.setBody(resp.getEntity().toString());
 		httpResp.setContentType("application/json");
 		OIDCTokenResponse parsed = OIDCTokenResponse.parse(httpResp);
 		assertNotNull(parsed.getTokens().getRefreshToken());
@@ -257,7 +257,7 @@ public class AccessTokenResourceTest
 				null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
-		httpResp.setContent(resp.getEntity().toString());
+		httpResp.setBody(resp.getEntity().toString());
 		httpResp.setContentType("application/json");
 		OIDCTokenResponse parsed = OIDCTokenResponse.parse(httpResp);
 		assertNull(parsed.getTokens().getRefreshToken());
@@ -283,7 +283,7 @@ public class AccessTokenResourceTest
 				null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
-		httpResp.setContent(resp.getEntity().toString());
+		httpResp.setBody(resp.getEntity().toString());
 		httpResp.setContentType("application/json");
 		OIDCTokenResponse parsed = OIDCTokenResponse.parse(httpResp);
 		assertNotNull(parsed.getTokens().getRefreshToken());

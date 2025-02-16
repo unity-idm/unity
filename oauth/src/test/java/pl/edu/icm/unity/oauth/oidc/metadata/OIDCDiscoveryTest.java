@@ -35,7 +35,7 @@ public class OIDCDiscoveryTest
 		when(reqFactory.secureRequest(any(), any(), any())).thenReturn(wrapped);
 		when(wrapped.send()).thenReturn(response);
 		when(response.getCacheControl()).thenReturn(null);
-		when(response.getContent()).thenReturn(META);
+		when(response.getBody()).thenReturn(META);
 
 		OpenIdConnectDiscovery tested = new OpenIdConnectDiscovery(reqFactory);
 		Properties props = new Properties();
@@ -72,7 +72,7 @@ public class OIDCDiscoveryTest
 		when(reqFactory.secureRequest(any(), any(), any())).thenReturn(wrapped);
 		when(wrapped.send()).thenReturn(response);
 		when(response.getCacheControl()).thenReturn(null);
-		when(response.getContent()).thenReturn(META);
+		when(response.getBody()).thenReturn(META);
 		OpenIdConnectDiscovery tested = new OpenIdConnectDiscovery(reqFactory);
 
 		OIDCProviderMetadata meta = tested.getMetadata(def.generateMetadataRequest());

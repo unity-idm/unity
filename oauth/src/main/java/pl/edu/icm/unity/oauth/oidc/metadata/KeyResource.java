@@ -44,6 +44,6 @@ class KeyResource
 		HTTPRequest request = requestFactory.secureRequest(new HTTPRequest(Method.GET, providerMetadataEndpoint),
 				jwkSetRequest.validator, jwkSetRequest.hostnameChecking);
 		HTTPResponse response = request.send();	
-		return JWKSet.parse(response.getContent());
+		return JWKSet.parse(response.getBody());
 	}
 }

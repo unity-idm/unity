@@ -33,7 +33,7 @@ public class KeyResourceTest
 		when(reqFactory.secureRequest(any(), any(), any())).thenReturn(wrapped);
 		when(wrapped.send()).thenReturn(response);
 		when(response.getCacheControl()).thenReturn(null);
-		when(response.getContent()).thenReturn("{\n" + "\"keys\": [\n" + "{\n"
+		when(response.getBody()).thenReturn("{\n" + "\"keys\": [\n" + "{\n"
 				+ "\"n\": \"tLZpmdBD-qb8fwqg-DKX8ljpCAAv5n9s5N-JBzOIu3Ry1au3diX_AXKcnpqWJt3Mh3lT4x-zKl4SLpcjpSHYdim4tmqKucUupLTXS-yIqGBw2xDaI0GpYd8QFiFAxTAcwrEoCdl3BGGojo4zmARcHBe_IfeQls097Um3Xu2uiD0RehagoXnDhzk54WAvN05GXJ1xzzx6B7H_fclXcUYb5p5n7SgPDUchTDsDFGCI60Sqqz10d_GNcceThotlXRXcGVlTQ9AGJ_ejzkLWE7NiJc7ZWkrufsNKvVsWT12y66u0VWeopuQZxqSoHIRvSZ71JsBT3dAN897ViZtyYdWoqQ\",\n"
 				+ "\"kid\": \"8e0acf891e090091ef1a5e7e64bab280fd1447fa\",\n" + "\"alg\": \"RS256\",\n"
 				+ "\"use\": \"sig\",\n" + "\"kty\": \"RSA\",\n" + "\"e\": \"AQAB\"\n" + "},\n" + "{\n"

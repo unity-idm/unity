@@ -73,7 +73,7 @@ class RemoteTokenIntrospectionService
 	
 	private Response mapRemoteResponse(TokenIntrospectionResponse response)
 	{
-		log.debug("Remote token instrospection response {}", response.toHTTPResponse().getContent());
+		log.debug("Remote token instrospection response {}", response.toHTTPResponse().getBody());
 		return Response.ok(response
 				.indicatesSuccess()
 						? response

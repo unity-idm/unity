@@ -88,7 +88,7 @@ public class RemoteTokenIntrospectionTest
 		when(jwsVerifier.verify(any(), any(), any())).thenReturn(true);
 		HTTPResponse httpResponse = new HTTPResponse(HTTPResponse.SC_OK);
 		TokenIntrospectionResponse resp = new TokenIntrospectionSuccessResponse(new JSONObject(Map.of("active", true)));
-		httpResponse.setContent(resp.toSuccessResponse()
+		httpResponse.setBody(resp.toSuccessResponse()
 				.toJSONObject()
 				.toJSONString());
 		httpResponse.setContentType(ContentType.APPLICATION_JSON.toString());

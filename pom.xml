@@ -690,12 +690,12 @@
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>oauth2-oidc-sdk</artifactId>
-				<version>9.41</version>
+				<version>11.22.2</version> 
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>nimbus-jose-jwt</artifactId>
-				<version>9.23</version>
+				<version>10.0.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>

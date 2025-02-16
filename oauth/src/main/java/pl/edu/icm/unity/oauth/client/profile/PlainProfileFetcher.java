@@ -76,7 +76,7 @@ public class PlainProfileFetcher implements UserProfileFetcher
 		
 		if (!queryParams.isEmpty())
 		{
-			httpReq.setQuery(URLUtils.serializeParameters(queryParams));
+			httpReq.appendQueryString(URLUtils.serializeParameters(queryParams));
 		}
 		
 		HTTPResponse resp = httpReq.send();
@@ -85,16 +85,16 @@ public class PlainProfileFetcher implements UserProfileFetcher
 		{
 			throw new AuthenticationException("Authentication was successful "
 					+ "but there was a problem fetching user's profile information: "
-					+ resp.getContent());
+					+ resp.getBody());
 		}
-		log.trace("Received user's profile from {}:\n{}", userInfoEndpoint, resp.getContent().trim());
+		log.trace("Received user's profile from {}:\n{}", userInfoEndpoint, resp.getBody().trim());
 
 		if (resp.getEntityContentType() == null || !ContentType.APPLICATION_JSON.matches(resp.getEntityContentType()))
 			throw new AuthenticationException("Authentication was successful "
 					+ "but there was a problem fetching user's profile information. "
 					+ "It has non-JSON content type: " + resp.getEntityContentType());
 
-		JSONObject profile = resp.getContentAsJSONObject();	
+		JSONObject profile = resp.getBodyAsJSONObject();	
 	
 		return ProfileFetcherUtils.fetchFromJsonObject(profile);
 	}

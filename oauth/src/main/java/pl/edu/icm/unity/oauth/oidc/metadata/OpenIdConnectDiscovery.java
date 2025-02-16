@@ -48,7 +48,7 @@ class OpenIdConnectDiscovery
 		HTTPRequest request = requestFactory.secureRequest(new HTTPRequest(Method.GET, providerMetadataEndpoint),
 				oidcMetadataRequest.validator, oidcMetadataRequest.hostnameChecking);
 		HTTPResponse response = request.send();
-		String content = response.getContent();
+		String content = response.getBody();
 		final String MS_ENDPOINT = "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration";
 		if (MS_ENDPOINT.equals(providerMetadataEndpoint.toExternalForm()))
 			content = content.replace("https://login.microsoftonline.com/{tenantid}/v2.0",
