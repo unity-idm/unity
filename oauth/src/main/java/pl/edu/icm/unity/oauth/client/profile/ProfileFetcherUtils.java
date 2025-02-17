@@ -32,8 +32,9 @@ public class ProfileFetcherUtils
 				convertToRawAttributes(jsonObject));
 	}
 
-	public static Map<String, List<String>> convertToAttributes(JSONObject profile)
+	public static Map<String, List<String>> convertToAttributes(JSONObject jsonObject)
 	{
+		JSONObject profile = (JSONObject) JSONValue.parse(jsonObject.toJSONString());
 		Map<String, List<String>> ret = new HashMap<>();
 		
 
@@ -69,7 +70,7 @@ public class ProfileFetcherUtils
 	
 	static JSONObject convertToRawAttributes(JSONObject toConvert)
 	{
-		JSONObject res = new JSONObject(toConvert);
+		JSONObject res = (JSONObject) JSONValue.parse(toConvert.toJSONString());
 		resolveNestedJsonType(res);
 		return res;
 	}

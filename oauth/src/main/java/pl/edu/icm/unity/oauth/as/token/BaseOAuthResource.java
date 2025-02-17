@@ -39,7 +39,7 @@ public class BaseOAuthResource
 	{
 		try
 		{
-			return oauthResponse.toHTTPResponse().getContent();
+			return oauthResponse.toHTTPResponse().getBody();
 		} catch (SerializeException e)
 		{
 			throw new InternalException("Can not serialize OAuth success response", e);
@@ -88,7 +88,7 @@ public class BaseOAuthResource
 		log.debug("Retuning OAuth error response: " + baseError.getCode() + 
 				": " + baseError.getDescription());
 		HTTPResponse httpResp = eResp.toHTTPResponse();
-		return toResponse(Response.status(httpResp.getStatusCode()).entity(httpResp.getContent()));
+		return toResponse(Response.status(httpResp.getStatusCode()).entity(httpResp.getBody()));
 	}
 	
 	protected Response makeBearerError(BearerTokenError error)

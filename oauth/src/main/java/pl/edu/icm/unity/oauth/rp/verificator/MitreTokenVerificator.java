@@ -81,7 +81,7 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 					+ "Mitre token verificator: " + clientAuthnMode);
 		}
 		
-		httpReq.setQuery(queryB.toString());
+		httpReq.appendQueryString(queryB.toString());
 		
 		ServerHostnameCheckingMode checkingMode = config.getEnumValue(
 				OAuthRPProperties.CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
@@ -96,13 +96,13 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 		}
 		
 		if (log.isTraceEnabled())
-			log.trace("Received tokens's status:\n" + resp.getContent());
+			log.trace("Received tokens's status:\n" + resp.getBody());
 
 		if (resp.getEntityContentType() == null || !ContentType.APPLICATION_JSON.matches(resp.getEntityContentType()))
 			throw new AuthenticationException("Token status query was successful "
 					+ "but it has non-JSON content type: " + resp.getEntityContentType());
 		
-		JSONObject status = resp.getContentAsJSONObject();
+		JSONObject status = resp.getBodyAsJSONObject();
 		
 		Date exp = null;
 		Scope scope = new Scope();

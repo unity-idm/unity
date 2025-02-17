@@ -364,7 +364,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		TokenRequest request = new TokenRequest(
 				new URI(tokenEndpoint),
 				clientAuthn,
-				authzCodeGrant);
+				authzCodeGrant, null);
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		
 		HTTPRequest httpRequest = new HttpRequestConfigurer()
@@ -374,7 +374,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		
 		if (log.isTraceEnabled())
 		{
-			String notSecretQuery = httpRequest.getQuery().replaceFirst(
+			String notSecretQuery = httpRequest.getURL().getQuery().replaceFirst(
 					"client_secret=[^&]*", "client_secret=xxxxxx");
 			log.trace("Exchanging authorization code for access token with request to: " + 
 					httpRequest.getURL() + "?" + notSecretQuery);
@@ -387,9 +387,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		
 		log.debug("Received answer: {}", response.getStatusCode());
 		if (response.getStatusCode() != 200)
-			log.warn("Error received. Contents: {}", response.getContent());
+			log.warn("Error received. Contents: {}", response.getBody());
 		else
-			log.trace("Received token: {}", response.getContent().trim());
+			log.trace("Received token: {}", response.getBody().trim());
 		return response;
 	}
 	
@@ -486,7 +486,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		BearerAccessToken accessToken;
 		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
 		{
-			JSONObject jsonResp = response.getContentAsJSONObject();
+			JSONObject jsonResp = response.getBodyAsJSONObject();
 			if (!jsonResp.containsKey("token_type"))
 				jsonResp.put("token_type", AccessTokenType.BEARER.getValue());
 			AccessTokenResponse atResponse = AccessTokenResponse.parse(jsonResp);
@@ -496,9 +496,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			if (response.getStatusCode() != 200)
 				throw new AuthenticationException("Exchange of authorization code for access "
-						+ "token failed: " + response.getContent());
+						+ "token failed: " + response.getBody());
 			MultiMap<String> map = new MultiMap<>();
-			UrlEncoded.decodeTo(response.getContent().trim(), map, StandardCharsets.UTF_8);
+			UrlEncoded.decodeTo(response.getBody().trim(), map, StandardCharsets.UTF_8);
 			String accessTokenVal = map.getString("access_token");
 			if (accessTokenVal == null)
 				throw new AuthenticationException("Access token answer received doesn't contain "

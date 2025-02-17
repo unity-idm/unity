@@ -81,7 +81,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 
 		HTTPResponse httpResponse = httpRequest.send();
 		if (log.isTraceEnabled())
-			log.trace("Received client credentials grant:\n" + httpResponse.getContent());
+			log.trace("Received client credentials grant:\n" + httpResponse.getBody());
 		
 		TokenResponse response = TokenResponse.parse(httpResponse);
 
@@ -89,7 +89,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		{
 			throw new AuthenticationException("User's authentication was successful "
 					+ "but there was a problem authenticating server (with client credentials) "
-					+ "to obtain user's profile: " + response.toHTTPResponse().getContent());
+					+ "to obtain user's profile: " + response.toHTTPResponse().getBody());
 		}
 
 		AccessTokenResponse successResponse = (AccessTokenResponse) response;
@@ -118,10 +118,10 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		{
 			throw new AuthenticationException("Authentication was successful "
 					+ "but there was a problem fetching user's profile information: " + 
-					resp.getContent());
+					resp.getBody());
 		}
 		if (log.isTraceEnabled())
-			log.trace("Received user's profile:\n" + resp.getContent());
+			log.trace("Received user's profile:\n" + resp.getBody());
 
 		
 		if (resp.getEntityContentType() == null || !ContentType.APPLICATION_JSON.matches(resp.getEntityContentType()))
@@ -129,7 +129,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 					+ "but there was a problem fetching user's profile information. "
 					+ "It has non-orcid-JSON content type: " + resp.getEntityContentType());
 		
-		return resp.getContentAsJSONObject();
+		return resp.getBodyAsJSONObject();
 	}
 	
 }

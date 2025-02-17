@@ -122,7 +122,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse httpResponse = wrapped2.send();
 
-		JSONObject parsed = httpResponse.getContentAsJSONObject();
+		JSONObject parsed = httpResponse.getBodyAsJSONObject();
 		return parsed;
 	}
 	
@@ -219,7 +219,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 		TokenRequest request = new TokenRequest(
 				new URI("https://localhost:52443/oauth/token"), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(),
-						new URI("https://return.host.com/foo")));
+						new URI("https://return.host.com/foo")), null, null, null, null, null);
 		HTTPRequest bare = request.toHTTPRequest();
 		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
 				ServerHostnameCheckingMode.NONE);

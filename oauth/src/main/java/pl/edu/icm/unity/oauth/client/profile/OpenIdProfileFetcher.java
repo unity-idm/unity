@@ -47,7 +47,7 @@ public class OpenIdProfileFetcher implements UserProfileFetcher
 		UserInfoResponse uiResponse = UserInfoResponse.parse(uiHttpResponse);
 		if (uiResponse instanceof UserInfoErrorResponse)
 		{
-			String code = uiHttpResponse.getContent();
+			String code = uiHttpResponse.getBody();
 			throw new AuthenticationException("Authentication was successful, but an error "
 					+ "occurred during user information endpoint query: " + 
 					code);
