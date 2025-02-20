@@ -12,9 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.logging.log4j.Logger;
+
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+import net.minidev.json.parser.ParseException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 
 /**
@@ -25,7 +29,9 @@ import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
  */
 public class ProfileFetcherUtils
 {
-
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH,
+			ProfileFetcherUtils.class);
+	
 	public static AttributeFetchResult fetchFromJsonObject(JSONObject jsonObject)
 	{
 		return new AttributeFetchResult(convertToAttributes(jsonObject),
@@ -34,9 +40,10 @@ public class ProfileFetcherUtils
 
 	public static Map<String, List<String>> convertToAttributes(JSONObject jsonObject)
 	{
-		JSONObject profile = (JSONObject) JSONValue.parse(jsonObject.toJSONString());
+		JSONObject profile = parseToMiniDevJsonObject(jsonObject);
 		Map<String, List<String>> ret = new HashMap<>();
-		
+		if (profile == null)
+			return ret;
 
 		for (Entry<String, Object> entry : profile.entrySet())
 		{
@@ -70,13 +77,29 @@ public class ProfileFetcherUtils
 	
 	static JSONObject convertToRawAttributes(JSONObject toConvert)
 	{
-		JSONObject res = (JSONObject) JSONValue.parse(toConvert.toJSONString());
+		JSONObject res = parseToMiniDevJsonObject(toConvert);
 		resolveNestedJsonType(res);
 		return res;
 	}
 
+	//workaround for GSON parsing
+	private static JSONObject parseToMiniDevJsonObject(JSONObject toConvert)
+	{
+		try
+		{
+			return (JSONObject) JSONValue.parseWithException(toConvert.toJSONString());
+		} catch (ParseException e)
+		{
+			log.debug("Can not parse to JSONObject" ,e);
+			return null;
+		}
+	}
+	
 	private static void resolveNestedJsonType(JSONObject jsonObject)
 	{
+		if (jsonObject == null)
+			return;
+		
 		for (Entry<String, Object> entry : jsonObject.entrySet())
 		{
 			if (entry.getValue() == null)
