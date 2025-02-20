@@ -215,11 +215,9 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 		ctx.setOpenIdMode(true);
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx, identity);
-
-		TokenRequest request = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca,
-				new AuthorizationCodeGrant(resp1.getAuthorizationCode(),
-						new URI("https://return.host.com/foo")), null, null, null, null, null);
+		TokenRequest request = new TokenRequest.Builder(new URI("https://localhost:52443/oauth/token"), ca,
+				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
+						.build();	
 		HTTPRequest bare = request.toHTTPRequest();
 		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
 				ServerHostnameCheckingMode.NONE);

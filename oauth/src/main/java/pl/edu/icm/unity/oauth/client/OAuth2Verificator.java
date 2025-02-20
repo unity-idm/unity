@@ -389,7 +389,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		if (response.getStatusCode() != 200)
 			log.warn("Error received. Contents: {}", response.getBody());
 		else
-			log.trace("Received token: {}", response.getBody().trim());
+			log.trace("Received token: {}", Optional.ofNullable(response.getBody())
+					.map(r -> r.trim())
+					.orElse(null));
 		return response;
 	}
 	
@@ -498,7 +500,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				throw new AuthenticationException("Exchange of authorization code for access "
 						+ "token failed: " + response.getBody());
 			MultiMap<String> map = new MultiMap<>();
-			UrlEncoded.decodeTo(response.getBody().trim(), map, StandardCharsets.UTF_8);
+			UrlEncoded.decodeTo(Optional.ofNullable(response.getBody())
+					.map(r -> r.trim())
+					.orElse(""), map, StandardCharsets.UTF_8);
 			String accessTokenVal = map.getString("access_token");
 			if (accessTokenVal == null)
 				throw new AuthenticationException("Access token answer received doesn't contain "
