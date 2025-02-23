@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -202,6 +203,12 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 		return passExchange.checkPassword(username, password, null, false, null);
 	}
 
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.unkwown;
+	}
+	
 	@Component
 	public static class Factory extends AbstractCredentialVerificatorFactory
 	{

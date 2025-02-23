@@ -62,6 +62,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import jakarta.ws.rs.core.MediaType;
 import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -640,6 +641,12 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				.withDisplayedName(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
 						CustomProviderProperties.PROVIDER_NAME))
 				.build());
+	}
+	
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.u_oauth;
 	}
 	
 	@Component

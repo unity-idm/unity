@@ -13,6 +13,8 @@ import org.jvnet.libpam.UnixUser;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
@@ -142,6 +144,12 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 	public VerificatorType getType()
 	{
 		return VerificatorType.Remote;
+	}
+	
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.pwd;
 	}
 	
 	@Component

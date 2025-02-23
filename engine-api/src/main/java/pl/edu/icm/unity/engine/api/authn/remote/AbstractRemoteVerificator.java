@@ -45,7 +45,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 			String registrationForm, boolean allowAssociation) throws RemoteAuthenticationException
 	{
 		return translator.getTranslatedResult(input, profile, 
-				sandboxMode, Optional.empty(), registrationForm, allowAssociation);
+				sandboxMode, Optional.empty(), registrationForm, allowAssociation, getAuthenticationMethod());
 	}
 	
 	public static TranslationProfile getTranslationProfile(UnityPropertiesHelper props, String globalProfileNameKey,

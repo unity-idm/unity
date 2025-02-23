@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -68,12 +69,12 @@ public class SAMLResponseVerificator
 	}
 
 	
-	AuthenticationResult processResponse(RedirectedAuthnState remoteAuthnState, TranslationProfile profile)
+	AuthenticationResult processResponse(RedirectedAuthnState remoteAuthnState, TranslationProfile profile, AuthenticationMethod authenticationMethod)
 	{
 		RemoteAuthnContext castedState = (RemoteAuthnContext) remoteAuthnState;
 		try
 		{
-			return verifySAMLResponse(castedState, profile);
+			return verifySAMLResponse(castedState, profile, authenticationMethod);
 		} catch (Exception e)
 		{
 			log.error("Runtime error during SAML response processing or principal mapping", e);
@@ -82,7 +83,7 @@ public class SAMLResponseVerificator
 		}
 	}
 	
-	private AuthenticationResult verifySAMLResponse(RemoteAuthnContext context, TranslationProfile profile)
+	private AuthenticationResult verifySAMLResponse(RemoteAuthnContext context, TranslationProfile profile, AuthenticationMethod authenticationMethod)
 	{
 		try
 		{
@@ -91,7 +92,7 @@ public class SAMLResponseVerificator
 					context.getAuthenticationTriggeringContext().isSandboxTriggered(), 
 					Optional.empty(),
 					context.getRegistrationFormForUnknown(),
-					context.isEnableAssociation());
+					context.isEnableAssociation(), authenticationMethod);
 		} catch (RemoteAuthenticationException e)
 		{
 			log.info("SAML response verification or processing failed", e);

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -47,7 +48,7 @@ public class SAMLResponseVerificatorTest
 		RemoteAuthnResultTranslator translator = mock(RemoteAuthnResultTranslator.class);
 		TranslationProfile profile = mock(TranslationProfile.class);
 		RemoteAuthenticationResult result = mock(RemoteAuthenticationResult.class);
-		when(translator.getTranslatedResult(any(), eq(profile), eq(false), any(), eq(null), eq(false)))
+		when(translator.getTranslatedResult(any(), eq(profile), eq(false), any(), eq(null), eq(false), any()))
 			.thenReturn(result);
 			
 		SAMLResponseVerificator verificator = new SAMLResponseVerificator(
@@ -57,7 +58,7 @@ public class SAMLResponseVerificatorTest
 		
 		RemoteAuthnContext remoteAuthnState = createRemoteContext();
 		
-		AuthenticationResult authnResult = verificator.processResponse(remoteAuthnState, profile);
+		AuthenticationResult authnResult = verificator.processResponse(remoteAuthnState, profile, AuthenticationMethod.u_saml);
 		
 		assertThat(authnResult).isEqualTo(result);
 	}

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.api.authn;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
@@ -89,10 +90,12 @@ public interface AuthenticationResult
 	class SuccessResult 
 	{
 		public final AuthenticatedEntity authenticatedEntity;
+		public final AuthenticationMethod authenticationMethod;
 
-		SuccessResult(AuthenticatedEntity authenticatedEntity)
+		SuccessResult(AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod)
 		{
 			this.authenticatedEntity = authenticatedEntity;
+			this.authenticationMethod = authenticationMethod;
 		}
 
 		@Override

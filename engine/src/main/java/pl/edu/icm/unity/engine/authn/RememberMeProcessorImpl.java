@@ -14,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 import org.bouncycastle.crypto.digests.SHA256Digest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
@@ -36,6 +38,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -318,7 +321,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 				new RememberMeInfo(firstFactorSkipped,
 						secondFactorAuthnOptionId != null),
 				unityRememberMeToken.get().getFirstFactorAuthnOptionId(),
-				secondFactorAuthnOptionId, null);
+				secondFactorAuthnOptionId, null, Set.of(AuthenticationMethod.u_llc));
 		return Optional.of(session);
 	}
 

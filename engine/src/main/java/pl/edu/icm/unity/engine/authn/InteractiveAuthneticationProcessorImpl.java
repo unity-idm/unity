@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.authn;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Primary;
@@ -15,6 +16,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -129,7 +131,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			loginSession = getLoginSessionForEntity(getAuthnContext(authnState.getPrimaryResult()),
 					authnState.getPrimaryResult().getSuccessResult().authenticatedEntity,
 					stepContext.realm, authnState.getFirstFactorOptionId(),
-					null);
+					null, Set.of(authnState.getPrimaryResult().getSuccessResult().authenticationMethod));
 		}
 		
 		if (loginSession == null)
@@ -174,7 +176,10 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		}
 
 		LoginSession loginSession = getLoginSessionForEntity(getAuthnContext(state.getPrimaryResult()), logInfo, stepContext.realm,
-				state.getFirstFactorOptionId(), stepContext.authnOptionId);
+				state.getFirstFactorOptionId(), stepContext.authnOptionId,
+				Set.of(state.getPrimaryResult()
+						.getSuccessResult().authenticationMethod,
+						secondFactorResult.getSuccessResult().authenticationMethod));
 
 		List<SessionParticipant> sessionParticipants = AuthenticationProcessor.extractParticipants(
 				state.getPrimaryResult(), secondFactorResult);
@@ -214,8 +219,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			HttpServletResponse httpResponse,
 			SessionReinitializer sessionReinitializer)
 	{
-		LoginSession loginSession = getLoginSessionForEntity(authnContext, authenticatedEntity, realm, authnOptionKey, null);
-
+		LoginSession loginSession = getLoginSessionForEntity(authnContext, authenticatedEntity, realm, authnOptionKey, null, Set.of(AuthenticationMethod.unkwown));
 		logged(authenticatedEntity, loginSession, realm, machineDetails, setRememberMe, participants,
 				sessionReinitializer, httpResponse);
 	}
@@ -306,7 +310,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 	private LoginSession getLoginSessionForEntity(RemoteAuthnMetadata authnContext, AuthenticatedEntity authenticatedEntity,
 			AuthenticationRealm realm,
 			AuthenticationOptionKey firstFactorAuhtnOptionId,
-			AuthenticationOptionKey secondFactorAuhtnOptionId)
+			AuthenticationOptionKey secondFactorAuhtnOptionId, Set<AuthenticationMethod> authenticationMethods)
 	{
 
 		long entityId = authenticatedEntity.getEntityId();
@@ -314,7 +318,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		return sessionMan.getCreateSession(entityId, realm, label,
 				authenticatedEntity.getOutdatedCredentialId(), 
 				new RememberMeInfo(false, false), firstFactorAuhtnOptionId,
-				secondFactorAuhtnOptionId, authnContext);
+				secondFactorAuhtnOptionId, authnContext, authenticationMethods);
 	}
 	
 	private RemoteAuthnMetadata getAuthnContext(AuthenticationResult authenticationResult)

@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.engine.api.session;
 
 import java.util.Map;
+import java.util.Set;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -33,7 +35,7 @@ public interface SessionManagement
 	 */
 	LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm,
 			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext);
+			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext, Set<AuthenticationMethod> authenticationMethods);
 	
 	
 	/**
@@ -47,7 +49,7 @@ public interface SessionManagement
 	 */
 	LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
 			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext);
+			AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext, Set<AuthenticationMethod> authenticationMethods);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.

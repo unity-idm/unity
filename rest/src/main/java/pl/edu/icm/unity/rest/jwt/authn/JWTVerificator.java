@@ -20,6 +20,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -123,7 +124,7 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 					IDENTITY_TYPES, null);
 			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), 
 					claims.getSubject(), null); 
-			return LocalAuthenticationResult.successful(ae);
+			return LocalAuthenticationResult.successful(ae, getAuthenticationMethod());
 		} catch (ParseException | JOSEException e)
 		{
 			throw new AuthenticationException("Token is invalid", e);
@@ -134,6 +135,12 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 	public VerificatorType getType()
 	{
 		return VerificatorType.Remote;
+	}
+	
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.unkwown;
 	}
 	
 	@Component

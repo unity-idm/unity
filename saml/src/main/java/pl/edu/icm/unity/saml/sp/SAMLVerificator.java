@@ -11,6 +11,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
@@ -232,7 +233,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	{
 		RemoteAuthnContext castedState = (RemoteAuthnContext) remoteAuthnState;
 		TranslationProfile profile = castedState.getIdp().translationProfile;
-		return responseVerificator.processResponse(remoteAuthnState, profile);
+		return responseVerificator.processResponse(remoteAuthnState, profile, getAuthenticationMethod());
 	}
 
 	@Override
@@ -263,6 +264,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	public VerificatorType getType()
 	{
 		return VerificatorType.Remote;
+	}
+	
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.u_saml;
 	}
 
 	@Override

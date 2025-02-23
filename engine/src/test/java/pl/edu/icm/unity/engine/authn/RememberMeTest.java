@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
@@ -136,6 +137,8 @@ public class RememberMeTest extends DBIntegrationTestBase
 		assertThat(loginSession.get().getLogin2ndFactorOptionId().getAuthenticatorKey()).isEqualTo("secondFactor");
 		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped).isEqualTo(true);
 		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped).isEqualTo(true);
+		assertThat(loginSession.get().getAuthenticationMethods()).containsExactly(AuthenticationMethod.u_llc);
+
 	}
 
 	@Test
@@ -160,6 +163,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		assertThat(loginSession.get().getLogin2ndFactorOptionId().getAuthenticatorKey()).isEqualTo("secondFactor");
 		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped).isEqualTo(false);
 		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped).isEqualTo(true);
+		assertThat(loginSession.get().getAuthenticationMethods()).containsExactly(AuthenticationMethod.u_llc);
 	}
 
 	@Test

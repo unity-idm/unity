@@ -23,6 +23,7 @@ import org.mockito.stubbing.Answer;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.CredentialInfo;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
@@ -73,7 +74,7 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 		input.setRemoteAuthnMetadata(new RemoteAuthnMetadata(Protocol.OIDC, "idp", List.of("acr1")));
 		remotelyAuthenticatedPrincipal.setAuthnInput(input);
 		AuthenticationResult result = RemoteAuthenticationResult.successful(remotelyAuthenticatedPrincipal,
-				new AuthenticatedEntity(1L, "info", null));
+				new AuthenticatedEntity(1L, "info", null), AuthenticationMethod.u_oauth);
 
 		AuthenticatorInstanceMetadata meta = new AuthenticatorInstanceMetadata();
 		meta.setLocalCredentialName("pass");

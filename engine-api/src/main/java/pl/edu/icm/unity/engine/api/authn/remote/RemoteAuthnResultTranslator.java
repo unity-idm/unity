@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.api.authn.remote;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
@@ -30,16 +31,17 @@ public interface RemoteAuthnResultTranslator
 	 */
 	RemoteAuthenticationResult getTranslatedResult(RemotelyAuthenticatedInput input, String profile, 
 			boolean dryRun, Optional<IdentityTaV> identity, 
-			String registrationForm, boolean allowAssociation) 
+			String registrationForm, boolean allowAssociation, AuthenticationMethod authenticationMethod) 
 			throws RemoteAuthenticationException;
 	
 	/**
 	 * Equivalent to {@link #getResult(RemotelyAuthenticatedInput, String, boolean, Optional)}
 	 * but translation profile is given directly
+	 * @param authenticationMethod 
 	 */
 	RemoteAuthenticationResult getTranslatedResult(RemotelyAuthenticatedInput input, TranslationProfile profile, boolean dryRun,
 			Optional<IdentityTaV> identity, 
-			String registrationForm, boolean allowAssociation) throws RemoteAuthenticationException;
+			String registrationForm, boolean allowAssociation, AuthenticationMethod authenticationMethod) throws RemoteAuthenticationException;
 	
 	/**
 	 * Tries to resolve the primary identity from the previously created {@link RemotelyAuthenticatedPrincipal}
@@ -47,7 +49,7 @@ public interface RemoteAuthnResultTranslator
 	 * final {@link AuthenticationResult} depending on the success of this action.
 	 */
 	RemoteAuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedPrincipal remoteContext,
-			String registrationForm, boolean allowAssociation) 
+			String registrationForm, boolean allowAssociation, AuthenticationMethod authenticationMethod) 
 			throws RemoteAuthenticationException;
 	
 	/**

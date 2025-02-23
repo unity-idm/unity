@@ -10,6 +10,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -24,6 +26,7 @@ import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Mockito.*;
 
@@ -72,7 +75,7 @@ public class InteractiveAuthenticationProcessorTest
 		when(sessionReinitializer.reinitialize()).thenReturn(httpSession);
 		when(entityMan.getEntityLabel(new EntityParam(1L))).thenReturn("label");
 		when(sessionMan.getCreateSession(1, userRealm, "label", "out",
-			rememberMeInfo, authenticationOptionKey, null, null)).thenReturn(loginSession);
+			rememberMeInfo, authenticationOptionKey, null, null, Set.of(AuthenticationMethod.unkwown))).thenReturn(loginSession);
 		InvocationContext.setCurrent(new InvocationContext(null, endpointRealm, List.of()));
 
 		processor.syntheticAuthenticate(null, authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
@@ -105,7 +108,7 @@ public class InteractiveAuthenticationProcessorTest
 		when(sessionReinitializer.reinitialize()).thenReturn(httpSession);
 		when(entityMan.getEntityLabel(new EntityParam(1L))).thenReturn("label");
 		when(sessionMan.getCreateSession(1, userRealm, "label", "out",
-			rememberMeInfo, authenticationOptionKey, null, null)).thenReturn(loginSession);
+			rememberMeInfo, authenticationOptionKey, null, null, Set.of(AuthenticationMethod.unkwown))).thenReturn(loginSession);
 		InvocationContext.setCurrent(new InvocationContext(null, endpointRealm, List.of()));
 
 		processor.syntheticAuthenticate(null, authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
