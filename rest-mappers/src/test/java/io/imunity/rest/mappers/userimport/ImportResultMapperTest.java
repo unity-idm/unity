@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 import io.imunity.rest.api.types.userimport.RestImportResult;
 import io.imunity.rest.mappers.OneWayMapperTestBase;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
@@ -19,7 +20,7 @@ public class ImportResultMapperTest extends OneWayMapperTestBase<ImportResult, R
 {
 
 	private AuthenticationResult authenticationResult = RemoteAuthenticationResult.successful(
-			new RemotelyAuthenticatedPrincipal("idp", "profile"), new AuthenticatedEntity(1L, "sub", "cred"));
+			new RemotelyAuthenticatedPrincipal("idp", "profile"), new AuthenticatedEntity(1L, "sub", "cred"), AuthenticationMethod.unkwown);
 
 	@Override
 	protected ImportResult getAPIObject()

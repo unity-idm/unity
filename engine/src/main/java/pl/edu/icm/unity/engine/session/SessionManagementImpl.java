@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.audit.AuditEventAction;
 import pl.edu.icm.unity.base.audit.AuditEventType;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.entity.EntityInformation;
@@ -91,7 +92,7 @@ public class SessionManagementImpl implements SessionManagement
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
 				String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-				AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext)
+				AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext, Set<AuthenticationMethod> authenticationMethods)
 	{
 		try
 		{
@@ -108,6 +109,7 @@ public class SessionManagementImpl implements SessionManagement
 					ret.setOutdatedCredentialId(outdatedCredentialId);
 					ret.setLogin1stFactor(new AuthNInfo(firstFactorOptionId, now));
 					ret.setLogin2ndFactor(new AuthNInfo(secondFactorOptionId, now));
+					ret.setAuthenticationMethods(authenticationMethods);
 					byte[] contents = ret.getTokenContents();
 					tokensManagement.updateToken(SESSION_TOKEN_TYPE,
 							ret.getId(), null, contents);
@@ -128,7 +130,7 @@ public class SessionManagementImpl implements SessionManagement
 			}
 
 			return createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
-					rememberMeInfo, firstFactorOptionId, secondFactorOptionId, authnContext);
+					rememberMeInfo, firstFactorOptionId, secondFactorOptionId, authnContext, authenticationMethods);
 
 		} finally
 		{
@@ -157,7 +159,7 @@ public class SessionManagementImpl implements SessionManagement
 	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
 			String entityLabel, String outdatedCredentialId, 
 			RememberMeInfo rememberMeInfo, AuthenticationOptionKey firstFactorOptionId,
-			AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext)
+			AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext, Set<AuthenticationMethod> authenticationMethods)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
@@ -169,6 +171,7 @@ public class SessionManagementImpl implements SessionManagement
 		ls.setOutdatedCredentialId(outdatedCredentialId);
 		ls.setEntityLabel(entityLabel);
 		ls.setFirstFactorRemoteIdPAuthnContext(authnContext);
+		ls.setAuthenticationMethods(authenticationMethods);
 		try
 		{
 			tokensManagement.addToken(SESSION_TOKEN_TYPE, id, new EntityParam(loggedEntity), 

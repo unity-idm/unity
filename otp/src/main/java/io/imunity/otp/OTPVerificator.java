@@ -13,6 +13,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -90,7 +91,7 @@ public class OTPVerificator extends AbstractLocalVerificator implements OTPExcha
 			}
 			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), subject, 
 					credState.outdated ? resolved.getCredentialName() : null);
-			return LocalAuthenticationResult.successful(ae);
+			return LocalAuthenticationResult.successful(ae, getAuthenticationMethod());
 		} catch (Exception e)
 		{
 			log.warn("Error during TOTP verification for " + subject, e);
@@ -174,6 +175,12 @@ public class OTPVerificator extends AbstractLocalVerificator implements OTPExcha
 	public int getCodeLength()
 	{
 		return credentialConfig.otpParams.codeLength;
+	}
+	
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.otp;
 	}
 	
 	@Component

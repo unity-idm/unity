@@ -23,6 +23,7 @@ import org.mockito.ArgumentCaptor;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -57,7 +58,7 @@ public class IdPEngineImplBaseTest
 				Lists.newArrayList(
 					new UserImportSerivce.ImportResult("imp1", successful(
 							mock(RemotelyAuthenticatedPrincipal.class), 
-							mock(AuthenticatedEntity.class)))));
+							mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor, groupMan);
@@ -98,7 +99,7 @@ public class IdPEngineImplBaseTest
 				Lists.newArrayList(
 					new UserImportSerivce.ImportResult("imp1", successful(
 							mock(RemotelyAuthenticatedPrincipal.class), 
-							mock(AuthenticatedEntity.class)))));
+							mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor, groupMan);
@@ -142,7 +143,7 @@ public class IdPEngineImplBaseTest
 				Lists.newArrayList(
 					new UserImportSerivce.ImportResult("imp1", 
 							successful(mock(RemotelyAuthenticatedPrincipal.class), 
-									mock(AuthenticatedEntity.class)))));
+									mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown))));
 		
 		when(insecureAttributesMan.getAttributes(eq(clientEntity), eq("/GROUP"), eq(null)))
 				.thenReturn(clientAttributes);

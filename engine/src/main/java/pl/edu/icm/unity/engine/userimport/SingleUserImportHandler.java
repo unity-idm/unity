@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -86,7 +87,7 @@ class SingleUserImportHandler
 		}
 		log.debug("Caching positive import result for {}", identity);
 		AuthenticationResult result = remoteUtil.getTranslatedResult(importedUser, 
-				translationProfile, false, existingUser, null, false);
+				translationProfile, false, existingUser, null, false, AuthenticationMethod.unkwown);
 		positiveCache.put(cacheKey, result);
 		return result;
 	}

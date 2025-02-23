@@ -39,6 +39,7 @@ import edu.vt.middleware.password.Rule;
 import edu.vt.middleware.password.RuleResult;
 import edu.vt.middleware.password.UppercaseCharacterRule;
 import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -292,7 +293,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
 			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, 
 					isOutdated ? resolved.getCredentialName() : null);
-			return LocalAuthenticationResult.successful(ae);
+			return LocalAuthenticationResult.successful(ae, getAuthenticationMethod());
 		} catch (Exception e)
 		{
 			log.warn("Error during password verification for " + username, e);
@@ -496,6 +497,12 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	public boolean isCredentialSet(EntityParam entity) throws EngineException
 	{
 		return credentialHelper.isCredentialSet(entity, credentialName);
+	}
+	
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.pwd;
 	}
 	
 	private static class PasswordStatus

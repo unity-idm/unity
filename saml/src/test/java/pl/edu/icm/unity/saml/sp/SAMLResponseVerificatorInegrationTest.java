@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
@@ -64,7 +65,7 @@ public class SAMLResponseVerificatorInegrationTest extends DBIntegrationTestBase
 		
 		RemoteAuthnContext remoteAuthnState = createRemoteContext();
 		
-		AuthenticationResult authnResult = verificator.processResponse(remoteAuthnState, profile);
+		AuthenticationResult authnResult = verificator.processResponse(remoteAuthnState, profile, AuthenticationMethod.u_saml);
 		
 		assertThat(authnResult.getStatus()).isEqualTo(Status.success);
 		IdentityParam identityParam = new IdentityParam(IdentifierIdentity.ID, "EMPTY", 

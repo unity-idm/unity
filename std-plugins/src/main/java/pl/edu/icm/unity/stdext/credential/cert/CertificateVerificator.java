@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.entity.Entity;
@@ -95,7 +96,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 			EntityWithCredential resolved = identityResolver.resolveIdentity(identity, IDENTITY_TYPES, credentialName);
 			AuthenticatedEntity entity = new AuthenticatedEntity(resolved.getEntityId(),
 					X500NameUtils.getReadableForm(identity), null);
-			return LocalAuthenticationResult.successful(entity);
+			return LocalAuthenticationResult.successful(entity, getAuthenticationMethod());
 		} catch (IllegalIdentityValueException e)
 		{
 			log.warn("Checking certificate failed", e);
@@ -143,6 +144,12 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	public boolean isCredentialDefinitionChagneOutdatingCredentials(String newCredentialDefinition)
 	{
 		return false;
+	}
+	
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.swk;
 	}
 	
 	@Component

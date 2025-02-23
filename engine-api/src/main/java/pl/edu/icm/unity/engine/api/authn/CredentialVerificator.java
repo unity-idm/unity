@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.describedObject.DescribedObject;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.utils.StringConfigurable;
@@ -31,4 +32,6 @@ public interface CredentialVerificator extends CredentialExchange, DescribedObje
 	void setInstanceName(String name);
 
 	VerificatorType getType();
+	
+	AuthenticationMethod getAuthenticationMethod();
 }

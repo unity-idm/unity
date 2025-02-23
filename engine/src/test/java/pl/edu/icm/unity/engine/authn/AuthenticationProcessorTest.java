@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.DynamicExpressionPolicyConfiguration;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
@@ -62,7 +63,7 @@ public class AuthenticationProcessorTest
 				authenticatorInstanceMetadata);
 		AuthenticationOptionKey optionKey = new AuthenticationOptionKey("1", "1");
 		AuthenticationResult result = LocalAuthenticationResult
-				.successful(new AuthenticatedEntity(1L, AuthenticationSubject.entityBased(1L), null));
+				.successful(new AuthenticatedEntity(1L, AuthenticationSubject.entityBased(1L), null), AuthenticationMethod.pwd);
 		AuthenticationFlow authenticationFlow = new AuthenticationFlow("flow", Policy.DYNAMIC_EXPRESSION, Set.of(),
 				List.of(instance), new DynamicExpressionPolicyConfiguration("hasValid2FCredential == true"), 1L);
 		when(policyConfigMVELContextBuilder.createMvelContext(optionKey, result, false,
@@ -84,7 +85,7 @@ public class AuthenticationProcessorTest
 				authenticatorInstanceMetadata);
 		AuthenticationOptionKey optionKey = new AuthenticationOptionKey("1", "1");
 		AuthenticationResult result = LocalAuthenticationResult
-				.successful(new AuthenticatedEntity(1L, AuthenticationSubject.entityBased(1L), null));
+				.successful(new AuthenticatedEntity(1L, AuthenticationSubject.entityBased(1L), null), AuthenticationMethod.pwd);
 		AuthenticationFlow authenticationFlow = new AuthenticationFlow("flow", Policy.DYNAMIC_EXPRESSION, Set.of(),
 				List.of(instance), new DynamicExpressionPolicyConfiguration("hasValid2FCredential == true"), 1L);
 		when(policyConfigMVELContextBuilder.createMvelContext(optionKey, result, false,

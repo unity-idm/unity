@@ -8,6 +8,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult.NotApplicableResult;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 
@@ -71,19 +72,19 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 	}
 
 	public static RemoteAuthenticationResult successful(RemotelyAuthenticatedPrincipal remotePrincipal,
-			AuthenticatedEntity authenticatedEntity)
+			AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod)
 	{
 		checkNotNull(authenticatedEntity);
 		checkNotNull(remotePrincipal);
-		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(authenticatedEntity, remotePrincipal), 
+		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(authenticatedEntity, remotePrincipal, authenticationMethod), 
 				null, null, null);
 	}
 
 	public static RemoteAuthenticationResult successfulPartial(RemotelyAuthenticatedPrincipal remotePrincipal,
-			AuthenticatedEntity authenticatedEntity)
+			AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod)
 	{
 		checkNotNull(remotePrincipal);
-		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(authenticatedEntity, remotePrincipal), 
+		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(authenticatedEntity, remotePrincipal, authenticationMethod), 
 				null, null, null);
 	}
 	
@@ -222,9 +223,9 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 		public final RemotelyAuthenticatedPrincipal remotePrincipal;
 
 		public RemoteSuccessResult(AuthenticatedEntity authenticatedEntity,
-				RemotelyAuthenticatedPrincipal remotePrincipal)
+				RemotelyAuthenticatedPrincipal remotePrincipal, AuthenticationMethod authenticationMethod)
 		{
-			super(authenticatedEntity);
+			super(authenticatedEntity, authenticationMethod);
 			this.remotePrincipal = remotePrincipal;
 		}
 

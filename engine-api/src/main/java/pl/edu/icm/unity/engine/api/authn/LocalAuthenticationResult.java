@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine.api.authn;
 
 import java.util.Optional;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
+
 /**
  * This class object is returned by local authenticator with information about authentication result. 
  */
@@ -71,9 +73,9 @@ public class LocalAuthenticationResult implements AuthenticationResult
 		return new LocalAuthenticationResult(Status.notApplicable, null, new NotApplicableResult(), null, null);
 	}
 
-	public static LocalAuthenticationResult successful(AuthenticatedEntity authenticatedEntity)
+	public static LocalAuthenticationResult successful(AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod)
 	{
-		return new LocalAuthenticationResult(Status.success, new SuccessResult(authenticatedEntity), null, null, null);
+		return new LocalAuthenticationResult(Status.success, new SuccessResult(authenticatedEntity, authenticationMethod), null, null, null);
 	}
 
 	@Override

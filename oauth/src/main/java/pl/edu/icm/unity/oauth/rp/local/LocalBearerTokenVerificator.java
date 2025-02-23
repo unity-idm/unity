@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Sets;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -61,7 +62,7 @@ class LocalBearerTokenVerificator
 			}
 
 			AuthenticatedEntity ae = new AuthenticatedEntity(status.getOwnerId().get(), status.getSubject(), null);
-			return new AuthenticationResultWithTokenStatus(LocalAuthenticationResult.successful(ae), status);
+			return new AuthenticationResultWithTokenStatus(LocalAuthenticationResult.successful(ae, AuthenticationMethod.unkwown), status);
 
 		} else
 		{

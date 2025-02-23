@@ -30,6 +30,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -248,7 +249,7 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 				.orElseThrow(() -> new NoEntityException(msg.getMessage(NO_ENTITY_MSG)));
 		AuthenticatedEntity ae = new AuthenticatedEntity(entityHelper.getEntityId(resolvedUsername.getEntityParam()), username, null);
 
-		return LocalAuthenticationResult.successful(ae);
+		return LocalAuthenticationResult.successful(ae, getAuthenticationMethod());
 	}
 
 	private void updateSignatureCount(String username, ByteArray credentialId, long signatureCount) throws EngineException
@@ -293,6 +294,12 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 				.build();
 	}
 
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.hwk;
+	}
+	
 	/**
 	 * Factory that creates instances of FidoCredentialVerificator - separate for each credential definition.
 	 */

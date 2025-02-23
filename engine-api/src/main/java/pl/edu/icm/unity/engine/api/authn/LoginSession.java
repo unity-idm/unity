@@ -4,20 +4,32 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata.Protocol;
-
-import java.util.*;
-import java.util.Collections;
 
 /**
  * Represents login session. Session expiration can be stored in two ways: either
@@ -48,6 +60,7 @@ public class LoginSession
 	private AuthNInfo login2ndFactor;
 	private AuthNInfo additionalAuthn;
 	private RemoteAuthnMetadata firstFactorRemoteIdPAuthnContext;
+	private Set<AuthenticationMethod> authenticationMethods;
 	
 	private Map<String, String> sessionData = new HashMap<>();
 
@@ -276,6 +289,16 @@ public class LoginSession
 		this.firstFactorRemoteIdPAuthnContext = firstFactorRemoteIdPAuthnContext;
 	}
 	
+	public Set<AuthenticationMethod> getAuthenticationMethods()
+	{
+		return authenticationMethods;
+	}	
+
+	public void setAuthenticationMethods(Set<AuthenticationMethod> authenticationMethods)
+	{
+		this.authenticationMethods = authenticationMethods;
+	}
+	
 	public void deserialize(Token token)
 	{
 		ObjectNode main = JsonUtil.parse(token.getContents());
@@ -315,6 +338,14 @@ public class LoginSession
 			
 			SerializableRemoteAuthnMetadata serializableRemoteAuthnMetadata = Constants.MAPPER.convertValue(main.get("firstFactorRemoteIdPAuthnContext"), SerializableRemoteAuthnMetadata.class);
 			firstFactorRemoteIdPAuthnContext = new RemoteAuthnMetadata(serializableRemoteAuthnMetadata.protocol, serializableRemoteAuthnMetadata.remoteIdPId, serializableRemoteAuthnMetadata.classReferences);
+		}
+		
+		if (main.has("authenticationMethods"))
+		{
+			authenticationMethods = new HashSet<>();
+			ArrayNode aopts = (ArrayNode) main.get("authenticationMethods");
+			for (JsonNode node : aopts)
+				authenticationMethods.add(AuthenticationMethod.valueOf(node.asText()));
 		}
 		
 		setId(token.getValue());
@@ -374,7 +405,14 @@ public class LoginSession
 					.withClassReferences(firstFactorRemoteIdPAuthnContext.classReferences())
 					.withRemoteIdPId(firstFactorRemoteIdPAuthnContext.remoteIdPId())
 					.build());
-
+	
+		ArrayNode aopts = main.withArray("authenticationMethods");
+		if (authenticationMethods != null)
+		{
+			for (AuthenticationMethod aod : authenticationMethods)
+				aopts.add(aod.name());
+		}
+		
 		return JsonUtil.serialize2Bytes(main);
 	}
 	
@@ -384,7 +422,7 @@ public class LoginSession
 		return id + "@" + realm + " of entity " + entityId;
 	}
 
-	
+
 
 	public static class RememberMeInfo
 	{

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import jakarta.servlet.ServletException;
@@ -24,6 +25,7 @@ import eu.unicore.samly2.SAMLBindings;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.trust.SamlTrustChecker;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
@@ -175,7 +177,7 @@ public class ECPStep2Handler
 		Long entityId = ae.getEntityId();
 		
 		InvocationContext iCtx = new InvocationContext(null, realm, Collections.emptyList());
-		authnSuccess(ae, iCtx, getRemoteAut(authenticationResult));
+		authnSuccess(ae, iCtx, getRemoteAut(authenticationResult), authenticationResult.getSuccessResult().authenticationMethod);
 		InvocationContext.setCurrent(iCtx);
 		
 		try
@@ -191,12 +193,12 @@ public class ECPStep2Handler
 		}
 	}
 	
-	private void authnSuccess(AuthenticatedEntity client, InvocationContext ctx, RemoteAuthnMetadata authnContext)
+	private void authnSuccess(AuthenticatedEntity client, InvocationContext ctx, RemoteAuthnMetadata authnContext, AuthenticationMethod authenticationMethod)
 	{
 		log.info("Client was successfully authenticated: [" + 
 					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
-				"", client.getOutdatedCredentialId(), new RememberMeInfo(false, false), null, null, authnContext);
+				"", client.getOutdatedCredentialId(), new RememberMeInfo(false, false), null, null, authnContext, Set.of(authenticationMethod));
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
 		ls.setRemoteIdP(client.getRemoteIdP());
@@ -267,7 +269,7 @@ public class ECPStep2Handler
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				verifiableMessage,
 				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, trustedIdP, trustChecker);
-		return remoteAuthnProcessor.getTranslatedResult(input, profile, false, Optional.empty(), null, false);
+		return remoteAuthnProcessor.getTranslatedResult(input, profile, false, Optional.empty(), null, false, AuthenticationMethod.u_saml);
 	}
 	
 	private TrustedIdPConfiguration findIdP(TrustedIdPs trustedIdPs, ResponseDocument responseDoc) throws ServletException

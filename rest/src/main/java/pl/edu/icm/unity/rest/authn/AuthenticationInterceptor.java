@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.ImmutableSet;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -194,7 +195,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		String label = getLabel(client.entity.getEntityId());
 		LoginSession ls = sessionMan.getCreateSession(client.entity.getEntityId(), realm, 
 				label, client.entity.getOutdatedCredentialId(), new RememberMeInfo(false, false), 
-				client.firstFactor, client.secondFactor, getAuthnContext(client));
+				client.firstFactor, client.secondFactor, getAuthnContext(client), client.authenticationMethods);
 		
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.entity.getAuthenticatedWith());
@@ -269,11 +270,15 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterSecondaryAuthentication(state,
 					result2);
 			return Optional.of(new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), 
-					authenticatorOnlyKey(secondFactorAuthn.getAuthenticatorId()), state.getPrimaryResult()));			
+					authenticatorOnlyKey(secondFactorAuthn.getAuthenticatorId()), state.getPrimaryResult(),
+					Set.of(state.getPrimaryResult()
+							.getSuccessResult().authenticationMethod,
+							result2.getSuccessResult().authenticationMethod)));
 		} else
 		{
 			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterPrimaryAuthentication(state, false);
-			return  Optional.of(new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), null, state.getPrimaryResult()));
+			return  Optional.of(new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), null, state.getPrimaryResult(), Set.of(state.getPrimaryResult()
+					.getSuccessResult().authenticationMethod)));
 		}
 	}
 
@@ -306,14 +311,16 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		private final AuthenticationOptionKey firstFactor;
 		private final AuthenticationOptionKey secondFactor;
 		private final AuthenticationResult firstFactorResult;
+		private final Set<AuthenticationMethod> authenticationMethods;
 		
 		EntityWithAuthenticators(AuthenticatedEntity entity, AuthenticationOptionKey firstFactor,
-				AuthenticationOptionKey secondFactor, AuthenticationResult firstFactorResult)
+				AuthenticationOptionKey secondFactor, AuthenticationResult firstFactorResult, Set<AuthenticationMethod> authenticationMethods)
 		{
 			this.entity = entity;
 			this.firstFactor = firstFactor;
 			this.secondFactor = secondFactor;
 			this.firstFactorResult = firstFactorResult;
+			this.authenticationMethods = authenticationMethods;
 		}
 	}
 }

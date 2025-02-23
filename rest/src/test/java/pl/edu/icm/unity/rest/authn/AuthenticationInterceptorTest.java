@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -109,11 +110,11 @@ public class AuthenticationInterceptorTest
 
 		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any()))
 				.thenReturn(new PartialAuthnState(AuthenticationOptionKey.authenticatorOnlyKey("x"), null,
-						LocalAuthenticationResult.successful(new AuthenticatedEntity(1L, "", "")), flow2));
+						LocalAuthenticationResult.successful(new AuthenticatedEntity(1L, "", ""), AuthenticationMethod.unkwown), flow2));
 
 		when(mockProcessor.finalizeAfterPrimaryAuthentication(any(), eq(false)))
 				.thenReturn(new AuthenticatedEntity(1L, "", ""));
-		when(sessionMan.getCreateSession(eq(1L), any(), any(), any(), any(), any(), any(), any()))
+		when(sessionMan.getCreateSession(eq(1L), any(), any(), any(), any(), any(), any(), any(), any()))
 				.thenReturn(new LoginSession());
 
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(mock(MessageSource.class), mockProcessor,
@@ -179,7 +180,7 @@ public class AuthenticationInterceptorTest
 		@Override
 		public AuthenticationResult getAuthenticationResult(Properties endpointFeatures)
 		{
-			return LocalAuthenticationResult.successful(new AuthenticatedEntity(1L, "", ""));
+			return LocalAuthenticationResult.successful(new AuthenticatedEntity(1L, "", ""), AuthenticationMethod.unkwown);
 		}
 
 		@Override

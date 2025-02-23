@@ -11,6 +11,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
@@ -99,6 +100,12 @@ public class LdapPasswordVerificator extends LdapBaseVerificator implements Pass
 	public CredentialReset getCredentialResetBackend()
 	{
 		return new NoCredentialResetImpl();
+	}
+	
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.pwd;
 	}
 	
 	@Component

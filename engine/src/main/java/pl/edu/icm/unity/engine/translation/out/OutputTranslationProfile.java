@@ -29,9 +29,9 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeValueConverter;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.engine.api.group.GroupsChain;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
@@ -209,6 +209,8 @@ public class OutputTranslationProfile
 			ret.put(OutputTranslationMVELContextKey.authentications.name(), usedAuthenticators);
 			ret.put(OutputTranslationMVELContextKey.mfa.name(), usedAuthenticators.size() > 1);
 			ret.putAll(getAuthnContextMvelVariables(loginSession.getFirstFactorRemoteIdPAuthnContext()));
+			ret.put(OutputTranslationMVELContextKey.amr.name(), AuthenticationMethodsToMvelContextMapper
+					.getAuthenticationMethodsWithMFAandMCAIfUsed(loginSession.getAuthenticationMethods()));
 			
 		} else
 		{
@@ -291,6 +293,8 @@ public class OutputTranslationProfile
 		TranslationResult result = profileInstance.translate(input, translationState);
 		return result;
 	}
+	
+	
 	
 	private GroupsChain getGroupChain(String g) 
 	{

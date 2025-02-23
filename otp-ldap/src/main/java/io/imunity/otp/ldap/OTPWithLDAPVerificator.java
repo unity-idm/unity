@@ -19,6 +19,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.utils.Log;
@@ -146,7 +147,7 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 				return LocalAuthenticationResult.failed(new ResolvableError("OTPRetrieval.wrongCode"));
 			}
 			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), subject, null);
-			return LocalAuthenticationResult.successful(ae);
+			return LocalAuthenticationResult.successful(ae, getAuthenticationMethod());
 		} catch (Exception e)
 		{
 			log.warn("Error during TOTP verification for " + subject, e);
@@ -194,6 +195,12 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 
 	}
 
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.otp;
+	}
+	
 	@Component
 	public static class Factory extends AbstractCredentialVerificatorFactory
 	{

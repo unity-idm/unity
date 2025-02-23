@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.mock;
 
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -107,4 +108,9 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 		return Integer.parseInt(newCredentialDefinition) > minLen;
 	}
 
+	@Override
+	public AuthenticationMethod getAuthenticationMethod()
+	{
+		return AuthenticationMethod.pwd;
+	}
 }

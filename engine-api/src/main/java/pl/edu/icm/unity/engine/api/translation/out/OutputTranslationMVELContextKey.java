@@ -32,8 +32,8 @@ public enum OutputTranslationMVELContextKey
 	mfa(OutputTranslationMVELContextKey.descriptionPrefix + "mfa"),
 	upstreamACRs(OutputTranslationMVELContextKey.descriptionPrefix + "upstreamACRs"),
 	upstreamIdP(OutputTranslationMVELContextKey.descriptionPrefix + "upstreamIdP"),
-	upstreamProtocol(OutputTranslationMVELContextKey.descriptionPrefix + "upstreamProtocol");
-
+	upstreamProtocol(OutputTranslationMVELContextKey.descriptionPrefix + "upstreamProtocol"),
+    amr(OutputTranslationMVELContextKey.descriptionPrefix + "amr");
 	
 	
 	public static final String descriptionPrefix = "OutputTranslationMVELContextKey.";
