@@ -33,12 +33,28 @@ public class AuthenticationMethodsMapperTest
 						"mfa", "mca");
 
 	}
+	
+	@Test
+	public void shouldNotAddMCAIfUnknownMethod()
+	{
+		assertThat(AuthenticationMethodsToMvelContextMapper.getAuthenticationMethodsWithMFAandMCAIfUsed(
+				Set.of(AuthenticationMethod.u_oauth, AuthenticationMethod.sms))).containsExactlyInAnyOrder("sms", "u_oauth");
+
+	}
 
 	@Test
 	public void shouldNotAddMFA()
 	{
 		assertThat(AuthenticationMethodsToMvelContextMapper.getAuthenticationMethodsWithMFAandMCAIfUsed(
 				Set.of(AuthenticationMethod.otp, AuthenticationMethod.hwk))).containsExactlyInAnyOrder("hwk", "otp");
+
+	}
+	
+	@Test
+	public void shouldNotAddMFAIfUnknownMethod()
+	{
+		assertThat(AuthenticationMethodsToMvelContextMapper.getAuthenticationMethodsWithMFAandMCAIfUsed(
+				Set.of(AuthenticationMethod.otp, AuthenticationMethod.u_saml))).containsExactlyInAnyOrder("u_saml", "otp");
 
 	}
 }
