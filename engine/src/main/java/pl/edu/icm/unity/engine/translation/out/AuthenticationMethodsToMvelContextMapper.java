@@ -24,13 +24,16 @@ public class AuthenticationMethodsToMvelContextMapper
 		Set<String> methods = usedMethods.stream()
 				.map(a -> a.name())
 				.collect(Collectors.toSet());
-
-		if (usedMethods.size() > 1 && usedMethods.contains(AuthenticationMethod.sms))
+		Set<AuthenticationMethod> notUknownMethods = usedMethods.stream().filter( a -> !a.factor.equals(Factor.UNKNOWN))
+				
+				.collect(Collectors.toSet());
+		
+		if (notUknownMethods.size() > 1 && notUknownMethods.contains(AuthenticationMethod.sms))
 		{
 			methods.add(MCA);
 		}
 
-		if (usedMethods.stream().filter( a -> !a.factor.equals(Factor.UNKNOWN))
+		if (notUknownMethods.stream()
 				.map(a -> a.factor)
 				.collect(Collectors.toSet())
 				.size() > 1)
