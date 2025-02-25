@@ -138,7 +138,7 @@ class AutoLoginAfterSignUpProcessor
 		VaadinServletResponse servletResponse = VaadinServletResponse.getCurrent();
 		RememberMeToken.LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor
 				.getLoginMachineDetailsFromCurrentRequest();
-		authnProcessor.syntheticAuthenticate(remoteContext.getAuthnInput().getRemoteAuthnMetadata(), authenticatedEntity, extractParticipants(remoteContext),
+		authnProcessor.syntheticAuthenticate(remoteContext.getAuthnInput(), authenticatedEntity, extractParticipants(remoteContext),
 				authenticationOption, realm, loginMachineDetails, false,
 				servletResponse, new VaadinSessionReinitializer());
 	}

@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.successful;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -58,7 +59,7 @@ public class IdPEngineImplBaseTest
 				Lists.newArrayList(
 					new UserImportSerivce.ImportResult("imp1", successful(
 							mock(RemotelyAuthenticatedPrincipal.class), 
-							mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown))));
+							mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown, Instant.now()))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor, groupMan);
@@ -99,7 +100,7 @@ public class IdPEngineImplBaseTest
 				Lists.newArrayList(
 					new UserImportSerivce.ImportResult("imp1", successful(
 							mock(RemotelyAuthenticatedPrincipal.class), 
-							mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown))));
+							mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown, Instant.now()))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor, groupMan);
@@ -143,7 +144,7 @@ public class IdPEngineImplBaseTest
 				Lists.newArrayList(
 					new UserImportSerivce.ImportResult("imp1", 
 							successful(mock(RemotelyAuthenticatedPrincipal.class), 
-									mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown))));
+									mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown, Instant.now()))));
 		
 		when(insecureAttributesMan.getAttributes(eq(clientEntity), eq("/GROUP"), eq(null)))
 				.thenReturn(clientAttributes);

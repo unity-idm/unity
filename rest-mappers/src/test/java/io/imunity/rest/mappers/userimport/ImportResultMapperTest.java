@@ -5,6 +5,7 @@
 
 package io.imunity.rest.mappers.userimport;
 
+import java.time.Instant;
 import java.util.function.Function;
 
 import io.imunity.rest.api.types.userimport.RestImportResult;
@@ -20,7 +21,7 @@ public class ImportResultMapperTest extends OneWayMapperTestBase<ImportResult, R
 {
 
 	private AuthenticationResult authenticationResult = RemoteAuthenticationResult.successful(
-			new RemotelyAuthenticatedPrincipal("idp", "profile"), new AuthenticatedEntity(1L, "sub", "cred"), AuthenticationMethod.unkwown);
+			new RemotelyAuthenticatedPrincipal("idp", "profile"), new AuthenticatedEntity(1L, "sub", "cred"), AuthenticationMethod.unkwown, Instant.now());
 
 	@Override
 	protected ImportResult getAPIObject()

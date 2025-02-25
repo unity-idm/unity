@@ -329,7 +329,7 @@ class OAuthAuthzView extends UnityViewComponent
 		try
 		{
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor
-					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, oauthResponseHandler.statReporter);
+					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, oauthResponseHandler.statReporter, InvocationContext.getCurrent().getLoginSession().getAuthenticationTime());
 
 			oauthResponseHandler.returnOauthResponseNotThrowing(oauthResponse, false);
 		} catch (Exception e)

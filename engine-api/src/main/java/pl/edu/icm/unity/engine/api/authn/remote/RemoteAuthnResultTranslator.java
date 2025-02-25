@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
@@ -49,7 +50,7 @@ public interface RemoteAuthnResultTranslator
 	 * final {@link AuthenticationResult} depending on the success of this action.
 	 */
 	RemoteAuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedPrincipal remoteContext,
-			String registrationForm, boolean allowAssociation, AuthenticationMethod authenticationMethod) 
+			String registrationForm, boolean allowAssociation, AuthenticationMethod authenticationMethod, Instant authenticationTime) 
 			throws RemoteAuthenticationException;
 	
 	/**

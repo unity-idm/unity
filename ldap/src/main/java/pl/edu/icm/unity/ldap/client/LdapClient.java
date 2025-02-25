@@ -8,6 +8,7 @@ import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
 
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -126,6 +127,7 @@ public class LdapClient
 		ret.setRawAttributes(ret.getAttributes());
 		
 		connection.close();
+		ret.setAuthenticationTime(Instant.now());
 		return ret;
 	}
 
@@ -178,6 +180,7 @@ public class LdapClient
 		ret.setRawAttributes(ret.getAttributes());
 		
 		connection.close();
+		ret.setAuthenticationTime(Instant.now());
 		return ret;
 	}
 	

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
@@ -75,7 +76,7 @@ public class LocalAuthenticationResult implements AuthenticationResult
 
 	public static LocalAuthenticationResult successful(AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod)
 	{
-		return new LocalAuthenticationResult(Status.success, new SuccessResult(authenticatedEntity, authenticationMethod), null, null, null);
+		return new LocalAuthenticationResult(Status.success, new SuccessResult(authenticatedEntity, authenticationMethod, Instant.now()), null, null, null);
 	}
 
 	@Override

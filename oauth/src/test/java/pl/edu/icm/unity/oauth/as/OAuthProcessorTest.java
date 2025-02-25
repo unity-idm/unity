@@ -13,6 +13,7 @@ import static org.mockito.Mockito.mock;
 import static pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN;
 
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -56,7 +57,7 @@ public class OAuthProcessorTest
 		long start = System.currentTimeMillis();
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, null);
+				attributes, identity, ctx, null, Instant.now());
 		long end = System.currentTimeMillis();
 		
 		assertNull(resp.getAccessToken());
@@ -82,7 +83,7 @@ public class OAuthProcessorTest
 
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(attributes, identity,
-				ctx, null);
+				ctx, null, Instant.now());
 
 		assertNull(resp.getAccessToken());
 		assertNotNull(resp.getAuthorizationCode());
@@ -114,7 +115,7 @@ public class OAuthProcessorTest
 		long start = System.currentTimeMillis();
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now());
 		long end = System.currentTimeMillis();
 		
 		assertNotNull(resp.getAccessToken());
@@ -142,7 +143,7 @@ public class OAuthProcessorTest
 		long start = System.currentTimeMillis();
 		OAuthProcessor processor = OAuthTestUtils.getOAuthProcessor(tokensMan);
 		AuthorizationSuccessResponse resp = processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now());
 		long end = System.currentTimeMillis();
 		
 		assertNotNull(resp.getAccessToken());
@@ -189,7 +190,9 @@ public class OAuthProcessorTest
 		UserInfo userInfo = UserInfo.parse(internalToken.getUserInfo());
 		assertEquals("example@example.com", userInfo.getEmailAddress());
 		assertNotNull(userInfo.getSubject());
-		assertEquals("userA", userInfo.getSubject().getValue());		
+		assertEquals("userA", userInfo.getSubject().getValue());
+		
+		assertNotNull(internalToken.getAuthenticationTime());
 	}
 
 	private void assertHasATHash(AuthenticationSuccessResponse response) throws ParseException, com.nimbusds.oauth2.sdk.ParseException

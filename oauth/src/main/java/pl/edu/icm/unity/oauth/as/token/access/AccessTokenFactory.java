@@ -7,26 +7,27 @@ package pl.edu.icm.unity.oauth.as.token.access;
 import java.util.Date;
 import java.util.UUID;
 
-import jakarta.ws.rs.core.Response;
-
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTClaimsSet.Builder;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
+import jakarta.ws.rs.core.Response;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
+import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.TokenSigner;
 import pl.edu.icm.unity.oauth.as.token.BaseTokenResource;
 import pl.edu.icm.unity.oauth.as.token.BearerJWTAccessToken;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
-import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.TokenSigner;
 
 public class AccessTokenFactory
 {
@@ -82,7 +83,11 @@ public class AccessTokenFactory
 				.jwtID(UUID.randomUUID().toString())
 				.claim("scope", scope.toString())
 				.claim("client_id", token.getClientUsername());
-
+//		if (token.getAuthenticationTime() != null)
+//		{
+			claimsSetBuilder.claim(IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME, DateUtils.toSecondsSinceEpoch(Date.from(token.getAuthenticationTime())));
+//		}
+		
 		addUserInfoAsClaimsIfNeeded(claimsSetBuilder, token);
 		JWTClaimsSet claimsSet = claimsSetBuilder.build();
 		SignedJWT signedJWT = sign(claimsSet);

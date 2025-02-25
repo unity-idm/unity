@@ -6,6 +6,7 @@ package pl.edu.icm.unity.test.performance;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -119,7 +120,7 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 	{
 		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm(), Collections.emptyList());
 		LoginSession ls = sessionMan.getCreateSession(entityId, getDefaultRealm(),
-				user, null, null, null, null, null, Set.of(AuthenticationMethod.unkwown));
+				user, null, null, null, null, null, Set.of(AuthenticationMethod.unkwown), Instant.now());
 		virtualAdmin.setLoginSession(ls);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);

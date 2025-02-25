@@ -17,6 +17,7 @@ import static pl.edu.icm.unity.oauth.as.OAuthASProperties.SCOPES;
 import static pl.edu.icm.unity.oauth.as.OAuthASProperties.SCOPE_NAME;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
@@ -178,7 +179,7 @@ public class OAuthTestUtils
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
 				GrantFlow.openidHybrid, clientId, clientType);
 		
-		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
+		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now());
 	}
 	
 	public static AuthorizationSuccessResponse initOAuthFlowHybrid(OAuthASProperties config, 
@@ -210,7 +211,7 @@ public class OAuthTestUtils
 		attributes.add(new DynamicAttribute(StringAttribute.of("c", "/", "PL")));
 		
 		return processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class));
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now());
 	}
 
 	public static Identity createOauthClient(EntityManagement idsMan, AttributesManagement attrsMan,

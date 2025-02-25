@@ -35,6 +35,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -203,7 +204,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 			Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfo,
 					oauthCtx.getEffectiveRequestedAttrs());
 			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, oauthCtx,
-					statReporter);
+					statReporter, InvocationContext.getCurrent().getLoginSession().getAuthenticationTime());
 		} catch (OAuthErrorResponseException e)
 		{
 

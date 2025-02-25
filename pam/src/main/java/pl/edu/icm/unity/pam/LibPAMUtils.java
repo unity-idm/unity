@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.pam;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,6 +44,7 @@ public class LibPAMUtils
 				.collect(Collectors.toList()));
 		ret.setIdentities(Lists.newArrayList(new RemoteIdentity(unixUser.getUserName(),
 				UsernameIdentity.ID)));
+		ret.setAuthenticationTime(Instant.now());
 		return ret;
 	}
 	

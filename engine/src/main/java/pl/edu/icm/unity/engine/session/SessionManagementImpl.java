@@ -37,6 +37,7 @@ import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -92,7 +93,8 @@ public class SessionManagementImpl implements SessionManagement
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
 				String outdatedCredentialId, RememberMeInfo rememberMeInfo,
-				AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext, Set<AuthenticationMethod> authenticationMethods)
+				AuthenticationOptionKey firstFactorOptionId, AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext,
+				Set<AuthenticationMethod> authenticationMethods, Instant authenticationTime)
 	{
 		try
 		{
@@ -110,6 +112,7 @@ public class SessionManagementImpl implements SessionManagement
 					ret.setLogin1stFactor(new AuthNInfo(firstFactorOptionId, now));
 					ret.setLogin2ndFactor(new AuthNInfo(secondFactorOptionId, now));
 					ret.setAuthenticationMethods(authenticationMethods);
+					ret.setAuthenticationTime(authenticationTime);
 					byte[] contents = ret.getTokenContents();
 					tokensManagement.updateToken(SESSION_TOKEN_TYPE,
 							ret.getId(), null, contents);
@@ -130,7 +133,7 @@ public class SessionManagementImpl implements SessionManagement
 			}
 
 			return createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
-					rememberMeInfo, firstFactorOptionId, secondFactorOptionId, authnContext, authenticationMethods);
+					rememberMeInfo, firstFactorOptionId, secondFactorOptionId, authnContext, authenticationMethods, authenticationTime);
 
 		} finally
 		{
@@ -159,7 +162,7 @@ public class SessionManagementImpl implements SessionManagement
 	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
 			String entityLabel, String outdatedCredentialId, 
 			RememberMeInfo rememberMeInfo, AuthenticationOptionKey firstFactorOptionId,
-			AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext, Set<AuthenticationMethod> authenticationMethods)
+			AuthenticationOptionKey secondFactorOptionId, RemoteAuthnMetadata authnContext, Set<AuthenticationMethod> authenticationMethods, Instant authenticationTime)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
@@ -172,6 +175,7 @@ public class SessionManagementImpl implements SessionManagement
 		ls.setEntityLabel(entityLabel);
 		ls.setFirstFactorRemoteIdPAuthnContext(authnContext);
 		ls.setAuthenticationMethods(authenticationMethods);
+		ls.setAuthenticationTime(authenticationTime);
 		try
 		{
 			tokensManagement.addToken(SESSION_TOKEN_TYPE, id, new EntityParam(loggedEntity), 

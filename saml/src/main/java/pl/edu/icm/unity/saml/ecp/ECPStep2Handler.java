@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.ecp;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -198,7 +199,7 @@ public class ECPStep2Handler
 		log.info("Client was successfully authenticated: [" + 
 					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
-				"", client.getOutdatedCredentialId(), new RememberMeInfo(false, false), null, null, authnContext, Set.of(authenticationMethod));
+				"", client.getOutdatedCredentialId(), new RememberMeInfo(false, false), null, null, authnContext, Set.of(authenticationMethod), Instant.now());
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
 		ls.setRemoteIdP(client.getRemoteIdP());

@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -74,7 +75,7 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 		input.setRemoteAuthnMetadata(new RemoteAuthnMetadata(Protocol.OIDC, "idp", List.of("acr1")));
 		remotelyAuthenticatedPrincipal.setAuthnInput(input);
 		AuthenticationResult result = RemoteAuthenticationResult.successful(remotelyAuthenticatedPrincipal,
-				new AuthenticatedEntity(1L, "info", null), AuthenticationMethod.u_oauth);
+				new AuthenticatedEntity(1L, "info", null), AuthenticationMethod.u_oauth, Instant.now());
 
 		AuthenticatorInstanceMetadata meta = new AuthenticatorInstanceMetadata();
 		meta.setLocalCredentialName("pass");

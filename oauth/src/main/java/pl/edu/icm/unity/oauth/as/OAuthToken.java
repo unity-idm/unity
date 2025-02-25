@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -46,6 +47,7 @@ public class OAuthToken
 	private ClientType clientType;
 	private PKCSInfo pkcsInfo;
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute;
+	private Instant authenticationTime;
 	
 	public OAuthToken()
 	{
@@ -79,6 +81,7 @@ public class OAuthToken
 		setClientType(source.getClientType());
 		setFirstRefreshRollingToken(source.getFirstRefreshRollingToken());
 		setClaimsInTokenAttribute(source.getClaimsInTokenAttribute());
+		setAuthenticationTime(source.getAuthenticationTime());
 		
 	}
 	
@@ -339,6 +342,16 @@ public class OAuthToken
 		return claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.token);	
 	}
 	
+	public Instant getAuthenticationTime()
+	{
+		return authenticationTime;
+	}
+
+	public void setAuthenticationTime(Instant authenticationTime)
+	{
+		this.authenticationTime = authenticationTime;
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -348,7 +361,7 @@ public class OAuthToken
 		result = prime * result + Arrays.hashCode(requestedScope);
 		result = prime * result + Objects.hash(accessToken, audience, authzCode, clientEntityId, clientName,
 				clientType, clientUsername, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
-				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo, firstRefreshRollingToken);
+				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo, firstRefreshRollingToken, authenticationTime);
 		return result;
 	}
 
@@ -377,7 +390,8 @@ public class OAuthToken
 				&& Objects.equals(responseType, other.responseType)
 				&& Objects.equals(subject, other.subject) && tokenValidity == other.tokenValidity
 				&& Objects.equals(userInfo, other.userInfo)
-				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken);
+				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken)
+				&& Objects.equals(authenticationTime, other.authenticationTime);
 	}
 
 
