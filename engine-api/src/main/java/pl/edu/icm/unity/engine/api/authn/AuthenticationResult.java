@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
@@ -91,11 +92,13 @@ public interface AuthenticationResult
 	{
 		public final AuthenticatedEntity authenticatedEntity;
 		public final AuthenticationMethod authenticationMethod;
+		public final Instant authenticationTime;
 
-		SuccessResult(AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod)
+		SuccessResult(AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod, Instant authenticationTime)
 		{
 			this.authenticatedEntity = authenticatedEntity;
 			this.authenticationMethod = authenticationMethod;
+			this.authenticationTime = authenticationTime;
 		}
 
 		@Override

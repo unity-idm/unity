@@ -8,6 +8,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -132,7 +133,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 	{
 		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm(), Collections.emptyList());
 		LoginSession ls = sessionMan.getCreateSession(entityId, getDefaultRealm(),
-				user, null, null, null, null, null, Set.of(AuthenticationMethod.unkwown));
+				user, null, null, null, null, null, Set.of(AuthenticationMethod.unkwown), Instant.now());
 		virtualAdmin.setLoginSession(ls);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);

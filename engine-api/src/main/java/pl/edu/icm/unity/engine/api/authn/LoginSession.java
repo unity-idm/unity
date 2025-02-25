@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,6 +62,7 @@ public class LoginSession
 	private AuthNInfo additionalAuthn;
 	private RemoteAuthnMetadata firstFactorRemoteIdPAuthnContext;
 	private Set<AuthenticationMethod> authenticationMethods;
+	private Instant authenticationTime;
 	
 	private Map<String, String> sessionData = new HashMap<>();
 
@@ -298,6 +300,17 @@ public class LoginSession
 	{
 		this.authenticationMethods = authenticationMethods;
 	}
+
+	public Instant getAuthenticationTime()
+	{
+		return authenticationTime;
+	}
+
+	public void setAuthenticationTime(Instant authenticationTime)
+	{
+		this.authenticationTime = authenticationTime;
+	}
+
 	
 	public void deserialize(Token token)
 	{
@@ -347,6 +360,12 @@ public class LoginSession
 			for (JsonNode node : aopts)
 				authenticationMethods.add(AuthenticationMethod.valueOf(node.asText()));
 		}
+		
+		if (main.has("authenticationTime"))
+		{
+			setAuthenticationTime(Instant.ofEpochMilli(main.get("authenticationTime").asLong()));
+		}
+		
 		
 		setId(token.getValue());
 		setStarted(token.getCreated());
@@ -413,6 +432,11 @@ public class LoginSession
 				aopts.add(aod.name());
 		}
 		
+		if (authenticationTime != null)
+		{
+			main.putPOJO("authenticationTime", getAuthenticationTime().toEpochMilli());
+		}
+		
 		return JsonUtil.serialize2Bytes(main);
 	}
 	
@@ -421,8 +445,6 @@ public class LoginSession
 	{
 		return id + "@" + realm + " of entity " + entityId;
 	}
-
-
 
 	public static class RememberMeInfo
 	{

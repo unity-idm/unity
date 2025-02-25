@@ -85,7 +85,8 @@ public class ClientCredentialsProcessor
 		internalToken.setSubject(client);
 		internalToken.setAudience(List.of(client));
 		internalToken.setIssuerUri(config.getIssuerName());
-		
+		internalToken.setAuthenticationTime(loginSession.getAuthenticationTime());
+
 		AttributeExt clientTypeA = attributes.get(OAuthSystemAttributesProvider.CLIENT_TYPE);
 		if (clientTypeA != null)
 			internalToken.setClientType(ClientType.valueOf(clientTypeA.getValues().get(0)));

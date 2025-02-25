@@ -9,6 +9,7 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
@@ -59,7 +60,7 @@ public interface InteractiveAuthenticationProcessor
 			HttpServletRequest httpRequest,
 			SandboxAuthnRouter sandboxRouter);
 
-	void syntheticAuthenticate(RemoteAuthnMetadata authnContext, AuthenticatedEntity authenticatedEntity,
+	void syntheticAuthenticate(RemotelyAuthenticatedInput authnInput, AuthenticatedEntity authenticatedEntity,
 			List<SessionParticipant> participants,
 			AuthenticationOptionKey authnOptionKey,
 			AuthenticationRealm realm,

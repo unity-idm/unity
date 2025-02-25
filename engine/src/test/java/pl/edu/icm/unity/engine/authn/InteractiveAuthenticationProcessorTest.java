@@ -19,12 +19,15 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -74,11 +77,15 @@ public class InteractiveAuthenticationProcessorTest
 		when(authenticatedEntity.getOutdatedCredentialId()).thenReturn("out");
 		when(sessionReinitializer.reinitialize()).thenReturn(httpSession);
 		when(entityMan.getEntityLabel(new EntityParam(1L))).thenReturn("label");
+		Instant now = Instant.now();
 		when(sessionMan.getCreateSession(1, userRealm, "label", "out",
-			rememberMeInfo, authenticationOptionKey, null, null, Set.of(AuthenticationMethod.unkwown))).thenReturn(loginSession);
+			rememberMeInfo, authenticationOptionKey, null, null, Set.of(AuthenticationMethod.unkwown), now)).thenReturn(loginSession);
 		InvocationContext.setCurrent(new InvocationContext(null, endpointRealm, List.of()));
 
-		processor.syntheticAuthenticate(null, authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
+		
+		RemotelyAuthenticatedInput remotelyAuthenticatedInput = new RemotelyAuthenticatedInput("idp");
+		remotelyAuthenticatedInput.setAuthenticationTime(now);
+		processor.syntheticAuthenticate(remotelyAuthenticatedInput, authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
 			loginMachineDetails, false, httpResponse, sessionReinitializer);
 
 		verify(sessionBinder).bindHttpSession(httpSession, loginSession);
@@ -102,16 +109,20 @@ public class InteractiveAuthenticationProcessorTest
 		when(userRealm.getName()).thenReturn("realm1");
 		when(endpointRealm.getName()).thenReturn("ANOTHER_REALM");
 
+		
 		when(loginSession.getRememberMeInfo()).thenReturn(rememberMeInfo);
 		when(authenticatedEntity.getEntityId()).thenReturn(1L);
 		when(authenticatedEntity.getOutdatedCredentialId()).thenReturn("out");
 		when(sessionReinitializer.reinitialize()).thenReturn(httpSession);
 		when(entityMan.getEntityLabel(new EntityParam(1L))).thenReturn("label");
+		Instant now = Instant.now();
 		when(sessionMan.getCreateSession(1, userRealm, "label", "out",
-			rememberMeInfo, authenticationOptionKey, null, null, Set.of(AuthenticationMethod.unkwown))).thenReturn(loginSession);
+			rememberMeInfo, authenticationOptionKey, null, null, Set.of(AuthenticationMethod.unkwown), now)).thenReturn(loginSession);
 		InvocationContext.setCurrent(new InvocationContext(null, endpointRealm, List.of()));
 
-		processor.syntheticAuthenticate(null, authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
+		RemotelyAuthenticatedInput remotelyAuthenticatedInput = new RemotelyAuthenticatedInput("idp");
+		remotelyAuthenticatedInput.setAuthenticationTime(now);
+		processor.syntheticAuthenticate(remotelyAuthenticatedInput, authenticatedEntity, List.of(), authenticationOptionKey, userRealm,
 			loginMachineDetails, false, httpResponse, sessionReinitializer);
 
 		verify(sessionBinder, times(0)).bindHttpSession(httpSession, loginSession);

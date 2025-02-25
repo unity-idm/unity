@@ -5,12 +5,15 @@
 
 package pl.edu.icm.unity.oauth.client;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import com.nimbusds.jwt.util.DateUtils;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -72,7 +75,29 @@ class OAuthRemoteAuthenticationInputAssembler
 		}
 		input.setRawAttributes(attributes.getRawAttributes());
 		input.setRemoteAuthnMetadata(getAuthnMeta(attributes, openIdConnectMode));
+		input.setAuthenticationTime(getAuthenticationTimeFallBackToDefault(attributes));
+		
 		return input;
+	}
+
+	private Instant getAuthenticationTimeFallBackToDefault(AttributeFetchResult attributes)
+	{
+		if (attributes.getAttributes()
+				.containsKey(IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME))
+		{
+			try
+			{
+				return DateUtils.fromSecondsSinceEpoch(Long.valueOf(attributes.getAttributes()
+						.get(IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME)
+						.get(0))).toInstant();
+			} catch (Exception e)
+			{
+				log.debug("Can't parse " + IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME + " from oauth response");
+				return Instant.now();
+			}
+		}
+
+		return Instant.now();
 	}
 
 	private RemoteAuthnMetadata getAuthnMeta(AttributeFetchResult attributes, boolean openIdConnectMode)

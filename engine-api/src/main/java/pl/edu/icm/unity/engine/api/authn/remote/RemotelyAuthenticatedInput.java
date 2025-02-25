@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -33,6 +34,7 @@ public class RemotelyAuthenticatedInput
 	private Map<String, ? extends Object> rawAttributes;
 	private Map<String, RemoteIdentity> identities;
 	private RemoteAuthnMetadata remoteAuthnMetadata;
+	private Instant authenticationTime;
 
 	public RemotelyAuthenticatedInput(String idpName)
 	{
@@ -130,6 +132,16 @@ public class RemotelyAuthenticatedInput
 	public String toString()
 	{
 		return idpName;
+	}
+	
+	public Instant getAuthenticationTime()
+	{
+		return authenticationTime;
+	}
+
+	public void setAuthenticationTime(Instant authenticationTime)
+	{
+		this.authenticationTime = authenticationTime;
 	}
 	
 	/**

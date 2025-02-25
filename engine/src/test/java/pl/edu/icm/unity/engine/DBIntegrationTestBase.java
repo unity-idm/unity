@@ -8,6 +8,7 @@ import static pl.edu.icm.unity.base.authn.AuthenticationOptionKey.authenticatorO
 
 import java.io.IOException;
 import java.security.KeyStoreException;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -107,7 +108,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				MockPasswordVerificatorFactory.ID);
 		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm(), endpointFlows);
 		LoginSession ls = sessionMan.getCreateSession(entity.getEntityId(), getDefaultRealm(),
-				user, credentialId, null, authenticatorOnlyKey("authn1"), null, null, null);
+				user, credentialId, null, authenticatorOnlyKey("authn1"), null, null, null, Instant.now());
 		virtualAdmin.setLoginSession(ls);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		//override for tests: it can happen that existing session is returned, therefore old state of cred is

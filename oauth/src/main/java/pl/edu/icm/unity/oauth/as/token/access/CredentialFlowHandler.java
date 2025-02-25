@@ -70,7 +70,7 @@ class CredentialFlowHandler
 
 		AccessToken accessToken = accessTokenFactory.create(internalToken, now, acceptHeader);
 		internalToken.setAccessToken(accessToken.getValue());
-
+		
 		Date expiration = TokenUtils.getAccessTokenExpiration(config, now);
 		log.info("Client cred grant: issuing new access token {}, valid until {}",
 				BaseOAuthResource.tokenToLog(accessToken.getValue()), expiration);

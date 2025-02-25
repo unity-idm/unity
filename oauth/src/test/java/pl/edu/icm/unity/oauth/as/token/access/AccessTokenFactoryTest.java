@@ -9,6 +9,7 @@ import static pl.edu.icm.unity.oauth.as.token.access.AccessTokenFactory.JWT_AT_M
 
 import java.security.interfaces.ECPublicKey;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import com.nimbusds.jose.crypto.ECDSAVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
@@ -116,8 +118,8 @@ public class AccessTokenFactoryTest
 	public void shouldAddRequiredElementsToJWT() throws Exception
 	{
 		AccessTokenFactory factory = getFactory(AccessTokenFormat.JWT);
-		
-		AccessToken accessToken = factory.create(getFakeToken(), new Date(1000));
+		Instant now = Instant.now();
+		AccessToken accessToken = factory.create(getFakeToken(now), new Date(1000));
 		
 		assertThat(isJWTToken(accessToken)).isTrue();
 		SignedJWT jwt = SignedJWT.parse(accessToken.getValue());
@@ -130,6 +132,7 @@ public class AccessTokenFactoryTest
 		assertThat(claimsSet.getIssueTime()).isNotNull();
 		assertThat(claimsSet.getClaims().get("scope")).isEqualTo("sc1");
 		assertThat(claimsSet.getAudience()).containsExactly("audience");
+		assertThat(claimsSet.getClaims().get(IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME)).isEqualTo(now.getEpochSecond());
 	}
 
 	@Test
@@ -188,12 +191,18 @@ public class AccessTokenFactoryTest
 	
 	public static OAuthToken getFakeToken()
 	{
+		return getFakeToken(Instant.now());
+	}
+	
+	public static OAuthToken getFakeToken(Instant authTime)
+	{
 		OAuthToken ret = new OAuthToken();
 		ret.setSubject("subject");
 		ret.setIssuerUri("issuer");
 		ret.setClientUsername("client");
 		ret.setEffectiveScope(new String []{"sc1"});
 		ret.setAudience(List.of("audience"));
+		ret.setAuthenticationTime(authTime);
 		return ret;
 	}
 }

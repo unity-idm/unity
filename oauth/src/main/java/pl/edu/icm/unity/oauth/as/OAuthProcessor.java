@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as;
 
 import static com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue.ID_TOKEN;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -94,7 +95,7 @@ public class OAuthProcessor
 	 */
 	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(
 			Collection<DynamicAttribute> attributes,
-			IdentityParam identity,	OAuthAuthzContext ctx, OAuthIdpStatisticReporter statReporter) 
+			IdentityParam identity,	OAuthAuthzContext ctx, OAuthIdpStatisticReporter statReporter, Instant authenticationTime) 
 					throws EngineException, JsonProcessingException, ParseException, JOSEException
 	{
 		OAuthToken internalToken = new OAuthToken();
@@ -112,6 +113,7 @@ public class OAuthProcessor
 		internalToken.setIssuerUri(config.getIssuerName());
 		internalToken.setClientType(ctx.getClientType());
 		internalToken.setClaimsInTokenAttribute(ctx.getClaimsInTokenAttribute());
+		internalToken.setAuthenticationTime(authenticationTime);
 		
 		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
 				null : ctx.getRequest().getCodeChallenge().getValue();
@@ -221,7 +223,7 @@ public class OAuthProcessor
 			UserInfo userInfo, Date now) throws ParseException, JOSEException
 	{
 		return Optional.ofNullable(ctx.isOpenIdMode() ? 
-				prepareIdInfoClaimSet(identity.getValue(), internalToken.getAudience(), ctx, userInfo, now) 
+				prepareIdInfoClaimSet(identity.getValue(), internalToken.getAudience(), ctx, userInfo, now, internalToken.getAuthenticationTime()) 
 				: null);
 	}
 
@@ -274,7 +276,7 @@ public class OAuthProcessor
 	 * OIDC specification.
 	 */
 	private IDTokenClaimsSet prepareIdInfoClaimSet(String userIdentity, List<String> audience, OAuthAuthzContext context, 
-			ClaimsSet regularAttributes, Date now)
+			ClaimsSet regularAttributes, Date now, Instant authenticationTime)
 	{
 		AuthenticationRequest request = (AuthenticationRequest) context.getRequest();
 		IDTokenClaimsSet idToken = new IDTokenClaimsSet(
@@ -283,6 +285,7 @@ public class OAuthProcessor
 				audience.stream().filter(a -> a != null).map(Audience::new).collect(Collectors.toList()), 
 				new Date(now.getTime() + context.getConfig().getIdTokenValidity()*1000), 
 				now);
+		idToken.setAuthenticationTime(Date.from(authenticationTime));
 		ResponseType responseType = request.getResponseType();
 		boolean onlyIdTokenRequested = responseType.contains(ID_TOKEN) && responseType.size() == 1; 
 

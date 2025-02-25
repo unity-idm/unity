@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml;
 
 import java.security.PrivateKey;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -146,11 +147,30 @@ public class SAMLResponseValidatorUtil
 		input.setRawAttributes(input.getAttributes());
 		input.setGroups(getGroups(remoteAttributes, groupA));
 		input.setRemoteAuthnMetadata(getRemoteAuthnMetadata(validator, issuer));	
+		input.setAuthenticationTime(getAuthenticationTimeFallbackToDefault(validator));
 		addSessionParticipants(validator, issuer, input, idp);
 		
 		return input;
 	}
 	
+	private Instant getAuthenticationTimeFallbackToDefault(SSOAuthnResponseValidator validator)
+	{
+		List<AssertionDocument> assertions = validator.getAuthNAssertions();
+		for (AssertionDocument assertion : assertions)
+		{
+			AssertionParser parser = new AssertionParser(assertion);
+			AuthnStatementType[] authnStatements = parser.getXMLBean()
+					.getAuthnStatementArray();
+			for (AuthnStatementType statement : authnStatements)
+			{
+				if (statement.getAuthnInstant() != null)
+					return statement.getAuthnInstant()
+							.toInstant();
+			}
+		}
+		return Instant.now();
+	}
+
 	private RemoteAuthnMetadata getRemoteAuthnMetadata(SSOAuthnResponseValidator validator, NameIDType issuer)
 	{
 		return new RemoteAuthnMetadata(Protocol.SAML, issuer.getStringValue(), getAuthnContextClassValues(validator));

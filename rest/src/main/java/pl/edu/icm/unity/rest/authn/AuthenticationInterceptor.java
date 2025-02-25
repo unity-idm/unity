@@ -7,6 +7,7 @@ package pl.edu.icm.unity.rest.authn;
 import static pl.edu.icm.unity.base.authn.AuthenticationOptionKey.authenticatorOnlyKey;
 
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -195,7 +196,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		String label = getLabel(client.entity.getEntityId());
 		LoginSession ls = sessionMan.getCreateSession(client.entity.getEntityId(), realm, 
 				label, client.entity.getOutdatedCredentialId(), new RememberMeInfo(false, false), 
-				client.firstFactor, client.secondFactor, getAuthnContext(client), client.authenticationMethods);
+				client.firstFactor, client.secondFactor, getAuthnContext(client), client.authenticationMethods, client.authenticationTime);
 		
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.entity.getAuthenticatedWith());
@@ -273,12 +274,14 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 					authenticatorOnlyKey(secondFactorAuthn.getAuthenticatorId()), state.getPrimaryResult(),
 					Set.of(state.getPrimaryResult()
 							.getSuccessResult().authenticationMethod,
-							result2.getSuccessResult().authenticationMethod)));
+							result2.getSuccessResult().authenticationMethod), state.getPrimaryResult()
+					.getSuccessResult().authenticationTime));
 		} else
 		{
 			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterPrimaryAuthentication(state, false);
 			return  Optional.of(new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), null, state.getPrimaryResult(), Set.of(state.getPrimaryResult()
-					.getSuccessResult().authenticationMethod)));
+					.getSuccessResult().authenticationMethod), state.getPrimaryResult()
+					.getSuccessResult().authenticationTime));
 		}
 	}
 
@@ -312,15 +315,18 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		private final AuthenticationOptionKey secondFactor;
 		private final AuthenticationResult firstFactorResult;
 		private final Set<AuthenticationMethod> authenticationMethods;
+		private final Instant authenticationTime;
 		
 		EntityWithAuthenticators(AuthenticatedEntity entity, AuthenticationOptionKey firstFactor,
-				AuthenticationOptionKey secondFactor, AuthenticationResult firstFactorResult, Set<AuthenticationMethod> authenticationMethods)
+				AuthenticationOptionKey secondFactor, AuthenticationResult firstFactorResult, Set<AuthenticationMethod> authenticationMethods,
+				Instant authenticationTime)
 		{
 			this.entity = entity;
 			this.firstFactor = firstFactor;
 			this.secondFactor = secondFactor;
 			this.firstFactorResult = firstFactorResult;
 			this.authenticationMethods = authenticationMethods;
+			this.authenticationTime = authenticationTime;
 		}
 	}
 }

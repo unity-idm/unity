@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.api.authn;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
@@ -72,19 +73,19 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 	}
 
 	public static RemoteAuthenticationResult successful(RemotelyAuthenticatedPrincipal remotePrincipal,
-			AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod)
+			AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod, Instant authenticationTime)
 	{
 		checkNotNull(authenticatedEntity);
 		checkNotNull(remotePrincipal);
-		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(authenticatedEntity, remotePrincipal, authenticationMethod), 
+		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(authenticatedEntity, remotePrincipal, authenticationMethod, authenticationTime), 
 				null, null, null);
 	}
 
 	public static RemoteAuthenticationResult successfulPartial(RemotelyAuthenticatedPrincipal remotePrincipal,
-			AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod)
+			AuthenticatedEntity authenticatedEntity, AuthenticationMethod authenticationMethod, Instant authenticationTime)
 	{
 		checkNotNull(remotePrincipal);
-		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(authenticatedEntity, remotePrincipal, authenticationMethod), 
+		return new RemoteAuthenticationResult(Status.success, new RemoteSuccessResult(authenticatedEntity, remotePrincipal, authenticationMethod, authenticationTime), 
 				null, null, null);
 	}
 	
@@ -221,11 +222,11 @@ public class RemoteAuthenticationResult implements AuthenticationResult
 	public static class RemoteSuccessResult extends SuccessResult implements RemotePrincipalProvider
 	{
 		public final RemotelyAuthenticatedPrincipal remotePrincipal;
-
+		
 		public RemoteSuccessResult(AuthenticatedEntity authenticatedEntity,
-				RemotelyAuthenticatedPrincipal remotePrincipal, AuthenticationMethod authenticationMethod)
+				RemotelyAuthenticatedPrincipal remotePrincipal, AuthenticationMethod authenticationMethod, Instant authenticationTime)
 		{
-			super(authenticatedEntity, authenticationMethod);
+			super(authenticatedEntity, authenticationMethod, authenticationTime);
 			this.remotePrincipal = remotePrincipal;
 		}
 

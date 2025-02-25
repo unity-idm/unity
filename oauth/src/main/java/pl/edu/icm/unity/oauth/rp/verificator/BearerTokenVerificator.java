@@ -35,6 +35,7 @@ import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -246,6 +247,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 					" ignored: " + attributes.get("sub").get(0));
 			
 		ret.setRawAttributes(attrs.getRawAttributes());
+		ret.setAuthenticationTime(Instant.now());
 		return ret;
 	}
 	

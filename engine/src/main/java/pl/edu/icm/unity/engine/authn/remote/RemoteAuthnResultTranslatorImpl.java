@@ -119,12 +119,12 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 			throw new RemoteAuthenticationException("The mapping of the remotely authenticated " +
 					"principal to a local representation failed", e);
 		}
-		return dryRun ? assembleDryRunAuthenticationResult(remotePrincipal, registrationForm, allowAssociation, authenticationMethod) : 
-			assembleAuthenticationResult(remotePrincipal, registrationForm, allowAssociation, authenticationMethod);
+		return dryRun ? assembleDryRunAuthenticationResult(remotePrincipal, registrationForm, allowAssociation, authenticationMethod, input.getAuthenticationTime()) : 
+			assembleAuthenticationResult(remotePrincipal, registrationForm, allowAssociation, authenticationMethod, input.getAuthenticationTime());
 	}
 
 	private RemoteAuthenticationResult assembleDryRunAuthenticationResult(RemotelyAuthenticatedPrincipal remotePrincipal,
-			String registrationForm, boolean allowAssociation, AuthenticationMethod authenticationMethod)
+			String registrationForm, boolean allowAssociation, AuthenticationMethod authenticationMethod, Instant authenticationTime)
 	{
 		AuthenticatedEntity authenticatedEntity = null;
 		if (remotePrincipal.getLocalMappedPrincipal() != null)
@@ -140,7 +140,7 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 		{
 			return handleUnknownUser(remotePrincipal, registrationForm, allowAssociation);
 		}
-		return RemoteAuthenticationResult.successfulPartial(remotePrincipal, authenticatedEntity, authenticationMethod);
+		return RemoteAuthenticationResult.successfulPartial(remotePrincipal, authenticatedEntity, authenticationMethod, authenticationTime);
 	}
 	
 	/**
@@ -150,7 +150,7 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 	 */
 	@Override
 	public RemoteAuthenticationResult assembleAuthenticationResult(RemotelyAuthenticatedPrincipal remoteContext, 
-			String registrationForm, boolean allowAssociation, AuthenticationMethod authenticationMethod) throws RemoteAuthenticationException
+			String registrationForm, boolean allowAssociation, AuthenticationMethod authenticationMethod, Instant authenticationTime) throws RemoteAuthenticationException
 	{
 		if (remoteContext.getIdentities().isEmpty())
 			throw new RemoteAuthenticationException("The remotely authenticated principal " +
@@ -160,7 +160,7 @@ class RemoteAuthnResultTranslatorImpl implements RemoteAuthnResultTranslator
 		try
 		{
 			AuthenticatedEntity authenticatedEntity = resolveAuthenticatedEntity(remoteContext);
-			return RemoteAuthenticationResult.successful(remoteContext, authenticatedEntity, authenticationMethod);
+			return RemoteAuthenticationResult.successful(remoteContext, authenticatedEntity, authenticationMethod, authenticationTime);
 		} catch (IllegalIdentityValueException ie)
 		{
 			return handleUnknownUser(remoteContext, registrationForm, allowAssociation);
