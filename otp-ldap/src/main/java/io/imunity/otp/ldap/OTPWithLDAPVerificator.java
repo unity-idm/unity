@@ -198,7 +198,7 @@ class OTPWithLDAPVerificator extends AbstractVerificator implements OTPExchange
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.otp;
+		return AuthenticationMethod.OTP;
 	}
 	
 	@Component

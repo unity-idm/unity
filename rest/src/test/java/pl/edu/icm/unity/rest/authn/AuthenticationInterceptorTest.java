@@ -110,7 +110,7 @@ public class AuthenticationInterceptorTest
 
 		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any()))
 				.thenReturn(new PartialAuthnState(AuthenticationOptionKey.authenticatorOnlyKey("x"), null,
-						LocalAuthenticationResult.successful(new AuthenticatedEntity(1L, "", ""), AuthenticationMethod.unkwown), flow2));
+						LocalAuthenticationResult.successful(new AuthenticatedEntity(1L, "", ""), AuthenticationMethod.UNKNOWN), flow2));
 
 		when(mockProcessor.finalizeAfterPrimaryAuthentication(any(), eq(false)))
 				.thenReturn(new AuthenticatedEntity(1L, "", ""));
@@ -180,7 +180,7 @@ public class AuthenticationInterceptorTest
 		@Override
 		public AuthenticationResult getAuthenticationResult(Properties endpointFeatures)
 		{
-			return LocalAuthenticationResult.successful(new AuthenticatedEntity(1L, "", ""), AuthenticationMethod.unkwown);
+			return LocalAuthenticationResult.successful(new AuthenticatedEntity(1L, "", ""), AuthenticationMethod.UNKNOWN);
 		}
 
 		@Override

@@ -270,7 +270,7 @@ public class ECPStep2Handler
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
 				verifiableMessage,
 				ctx.getRequestId(), SAMLBindings.PAOS, groupAttr, trustedIdP, trustChecker);
-		return remoteAuthnProcessor.getTranslatedResult(input, profile, false, Optional.empty(), null, false, AuthenticationMethod.u_saml);
+		return remoteAuthnProcessor.getTranslatedResult(input, profile, false, Optional.empty(), null, false, AuthenticationMethod.U_SAML);
 	}
 	
 	private TrustedIdPConfiguration findIdP(TrustedIdPs trustedIdPs, ResponseDocument responseDoc) throws ServletException

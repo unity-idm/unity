@@ -140,7 +140,7 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.unkwown;
+		return AuthenticationMethod.UNKNOWN;
 	}
 	
 	@Component

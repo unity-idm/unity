@@ -502,7 +502,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.pwd;
+		return AuthenticationMethod.PWD;
 	}
 	
 	private static class PasswordStatus

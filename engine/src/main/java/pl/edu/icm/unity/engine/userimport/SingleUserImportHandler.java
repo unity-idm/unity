@@ -87,7 +87,7 @@ class SingleUserImportHandler
 		}
 		log.debug("Caching positive import result for {}", identity);
 		AuthenticationResult result = remoteUtil.getTranslatedResult(importedUser, 
-				translationProfile, false, existingUser, null, false, AuthenticationMethod.unkwown);
+				translationProfile, false, existingUser, null, false, AuthenticationMethod.UNKNOWN);
 		positiveCache.put(cacheKey, result);
 		return result;
 	}

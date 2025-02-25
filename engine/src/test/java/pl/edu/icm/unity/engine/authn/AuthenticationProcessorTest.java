@@ -63,7 +63,7 @@ public class AuthenticationProcessorTest
 				authenticatorInstanceMetadata);
 		AuthenticationOptionKey optionKey = new AuthenticationOptionKey("1", "1");
 		AuthenticationResult result = LocalAuthenticationResult
-				.successful(new AuthenticatedEntity(1L, AuthenticationSubject.entityBased(1L), null), AuthenticationMethod.pwd);
+				.successful(new AuthenticatedEntity(1L, AuthenticationSubject.entityBased(1L), null), AuthenticationMethod.PWD);
 		AuthenticationFlow authenticationFlow = new AuthenticationFlow("flow", Policy.DYNAMIC_EXPRESSION, Set.of(),
 				List.of(instance), new DynamicExpressionPolicyConfiguration("hasValid2FCredential == true"), 1L);
 		when(policyConfigMVELContextBuilder.createMvelContext(optionKey, result, false,
@@ -85,7 +85,7 @@ public class AuthenticationProcessorTest
 				authenticatorInstanceMetadata);
 		AuthenticationOptionKey optionKey = new AuthenticationOptionKey("1", "1");
 		AuthenticationResult result = LocalAuthenticationResult
-				.successful(new AuthenticatedEntity(1L, AuthenticationSubject.entityBased(1L), null), AuthenticationMethod.pwd);
+				.successful(new AuthenticatedEntity(1L, AuthenticationSubject.entityBased(1L), null), AuthenticationMethod.PWD);
 		AuthenticationFlow authenticationFlow = new AuthenticationFlow("flow", Policy.DYNAMIC_EXPRESSION, Set.of(),
 				List.of(instance), new DynamicExpressionPolicyConfiguration("hasValid2FCredential == true"), 1L);
 		when(policyConfigMVELContextBuilder.createMvelContext(optionKey, result, false,

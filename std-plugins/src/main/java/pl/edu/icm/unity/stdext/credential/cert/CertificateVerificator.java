@@ -149,7 +149,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.swk;
+		return AuthenticationMethod.SWK;
 	}
 	
 	@Component

@@ -206,7 +206,7 @@ public class AccessTokenAndPasswordVerificator extends AbstractVerificator imple
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.unkwown;
+		return AuthenticationMethod.UNKNOWN;
 	}
 	
 	@Component

@@ -260,7 +260,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.unkwown;
+		return AuthenticationMethod.UNKNOWN;
 	}
 	
 	@Component

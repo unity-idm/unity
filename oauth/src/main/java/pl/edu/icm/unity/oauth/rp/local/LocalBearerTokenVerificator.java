@@ -62,7 +62,7 @@ class LocalBearerTokenVerificator
 			}
 
 			AuthenticatedEntity ae = new AuthenticatedEntity(status.getOwnerId().get(), status.getSubject(), null);
-			return new AuthenticationResultWithTokenStatus(LocalAuthenticationResult.successful(ae, AuthenticationMethod.unkwown), status);
+			return new AuthenticationResultWithTokenStatus(LocalAuthenticationResult.successful(ae, AuthenticationMethod.UNKNOWN), status);
 
 		} else
 		{

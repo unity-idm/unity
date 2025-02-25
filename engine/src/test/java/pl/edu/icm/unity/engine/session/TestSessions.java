@@ -108,11 +108,11 @@ public class TestSessions extends DBIntegrationTestBase
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid);
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
-		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, authenticatorOnlyKey("auth1"), null, null, Set.of(AuthenticationMethod.pwd, AuthenticationMethod.sms), null);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, authenticatorOnlyKey("auth1"), null, null, Set.of(AuthenticationMethod.PWD, AuthenticationMethod.SMS), null);
 		
 				
 		LoginSession ret = sessionMan.getSession(s.getId());
-		assertThat(ret.getAuthenticationMethods()).containsExactlyInAnyOrder(AuthenticationMethod.sms, AuthenticationMethod.pwd);
+		assertThat(ret.getAuthenticationMethods()).containsExactlyInAnyOrder(AuthenticationMethod.SMS, AuthenticationMethod.PWD);
 	}
 	
 	@Test

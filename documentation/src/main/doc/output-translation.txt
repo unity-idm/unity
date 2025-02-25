@@ -87,11 +87,11 @@ is executed. Status of each importer is value of map entries. The following valu
 In case when only a local authentication was used, the value is set to +_LOCAL+.  
 . +authentications+ List of authenticator ids used for authentication in the current user''s session.
 . +mfa+ Deprecated, use 2stepAuthn variable. 
-. +2stepAuthn+ Set to true only if 2nd factor was used in the current user''s session
-. +upstreamACRs+ List with names of authentication context class references as obtained from upstream 1st factor IdP. Empty list if no ACR was obtained or the 1st factor was not using remote IdP.
-. +upstreamIdP+ Name of the upstream the 1st factor IdP or +null+ if the 1st factor was not using remote IdP.
-. +upstreamProtocol+ Name of the authentication protocol used for the first factor, one of: saml, oidc, other or local.
-. +amr+ Authentication method reference values.
+. +2stepAuthn+ Set to true only if two step authentication was used to authenticate the current user''s session. Note: this does not mean that multi-factor authentication was used.
+. +upstreamACRs+ List with authentication context class reference (ACR) names, as obtained from an external IdP, used as the first authentication method. Empty list if no ACR was obtained or the 1st authentication was not using remote IdP.
+. +upstreamIdP+ Name of the upstream IdP, used as the first authentication method, or +null+ if the first method was not using a remote IdP
+. +upstreamProtocol+ Name of the authentication protocol, used as the first authentication method; one of: saml, oidc, other or local.
+. +amr+ List with Authentication Method Reference values, used during user's sign-in; one of: sms, swk, pwd, otp, u_oauth, u_saml, u_llc (long lasting cookie, used with the remember me feature), unknown.
 
 
 Example output profile:
