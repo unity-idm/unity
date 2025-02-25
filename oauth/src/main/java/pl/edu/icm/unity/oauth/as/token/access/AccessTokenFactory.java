@@ -83,10 +83,10 @@ public class AccessTokenFactory
 				.jwtID(UUID.randomUUID().toString())
 				.claim("scope", scope.toString())
 				.claim("client_id", token.getClientUsername());
-//		if (token.getAuthenticationTime() != null)
-//		{
+		if (token.getAuthenticationTime() != null)
+		{
 			claimsSetBuilder.claim(IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME, DateUtils.toSecondsSinceEpoch(Date.from(token.getAuthenticationTime())));
-//		}
+		}
 		
 		addUserInfoAsClaimsIfNeeded(claimsSetBuilder, token);
 		JWTClaimsSet claimsSet = claimsSetBuilder.build();
