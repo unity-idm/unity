@@ -180,7 +180,7 @@ public class OTPVerificator extends AbstractLocalVerificator implements OTPExcha
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.otp;
+		return AuthenticationMethod.OTP;
 	}
 	
 	@Component

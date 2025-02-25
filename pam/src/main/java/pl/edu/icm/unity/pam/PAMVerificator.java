@@ -157,7 +157,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.pwd;
+		return AuthenticationMethod.PWD;
 	}
 	
 	@Component

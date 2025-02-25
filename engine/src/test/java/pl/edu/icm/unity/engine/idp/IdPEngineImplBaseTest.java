@@ -59,7 +59,7 @@ public class IdPEngineImplBaseTest
 				Lists.newArrayList(
 					new UserImportSerivce.ImportResult("imp1", successful(
 							mock(RemotelyAuthenticatedPrincipal.class), 
-							mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown, Instant.now()))));
+							mock(AuthenticatedEntity.class), AuthenticationMethod.UNKNOWN, Instant.now()))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor, groupMan);
@@ -100,7 +100,7 @@ public class IdPEngineImplBaseTest
 				Lists.newArrayList(
 					new UserImportSerivce.ImportResult("imp1", successful(
 							mock(RemotelyAuthenticatedPrincipal.class), 
-							mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown, Instant.now()))));
+							mock(AuthenticatedEntity.class), AuthenticationMethod.UNKNOWN, Instant.now()))));
 		
 		IdPEngineImplBase tested = new IdPEngineImplBase(attributesMan, attributesMan,
 				identitiesMan, userImportService, outputProfileExecutor, groupMan);
@@ -144,7 +144,7 @@ public class IdPEngineImplBaseTest
 				Lists.newArrayList(
 					new UserImportSerivce.ImportResult("imp1", 
 							successful(mock(RemotelyAuthenticatedPrincipal.class), 
-									mock(AuthenticatedEntity.class), AuthenticationMethod.unkwown, Instant.now()))));
+									mock(AuthenticatedEntity.class), AuthenticationMethod.UNKNOWN, Instant.now()))));
 		
 		when(insecureAttributesMan.getAttributes(eq(clientEntity), eq("/GROUP"), eq(null)))
 				.thenReturn(clientAttributes);

@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationMethod.Factor;
 
-public class AuthenticationMethodsToMvelContextMapper
+class AuthenticationMethodsToMvelContextMapper
 {
 	private static final String MFA = "mfa";
 	private static final String MCA = "mca";
@@ -24,16 +24,13 @@ public class AuthenticationMethodsToMvelContextMapper
 		Set<String> methods = usedMethods.stream()
 				.map(a -> a.name())
 				.collect(Collectors.toSet());
-		Set<AuthenticationMethod> notUknownMethods = usedMethods.stream().filter( a -> !a.factor.equals(Factor.UNKNOWN))
-				
-				.collect(Collectors.toSet());
-		
-		if (notUknownMethods.size() > 1 && notUknownMethods.contains(AuthenticationMethod.sms))
+		Set<AuthenticationMethod> recognizedMethods = usedMethods.stream().filter( a -> !a.factor.equals(Factor.UNKNOWN))
+				.collect(Collectors.toSet());		
+		if (recognizedMethods.size() > 1 && recognizedMethods.contains(AuthenticationMethod.SMS))
 		{
 			methods.add(MCA);
 		}
-
-		if (notUknownMethods.stream()
+		if (recognizedMethods.stream()
 				.map(a -> a.factor)
 				.collect(Collectors.toSet())
 				.size() > 1)
@@ -41,8 +38,7 @@ public class AuthenticationMethodsToMvelContextMapper
 			methods.add(MFA);
 		}
 
-		return methods;
-
+		return methods.stream().map(a -> a.toLowerCase()).collect(Collectors.toUnmodifiableSet());
 	}
 
 }

@@ -137,7 +137,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		assertThat(loginSession.get().getLogin2ndFactorOptionId().getAuthenticatorKey()).isEqualTo("secondFactor");
 		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped).isEqualTo(true);
 		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped).isEqualTo(true);
-		assertThat(loginSession.get().getAuthenticationMethods()).containsExactly(AuthenticationMethod.u_llc);
+		assertThat(loginSession.get().getAuthenticationMethods()).containsExactly(AuthenticationMethod.U_LLC);
 
 	}
 
@@ -163,7 +163,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 		assertThat(loginSession.get().getLogin2ndFactorOptionId().getAuthenticatorKey()).isEqualTo("secondFactor");
 		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped).isEqualTo(false);
 		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped).isEqualTo(true);
-		assertThat(loginSession.get().getAuthenticationMethods()).containsExactly(AuthenticationMethod.u_llc);
+		assertThat(loginSession.get().getAuthenticationMethods()).containsExactly(AuthenticationMethod.U_LLC);
 	}
 
 	@Test

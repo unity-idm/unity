@@ -646,7 +646,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.u_oauth;
+		return AuthenticationMethod.U_OAUTH;
 	}
 	
 	@Component

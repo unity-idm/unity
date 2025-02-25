@@ -311,7 +311,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.pwd;
+		return AuthenticationMethod.PWD;
 	}
 
 	@Component

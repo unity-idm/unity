@@ -65,7 +65,7 @@ public class SAMLResponseVerificatorInegrationTest extends DBIntegrationTestBase
 		
 		RemoteAuthnContext remoteAuthnState = createRemoteContext();
 		
-		AuthenticationResult authnResult = verificator.processResponse(remoteAuthnState, profile, AuthenticationMethod.u_saml);
+		AuthenticationResult authnResult = verificator.processResponse(remoteAuthnState, profile, AuthenticationMethod.U_SAML);
 		
 		assertThat(authnResult.getStatus()).isEqualTo(Status.success);
 		IdentityParam identityParam = new IdentityParam(IdentifierIdentity.ID, "EMPTY", 

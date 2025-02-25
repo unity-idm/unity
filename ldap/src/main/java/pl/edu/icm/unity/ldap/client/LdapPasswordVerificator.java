@@ -105,7 +105,7 @@ public class LdapPasswordVerificator extends LdapBaseVerificator implements Pass
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.pwd;
+		return AuthenticationMethod.PWD;
 	}
 	
 	@Component

@@ -111,6 +111,6 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.pwd;
+		return AuthenticationMethod.PWD;
 	}
 }

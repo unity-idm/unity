@@ -269,7 +269,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.u_saml;
+		return AuthenticationMethod.U_SAML;
 	}
 
 	@Override

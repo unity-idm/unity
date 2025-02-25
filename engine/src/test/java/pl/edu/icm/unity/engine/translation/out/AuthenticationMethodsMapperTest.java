@@ -17,19 +17,19 @@ public class AuthenticationMethodsMapperTest
 {
 
 	@Test
-	public void shouldAddMFA()
+	public void shouldAddMFAWhenTwoFactorsAreUsed()
 	{
 		assertThat(AuthenticationMethodsToMvelContextMapper.getAuthenticationMethodsWithMFAandMCAIfUsed(
-				Set.of(AuthenticationMethod.pwd, AuthenticationMethod.hwk))).containsExactlyInAnyOrder("hwk", "pwd",
+				Set.of(AuthenticationMethod.PWD, AuthenticationMethod.HWK))).containsExactlyInAnyOrder("hwk", "pwd",
 						"mfa");
 
 	}
 
 	@Test
-	public void shouldAddMCA()
+	public void shouldAddMCAWhenSMSWithAnotherFactorAreUsed()
 	{
 		assertThat(AuthenticationMethodsToMvelContextMapper.getAuthenticationMethodsWithMFAandMCAIfUsed(
-				Set.of(AuthenticationMethod.pwd, AuthenticationMethod.sms))).containsExactlyInAnyOrder("sms", "pwd",
+				Set.of(AuthenticationMethod.PWD, AuthenticationMethod.SMS))).containsExactlyInAnyOrder("sms", "pwd",
 						"mfa", "mca");
 
 	}
@@ -38,15 +38,15 @@ public class AuthenticationMethodsMapperTest
 	public void shouldNotAddMCAIfUnknownMethod()
 	{
 		assertThat(AuthenticationMethodsToMvelContextMapper.getAuthenticationMethodsWithMFAandMCAIfUsed(
-				Set.of(AuthenticationMethod.u_oauth, AuthenticationMethod.sms))).containsExactlyInAnyOrder("sms", "u_oauth");
+				Set.of(AuthenticationMethod.U_OAUTH, AuthenticationMethod.SMS))).containsExactlyInAnyOrder("sms", "u_oauth");
 
 	}
 
 	@Test
-	public void shouldNotAddMFA()
+	public void shouldNotAddMFAWhenTheSameFactor()
 	{
 		assertThat(AuthenticationMethodsToMvelContextMapper.getAuthenticationMethodsWithMFAandMCAIfUsed(
-				Set.of(AuthenticationMethod.otp, AuthenticationMethod.hwk))).containsExactlyInAnyOrder("hwk", "otp");
+				Set.of(AuthenticationMethod.OTP, AuthenticationMethod.HWK))).containsExactlyInAnyOrder("hwk", "otp");
 
 	}
 	
@@ -54,7 +54,7 @@ public class AuthenticationMethodsMapperTest
 	public void shouldNotAddMFAIfUnknownMethod()
 	{
 		assertThat(AuthenticationMethodsToMvelContextMapper.getAuthenticationMethodsWithMFAandMCAIfUsed(
-				Set.of(AuthenticationMethod.otp, AuthenticationMethod.u_saml))).containsExactlyInAnyOrder("u_saml", "otp");
+				Set.of(AuthenticationMethod.OTP, AuthenticationMethod.U_SAML))).containsExactlyInAnyOrder("u_saml", "otp");
 
 	}
 }

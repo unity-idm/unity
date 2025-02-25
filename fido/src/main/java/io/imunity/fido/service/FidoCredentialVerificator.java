@@ -297,7 +297,7 @@ public class FidoCredentialVerificator extends AbstractLocalVerificator implemen
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.hwk;
+		return AuthenticationMethod.HWK;
 	}
 	
 	/**

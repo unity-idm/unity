@@ -58,7 +58,7 @@ public class SAMLResponseVerificatorTest
 		
 		RemoteAuthnContext remoteAuthnState = createRemoteContext();
 		
-		AuthenticationResult authnResult = verificator.processResponse(remoteAuthnState, profile, AuthenticationMethod.u_saml);
+		AuthenticationResult authnResult = verificator.processResponse(remoteAuthnState, profile, AuthenticationMethod.U_SAML);
 		
 		assertThat(authnResult).isEqualTo(result);
 	}

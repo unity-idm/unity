@@ -328,7 +328,7 @@ class RememberMeProcessorImpl implements RememberMeProcessor
 				new RememberMeInfo(firstFactorSkipped,
 						secondFactorAuthnOptionId != null),
 				unityRememberMeToken.get().getFirstFactorAuthnOptionId(),
-				secondFactorAuthnOptionId, null, Set.of(AuthenticationMethod.u_llc), Instant.now());
+				secondFactorAuthnOptionId, null, Set.of(AuthenticationMethod.U_LLC), Instant.now());
 		return Optional.of(session);
 	}
 

@@ -75,7 +75,7 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 		input.setRemoteAuthnMetadata(new RemoteAuthnMetadata(Protocol.OIDC, "idp", List.of("acr1")));
 		remotelyAuthenticatedPrincipal.setAuthnInput(input);
 		AuthenticationResult result = RemoteAuthenticationResult.successful(remotelyAuthenticatedPrincipal,
-				new AuthenticatedEntity(1L, "info", null), AuthenticationMethod.u_oauth, Instant.now());
+				new AuthenticatedEntity(1L, "info", null), AuthenticationMethod.U_OAUTH, Instant.now());
 
 		AuthenticatorInstanceMetadata meta = new AuthenticatorInstanceMetadata();
 		meta.setLocalCredentialName("pass");

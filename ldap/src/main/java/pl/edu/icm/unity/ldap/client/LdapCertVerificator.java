@@ -95,7 +95,7 @@ public class LdapCertVerificator extends LdapBaseVerificator implements Certific
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.swk;
+		return AuthenticationMethod.SWK;
 	}
 	
 	@Component

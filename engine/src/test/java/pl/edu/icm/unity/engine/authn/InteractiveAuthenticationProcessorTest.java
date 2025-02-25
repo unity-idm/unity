@@ -79,7 +79,7 @@ public class InteractiveAuthenticationProcessorTest
 		when(entityMan.getEntityLabel(new EntityParam(1L))).thenReturn("label");
 		Instant now = Instant.now();
 		when(sessionMan.getCreateSession(1, userRealm, "label", "out",
-			rememberMeInfo, authenticationOptionKey, null, null, Set.of(AuthenticationMethod.unkwown), now)).thenReturn(loginSession);
+			rememberMeInfo, authenticationOptionKey, null, null, Set.of(AuthenticationMethod.UNKNOWN), now)).thenReturn(loginSession);
 		InvocationContext.setCurrent(new InvocationContext(null, endpointRealm, List.of()));
 
 		
@@ -117,7 +117,7 @@ public class InteractiveAuthenticationProcessorTest
 		when(entityMan.getEntityLabel(new EntityParam(1L))).thenReturn("label");
 		Instant now = Instant.now();
 		when(sessionMan.getCreateSession(1, userRealm, "label", "out",
-			rememberMeInfo, authenticationOptionKey, null, null, Set.of(AuthenticationMethod.unkwown), now)).thenReturn(loginSession);
+			rememberMeInfo, authenticationOptionKey, null, null, Set.of(AuthenticationMethod.UNKNOWN), now)).thenReturn(loginSession);
 		InvocationContext.setCurrent(new InvocationContext(null, endpointRealm, List.of()));
 
 		RemotelyAuthenticatedInput remotelyAuthenticatedInput = new RemotelyAuthenticatedInput("idp");

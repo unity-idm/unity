@@ -7,8 +7,15 @@ package pl.edu.icm.unity.base.authn;
 
 public enum AuthenticationMethod
 {
-	sms(Factor.HAVE), swk(Factor.HAVE), pwd(Factor.KNOW), hwk(Factor.HAVE), otp(Factor.HAVE), u_oauth(Factor.UNKNOWN),
-	u_saml(Factor.UNKNOWN) , u_llc(Factor.UNKNOWN), unkwown (Factor.UNKNOWN);
+	SMS(Factor.HAVE),
+	SWK(Factor.HAVE),
+	PWD(Factor.KNOW),
+	HWK(Factor.HAVE),
+	OTP(Factor.HAVE),
+	U_OAUTH(Factor.UNKNOWN),
+	U_SAML(Factor.UNKNOWN),
+	U_LLC(Factor.UNKNOWN),
+	UNKNOWN (Factor.UNKNOWN);
 
 	public final Factor factor;
 

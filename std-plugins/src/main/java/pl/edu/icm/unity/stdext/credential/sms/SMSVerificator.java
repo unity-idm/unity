@@ -251,7 +251,7 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
-		return AuthenticationMethod.sms;
+		return AuthenticationMethod.SMS;
 	}
 	
 	@Component
