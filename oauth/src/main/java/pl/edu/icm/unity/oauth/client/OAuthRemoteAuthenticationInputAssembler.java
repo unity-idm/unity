@@ -92,7 +92,7 @@ class OAuthRemoteAuthenticationInputAssembler
 						.get(0))).toInstant();
 			} catch (Exception e)
 			{
-				log.debug("Can't parse " + IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME + " from oauth response");
+				log.debug("Can't parse " + IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME + " from oauth response", e);
 				return Instant.now();
 			}
 		}

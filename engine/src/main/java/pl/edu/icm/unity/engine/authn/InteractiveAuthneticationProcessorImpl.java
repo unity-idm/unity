@@ -223,7 +223,8 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			HttpServletResponse httpResponse,
 			SessionReinitializer sessionReinitializer)
 	{
-		LoginSession loginSession = getLoginSessionForEntity(input != null ? input.getRemoteAuthnMetadata() : null, authenticatedEntity, realm, authnOptionKey, null, Set.of(AuthenticationMethod.UNKNOWN), 
+		LoginSession loginSession = getLoginSessionForEntity(input != null ? input.getRemoteAuthnMetadata() : null,
+				authenticatedEntity, realm, authnOptionKey, null, Set.of(AuthenticationMethod.UNKNOWN),
 				input != null ? input.getAuthenticationTime() : Instant.now());
 		logged(authenticatedEntity, loginSession, realm, machineDetails, setRememberMe, participants,
 				sessionReinitializer, httpResponse);
