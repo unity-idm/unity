@@ -5,26 +5,24 @@
 
 package io.imunity.upman.front.views.invitations;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
+
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Service;
-
-import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.project.ProjectAddInvitationResult;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
-
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 class ProjectInvitationsService
@@ -140,7 +138,7 @@ class ProjectInvitationsService
 						String.join(",", addInvitations.projectAlreadyMemberEmails)));
 			}
 
-		} catch (EngineException|IllegalArgumentException e)
+		} catch (Exception e)
 		{
 			log.warn("Can not add invitations", e);
 			notificationPresenter.showError(msg.getMessage("InvitationsController.addInvitationError"),
