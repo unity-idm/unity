@@ -64,6 +64,7 @@ public class LocalTokenIntrospectionTest
 		assertThat(parsed.getAsString("sub")).isEqualTo("userA");
 		assertThat(parsed.get("aud")).isEqualTo("clientC");
 		assertThat(parsed.getAsString("iss")).isEqualTo(OAuthTestUtils.ISSUER);
+		assertThat(parsed.getAsString("auth_time")).isNotBlank();
 	}
 	
 	@Test

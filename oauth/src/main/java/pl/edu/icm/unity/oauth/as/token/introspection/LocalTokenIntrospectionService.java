@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.oauth.as.token.introspection;
 
+import java.util.Date;
 import java.util.Optional;
 
 import jakarta.ws.rs.core.Response;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.base.Joiner;
 import com.nimbusds.jwt.util.DateUtils;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.token.Token;
@@ -91,6 +93,10 @@ class LocalTokenIntrospectionService
 		ret.put("sub", parsedToken.getSubject());
 		ret.put("aud", getTokenAudience(parsedToken));
 		ret.put("iss", parsedToken.getIssuerUri());
+		if (parsedToken.getAuthenticationTime() != null)
+		{
+			ret.put(IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME, DateUtils.toSecondsSinceEpoch(Date.from(parsedToken.getAuthenticationTime())));
+		}
 		log.debug("Returning token information: {}", ret.toJSONString());
 		return ret;
 	}
