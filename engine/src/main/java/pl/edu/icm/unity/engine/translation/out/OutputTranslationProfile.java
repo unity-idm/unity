@@ -208,6 +208,7 @@ public class OutputTranslationProfile
 				usedAuthenticators.add(loginSession.getLogin2ndFactor().optionId.getAuthenticatorKey());
 			ret.put(OutputTranslationMVELContextKey.authentications.name(), usedAuthenticators);
 			ret.put(OutputTranslationMVELContextKey.mfa.name(), usedAuthenticators.size() > 1);
+			ret.put(OutputTranslationMVELContextKey.twoStepAuthn.name(), usedAuthenticators.size() > 1);
 			ret.putAll(getAuthnContextMvelVariables(loginSession.getFirstFactorRemoteIdPAuthnContext()));
 			ret.put(OutputTranslationMVELContextKey.amr.name(), AuthenticationMethodsToMvelContextMapper
 					.getAuthenticationMethodsWithMFAandMCAIfUsed(loginSession.getAuthenticationMethods()));

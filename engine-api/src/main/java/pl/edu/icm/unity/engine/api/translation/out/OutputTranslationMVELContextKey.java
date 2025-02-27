@@ -33,8 +33,8 @@ public enum OutputTranslationMVELContextKey
 	upstreamACRs(OutputTranslationMVELContextKey.descriptionPrefix + "upstreamACRs"),
 	upstreamIdP(OutputTranslationMVELContextKey.descriptionPrefix + "upstreamIdP"),
 	upstreamProtocol(OutputTranslationMVELContextKey.descriptionPrefix + "upstreamProtocol"),
-    amr(OutputTranslationMVELContextKey.descriptionPrefix + "amr");
-	
+    amr(OutputTranslationMVELContextKey.descriptionPrefix + "amr"),
+	twoStepAuthn(OutputTranslationMVELContextKey.descriptionPrefix + "twoStepAuthn");
 	
 	public static final String descriptionPrefix = "OutputTranslationMVELContextKey.";
 	public static final String DEFAULT_UPSTREAM_PROTOCOL = "local";
