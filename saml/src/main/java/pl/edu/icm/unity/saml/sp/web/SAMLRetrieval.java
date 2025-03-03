@@ -20,6 +20,7 @@ import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import io.imunity.vaadin.auth.ProxyAuthenticationCapable;
+import io.imunity.vaadin.auth.SigInInProgressContextService;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -85,7 +86,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 				ret.add(new SAMLRetrievalUI(msg, credentialExchange, 
 						samlContextManagement, 
 						idp.key, context,
-						new AuthenticationStepContext(authnStepContext, authenticationOptionKey),
+						new AuthenticationStepContext(authnStepContext, authenticationOptionKey, SigInInProgressContextService.getVaadinContext()),
 						logoExposingService, notificationPresenter));
 			}
 		}

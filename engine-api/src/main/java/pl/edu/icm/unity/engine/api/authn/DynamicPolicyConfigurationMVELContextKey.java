@@ -20,8 +20,10 @@ public enum DynamicPolicyConfigurationMVELContextKey
 	groups(DynamicPolicyConfigurationMVELContextKey.descriptionPrefix + "groups"),
 	upstreamACRs(DynamicPolicyConfigurationMVELContextKey.descriptionPrefix + "upstreamACRs"),
 	upstreamIdP(DynamicPolicyConfigurationMVELContextKey.descriptionPrefix + "upstreamIdP"),
-	upstreamProtocol(DynamicPolicyConfigurationMVELContextKey.descriptionPrefix + "upstreamProtocol");
-
+	upstreamProtocol(DynamicPolicyConfigurationMVELContextKey.descriptionPrefix + "upstreamProtocol"),
+	requestedACRs(DynamicPolicyConfigurationMVELContextKey.descriptionPrefix + "requestedACRs"),
+	requestedEssentialACRs(DynamicPolicyConfigurationMVELContextKey.descriptionPrefix + "requestedEssentialACRs");
+	
 	public static final String descriptionPrefix = "DynamicPolicyConfigurationMVELContextKey.";
 	public static final String DEFAULT_UPSTREAM_PROTOCOL = "local";
 	public final String descriptionKey;

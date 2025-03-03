@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.sp.web;
 
 import io.imunity.vaadin.auth.PreferredAuthenticationHelper;
+import io.imunity.vaadin.auth.SigInInProgressContextService;
 import io.imunity.vaadin.auth.server.ProxyAuthenticationFilter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import jakarta.servlet.http.HttpServletRequest;
@@ -92,7 +93,7 @@ public class SAMLProxyAuthnHandler
 		try
 		{
 			AuthenticationStepContext authnStepContext = new AuthenticationStepContext(authnContext, 
-					getAuthnOptionId(idpConfigKey));
+					getAuthnOptionId(idpConfigKey), SigInInProgressContextService.getContext(httpRequest));
 			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI, authnStepContext, 
 					loginMachineDetails,
 					currentRelativeURI,

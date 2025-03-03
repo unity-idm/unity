@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.authn;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
@@ -30,6 +31,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.SigInInProgressContext;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
@@ -69,7 +71,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 	 */
 	@Override
 	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result,
-			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId, Optional<SigInInProgressContext> loginInProgressContext) throws AuthenticationException
 	{
 		if (result.getStatus() != Status.success)
 		{
@@ -84,7 +86,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 		case REQUIRE:
 			return proccessRequiredPolicy(result, authenticationFlow, authnOptionId);
 		case DYNAMIC_EXPRESSION:
-			return proccessDynamicPolicy(result, authenticationFlow, authnOptionId);
+			return proccessDynamicPolicy(result, authenticationFlow, authnOptionId, loginInProgressContext);
 		case USER_OPTIN:
 			return proccessUserOptInPolicy(result, authenticationFlow, authnOptionId);
 		case NEVER:
@@ -121,7 +123,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 	}
 
 	private PartialAuthnState proccessDynamicPolicy(AuthenticationResult result,
-			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId, Optional<SigInInProgressContext> loginInProgressContext) throws AuthenticationException
 	{
 		PartialAuthnState partialAuthnState = null;
 		try
@@ -131,7 +133,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 			if (evaluateCondition(mvelExpression,
 					policyConfigMVELContextBuilder.createMvelContext(authnOptionId, result,
 							getUserOptInAttribute(result.getSuccessResult().authenticatedEntity.getEntityId()),
-							authenticationFlow)))
+							authenticationFlow, loginInProgressContext)))
 			{
 				partialAuthnState = getSecondFactorAuthn(authenticationFlow, result, authnOptionId);
 

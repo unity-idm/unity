@@ -71,7 +71,7 @@ public class SAMLResponseVerificatorTest
 						mock(AuthenticationFlow.class), 
 						AuthenticationOptionKey.authenticatorOnlyKey("authnKey"), 
 						FactorOrder.FIRST, 
-						"endpointPath"), 
+						"endpointPath", null), 
 				null, 
 				new LoginMachineDetails("ip", "os", "browser"), 
 				"ultimateReturnURL", 

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -44,6 +45,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata.Protocol;
+import pl.edu.icm.unity.engine.api.authn.ResolvedAuthenticationContextClassReference;
+import pl.edu.icm.unity.engine.api.authn.SigInInProgressContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -102,8 +105,11 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 			}
 		});
 
+		ResolvedAuthenticationContextClassReference resolvedAuthenticationContextClassReference = new ResolvedAuthenticationContextClassReference(
+				List.of("essentialAcr"), List.of("voluntaryAcr"));
+		
 		Map<String, Object> mvelContext = contextBuilder.createMvelContext(new AuthenticationOptionKey("akey", "op"),
-				result, true, flow);
+				result, true, flow, Optional.of(new SigInInProgressContext(resolvedAuthenticationContextClassReference)));
 
 		assertThat(mvelContext.get("userOptIn")).isEqualTo(true);
 		assertThat(mvelContext.get("hasValid2FCredential")).isEqualTo(true);
@@ -115,6 +121,9 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 		assertThat(mvelContext.get("upstreamACRs")).isEqualTo(List.of("acr1"));
 		assertThat(mvelContext.get("upstreamIdP")).isEqualTo("idp");
 		assertThat(mvelContext.get("upstreamProtocol")).isEqualTo("OIDC");
+		assertThat(mvelContext.get("requestedACRs")).isEqualTo(List.of("essentialAcr", "voluntaryAcr"));
+		assertThat(mvelContext.get("requestedEssentialACRs")).isEqualTo(List.of("essentialAcr"));
+		
 
 	}
 
