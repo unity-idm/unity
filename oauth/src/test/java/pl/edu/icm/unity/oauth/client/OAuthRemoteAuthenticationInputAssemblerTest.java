@@ -45,7 +45,7 @@ public class OAuthRemoteAuthenticationInputAssemblerTest
 				metadataManager);
 
 		RedirectedAuthnState baseAuthnContext = new RedirectedAuthnState(
-				new AuthenticationStepContext(null, null, null, null, null), null, null, null,
+				new AuthenticationStepContext(null, null, null, null, null, null), null, null, null,
 				AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
 
 		OAuthContext oAuthContext = new OAuthContext(baseAuthnContext);
@@ -78,7 +78,7 @@ public class OAuthRemoteAuthenticationInputAssemblerTest
 				metadataManager);
 
 		RedirectedAuthnState baseAuthnContext = new RedirectedAuthnState(
-				new AuthenticationStepContext(null, null, null, null, null), null, null, null,
+				new AuthenticationStepContext(null, null, null, null, null, null), null, null, null,
 				AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
 
 		OAuthContext oAuthContext = new OAuthContext(baseAuthnContext);

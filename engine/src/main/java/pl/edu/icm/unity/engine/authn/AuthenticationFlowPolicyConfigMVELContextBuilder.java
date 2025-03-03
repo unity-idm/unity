@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.DynamicPolicyConfigurationMVELContextKey;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
+import pl.edu.icm.unity.engine.api.authn.SigInInProgressContext;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
@@ -58,8 +60,8 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 	}
 
 	Map<String, Object> createMvelContext(AuthenticationOptionKey firstFactorOptionId,
-			AuthenticationResult authenticationSuccessResult, boolean userOptIn, AuthenticationFlow authenticationFlow)
-			throws EngineException
+			AuthenticationResult authenticationSuccessResult, boolean userOptIn, AuthenticationFlow authenticationFlow,
+			Optional<SigInInProgressContext> loginInProgressContext) throws EngineException
 	{
 
 		EntityParam entityParam = new EntityParam(
@@ -83,13 +85,14 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 		}
 
 		return setupContext(entity, context, allAttributes, resolvedGroups, userOptIn, authenticationFlow,
-				firstFactorOptionId);
+				firstFactorOptionId, loginInProgressContext);
 
 	}
 
 	private Map<String, Object> setupContext(Entity entity, RemoteAuthnMetadata context,
 			Collection<AttributeExt> allAttributes, List<String> groupNames, boolean userOptIn,
-			AuthenticationFlow authenticationFlow, AuthenticationOptionKey firstFactorOptionId) throws EngineException
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey firstFactorOptionId,
+			Optional<SigInInProgressContext> loginInProgressContext) throws EngineException
 	{
 		Map<String, Object> ret = new HashMap<>();
 		addAttributesToContext(DynamicPolicyConfigurationMVELContextKey.attr.name(),
@@ -102,6 +105,8 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 				firstFactorOptionId.getAuthenticatorKey());
 		ret.put(DynamicPolicyConfigurationMVELContextKey.hasValid2FCredential.name(),
 				hasValid2FCredential(entity, authenticationFlow));
+		ret.put(DynamicPolicyConfigurationMVELContextKey.requestedACRs.name(), loginInProgressContext.isPresent()? loginInProgressContext.get().acr().getAll() : List.of());
+		ret.put(DynamicPolicyConfigurationMVELContextKey.requestedEssentialACRs.name(), loginInProgressContext.isPresent()? loginInProgressContext.get().acr().essentialACRs() : List.of());
 
 		log.debug("Created MVEL context for entity {}: {}", entity.getId(), ret);
 

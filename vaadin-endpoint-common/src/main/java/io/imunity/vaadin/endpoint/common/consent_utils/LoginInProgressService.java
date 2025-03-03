@@ -58,6 +58,19 @@ public class LoginInProgressService<AUTHZ_CTX>
 		return key;
 	}
 	
+	public SignInContextKey setContext(HttpSession session, AUTHZ_CTX context, SignInContextKey key)
+	{
+		SignInContexts<AUTHZ_CTX> sessionContext = getAttribute(new HttpContextSession(session));
+		if (sessionContext == null)
+		{
+			sessionContext = new SignInContexts<>();
+			session.setAttribute(contextAttributeName, sessionContext);
+		}
+
+		sessionContext.put(key, context);
+		return key;
+	}
+	
 	public void putExistingContextUnderNewKey(WrappedSession wrappedSession, SignInContextKey existingKey, SignInContextKey newKey)
 	{
 		SignInContexts<AUTHZ_CTX> sessionContext = getAttribute(new VaadinContextSession(wrappedSession));

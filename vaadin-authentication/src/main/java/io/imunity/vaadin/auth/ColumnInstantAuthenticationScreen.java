@@ -4,6 +4,15 @@
  */
 package io.imunity.vaadin.auth;
 
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_SHOW_CANCEL;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.collect.Lists;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -12,6 +21,7 @@ import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.CancelHandler;
@@ -20,7 +30,6 @@ import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
@@ -28,19 +37,17 @@ import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.*;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
+import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult.UnknownRemotePrincipalResult;
+import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAccessCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-
-import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_SHOW_CANCEL;
 
 /**
  * Organizes authentication options in columns, making them instantly usable.
@@ -276,6 +283,9 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 		AuthenticationOptionKey optionId = new AuthenticationOptionKey(authnOption.authenticator.getAuthenticatorId(),
 				authnOption.authenticatorUI.getId());
 
+		Long id = Thread.currentThread().getId();
+		id.byteValue();
+		
 		FirstFactorAuthNPanel authNPanel = new FirstFactorAuthNPanel(
 				cancelHandler, unknownUserDialogProvider, gridCompatible,
 				authnOption.authenticatorUI, optionId);
@@ -283,7 +293,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 				authnOption.flow,
 				optionId,
 				FactorOrder.FIRST,
-				endpointDescription.getEndpoint().getContextAddress());
+				endpointDescription.getEndpoint().getContextAddress(), SigInInProgressContextService.getVaadinContext());
 		VaadinAuthentication.AuthenticationCallback controller = createFirstFactorAuthnCallback(optionId, authNPanel,
 				stepContext);
 		authnOption.authenticatorUI.setAuthenticationCallback(controller);
@@ -316,7 +326,7 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 				optionId, this::switchBackToPrimaryAuthentication);
 		AuthenticationStepContext stepContext = new AuthenticationStepContext(endpointDescription.getRealm(),
 				partialAuthnState.getAuthenticationFlow(),
-				authNPanel.getAuthenticationOptionId(), FactorOrder.SECOND, null);
+				authNPanel.getAuthenticationOptionId(), FactorOrder.SECOND, null, SigInInProgressContextService.getVaadinContext());
 		VaadinAuthentication.AuthenticationCallback controller = createSecondFactorAuthnCallback(optionId,
 				authNPanel, stepContext, partialAuthnState);
 		secondaryUI.setAuthenticationCallback(controller);

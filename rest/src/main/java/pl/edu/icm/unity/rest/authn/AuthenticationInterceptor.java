@@ -251,7 +251,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 				}
 
 				state = authenticationProcessor.processPrimaryAuthnResult(result, authenticationFlow,
-						authenticatorOnlyKey(authn.getRetrieval().getAuthenticatorId()));
+						authenticatorOnlyKey(authn.getRetrieval().getAuthenticatorId()), Optional.empty());
 			} catch (AuthenticationException e)
 			{
 				throw new AuthenticationException(e.getMessage());

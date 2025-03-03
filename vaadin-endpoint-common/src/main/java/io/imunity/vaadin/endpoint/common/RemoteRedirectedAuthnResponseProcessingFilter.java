@@ -4,18 +4,26 @@
  */
 package io.imunity.vaadin.endpoint.common;
 
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
 import org.apache.logging.log4j.Logger;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InteractiveAuthenticationProcessor.PostAuthenticationStepDecision;
-import pl.edu.icm.unity.engine.api.authn.remote.*;
+import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
+import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthenticationContextManagement.UnboundRelayStateException;
-import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResponseProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.SharedRemoteAuthenticationContextStore;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-
-import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * Common filter to be installed on endpoints which can receive response of remote authentication.

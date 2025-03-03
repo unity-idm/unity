@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.client.web;
 
 import io.imunity.vaadin.auth.ProxyAuthenticationCapable;
+import io.imunity.vaadin.auth.SigInInProgressContextService;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -86,7 +87,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 					new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
 			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange,
 					key, context,
-					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey),
+					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey, SigInInProgressContextService.getVaadinContext()),
 					notificationPresenter));
 		}
 		return ret;

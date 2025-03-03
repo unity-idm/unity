@@ -77,7 +77,7 @@ public class AuthenticationInterceptorTest
 
 		when(mockAuthenticator1.getMetadata()).thenReturn(new AuthenticatorInstanceMetadata());
 		when(mockAuthenticator1.getRetrieval()).thenReturn(new DenyRetrieval());
-		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any())).thenThrow(new AuthenticationException(""));
+		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any(), any())).thenThrow(new AuthenticationException(""));
 		SessionManagement sessionMan = mock(SessionManagement.class);
 
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(mock(MessageSource.class), mockProcessor,
@@ -108,7 +108,7 @@ public class AuthenticationInterceptorTest
 		when(mockAuthenticator1.getRetrieval()).thenReturn(new NotDefCredRetrieval());
 		when(mockAuthenticator2.getRetrieval()).thenReturn(new SuccessRetrieval());
 
-		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any()))
+		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any(), any()))
 				.thenReturn(new PartialAuthnState(AuthenticationOptionKey.authenticatorOnlyKey("x"), null,
 						LocalAuthenticationResult.successful(new AuthenticatedEntity(1L, "", ""), AuthenticationMethod.UNKNOWN), flow2));
 
@@ -138,7 +138,7 @@ public class AuthenticationInterceptorTest
 		when(mockAuthenticator1.getMetadata()).thenReturn(new AuthenticatorInstanceMetadata());
 		when(mockAuthenticator1.getRetrieval()).thenReturn(new DenyRetrieval());
 
-		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any())).thenThrow(new AuthenticationException(""));
+		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any(), any())).thenThrow(new AuthenticationException(""));
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(mock(MessageSource.class), mockProcessor,
 				List.of(flow1, flow2), new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0),
 				mock(SessionManagement.class), Set.of("/p1"), Set.of("/optional"), null, mock(EntityManagement.class));

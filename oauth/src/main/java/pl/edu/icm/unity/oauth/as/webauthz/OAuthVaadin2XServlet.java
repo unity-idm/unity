@@ -13,6 +13,7 @@ import com.vaadin.flow.server.VaadinServlet;
 import com.vaadin.flow.server.VaadinServletService;
 
 import io.imunity.vaadin.auth.SecuredSpringVaadin2XServletService;
+import io.imunity.vaadin.auth.SigInInProgressContextService;
 import io.imunity.vaadin.endpoint.common.SpringContextProvider;
 
 public class OAuthVaadin2XServlet extends VaadinServlet
@@ -25,8 +26,11 @@ public class OAuthVaadin2XServlet extends VaadinServlet
 				deploymentConfiguration,
 				SpringContextProvider.getContext(),
 				getServletContext().getContextPath() + OAUTH_CONSENT_DECIDER_SERVLET_PATH,
-				OAuthSessionService::putExistingContextUnderNewKey
-		);
+				(w, e, n) ->
+				{
+					OAuthSessionService.putExistingContextUnderNewKey(w, e, n);
+					SigInInProgressContextService.putExistingContextUnderNewKey(w, e, n);
+				}		);
 		service.init();
 		return service;
 	}

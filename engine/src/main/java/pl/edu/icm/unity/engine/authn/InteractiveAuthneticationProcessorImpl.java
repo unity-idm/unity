@@ -96,10 +96,12 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 			SessionReinitializer sessionReinitializer)
 	{
 		PartialAuthnState authnState;
+	
 		try
 		{
-			authnState = basicAuthnProcessor.processPrimaryAuthnResult(result,
-					stepContext.selectedAuthnFlow, stepContext.authnOptionId);
+			authnState = basicAuthnProcessor.processPrimaryAuthnResult(result, stepContext.selectedAuthnFlow,
+					stepContext.authnOptionId,
+					stepContext.loginInProgressContext);
 			assertNotFailed(authnState.getPrimaryResult());
 		} catch (AuthenticationException e)
 		{
@@ -205,7 +207,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		try
 		{
 			basicAuthnProcessor.processPrimaryAuthnResult(result,
-					stepContext.selectedAuthnFlow, stepContext.authnOptionId);
+					stepContext.selectedAuthnFlow, stepContext.authnOptionId, stepContext.loginInProgressContext);
 			return PostAuthenticationStepDecision.completed();
 		} catch (AuthenticationException e)
 		{
@@ -240,7 +242,7 @@ class InteractiveAuthneticationProcessorImpl implements InteractiveAuthenticatio
 		PartialAuthnState authnState;
 		try
 		{
-			authnState = basicAuthnProcessor.processPrimaryAuthnResult(result, stepContext.selectedAuthnFlow, null);
+			authnState = basicAuthnProcessor.processPrimaryAuthnResult(result, stepContext.selectedAuthnFlow, null, stepContext.loginInProgressContext);
 			assertNotFailed(authnState.getPrimaryResult());
 		} catch (UnknownRemoteUserException e)
 		{
