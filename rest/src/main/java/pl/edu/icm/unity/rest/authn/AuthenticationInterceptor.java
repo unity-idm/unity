@@ -48,6 +48,8 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
+import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
+import pl.edu.icm.unity.engine.api.authn.SigInInProgressContext;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAccessCounter;
 import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -251,7 +253,10 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 				}
 
 				state = authenticationProcessor.processPrimaryAuthnResult(result, authenticationFlow,
-						authenticatorOnlyKey(authn.getRetrieval().getAuthenticatorId()), Optional.empty());
+						authenticatorOnlyKey(authn.getRetrieval()
+								.getAuthenticatorId()),
+						new SigInInProgressContext(
+								new RequestedAuthenticationContextClassReference(List.of(), List.of())));
 			} catch (AuthenticationException e)
 			{
 				throw new AuthenticationException(e.getMessage());

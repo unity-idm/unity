@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.authn;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
@@ -71,7 +70,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 	 */
 	@Override
 	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result,
-			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId, Optional<SigInInProgressContext> loginInProgressContext) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId, SigInInProgressContext sigInInProgressContext) throws AuthenticationException
 	{
 		if (result.getStatus() != Status.success)
 		{
@@ -86,7 +85,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 		case REQUIRE:
 			return proccessRequiredPolicy(result, authenticationFlow, authnOptionId);
 		case DYNAMIC_EXPRESSION:
-			return proccessDynamicPolicy(result, authenticationFlow, authnOptionId, loginInProgressContext);
+			return proccessDynamicPolicy(result, authenticationFlow, authnOptionId, sigInInProgressContext);
 		case USER_OPTIN:
 			return proccessUserOptInPolicy(result, authenticationFlow, authnOptionId);
 		case NEVER:
@@ -123,7 +122,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 	}
 
 	private PartialAuthnState proccessDynamicPolicy(AuthenticationResult result,
-			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId, Optional<SigInInProgressContext> loginInProgressContext) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId, SigInInProgressContext sigInInProgressContext) throws AuthenticationException
 	{
 		PartialAuthnState partialAuthnState = null;
 		try
@@ -133,7 +132,7 @@ class AuthenticationProcessorImpl implements AuthenticationProcessor
 			if (evaluateCondition(mvelExpression,
 					policyConfigMVELContextBuilder.createMvelContext(authnOptionId, result,
 							getUserOptInAttribute(result.getSuccessResult().authenticatedEntity.getEntityId()),
-							authenticationFlow, loginInProgressContext)))
+							authenticationFlow, sigInInProgressContext)))
 			{
 				partialAuthnState = getSecondFactorAuthn(authenticationFlow, result, authnOptionId);
 

@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.authn;
 
-import java.util.Optional;
-
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 
@@ -16,22 +14,22 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 public class AuthenticationStepContext extends AuthenticatorStepContext
 {
 	public final AuthenticationOptionKey authnOptionId;
-	public final Optional<SigInInProgressContext> loginInProgressContext;
+	public final SigInInProgressContext signInInProgressContext;
 	
 	public AuthenticationStepContext(AuthenticationRealm realm, AuthenticationFlow selectedAuthnFlow,
-			AuthenticationOptionKey authnOptionId, FactorOrder factor, String endpointPath, Optional<SigInInProgressContext> loginInProgressContext)
+			AuthenticationOptionKey authnOptionId, FactorOrder factor, String endpointPath, SigInInProgressContext signInInProgressContext)
 	{
 		super(realm, selectedAuthnFlow, endpointPath, factor);
 		this.authnOptionId = authnOptionId;
-		this.loginInProgressContext = loginInProgressContext;
+		this.signInInProgressContext = signInInProgressContext;
 	}
 
 	public AuthenticationStepContext(AuthenticatorStepContext authenticatorContext,
-			AuthenticationOptionKey authnOptionId, Optional<SigInInProgressContext> loginInProgressContext)
+			AuthenticationOptionKey authnOptionId, SigInInProgressContext signInInProgressContext)
 	{
 		super(authenticatorContext);
 		this.authnOptionId = authnOptionId;
-		this.loginInProgressContext = loginInProgressContext;
+		this.signInInProgressContext = signInInProgressContext;
 	}
 
 }

@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.api.authn;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
@@ -33,10 +32,9 @@ public interface AuthenticationProcessor
 	 * Starting point: the result of the primary authenticator is verified. If the authentication failed
 	 * then an exception is thrown. Otherwise it is checked whether, according to the 
 	 * {@link AuthenticationFlow} selected, second authentication should be performed, what is returned.
-	 * @param acr 
 	 */
 	PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, 
-			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId, Optional<SigInInProgressContext> loginInProgressContext) throws AuthenticationException;
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey authnOptionId, SigInInProgressContext sigInInProgressContext) throws AuthenticationException;
 	
 	
 	/**

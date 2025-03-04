@@ -5,7 +5,7 @@
 
 package io.imunity.vaadin.auth;
 
-import java.util.Optional;
+import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -17,6 +17,7 @@ import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.Si
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
 import pl.edu.icm.unity.engine.api.authn.SigInInProgressContext;
 
 @Component
@@ -41,20 +42,22 @@ public class SigInInProgressContextService
 		return LOGIN_IN_PROGRESS_SERVICE.setContext(session, context, key);
 	}
 
-	public static Optional<SigInInProgressContext> getContext(HttpServletRequest req)
+	public static SigInInProgressContext getContext(HttpServletRequest req)
 	{
-		return LOGIN_IN_PROGRESS_SERVICE.getContext(req);
+		return LOGIN_IN_PROGRESS_SERVICE.getContext(req)
+				.orElse(new SigInInProgressContext(
+						new RequestedAuthenticationContextClassReference(List.of(), List.of())));
 	}
 
-	public static Optional<SigInInProgressContext> getVaadinContext()
+	public static SigInInProgressContext getVaadinContext()
 	{
 		try
 		{
-			return Optional.of(LOGIN_IN_PROGRESS_SERVICE.getVaadinContext());
+			return LOGIN_IN_PROGRESS_SERVICE.getVaadinContext();
 		} catch (Exception e)
 		{
 			log.debug("Can not get sigInInProgressContext", e);
-			return Optional.empty();
+			return new SigInInProgressContext(new RequestedAuthenticationContextClassReference(List.of(), List.of()));
 		}
 	}
 }

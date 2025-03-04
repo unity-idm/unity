@@ -5,7 +5,8 @@
 
 package pl.edu.icm.unity.engine.api.authn;
 
-public record SigInInProgressContext(ResolvedAuthenticationContextClassReference acr)
+public record SigInInProgressContext(
+		RequestedAuthenticationContextClassReference acr)
 {
 
 }

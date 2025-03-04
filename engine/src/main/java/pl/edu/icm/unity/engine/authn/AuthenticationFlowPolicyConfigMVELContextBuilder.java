@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -61,7 +60,7 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 
 	Map<String, Object> createMvelContext(AuthenticationOptionKey firstFactorOptionId,
 			AuthenticationResult authenticationSuccessResult, boolean userOptIn, AuthenticationFlow authenticationFlow,
-			Optional<SigInInProgressContext> loginInProgressContext) throws EngineException
+			SigInInProgressContext sigInInProgressContext) throws EngineException
 	{
 
 		EntityParam entityParam = new EntityParam(
@@ -85,14 +84,14 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 		}
 
 		return setupContext(entity, context, allAttributes, resolvedGroups, userOptIn, authenticationFlow,
-				firstFactorOptionId, loginInProgressContext);
+				firstFactorOptionId, sigInInProgressContext);
 
 	}
 
 	private Map<String, Object> setupContext(Entity entity, RemoteAuthnMetadata context,
 			Collection<AttributeExt> allAttributes, List<String> groupNames, boolean userOptIn,
 			AuthenticationFlow authenticationFlow, AuthenticationOptionKey firstFactorOptionId,
-			Optional<SigInInProgressContext> loginInProgressContext) throws EngineException
+			SigInInProgressContext sigInInProgressContext) throws EngineException
 	{
 		Map<String, Object> ret = new HashMap<>();
 		addAttributesToContext(DynamicPolicyConfigurationMVELContextKey.attr.name(),
@@ -105,8 +104,14 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 				firstFactorOptionId.getAuthenticatorKey());
 		ret.put(DynamicPolicyConfigurationMVELContextKey.hasValid2FCredential.name(),
 				hasValid2FCredential(entity, authenticationFlow));
-		ret.put(DynamicPolicyConfigurationMVELContextKey.requestedACRs.name(), loginInProgressContext.isPresent()? loginInProgressContext.get().acr().getAll() : List.of());
-		ret.put(DynamicPolicyConfigurationMVELContextKey.requestedEssentialACRs.name(), loginInProgressContext.isPresent()? loginInProgressContext.get().acr().essentialACRs() : List.of());
+		ret.put(DynamicPolicyConfigurationMVELContextKey.requestedACRs.name(),
+				sigInInProgressContext != null ? sigInInProgressContext
+						.acr()
+						.getAll() : List.of());
+		ret.put(DynamicPolicyConfigurationMVELContextKey.requestedEssentialACRs.name(),
+				sigInInProgressContext != null ? sigInInProgressContext
+						.acr()
+						.essentialACRs() : List.of());
 
 		log.debug("Created MVEL context for entity {}: {}", entity.getId(), ret);
 
