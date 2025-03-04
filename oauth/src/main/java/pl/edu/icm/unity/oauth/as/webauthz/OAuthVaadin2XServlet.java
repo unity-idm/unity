@@ -26,10 +26,10 @@ public class OAuthVaadin2XServlet extends VaadinServlet
 				deploymentConfiguration,
 				SpringContextProvider.getContext(),
 				getServletContext().getContextPath() + OAUTH_CONSENT_DECIDER_SERVLET_PATH,
-				(w, e, n) ->
+				(session, existingKeye, newKey) ->
 				{
-					OAuthSessionService.putExistingContextUnderNewKey(w, e, n);
-					SigInInProgressContextService.putExistingContextUnderNewKey(w, e, n);
+					OAuthSessionService.putExistingContextUnderNewKey(session, existingKeye, newKey);
+					SigInInProgressContextService.putExistingContextUnderNewKey(session, existingKeye, newKey);
 				}		);
 		service.init();
 		return service;

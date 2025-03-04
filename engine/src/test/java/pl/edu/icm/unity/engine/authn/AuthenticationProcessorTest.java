@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
@@ -68,9 +67,9 @@ public class AuthenticationProcessorTest
 		AuthenticationFlow authenticationFlow = new AuthenticationFlow("flow", Policy.DYNAMIC_EXPRESSION, Set.of(),
 				List.of(instance), new DynamicExpressionPolicyConfiguration("hasValid2FCredential == true"), 1L);
 		when(policyConfigMVELContextBuilder.createMvelContext(optionKey, result, false,
-				authenticationFlow, Optional.empty())).thenReturn(Map.of("hasValid2FCredential", true));
+				authenticationFlow, null)).thenReturn(Map.of("hasValid2FCredential", true));
 		PartialAuthnState processPrimaryAuthnResult = processor.processPrimaryAuthnResult(result, authenticationFlow,
-				optionKey, Optional.empty());
+				optionKey, null);
 		assertThat(processPrimaryAuthnResult.getSecondaryAuthenticator()).isNotNull();
 
 	}
@@ -90,9 +89,9 @@ public class AuthenticationProcessorTest
 		AuthenticationFlow authenticationFlow = new AuthenticationFlow("flow", Policy.DYNAMIC_EXPRESSION, Set.of(),
 				List.of(instance), new DynamicExpressionPolicyConfiguration("hasValid2FCredential == true"), 1L);
 		when(policyConfigMVELContextBuilder.createMvelContext(optionKey, result, false,
-				authenticationFlow, Optional.empty())).thenReturn(Map.of("hasValid2FCredential", false));
+				authenticationFlow, null)).thenReturn(Map.of("hasValid2FCredential", false));
 		PartialAuthnState processPrimaryAuthnResult = processor.processPrimaryAuthnResult(result, authenticationFlow,
-				optionKey, Optional.empty());
+				optionKey, null);
 		assertThat(processPrimaryAuthnResult.getSecondaryAuthenticator()).isNull();
 	}
 }

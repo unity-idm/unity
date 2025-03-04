@@ -282,10 +282,6 @@ public class ColumnInstantAuthenticationScreen extends VerticalLayout
 	{
 		AuthenticationOptionKey optionId = new AuthenticationOptionKey(authnOption.authenticator.getAuthenticatorId(),
 				authnOption.authenticatorUI.getId());
-
-		Long id = Thread.currentThread().getId();
-		id.byteValue();
-		
 		FirstFactorAuthNPanel authNPanel = new FirstFactorAuthNPanel(
 				cancelHandler, unknownUserDialogProvider, gridCompatible,
 				authnOption.authenticatorUI, optionId);

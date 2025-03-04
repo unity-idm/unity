@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,7 +44,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata.Protocol;
-import pl.edu.icm.unity.engine.api.authn.ResolvedAuthenticationContextClassReference;
+import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
 import pl.edu.icm.unity.engine.api.authn.SigInInProgressContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
@@ -105,11 +104,11 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 			}
 		});
 
-		ResolvedAuthenticationContextClassReference resolvedAuthenticationContextClassReference = new ResolvedAuthenticationContextClassReference(
+		RequestedAuthenticationContextClassReference resolvedAuthenticationContextClassReference = new RequestedAuthenticationContextClassReference(
 				List.of("essentialAcr"), List.of("voluntaryAcr"));
 		
 		Map<String, Object> mvelContext = contextBuilder.createMvelContext(new AuthenticationOptionKey("akey", "op"),
-				result, true, flow, Optional.of(new SigInInProgressContext(resolvedAuthenticationContextClassReference)));
+				result, true, flow, new SigInInProgressContext(resolvedAuthenticationContextClassReference));
 
 		assertThat(mvelContext.get("userOptIn")).isEqualTo(true);
 		assertThat(mvelContext.get("hasValid2FCredential")).isEqualTo(true);

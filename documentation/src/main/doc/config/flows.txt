@@ -47,7 +47,7 @@ Context reference for the dynamic expression policy:
 . +upstreamProtocol+  Name of the authentication protocol used for the first factor, one of: +saml+, +oidc+, +other+ or +local+. 
 . +userOptIn+  Boolean, true if user opted to use 2nd factor
 . +requestedACRs+ List with names of all requested authentication context class references.
-. +requestedEssentialACRs+ List with names of requested essential only authentication context class references.
+. +requestedEssentialACRs+ List with names of requested essential authentication context class references.
 
 Example use of dynamic 2nd factor policy, activating Fido based 2nd factor, in case when remote SAML authentication was not using MFA itself:  
 

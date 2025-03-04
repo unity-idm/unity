@@ -34,6 +34,7 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.op.ACRRequest;
 
 import io.imunity.vaadin.auth.SigInInProgressContextService;
@@ -49,7 +50,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
-import pl.edu.icm.unity.engine.api.authn.ResolvedAuthenticationContextClassReference;
+import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
 import pl.edu.icm.unity.engine.api.authn.SigInInProgressContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -220,18 +221,25 @@ public class OAuthParseServlet extends HttpServlet
 
 		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
 		setLanguageCookie(response, parsedRequestParametersWithUILocales.uiLocales);
-		setResolvedAuthenticationContextClassReference(authzRequest, request.getSession(), contextKey);
+		setRequestedAuthenticationContextClassReference(authzRequest, request.getSession(), contextKey);
 		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
 	}
 	
-	private void setResolvedAuthenticationContextClassReference(AuthorizationRequest authzRequest, HttpSession session, LoginInProgressService.SignInContextKey key)
+	private void setRequestedAuthenticationContextClassReference(AuthorizationRequest authzRequest, HttpSession session,
+			LoginInProgressService.SignInContextKey key)
 	{
 		ACRRequest acrRequest = ACRRequest.resolve(authzRequest);
-		SigInInProgressContextService.setContext(session, new SigInInProgressContext(new ResolvedAuthenticationContextClassReference(
-						 acrRequest.getEssentialACRs() != null  ? acrRequest.getEssentialACRs().stream().map(a -> a.getValue()).toList() : List.of(),
-								 acrRequest.getVoluntaryACRs() != null ? acrRequest.getVoluntaryACRs().stream().map(a -> a.getValue()).toList() : List.of())), key);
+		SigInInProgressContextService.setContext(session,
+				new SigInInProgressContext(new RequestedAuthenticationContextClassReference(
+						getMappedACRs(acrRequest.getEssentialACRs()), getMappedACRs(acrRequest.getVoluntaryACRs()))),
+				key);
 	}
 
+	private List<String> getMappedACRs(List<ACR> acrs)
+	{
+		return acrs != null  ? acrs.stream().map(a -> a.getValue()).toList() : List.of();
+	}
+	
 	private void setLanguageCookie(HttpServletResponse response, Optional<List<LangTag>> uiLocales)
 	{
 		if (uiLocales.isEmpty())

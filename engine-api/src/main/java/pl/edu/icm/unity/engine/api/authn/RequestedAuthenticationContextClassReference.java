@@ -9,7 +9,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Stream;
 
-public record ResolvedAuthenticationContextClassReference(List<String> essentialACRs, List<String> voluntaryACRs)
+public record RequestedAuthenticationContextClassReference(
+		List<String> essentialACRs,
+		List<String> voluntaryACRs)
 {
 	public List<String> getAll()
 	{
