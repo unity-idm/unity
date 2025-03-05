@@ -486,7 +486,10 @@ class MetadataToSPConfigConverter
 			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
 	{
 		I18nString ret = new I18nString();
-		ret.addAllValues(getLocalizedNames(uiInfo, idpDesc, mainDescriptor));
+		Map<String, String> localizedNames = getLocalizedNames(uiInfo, idpDesc, mainDescriptor);
+		ret.addAllValues(localizedNames);
+		if (localizedNames.containsKey(""))
+			ret.setDefaultValue(localizedNames.get(""));
 		return ret;
 	}
 	
