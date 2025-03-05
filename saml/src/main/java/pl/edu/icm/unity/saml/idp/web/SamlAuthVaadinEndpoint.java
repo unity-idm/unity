@@ -278,7 +278,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 				description.getEndpoint().getContextAddress(),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN),
 				description.getRealm());
-		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*",
+		servletContextHandler.addFilter(new FilterHolder(proxyAuthnFilter), SAML_UI_SERVLET_PATH + "/*",
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm(),

@@ -5,20 +5,17 @@
 package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Sets;
@@ -40,6 +37,7 @@ import com.nimbusds.openid.connect.sdk.op.ACRRequest;
 import io.imunity.vaadin.auth.SigInInProgressContextService;
 import io.imunity.vaadin.endpoint.common.EopException;
 import io.imunity.vaadin.endpoint.common.LanguageCookie;
+import io.imunity.vaadin.endpoint.common.QueryBuilder;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
@@ -300,37 +298,15 @@ public class OAuthParseServlet extends HttpServlet
 
 		return AuthenticationPolicy.DEFAULT;
 	}
-
 	/**
-	 * We are passing all unknown to OAuth query parameters to downstream servlet.
-	 * This may help to build extended UIs, which can interpret those parameters.
-	 */
+	* We are passing all unknown to OAuth query parameters to downstream servlet.
+	* This may help to build extended UIs, which can interpret those parameters.
+	*/
 	private String getQueryToAppend(AuthorizationRequest authzRequest, LoginInProgressService.SignInContextKey contextKey)
 	{
-		Map<String, List<String>> customParameters = authzRequest.getCustomParameters();
-		URIBuilder b = new URIBuilder();
-		for (Entry<String, List<String>> entry : customParameters.entrySet())
-		{
-			for (String value : entry.getValue())
-			{
-				b.addParameter(entry.getKey(), value);
-			}
-		}
-		if (!LoginInProgressService.UrlParamSignInContextKey.DEFAULT.equals(contextKey))
-		{
-			b.addParameter(OAuthSessionService.URL_PARAM_CONTEXT_KEY, contextKey.getKey());
-		}
-		String query = null;
-		try
-		{
-			query = b.build().getRawQuery();
-		} catch (URISyntaxException e)
-		{
-			log.error("Can't re-encode URL query params, shouldn't happen", e);
-		}
-		return query == null ? "" : "?" + query;
+		return QueryBuilder.buildQuery(authzRequest.getCustomParameters(), contextKey.getKey());
 	}
-	
+
 	private class ParsedRequestParametersWithUILocales
 	{
 		final Map<String, List<String>> parsedRequestParameters;
