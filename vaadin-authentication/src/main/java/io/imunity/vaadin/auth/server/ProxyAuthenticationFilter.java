@@ -4,10 +4,29 @@
  */
 package io.imunity.vaadin.auth.server;
 
-import io.imunity.vaadin.auth.PreferredAuthenticationHelper;
-import io.imunity.vaadin.auth.ProxyAuthenticationCapable;
+import static io.imunity.vaadin.auth.server.AuthenticationFilter.isVaadinBackgroundRequest;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
+
+import io.imunity.vaadin.auth.PreferredAuthenticationHelper;
+import io.imunity.vaadin.auth.ProxyAuthenticationCapable;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.utils.Log;
@@ -16,17 +35,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorStepContext.FactorOrder;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
-
-import jakarta.servlet.*;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static io.imunity.vaadin.auth.server.AuthenticationFilter.isVaadinBackgroundRequest;
 
 /**
  * Non UI code which is invoked as a part of authentication pipeline for unauthenticated clients.
@@ -95,13 +103,32 @@ public class ProxyAuthenticationFilter implements Filter
 	
 	public static String getCurrentRelativeURL(HttpServletRequest httpRequest)
 	{
+		DispatcherType dispatcherType = httpRequest.getDispatcherType();
+		return switch (dispatcherType)
+		{
+			case FORWARD -> forwardBasedRelativeURL(httpRequest);
+			case REQUEST -> requestBasedRelativeURL(httpRequest);
+			default -> throw new IllegalStateException("Unexpected dispatcher type: " + dispatcherType);
+		};
+	}
+
+	private static String requestBasedRelativeURL(HttpServletRequest httpRequest)
+	{
+		String relativeUrl = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
+		String query = httpRequest.getQueryString() == null ? "" :
+			ProxyAuthenticationFilter.filteredQuery(httpRequest);
+		return relativeUrl + query;
+	}
+
+	private static String forwardBasedRelativeURL(HttpServletRequest httpRequest)
+	{
 		String origReqUri = (String)httpRequest.getAttribute(RequestDispatcher.FORWARD_REQUEST_URI);
 		String servletPath = origReqUri == null ? "/" : origReqUri;
-		String query = httpRequest.getQueryString() == null ? "" : 
+		String query = httpRequest.getQueryString() == null ? "" :
 			ProxyAuthenticationFilter.filteredQuery(httpRequest);
 		return servletPath + query;
 	}
-	
+
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException

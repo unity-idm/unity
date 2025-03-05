@@ -13,6 +13,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import io.imunity.vaadin.elements.CssClassNames;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -239,7 +240,7 @@ public class AuthnsGridWidget extends VerticalLayout
 		{
 			String otherName = o.getNameWithTags().name;
 			String thisName = getNameWithTags().name;
-			return thisName.compareToIgnoreCase(otherName);
+			return StringUtils.compareIgnoreCase(thisName,otherName, false);
 		}
 	}
 }
