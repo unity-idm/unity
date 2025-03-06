@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -270,8 +271,8 @@ class MetadataToSPConfigConverter
 			log.trace("Condition evaluated for IDP of entity {} is evaluated to null value, assuming false.", entityId);
 			return false;
 		}
-		log.trace("Condition \"{}\" evaluated for IDP of entity {} is evaluated to {}", condition, entityId, result.booleanValue());
-		return result.booleanValue();
+		log.trace("Condition \"{}\" evaluated for IDP of entity {} is evaluated to {}", condition, entityId, result);
+		return result;
 	}
 
 	
@@ -450,8 +451,7 @@ class MetadataToSPConfigConverter
 	{
 		String dn = X500NameUtils.getComparableForm(cert.getSubjectX500Principal().getName());
 		String serial = cert.getSerialNumber().toString();
-		String key = prefix + DigestUtils.md5Hex(entityId) + "#" + DigestUtils.md5Hex(dn) + "#" + serial;
-		return key;
+		return prefix + DigestUtils.md5Hex(entityId) + "#" + DigestUtils.md5Hex(dn) + "#" + serial;
 	}
 	
 	
@@ -490,13 +490,20 @@ class MetadataToSPConfigConverter
 		ret.addAllValues(localizedNames);
 		if (localizedNames.containsKey(""))
 			ret.setDefaultValue(localizedNames.get(""));
+		else if (!localizedNames.isEmpty())
+			ret.setDefaultValue(localizedNames.values().iterator().next());
+		else
+		{
+			ret.setDefaultValue("Unnamed Identity Provider");
+			log.warn("IdP {} has no name set", idpDesc.getID());
+		}
 		return ret;
 	}
 	
 	private Map<String, String> getLocalizedNames(UIInfoType uiInfo,
 			SSODescriptorType idpDesc, EntityDescriptorType mainDescriptor)
 	{
-		Map<String, String> ret = new HashMap<>();
+		Map<String, String> ret = new LinkedHashMap<>();
 		OrganizationType mainOrg = mainDescriptor.getOrganization();
 		if (mainOrg != null)
 		{
@@ -521,7 +528,7 @@ class MetadataToSPConfigConverter
 		I18nString ret = new I18nString();
 		Map<String, LogoType> asMap = getLocalizedLogos(uiInfo);
 		ret.addAllValues(asMap.entrySet().stream()
-				.collect(Collectors.toMap(entry -> entry.getKey(), 
+				.collect(Collectors.toMap(Map.Entry::getKey,
 						entry -> entry.getValue().getStringValue())));
 		if (asMap.containsKey(""))
 			ret.setDefaultValue(asMap.get("").getStringValue());
