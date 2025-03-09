@@ -7,7 +7,6 @@ package io.imunity.vaadin.auth;
 
 import java.util.List;
 
-import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.flow.server.WrappedSession;
@@ -16,15 +15,12 @@ import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.SignInContextKey;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
 import pl.edu.icm.unity.engine.api.authn.SigInInProgressContext;
 
 @Component
 public class SigInInProgressContextService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SigInInProgressContextService.class);
-
 	private static final String SESSION_SIG_IN_IN_PROGRESS_CONTEXT = "sigInInProgressContext";
 	private static final LoginInProgressService<SigInInProgressContext> LOGIN_IN_PROGRESS_SERVICE = new LoginInProgressService<>(
 			SESSION_SIG_IN_IN_PROGRESS_CONTEXT);
@@ -56,7 +52,6 @@ public class SigInInProgressContextService
 			return LOGIN_IN_PROGRESS_SERVICE.getVaadinContext();
 		} catch (Exception e)
 		{
-			log.debug("Can not get sigInInProgressContext", e);
 			return new SigInInProgressContext(new RequestedAuthenticationContextClassReference(List.of(), List.of()));
 		}
 	}
