@@ -66,7 +66,7 @@ public class LoginInProgressService<AUTHZ_CTX>
 			sessionContext = new SignInContexts<>();
 			session.setAttribute(contextAttributeName, sessionContext);
 		}
-
+		sessionContext.remove(key);
 		sessionContext.put(key, context);
 		return key;
 	}
