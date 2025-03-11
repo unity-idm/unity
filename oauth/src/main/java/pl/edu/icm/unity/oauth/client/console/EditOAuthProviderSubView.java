@@ -5,6 +5,20 @@
 
 package pl.edu.icm.unity.oauth.client.console;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.function.Consumer;
+
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -18,37 +32,44 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
+
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import io.imunity.vaadin.auth.binding.NameValuePairBinding;
 import io.imunity.vaadin.auth.binding.ToggleWithDefault;
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.EnumComboBox;
 import io.imunity.vaadin.elements.LocalizedTextFieldDetails;
 import io.imunity.vaadin.elements.NoSpaceValidator;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.EditableGrid;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.endpoint.common.api.UnitySubView;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.file.FileField;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.oauth.client.config.*;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
+import pl.edu.icm.unity.oauth.client.config.DropboxProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.FacebookProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.GitHubProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.GoogleProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.IntuitProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.LinkedInProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.MicrosoftAzureV2ProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.MicrosoftLiveProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
-
-import java.util.*;
-import java.util.function.Consumer;
-
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
-import static io.imunity.vaadin.elements.CssClassNames.*;
+import pl.edu.icm.unity.oauth.client.config.OrcidProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
+import pl.edu.icm.unity.oauth.client.config.UnityProviderProperties;
 
 
 class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
@@ -64,6 +85,8 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 	private Select<String> templateCombo;
 
 	private boolean editMode;
+	
+	private Checkbox openIdConnect;
 
 	EditOAuthProviderSubView(MessageSource msg, PKIManagement pkiMan, NotificationPresenter notificationPresenter,
 			VaadinLogoImageLoader imageAccessService,
@@ -193,11 +216,14 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 				.bind(OAuthProviderConfiguration::getLogo, OAuthProviderConfiguration::setLogo);
 		header.addFormItem(logo, msg.getMessage("EditOAuthProviderSubView.logo"));
 		
-		Checkbox openIdConnect = new Checkbox(msg.getMessage("EditOAuthProviderSubView.openIdConnect"));
+		openIdConnect = new Checkbox(msg.getMessage("EditOAuthProviderSubView.openIdConnect"));
 		configBinder.forField(openIdConnect)
 				.bind(OAuthProviderConfiguration::isOpenIdConnect, OAuthProviderConfiguration::setOpenIdConnect);
 		header.addFormItem(openIdConnect, "");
 
+		
+		
+		
 		TextField openIdDiscovery = new TextField();
 		openIdDiscovery.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(openIdDiscovery).asRequired(getOpenIdFieldValidator(openIdConnect, true))
@@ -310,6 +336,48 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		configBinder.forField(clientHttpMethodForProfileAccess)
 				.bind(OAuthProviderConfiguration::getClientHttpMethodForProfileAccess, OAuthProviderConfiguration::setClientHttpMethodForProfileAccess);
 		advanced.addFormItem(clientHttpMethodForProfileAccess, msg.getMessage("EditOAuthProviderSubView.clientHttpMethodForProfileAccess"));
+
+		EnumComboBox<RequestACRsMode> requestACRs = new EnumComboBox<>( 
+					msg::getMessage, "RequestACR.", 
+					RequestACRsMode.class, 
+					RequestACRsMode.NONE);
+		configBinder.forField(requestACRs)
+			.bind(OAuthProviderConfiguration::getRequestACR, OAuthProviderConfiguration::setRequestACR);
+		
+		advanced.addFormItem(requestACRs, msg.getMessage("EditOAuthProviderSubView.requestACRs"));
+
+		Checkbox essentialACR = new Checkbox();
+		MultiSelectComboBox<String> requestedACR = new CustomValuesMultiSelectComboBox();
+		
+		requestedACR.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		requestedACR.setWidth(TEXT_FIELD_BIG.value());
+		requestedACR.setEnabled(false);
+
+		advanced.addFormItem(requestedACR, msg.getMessage("EditOAuthProviderSubView.requestedACRs"));
+		configBinder.forField(requestedACR)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(OAuthProviderConfiguration::getRequestedACRs,
+						OAuthProviderConfiguration::setRequestedACRs);
+		essentialACR.setLabel(msg.getMessage("EditOAuthProviderSubView.essentialACRs"));
+		essentialACR.setEnabled(false);
+		advanced.addFormItem(essentialACR, "");
+		configBinder.forField(essentialACR)
+				.bind(OAuthProviderConfiguration::requestedACRsAreEssential,
+						OAuthProviderConfiguration::setRequestedACRsAreEssential);
+		requestACRs.addValueChangeListener(v ->
+		{
+			boolean isFixed = requestACRs.getValue().equals(RequestACRsMode.FIXED);
+			requestedACR.setEnabled(isFixed);
+			essentialACR.setEnabled(isFixed);
+		});
+
+		openIdConnect.addValueChangeListener(v ->
+		{
+			requestACRs.setEnabled(v.getValue());
+			boolean isFixed = requestACRs.getValue().equals(RequestACRsMode.FIXED);
+			requestedACR.setEnabled(v.getValue() && isFixed);
+			essentialACR.setEnabled(v.getValue() && isFixed);
+		});
 
 		return new AccordionPanel(msg.getMessage("EditOAuthProviderSubView.advanced"), advanced);
 	}
