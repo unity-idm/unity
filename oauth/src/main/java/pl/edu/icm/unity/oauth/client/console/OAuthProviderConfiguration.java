@@ -26,6 +26,7 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthn
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
+import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +49,9 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 	private ToggleWithDefault accountAssociation;
 	private List<NameValuePairBinding> extraAuthorizationParameters;
 	private List<String> requestedScopes;
+	private RequestACRsMode requestACR;
+	private List<String> requestedACRs; 
+	private boolean requestedACRsAreEssential;
 
 	public OAuthProviderConfiguration()
 	{
@@ -59,6 +63,10 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		name = new I18nString();
 		extraAuthorizationParameters = new ArrayList<>();
 		requestedScopes = new ArrayList<>();
+		requestACR = RequestACRsMode.NONE;
+		requestedACRs = new ArrayList<>();
+		requestedACRsAreEssential = false;
+		
 	}
 
 	public void fromTemplate(MessageSource msg,  VaadinLogoImageLoader imageAccessService,
@@ -127,12 +135,32 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 					: ToggleWithDefault.disable;
 		}
 
+		if (source.isSet(CommonWebAuthnProperties.ENABLE_ASSOCIATION))
+		{
+			accountAssociation = source.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION)
+					? ToggleWithDefault.enable
+					: ToggleWithDefault.disable;
+		}
+		
+		
 		setClientHostnameChecking(source.getEnumValue(CustomProviderProperties.CLIENT_HOSTNAME_CHECKING,
 				ServerHostnameCheckingMode.class));
 		setClientTrustStore(source.getValue(CustomProviderProperties.CLIENT_TRUSTSTORE));
 		
 		List<NameValuePair> additionalAuthzParams = source.getAdditionalAuthzParams();
 		setExtraAuthorizationParameters(additionalAuthzParams.stream().map(p -> new NameValuePairBinding(p.getName(), p.getValue())).collect(Collectors.toList()));
+		
+		if (source.isSet(CustomProviderProperties.REQUEST_ACRS_MODE))
+		{
+			setRequestACR(source.getEnumValue(CustomProviderProperties.REQUEST_ACRS_MODE, RequestACRsMode.class));
+		}
+		
+		setRequestedACRs(source.getListOfValues(CustomProviderProperties.REQUESTED_ACRS));
+		setRequestedACRsAreEssential(source.getBooleanValue(CustomProviderProperties.REQUESTED_ACRS_ARE_ESSENTIAL));
+
+		
+		
+		
 	}
 
 	public void toProperties(Properties raw, MessageSource msg, FileStorageService fileStorageService, String authName)
@@ -246,6 +274,23 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 				raw.put(prefix + CustomProviderProperties.ADDITIONAL_AUTHZ_PARAMS + (getExtraAuthorizationParameters().indexOf(nvPair) + 1),
 						nvPair.getName() + "=" + nvPair.getValue());
 			}
+		}
+		
+		
+		raw.put(prefix + CustomProviderProperties.REQUEST_ACRS_MODE, getRequestACR().name());
+
+		if (getRequestACR().equals(RequestACRsMode.FIXED))
+		{
+			putACRs(prefix + CustomProviderProperties.REQUESTED_ACRS, getRequestedACRs(), raw);
+		}
+		raw.put(prefix + CustomProviderProperties.REQUESTED_ACRS_ARE_ESSENTIAL, String.valueOf(requestedACRsAreEssential()));	
+	}
+	
+	void putACRs(String property, List<String> values, Properties properties)
+	{
+		for (String value : values)
+		{
+			properties.put(property + (values.indexOf(value) + 1), value);
 		}
 	}
 
@@ -419,6 +464,10 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 				this.getExtraAuthorizationParameters() != null ? this.getExtraAuthorizationParameters()
 						.stream().map(s -> new NameValuePairBinding(s.getName(), s.getValue()))
 						.collect(Collectors.toList()) : null);
+		clone.setRequestACR(this.getRequestACR());
+		clone.setRequestedACRs(this.getRequestedACRs().stream().toList());
+		clone.setRequestedACRsAreEssential(this.requestedACRsAreEssential());
+
 		return clone;
 	}
 
@@ -430,5 +479,35 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 	public void setLogo(LocalOrRemoteResource logo)
 	{
 		this.logo = logo;
+	}
+
+	public RequestACRsMode getRequestACR()
+	{
+		return requestACR;
+	}
+
+	public void setRequestACR(RequestACRsMode requestACR)
+	{
+		this.requestACR = requestACR;
+	}
+
+	public List<String> getRequestedACRs()
+	{
+		return requestedACRs;
+	}
+
+	public void setRequestedACRs(List<String> requestedACRs)
+	{
+		this.requestedACRs = requestedACRs;
+	}
+
+	public boolean requestedACRsAreEssential()
+	{
+		return requestedACRsAreEssential;
+	}
+
+	public void setRequestedACRsAreEssential(boolean requestedACRsAreEssential)
+	{
+		this.requestedACRsAreEssential = requestedACRsAreEssential;
 	}
 }

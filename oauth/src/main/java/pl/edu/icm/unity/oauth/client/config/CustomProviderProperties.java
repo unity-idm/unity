@@ -4,7 +4,18 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.logging.log4j.Logger;
+
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
+
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -12,9 +23,6 @@ import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -25,8 +33,6 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.PlainProfileFetcher;
 import pl.edu.icm.unity.oauth.oidc.metadata.OIDCMetadataRequest;
-
-import java.util.*;
 
 /**
  * Configuration of OAuth client for custom provider.
@@ -53,6 +59,9 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 	public static final String OPENID_DISCOVERY = "openIdConnectDiscoveryEndpoint";
 	public static final String ICON_URL = "iconUrl";
 	public static final String ADDITIONAL_AUTHZ_PARAMS = "extraAuthzParams.";
+	public static final String REQUEST_ACRS_MODE = "requestACRs";
+	public static final String REQUESTED_ACRS = "requestedACRs.";
+	public static final String REQUESTED_ACRS_ARE_ESSENTIAL = "requestedACRsAreEssential";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -139,6 +148,14 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 				setDescription("Allows to specify non-standard, fixed parameters which shall be "
 						+ "added to the query string of the authorization redirect request. "
 						+ "format must be: PARAM=VALUE"));
+		META.put(REQUEST_ACRS_MODE, new PropertyMD(RequestACRsMode.NONE).setDescription(
+				"Authenticator can request ACR from its upstream IdP. Requested ACRs can be either defined here "
+				+ "in configuration or forwarded, basing on ACRs requested by downstream client, what is relevant in "
+				+ "the case of proxy authentication."));
+		META.put(REQUESTED_ACRS, new PropertyMD().setList(true)
+				.setDescription("List of requested ACRs (only required when mode is FIXED)."));
+		META.put(REQUESTED_ACRS_ARE_ESSENTIAL, new PropertyMD("false")
+				.setDescription("Whether requested ACRs are essential or not (only required when mode is FIXED)."));
 	}
 	
 	private X509CertChainValidator validator = null;
@@ -290,4 +307,8 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 		return getEnumValue(CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
 	}
 	
+	public RequestACRsMode getRequestACRMode()
+	{
+		return getEnumValue(REQUEST_ACRS_MODE, RequestACRsMode.class);
+	}
 }

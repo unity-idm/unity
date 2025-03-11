@@ -218,6 +218,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				builder.loginHint(expectedIdentity.get().getIdentity());
 				context.setExpectedIdentity(expectedIdentity.get());
 			}
+			new AuthenticationRequestACRBuilder(builder).addACR(providerCfg, authnStepContext.signInInProgressContext.acr());
+			
 			req = builder.build();
 		} else
 		{
@@ -240,6 +242,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return context;
 	}
 
+	
+	
 	private AuthenticationResult processResponse(RedirectedAuthnState remoteAuthnState)
 	{
 		try
