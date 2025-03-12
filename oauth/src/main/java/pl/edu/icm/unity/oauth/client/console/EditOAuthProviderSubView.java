@@ -338,7 +338,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		advanced.addFormItem(clientHttpMethodForProfileAccess, msg.getMessage("EditOAuthProviderSubView.clientHttpMethodForProfileAccess"));
 
 		EnumComboBox<RequestACRsMode> requestACRs = new EnumComboBox<>( 
-					msg::getMessage, "RequestACR.", 
+					msg::getMessage, "OAuthRequestACRs.", 
 					RequestACRsMode.class, 
 					RequestACRsMode.NONE);
 		configBinder.forField(requestACRs)
