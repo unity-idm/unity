@@ -156,11 +156,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		}
 		
 		setRequestedACRs(source.getListOfValues(CustomProviderProperties.REQUESTED_ACRS));
-		setRequestedACRsAreEssential(source.getBooleanValue(CustomProviderProperties.REQUESTED_ACRS_ARE_ESSENTIAL));
-
-		
-		
-		
+		setRequestedACRsAreEssential(source.getBooleanValue(CustomProviderProperties.REQUESTED_ACRS_ARE_ESSENTIAL));	
 	}
 
 	public void toProperties(Properties raw, MessageSource msg, FileStorageService fileStorageService, String authName)
@@ -286,7 +282,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		raw.put(prefix + CustomProviderProperties.REQUESTED_ACRS_ARE_ESSENTIAL, String.valueOf(requestedACRsAreEssential()));	
 	}
 	
-	void putACRs(String property, List<String> values, Properties properties)
+	private void putACRs(String property, List<String> values, Properties properties)
 	{
 		for (String value : values)
 		{

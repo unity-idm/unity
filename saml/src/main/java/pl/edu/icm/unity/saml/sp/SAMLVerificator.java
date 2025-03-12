@@ -224,7 +224,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		X509Credential credential = sign ? spConfiguration.requesterCredential : null;
 
 		AuthnRequestDocument request = SAMLHelper.createSAMLRequest(responseConsumerAddress, sign, requesterId,
-				identityProviderURL, requestedNameFormat, true, credential);
+				identityProviderURL, requestedNameFormat, true, credential, authnStepContext.signInInProgressContext.acr(), spConfiguration);
 		return new RemoteAuthnContext(idPConfiguration, spConfiguration, baseState,
 				request.xmlText(), request.getAuthnRequest().getID(), servletPath);
 	}
