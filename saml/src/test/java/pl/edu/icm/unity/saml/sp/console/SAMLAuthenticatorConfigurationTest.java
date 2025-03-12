@@ -109,6 +109,7 @@ public class SAMLAuthenticatorConfigurationTest
 				.update("metadataSource.1.perMetadataEmbeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("remoteIdp.1.embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("metadataSource", "src/test/resources/metadata.switchaai.xml")
+				.update("requestACRs", "FIXED")
 				.get();
 
 		SAMLAuthenticatorConfiguration processor = new SAMLAuthenticatorConfiguration();
