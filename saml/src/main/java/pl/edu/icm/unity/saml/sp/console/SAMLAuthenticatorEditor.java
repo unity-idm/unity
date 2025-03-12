@@ -24,6 +24,8 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.EnumComboBox;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.EditableGrid;
@@ -49,6 +51,8 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.sp.SAMLVerificator;
+import pl.edu.icm.unity.saml.sp.config.ComparisonMethod;
+import pl.edu.icm.unity.saml.sp.config.RequestACRsMode;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
@@ -238,6 +242,43 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				.bind(SAMLAuthenticatorConfiguration::isDefAccountAssociation, SAMLAuthenticatorConfiguration::setDefAccountAssociation);
 		header.addFormItem(defAccountAssociation, "");
 
+		
+		EnumComboBox<RequestACRsMode> requestACRs = new EnumComboBox<>(msg::getMessage, "SAMLRequestACRs.",
+				RequestACRsMode.class, RequestACRsMode.NONE);
+		configBinder.forField(requestACRs)
+				.bind(SAMLAuthenticatorConfiguration::getRequestACR, SAMLAuthenticatorConfiguration::setRequestACR);
+
+		header.addFormItem(requestACRs, msg.getMessage("SAMLAuthenticatorEditor.requestACRs"));
+
+		EnumComboBox<ComparisonMethod> comparisonMethod = new EnumComboBox<>(msg::getMessage, "ComparisonMethod.",
+				ComparisonMethod.class, ComparisonMethod.EXACT);
+		configBinder.forField(comparisonMethod)
+				.bind(SAMLAuthenticatorConfiguration::getComparisonMethod,
+						SAMLAuthenticatorConfiguration::setComparisonMethod);
+
+		MultiSelectComboBox<String> requestedACR = new CustomValuesMultiSelectComboBox();
+
+		requestedACR.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		requestedACR.setWidth(TEXT_FIELD_BIG.value());
+		requestedACR.setEnabled(false);
+
+		header.addFormItem(requestedACR, msg.getMessage("SAMLAuthenticatorEditor.requestedACRs"));
+		configBinder.forField(requestedACR)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(SAMLAuthenticatorConfiguration::getRequestedACRs,
+						SAMLAuthenticatorConfiguration::setRequestedACRs);
+		
+		comparisonMethod.setEnabled(false);
+		header.addFormItem(comparisonMethod, msg.getMessage("SAMLAuthenticatorEditor.comparisonMethod"));
+		
+		requestACRs.addValueChangeListener(v ->
+		{
+			boolean isFixed = requestACRs.getValue()
+					.equals(RequestACRsMode.FIXED);
+			requestedACR.setEnabled(isFixed);
+			comparisonMethod.setEnabled(isFixed);
+		});
+		
 		return header;
 	}
 

@@ -101,6 +101,9 @@ public class SAMLSPConfigurationParser
 				.withSloRealm(samlProperties.getValue(SAMLSPProperties.SLO_REALM))
 				.withRequireSignedAssertion(samlProperties.getBooleanValue(SAMLSPProperties.REQUIRE_SIGNED_ASSERTION))
 				.withTrustedMetadataSources(getMetadataSources(samlProperties))
+				.withRequestACRsMode(samlProperties.getEnumValue(SAMLSPProperties.REQUEST_ACRS_MODE, RequestACRsMode.class))
+				.withRequestedACRs(samlProperties.getListOfValues(SAMLSPProperties.REQUESTED_ACRS))
+				.withComparisonMethod(samlProperties.getEnumValue(SAMLSPProperties.COMPARISON_METHOD, ComparisonMethod.class))
 				.build();
 	}
 	

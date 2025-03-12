@@ -35,6 +35,9 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 	private final Function<TrustedIdPConfiguration, SamlTrustChecker> trustCheckerFactory;
 	public final boolean includeAdditionalCredentialInMetadata;
 	public final Optional<AdditionalCredential> additionalCredential;
+	public final RequestACRsMode requestACR;
+	public final List<String> requestedACRs; 
+	public final ComparisonMethod comparisonMethod;
 	
 	private SAMLSPConfiguration(Builder builder)
 	{
@@ -61,6 +64,11 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		this.requireSignedAssertion = builder.requireSignedAssertion;
 		this.trustCheckerFactory = builder.trustCheckerFactory == null ? 
 				this::defaultTrustCheckerFactory : builder.trustCheckerFactory; 
+		this.requestACR = builder.requestACR;
+		this.requestedACRs = Optional.ofNullable(builder.requestedACRs)
+				.map(List::copyOf)
+				.orElse(null);
+		this.comparisonMethod = builder.comparisonMethod;
 	}
 
 	public SamlTrustChecker getTrustCheckerForIdP(TrustedIdPConfiguration trustedIdP)
@@ -105,6 +113,9 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 		private boolean requireSignedAssertion;
 		private Function<TrustedIdPConfiguration, SamlTrustChecker> trustCheckerFactory;
 		private boolean includeAdditionalCredentialInMetadata;
+		private RequestACRsMode requestACR;
+		private List<String> requestedACRs; 
+		private ComparisonMethod comparisonMethod;
 		
 		private Builder()
 		{
@@ -218,10 +229,28 @@ public class SAMLSPConfiguration extends BaseSamlConfiguration
 			this.requireSignedAssertion = requireSignedAssertion;
 			return this;
 		}
-
+		
 		public Builder withTrustCheckerFactory(Function<TrustedIdPConfiguration, SamlTrustChecker> trustCheckerFactory)
 		{
 			this.trustCheckerFactory = trustCheckerFactory;
+			return this;
+		}
+		
+		public Builder withRequestACRsMode(RequestACRsMode requestACRsMode)
+		{
+			this.requestACR = requestACRsMode;
+			return this;
+		}
+		
+		public Builder withRequestedACRs(List<String> requestedACRs)
+		{
+			this.requestedACRs = requestedACRs;
+			return this;
+		}
+		
+		public Builder withComparisonMethod(ComparisonMethod comparisonMethod)
+		{
+			this.comparisonMethod = comparisonMethod;
 			return this;
 		}
 		

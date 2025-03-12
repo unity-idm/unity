@@ -18,6 +18,8 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.ecp.SAMLECPProperties;
 import pl.edu.icm.unity.saml.sp.config.AdditionalCredential;
+import pl.edu.icm.unity.saml.sp.config.ComparisonMethod;
+import pl.edu.icm.unity.saml.sp.config.RequestACRsMode;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 
 import java.security.PublicKey;
@@ -77,6 +79,10 @@ public class SAMLSPProperties extends SamlProperties
 	
 	public static final String DEFAULT_TRANSLATION_PROFILE = "sys:saml";
 	public static final Binding DEFAULT_IDP_BINDING = Binding.HTTP_REDIRECT;
+	
+	public static final String REQUEST_ACRS_MODE = "requestACRs";
+	public static final String REQUESTED_ACRS = "requestedACRs.";
+	public static final String COMPARISON_METHOD = "comparisonMethod";
 	
 	static
 	{
@@ -232,6 +238,15 @@ public class SAMLSPProperties extends SamlProperties
 		META.put(IDENTITY_SAML, new PropertyMD().setStructuredListEntry(IDENTITY_MAPPING_PFX).setMandatory().setCategory(common).
 				setDescription("SAML identity to be mapped"));	
 
+		META.put(REQUEST_ACRS_MODE, new PropertyMD(RequestACRsMode.NONE).setDescription(
+				"Authenticator can request ACR from its upstream IdP. Requested ACRs can be either defined here "
+				+ "in configuration or forwarded, basing on ACRs requested by downstream client, what is relevant in "
+				+ "the case of proxy authentication."));
+		META.put(REQUESTED_ACRS, new PropertyMD().setList(true)
+				.setDescription("List of requested ACRs (only required when mode is FIXED)."));
+		META.put(COMPARISON_METHOD, new PropertyMD(ComparisonMethod.EXACT)
+				.setDescription("Comparison method used to evaluate the requested context classes or statements (only required when mode is FIXED)."));
+		
 		
 		META.putAll(SamlProperties.getDefaults(IDPMETA_PREFIX, "Under this prefix you can configure "
 				+ "the remote trusted SAML IdPs however not providing all their details but only "

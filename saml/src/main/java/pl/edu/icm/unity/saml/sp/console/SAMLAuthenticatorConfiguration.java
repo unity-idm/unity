@@ -24,6 +24,8 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.console.SAMLIdentityMapping;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
+import pl.edu.icm.unity.saml.sp.config.ComparisonMethod;
+import pl.edu.icm.unity.saml.sp.config.RequestACRsMode;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -55,7 +57,10 @@ public class SAMLAuthenticatorConfiguration
 	private String sloPath;
 	private String sloRealm;
 	private List<SAMLIdentityMapping> sloMappings;
-
+	private RequestACRsMode requestACR;
+	private List<String> requestedACRs; 
+	private ComparisonMethod comparisonMethod;
+	
 	public SAMLAuthenticatorConfiguration()
 	{
 		setPublishMetadata(true);
@@ -64,6 +69,9 @@ public class SAMLAuthenticatorConfiguration
 		setDefAccountAssociation(true);
 		acceptedNameFormats = new ArrayList<>();
 		defaultRequestedNameFormat = new ArrayList<>();
+		requestACR = RequestACRsMode.NONE;
+		requestedACRs = new ArrayList<>();
+		comparisonMethod = ComparisonMethod.EXACT;
 	}
 
 	public String toProperties(PKIManagement pkiMan, FileStorageService fileService, MessageSource msg,
@@ -155,12 +163,27 @@ public class SAMLAuthenticatorConfiguration
 
 			});
 		}
+		
+		raw.put(SAMLSPProperties.P + SAMLSPProperties.REQUEST_ACRS_MODE, getRequestACR().name());
+
+		if (getRequestACR().equals(RequestACRsMode.FIXED))
+		{
+			putACRs(SAMLSPProperties.P + SAMLSPProperties.REQUESTED_ACRS, getRequestedACRs(), raw);
+		}
+		raw.put(SAMLSPProperties.P + SAMLSPProperties.COMPARISON_METHOD, getComparisonMethod().name());		
 
 		SAMLSPProperties samlProp = new SAMLSPProperties(raw, pkiMan);
 		return samlProp.getAsString();
-
 	}
 
+	private void putACRs(String property, List<String> values, Properties properties)
+	{
+		for (String value : values)
+		{
+			properties.put(property + (values.indexOf(value) + 1), value);
+		}
+	}
+	
 	public void fromProperties(PKIManagement pkiMan, URIAccessService uriAccessService, 
 			VaadinLogoImageLoader imageAccessService, MessageSource msg, String properties)
 	{
@@ -280,6 +303,14 @@ public class SAMLAuthenticatorConfiguration
 					}
 					sloMappings.add(m);
 				});
+		
+		if (samlSpProp.isSet(SAMLSPProperties.REQUEST_ACRS_MODE))
+		{
+			setRequestACR(samlSpProp.getEnumValue(SAMLSPProperties.REQUEST_ACRS_MODE, RequestACRsMode.class));
+		}
+		
+		setRequestedACRs(samlSpProp.getListOfValues(SAMLSPProperties.REQUESTED_ACRS));
+		setComparisonMethod(samlSpProp.getEnumValue(SAMLSPProperties.COMPARISON_METHOD, ComparisonMethod.class));	
 	}
 
 	public String getRequesterId()
@@ -470,5 +501,35 @@ public class SAMLAuthenticatorConfiguration
 	public void setIncludeAdditionalCredentialInMetadata(boolean includeAdditionalCredentialInMetadata)
 	{
 		this.includeAdditionalCredentialInMetadata = includeAdditionalCredentialInMetadata;
+	}
+
+	public RequestACRsMode getRequestACR()
+	{
+		return requestACR;
+	}
+
+	public void setRequestACR(RequestACRsMode requestACR)
+	{
+		this.requestACR = requestACR;
+	}
+
+	public List<String> getRequestedACRs()
+	{
+		return requestedACRs;
+	}
+
+	public void setRequestedACRs(List<String> requestedACRs)
+	{
+		this.requestedACRs = requestedACRs;
+	}
+
+	public ComparisonMethod getComparisonMethod()
+	{
+		return comparisonMethod;
+	}
+
+	public void setComparisonMethod(ComparisonMethod comparisonMethod)
+	{
+		this.comparisonMethod = comparisonMethod;
 	}
 }

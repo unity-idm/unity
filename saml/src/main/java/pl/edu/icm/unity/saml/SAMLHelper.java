@@ -9,8 +9,12 @@ import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.proto.AuthnRequest;
 import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
+import pl.edu.icm.unity.saml.sp.config.RequestACRsMode;
+import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
 import xmlbeans.org.oasis.saml2.protocol.NameIDPolicyType;
+import xmlbeans.org.oasis.saml2.protocol.RequestedAuthnContextType;
 
 /**
  * Shared SAML utility methods
@@ -20,7 +24,9 @@ public class SAMLHelper
 {
 	public static AuthnRequestDocument createSAMLRequest(String  responseConsumerAddress,
 			boolean sign, String requestrId, String identityProviderURL,
-			String requestedNameFormat, boolean allowCreate, X509Credential credential) throws InternalException
+			String requestedNameFormat, boolean allowCreate, X509Credential credential,
+			RequestedAuthenticationContextClassReference requestedAuthenticationContextClassReference,
+			SAMLSPConfiguration spConfiguration) throws InternalException
 	{
 		NameID issuer = new NameID(requestrId, SAMLConstants.NFORMAT_ENTITY);
 		AuthnRequest request = new AuthnRequest(issuer.getXBean());
@@ -37,7 +43,9 @@ public class SAMLHelper
 		if (identityProviderURL != null)
 			request.getXMLBean().setDestination(identityProviderURL);
 		request.getXMLBean().setAssertionConsumerServiceURL(responseConsumerAddress);
-
+ 
+		addACRsIfNeeded(request, spConfiguration, requestedAuthenticationContextClassReference);
+		
 		if (sign)
 		{
 			try
@@ -49,5 +57,32 @@ public class SAMLHelper
 			}
 		}
 		return request.getXMLBeanDoc();
+	}
+
+	private static void addACRsIfNeeded(AuthnRequest request, SAMLSPConfiguration spConfiguration,
+			RequestedAuthenticationContextClassReference requestedAuthenticationContextClassReference)
+	{
+		if (spConfiguration.requestACR.equals(RequestACRsMode.NONE))
+		{
+			return;
+		}
+
+		if (spConfiguration.requestACR.equals(RequestACRsMode.FIXED))
+		{
+			RequestedAuthnContextType newRequestedAuthnContext = request.getXMLBean()
+					.addNewRequestedAuthnContext();
+			newRequestedAuthnContext.setAuthnContextClassRefArray(spConfiguration.requestedACRs.toArray(String[]::new));
+			newRequestedAuthnContext.setComparison(xmlbeans.org.oasis.saml2.protocol.AuthnContextComparisonType.Enum
+					.forString(spConfiguration.comparisonMethod.name()
+							.toLowerCase()));
+		} else if (spConfiguration.requestACR.equals(RequestACRsMode.FORWARD))
+		{
+			RequestedAuthnContextType newRequestedAuthnContext = request.getXMLBean()
+					.addNewRequestedAuthnContext();
+			newRequestedAuthnContext.setAuthnContextClassRefArray(requestedAuthenticationContextClassReference.getAll()
+					.stream()
+					.toArray(String[]::new));
+			newRequestedAuthnContext.setComparison(xmlbeans.org.oasis.saml2.protocol.AuthnContextComparisonType.EXACT);
+		}
 	}
 }
