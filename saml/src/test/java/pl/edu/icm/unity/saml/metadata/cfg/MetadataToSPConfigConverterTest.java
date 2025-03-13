@@ -84,6 +84,25 @@ public class MetadataToSPConfigConverterTest
 		
 	}
 	
+	@Test	
+	public void shouldParseMetadataWithoutNameSet() throws EngineException
+	{
+		PKIManagement pkiManagement = mock(PKIManagement.class);
+		when(pkiManagement.getCertificate(any())).thenThrow(IllegalArgumentException.class);
+		MetadataToSPConfigConverter converter = new MetadataToSPConfigConverter(pkiManagement , "en");
+		EntitiesDescriptorDocument metadata = loadMetadata("src/test/resources/metadata.switchaai-one-no-name.xml");
+		RemoteMetadataSource metadataSrc = RemoteMetadataSource.builder()
+				.withRegistrationForm("regForm")
+				.withTranslationProfile(translationProfile1)
+				.withUrl("dummy")
+				.withRefreshInterval(Duration.ZERO)
+				.build();
+		
+		TrustedIdPs trustedIdps = converter.convertToTrustedIdPs(metadata, metadataSrc);
+		TrustedIdPConfiguration trustedIdP = trustedIdps.get(metadataEntity("https://fake.idp.eu", 1));
+		assertThat(trustedIdP.name.getValue("en")).isEqualTo("Unnamed Identity Provider");	
+	}
+	
 	@Test
 	public void shouldSkipFilteredIdpByAttribute() throws EngineException
 	{
