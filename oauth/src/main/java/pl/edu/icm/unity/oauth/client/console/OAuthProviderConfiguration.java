@@ -65,7 +65,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		requestedScopes = new ArrayList<>();
 		requestACR = RequestACRsMode.NONE;
 		requestedACRs = new ArrayList<>();
-		requestedACRsAreEssential = false;
+		requestedACRsAreEssential = true;
 		
 	}
 

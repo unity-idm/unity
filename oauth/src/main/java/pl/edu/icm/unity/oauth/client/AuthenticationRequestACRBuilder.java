@@ -33,18 +33,24 @@ class AuthenticationRequestACRBuilder
 			RequestedAuthenticationContextClassReference requestedAuthenticationContextClassReference)
 	{
 		addIDTokenClaimSetRequestIfNeeded(providerCfg, requestedAuthenticationContextClassReference);
-		addRequestedVoluntaryACRsIfNeeded(requestedAuthenticationContextClassReference);
+		addRequestedVoluntaryACRsIfNeeded(providerCfg, requestedAuthenticationContextClassReference);
 	}
 
-	private void addRequestedVoluntaryACRsIfNeeded(
-			RequestedAuthenticationContextClassReference acr)
+	private void addRequestedVoluntaryACRsIfNeeded(CustomProviderProperties providerCfg,
+			RequestedAuthenticationContextClassReference requestedAuthenticationContextClassReference)
 	{
-		if (!acr.essentialACRs()
-				.isEmpty()
-				&& !acr.voluntaryACRs()
-						.isEmpty())
+		if (providerCfg.getRequestACRMode()
+				.equals(RequestACRsMode.NONE)
+				|| providerCfg.getRequestACRMode()
+						.equals(RequestACRsMode.FIXED))
 		{
-			builder.acrValues(acr.voluntaryACRs()
+			return;
+		}
+		
+		if (!requestedAuthenticationContextClassReference.essentialACRs().isEmpty() && 
+				!requestedAuthenticationContextClassReference.voluntaryACRs().isEmpty())
+		{
+			builder.acrValues(requestedAuthenticationContextClassReference.voluntaryACRs()
 					.stream()
 					.map(acr_val -> new ACR(acr_val))
 					.toList());
