@@ -46,7 +46,7 @@ public class OAuthToken
 	private ClientType clientType;
 	private PKCSInfo pkcsInfo;
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute;
-	private List<AttributeValueFilter> attributeValueFilters;
+	private List<AttributeFilteringSpec> attributeValueFilters;
 	
 	
 	public OAuthToken()
@@ -341,12 +341,12 @@ public class OAuthToken
 		return claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.token);	
 	}
 	
-	public List<AttributeValueFilter> getAttributeValueFilters()
+	public List<AttributeFilteringSpec> getAttributeValueFilters()
 	{
 		return attributeValueFilters;
 	}
 
-	public void setAttributeValueFilters(List<AttributeValueFilter> attributeValueFilters)
+	public void setAttributeValueFilters(List<AttributeFilteringSpec> attributeValueFilters)
 	{
 		this.attributeValueFilters = attributeValueFilters;
 	}
@@ -406,7 +406,7 @@ public class OAuthToken
 				+ ", clientUsername=" + clientUsername + ", maxExtendedValidity=" + maxExtendedValidity
 				+ ", tokenValidity=" + tokenValidity + ", responseType=" + responseType + ", audience="
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
-				+ pkcsInfo + "]";
+				+ pkcsInfo + ", attributeValueFilters=" + attributeValueFilters + "]";
 	}
 	
 

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -30,7 +30,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 
 	private Map<DynamicAttribute, ValueSelector> selectors;
 	private final Runnable declineHandler;
-	private final BiConsumer<List<DynamicAttribute>, List<DynamicAttribute>> acceptHandler;
+	private final Consumer<AttributeValueSelectionResult> acceptHandler;
 	private final List<DynamicAttribute> remainingAttributes;
 	private final String logoutRedirectPath;
 
@@ -41,7 +41,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 			List<DynamicAttribute> remainingAttributes,
 			String logoutRedirectPath,
 			Runnable declineHandler,
-			BiConsumer<List<DynamicAttribute>, List<DynamicAttribute>> acceptHandler)
+			Consumer<AttributeValueSelectionResult> acceptHandler)
 	{
 		this.msg = msg;
 		this.remainingAttributes = remainingAttributes;
@@ -90,7 +90,7 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 				List<DynamicAttribute> filteredAttributes = getFilteredAttributes();
 				List<DynamicAttribute> ret = new ArrayList<>(remainingAttributes);
 				ret.addAll(filteredAttributes);	
-				acceptHandler.accept(ret.stream().filter(da -> !da.getAttribute().getValues().isEmpty()).toList(), filteredAttributes);
+				acceptHandler.accept(new AttributeValueSelectionResult(ret.stream().filter(da -> !da.getAttribute().getValues().isEmpty()).toList(), filteredAttributes));
 			}
 			else if(action == IdPButtonsBar.Action.DENY)
 				declineHandler.run();
@@ -108,4 +108,9 @@ public class ActiveValueSelectionScreen extends VerticalLayout
 						entry.getValue().getSelectedValueIndices())).toList();
 		return subjectToSelection;
 	}
+	
+	public static record AttributeValueSelectionResult(
+			List<DynamicAttribute> allAttributes,
+			List<DynamicAttribute> filteredAttributes)
+	{}
 }
