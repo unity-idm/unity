@@ -38,7 +38,7 @@ public class AttributeValueFilterUtils
 
 	}
 
-	public static List<AttributeValueFilter> getFiltersFromScopes(Scope scopes)
+	public static List<AttributeFilteringSpec> getFiltersFromScopes(Scope scopes)
 	{
 
 		Map<String, Set<String>> filterByAttrName = new HashMap<>();
@@ -72,21 +72,21 @@ public class AttributeValueFilterUtils
 
 		return filterByAttrName.entrySet()
 				.stream()
-				.map(e -> new AttributeValueFilter(e.getKey(), e.getValue()))
+				.map(e -> new AttributeFilteringSpec(e.getKey(), e.getValue()))
 				.toList();
 	}
 
-	public static List<AttributeValueFilter> mergeFiltersWithPreservingLast(List<AttributeValueFilter> firstStageFilters,
-			List<AttributeValueFilter> secondStageFilters)
+	public static List<AttributeFilteringSpec> mergeFiltersWithPreservingLast(List<AttributeFilteringSpec> firstStageFilters,
+			List<AttributeFilteringSpec> secondStageFilters)
 	{
 		if (secondStageFilters == null)
 			return firstStageFilters;
 		if (firstStageFilters == null)
 			return secondStageFilters;
 
-		Map<String, AttributeValueFilter> merged = firstStageFilters.stream()
+		Map<String, AttributeFilteringSpec> merged = firstStageFilters.stream()
 				.collect(Collectors.toMap(f -> f.attributeName(), f -> f));
-		for (AttributeValueFilter f : secondStageFilters)
+		for (AttributeFilteringSpec f : secondStageFilters)
 		{
 			if (merged.containsKey(f.attributeName()))
 			{

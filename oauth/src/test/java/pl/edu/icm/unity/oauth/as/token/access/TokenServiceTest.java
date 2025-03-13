@@ -27,7 +27,7 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.oauth.as.AttributeValueFilter;
+import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthScope;
@@ -58,17 +58,17 @@ public class TokenServiceTest
 		{ "scope1", "scope2" });
 		oAuthToken.setEffectiveScope(new String[]
 		{ "scope1", "scope2" });
-		oAuthToken.setAttributeValueFilters(List.of(new AttributeValueFilter("x", Set.of("xv1"))));
+		oAuthToken.setAttributeValueFilters(List.of(new AttributeFilteringSpec("attr1", Set.of("attr1v1"))));
 		oAuthToken.setSubject("subject");
 
 		TranslationResult result = new TranslationResult();
 		result.getAttributes()
-				.add(new DynamicAttribute(new Attribute("x", "string", null, List.of("xv1"))));
+				.add(new DynamicAttribute(new Attribute("attr1", "string", null, List.of("attr1v1"))));
 		result.getAttributes()
-				.add(new DynamicAttribute(new Attribute("a", "string", null, List.of("av1"))));
+				.add(new DynamicAttribute(new Attribute("attr2", "string", null, List.of("attr2v1"))));
 
 		when(requestValidator.getValidRequestedScopes(any(), any())).thenReturn(List.of(OAuthScope.builder()
-				.withAttributes(List.of("x", "a"))
+				.withAttributes(List.of("attr1", "attr2"))
 				.withName("scope1")
 				.build()));
 		when(clientAttributesProvider.getClientAttributes(any())).thenReturn(Map.of());
@@ -76,14 +76,14 @@ public class TokenServiceTest
 		when(notAuthorizedOauthIdpEngine.getUserInfoUnsafe(anyLong(), any(), any(), any(), any(), any(), any()))
 				.thenReturn(result);
 		OAuthToken newTokenBasedOnOldToken = tokenService.prepareNewTokenBasedOnOldToken(oAuthToken,
-				"scope1 claim_filter:a:av2", List.of("scope1", "scope2"), 0, 0, "client", true, "grant");
+				"scope1 claim_filter:attr2:attr2v2", List.of("scope1", "scope2"), 0, 0, "client", true, "grant");
 
 		assertThat(newTokenBasedOnOldToken.getAttributeValueFilters()).containsExactlyInAnyOrder(
-				new AttributeValueFilter("x", Set.of("xv1")), new AttributeValueFilter("a", Set.of("av2")));
+				new AttributeFilteringSpec("attr1", Set.of("attr1v1")), new AttributeFilteringSpec("attr2", Set.of("attr2v2")));
 
 		UserInfo userInfo = UserInfo.parse(newTokenBasedOnOldToken.getUserInfo());
-		assertThat(userInfo.getClaim("x")).isEqualTo("xv1");
-		assertThat(userInfo.getClaim("a")).isNull();
+		assertThat(userInfo.getClaim("attr1")).isEqualTo("attr1v1");
+		assertThat(userInfo.getClaim("attr2")).isNull();
 	}
 
 	@Test
@@ -98,15 +98,15 @@ public class TokenServiceTest
 		{ "scope1" });
 		oAuthToken.setEffectiveScope(new String[]
 		{ "scope1" });
-		oAuthToken.setAttributeValueFilters(List.of(new AttributeValueFilter("x", Set.of("xv1"))));
+		oAuthToken.setAttributeValueFilters(List.of(new AttributeFilteringSpec("attr1", Set.of("attr1v1"))));
 		oAuthToken.setSubject("subject");
 
 		TranslationResult result = new TranslationResult();
 		result.getAttributes()
-				.add(new DynamicAttribute(new Attribute("x", "string", null, List.of("xv1"))));
+				.add(new DynamicAttribute(new Attribute("attr1", "string", null, List.of("attr1v1"))));
 
 		when(requestValidator.getValidRequestedScopes(any(), any())).thenReturn(List.of(OAuthScope.builder()
-				.withAttributes(List.of("x"))
+				.withAttributes(List.of("attr1"))
 				.withName("scope1")
 				.build()));
 		when(clientAttributesProvider.getClientAttributes(any())).thenReturn(Map.of());
@@ -117,9 +117,9 @@ public class TokenServiceTest
 				List.of("scope1"), 0, 0, "client", true, "grant");
 
 		assertThat(newTokenBasedOnOldToken.getAttributeValueFilters())
-				.containsExactlyInAnyOrder(new AttributeValueFilter("x", Set.of("xv1")));
+				.containsExactlyInAnyOrder(new AttributeFilteringSpec("attr1", Set.of("attr1v1")));
 
 		UserInfo userInfo = UserInfo.parse(newTokenBasedOnOldToken.getUserInfo());
-		assertThat(userInfo.getClaim("x")).isEqualTo("xv1");
+		assertThat(userInfo.getClaim("attr1")).isEqualTo("attr1v1");
 	}
 }

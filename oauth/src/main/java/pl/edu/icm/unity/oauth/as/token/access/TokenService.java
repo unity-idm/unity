@@ -49,7 +49,7 @@ import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.oauth.as.AttributeValueFilter;
+import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
@@ -108,8 +108,8 @@ class TokenService
 				AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList));
 		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.name).toArray(String[]::new));
 
-		List<AttributeValueFilter> claimFiltersFromScopes = AttributeValueFilterUtils.getFiltersFromScopes(newRequestedScopeList);
-		List<AttributeValueFilter> mergedFilters = AttributeValueFilterUtils.mergeFiltersWithPreservingLast(newToken.getAttributeValueFilters(), claimFiltersFromScopes);
+		List<AttributeFilteringSpec> claimFiltersFromScopes = AttributeValueFilterUtils.getFiltersFromScopes(newRequestedScopeList);
+		List<AttributeFilteringSpec> mergedFilters = AttributeValueFilterUtils.mergeFiltersWithPreservingLast(newToken.getAttributeValueFilters(), claimFiltersFromScopes);
 		UserInfo userInfoClaimSet = createUserInfo(newValidRequestedScopes, newToken.getSubject(), userInfoRes, mergedFilters);
 		newToken.setUserInfo(userInfoClaimSet.toJSONObject().toJSONString());
 		newToken.setAttributeValueFilters(mergedFilters);
@@ -184,7 +184,7 @@ class TokenService
 	}
 
 	private UserInfo createUserInfo(List<OAuthScope> validScopes, String userIdentity, TranslationResult userInfoRes,
-			List<AttributeValueFilter> claimValueFilters)
+			List<AttributeFilteringSpec> claimValueFilters)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
 		for (OAuthScope si : validScopes)

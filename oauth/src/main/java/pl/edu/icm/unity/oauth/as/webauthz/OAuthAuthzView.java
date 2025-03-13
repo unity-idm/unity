@@ -60,7 +60,7 @@ import pl.edu.icm.unity.engine.api.translation.StopAuthenticationException;
 import pl.edu.icm.unity.engine.api.translation.out.AuthenticationFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
-import pl.edu.icm.unity.oauth.as.AttributeValueFilter;
+import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
@@ -264,7 +264,7 @@ class OAuthAuthzView extends UnityViewComponent
 	{
 		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, handlersRegistry,
 				authnProcessor, config.singleSelectableAttributes, config.multiSelectableAttributes,
-				config.remainingAttributes, OAUTH_CONSENT_DECIDER_SERVLET_PATH, this::onDecline, (allAttributes, filteredAttribtue) -> gotoConsentStage(allAttributes, filteredAttribtue));
+				config.remainingAttributes, OAUTH_CONSENT_DECIDER_SERVLET_PATH, this::onDecline, (selectionResult) -> gotoConsentStage(selectionResult.allAttributes(), selectionResult.filteredAttributes()));
 		getContent().removeAll();
 		getContent().add(valueSelectionScreen);
 	}
@@ -361,13 +361,13 @@ class OAuthAuthzView extends UnityViewComponent
 		}
 	}
 
-	private List<AttributeValueFilter> mapSelectedAttributesToFilters(Collection<DynamicAttribute> attributes)
+	private List<AttributeFilteringSpec> mapSelectedAttributesToFilters(Collection<DynamicAttribute> attributes)
 	{
 		if (attributes == null)
 			return null;
 		
 		return attributes.stream()
-				.map(a -> new AttributeValueFilter(a.getAttribute()
+				.map(a -> new AttributeFilteringSpec(a.getAttribute()
 						.getName(),
 						a.getAttribute()
 								.getValues()
