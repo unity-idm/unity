@@ -61,6 +61,24 @@ public class AuthenticationRequestACRBuilderTest
 	}
 
 	@Test
+	public void shouldNotForwardACRsWhenNoneisSet() throws URISyntaxException
+	{
+		Builder builder = new AuthenticationRequest.Builder(new ResponseType(ResponseType.Value.CODE),
+				Scope.parse("openid"), new ClientID("clientId"), new URI("uri"));
+		CustomProviderProperties prop = mock(CustomProviderProperties.class);
+
+		when(prop.getRequestACRMode()).thenReturn(RequestACRsMode.NONE);
+
+		new AuthenticationRequestACRBuilder(builder).addACR(prop,
+				new RequestedAuthenticationContextClassReference(List.of("es1"), List.of("voluntary1")));
+
+		AuthenticationRequest authenticationRequest = builder.build();
+
+		assertThat(authenticationRequest.getACRValues()).isNull();
+		assertThat(authenticationRequest.getOIDCClaims()).isNull();
+	}
+	
+	@Test
 	public void shouldForwardOnlyEssentialACR() throws URISyntaxException
 	{
 		Builder builder = new AuthenticationRequest.Builder(new ResponseType(ResponseType.Value.CODE),
