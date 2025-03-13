@@ -88,8 +88,8 @@ ACCNIbiIfzXCYUVLsTaQK7e25kA=
 			<NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
 		</AttributeAuthorityDescriptor>
 		<Organization>
-			<OrganizationName xml:lang="en">unifr.ch</OrganizationName>
 			
+		
 			<OrganizationURL xml:lang="de">http://www.unifr.ch/</OrganizationURL>
 			<OrganizationURL xml:lang="en">http://www.unifr.ch/</OrganizationURL>
 			<OrganizationURL xml:lang="fr">http://www.unifr.ch/</OrganizationURL>
