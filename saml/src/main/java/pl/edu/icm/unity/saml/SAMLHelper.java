@@ -75,7 +75,7 @@ public class SAMLHelper
 			newRequestedAuthnContext.setComparison(xmlbeans.org.oasis.saml2.protocol.AuthnContextComparisonType.Enum
 					.forString(spConfiguration.comparisonMethod.name()
 							.toLowerCase()));
-		} else if (spConfiguration.requestACR.equals(RequestACRsMode.FORWARD))
+		} else if (spConfiguration.requestACR.equals(RequestACRsMode.FORWARD) && !requestedAuthenticationContextClassReference.getAll().isEmpty())
 		{
 			RequestedAuthnContextType newRequestedAuthnContext = request.getXMLBean()
 					.addNewRequestedAuthnContext();

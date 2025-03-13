@@ -46,6 +46,24 @@ public class SAMLHelperTest
 		assertThat(requestedAuthnContext.getAuthnContextClassRefArray()).isEqualTo(List.of("ess1", "vol1")
 				.toArray(String[]::new));
 	}
+	
+	@Test
+	public void shouldNotAddForwardedACRsIfAreEmpty()
+	{
+		AuthnRequestDocument samlRequest = SAMLHelper.createSAMLRequest(null, false, null, null, null, false, null,
+				new RequestedAuthenticationContextClassReference(List.of(), List.of()),
+				SAMLSPConfiguration.builder()
+						.withRequesterSamlId("id")
+						.withAcceptedNameFormats(List.of())
+						.withEffectiveMappings(Map.of())
+						.withIndividualTrustedIdPs(new TrustedIdPs(List.of()))
+						.withRequestedACRs(List.of())
+						.withRequestACRsMode(RequestACRsMode.FORWARD)
+						.build());
+
+		assertThat(samlRequest.getAuthnRequest()
+				.getRequestedAuthnContext()).isNull();		
+	}
 
 	@Test
 	public void shouldAddFixedACRs()
