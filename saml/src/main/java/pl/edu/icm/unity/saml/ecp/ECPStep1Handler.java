@@ -6,16 +6,17 @@ package pl.edu.icm.unity.saml.ecp;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.function.Supplier;
 
 import org.apache.xmlbeans.XmlCursor;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
-import io.imunity.vaadin.auth.SigInInProgressContextService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
 import pl.edu.icm.unity.saml.SAMLHelper;
 import pl.edu.icm.unity.saml.metadata.cfg.SPRemoteMetaManager;
 import pl.edu.icm.unity.saml.sp.config.SAMLSPConfiguration;
@@ -68,7 +69,7 @@ public class ECPStep1Handler
 		}
 		
 		ECPAuthnState context = new ECPAuthnState();
-		EnvelopeDocument envDoc = generateECPEnvelope(context, req);
+		EnvelopeDocument envDoc = generateECPEnvelope(context);
 		samlContextManagement.addAuthnContext(context);
 		
 		resp.setContentType(ECPConstants.ECP_CONTENT_TYPE);
@@ -80,7 +81,7 @@ public class ECPStep1Handler
 		writer.flush();
 	}
 
-	private EnvelopeDocument generateECPEnvelope(ECPAuthnState context, HttpServletRequest req)
+	private EnvelopeDocument generateECPEnvelope(ECPAuthnState context)
 	{
 		EnvelopeDocument envDoc = EnvelopeDocument.Factory.newInstance();
 		Envelope env = envDoc.addNewEnvelope();
@@ -98,13 +99,13 @@ public class ECPStep1Handler
 		Body body = env.addNewBody();
 		XmlCursor curBody = body.newCursor();
 		curBody.toFirstContentToken();
-		generateSamlRequest(samlspConfiguration, curBody, context, req);
+		generateSamlRequest(samlspConfiguration, curBody, context);
 		curBody.dispose();
 		
 		return envDoc;
 	}
 
-	private void generateSamlRequest(SAMLSPConfiguration samlConfig, XmlCursor curBody, ECPAuthnState context, HttpServletRequest req)
+	private void generateSamlRequest(SAMLSPConfiguration samlConfig, XmlCursor curBody, ECPAuthnState context)
 	{
 		boolean sign = samlConfig.signRequestByDefault;
 		String requesterId = samlConfig.requesterSamlId; 
@@ -112,7 +113,7 @@ public class ECPStep1Handler
 		X509Credential credential = sign ? samlConfig.requesterCredential : null;
 		
 		AuthnRequestDocument authnRequestDoc = SAMLHelper.createSAMLRequest(myAddress, sign, requesterId, null,
-				requestedNameFormat, true, credential, SigInInProgressContextService.getContext(req).acr() , samlConfig);
+				requestedNameFormat, true, credential, new RequestedAuthenticationContextClassReference(List.of(), List.of()) , samlConfig);
 		context.setRequestId(authnRequestDoc.getAuthnRequest().getID()); 
 
 		XmlCursor curR = authnRequestDoc.getAuthnRequest().newCursor();
