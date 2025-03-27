@@ -210,6 +210,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 			log.info("Authentication of " + selectedIdentity);
 			Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfo,
 					oauthCtx.getEffectiveRequestedAttrs());
+			ACRConsistencyValidator.verifyACRAttribute(oauthCtx, attributes);
 			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, oauthCtx,
 					statReporter, InvocationContext.getCurrent().getLoginSession().getAuthenticationTime());
 		} catch (OAuthErrorResponseException e)
