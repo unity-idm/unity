@@ -345,7 +345,7 @@ class OAuthAuthzView extends UnityViewComponent
 					.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx,
 							oauthResponseHandler.statReporter, InvocationContext.getCurrent()
 									.getLoginSession()
-									.getAuthenticationTime(),
+									.getAuthenticationTime(), filteredAttributes == null ? null :
 							AttributeValueFilterUtils.mergeFiltersWithPreservingLast(
 									ctx.getClaimValueFilters(), mapSelectedAttributesToFilters(filteredAttributes)));
 
