@@ -85,8 +85,10 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.DYNAMIC_EXPRESSION, null,
 				List.of(new AuthenticatorImpl(null, null, meta)), null, 0);
 
+		List<AttributeExt> attrs = List.of(new AttributeExt(new Attribute("a1", "syn", "/", List.of("v1")), false));
 		when(attributesHelper.getAttributesInternal(1L, true, "/", null, false))
-				.thenReturn(List.of(new AttributeExt(new Attribute("a1", "syn", "/", List.of("v1")), false)));
+				.thenReturn(attrs);
+		when(attributesHelper.filterSecuritySensitive(attrs)).thenReturn(attrs);
 		when(tx.runInTransactionRetThrowing(any()))
 				.thenAnswer(i -> ((TxRunnableThrowingRet<?>) i.getArguments()[0]).run());
 		when(identitiesMan.getEntity(new EntityParam(1L)))
@@ -94,7 +96,7 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 						Map.of("pass", new CredentialPublicInformation(LocalCredentialState.correct, null)))));
 		when(attrConverter.internalValuesToExternal("a1", List.of("v1"))).thenReturn(List.of("v1"));
 		when(identitiesMan.getGroupsForPresentation(new EntityParam(1L)))
-				.thenReturn(List.of(new Group("/g1")));
+				.thenReturn(List.of(new Group("/g1")));		
 		when(attrConverter.internalValuesToObjectValues("a1", List.of("v1"))).thenAnswer(new Answer<List<?>>()
 		{
 			@Override
@@ -104,6 +106,8 @@ public class AuthenticationFlowPolicyConfigMVELContextBuilderTest
 			}
 		});
 
+		
+		
 		RequestedAuthenticationContextClassReference resolvedAuthenticationContextClassReference = new RequestedAuthenticationContextClassReference(
 				List.of("essentialAcr"), List.of("voluntaryAcr"));
 		
