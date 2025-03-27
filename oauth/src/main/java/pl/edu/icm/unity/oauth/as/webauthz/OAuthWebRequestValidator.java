@@ -27,6 +27,8 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.nimbusds.openid.connect.sdk.Prompt;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
+import com.nimbusds.openid.connect.sdk.op.ACRRequest;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.entity.Entity;
@@ -161,6 +163,8 @@ class OAuthWebRequestValidator
 
 		validateAndRecordPrompt(context, authzRequest);
 
+		recordACR(context, authzRequest);
+		
 		validateAndRecordScopes(attributes, context, authzRequest);
 
 		validateAndRecordResources(context, authzRequest);
@@ -169,7 +173,13 @@ class OAuthWebRequestValidator
 
 		if (context.getClientType() == ClientType.PUBLIC)
 			validatePKCEIsUsedForCodeFlow(authzRequest, client);
+		
+	}
 
+	private void recordACR(OAuthAuthzContext context, AuthorizationRequest authzRequest)
+	{
+		ACRRequest acrRequest = ACRRequest.resolve(authzRequest);
+		context.setAcr(acrRequest);
 	}
 
 	private void validateAndRecordClaimsInTokenAttribute(OAuthAuthzContext context, AuthorizationRequest authzRequest)
@@ -282,6 +292,10 @@ class OAuthWebRequestValidator
 
 			validRequestedScopes.forEach(si -> context.addEffectiveScopeInfo(si));
 			requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
+			if (!context.getAcr().isEmpty())
+			{
+				context.getEffectiveRequestedAttrs().add(IDTokenClaimsSet.ACR_CLAIM_NAME);
+			}			
 		}
 	}
 

@@ -219,14 +219,13 @@ public class OAuthParseServlet extends HttpServlet
 
 		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
 		setLanguageCookie(response, parsedRequestParametersWithUILocales.uiLocales);
-		setRequestedAuthenticationContextClassReference(authzRequest, request.getSession(), contextKey);
+		setRequestedAuthenticationContextClassReference(context.getAcr(), request.getSession(), contextKey);
 		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
 	}
 	
-	private void setRequestedAuthenticationContextClassReference(AuthorizationRequest authzRequest, HttpSession session,
+	private void setRequestedAuthenticationContextClassReference(ACRRequest acrRequest, HttpSession session,
 			LoginInProgressService.SignInContextKey key)
 	{
-		ACRRequest acrRequest = ACRRequest.resolve(authzRequest);
 		SigInInProgressContextService.setContext(session,
 				new SigInInProgressContext(new RequestedAuthenticationContextClassReference(
 						getMappedACRs(acrRequest.getEssentialACRs()), getMappedACRs(acrRequest.getVoluntaryACRs()))),
