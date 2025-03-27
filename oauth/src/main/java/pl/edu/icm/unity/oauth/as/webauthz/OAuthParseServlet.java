@@ -228,7 +228,8 @@ public class OAuthParseServlet extends HttpServlet
 	{
 		SigInInProgressContextService.setContext(session,
 				new SigInInProgressContext(new RequestedAuthenticationContextClassReference(
-						getMappedACRs(acrRequest.getEssentialACRs()), getMappedACRs(acrRequest.getVoluntaryACRs()))),
+						getMappedACRs(acrRequest != null ? acrRequest.getEssentialACRs() : null),
+						getMappedACRs(acrRequest != null ? acrRequest.getVoluntaryACRs() : null))),
 				key);
 	}
 
