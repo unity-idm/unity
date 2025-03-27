@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.SubprojectGroupDelegationConfiguration;
 
@@ -37,17 +38,23 @@ class GroupService
 		this.notificationPresenter = notificationPresenter;
 	}
 
-	public void addGroup(ProjectGroup projectGroup, Group group, Map<Locale, String> names, boolean isPublic)
+	public Group addGroup(ProjectGroup projectGroup, Group group, Map<Locale, String> names, boolean isPublic)
 	{
 		I18nString i18nString = cretaei18nString(names);
 		try
 		{
-			delGroupMan.addGroup(projectGroup.path, group.path, i18nString, isPublic);
+			String created =  delGroupMan.addGroup(projectGroup.path, group.path, i18nString, isPublic);
+			DelegatedGroup newGroup = delGroupMan.getContents(projectGroup.path, created).group;
+			return new Group(newGroup.path, newGroup.displayedName, newGroup.displayedName.getValue(msg),
+					newGroup.delegationConfiguration.enabled, newGroup.delegationConfiguration.enableSubprojects,
+					newGroup.delegationConfiguration.logoUrl, newGroup.open, group.level + 1
+			);
 		} catch (Exception e)
 		{
 			log.warn("Can not add group " + projectGroup.path, e);
 			notificationPresenter.showError(msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 		}
+		return null;
 	}
 
 	public void deleteGroup(ProjectGroup projectGroup, Group group)
