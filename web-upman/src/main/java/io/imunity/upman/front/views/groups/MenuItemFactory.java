@@ -160,9 +160,9 @@ class MenuItemFactory
 		{
 			Map<Locale, String> localeToTxt = localizedTextFieldDetails.getSlottedFields().stream()
 					.collect(Collectors.toMap(field -> field.locale, TextField::getValue));
-			groupService.addGroup(projectGroup, group, localeToTxt, isPublic.getValue());
+			Group created = groupService.addGroup(projectGroup, group, localeToTxt, isPublic.getValue());
 			if(subProjectConfigurationLayout.enableDelegation.getValue())
-				groupService.setGroupDelegationConfiguration(projectGroup, group,
+				groupService.setGroupDelegationConfiguration(projectGroup, created,
 						subProjectConfigurationLayout.enableDelegation.getValue(),
 						subProjectConfigurationLayout.enableSubprojects.getValue(),
 						subProjectConfigurationLayout.logoUrl.getValue()
