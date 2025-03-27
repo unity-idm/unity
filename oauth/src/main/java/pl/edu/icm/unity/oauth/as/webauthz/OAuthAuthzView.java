@@ -191,7 +191,7 @@ class OAuthAuthzView extends UnityViewComponent
 		{
 			return;
 		}
-
+		
 		identity = idpEngine.getIdentity(translationResult, ctx.getConfig().getSubjectIdentityType());
 
 		Set<DynamicAttribute> allAttributes = OAuthProcessor.filterAttributes(translationResult,
@@ -200,6 +200,16 @@ class OAuthAuthzView extends UnityViewComponent
 		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = ActiveValueClientHelper
 				.getActiveValueSelectionConfig(config.getActiveValueClients(), ctx.getClientUsername(), allAttributes);
 
+		try
+		{
+			ACRConsistencyValidator.verifyACRAttribute(ctx, allAttributes);
+		} catch (OAuthErrorResponseException e)
+		{
+			oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(e.getOauthResponse(), false, ctx,
+					Status.FAILED);
+			return;
+		}
+			
 		if (activeValueSelectionConfig.isPresent())
 			showActiveValueSelectionScreen(activeValueSelectionConfig.get());
 		else
