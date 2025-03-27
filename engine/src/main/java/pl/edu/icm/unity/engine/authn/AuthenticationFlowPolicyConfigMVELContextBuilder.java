@@ -41,8 +41,9 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 @Component
 class AuthenticationFlowPolicyConfigMVELContextBuilder
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN, AuthenticationFlowPolicyConfigMVELContextBuilder.class);
-	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_AUTHN,
+			AuthenticationFlowPolicyConfigMVELContextBuilder.class);
+
 	private final AttributesHelper attributesHelper;
 	private final EntityManagement identitiesMan;
 	private final AttributeValueConverter attrConverter;
@@ -72,6 +73,7 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 				.collect(Collectors.toList());
 		Collection<AttributeExt> allAttributes = tx.runInTransactionRetThrowing(
 				() -> attributesHelper.getAttributesInternal(entityParam.getEntityId(), true, "/", null, false));
+		allAttributes = attributesHelper.filterSecuritySensitive(allAttributes);
 
 		RemoteAuthnMetadata context = null;
 		if (authenticationSuccessResult.isRemote())
@@ -83,37 +85,39 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 					.getRemoteAuthnMetadata();
 		}
 
-		return setupContext(entity, context, allAttributes, resolvedGroups, userOptIn, authenticationFlow,
-				firstFactorOptionId, sigInInProgressContext);
+		AuthenticationFlowPolicyContextInput input = new AuthenticationFlowPolicyContextInput(entity, context,
+				allAttributes, resolvedGroups, userOptIn, authenticationFlow, firstFactorOptionId,
+				sigInInProgressContext);
+		log.debug("Authentication flow policy context input:\n" + input.getTextDump());
+
+		return setupContext(input);
 
 	}
 
-	private Map<String, Object> setupContext(Entity entity, RemoteAuthnMetadata context,
-			Collection<AttributeExt> allAttributes, List<String> groupNames, boolean userOptIn,
-			AuthenticationFlow authenticationFlow, AuthenticationOptionKey firstFactorOptionId,
-			SigInInProgressContext sigInInProgressContext) throws EngineException
+	private Map<String, Object> setupContext(AuthenticationFlowPolicyContextInput input) throws EngineException
 	{
 		Map<String, Object> ret = new HashMap<>();
 		addAttributesToContext(DynamicPolicyConfigurationMVELContextKey.attr.name(),
-				DynamicPolicyConfigurationMVELContextKey.attrObj.name(), ret, allAttributes, attrConverter);
-		ret.put(DynamicPolicyConfigurationMVELContextKey.idsByType.name(), getIdentitiesByType(entity));
-		ret.put(DynamicPolicyConfigurationMVELContextKey.groups.name(), groupNames);
-		ret.putAll(getAuthnContextMvelVariables(context));
-		ret.put(DynamicPolicyConfigurationMVELContextKey.userOptIn.name(), userOptIn);
-		ret.put(DynamicPolicyConfigurationMVELContextKey.authentication1F.name(),
-				firstFactorOptionId.getAuthenticatorKey());
+				DynamicPolicyConfigurationMVELContextKey.attrObj.name(), ret, input.attributes(), attrConverter);
+		ret.put(DynamicPolicyConfigurationMVELContextKey.idsByType.name(), getIdentitiesByType(input.entity()));
+		ret.put(DynamicPolicyConfigurationMVELContextKey.groups.name(), input.groups());
+		ret.putAll(getAuthnContextMvelVariables(input.context()));
+		ret.put(DynamicPolicyConfigurationMVELContextKey.userOptIn.name(), input.userOptIn());
+		ret.put(DynamicPolicyConfigurationMVELContextKey.authentication1F.name(), input.firstFactorOptionId()
+				.getAuthenticatorKey());
 		ret.put(DynamicPolicyConfigurationMVELContextKey.hasValid2FCredential.name(),
-				hasValid2FCredential(entity, authenticationFlow));
+				hasValid2FCredential(input.entity(), input.authenticationFlow()));
 		ret.put(DynamicPolicyConfigurationMVELContextKey.requestedACRs.name(),
-				sigInInProgressContext != null ? sigInInProgressContext
+				input.sigInInProgressContext() != null ? input.sigInInProgressContext()
 						.acr()
 						.getAll() : List.of());
 		ret.put(DynamicPolicyConfigurationMVELContextKey.requestedEssentialACRs.name(),
-				sigInInProgressContext != null ? sigInInProgressContext
+				input.sigInInProgressContext() != null ? input.sigInInProgressContext()
 						.acr()
 						.essentialACRs() : List.of());
 
-		log.debug("Created MVEL context for entity {}: {}", entity.getId(), ret);
+		log.trace("Created MVEL context for entity {}: {}", input.entity()
+				.getId(), ret);
 
 		return ret;
 	}
@@ -205,4 +209,58 @@ class AuthenticationFlowPolicyConfigMVELContextBuilder
 
 		return false;
 	}
+
+	private static record AuthenticationFlowPolicyContextInput(Entity entity, RemoteAuthnMetadata context,
+			Collection<AttributeExt> attributes, List<String> groups, boolean userOptIn,
+			AuthenticationFlow authenticationFlow, AuthenticationOptionKey firstFactorOptionId,
+			SigInInProgressContext sigInInProgressContext)
+	{
+		String getTextDump()
+		{
+			StringBuilder sb = new StringBuilder();
+			sb.append("Entity " + entity.getId() + ":\n");
+			for (Identity id : entity.getIdentities())
+				sb.append(" - ")
+						.append(id.toString())
+						.append("\n");
+			if (!attributes.isEmpty())
+			{
+				sb.append("Attributes:\n");
+				for (Attribute at : attributes)
+					sb.append(" - ")
+							.append(at)
+							.append("\n");
+			}
+
+			if (!groups.isEmpty())
+			{
+				sb.append("Groups: " + groups + "\n");
+			}
+			sb.append("UserOptIn:")
+					.append(userOptIn)
+					.append("\n");
+
+			if (sigInInProgressContext != null && !sigInInProgressContext.acr()
+					.getAll()
+					.isEmpty())
+			{
+				sb.append("Requested voluntary ACRs: " + sigInInProgressContext.acr()
+						.voluntaryACRs() + "\n");
+				sb.append("Requested essential ACRs: " + sigInInProgressContext.acr()
+						.essentialACRs() + "\n");
+			}
+
+			if (context != null)
+			{
+				sb.append("Upstream protocol: " + context.protocol()
+						.name() + "\n");
+				sb.append("Upstream ACRs: " + context.classReferences() + "\n");
+				sb.append("Upstream IDP: " + context.remoteIdPId() + "\n");
+			}
+
+			return sb.toString();
+		}
+
+	}
+
 }
