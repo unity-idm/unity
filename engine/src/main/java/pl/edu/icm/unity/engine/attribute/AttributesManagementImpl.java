@@ -251,16 +251,8 @@ public class AttributesManagementImpl implements AttributesManagement
 		Collection<AttributeExt> ret = getAllAttributesInternal(entity, true, groupPath,
 				attributeTypeId, new AuthzCapability[] {AuthzCapability.read}, false
 		);
-		return filterSecuritySensitive(ret);
+		return attributesHelper.filterSecuritySensitive(ret);
 	}
-
-	private Collection<AttributeExt> filterSecuritySensitive(Collection<AttributeExt> ret)
-	{
-		return ret.stream()
-				.filter(SensitiveAttributeMatcher::isNotSensitive)
-				.collect(toList());
-	}
-
 
 	@Override
 	@Transactional

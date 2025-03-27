@@ -622,6 +622,13 @@ public class AttributesHelper
 				getFirstValueOfAttributeFilteredByName(attrName.get(), list));
 	}
 	
+	public Collection<AttributeExt> filterSecuritySensitive(Collection<AttributeExt> ret)
+	{
+		return ret.stream()
+				.filter(SensitiveAttributeMatcher::isNotSensitive)
+				.collect(toList());
+	}
+	
 	private Optional<String> getAttributeName(String metadata) throws EngineException
 	{
 		AttributeType attrType = getAttributeTypeWithSingeltonMetadata(metadata);
