@@ -16,6 +16,7 @@ import java.util.Set;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+import com.nimbusds.openid.connect.sdk.op.ACRRequest;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
@@ -52,7 +53,7 @@ public class OAuthAuthzContext
 	private ClientType clientType;
 	private boolean openIdMode;
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute = Optional.empty();
-	
+	private ACRRequest acr;
 	
 	
 	public OAuthAuthzContext(AuthorizationRequest request, OAuthASProperties properties)
@@ -264,5 +265,15 @@ public class OAuthAuthzContext
 			return false;
 		
 		return claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.id_token);	
+	}
+
+	public ACRRequest getAcr()
+	{
+		return acr;
+	}
+
+	public void setAcr(ACRRequest acr)
+	{
+		this.acr = acr;
 	}
 }
