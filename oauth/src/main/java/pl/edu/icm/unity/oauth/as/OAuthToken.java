@@ -48,6 +48,8 @@ public class OAuthToken
 	private PKCSInfo pkcsInfo;
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute;
 	private Instant authenticationTime;
+	private List<AttributeFilteringSpec> attributeValueFilters;
+	
 	
 	public OAuthToken()
 	{
@@ -82,7 +84,7 @@ public class OAuthToken
 		setFirstRefreshRollingToken(source.getFirstRefreshRollingToken());
 		setClaimsInTokenAttribute(source.getClaimsInTokenAttribute());
 		setAuthenticationTime(source.getAuthenticationTime());
-		
+		setAttributeValueFilters(source.getAttributeValueFilters());
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -350,6 +352,16 @@ public class OAuthToken
 	public void setAuthenticationTime(Instant authenticationTime)
 	{
 		this.authenticationTime = authenticationTime;
+	}	
+	
+	public List<AttributeFilteringSpec> getAttributeValueFilters()
+	{
+		return attributeValueFilters;
+	}
+
+	public void setAttributeValueFilters(List<AttributeFilteringSpec> attributeValueFilters)
+	{
+		this.attributeValueFilters = attributeValueFilters;
 	}
 	
 	@Override
@@ -362,6 +374,7 @@ public class OAuthToken
 		result = prime * result + Objects.hash(accessToken, audience, authzCode, clientEntityId, clientName,
 				clientType, clientUsername, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
 				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo, firstRefreshRollingToken, authenticationTime);
+		result = prime * result + Objects.hash(attributeValueFilters);
 		return result;
 	}
 
@@ -391,7 +404,8 @@ public class OAuthToken
 				&& Objects.equals(subject, other.subject) && tokenValidity == other.tokenValidity
 				&& Objects.equals(userInfo, other.userInfo)
 				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken)
-				&& Objects.equals(authenticationTime, other.authenticationTime);
+				&& Objects.equals(authenticationTime, other.authenticationTime)
+				&& Objects.equals(attributeValueFilters, other.attributeValueFilters);
 	}
 
 
@@ -406,8 +420,9 @@ public class OAuthToken
 				+ ", clientUsername=" + clientUsername + ", maxExtendedValidity=" + maxExtendedValidity
 				+ ", tokenValidity=" + tokenValidity + ", responseType=" + responseType + ", audience="
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
-				+ pkcsInfo + "]";
+				+ pkcsInfo + ", attributeValueFilters=" + attributeValueFilters + "]";
 	}
+	
 
 	public static class PKCSInfo
 	{

@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
@@ -79,7 +80,8 @@ public class ClientCredentialsProcessor
 					"' is not authorized to use the '" + GrantFlow.client + "' grant flow.");
 		}
 		OAuthToken internalToken = new OAuthToken();
-		Set<String> requestedAttributes = establishFlowsAndAttributes(internalToken, scope, attributes);
+		Scope parsedScope = Scope.parse(scope);
+		Set<String> requestedAttributes = establishFlowsAndAttributes(internalToken, parsedScope, attributes);
 		internalToken.setClientId(loginSession.getEntityId());
 		internalToken.setClientUsername(client);
 		internalToken.setSubject(client);
@@ -109,19 +111,18 @@ public class ClientCredentialsProcessor
 			throw new OAuthValidationException("Internal error");
 		}
 		Set<DynamicAttribute> filteredAttributes = OAuthProcessor.filterAttributes(
-				translationResult, requestedAttributes);
+				translationResult, requestedAttributes, AttributeValueFilterUtils.getFiltersFromScopes(parsedScope));
 		UserInfo userInfo = OAuthProcessor.prepareUserInfoClaimSet(client, filteredAttributes);
 		internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());
 		return internalToken;
 	}
 	
-	private Set<String> establishFlowsAndAttributes(OAuthToken internalToken, String scope, Map<String, AttributeExt> clientAttributes)
+	private Set<String> establishFlowsAndAttributes(OAuthToken internalToken, Scope scope, Map<String, AttributeExt> clientAttributes)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
 		if (scope != null && !scope.isEmpty())
-		{
-			Scope parsed = Scope.parse(scope);
-			List<OAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, parsed);
+		{	
+			List<OAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, AttributeValueFilterUtils.getScopesWithoutFilterClaims(scope));
 			String[] array = validRequestedScopes.stream().
 					map(si -> si.name).
 					toArray(String[]::new);

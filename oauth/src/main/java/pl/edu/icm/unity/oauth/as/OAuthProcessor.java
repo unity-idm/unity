@@ -81,11 +81,20 @@ public class OAuthProcessor
 	/**
 	 * Returns only requested attributes for which we have mapping.
 	 */
+	
 	public static Set<DynamicAttribute> filterAttributes(TranslationResult userInfo, 
 			Set<String> requestedAttributes)
 	{
+		return filterAttributes(userInfo, requestedAttributes, null);
+	}
+	
+	
+	public static Set<DynamicAttribute> filterAttributes(TranslationResult userInfo, 
+			Set<String> requestedAttributes, List<AttributeFilteringSpec> attrsValuesFilter)
+	{
 		Set<DynamicAttribute> ret = filterNotRequestedAttributes(userInfo, requestedAttributes);
-		return filterUnsupportedAttributes(ret);
+		return attrsValuesFilter == null ? filterUnsupportedAttributes(ret)
+				: AttributeValueFilter.filterAttributes(attrsValuesFilter, filterUnsupportedAttributes(ret));
 	}
 
 	/**
@@ -95,7 +104,8 @@ public class OAuthProcessor
 	 */
 	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(
 			Collection<DynamicAttribute> attributes,
-			IdentityParam identity,	OAuthAuthzContext ctx, OAuthIdpStatisticReporter statReporter, Instant authenticationTime) 
+			IdentityParam identity,	OAuthAuthzContext ctx, OAuthIdpStatisticReporter statReporter, Instant authenticationTime,
+			List<AttributeFilteringSpec> attributeWhiteList) 
 					throws EngineException, JsonProcessingException, ParseException, JOSEException
 	{
 		OAuthToken internalToken = new OAuthToken();
@@ -114,6 +124,7 @@ public class OAuthProcessor
 		internalToken.setClientType(ctx.getClientType());
 		internalToken.setClaimsInTokenAttribute(ctx.getClaimsInTokenAttribute());
 		internalToken.setAuthenticationTime(authenticationTime);
+		internalToken.setAttributeValueFilters(attributeWhiteList);
 		
 		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
 				null : ctx.getRequest().getCodeChallenge().getValue();

@@ -179,7 +179,7 @@ public class OAuthTestUtils
 				OIDCResponseTypeValue.ID_TOKEN, ResponseType.Value.CODE),
 				GrantFlow.openidHybrid, clientId, clientType);
 		
-		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now());
+		return processor.prepareAuthzResponseAndRecordInternalState(attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now(), null);
 	}
 	
 	public static AuthorizationSuccessResponse initOAuthFlowHybrid(OAuthASProperties config, 
@@ -211,7 +211,7 @@ public class OAuthTestUtils
 		attributes.add(new DynamicAttribute(StringAttribute.of("c", "/", "PL")));
 		
 		return processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now());
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now(), null);
 	}
 
 	public static Identity createOauthClient(EntityManagement idsMan, AttributesManagement attrsMan,
