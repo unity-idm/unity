@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.flow.component.Component;
@@ -22,6 +23,7 @@ import com.vaadin.flow.server.WrappedSession;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
 import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;
+import io.imunity.vaadin.auth.idp.PathWithQueryProvider;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import io.imunity.vaadin.endpoint.common.SessionStorage;
@@ -57,7 +59,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	private final NotificationPresenter notificationPresenter;
 
 	private VaadinAuthentication.AuthenticationCallback callback;
-	private String redirectParam;
+	private BasicNameValuePair redirectParam;
 
 	private VerticalLayout main;
 
@@ -162,7 +164,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 		idpComponent.setEnabled(true);
 	}
 	
-	private String installRequestHandler()
+	private BasicNameValuePair installRequestHandler()
 	{
 		VaadinSession session = VaadinSession.getCurrent();
 		Collection<RequestHandler> requestHandlers = session.getRequestHandlers();
@@ -189,6 +191,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	{
 		SessionStorage.consumeRedirectUrl((ultimateReturnURL, currentRelativeURI) ->
 		{
+			PathWithQueryProvider currentRelativeURLProvider = new PathWithQueryProvider(currentRelativeURI);
 			try
 			{
 				LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
@@ -197,8 +200,8 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 						ultimateReturnURL, callback.getTriggeringContext());
 				idpComponent.setEnabled(false);
 				callback.onStartedAuthentication();
-				String path = currentRelativeURI.getPath() + (currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "");
-				context.setReturnUrl(path);
+
+				context.setReturnUrl(currentRelativeURLProvider.getPathAndQueryOnly());
 				session.setAttribute(RedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
 			} catch (Exception e)
 			{
@@ -207,7 +210,8 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 				clear();
 				return;
 			}
-			UI.getCurrent().getPage().open(currentRelativeURI.getPath() + "?" + redirectParam, SELF_WINDOW_NAME);
+			UI.getCurrent().getPage().open(currentRelativeURLProvider.getPathWithQueryParamsIncluding(redirectParam),
+				SELF_WINDOW_NAME);
 		});
 	}
 

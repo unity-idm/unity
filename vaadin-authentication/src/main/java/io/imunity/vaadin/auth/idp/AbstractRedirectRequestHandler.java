@@ -4,14 +4,19 @@
  */
 package io.imunity.vaadin.auth.idp;
 
-import com.vaadin.flow.server.*;
-
-import pl.edu.icm.unity.base.utils.Log;
-
-import org.apache.logging.log4j.Logger;
-
 import java.io.IOException;
 import java.util.UUID;
+
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.logging.log4j.Logger;
+
+import com.vaadin.flow.server.RequestHandler;
+import com.vaadin.flow.server.VaadinRequest;
+import com.vaadin.flow.server.VaadinResponse;
+import com.vaadin.flow.server.VaadinSession;
+import com.vaadin.flow.server.WrappedSession;
+
+import pl.edu.icm.unity.base.utils.Log;
 
 
 /**
@@ -54,9 +59,9 @@ public abstract class AbstractRedirectRequestHandler implements RequestHandler
 	protected abstract boolean handleRequestInternal(Object context, VaadinSession vaadinSession, 
 			VaadinRequest request, VaadinResponse response) throws IOException;
 	
-	public String getTriggeringParam()
+	public BasicNameValuePair getTriggeringParam()
 	{
-		return AbstractRedirectRequestHandler.TRIGGERING_PARAMETER + "=" + uniqueId;
+		return new BasicNameValuePair(AbstractRedirectRequestHandler.TRIGGERING_PARAMETER, uniqueId);
 	}
 	
 	protected void setCommonHeaders(VaadinResponse response)
