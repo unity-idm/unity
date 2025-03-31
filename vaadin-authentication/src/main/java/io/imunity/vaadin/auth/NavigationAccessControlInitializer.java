@@ -5,15 +5,15 @@
 
 package io.imunity.vaadin.auth;
 
+import static io.imunity.vaadin.endpoint.common.SessionStorage.REDIRECT_URL_SESSION_STORAGE_KEY;
+import static io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.URL_PARAM_CONTEXT_KEY;
+import static java.util.Objects.nonNull;
+
+import org.jsoup.nodes.Document;
+
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import com.vaadin.flow.server.auth.NavigationAccessControl;
-
-import io.imunity.vaadin.endpoint.common.SessionStorage;
-
-import static io.imunity.vaadin.endpoint.common.SessionStorage.REDIRECT_URL_SESSION_STORAGE_KEY;
-
-import org.jsoup.nodes.Document;
 
 public class NavigationAccessControlInitializer implements VaadinServiceInitListener
 {
@@ -47,9 +47,15 @@ public class NavigationAccessControlInitializer implements VaadinServiceInitList
 	{
 		serviceInitEvent.addIndexHtmlRequestListener(response -> 
 		{
+			String signInCtx = response.getVaadinRequest().getParameter(URL_PARAM_CONTEXT_KEY);
+			String redirect = afterSuccessLoginRedirect;
+			if (nonNull(signInCtx))
+			{
+				redirect = afterSuccessLoginRedirect + "?" + URL_PARAM_CONTEXT_KEY + "=" + signInCtx;
+			}
 			Document document = response.getDocument();
 			document.body().append("<script>window.sessionStorage.setItem("
-					+ "\"" + REDIRECT_URL_SESSION_STORAGE_KEY + "\", " + afterSuccessLoginRedirect + ");</script>");
+					+ "\"" + REDIRECT_URL_SESSION_STORAGE_KEY + "\", " + redirect + ");</script>");
 		});
 	}
 }

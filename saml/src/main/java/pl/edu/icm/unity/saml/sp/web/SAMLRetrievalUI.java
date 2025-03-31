@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.flow.component.Component;
@@ -20,6 +21,7 @@ import com.vaadin.flow.server.WrappedSession;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.auth.idp.IdPAuthNComponent;
 import io.imunity.vaadin.auth.idp.IdPAuthNGridComponent;
+import io.imunity.vaadin.auth.idp.PathWithQueryProvider;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import io.imunity.vaadin.endpoint.common.SessionStorage;
@@ -61,7 +63,7 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 	private final VaadinAuthentication.Context context;
 	private IdPAuthNComponent idpComponent;
 	private VaadinAuthentication.AuthenticationCallback callback;
-	private String redirectParam;
+	private BasicNameValuePair redirectParam;
 
 	public SAMLRetrievalUI(MessageSource msg, SAMLExchange credentialExchange,
 	                       SamlContextManagement samlContextManagement, TrustedIdPKey configKey,
@@ -129,7 +131,7 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 		return authenticationStepContext.authnOptionId.getAuthenticatorKey() + "." + idpKey;
 	}
 
-	private String installRequestHandler()
+	private BasicNameValuePair installRequestHandler()
 	{
 		VaadinSession session = VaadinSession.getCurrent();
 		Collection<RequestHandler> requestHandlers = session.getRequestHandlers();
@@ -154,16 +156,16 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 
 	private void startFreshLogin(WrappedSession session)
 	{
-		SessionStorage.consumeRedirectUrl((ultimateReturnURL, currentRelativeURI) ->
+		SessionStorage.consumeRedirectUrl((sessionStoredReturnURL, currentRelativeURI) ->
 		{
 			RemoteAuthnContext context;
-			String path = currentRelativeURI.getPath() + (currentRelativeURI.getQuery() != null ? "?" + currentRelativeURI.getQuery() : "");
+			PathWithQueryProvider currentRelativeURLProvider = new PathWithQueryProvider(currentRelativeURI);
 			try
 			{
 				LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
-				context = credentialExchange.createSAMLRequest(configKey, path,
+				context = credentialExchange.createSAMLRequest(configKey, currentRelativeURLProvider.getPathAndQueryOnly(),
 						authenticationStepContext,
-						loginMachineDetails, ultimateReturnURL, callback.getTriggeringContext());
+						loginMachineDetails, sessionStoredReturnURL, callback.getTriggeringContext());
 			} catch (Exception e)
 			{
 				notificationPresenter.showError(msg.getMessage("WebSAMLRetrieval.configurationError"), e.getMessage());
@@ -177,7 +179,7 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 			session.setAttribute(VaadinRedirectRequestHandler.REMOTE_AUTHN_CONTEXT, context);
 			samlContextManagement.addAuthnContext(context);
 
-			UI.getCurrent().getPage().open(path + "?" + redirectParam, SELF_WINDOW_NAME);
+			UI.getCurrent().getPage().open(currentRelativeURLProvider.getPathWithQueryParamsIncluding(redirectParam), SELF_WINDOW_NAME);
 		});
 	}
 
