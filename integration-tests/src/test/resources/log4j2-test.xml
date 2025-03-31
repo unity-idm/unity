@@ -69,6 +69,7 @@
 		
 		<Logger name="org.eclipse.jetty" level="INFO"/>
 		<Logger name="org.eclipse.jetty.util.ssl" level="INFO"/>
+		<logger name="org.eclipse.jetty.server.session" level="DEBUG"/>
 
 		<Logger name="org.apache" level="INFO"/>
 		

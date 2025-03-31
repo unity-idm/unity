@@ -4,12 +4,9 @@
 	xmlns:S="http://schemas.xmlsoap.org/soap/envelope/" elementFormDefault="unqualified"
 	attributeFormDefault="unqualified" blockDefault="substitution" version="2.0">
 	
-	<import namespace="urn:oasis:names:tc:SAML:2.0:protocol"
-		schemaLocation="saml-schema-protocol-2.0.xsd" />
-	<import namespace="urn:oasis:names:tc:SAML:2.0:assertion"
-		schemaLocation="saml-schema-assertion-2.0.xsd" />
-	<import namespace="http://schemas.xmlsoap.org/soap/envelope/"
-		schemaLocation="http://schemas.xmlsoap.org/soap/envelope/" />
+	<import namespace="urn:oasis:names:tc:SAML:2.0:protocol"/>
+	<import namespace="urn:oasis:names:tc:SAML:2.0:assertion"/>
+	<import namespace="http://schemas.xmlsoap.org/soap/envelope/" />
 		
 	<annotation>
 		<documentation>

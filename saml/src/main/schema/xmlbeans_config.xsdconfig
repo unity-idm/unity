@@ -1,5 +1,5 @@
 <!-- configure java package names -->
-<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config">
+<xb:config xmlns:xb="http://xml.apache.org/xmlbeans/2004/02/xbean/config">
 
 	<!-- Those are imported from outside, samlTypes of SecurityFramework. -->
     <xb:namespace uri="urn:oasis:names:tc:SAML:2.0:assertion">

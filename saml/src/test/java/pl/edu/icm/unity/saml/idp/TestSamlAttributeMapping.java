@@ -10,12 +10,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlBase64Binary;
+import org.apache.xmlbeans.XmlException;
 import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -31,7 +33,7 @@ import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 public class TestSamlAttributeMapping
 {
 	@Test
-	public void stringAttributeIsMapped()
+	public void stringAttributeIsMapped() throws XmlException, IOException
 	{
 		SamlAttributeMapper mapper = new DefaultSamlAttributesMapper();
 		
@@ -39,7 +41,7 @@ public class TestSamlAttributeMapping
 		AttributeType samlA = mapper.convertToSaml(unityA);
 		assertEquals("attr1", samlA.getName());
 		assertEquals(1, samlA.sizeOfAttributeValueArray());
-		assertEquals("val1", ((XmlAnySimpleType)samlA.getAttributeValueArray(0)).getStringValue());
+		assertEquals("val1", mapper.convertFromSaml(samlA, XmlAnySimpleType.class, XmlAnySimpleType.type).getStringValue());
 	}
 
 	@Test
@@ -67,7 +69,9 @@ public class TestSamlAttributeMapping
 		AttributeType samlA = mapper.convertToSaml(unityA);
 		assertEquals("attr1", samlA.getName());
 		assertEquals(1, samlA.sizeOfAttributeValueArray());
-		byte[] fromSaml = ((XmlBase64Binary)samlA.getAttributeValueArray(0)).getByteArrayValue();
+		XmlBase64Binary v = ((XmlBase64Binary.Factory)null).newValue(samlA.getAttributeValueArray(0).xmlText());
+		//v.set(samlA.getAttributeValueArray(0));
+		byte[] fromSaml = v.getByteArrayValue();
 		byte[] orig = image.getImage();
 		assertTrue(Arrays.equals(orig, fromSaml));
 	}

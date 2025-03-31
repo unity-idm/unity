@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlObject;
+
 import pl.edu.icm.unity.base.attribute.Attribute;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
 
@@ -14,9 +17,10 @@ import xmlbeans.org.oasis.saml2.assertion.AttributeType;
  */
 public interface SamlAttributeMapper
 {
-	public boolean isHandled(Attribute unityAttribute);
-	public AttributeType convertToSaml(Attribute unityAttribute);
+	boolean isHandled(Attribute unityAttribute);
+	AttributeType convertToSaml(Attribute unityAttribute);
 	
+	<T extends XmlObject> T convertFromSaml(AttributeType attribute, Class<T> clazz, SchemaType type);
 	/*
 	public boolean isHandled(AttributeType samlAttribute);
 	public Attribute convertToUnity(AttributeType samlAttribute);
