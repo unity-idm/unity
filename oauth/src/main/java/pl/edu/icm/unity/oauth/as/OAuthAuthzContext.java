@@ -53,7 +53,7 @@ public class OAuthAuthzContext
 	private ClientType clientType;
 	private boolean openIdMode;
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute = Optional.empty();
-	private ACRRequest acr;
+	private ACRRequest requestedACR;
 	private List<AttributeFilteringSpec> claimValueFilters;
 	
 	public OAuthAuthzContext(AuthorizationRequest request, OAuthASProperties properties)
@@ -267,14 +267,14 @@ public class OAuthAuthzContext
 		return claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.id_token);	
 	}
 
-	public ACRRequest getAcr()
+	public ACRRequest getRequestedAcr()
 	{
-		return acr;
+		return requestedACR;
 	}
 
-	public void setAcr(ACRRequest acr)
+	public void setRequestedAcr(ACRRequest acr)
 	{
-		this.acr = acr;
+		this.requestedACR = acr;
 	}
 	
 	public List<AttributeFilteringSpec> getClaimValueFilters()

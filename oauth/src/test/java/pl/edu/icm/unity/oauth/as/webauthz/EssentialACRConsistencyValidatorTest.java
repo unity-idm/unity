@@ -31,7 +31,7 @@ public class EssentialACRConsistencyValidatorTest
 	public void shouldThrowExceptionWhenReturnedACRNotContainsRequestedACR() throws OAuthErrorResponseException, URISyntaxException
 	{
 		OAuthAuthzContext context = new OAuthAuthzContext(new AuthorizationRequest(new URI(""), ResponseType.TOKEN, new ClientID()), null);
-		context.setAcr(new ACRRequest(List.of(new ACR("essentialACR1")), null));
+		context.setRequestedAcr(new ACRRequest(List.of(new ACR("essentialACR1")), null));
 		context.setReturnURI(new URI("return"));
 		List<DynamicAttribute> attrs = List.of(new DynamicAttribute(new Attribute("acr", null, null, List.of("acr1"))));
 		assertThrows(OAuthErrorResponseException.class, () -> EssentialACRConsistencyValidator.verifyEssentialRequestedACRisReturned(context, attrs));
@@ -41,7 +41,7 @@ public class EssentialACRConsistencyValidatorTest
 	public void shouldValidateSuccessfulltWhenACRContainsRequestedACR() throws OAuthErrorResponseException, URISyntaxException
 	{
 		OAuthAuthzContext context = new OAuthAuthzContext(new AuthorizationRequest(new URI(""), ResponseType.TOKEN, new ClientID()), null);
-		context.setAcr(new ACRRequest(List.of(new ACR("essentialACR1")), null));
+		context.setRequestedAcr(new ACRRequest(List.of(new ACR("essentialACR1")), null));
 		context.setReturnURI(new URI("return"));
 		List<DynamicAttribute> attrs = List.of(new DynamicAttribute(new Attribute("acr", null, null, List.of("essentialACR1"))));
 		assertDoesNotThrow(() -> EssentialACRConsistencyValidator.verifyEssentialRequestedACRisReturned(context, attrs));
@@ -51,7 +51,7 @@ public class EssentialACRConsistencyValidatorTest
 	public void shouldValidateSuccessfulltWhenRequestedACRisVoluntary() throws OAuthErrorResponseException, URISyntaxException
 	{
 		OAuthAuthzContext context = new OAuthAuthzContext(new AuthorizationRequest(new URI(""), ResponseType.TOKEN, new ClientID()), null);
-		context.setAcr(new ACRRequest(List.of(), List.of(new ACR("voluntaryACR1"))));
+		context.setRequestedAcr(new ACRRequest(List.of(), List.of(new ACR("voluntaryACR1"))));
 		context.setReturnURI(new URI("return"));
 		List<DynamicAttribute> attrs = List.of(new DynamicAttribute(new Attribute("acr", null, null, List.of("anotherACR"))));
 		assertDoesNotThrow(() -> EssentialACRConsistencyValidator.verifyEssentialRequestedACRisReturned(context, attrs));

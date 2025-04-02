@@ -219,7 +219,7 @@ public class OAuthParseServlet extends HttpServlet
 
 		AuthenticationPolicy.setPolicy(request.getSession(), mapPromptToAuthenticationPolicy(context.getPrompts()));
 		setLanguageCookie(response, parsedRequestParametersWithUILocales.uiLocales);
-		setRequestedAuthenticationContextClassReference(context.getAcr(), request.getSession(), contextKey);
+		setRequestedAuthenticationContextClassReference(context.getRequestedAcr(), request.getSession(), contextKey);
 		response.sendRedirect(oauthUiServletPath + getQueryToAppend(authzRequest, contextKey));
 	}
 	
