@@ -22,15 +22,15 @@ public class EssentialACRConsistencyValidator
 {
 	static void verifyEssentialRequestedACRisReturned(OAuthAuthzContext ctx, Collection<DynamicAttribute> attributes) throws OAuthErrorResponseException
 	{
-		if (ctx.getAcr().isEmpty())
+		if (ctx.getRequestedAcr().isEmpty())
 			return;
-		if (ctx.getAcr().getEssentialACRs() == null || ctx.getAcr().getEssentialACRs().isEmpty())
+		if (ctx.getRequestedAcr().getEssentialACRs() == null || ctx.getRequestedAcr().getEssentialACRs().isEmpty())
 			return;
 		Optional<DynamicAttribute> acrAttribute = attributes.stream().filter(a -> a.getAttribute().getName().equals(IDTokenClaimsSet.ACR_CLAIM_NAME)).findAny();
 		
 		if (acrAttribute.isPresent())
 		{
-			if (acrAttribute.get().getAttribute().getValues().containsAll(ctx.getAcr().getEssentialACRs().stream().map(acr -> acr.getValue()).toList()))
+			if (acrAttribute.get().getAttribute().getValues().containsAll(ctx.getRequestedAcr().getEssentialACRs().stream().map(acr -> acr.getValue()).toList()))
 				return;
 		}	
 		

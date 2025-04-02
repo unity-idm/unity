@@ -180,7 +180,7 @@ class OAuthWebRequestValidator
 	private void recordACR(OAuthAuthzContext context, AuthorizationRequest authzRequest)
 	{
 		ACRRequest acrRequest = ACRRequest.resolve(authzRequest);
-		context.setAcr(acrRequest);
+		context.setRequestedAcr(acrRequest);
 	}
 
 	private void validateAndRecordClaimsInTokenAttribute(OAuthAuthzContext context, AuthorizationRequest authzRequest)
@@ -295,7 +295,7 @@ class OAuthWebRequestValidator
 
 			validRequestedScopes.forEach(si -> context.addEffectiveScopeInfo(si));
 			requestedScopes.forEach(si -> context.addRequestedScope(si.getValue()));
-			if (!context.getAcr().isEmpty())
+			if (!context.getRequestedAcr().isEmpty())
 			{
 				context.getEffectiveRequestedAttrs().add(IDTokenClaimsSet.ACR_CLAIM_NAME);
 			}			
