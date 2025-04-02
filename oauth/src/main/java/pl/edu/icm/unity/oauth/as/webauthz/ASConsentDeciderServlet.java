@@ -213,7 +213,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 			Collection<DynamicAttribute> attributes =  OAuthProcessor.filterAttributes(userInfo,
 					oauthCtx.getEffectiveRequestedAttrs());
 			Set<DynamicAttribute> filteredAttributes = AttributeValueFilter.filterAttributes(oauthCtx.getClaimValueFilters(), attributes);
-			ACRConsistencyValidator.verifyACRAttribute(oauthCtx, filteredAttributes);
+			EssentialACRConsistencyValidator.verifyEssentialRequestedACRisReturned(oauthCtx, filteredAttributes);
 			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(filteredAttributes, selectedIdentity, oauthCtx,
 					statReporter, InvocationContext.getCurrent().getLoginSession().getAuthenticationTime(), oauthCtx.getClaimValueFilters());
 		} catch (OAuthErrorResponseException e)

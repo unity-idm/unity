@@ -18,19 +18,19 @@ import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 
-public class ACRConsistencyValidator
+public class EssentialACRConsistencyValidator
 {
-	static void verifyACRAttribute(OAuthAuthzContext ctx, Collection<DynamicAttribute> attributes) throws OAuthErrorResponseException
+	static void verifyEssentialRequestedACRisReturned(OAuthAuthzContext ctx, Collection<DynamicAttribute> attributes) throws OAuthErrorResponseException
 	{
 		if (ctx.getAcr().isEmpty())
 			return;
 		if (ctx.getAcr().getEssentialACRs() == null || ctx.getAcr().getEssentialACRs().isEmpty())
 			return;
-		Optional<DynamicAttribute> any = attributes.stream().filter(a -> a.getAttribute().getName().equals(IDTokenClaimsSet.ACR_CLAIM_NAME)).findAny();
+		Optional<DynamicAttribute> acrAttribute = attributes.stream().filter(a -> a.getAttribute().getName().equals(IDTokenClaimsSet.ACR_CLAIM_NAME)).findAny();
 		
-		if (any.isPresent())
+		if (acrAttribute.isPresent())
 		{
-			if (any.get().getAttribute().getValues().containsAll(ctx.getAcr().getEssentialACRs().stream().map(acr -> acr.getValue()).toList()))
+			if (acrAttribute.get().getAttribute().getValues().containsAll(ctx.getAcr().getEssentialACRs().stream().map(acr -> acr.getValue()).toList()))
 				return;
 		}	
 		

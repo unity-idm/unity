@@ -208,7 +208,7 @@ class OAuthAuthzView extends UnityViewComponent
 
 		try
 		{
-			ACRConsistencyValidator.verifyACRAttribute(ctx, filteredByClaimAttributes);
+			EssentialACRConsistencyValidator.verifyEssentialRequestedACRisReturned(ctx, filteredByClaimAttributes);
 		} catch (OAuthErrorResponseException e)
 		{
 			oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(e.getOauthResponse(), false, ctx,
