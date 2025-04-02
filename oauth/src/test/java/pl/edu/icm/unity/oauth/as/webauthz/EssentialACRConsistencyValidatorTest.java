@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 
-public class ACRConsistencyValidatorTest
+public class EssentialACRConsistencyValidatorTest
 {
 	@Test
 	public void shouldThrowExceptionWhenReturnedACRNotContainsRequestedACR() throws OAuthErrorResponseException, URISyntaxException
@@ -34,7 +34,7 @@ public class ACRConsistencyValidatorTest
 		context.setAcr(new ACRRequest(List.of(new ACR("essentialACR1")), null));
 		context.setReturnURI(new URI("return"));
 		List<DynamicAttribute> attrs = List.of(new DynamicAttribute(new Attribute("acr", null, null, List.of("acr1"))));
-		assertThrows(OAuthErrorResponseException.class, () -> ACRConsistencyValidator.verifyACRAttribute(context, attrs));
+		assertThrows(OAuthErrorResponseException.class, () -> EssentialACRConsistencyValidator.verifyEssentialRequestedACRisReturned(context, attrs));
 	}
 	
 	@Test
@@ -44,7 +44,7 @@ public class ACRConsistencyValidatorTest
 		context.setAcr(new ACRRequest(List.of(new ACR("essentialACR1")), null));
 		context.setReturnURI(new URI("return"));
 		List<DynamicAttribute> attrs = List.of(new DynamicAttribute(new Attribute("acr", null, null, List.of("essentialACR1"))));
-		assertDoesNotThrow(() -> ACRConsistencyValidator.verifyACRAttribute(context, attrs));
+		assertDoesNotThrow(() -> EssentialACRConsistencyValidator.verifyEssentialRequestedACRisReturned(context, attrs));
 	}
 	
 	@Test
@@ -54,6 +54,6 @@ public class ACRConsistencyValidatorTest
 		context.setAcr(new ACRRequest(List.of(), List.of(new ACR("voluntaryACR1"))));
 		context.setReturnURI(new URI("return"));
 		List<DynamicAttribute> attrs = List.of(new DynamicAttribute(new Attribute("acr", null, null, List.of("anotherACR"))));
-		assertDoesNotThrow(() -> ACRConsistencyValidator.verifyACRAttribute(context, attrs));
+		assertDoesNotThrow(() -> EssentialACRConsistencyValidator.verifyEssentialRequestedACRisReturned(context, attrs));
 	}
 }
