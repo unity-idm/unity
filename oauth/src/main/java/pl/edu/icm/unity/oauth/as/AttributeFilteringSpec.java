@@ -7,8 +7,13 @@ package pl.edu.icm.unity.oauth.as;
 
 import java.util.Set;
 
+
 public record AttributeFilteringSpec(
 		String attributeName,
 		Set<String> values)
 {
+	public String toString()
+	{
+		return attributeName + "=" + values.toString();
+	}
 }

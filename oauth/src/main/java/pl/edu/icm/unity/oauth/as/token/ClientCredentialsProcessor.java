@@ -111,7 +111,7 @@ public class ClientCredentialsProcessor
 			throw new OAuthValidationException("Internal error");
 		}
 		Set<DynamicAttribute> filteredAttributes = OAuthProcessor.filterAttributes(
-				translationResult, requestedAttributes, AttributeValueFilterUtils.getFiltersFromScopes(parsedScope));
+				translationResult, requestedAttributes);
 		UserInfo userInfo = OAuthProcessor.prepareUserInfoClaimSet(client, filteredAttributes);
 		internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());
 		return internalToken;
