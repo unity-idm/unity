@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -44,6 +45,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.oauth.as.AttributeValueFilter;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
@@ -209,9 +211,10 @@ public class ASConsentDeciderServlet extends HttpServlet
 					oauthCtx.getConfig().getSubjectIdentityType());
 			log.info("Authentication of " + selectedIdentity);
 			Collection<DynamicAttribute> attributes =  OAuthProcessor.filterAttributes(userInfo,
-					oauthCtx.getEffectiveRequestedAttrs(), oauthCtx.getClaimValueFilters());
-			ACRConsistencyValidator.verifyACRAttribute(oauthCtx, attributes);
-			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(attributes, selectedIdentity, oauthCtx,
+					oauthCtx.getEffectiveRequestedAttrs());
+			Set<DynamicAttribute> filteredAttributes = AttributeValueFilter.filterAttributes(oauthCtx.getClaimValueFilters(), attributes);
+			ACRConsistencyValidator.verifyACRAttribute(oauthCtx, filteredAttributes);
+			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(filteredAttributes, selectedIdentity, oauthCtx,
 					statReporter, InvocationContext.getCurrent().getLoginSession().getAuthenticationTime(), oauthCtx.getClaimValueFilters());
 		} catch (OAuthErrorResponseException e)
 		{

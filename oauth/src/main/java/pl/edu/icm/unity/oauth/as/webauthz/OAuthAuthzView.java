@@ -61,6 +61,7 @@ import pl.edu.icm.unity.engine.api.translation.out.AuthenticationFinalizationCon
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
+import pl.edu.icm.unity.oauth.as.AttributeValueFilter;
 import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
@@ -198,14 +199,16 @@ class OAuthAuthzView extends UnityViewComponent
 		identity = idpEngine.getIdentity(translationResult, ctx.getConfig().getSubjectIdentityType());
 
 		Set<DynamicAttribute> allAttributes = OAuthProcessor.filterAttributes(translationResult,
-				ctx.getEffectiveRequestedAttrs(), ctx.getClaimValueFilters());
+				ctx.getEffectiveRequestedAttrs());
+		
+		Set<DynamicAttribute> filteredByClaimAttributes = AttributeValueFilter.filterAttributes(ctx.getClaimValueFilters(), allAttributes);
 
 		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = ActiveValueClientHelper
-				.getActiveValueSelectionConfig(config.getActiveValueClients(), ctx.getClientUsername(), allAttributes);
+				.getActiveValueSelectionConfig(config.getActiveValueClients(), ctx.getClientUsername(), filteredByClaimAttributes);
 
 		try
 		{
-			ACRConsistencyValidator.verifyACRAttribute(ctx, allAttributes);
+			ACRConsistencyValidator.verifyACRAttribute(ctx, filteredByClaimAttributes);
 		} catch (OAuthErrorResponseException e)
 		{
 			oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(e.getOauthResponse(), false, ctx,
@@ -214,19 +217,18 @@ class OAuthAuthzView extends UnityViewComponent
 		}
 			
 		if (activeValueSelectionConfig.isPresent())
-			showActiveValueSelectionScreen(activeValueSelectionConfig.get());
+			showActiveValueSelectionScreen(activeValueSelectionConfig.get(), ctx);
 		else
-			gotoConsentStage(allAttributes, null);
+			gotoConsentStage(allAttributes, null, ctx);
 	}
 
-	private void gotoConsentStage(Collection<DynamicAttribute> attributes, Collection<DynamicAttribute> filteredAttributes)
+	private void gotoConsentStage(Collection<DynamicAttribute> attributes, Collection<DynamicAttribute> filteredAttributes, OAuthAuthzContext context)
 	{
-		OAuthAuthzContext context = OAuthSessionService.getVaadinContext();
 		if (!forceConsentIfConsentPrompt(context))
 		{
 			if (context.getConfig().isSkipConsent())
 			{
-				onFinalConfirm(identity, attributes, filteredAttributes);
+				onFinalConfirm(identity, AttributeValueFilter.filterAttributes(context.getClaimValueFilters(), attributes), filteredAttributes);
 				return;
 			} else if (isNonePrompt(context))
 			{
@@ -236,7 +238,7 @@ class OAuthAuthzView extends UnityViewComponent
 		}
 		OAuthConsentScreen consentScreen = new OAuthConsentScreen(msg, handlersRegistry, preferencesMan,
 				authnProcessor, idTypeSupport, aTypeSupport, identity, attributes,
-				this::onDecline,  (i,a) -> onFinalConfirm(i, a, filteredAttributes), oauthResponseHandler);
+				this::onDecline,  (i,a) -> onFinalConfirm(i, AttributeValueFilter.filterAttributes(context.getClaimValueFilters(), a) , filteredAttributes), oauthResponseHandler);
 		getContent().removeAll();
 		getContent().add(consentScreen);
 	}
@@ -260,11 +262,11 @@ class OAuthAuthzView extends UnityViewComponent
 		return oauthCtx.getPrompts().contains(Prompt.CONSENT);
 	}
 
-	private void showActiveValueSelectionScreen(ActiveValueSelectionConfig config)
+	private void showActiveValueSelectionScreen(ActiveValueSelectionConfig config, OAuthAuthzContext ctx)
 	{
 		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, handlersRegistry,
 				authnProcessor, config.singleSelectableAttributes, config.multiSelectableAttributes,
-				config.remainingAttributes, OAUTH_CONSENT_DECIDER_SERVLET_PATH, this::onDecline, (selectionResult) -> gotoConsentStage(selectionResult.allAttributes(), selectionResult.filteredAttributes()));
+				config.remainingAttributes, OAUTH_CONSENT_DECIDER_SERVLET_PATH, this::onDecline, (selectionResult) -> gotoConsentStage(selectionResult.allAttributes(), selectionResult.filteredAttributes(), ctx));
 		getContent().removeAll();
 		getContent().add(valueSelectionScreen);
 	}

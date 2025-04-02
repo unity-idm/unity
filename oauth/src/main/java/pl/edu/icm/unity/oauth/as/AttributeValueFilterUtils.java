@@ -70,10 +70,18 @@ public class AttributeValueFilterUtils
 			}
 		}
 
-		return filterByAttrName.entrySet()
+		 List<AttributeFilteringSpec> mappedFilters = filterByAttrName.entrySet()
 				.stream()
 				.map(e -> new AttributeFilteringSpec(e.getKey(), e.getValue()))
 				.toList();
+		 
+		if (!mappedFilters.isEmpty())
+		{
+			log.debug("Requested claim value filters: {}", mappedFilters);
+		}
+		 
+		 return mappedFilters;
+	
 	}
 
 	public static List<AttributeFilteringSpec> mergeFiltersWithPreservingLast(List<AttributeFilteringSpec> firstStageFilters,

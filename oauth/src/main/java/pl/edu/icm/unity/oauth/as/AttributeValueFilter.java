@@ -12,12 +12,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 
-class AttributeValueFilter
+public class AttributeValueFilter
 {
-	static Set<DynamicAttribute> filterAttributes(List<AttributeFilteringSpec> filter,
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, AttributeValueFilter.class);
+
+	public static Set<DynamicAttribute> filterAttributes(List<AttributeFilteringSpec> filter,
 			Collection<DynamicAttribute> attributes)
 	{
 		if(filter == null)
@@ -41,6 +46,8 @@ class AttributeValueFilter
 								.values()
 								.contains(v))
 						.toList();
+				log.debug("Filtered by claim filter attributes values for attribute {}: {}", attribute.getAttribute().getName(), filteredValues);
+				
 				if (filteredValues.isEmpty())
 				{
 					continue;
