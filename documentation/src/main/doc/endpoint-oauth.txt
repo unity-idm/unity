@@ -57,7 +57,7 @@ client:
  - must possess the +sys:oauth:allowedReturnURI+ attribute (in OAuth clients group) with allowed return URI(s),
  - can have logo and/or displayed name OAuth attributes assigned to improve client's presentation during user's consent.
  - should have an attribute +sys:oauth:clientType+ specifying whether the client is confidential or public. By
- default client is assumed to be confidential, if the attribute is unset.
+default, client is assumed to be confidential, if the attribute is unset.
  
 OAuth users must belong to a group specified in the configuration file. If no restrictions are required the '/' group
 can be used. In case that there are different groups of users for different OAuth clients, those groups can be 
@@ -66,7 +66,7 @@ configured with client's attribute +sys:oauth:groupForClient+.
 OAuth scopes should be defined next. Each scope includes a list of Unity attributes (use the Unity name) that should be
 exposed when the client asks for the scope and the user gives her consent. 
 
-Finally an output translation profile can be configured. It is highly useful to map Unity's internal attribute names 
+Finally, an output translation profile can be configured. It is highly useful to map Unity's internal attribute names
 to names used by OAauth consumers. Standard OAuth/OIDC attribute names can be found in the OIDC specification: 
 http://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
 
@@ -236,9 +236,8 @@ authorized with the token in question. This feature is very useful in case of st
 is reduced to access token verification.   
 
 To enable this feature set accessToken validity to a proper short time (e.g. 30 minutes) - equal to the intended inactive login session
-time. Additionally set +extendAccessTokenValidityUpTo+ to the intended longest session time (e.g. 12 hours). Then the actively used
+time. Additionally, set +extendAccessTokenValidityUpTo+ to the intended longest session time (e.g. 12 hours). Then the actively used
 access token can be valid for up to 12 hours, but will automatically expire after 30 minutes without use.
-
 
 ==== Public and native clients, PKCE
 
@@ -253,8 +252,20 @@ Note that the path must still match exactly.
 * The +http+ scheme can be used in case of IP based loopback redirect, even if +https+ is configured in authorized return URI.
 * Consent screen acceptance can not be saved - it is always presented.
 
-See the aformentioned RFCs for details on how to use PKCE, 
+See the aforementioned RFCs for details on how to use PKCE,
 and what forms of return redirections are available for native clients.
 
 
+==== Client-Requested Claim Value Filtering
 
+Unity supports a proprietary feature that allows OAuth clients to request filtering of claim values. This feature is activated when the client uses a special scope prefixed with +claim_filter:+, as follows:
+
+----
+scope=profile%20claim_filter:entitlements:abc
+----
+
+In this example, one regular scope +profile+ is requested, as well as one claim value filter. If the +entitlements+ claim is returned as part of the +profile+ scope, only its +abc+ value is included. If the +entitlements+ claim has no +abc+ value, it is not returned.
+
+Multiple claim value filters can be used together, even for the same claim. These filters function as a whitelist: every value matching a filter is returned.
+
+Note that when requesting a refresh token, a client may change (or completely omit) claim filters.
