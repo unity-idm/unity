@@ -44,13 +44,12 @@ class ProxyAuthenticationFilterTest
 	{
 		when(request.getDispatcherType()).thenReturn(DispatcherType.REQUEST);
 		when(request.getRequestURI()).thenReturn("/context/test/path");
-		when(request.getContextPath()).thenReturn("/context");
 		when(request.getQueryString()).thenReturn("param1=value1");
 		when(request.getParameterMap()).thenReturn(Map.of("param1", new String[]{"value1"}));
 
 		String result = ProxyAuthenticationFilter.getCurrentRelativeURL(request);
 
-		assertEquals("/test/path?param1=value1", result);
+		assertEquals("/context/test/path?param1=value1", result);
 	}
 
 	@Test
@@ -58,12 +57,11 @@ class ProxyAuthenticationFilterTest
 	{
 		when(request.getDispatcherType()).thenReturn(DispatcherType.REQUEST);
 		when(request.getRequestURI()).thenReturn("/context/test/path");
-		when(request.getContextPath()).thenReturn("/context");
 		when(request.getQueryString()).thenReturn(null);
 
 		String result = ProxyAuthenticationFilter.getCurrentRelativeURL(request);
 
-		assertEquals("/test/path", result);
+		assertEquals("/context/test/path", result);
 	}
 
 	@Test
