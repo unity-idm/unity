@@ -114,7 +114,7 @@ public class ProxyAuthenticationFilter implements Filter
 
 	private static String requestBasedRelativeURL(HttpServletRequest httpRequest)
 	{
-		String relativeUrl = httpRequest.getRequestURI().substring(httpRequest.getContextPath().length());
+		String relativeUrl = httpRequest.getRequestURI();
 		String query = httpRequest.getQueryString() == null ? "" :
 			ProxyAuthenticationFilter.filteredQuery(httpRequest);
 		return relativeUrl + query;
