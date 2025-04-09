@@ -84,7 +84,7 @@ public class OAuthProxyAuthnHandler
 			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext authnContext) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
-		String currentURI = endpointPath + ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
+		String currentURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
 		OAuthContext context;
 		try
