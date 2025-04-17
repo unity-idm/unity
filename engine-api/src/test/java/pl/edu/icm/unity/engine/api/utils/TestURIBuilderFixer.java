@@ -21,7 +21,7 @@ public class TestURIBuilderFixer
 	@Test
 	public void shouldParseStringWithPlusEncodedSpaceInPath() throws URISyntaxException
 	{
-		URIBuilder builder = new URIBuilder("foo://some/path:name+ooo");
+		URIBuilder builder = URIBuilderFixer.newInstance("foo://some/path:name+ooo");
 		builder.addParameter("p", "val");
 		URI uri = builder.build();
 		
@@ -52,10 +52,21 @@ public class TestURIBuilderFixer
 	@Test
 	public void shouldParseURIWithPercentEncodedSpaceInParam() throws URISyntaxException
 	{
-		URIBuilder builder = new URIBuilder("https://some.domain.com?param1=aaa%20bbb");
+		URIBuilder builder = URIBuilderFixer.newInstance("https://some.domain.com?param1=aaa%20bbb");
 		builder.addParameter("p", "val");
 		URI uri = builder.build();
 		
 		assertThat(uri.toASCIIString()).isEqualTo("https://some.domain.com?param1=aaa%20bbb&p=val");
 	}
+
+	@Test
+	public void shouldParseURIWithValuelessParam() throws URISyntaxException
+	{
+		URIBuilder builder = URIBuilderFixer.newInstance("https://some.domain.com?param1");
+		builder.addParameter("p", "val");
+		URI uri = builder.build();
+
+		assertThat(uri.toASCIIString()).isEqualTo("https://some.domain.com?param1&p=val");
+	}
+
 }

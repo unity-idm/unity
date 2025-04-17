@@ -28,7 +28,9 @@ public class URIBuilderFixer
 	{
 		URIBuilder builder = new URIBuilder(uri);
 		List<NameValuePair> fixedParams = builder.getQueryParams().stream()
-				.map(nvp -> new BasicNameValuePair(decodePlusIntoSpace(nvp.getName()), decodePlusIntoSpace(nvp.getValue())))
+				.map(nvp -> new BasicNameValuePair(
+						decodePlusIntoSpace(nvp.getName()),
+						nvp.getValue() != null ? decodePlusIntoSpace(nvp.getValue()) : null))
 				.collect(Collectors.toList());
 		builder.clearParameters();
 		builder.addParameters(fixedParams);
