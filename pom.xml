@@ -139,13 +139,6 @@
 		</repository>
 	</repositories>
 
-	<distributionManagement>
-		<snapshotRepository>
-			<id>sonatype-nexus-snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
-
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -172,7 +165,6 @@
 						<release>17</release>
 						<maxmem>256M</maxmem>
 						<encoding>UTF-8</encoding>
-						<fork>${compiler.fork}</fork>
 						<compilerArgument>-Xlint:unchecked</compilerArgument>
 					</configuration>
 				</plugin>
@@ -305,15 +297,13 @@
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.sonatype.plugins</groupId>
-				<artifactId>nexus-staging-maven-plugin</artifactId>
-				<version>1.6.13</version>
+				<groupId>org.sonatype.central</groupId>
+				<artifactId>central-publishing-maven-plugin</artifactId>
+				<version>0.7.0</version>
 				<extensions>true</extensions>
 				<configuration>
-					<serverId>sonatype-nexus-staging</serverId>
-					<nexusUrl>https://oss.sonatype.org/</nexusUrl>
-					<autoReleaseAfterClose>true</autoReleaseAfterClose>
-					<keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
+					<publishingServerId>maven-central</publishingServerId>
+					<autoPublish>true</autoPublish>
 				</configuration>
 			</plugin>
 		</plugins>
