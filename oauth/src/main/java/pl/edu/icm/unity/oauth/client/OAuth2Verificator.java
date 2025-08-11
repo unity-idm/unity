@@ -379,10 +379,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		
 		if (log.isTraceEnabled())
 		{
-			String notSecretQuery = httpRequest.getURL().getQuery().replaceFirst(
-					"client_secret=[^&]*", "client_secret=xxxxxx");
-			log.trace("Exchanging authorization code for access token with request to: " + 
-					httpRequest.getURL() + "?" + notSecretQuery);
+			String notSecretQuery = httpRequest.getURL()
+					.getQuery() != null ? httpRequest.getURL().getQuery()
+							.replaceFirst("client_secret=[^&]*", "client_secret=xxxxxx") : null;
+			log.trace("Exchanging authorization code for access token with request to: " + httpRequest.getURL()
+					+ (notSecretQuery != null ? ("?" + notSecretQuery) : ""));
 		} else if (log.isDebugEnabled())
 		{
 			log.debug("Exchanging authorization code for access token with request to: " + 
