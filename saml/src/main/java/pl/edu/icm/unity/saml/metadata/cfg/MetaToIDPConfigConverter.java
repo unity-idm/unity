@@ -4,17 +4,24 @@
  */
 package pl.edu.icm.unity.saml.metadata.cfg;
 
-import eu.emi.security.authn.x509.impl.X500NameUtils;
-import eu.unicore.samly2.SAMLConstants;
+import java.io.ByteArrayInputStream;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
+import eu.emi.security.authn.x509.impl.X500NameUtils;
+import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.i18n.I18nString;
@@ -27,19 +34,16 @@ import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.RequestAcceptancePolicy;
 import pl.edu.icm.unity.saml.idp.SamlEntityId;
 import pl.edu.icm.unity.saml.idp.TrustedServiceProvider;
 import pl.edu.icm.unity.saml.idp.TrustedServiceProviders;
-import xmlbeans.org.oasis.saml2.assertion.AttributeType;
-import xmlbeans.org.oasis.saml2.metadata.*;
-import xmlbeans.org.oasis.saml2.metadata.extattribute.EntityAttributesDocument;
-import xmlbeans.org.oasis.saml2.metadata.extattribute.EntityAttributesType;
+import xmlbeans.org.oasis.saml2.metadata.EndpointType;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
+import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
+import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
+import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
+import xmlbeans.org.oasis.saml2.metadata.KeyDescriptorType;
+import xmlbeans.org.oasis.saml2.metadata.KeyTypes;
+import xmlbeans.org.oasis.saml2.metadata.SPSSODescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.extui.UIInfoType;
 import xmlbeans.org.w3.x2000.x09.xmldsig.X509DataType;
-
-import java.io.ByteArrayInputStream;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class MetaToIDPConfigConverter
 {
@@ -76,12 +80,6 @@ public class MetaToIDPConfigConverter
 				if (!MetaToConfigConverterHelper.supportsSaml2(spDef))
 				{
 					log.trace("SP of entity " + entityId +	" doesn't support SAML2 - ignoring.");
-					continue;
-				}
-				EntityAttributesType entityAttributes = parseMDAttributes(descriptorType.getExtensions(), entityId);
-				if (isDisabled(entityAttributes))
-				{
-					log.trace("SP of entity " + entityId +	" is hidden from discovery - ignoring.");
 					continue;
 				}
 
@@ -130,55 +128,6 @@ public class MetaToIDPConfigConverter
 			}
 		}
 		return overrideConfigurations;
-	}
-
-
-	private boolean isDisabled(EntityAttributesType entityAttributes)
-	{
-		if (entityAttributes == null)
-			return false;
-		AttributeType[] attributeArray = entityAttributes.getAttributeArray();
-		for (AttributeType a: attributeArray)
-		{
-			if ("http://macedir.org/entity-category".equals(a.getName()))
-			{
-				for (XmlObject value : a.getAttributeValueArray())
-				{
-					XmlCursor c = value.newCursor();
-					String valueStr = c.getTextValue();
-					c.dispose();
-					if (valueStr.equals("http://refeds.org/category/hide-from-discovery"))
-						return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	private EntityAttributesType parseMDAttributes(ExtensionsType extensions, SamlEntityId entityId)
-	{
-		if (extensions == null)
-			return null;
-		NodeList nl = extensions.getDomNode().getChildNodes();
-		for (int i=0; i<nl.getLength(); i++)
-		{
-			Node elementN = nl.item(i);
-			if (elementN.getNodeType() != Node.ELEMENT_NODE)
-				continue;
-			Element element = (Element) elementN;
-			if ("EntityAttributes".equals(element.getLocalName()) &&
-					"urn:oasis:names:tc:SAML:metadata:attribute".equals(element.getNamespaceURI()))
-			{
-				try
-				{
-					return EntityAttributesDocument.Factory.parse(element).getEntityAttributes();
-				} catch (XmlException e)
-				{
-					log.warn("Can not parse entity attributes metadata extension for " + entityId, e);
-				}
-			}
-		}
-		return null;
 	}
 
 	private void updatePKICerts(List<X509Certificate> certs, SamlEntityId entityId, String prefix)
