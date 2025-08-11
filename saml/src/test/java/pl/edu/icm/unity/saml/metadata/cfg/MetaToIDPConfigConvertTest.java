@@ -35,7 +35,7 @@ public class MetaToIDPConfigConvertTest
 
 		MetaToIDPConfigConverter converter = new MetaToIDPConfigConverter(pkiManagement, msg);
 		EntitiesDescriptorDocument metadata = EntitiesDescriptorDocumentParser
-				.loadMetadata("src/test/resources/DFN-AAI-metadata-part.xml");
+				.loadMetadata("src/test/resources/DFN-AAI-metadata-part-hidden.xml");
 
 		SAMLIdPConfiguration samlIdPConfiguration = SAMLIdPConfiguration.builder()
 				.withCredentialName("MAIN")
