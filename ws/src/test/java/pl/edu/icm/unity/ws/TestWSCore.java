@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,7 +49,9 @@ public class TestWSCore extends DBIntegrationTestBase
 	public static final String AUTHENTICATION_FLOW = "flow1";
 	public static final String AUTHENTICATION_FLOW_CERT_SECOND_FACTOR = "flow2";
 	public static final String AUTHENTICATION_FLOW_OPTIN = "flow3";
-	
+
+	private int port;
+
 	@Autowired
 	private AuthenticatorManagement authnMan;
 	
@@ -57,6 +60,12 @@ public class TestWSCore extends DBIntegrationTestBase
 
 	@Autowired
 	private AuthenticationFlowManagement authnFlowMan;
+
+	@BeforeEach
+	public void setup() throws Exception
+	{
+		port = httpServer.getUrls()[0].getPort();
+	}
 	
 	@Test
 	public void shouldBlockAccessAfterTooManyFailedLogins() throws Exception
@@ -72,11 +81,11 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
 		WSClientFactory factoryBad = new WSClientFactory(clientCfg);
-		MockWSSEI wsProxyBad = factoryBad.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+		MockWSSEI wsProxyBad = factoryBad.createPlainWSProxy(MockWSSEI.class, getUrl("mock") +
 				MockWSEndpointFactory.SERVLET_PATH);
 		clientCfg.setHttpPassword(DEF_PASSWORD);
 		WSClientFactory factoryOK = new WSClientFactory(clientCfg);
-		MockWSSEI wsProxyOK = factoryOK.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+		MockWSSEI wsProxyOK = factoryOK.createPlainWSProxy(MockWSSEI.class, getUrl("mock") +
 				MockWSEndpointFactory.SERVLET_PATH);
 
 		wsProxyOK.getAuthenticatedUser();
@@ -133,7 +142,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setHttpUser(DEF_USER);
 		clientCfg.setHttpPassword(DEF_PASSWORD);
 		WSClientFactory factory = new WSClientFactory(clientCfg);
-		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getUrl("mock") +
 				MockWSEndpointFactory.SERVLET_PATH);
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
@@ -144,7 +153,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		try
 		{
 			factory = new WSClientFactory(clientCfg);
-			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getUrl("mock") +
 					MockWSEndpointFactory.SERVLET_PATH);
 			wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with sigle cred when USER_OPTIN flow policy is used, userOptin attr is set and second credential is not given");
@@ -178,7 +187,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		try
 		{
 			WSClientFactory factory = new WSClientFactory(clientCfg);
-			MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+			MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getUrl("mock") +
 					MockWSEndpointFactory.SERVLET_PATH);
 			NameIDDocument retDoc = wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with wrong password: " + retDoc.xmlText());
@@ -201,7 +210,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(false);
 		WSClientFactory factory = new WSClientFactory(clientCfg);
-		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getUrl("mock") +
 				MockWSEndpointFactory.SERVLET_PATH);
 		
 		NameIDDocument ret = wsProxy.getAuthenticatedUser();
@@ -223,7 +232,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
 		WSClientFactory factory = new WSClientFactory(clientCfg);
-		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getUrl("mock") +
 				MockWSEndpointFactory.SERVLET_PATH);
 		NameIDDocument ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[" + DEF_USER + "]", ret.getNameID().getStringValue());
@@ -243,7 +252,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setHttpAuthn(true);
 		clientCfg.setHttpPassword("wrong");
 		WSClientFactory factory = new WSClientFactory(clientCfg);
-		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getUrl("mock") +
 				MockWSEndpointFactory.SERVLET_PATH);
 		NameIDDocument ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[" + DEMO_SERVER_DN + "]", ret.getNameID().getStringValue());
@@ -265,7 +274,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		clientCfg.setHttpPassword("mockPassword2");
 		
 		WSClientFactory factory = new WSClientFactory(clientCfg);
-		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getUrl("mock2") +
 				MockWSEndpointFactory.SERVLET_PATH);
 		NameIDDocument ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[" + DEMO_SERVER_DN + ", user2]", ret.getNameID().getStringValue());
@@ -288,7 +297,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		try
 		{
 			WSClientFactory factory = new WSClientFactory(clientCfg);
-			MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
+			MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getUrl("mock2") +
 					MockWSEndpointFactory.SERVLET_PATH);
 			wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with single cred when 2 req");
@@ -313,7 +322,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		try
 		{
 			WSClientFactory factory = new WSClientFactory(clientCfg);
-			MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
+			MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getUrl("mock2") +
 					MockWSEndpointFactory.SERVLET_PATH);
 			wsProxy.getAuthenticatedUser();
 			fail("Managed to authenticate with single cred when 2 req");
@@ -348,15 +357,16 @@ public class TestWSCore extends DBIntegrationTestBase
 		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint2", "/mock2", cfg2);
 		
 		httpServer.start();
+		port = httpServer.getUrls()[0].getPort();
 	}
 	
-	protected void createUsers() throws Exception
+	private void createUsers() throws Exception
 	{
 		createUsernameUser(DEF_USER, null, DEF_PASSWORD, CRED_REQ_PASS);
 		createCertUser();
 	}
-	
-	protected void setupAuth() throws Exception
+
+	private void setupAuth() throws Exception
 	{
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
@@ -375,5 +385,10 @@ public class TestWSCore extends DBIntegrationTestBase
 				AUTHENTICATION_FLOW_OPTIN, Policy.USER_OPTIN,
 				Sets.newHashSet(AUTHENTICATOR_WS_PASS, AUTHENTICATOR_WS_CERT)));
 		
+	}
+
+	private String getUrl(String path)
+	{
+		return "https://localhost:" + port + "/" + path;
 	}
 }

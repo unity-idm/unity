@@ -20,7 +20,7 @@ import pl.edu.icm.unity.rest.TestRESTBase;
  *
  * @author Krzysztof Benedyczak
  */
-public abstract class RESTAdminTestBase extends TestRESTBase
+abstract class RESTAdminTestBase extends TestRESTBase
 {
 	
 	protected ObjectMapper m = new ObjectMapper().findAndRegisterModules();
@@ -28,6 +28,8 @@ public abstract class RESTAdminTestBase extends TestRESTBase
 	protected HttpHost host;
 
 	protected HttpClient client;
+
+	protected int port;
 	
 	{
 		m.enable(SerializationFeature.INDENT_OUTPUT);
@@ -39,13 +41,14 @@ public abstract class RESTAdminTestBase extends TestRESTBase
 		setupPasswordAuthn();
 		createUsernameUserWithRole("System Manager");
 		super.deployEndpoint(RESTAdminEndpoint.NAME, 
-				"restAdmin", "/restadm");		
-		client = getClient();
+				"restAdmin", "/restadm");
+		port = httpServer.getUrls()[0].getPort();
+		client = getClient(port);
 		host = getHost();
 	}
 
 	protected HttpHost getHost() {
-		return new HttpHost("https", "localhost", 53456);
+		return new HttpHost("https", "localhost", port);
 	}
 
 	protected String executeQuery(HttpUriRequestBase request) throws Exception
@@ -55,7 +58,7 @@ public abstract class RESTAdminTestBase extends TestRESTBase
 
 	protected String executeQuery(HttpUriRequestBase request, HttpContext context) throws Exception
 	{
-		HttpClient client = getClient();
+		HttpClient client = getClient(port);
 		return client.execute(host, request, context, new BasicHttpClientResponseHandler());
 	}
 }

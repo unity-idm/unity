@@ -98,6 +98,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	private AuthenticationFlowManagement authnFlowMan;
 	
 	protected Identity clientId1;
+	protected int port;
 	
 	protected IdentityParam initUser(String username) throws Exception
 	{
@@ -115,7 +116,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	protected JSONObject getTokenInfo(AccessToken token) throws Exception
 	{
 		UserInfoRequest uiRequest = new UserInfoRequest(
-				new URI("https://localhost:52443/oauth/tokeninfo"),
+				new URI(getOauthUrl("/oauth/tokeninfo")),
 				(BearerAccessToken) token);
 		HTTPRequest bare2 = uiRequest.toHTTPRequest();
 		HTTPRequest wrapped2 = new HttpRequestConfigurer().secureRequest(bare2, pkiMan.getValidator("MAIN"),
@@ -183,6 +184,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			assertThat(endpoints).hasSize(1);
 
 			httpServer.start();
+			port = httpServer.getUrls()[0].getPort();
 		} catch (Exception e)
 		{
 			throw new RuntimeException(e);
@@ -215,7 +217,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 		ctx.setOpenIdMode(true);
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx, identity);
-		TokenRequest request = new TokenRequest.Builder(new URI("https://localhost:52443/oauth/token"), ca,
+		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
 						.build();	
 		HTTPRequest bare = request.toHTTPRequest();
@@ -226,5 +228,10 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
 		return parsedResp;
 	}
-	
+
+
+	protected String getOauthUrl(String path)
+	{
+		return "https://localhost:" + port + path;
+	}
 }

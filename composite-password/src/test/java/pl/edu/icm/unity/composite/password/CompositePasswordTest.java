@@ -88,6 +88,7 @@ public class CompositePasswordTest extends DBIntegrationTestBase
 		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
 
 		httpServer.start();
+		int port = httpServer.getUrls()[0].getPort();
 
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setCredential(getDemoCredential());
@@ -101,8 +102,7 @@ public class CompositePasswordTest extends DBIntegrationTestBase
 		clientCfg.setHttpAuthn(true);
 		WSClientFactory factory = new WSClientFactory(clientCfg);
 		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class,
-				"https://localhost:53456/mock"
-						+ MockWSEndpointFactory.SERVLET_PATH);
+			getGetUrl(port) + MockWSEndpointFactory.SERVLET_PATH);
 
 		NameIDDocument ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[test1]", ret.getNameID().getStringValue());
@@ -110,8 +110,7 @@ public class CompositePasswordTest extends DBIntegrationTestBase
 		clientCfg.setHttpUser("test2");
 		clientCfg.setHttpPassword("the!test2");
 		factory = new WSClientFactory(clientCfg);
-		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"
-				+ MockWSEndpointFactory.SERVLET_PATH);
+		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getGetUrl(port) + MockWSEndpointFactory.SERVLET_PATH);
 
 		ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[test2]", ret.getNameID().getStringValue());
@@ -122,12 +121,16 @@ public class CompositePasswordTest extends DBIntegrationTestBase
 		clientCfg.setHttpUser("test1");
 		clientCfg.setHttpPassword("the!test");
 		factory = new WSClientFactory(clientCfg);
-		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"
-				+ MockWSEndpointFactory.SERVLET_PATH);
+		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, getGetUrl(port) + MockWSEndpointFactory.SERVLET_PATH);
 
 		ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[test1]", ret.getNameID().getStringValue());
 
+	}
+
+	private static String getGetUrl(int port)
+	{
+		return "https://localhost:" + port + "/mock";
 	}
 
 }

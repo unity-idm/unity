@@ -44,10 +44,8 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void shouldRetriveAttributesAfterAuthenticationUsingDynamicIdentity() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AuthenticationService";
-		String attrWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AssertionQueryService";
+		String authnWSUrl = getSamlEndpointUrl() + "/AuthenticationService";
+		String attrWSUrl = getSamlEndpointUrl() + "/AssertionQueryService";
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setHttpUser("user1");
 		clientCfg.setHttpPassword("mockPassword1");
@@ -73,8 +71,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void shouldAuthenticateWithCorrectPassword_SFA() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AuthenticationService";
+		String authnWSUrl = getSamlEndpointUrl() + "/AuthenticationService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setHttpUser("user1");
@@ -93,8 +90,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void shouldNotAuthenticateWithoutCredential() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AuthenticationService";
+		String authnWSUrl = getSamlEndpointUrl() + "/AuthenticationService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setSslAuthn(false);
@@ -113,8 +109,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void shouldNotAuthenticateWithIncorrectPassword_SFA() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AuthenticationService";
+		String authnWSUrl = getSamlEndpointUrl() + "/AuthenticationService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setHttpUser("user1");
@@ -135,8 +130,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void shouldNotAuthenticateWithWrongFormat() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AuthenticationService";
+		String authnWSUrl = getSamlEndpointUrl() + "/AuthenticationService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setHttpUser("user1");
@@ -158,8 +152,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void shouldAuthenticateWithCorrectPasswordWhenTlsEnabledButNotProvided() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AuthenticationService";
+		String authnWSUrl = getSamlEndpointUrl() + "/AuthenticationService";
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
 
@@ -175,8 +168,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void shouldAuthenticateWithTLSOnly() throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AuthenticationService";
+		String authnWSUrl = getSamlEndpointUrl() + "/AuthenticationService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
@@ -201,8 +193,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void testAttributes() throws Exception
 	{
-		String attrWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AssertionQueryService";
+		String attrWSUrl = getSamlEndpointUrl() + "/AssertionQueryService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setHttpUser("user1");
@@ -259,8 +250,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	@Test
 	public void testPreferences() throws Exception
 	{
-		String attrWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
-				"/AssertionQueryService";
+		String attrWSUrl = getSamlEndpointUrl() + "/AssertionQueryService";
 		
 		DefaultClientConfiguration clientCfg = getClientCfg();
 		clientCfg.setHttpUser("user1");
@@ -310,5 +300,10 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 				missing);
 		
 		assertThat(preferences).isNotNull();
+	}
+
+	private String getSamlEndpointUrl()
+	{
+		return getServerUrl() + "/saml" + SamlSoapEndpoint.SERVLET_PATH;
 	}
 }
