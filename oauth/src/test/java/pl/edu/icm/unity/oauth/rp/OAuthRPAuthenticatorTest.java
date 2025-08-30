@@ -65,8 +65,8 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
  */
 public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 {
-	private static final String OAUTH_ENDP_CFG = 
-			"unity.oauth2.as.issuerUri=https://localhost:52443/oauth2\n"
+	private static final String OAUTH_ENDP_CFG_FORMAT =
+			"unity.oauth2.as.issuerUri=https://localhost:%s/oauth2\n"
 			+ "unity.oauth2.as.signingCredential=MAIN\n"
 			+ "unity.oauth2.as.clientsGroup=/oauth-clients\n"
 			+ "unity.oauth2.as.usersGroup=/oauth-users\n"
@@ -81,11 +81,11 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			+ "unity.oauth2.as.scopes.2.attributes.1=c\n" 
 			+ "unity.oauth2.as.refreshTokenIssuePolicy=ALWAYS\n";
 
-	private static final String OAUTH_RP_CFG = 
-			"unity.oauth2-rp.profileEndpoint=https://localhost:52443/oauth/userinfo\n"
+	private static final String OAUTH_RP_CFG_FORMAT =
+			"unity.oauth2-rp.profileEndpoint=https://localhost:%s/oauth/userinfo\n"
 			+ "unity.oauth2-rp.cacheTime=20\n"
 			+ "unity.oauth2-rp.verificationProtocol=unity\n"
-			+ "unity.oauth2-rp.verificationEndpoint=https://localhost:52443/oauth/tokeninfo\n"
+			+ "unity.oauth2-rp.verificationEndpoint=https://localhost:%s/oauth/tokeninfo\n"
 			+ "unity.oauth2-rp.clientId=\n"
 			+ "unity.oauth2-rp.clientSecret=\n"
 			+ "#unity.oauth2-rp.clientAuthenticationMode=\n"
@@ -94,11 +94,11 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			+ "unity.oauth2-rp.httpClientHostnameChecking=NONE\n"
 			+ "unity.oauth2-rp.translationProfile=tr-oauth\n";
 
-	private static final String OAUTH_RP_CFG_INTERNAL = 
-			"#unity.oauth2-rp.profileEndpoint=https://localhost:52443/oauth/userinfo\n"
+	private static final String OAUTH_RP_CFG_INTERNAL_FORMAT =
+			"#unity.oauth2-rp.profileEndpoint=https://localhost:%s/oauth/userinfo\n"
 			+ "unity.oauth2-rp.cacheTime=2\n"
 			+ "unity.oauth2-rp.verificationProtocol=internal\n"
-			+ "#unity.oauth2-rp.verificationEndpoint=https://localhost:52443/oauth/tokeninfo\n"
+			+ "#unity.oauth2-rp.verificationEndpoint=https://localhost:%s/oauth/tokeninfo\n"
 			+ "unity.oauth2-rp.clientId=\n"
 			+ "unity.oauth2-rp.clientSecret=\n"
 			+ "#unity.oauth2-rp.clientAuthenticationMode=\n"
@@ -137,16 +137,21 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	private AuthenticatorManagement authnMan;	
 	@Autowired
 	private AuthenticationFlowManagement authnFlowMan;
-	
+
+	private int port;
+
 	@BeforeEach
 	public void setup()
 	{
 		try
 		{
+			httpServer.start();
+			port = httpServer.getUrls()[0].getPort();
+
 			setupPasswordAuthn();
 			
-			authnMan.createAuthenticator("a-rp", "oauth-rp", OAUTH_RP_CFG, null);
-			authnMan.createAuthenticator("a-rp-int", "oauth-rp", OAUTH_RP_CFG_INTERNAL, null);
+			authnMan.createAuthenticator("a-rp", "oauth-rp", OAUTH_RP_CFG_FORMAT.formatted(port, port), null);
+			authnMan.createAuthenticator("a-rp-int", "oauth-rp", OAUTH_RP_CFG_INTERNAL_FORMAT.formatted(port, port), null);
 			authnMan.createAuthenticator("a-rp-mitre", "oauth-rp", OAUTH_RP_CFG_MITRE, null);
 			authnMan.createAuthenticator("Apass", "password", null, "credential1");
 			
@@ -168,7 +173,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth",
 					new EndpointConfiguration(new I18nString("endpointIDP"),
 							"desc", Lists.newArrayList("flow1"),
-							OAUTH_ENDP_CFG, REALM_NAME));
+							OAUTH_ENDP_CFG_FORMAT.formatted(port), REALM_NAME));
 
 			authnFlowMan.addAuthenticationFlow(
 					new AuthenticationFlowDefinition("flow2", Policy.NEVER,
@@ -202,7 +207,6 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 			assertEquals(4, endpoints.size());
 
-			httpServer.start();
 		} catch (Exception e)
 		{
 			throw new RuntimeException(e);
@@ -230,7 +234,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	{
 		AccessToken ac = new BearerAccessToken("----FILL-ME-----");
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, 
-				new URL("https://localhost:52443/jwt-mitre/token"));
+				new URL(getBaseUrl() + "/jwt-mitre/token"));
 		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true), 
 				ServerHostnameCheckingMode.NONE);
@@ -241,13 +245,13 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	@Test
 	public void OauthRPAuthnWorksWithUnity() throws Exception
 	{
-		performAuthentication("https://localhost:52443/jwt/token");
+		performAuthentication("https://localhost:" + port + "/jwt/token");
 	}
 	
 	@Test
 	public void OauthRPAuthnWorksWithInternal() throws Exception
 	{
-		performAuthentication("https://localhost:52443/jwt-int/token");
+		performAuthentication(getBaseUrl() + "/jwt-int/token");
 	}
 
 	/**
@@ -264,7 +268,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 				OAuthTestUtils.getOAuthProcessor(tokensMan));
 		AccessToken ac = resp1.getAccessToken();
 		
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true), 
 				ServerHostnameCheckingMode.NONE);
@@ -283,5 +287,10 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		
 		HTTPResponse response3 = httpReq.send();
 		assertNotEquals(200, response3.getStatusCode());
+	}
+	
+	private String getBaseUrl()
+	{
+		return "https://localhost:" + port;
 	}
 }

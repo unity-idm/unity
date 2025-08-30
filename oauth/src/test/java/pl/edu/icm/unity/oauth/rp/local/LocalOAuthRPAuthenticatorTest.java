@@ -46,7 +46,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
 public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 {
-	private static final String OAUTH_ENDP_CFG = "unity.oauth2.as.issuerUri=https://localhost:52443/oauth2\n"
+	private static final String OAUTH_ENDP_CFG_FORMAT = "unity.oauth2.as.issuerUri=https://localhost:%s/oauth2\n"
 			+ "unity.oauth2.as.signingCredential=MAIN\n" + "unity.oauth2.as.clientsGroup=/oauth-clients\n"
 			+ "unity.oauth2.as.usersGroup=/oauth-users\n" + "#unity.oauth2.as.translationProfile=\n"
 			+ "unity.oauth2.as.scopes.1.name=foo\n"
@@ -72,11 +72,16 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 
 	private Identity client;
 
+	private int port;
+
 	@BeforeEach
 	public void setup()
 	{
 		try
 		{
+			httpServer.start();
+			port = httpServer.getUrls()[0].getPort();
+
 			setupPasswordAuthn();
 
 			authnMan.createAuthenticator("a-rp-int", "local-oauth-rp", OAUTH_RP_CFG_INTERNAL, null);
@@ -97,7 +102,8 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 					new AuthenticationFlowDefinition("flow1", Policy.NEVER, Sets.newHashSet("Apass")));
 
 			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth", new EndpointConfiguration(
-					new I18nString("endpointIDP"), "desc", Lists.newArrayList("flow1"), OAUTH_ENDP_CFG, REALM_NAME));
+					new I18nString("endpointIDP"), "desc", Lists.newArrayList("flow1"), OAUTH_ENDP_CFG_FORMAT.formatted(port),
+				REALM_NAME));
 
 			authnFlowMan.addAuthenticationFlow(
 					new AuthenticationFlowDefinition("flow3", Policy.NEVER, Sets.newHashSet("a-rp-int")));
@@ -108,7 +114,6 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 			assertEquals(2, endpoints.size());
 
-			httpServer.start();
 		} catch (Exception e)
 		{
 			throw new RuntimeException(e);
@@ -122,7 +127,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
 		AccessToken ac = resp1.getAccessToken();
 
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50QTpwYXNzd29yZA==");
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
@@ -130,7 +135,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPResponse response = httpReq.send();
 		assertEquals(200, response.getStatusCode());
 	}
-
+	
 	@Test
 	public void shouldFailWhenOnlyToken() throws Exception
 	{
@@ -138,7 +143,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
 		AccessToken ac = resp1.getAccessToken();
 
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization("Bearer " + ac.getValue());
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
@@ -146,11 +151,11 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPResponse response = httpReq.send();
 		assertEquals(500, response.getStatusCode());
 	}
-
+	
 	@Test
 	public void shouldFailWhenOnlyClientCredential() throws Exception
 	{
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization("Basic Y2xpZW50QTpwYXNzd29yZA==");
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
@@ -158,7 +163,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		HTTPResponse response = httpReq.send();
 		assertEquals(500, response.getStatusCode());
 	}
-
+	
 	@Test
 	public void shouldFailWhenClientNotMatchToToken() throws Exception
 	{
@@ -168,12 +173,17 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
 		AccessToken ac = resp1.getAccessToken();
 
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL("https://localhost:52443/jwt-int/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50MjpjbGllbnQy");
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
 		assertEquals(500, response.getStatusCode());
+	}
+	
+	private String getBaseUrl()
+	{
+		return "https://localhost:" + port;
 	}
 }

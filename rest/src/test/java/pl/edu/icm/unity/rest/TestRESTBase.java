@@ -58,7 +58,7 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 		return cb.build();
 	}
 	
-	protected HttpClient getClient() throws Exception
+	protected HttpClient getClient(int port) throws Exception
 	{
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setCredential(getDemoCredential());
@@ -66,7 +66,7 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 		clientCfg.setSslEnabled(true);
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
-		return HttpUtils.createClient("https://localhost:53456", clientCfg);
+		return HttpUtils.createClient("https://localhost:" + port, clientCfg);
 	}
 	
 	@Override

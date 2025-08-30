@@ -57,12 +57,13 @@ public class TstPerfLogin extends PerformanceTestBase
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
 		assertEquals(1, endpoints.size());
 		httpServer.start();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		int port = httpServer.getUrls()[0].getPort();
+		HttpHost host = new HttpHost("https", "localhost", port);
 
 		// warn-up ...login user
 		for (int i = 0; i < WARM_SIZE; i++)
 		{
-			HttpClient client = getClient();
+			HttpClient client = getClient(port);
 			HttpClientContext localcontext = getClientContext(host, "user" + i,
 					"PassWord8743#%$^&*");
 			HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
@@ -78,7 +79,7 @@ public class TstPerfLogin extends PerformanceTestBase
 			for (int i = 0; i < jump; i++)
 			{
 				
-				HttpClient client = getClient();
+				HttpClient client = getClient(port);
 				HttpClientContext localcontext = getClientContext(host,
 						"user" + index, "PassWord8743#%$^&*");
 				index++;

@@ -60,7 +60,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				Arrays.asList("bar", AccessTokenResource.EXCHANGE_SCOPE), ca);
 
 		TokenRequest exchangeRequest = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca2,
+				new URI(getOauthUrl("/oauth/token")), ca2,
 				new TokenExchangeGrant(aToken,
 						TokenTypeURI.ACCESS_TOKEN, null, null, null, Audience.create(List.of("client3"))),
 				new Scope("bar"));
@@ -84,7 +84,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				Arrays.asList("bar", AccessTokenResource.EXCHANGE_SCOPE), ca);
 
 		TokenRequest exchangeRequest = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca2,
+				new URI(getOauthUrl("/oauth/token")), ca2,
 				new TokenExchangeGrant(aToken,
 						TokenTypeURI.ACCESS_TOKEN, null, null, TokenTypeURI.parse("wrong"), Audience.create(List.of("client2"))),
 				new Scope("bar"));
@@ -109,7 +109,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				AccessTokenResource.EXCHANGE_SCOPE), ca);
 
 		TokenRequest exchangeRequest = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca2,
+				new URI(getOauthUrl("/oauth/token")), ca2,
 				new TokenExchangeGrant(aToken,
 						TokenTypeURI.ACCESS_TOKEN, null, null, TokenTypeURI.ID_TOKEN, Audience.create(List.of("client2"))),
 				new Scope("openid foo bar"));
@@ -145,7 +145,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				AccessTokenResource.EXCHANGE_SCOPE), ca);
 
 		TokenRequest exchangeRequest = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca2, new TokenExchangeGrant(aToken,
+				new URI(getOauthUrl("/oauth/token")), ca2, new TokenExchangeGrant(aToken,
 						TokenTypeURI.ACCESS_TOKEN, null, null, null, Audience.create(List.of("client2"))),
 				new Scope("foo", "bar"));
 
@@ -158,7 +158,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		assertThat(exchangeParsedResp.getTokens().getAccessToken()).isNotNull();	
 		assertThat(exchangeParsedResp.getTokens().getAccessToken().getIssuedTokenType().getURI().toASCIIString()) 
 				.isEqualTo(AccessTokenResource.ACCESS_TOKEN_TYPE_ID);
-	
+		
 		// check new token info
 		JSONObject parsed = getTokenInfo(exchangeParsedResp.getTokens().getAccessToken());
 		assertEquals("userA", parsed.get("sub"));

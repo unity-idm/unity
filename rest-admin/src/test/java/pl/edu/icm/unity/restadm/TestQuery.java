@@ -74,8 +74,8 @@ public class TestQuery extends RESTAdminTestBase
 		idsMan.addEntity(new IdentityParam(EmailIdentity.ID, "a+zzz@ex.com"), "cr-pass", 
 				EntityState.valid);
 		
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/a+foo@ex.com");
 		String contents = client.execute(host, resolve, getClientContext(host), new BasicHttpClientResponseHandler());
@@ -87,8 +87,8 @@ public class TestQuery extends RESTAdminTestBase
 	{
 		long e = createTestContents();
 		
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/userName/admin");
 		String contents = client.execute(host, resolve, getClientContext(host), new BasicHttpClientResponseHandler());

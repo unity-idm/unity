@@ -145,7 +145,7 @@ public class RefreshTokenTest extends TokenTestBase
 		RefreshToken refreshToken = initRefresh(Arrays.asList("openid"), ca);
 
 		TokenRequest refreshRequest = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca,
+				new URI(getOauthUrl("/oauth/token")), ca,
 				new RefreshTokenGrant(refreshToken), new Scope("openid"));
 
 		HTTPRequest bare = refreshRequest.toHTTPRequest();
@@ -169,7 +169,7 @@ public class RefreshTokenTest extends TokenTestBase
 
 		// check wrong scope
 		TokenRequest refreshRequest = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca,
+				new URI(getOauthUrl("/oauth/token")), ca,
 				new RefreshTokenGrant(refreshToken), new Scope("xx"));
 
 		HTTPRequest bare = refreshRequest.toHTTPRequest();
@@ -192,7 +192,7 @@ public class RefreshTokenTest extends TokenTestBase
 		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
 
 		TokenRequest refreshRequest = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca2,
+				new URI(getOauthUrl("/oauth/token")), ca2,
 				new RefreshTokenGrant(refreshToken), new Scope("foo"));
 
 		HTTPRequest bare = refreshRequest.toHTTPRequest();
@@ -230,7 +230,7 @@ public class RefreshTokenTest extends TokenTestBase
 			ClientAuthentication ca, String... scopes) throws Exception
 	{
 		TokenRequest refreshRequest = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca,
+				new URI(getOauthUrl("/oauth/token")), ca,
 				new RefreshTokenGrant(token), new Scope(scopes));
 
 		HTTPRequest bare = refreshRequest.toHTTPRequest();
@@ -251,7 +251,7 @@ public class RefreshTokenTest extends TokenTestBase
 	private JWTClaimsSet getUserInfo(AccessToken accessToken) throws Exception
 	{
 		UserInfoRequest uiRequest = new UserInfoRequest(
-				new URI("https://localhost:52443/oauth/userinfo"),
+				new URI(getUserInfoUrl()),
 				(BearerAccessToken) accessToken);
 		HTTPRequest bare2 = uiRequest.toHTTPRequest();
 		HTTPRequest wrapped2 = new HttpRequestConfigurer().secureRequest(bare2, pkiMan.getValidator("MAIN"),
@@ -262,5 +262,10 @@ public class RefreshTokenTest extends TokenTestBase
 		UserInfo ui = uiResponseS.getUserInfo();
 		JWTClaimsSet claimSet = ui.toJWTClaimsSet();
 		return claimSet;
+	}
+
+	private String getUserInfoUrl()
+	{
+		return getOauthUrl("/oauth/userinfo");
 	}
 }

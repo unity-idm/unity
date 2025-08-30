@@ -64,10 +64,10 @@ public class TestECP extends AbstractTestIdpBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, TestECP.class);
 	
-	private static final String ECP_ENDP_CFG = 
+	private static final String ECP_ENDP_CFG_FORMAT =
 			"unity.saml.requester.requesterEntityId=http://ecpSP.example.com\n" +
 			"unity.saml.requester.metadataPath=metadata\n" +
-			"unity.saml.requester.remoteIdp.1.address=http://localhost:52443/\n" +
+			"unity.saml.requester.remoteIdp.1.address=http://localhost:%s/\n" +
 			"unity.saml.requester.remoteIdp.1.samlId=http://example-saml-idp.org\n" +
 			"unity.saml.requester.remoteIdp.1.binding=SOAP\n" +
 			"unity.saml.requester.remoteIdp.1.certificate=MAIN\n" +
@@ -91,7 +91,7 @@ public class TestECP extends AbstractTestIdpBase
 		super.setup();
 		
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointECP"),
-					"desc",	Lists.newArrayList(), ECP_ENDP_CFG, REALM_NAME);
+					"desc",	Lists.newArrayList(), ECP_ENDP_CFG_FORMAT.formatted(port), REALM_NAME);
 		
 		endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", "/ecp", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getDeployedEndpoints();
@@ -134,7 +134,7 @@ public class TestECP extends AbstractTestIdpBase
 		System.out.println("\n\nSending modified response back to SP\n\n");
 		System.out.println(envDoc2.xmlText(new XmlOptions().setSavePrettyPrint()));
 		
-		String ecpUrl = "https://localhost:52443/ecp" + ECPEndpointFactory.SERVLET_PATH;
+		String ecpUrl = getServerUrl() + "/ecp" + ECPEndpointFactory.SERVLET_PATH;
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setValidator(new BinaryCertChainValidator(true));
 		clientCfg.setSslEnabled(true);
@@ -152,7 +152,7 @@ public class TestECP extends AbstractTestIdpBase
 				System.out.println(resp);
 				JWTClaimsSet claims = JWTUtils.parseAndValidate(resp, pkiMan.getCredential("MAIN"));
 				System.out.println("GOT:\n" + claims.toString());
-				assertTrue(claims.getIssuer().contains("https://localhost:52443"));
+				assertTrue(claims.getIssuer().contains(getServerUrl()));
 				response.close();
 			} else
 				fail("No HTTP response");
@@ -161,7 +161,7 @@ public class TestECP extends AbstractTestIdpBase
 	
 	private EnvelopeDocument sendToIdP(EnvelopeDocument envDoc) throws Exception
 	{
-		String authnWSUrl = "https://localhost:52443/saml/saml2idp-soap/AuthenticationService";
+		String authnWSUrl = getServerUrl() + "/saml/saml2idp-soap/AuthenticationService";
 		
 		EnvelopeDocument envDoc2 = EnvelopeDocument.Factory.newInstance();
 		envDoc2.addNewEnvelope().setBody(envDoc.getEnvelope().getBody());
@@ -171,7 +171,7 @@ public class TestECP extends AbstractTestIdpBase
 
 		HttpClient httpclient = HttpUtils.createClient(authnWSUrl, clientCfg);
 		
-		HttpHost targetHost = new HttpHost("https", "localhost", 52443);
+		HttpHost targetHost = new HttpHost("https", "localhost", port);
 		ContextBuilder cb = ContextBuilder.create();
 		cb.preemptiveBasicAuth(targetHost, new UsernamePasswordCredentials("user1", "mockPassword1".toCharArray()));
 		HttpClientContext context = cb.build();
@@ -193,8 +193,9 @@ public class TestECP extends AbstractTestIdpBase
 		return envDocRet;
 	}
 	
-	private EnvelopeDocument getSamlRequest() throws Exception	{
-		String ecpUrl = "https://localhost:52443/ecp" + ECPEndpointFactory.SERVLET_PATH;
+	private EnvelopeDocument getSamlRequest() throws Exception
+	{
+		String ecpUrl = getServerUrl() + "/ecp" + ECPEndpointFactory.SERVLET_PATH;
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setValidator(new BinaryCertChainValidator(true));
 		clientCfg.setSslEnabled(true);
@@ -212,5 +213,4 @@ public class TestECP extends AbstractTestIdpBase
 		System.out.println(envDoc.xmlText(new XmlOptions().setSavePrettyPrint()));
 		return envDoc;
 	}
-
 }

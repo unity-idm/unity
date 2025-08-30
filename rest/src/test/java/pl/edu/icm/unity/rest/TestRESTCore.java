@@ -50,7 +50,9 @@ public class TestRESTCore extends TestRESTBase
 	private static final String ALLOWED_ORIGIN1 = "http://someorigin.com";
 	private static final String ALLOWED_ORIGIN2 = "http://someorigin.com2";
 	private static final String ALLOWED_HEADER = "authorization";
-	
+
+	private int port;
+
 	@BeforeEach
 	public void configureEndpoint() throws Exception
 	{
@@ -78,15 +80,16 @@ public class TestRESTCore extends TestRESTBase
 				"desc", Lists.newArrayList("flow1"), writer.toString(), realm.getName());
 		endpointMan.deploy(MockRESTEndpoint.NAME, "endpoint1", "/mock", cfg);
 		httpServer.start();
+		port = httpServer.getUrls()[0].getPort();
 	}
 
 	
 	@Test
 	public void basicGetIsServed() throws Exception
 	{
-		HttpClient client = getClient();
+		HttpClient client = getClient(port);
 		
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		HttpClientContext localcontext = getClientContext(host);
 
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
@@ -99,8 +102,8 @@ public class TestRESTCore extends TestRESTBase
 	@Test
 	public void requestNotAuthenticatedIsForbidden() throws Exception
 	{
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
 
 		//no password, should fail.
@@ -112,8 +115,8 @@ public class TestRESTCore extends TestRESTBase
 	@Test
 	public void exceptionIsMappedToHTTPError() throws Exception
 	{
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		HttpClientContext localcontext = getClientContext(host);
 		
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1/exception");
@@ -128,8 +131,8 @@ public class TestRESTCore extends TestRESTBase
 	@Test
 	public void allowedCorsOriginIsAccepted() throws Exception
 	{
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		HttpClientContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
@@ -143,8 +146,8 @@ public class TestRESTCore extends TestRESTBase
 	@Test
 	public void allowedCorsHeaderIsAccepted() throws Exception
 	{
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		HttpClientContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
@@ -172,8 +175,8 @@ public class TestRESTCore extends TestRESTBase
 	@Test
 	public void notAllowedCorsOriginIsNotAccepted() throws Exception
 	{
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		HttpClientContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", "http://notAllowedOrigin.com");
@@ -191,8 +194,8 @@ public class TestRESTCore extends TestRESTBase
 	@Test
 	public void notAllowedCorsHeaderIsNotAccepted() throws Exception
 	{
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		HttpClientContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", ALLOWED_ORIGIN2);

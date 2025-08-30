@@ -44,6 +44,8 @@ public class TestJWTAuthentication extends TestRESTBase
 {
 	private static final String JWT_CONFIG = "unity.jwtauthn.tokenTtl=2\n"
 			+ "unity.jwtauthn.credential=MAIN\n";
+
+	private int port;
 	
 	@BeforeEach
 	public void setup() throws Exception
@@ -67,6 +69,7 @@ public class TestJWTAuthentication extends TestRESTBase
 		assertEquals(1, endpoints.size());
 
 		httpServer.start();
+		port = httpServer.getUrls()[0].getPort();
 	}
 	
 	@Test
@@ -143,16 +146,16 @@ public class TestJWTAuthentication extends TestRESTBase
 
 	private ClassicHttpResponse executeWithLC(ClassicHttpRequest request) throws Exception
 	{
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		HttpClientContext localcontext = getClientContext(host);
 		return client.executeOpen(host, request, localcontext);
 	}
 	
 	private ClassicHttpResponse execute(ClassicHttpRequest request) throws Exception
 	{
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		return client.executeOpen(host, request, null);
 	}
 }
