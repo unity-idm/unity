@@ -11,7 +11,6 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
 import org.apache.commons.io.IOUtils;
@@ -20,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.TestWatcher;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -71,6 +71,7 @@ public abstract class SeleniumTestBase
 		httpServer.start();
 		ChromeOptions chromeOptions = new ChromeOptions();
 		chromeOptions.addArguments("window-size=1280,1024", "no-sandbox", "force-device-scale-factor=1", "ignore-certificate-errors", "--remote-allow-origins=*");
+		chromeOptions.setAcceptInsecureCerts(true);
 		String seleniumOpts = System.getProperty("unity.selenium.opts");
 		if (seleniumOpts != null && !seleniumOpts.isEmpty())
 		{
@@ -78,7 +79,14 @@ public abstract class SeleniumTestBase
 			log.info("Using additional Selenium options: {}", Arrays.toString(opts));
 			chromeOptions.addArguments(opts);
 		}
-		driver = new ChromeDriver(chromeOptions);
+		try
+		{
+			driver = new ChromeDriver(chromeOptions);
+		} catch (Throwable t)
+		{
+			log.error("Failed to create ChromeDriver: {}", t.toString(), t);
+			throw t;
+		}
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(WAIT_TIME_S));
 	}	
 	
@@ -123,6 +131,11 @@ public abstract class SeleniumTestBase
 		{
 			return null;
 		}
+	}
+
+	protected void waitForElementNotPresent(By by)
+	{
+		waitFor(() -> isElementPresent(by) == null);
 	}
 	
 	protected WebElement waitForPageLoad(By someElement)
