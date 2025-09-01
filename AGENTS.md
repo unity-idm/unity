@@ -12,18 +12,19 @@
 - Module build: `mvn -pl engine -am package -Dgpg.skip=true` (builds `engine` and dependencies)
 - Unit tests: `mvn test` or `mvn -Dtest=ClassNameTest test -Dgpg.skip=true` (runs `*Test`)
 - Integration tests: `mvn -pl integration-tests -am test -Dgpg.skip=true` (Selenium/JUnit; requires browser drivers/headless env)
+- Whenever you are running full build w/ or w/o tests, redirect the output of the build to a file. In case the build fails, examine an output file to find the root cause, and address the issue. This is to optimize context window usage. Delete the output file when it is no longer needed.
 
 ## Coding Style & Naming Conventions & Gudeslines
-- Language: Java 17; 4‑space indentation; UTF‑8 encoding
+- Language: Java 17; one tab indentation; UTF‑8 encoding
 - Maximum line length: 120 characters
 - Naming: classes `PascalCase`, methods/fields `camelCase`, constants `UPPER_SNAKE_CASE`
-- Packages: use `io.imunity`
+- New packages: use `io.imunity`
 - Imports: organize and avoid wildcards; keep visibility minimal
 - Remove unused imports
 - Extract larger blocks of code into well-named focused methods to enhance readability, maintainability, and testability of your code base
 - The name of a function or a class should be inversely proportional to the size of the scope that contains it
 - A variable name should be proportional to the size of the scope that contains it
-- Use public access modifier only when necessary
+- Favor private access modifiers, if not possible, then use default 'package' access. Fallback to public only in the last resort.
 - Use Java Records (`record`) for immutable data transfer objects (DTOs)
 - Favor immutability for objects where appropriate, especially for DTOs and configuration
 - Include comments only for complex logic
@@ -78,7 +79,7 @@
 - Naming: unit tests `*Test`; prefer descriptive test method names
 - Examples: run a single class `mvn -Dtest=MyServiceTest test`
 - Test Method Naming: Use the "should" prefix for test method names followed by a descriptive name of what the test is verifying. For example, use `shouldReturnUserWhenValidIdProvided()` instead of `testGetUserById()`
-- Test Structure: Use the given/when/then pattern (BDD style) for structuring test methods instead of Arrange/Act/Assert. Use comments `// given`, `// when`, and `// then` to clearly separate the three sections of your test
+- Test Structure: Use the given/when/then pattern (BDD style) for structuring test methods instead of Arrange/Act/Assert. 
 - All new services, parsers, and transformation logic must have comprehensive test coverage
 - All tests must pass before considering implementation complete
 - Use parameterized tests for testing multiple scenarios
