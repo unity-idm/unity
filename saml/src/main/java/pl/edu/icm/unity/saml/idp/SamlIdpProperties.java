@@ -51,6 +51,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String RETURN_SINGLE_ASSERTION = "returnSingleAssertion";
 	public static final String SP_ACCEPT_POLICY = "spAcceptPolicy";
 	public static final String SET_NOT_BEFORE_CONSTRAINT = "setNotBeforeConstraint";
+	public static final String IGNORE_ATTRIBUTE_CONSUMING_SERVICE_INDEX = "ignoreAttributeConsumingServiceIndex";
 
 	
 	public static final String SPMETA_PREFIX = "acceptedSPMetadataSource.";
@@ -215,6 +216,10 @@ public class SamlIdpProperties extends SamlProperties
 				.setDescription("Controls whether user is allowed to remove released attributes on the "
 						+ "consent screen. Note that attributes marked as mandatory in output profile "
 						+ "can not be removed regardless of this option."));
+
+		defaults.put(IGNORE_ATTRIBUTE_CONSUMING_SERVICE_INDEX, new PropertyMD("false").setCategory(samlCat)
+				.setDescription("If true, AttributeConsumingServiceIndex present in incoming AuthnRequests is ignored. "
+						+ "If false, requests containing AttributeConsumingServiceIndex are rejected."));
 	}
 	
 	public SamlIdpProperties(Properties src) throws ConfigurationException
