@@ -37,12 +37,15 @@ import java.util.Set;
 public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 {
 	protected Set<String> knownRequesters;
+	private final boolean ignoreAttributeConsumingServiceIndex;
 	
 	public UnityAuthnRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
-	                                  Duration requestValidity, ReplayAttackChecker replayChecker)
+	                                  Duration requestValidity, ReplayAttackChecker replayChecker,
+	                                  boolean ignoreAttributeConsumingServiceIndex)
 	{
 		super(consumerEndpointUri, trustChecker, requestValidity.toMillis(), replayChecker);
 		knownRequesters = new HashSet<>();
+		this.ignoreAttributeConsumingServiceIndex = ignoreAttributeConsumingServiceIndex;
 	}
 
 	/**
@@ -78,7 +81,7 @@ public class UnityAuthnRequestValidator extends SSOAuthnRequestValidator
 					"This implementation doesn't support authn " +
 					"requests with AssertionConsumerServiceIndex set.");
 		//4 - AttributeConsumingServiceIndex
-		if (req.isSetAttributeConsumingServiceIndex())
+		if (req.isSetAttributeConsumingServiceIndex() && !ignoreAttributeConsumingServiceIndex)
 			throw new SAMLResponderException(SAMLConstants.SubStatus.STATUS2_REQUEST_UNSUPP,
 					"This implementation doesn't support authn " +
 					"requests with AttributeConsumingServiceIndex set.");

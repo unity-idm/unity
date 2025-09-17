@@ -82,6 +82,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 
 	public final boolean signMetadata;
 	public final boolean setNotBeforeConstraint;
+	public final boolean ignoreAttributeConsumingServiceIndex;
 
 	
 	private boolean signRespNever;
@@ -104,7 +105,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			IdpPolicyAgreementsConfiguration policyAgreements, X509Credential credential,
 			X509CertChainValidator chainValidator, boolean signMetadata,
 			Optional<AdditionalyAdvertisedCredential> additionalyAdvertisedCredential, 
-			boolean setNotBeforeConstraint)
+			boolean setNotBeforeConstraint,
+			boolean ignoreAttributeConsumingServiceIndex)
 	{
 		super(trustedMetadataSources, publishMetadata, metadataURLPath, ourMetadataFilePath);
 		this.authenticationTimeout = authenticationTimeout;
@@ -131,6 +133,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		this.signMetadata = signMetadata;
 		this.additionallyAdvertisedCredential = additionalyAdvertisedCredential;
 		this.setNotBeforeConstraint = setNotBeforeConstraint;
+		this.ignoreAttributeConsumingServiceIndex = ignoreAttributeConsumingServiceIndex;
 		load();
 	}
 
@@ -473,7 +476,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 				&& Objects.equals(authnTrustChecker, that.authnTrustChecker)
 				&& Objects.equals(soapTrustChecker, that.soapTrustChecker)
 				&& Objects.equals(allowedRequestersByIndex, that.allowedRequestersByIndex)
-				&& Objects.equals(setNotBeforeConstraint, that.setNotBeforeConstraint);
+				&& Objects.equals(setNotBeforeConstraint, that.setNotBeforeConstraint)
+				&& ignoreAttributeConsumingServiceIndex == that.ignoreAttributeConsumingServiceIndex;
 	}
 
 	@Override
@@ -484,7 +488,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 				returnSingleAssertion, spAcceptPolicy, userCanEditConsent, trustedServiceProviders, userImportConfigs,
 				translationProfile, skipConsent, activeValueClient, policyAgreements, credential,
 				trustedValidator, groupChooser, attributesMapper, idTypeMapper, signMetadata, signRespNever,
-				signRespAlways, replayChecker, authnTrustChecker, soapTrustChecker, allowedRequestersByIndex, setNotBeforeConstraint);
+				signRespAlways, replayChecker, authnTrustChecker, soapTrustChecker, allowedRequestersByIndex,
+				setNotBeforeConstraint, ignoreAttributeConsumingServiceIndex);
 	}
 
 	@Override
@@ -503,8 +508,8 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 				+ idTypeMapper + ", signMetadata=" + signMetadata + ", signRespNever=" + signRespNever
 				+ ", signRespAlways=" + signRespAlways + ", replayChecker=" + replayChecker + ", authnTrustChecker="
 				+ authnTrustChecker + ", soapTrustChecker=" + soapTrustChecker + ", allowedRequestersByIndex="
-				+ allowedRequestersByIndex + ", setNotBeforeConstraint="
-						+ setNotBeforeConstraint + '}';
+				+ allowedRequestersByIndex + ", setNotBeforeConstraint=" + setNotBeforeConstraint
+				+ ", ignoreAttributeConsumingServiceIndex=" + ignoreAttributeConsumingServiceIndex + '}';
 	}
 
 	public static SAMLIdPConfigurationBuilder builder()
@@ -542,6 +547,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		private boolean signMetadata;
 		private Optional<AdditionalyAdvertisedCredential> additionallyAdvertisedCredential = Optional.empty();
 		private boolean setNotBeforeConstraint;
+		private boolean ignoreAttributeConsumingServiceIndex;
 		
 		private SAMLIdPConfigurationBuilder()
 		{
@@ -716,6 +722,12 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 			this.setNotBeforeConstraint = setNotBeforeConstraint;
 			return this;
 		}
+
+		public SAMLIdPConfigurationBuilder withIgnoreAttributeConsumingServiceIndex(boolean ignoreAttributeConsumingServiceIndex)
+		{
+			this.ignoreAttributeConsumingServiceIndex = ignoreAttributeConsumingServiceIndex;
+			return this;
+		}
 		
 
 		public SAMLIdPConfiguration build()
@@ -725,7 +737,9 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 					truststore, validityPeriod, requestValidityPeriod, issuerURI, returnSingleAssertion, spAcceptPolicy,
 					userCanEditConsent, trustedServiceProviders, groupChooser, identityTypeMapper, userImportConfigs,
 					translationProfile, skipConsent, activeValueClient, policyAgreements, credential, chainValidator,
-					signMetadata, additionallyAdvertisedCredential, setNotBeforeConstraint);
+					signMetadata, additionallyAdvertisedCredential, setNotBeforeConstraint,
+					ignoreAttributeConsumingServiceIndex);
 		}
 	}
+
 }
