@@ -141,7 +141,8 @@ class SAMLAuthnImpl implements SAMLAuthnInterface
 	{
 		UnityAuthnRequestValidator validator = new UnityAuthnRequestValidator(endpointAddress,
 				samlConfiguration.getSoapTrustChecker(), samlConfiguration.requestValidityPeriod,
-				samlConfiguration.getReplayChecker());
+				samlConfiguration.getReplayChecker(),
+				samlConfiguration.ignoreAttributeConsumingServiceIndex);
 		validator.validate(context.getRequestDocument(), context.getVerifiableElement());
 	}
 }
