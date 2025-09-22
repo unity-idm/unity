@@ -218,7 +218,8 @@ public class SamlIdpProperties extends SamlProperties
 						+ "can not be removed regardless of this option."));
 
 		defaults.put(IGNORE_ATTRIBUTE_CONSUMING_SERVICE_INDEX, new PropertyMD("false").setCategory(samlCat)
-				.setDescription("If true, AttributeConsumingServiceIndex present in incoming AuthnRequests is ignored. "
+				.setDescription("If true, AttributeConsumingServiceIndex present in incoming AuthnRequests is ignored "
+						+ "(what is against SAML specification). "
 						+ "If false, requests containing AttributeConsumingServiceIndex are rejected."));
 	}
 	

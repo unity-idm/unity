@@ -6,6 +6,8 @@ package pl.edu.icm.unity.saml.idp;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.elements.NameID;
+import eu.unicore.samly2.exceptions.SAMLResponderException;
+import eu.unicore.samly2.exceptions.SAMLServerException;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.proto.AuthnRequest;
 import eu.unicore.samly2.trust.EnumeratedTrustChecker;
@@ -29,7 +31,6 @@ public class AttributeConsumingServiceIndexHandlingTest
 		AuthnRequest request = new AuthnRequest(
 			new NameID("https://unity-sp.example", SAMLConstants.NFORMAT_ENTITY).getXBean());
 
-		// set AttributeConsumingServiceIndex on request
 		request.getXMLBeanDoc().getAuthnRequest().setAttributeConsumingServiceIndex(1);
 
 		EnumeratedTrustChecker authnTrustChecker = new EnumeratedTrustChecker();
@@ -47,7 +48,7 @@ public class AttributeConsumingServiceIndexHandlingTest
 			request.getXMLBeanDoc().getAuthnRequest());
 		Throwable error = catchThrowable(() -> validator.validate(request.getXMLBeanDoc(), verifiableMessage));
 
-		assertThat(error).isNotNull();
+		assertThat(error).isNotNull().isInstanceOf(SAMLResponderException.class);
 	}
 
 	@Test
@@ -56,7 +57,6 @@ public class AttributeConsumingServiceIndexHandlingTest
 		AuthnRequest request = new AuthnRequest(
 			new NameID("https://unity-sp.example", SAMLConstants.NFORMAT_ENTITY).getXBean());
 
-		// set AttributeConsumingServiceIndex on request
 		request.getXMLBeanDoc().getAuthnRequest().setAttributeConsumingServiceIndex(2);
 
 		EnumeratedTrustChecker authnTrustChecker = new EnumeratedTrustChecker();
