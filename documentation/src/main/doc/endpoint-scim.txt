@@ -94,7 +94,7 @@ In case of direct authentication, SCIM endpoint allows for full access to privil
 
 ===== OAuth token authentication
 
-First of all Unity requires both OAuth token and the client's credential (for whom the token was issued). This means that only locally issued tokens can be used for authentication to the SCIM endpoint. In practice most often two HTTP headers needs to be provided: one with the Bearer OAuth token, another with Basic client's credentials. 
+Unity accepts locally issued OAuth bearer tokens for SCIM access. Only the bearer token is required.
 
 In case of access using the OAuth access token, there are the following requirements on scopes of the OAuth token:
 
@@ -142,4 +142,3 @@ Example output:
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
 Update configuration of exposed groups. The body shall utilize the same format as returned by the corresponding GET request.
-

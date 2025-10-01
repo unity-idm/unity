@@ -145,3 +145,22 @@ The following table lists all currently implemented validation protocols:
 A full reference of configuration parameters: 
 
 include::ref-oauthRPProperties.txt[]
+
+
+==== Local OAuth2 tokens (Unity verifying its own access tokens)
+
+Credential verificator name:: +local-oauth-rp+
+Compatible credentials:: Unity-issued OAuth2 access token
+
+The local OAuth RP authenticator can be used when Unity itself issues access tokens to machine clients
+and the relying REST endpoint is co-located with the Unity deployment. The authenticator validates the
+token directly against Unity's internal token repository and optionally enforces a configured set of
+required scopes.
+
+Unlike earlier releases there is no accompanying HTTP Basic credential – supplying a bearer token is
+sufficient. Existing clients can keep sending legacy `Authorization` headers that include both `Bearer`
+and `Basic` fragments (for example `Authorization: Bearer <token>,Basic …`); the Basic portion is ignored.
+
+The configuration only accepts the `unity.oauth2-local-rp.requiredScopes.N` properties. Any legacy
+`unity.oauth2-local-rp.credential` entries are discarded automatically during migration and when parsing
+configuration files.

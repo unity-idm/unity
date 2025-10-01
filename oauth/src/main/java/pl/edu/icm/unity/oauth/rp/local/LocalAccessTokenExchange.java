@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+
+package pl.edu.icm.unity.oauth.rp.local;
+
+import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
+
+/**
+ * Credential exchange identifier dedicated to the local OAuth RP authenticator.
+ */
+public interface LocalAccessTokenExchange extends AccessTokenExchange
+{
+	String ID = "local access token exchange";
+}

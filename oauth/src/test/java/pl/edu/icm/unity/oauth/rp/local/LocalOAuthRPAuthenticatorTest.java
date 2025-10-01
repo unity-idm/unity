@@ -56,8 +56,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 			+ "unity.oauth2.as.scopes.2.description=Provides access to bar info\n"
 			+ "unity.oauth2.as.scopes.2.attributes.1=c\n" + "unity.oauth2.as.refreshTokenIssuePolicy=ALWAYS\n";
 
-	private static final String OAUTH_RP_CFG_INTERNAL = "unity.oauth2-local-rp.requiredScopes.1=sc1\n"
-			+ "unity.oauth2-local-rp.credential=credential1\n";
+	private static final String OAUTH_RP_CFG_INTERNAL = "unity.oauth2-local-rp.requiredScopes.1=sc1\n";
 
 	private static final String JWT_ENDP_CFG = "unity.jwtauthn.credential=MAIN\n";
 
@@ -121,7 +120,23 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void shouldAuthenticateViaLocalOAuthRP() throws Exception
+	public void shouldAuthenticateViaLocalOAuthRPWithBearerOnly() throws Exception
+	{
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(),
+				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
+		AccessToken ac = resp1.getAccessToken();
+
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
+		httpReqRaw.setAuthorization("Bearer " + ac.getValue());
+
+		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
+				ServerHostnameCheckingMode.NONE);
+		HTTPResponse response = httpReq.send();
+		assertEquals(200, response.getStatusCode());
+	}
+
+	@Test
+	public void shouldIgnoreBasicHeaderIfPresent() throws Exception
 	{
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(),
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
@@ -137,23 +152,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void shouldFailWhenOnlyToken() throws Exception
-	{
-		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(),
-				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
-		AccessToken ac = resp1.getAccessToken();
-
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
-		httpReqRaw.setAuthorization("Bearer " + ac.getValue());
-
-		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
-				ServerHostnameCheckingMode.NONE);
-		HTTPResponse response = httpReq.send();
-		assertEquals(500, response.getStatusCode());
-	}
-	
-	@Test
-	public void shouldFailWhenOnlyClientCredential() throws Exception
+	public void shouldFailWhenBearerMissing() throws Exception
 	{
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization("Basic Y2xpZW50QTpwYXNzd29yZA==");
@@ -165,16 +164,16 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void shouldFailWhenClientNotMatchToToken() throws Exception
+	public void shouldFailWhenRequiredScopeMissing() throws Exception
 	{
-		createUsernameUser("client2", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE, "client2", CRED_REQ_PASS);
-
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(),
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
 		AccessToken ac = resp1.getAccessToken();
 
+		authnMan.updateAuthenticator("a-rp-int", "unity.oauth2-local-rp.requiredScopes.1=sc2\n", null);
+
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
-		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50MjpjbGllbnQy");
+		httpReqRaw.setAuthorization("Bearer " + ac.getValue());
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);

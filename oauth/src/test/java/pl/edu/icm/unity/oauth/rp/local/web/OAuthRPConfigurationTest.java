@@ -140,8 +140,7 @@ public class OAuthRPConfigurationTest
 	
 	private String propertiesString(String requiredScopesConfigLine)
 	{
-		return requiredScopesConfigLine+ "\n"
-				+ "unity.oauth2-local-rp.credential=pass\n";
+		return requiredScopesConfigLine + "\n";
 	}
 	
 	

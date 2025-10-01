@@ -24,10 +24,9 @@ public class LocalOAuthRPProperties extends UnityPropertiesHelper
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.oauth2-local-rp.";
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> META = new HashMap<>();
 
 	public static final String REQUIRED_SCOPES = "requiredScopes.";
-	public static final String CREDENTIAL = "credential";
 
 	static
 	{
@@ -35,8 +34,6 @@ public class LocalOAuthRPProperties extends UnityPropertiesHelper
 				new PropertyMD().setList(false)
 						.setDescription("Optional list of scopes which must be associated with the validated"
 								+ " access token to make the authentication successful"));
-
-		META.put(CREDENTIAL, new PropertyMD().setDescription("Password credential"));
 	}
 
 	public LocalOAuthRPProperties(Properties properties) throws ConfigurationException

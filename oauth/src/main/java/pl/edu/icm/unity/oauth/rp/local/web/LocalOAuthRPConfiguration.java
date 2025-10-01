@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 public class LocalOAuthRPConfiguration extends OAuthBaseConfiguration
 {
 	private List<String> requiredScopes;
-	private String credential;
 
 	public LocalOAuthRPConfiguration()
 	{
@@ -39,8 +38,6 @@ public class LocalOAuthRPConfiguration extends OAuthBaseConfiguration
 
 		setRequiredScopes(oauthRPprop.getListOfValues(LocalOAuthRPProperties.REQUIRED_SCOPES).stream()
 				.filter(StringUtil::isNotBlank).collect(Collectors.toList()));
-		setCredential(oauthRPprop.getValue(LocalOAuthRPProperties.CREDENTIAL));
-
 	}
 
 	public String toProperties() throws ConfigurationException
@@ -59,8 +56,6 @@ public class LocalOAuthRPConfiguration extends OAuthBaseConfiguration
 				}
 			}
 		}
-		if (credential != null)
-			raw.put(LocalOAuthRPProperties.PREFIX + LocalOAuthRPProperties.CREDENTIAL, credential);
 
 		LocalOAuthRPProperties prop = new LocalOAuthRPProperties(raw);
 		return prop.getAsString();
@@ -75,15 +70,5 @@ public class LocalOAuthRPConfiguration extends OAuthBaseConfiguration
 	public void setRequiredScopes(List<String> requiredScopes)
 	{
 		this.requiredScopes = requiredScopes;
-	}
-
-	public String getCredential()
-	{
-		return credential;
-	}
-
-	public void setCredential(String credential)
-	{
-		this.credential = credential;
 	}
 }
