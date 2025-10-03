@@ -231,6 +231,7 @@
 								<argument>io.imunity.otp.ldap.OTPWithLDAPProperties|ref-OTPLDAPProperties.txt|</argument>
 								<argument>io.imunity.upman.UpmanEndpointProperties|ref-UpmanProperties.txt|</argument>
 								<argument>io.imunity.scim.config.SCIMEndpointProperties|ref-scimEndpointProperties.txt|</argument>
+                                <argument>pl.edu.icm.unity.oauth.rp.local.LocalOAuthRPProperties|ref-LocalOAuthRPProperties.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>

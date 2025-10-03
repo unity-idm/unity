@@ -39,16 +39,17 @@ it defines the name of the authentication technology to be used. The following t
 
 [cols="m,n,n", options="header"]
 |====
-|Authn technology	| Works with		| Description 
+|Authn technology (authenticatorType) | Works with		| Description
 |password			| Password 			| Local verification
 |ldap				| Password			| External verification, uses LDAP.
 |ldap-cert			| X.509 certificate	| External verification, uses LDAP to resolve attributes of a given certificate subject.
 |certificate		| X.509 certificate | Local verification
-|saml2				| SAML assertions 	| External verification, interacts via associated retrieval with a remote SAML IdP.
-|oauth2				| OAuth tokens		| External verification, using OAuth Authorization Server or OpenID Connect provider. 
-|oauth-rp			| OAuth access token| External verification, using OAuth Authorization Server or OpenID Connect provider.
+|saml2				| SAML           	| External verification, interacts via associated retrieval with a remote SAML IdP.
+|oauth2				| OAuth     		| External verification, redirecting user's web browser to another OAuth Authorization Server or OpenID Connect provider.
+|oauth-rp			| OAuth access token| External verification of a provided token, using another OAuth Authorization Server or OpenID Connect provider.
+|local-oauth-rp     | OAuth access token| Local verification of a provided token, which must be issued by an OAuth endpoint on this server.
 |jwt				| JWT			 	| Local verification, not bound to any local credential. Validated tokens are self contained.
-|==== 
+|====
  
 Authenticator typically require a configuration file. In that file details of how to collect and check the credential 
 can be specified. Note that for local authenticators (i.e. checking the credential internally, without help of
@@ -62,19 +63,21 @@ Configuration of credential retrievals follows. Note that this configuration is 
 that use the credential in question, e.g. password retrieval settings below can be used both with
 +password+ and +ldap+ authentication technologies.
 
-The password retrieval options:
+===== Password Retrieval
 
 include::../ref-PasswordRetrievalProperties.txt[]
 
-The SMS retrieval options:
+===== SMS Retrieval
 
 include::../ref-SMSRetrievalProperties.txt[]
 
-The X.509 certificate retrieval options:
+===== X.509 certificate retrieval
 
 include::../ref-TLSRetrievalProperties.txt[]
 
+===== JWT verification
+The +jwt+ verificator must be configured in the same way as the <<endp-rest-jwt>> uses.
 
+===== Local OAuth token verification
 
-The +jwt+ verificator must be configured in the very same properties format as the <<endp-rest-jwt>> uses. 
-
+include::../ref-LocalOAuthRPProperties.txt[]

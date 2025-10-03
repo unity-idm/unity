@@ -6,7 +6,6 @@
 package pl.edu.icm.unity.oauth.rp.local;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
@@ -46,7 +45,7 @@ class LocalBearerTokenVerificator
 			throw e;
 		} catch (Exception e)
 		{
-			throw new AuthenticationException("Authentication error ocurred", e);
+			throw new AuthenticationException("Authentication error occurred", e);
 		}
 	}
 
@@ -72,16 +71,17 @@ class LocalBearerTokenVerificator
 
 	private boolean areMandatoryScopesPresent(TokenStatus status)
 	{
-		Set<String> requiredScopes = verificatorProperties.getListOfValues(OAuthRPProperties.REQUIRED_SCOPES).stream().collect(Collectors.toSet());
+		Set<String> requiredScopes = Set.copyOf(verificatorProperties.getListOfValues(OAuthRPProperties.REQUIRED_SCOPES));
 		if (!requiredScopes.isEmpty() && status.getScope() == null)
 		{
 			log.debug("The token validation didn't provide any scope, but there are required scopes");
 			return false;
 		}
-		Set<String> requestedScopes = status.getScope().toStringList().stream().collect(Collectors.toSet());	
+		Set<String> requestedScopes = Set.copyOf(status.getScope().toStringList());
 		if (!requestedScopes.containsAll(requiredScopes))
 		{
-			log.debug("The following required scopes are not present in token: " + Sets.difference(requiredScopes, requestedScopes).toString());
+			log.debug("The following required scopes are not present in token: {}",
+					Sets.difference(requiredScopes, requestedScopes));
 			return false;
 		}
 		return true;
