@@ -18,7 +18,7 @@ public class MessageMapperTest extends MapperTestBase<Message, DBMessage>
 	@Override
 	protected Message getFullAPIObject()
 	{
-		return new Message("name", new Locale("pl"), "value");
+		return new Message("name", Locale.forLanguageTag("pl"), "value");
 	}
 
 	@Override

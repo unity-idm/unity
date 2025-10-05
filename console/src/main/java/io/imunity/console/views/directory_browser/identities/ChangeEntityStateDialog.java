@@ -25,7 +25,7 @@ import java.util.Locale;
 
 class ChangeEntityStateDialog extends DialogWithActionFooter
 {
-	private static final Locale EUROPEAN_TIME_FORMAT = new Locale("DE");
+	private static final Locale EUROPEAN_TIME_FORMAT = Locale.forLanguageTag("DE");
 
 	private final MessageSource msg;
 	private final EntityWithLabel entity;
