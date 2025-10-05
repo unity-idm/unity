@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.io.IOException;
-import java.net.URL;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.Date;
@@ -35,6 +34,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.oauth.as.MockPKIMan;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.rest.jwt.JWTUtils;
@@ -79,7 +79,7 @@ public class RemoteTokenIntrospectionTest
 				introspectionServiceContextProvider, httpRequestConfigurer);
 		when(introspectionServiceContextProvider.getRemoteServiceContext("issuer"))
 				.thenReturn(Optional.of(RemoteIntrospectionServiceContext.builder()
-						.withUrl(new URL("https://test.com"))
+						.withUrl(URLFactory.of("https://test.com"))
 						.withClientId("id")
 						.withClientSecret("secret")
 						.withVerifier(jwsVerifier)

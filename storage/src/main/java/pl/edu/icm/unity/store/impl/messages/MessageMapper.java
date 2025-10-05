@@ -24,6 +24,6 @@ class MessageMapper
 
 	static Message map(DBMessage dbMessage)
 	{
-		return new Message(dbMessage.name, new Locale(dbMessage.locale), dbMessage.value);
+		return new Message(dbMessage.name, Locale.forLanguageTag(dbMessage.locale), dbMessage.value);
 	}
 }

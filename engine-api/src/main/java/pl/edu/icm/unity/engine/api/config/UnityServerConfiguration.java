@@ -27,8 +27,8 @@ import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -550,11 +550,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		
 		
 		
-		SUPPORTED_LOCALES.put("en", new Locale("en"));
-		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
-		SUPPORTED_LOCALES.put("de", new Locale("de"));
-		SUPPORTED_LOCALES.put("nb", new Locale("nb"));
-		SUPPORTED_LOCALES.put("fr", new Locale("fr"));
+		SUPPORTED_LOCALES.put("en", Locale.forLanguageTag("en"));
+		SUPPORTED_LOCALES.put("pl", Locale.forLanguageTag("pl"));
+		SUPPORTED_LOCALES.put("de", Locale.forLanguageTag("de"));
+		SUPPORTED_LOCALES.put("nb", Locale.forLanguageTag("nb"));
+		SUPPORTED_LOCALES.put("fr", Locale.forLanguageTag("fr"));
 
 		defaults.put("defaultTheme", new PropertyMD().setDeprecated());
 		defaults.put("confirmationUITheme", new PropertyMD().setDeprecated());
@@ -563,10 +563,10 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put("wellKnownUrlUITemplate", new PropertyMD().setDeprecated());
 	}
 
-	private UnityHttpServerConfiguration jp;
-	private UnityPKIConfiguration pkiConf;
-	private Map<String, Locale> enabledLocales;
-	private Locale defaultLocale;
+	private final UnityHttpServerConfiguration jp;
+	private final UnityPKIConfiguration pkiConf;
+	private final Map<String, Locale> enabledLocales;
+	private final Locale defaultLocale;
 	
 	@Autowired
 	public UnityServerConfiguration(Environment env, ConfigurationLocationProvider locProvider) throws ConfigurationException, IOException
@@ -598,7 +598,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 			String name = getValue(realmKey+REALM_NAME);
 			if (name.length() > 20)
 				throw new ConfigurationException("Realm name is longer then 20 characters: " + name);
-			CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
+			CharsetEncoder encoder = StandardCharsets.US_ASCII.newEncoder();
 			if (!encoder.canEncode(name))
 				throw new ConfigurationException("Realm name is not ASCII: " + name);
 			for (char c: name.toCharArray())
@@ -660,17 +660,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	{
 		if (inputRaw == null)
 			return Locale.ENGLISH;
-		Locale l;
 		String input = inputRaw.trim();
-		if (input.contains("_"))
-		{
-			String[] sp = input.split("_");
-			l = new Locale(sp[0], sp[1]);
-		} else
-		{
-			l = new Locale(input);
-		}
-		return l;
+		return Locale.forLanguageTag(input);
 	}
 
 	public UnityHttpServerConfiguration getJettyProperties()

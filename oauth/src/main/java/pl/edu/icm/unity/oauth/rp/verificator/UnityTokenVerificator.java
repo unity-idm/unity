@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.rp.verificator;
 
-import java.net.URL;
 import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
@@ -22,6 +21,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.oauth.as.token.TokenInfoResource;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
@@ -37,7 +37,7 @@ public class UnityTokenVerificator implements TokenVerificatorProtocol
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, UnityTokenVerificator.class);
 	
-	private OAuthRPProperties config;
+	private final OAuthRPProperties config;
 	
 	public UnityTokenVerificator(OAuthRPProperties config)
 	{
@@ -49,7 +49,7 @@ public class UnityTokenVerificator implements TokenVerificatorProtocol
 	{
 		String verificationEndpoint = config.getValue(OAuthRPProperties.VERIFICATION_ENDPOINT);
 		
-		HTTPRequest httpReq = new HTTPRequest(Method.GET, new URL(verificationEndpoint));
+		HTTPRequest httpReq = new HTTPRequest(Method.GET, URLFactory.of(verificationEndpoint));
 		
 		ServerHostnameCheckingMode checkingMode = config.getEnumValue(
 				OAuthRPProperties.CLIENT_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);

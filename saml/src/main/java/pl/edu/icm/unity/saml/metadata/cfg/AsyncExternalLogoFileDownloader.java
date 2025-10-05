@@ -165,7 +165,8 @@ public class AsyncExternalLogoFileDownloader
 				.map(entry1 ->
 					{
 						String federationDirName = LogoFilenameUtils.federationDirName(entry.getValue().federationId);
-						String logoFileBasename = LogoFilenameUtils.getLogoFileBasename(entry.getKey(), new Locale(entry1.getKey()), defaultLocale);
+						String logoFileBasename = LogoFilenameUtils.getLogoFileBasename(
+								entry.getKey(), Locale.forLanguageTag(entry1.getKey()), defaultLocale);
 						fetchAndSaveFileOnDisk(federationDirName, logoFileBasename, entry1.getValue(), httpsTruststore);
 						return logoFileBasename;
 					}

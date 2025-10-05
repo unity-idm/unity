@@ -26,7 +26,7 @@ import static java.util.stream.Collectors.toMap;
  */
 public class I18nString
 {
-	private Map<String, String> values;
+	private final Map<String, String> values;
 	private String defaultValue;
 	
 	public I18nString()
@@ -144,7 +144,7 @@ public class I18nString
 
 	public Map<Locale, String> getLocalizedMap()
 	{
-		return values.entrySet().stream().collect(toMap(key -> new Locale(key.getKey()), Entry::getValue));
+		return values.entrySet().stream().collect(toMap(key -> Locale.forLanguageTag(key.getKey()), Entry::getValue));
 	}
 
 	public String getDefaultLocaleValue(MessageSource msg)
@@ -221,14 +221,9 @@ public class I18nString
 	public void replace(String oldV, String newV)
 	{
 		if (defaultValue != null)
-		{
-			defaultValue.replace(oldV, newV);
-		}
+			defaultValue = defaultValue.replace(oldV, newV);
 		for (Entry<String, String> v : values.entrySet())
-		{
 			values.put(v.getKey(), v.getValue().replace(oldV, newV));
-		}
-		
 	}
 	
 	@Override

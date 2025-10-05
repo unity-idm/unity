@@ -9,6 +9,7 @@ import io.imunity.vaadin.endpoint.common.forms.ResolvedInvitationParam;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -66,7 +67,7 @@ class EnquiryInvitationEntityRepresentationProvider
 	{
 		try
 		{
-			URL url = new URL(identity.getRemoteIdp());
+			URL url = URLFactory.of(identity.getRemoteIdp());
 			String host = url.getHost();
 			return host == null || host.isEmpty() ? identity.getRemoteIdp() : host;
 		} catch (MalformedURLException e)

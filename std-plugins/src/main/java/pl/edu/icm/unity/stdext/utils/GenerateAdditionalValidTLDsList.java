@@ -18,6 +18,8 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.validator.routines.DomainValidator;
 import org.apache.commons.validator.routines.DomainValidator.ArrayType;
 
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
+
 /**
  * Generates a list of valid TLDs which are not available for apache commons EmailValidator. 
  * See {@link EmailUtils}. Can be run from time to time and results put there, so that we properly validate all real TLDs.
@@ -34,16 +36,16 @@ public class GenerateAdditionalValidTLDsList
 				.map(String::toLowerCase)
 				.filter(s -> !known.contains(s))
 				.sorted()
-				.collect(Collectors.toList());
+				.toList();
 		System.out.println(missing.stream().collect(Collectors.joining("\",\n\"", "{\"", "\"};")));
 	}
 
 	private static List<String> readDomains() throws IOException
 	{
-		URL url = new URL(IANA_REGISTRY);
+		URL url = URLFactory.of(IANA_REGISTRY);
 		InputStream is = url.openStream();
 		List<String> ret = IOUtils.readLines(is, StandardCharsets.US_ASCII);
-		ret.remove(0); //comment line
+		ret.removeFirst(); //comment line
 		return ret;
 	}
 	

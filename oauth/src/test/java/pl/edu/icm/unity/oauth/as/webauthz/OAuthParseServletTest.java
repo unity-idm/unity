@@ -12,7 +12,6 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.Identifier;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,13 +43,13 @@ public class OAuthParseServletTest
 
 	@Test
 	public void shouldSetFirstSupportedLocaleFromOAuthUIlocales()
-			throws IOException, ServletException, URISyntaxException, LangTagException
+			throws IOException, URISyntaxException, LangTagException
 	{
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 		OAuthWebRequestValidator validator = Mockito.mock(OAuthWebRequestValidator.class);
 		HttpSession session = Mockito.mock(HttpSession.class);
-		lenient().when(config.isLocaleSupported(new Locale("pl", "PL"))).thenReturn(true);
+		lenient().when(config.isLocaleSupported(Locale.forLanguageTag("pl-PL"))).thenReturn(true);
 		when(request.getSession()).thenReturn(session);
 		when(request.getQueryString())
 				.thenReturn(new AuthenticationRequest.Builder(new URI("requested"), new ClientID(new Identifier("x")))
@@ -68,13 +67,13 @@ public class OAuthParseServletTest
 
 	@Test
 	public void shouldSetFirstSupportedLocaleFromOAuthUIlocalesMatchByLangOnly()
-			throws IOException, ServletException, URISyntaxException, LangTagException
+			throws IOException, URISyntaxException, LangTagException
 	{
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);
 		OAuthWebRequestValidator validator = Mockito.mock(OAuthWebRequestValidator.class);
 		HttpSession session = Mockito.mock(HttpSession.class);
-		lenient().when(config.isLocaleSupported(new Locale("pl"))).thenReturn(true);
+		lenient().when(config.isLocaleSupported(Locale.forLanguageTag("pl"))).thenReturn(true);
 		when(request.getSession()).thenReturn(session);
 		when(request.getQueryString())
 				.thenReturn(new AuthenticationRequest.Builder(new URI("requested"), new ClientID(new Identifier("x")))
@@ -91,7 +90,7 @@ public class OAuthParseServletTest
 	}
 
 	@Test
-	public void shouldSkipInvalidUIlocales() throws IOException, ServletException, URISyntaxException, LangTagException
+	public void shouldSkipInvalidUIlocales() throws IOException, URISyntaxException
 	{
 		HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
 		HttpServletResponse response = Mockito.mock(HttpServletResponse.class);

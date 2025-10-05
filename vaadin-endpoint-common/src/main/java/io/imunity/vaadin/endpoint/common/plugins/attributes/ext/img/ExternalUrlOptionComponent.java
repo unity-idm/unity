@@ -8,6 +8,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.*;
 
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -74,7 +75,7 @@ class ExternalUrlOptionComponent extends TextField
 			}
 			try
 			{
-				this.value = new URL(value);
+				this.value = URLFactory.of(value);
 			} catch (MalformedURLException e)
 			{
 				throw new IllegalStateException("BUG: value should be validated by binder", e);
@@ -97,7 +98,7 @@ class ExternalUrlOptionComponent extends TextField
 			{
 				try
 				{
-					new URL(value);
+					URLFactory.of(value);
 				} catch (MalformedURLException e)
 				{
 					return ValidationResult.error(e.getMessage());

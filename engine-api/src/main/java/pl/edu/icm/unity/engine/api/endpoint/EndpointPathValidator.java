@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.Set;
 
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 
 /**
  * Helper for validation endpoint path
@@ -31,7 +32,7 @@ public class EndpointPathValidator
 			throw new WrongArgumentException("Context path must not contain spaces");	
 		try
 		{
-			URL tested = new URL("https://localhost:8080" + contextPath);
+			URL tested = URLFactory.of("https://localhost:8080" + contextPath);
 			if (!contextPath.equals(tested.getPath()))
 				throw new WrongArgumentException("Context path must be a valid path element of a URL");
 		} catch (MalformedURLException e)

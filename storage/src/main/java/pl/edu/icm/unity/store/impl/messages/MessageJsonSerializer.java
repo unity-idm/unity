@@ -41,7 +41,7 @@ class MessageJsonSerializer implements RDBMSObjectSerializer<Message, MessageBea
 	@Override
 	public Message fromDB(MessageBean bean)
 	{
-		return new Message(bean.getName(), new Locale(bean.getLocale()), new String(bean.getContents()));
+		return new Message(bean.getName(), Locale.forLanguageTag(bean.getLocale()), new String(bean.getContents()));
 	}
 
 	ObjectNode toJson(Message exportedObj)

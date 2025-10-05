@@ -25,6 +25,7 @@ import pl.edu.icm.unity.engine.api.attributes.PublicAttributeContent;
 import pl.edu.icm.unity.engine.api.attributes.PublicAttributeInfo;
 import pl.edu.icm.unity.engine.api.attributes.PublicAttributeSpec;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.stdext.utils.ImageValidatorUtil;
 
 public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<LinkableImage>
@@ -107,7 +108,7 @@ public class PublicLinkableImageSyntax extends BaseImageAttributeSyntax<Linkable
 		
 		try
 		{
-			URL url = new URL(value);
+			URL url = URLFactory.of(value);
 			UUID externalId = null;
 			if (value.startsWith(getServletUrl()))
 			{

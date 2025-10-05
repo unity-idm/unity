@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.base.attribute.image;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.UUID;
@@ -69,7 +71,7 @@ public class LinkableImage
 		return node.toString();
 	}
 
-	public static LinkableImage valueOf(String stringRepresentation) throws IOException
+	public static LinkableImage valueOf(String stringRepresentation) throws IOException, URISyntaxException
 	{
 		ObjectNode node = (ObjectNode) Constants.MAPPER.readTree(stringRepresentation);
 		
@@ -82,7 +84,7 @@ public class LinkableImage
 		URL url = null;
 		if (StringUtils.hasLength(serializedURL))
 		{
-			url = new URL(serializedURL);
+			url = new URI(serializedURL).toURL();
 			String protocol = url.getProtocol();
 			if (!"http".equals(protocol) && !"https".equals(protocol))
 			{

@@ -6,7 +6,6 @@
 package pl.edu.icm.unity.oauth.as.token.introspection;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
@@ -35,6 +34,7 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.oauth.oidc.metadata.JWKSetRequest;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthJWKSetCache;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
@@ -127,7 +127,7 @@ class IntrospectionServiceContextProvider
 				.withClientSecret(trustedUpstreamConfiguration.clientSecret)
 				.withIssuer(trustedUpstreamConfiguration.issuerURI)
 				.withVerifier(verifier)
-				.withUrl(new URL(trustedUpstreamConfiguration.introspectionEndpointURL))
+				.withUrl(URLFactory.of(trustedUpstreamConfiguration.introspectionEndpointURL))
 				.withValidator(validator)
 				.withHostnameCheckingMode(trustedUpstreamConfiguration.clientHostnameChecking)
 				.build();
@@ -176,7 +176,7 @@ class IntrospectionServiceContextProvider
 			return Optional.empty();
 		}
 
-		JWSVerifier verifier = null;
+		JWSVerifier verifier;
 		try
 		{
 			verifier = getJWSVerifier(jwkSet);

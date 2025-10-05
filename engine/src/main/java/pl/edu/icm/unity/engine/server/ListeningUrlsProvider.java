@@ -13,6 +13,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 
 @Component
 class ListeningUrlsProvider implements AdvertisedAddressProvider
@@ -40,7 +41,7 @@ class ListeningUrlsProvider implements AdvertisedAddressProvider
 		
 		try 
 		{
-			return new URL("https://" + advertisedHost);
+			return URLFactory.of("https://" + advertisedHost);
 		} catch (MalformedURLException e) 
 		{
 			throw new IllegalStateException("Ups, URL can not be reconstructed, while it should", e);
@@ -53,7 +54,7 @@ class ListeningUrlsProvider implements AdvertisedAddressProvider
 		{
 			String scheme = conf.getBooleanValue(UnityHttpServerConfiguration.DISABLE_TLS) ? 
 					"http" : "https";
-			return new URL[] {new URL(scheme + "://" + conf.getValue(UnityHttpServerConfiguration.HTTP_HOST) + 
+			return new URL[] {URLFactory.of(scheme + "://" + conf.getValue(UnityHttpServerConfiguration.HTTP_HOST) +
 					":" + conf.getValue(UnityHttpServerConfiguration.HTTP_PORT))};
 		} catch (MalformedURLException e)
 		{

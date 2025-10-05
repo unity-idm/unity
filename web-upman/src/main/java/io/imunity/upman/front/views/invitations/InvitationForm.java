@@ -31,7 +31,7 @@ import pl.edu.icm.unity.stdext.utils.EmailUtils;
 
 class InvitationForm extends FormLayout
 {
-	private static final Locale EUROPEAN_FORMAT_LOCALE = new Locale("DE");
+	private static final Locale EUROPEAN_FORMAT_LOCALE = Locale.forLanguageTag("DE");
 
 	private final MessageSource msg;
 

@@ -8,7 +8,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.Properties;
@@ -36,6 +35,7 @@ import eu.unicore.util.httpclient.HttpUtils;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 
 public class JettyServerFeaturesTest 
 {
@@ -88,12 +88,12 @@ public class JettyServerFeaturesTest
 		assertThat(response.getCode()).isEqualTo(405);
 	}
 	
-	private void buildHttpServer() throws IOException, MalformedURLException
+	private void buildHttpServer() throws IOException
 	{
 		UnityHttpServerConfiguration httpConfig = prepareHttpServerConfig();
 		IAuthnAndTrustConfiguration securityConfiguration = prepareSSLCredential();
 		httpServer = new JettyServer(httpConfig, "webContents", null, securityConfiguration, 
-				new URL[] {new URL("https://0.0.0.0:0")});
+				new URL[] { URLFactory.of("https://0.0.0.0:0")});
 	}
 
 	private IAuthnAndTrustConfiguration prepareSSLCredential() throws IOException
@@ -117,10 +117,9 @@ public class JettyServerFeaturesTest
 				"unity.pki.truststores.MAIN.");
 		CredentialProperties keystorePros = new CredentialProperties(securityProps,
 				"unity.pki.credentials.MAIN.");
-		IAuthnAndTrustConfiguration securityConfiguration = new DefaultAuthnAndTrustConfiguration(
+		return new DefaultAuthnAndTrustConfiguration(
 				truststoreProps.getValidator(),
 				keystorePros.getCredential());
-		return securityConfiguration;
 	}
 
 	private UnityHttpServerConfiguration prepareHttpServerConfig() throws IOException
@@ -137,8 +136,7 @@ unityServer.core.httpServer.xFrameAllowed=example.com
 unityServer.core.httpServer.xFrameOptions=allowFrom
 """
 		));
-		UnityHttpServerConfiguration httpConfig = new UnityHttpServerConfiguration(httpConfigProps);
-		return httpConfig;
+		return new UnityHttpServerConfiguration(httpConfigProps);
 	}
 
 	private HttpClient createClient(String url) throws Exception
