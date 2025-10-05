@@ -16,6 +16,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 
 /**
@@ -27,7 +28,7 @@ class OpenIdConnectDiscovery
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OpenIdConnectDiscovery.class);
 
-	private HttpRequestConfigurer requestFactory;
+	private final HttpRequestConfigurer requestFactory;
 
 	OpenIdConnectDiscovery()
 	{
@@ -43,7 +44,7 @@ class OpenIdConnectDiscovery
 	OIDCProviderMetadata getMetadata(OIDCMetadataRequest oidcMetadataRequest)
 			throws IOException, ParseException
 	{
-		URL providerMetadataEndpoint = new URL(oidcMetadataRequest.url);
+		URL providerMetadataEndpoint = URLFactory.of(oidcMetadataRequest.url);
 		log.debug("Download metadata from " + providerMetadataEndpoint);
 		HTTPRequest request = requestFactory.secureRequest(new HTTPRequest(Method.GET, providerMetadataEndpoint),
 				oidcMetadataRequest.validator, oidcMetadataRequest.hostnameChecking);

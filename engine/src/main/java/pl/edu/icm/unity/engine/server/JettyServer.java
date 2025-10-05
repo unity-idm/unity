@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -156,8 +157,9 @@ public class JettyServer implements Lifecycle, NetworkServer
 				int port = ((NetworkConnector)conns[i]).getLocalPort();
 				try
 				{
-					listenUrls[i] = new URL(url.getProtocol(),
-							url.getHost(), port, url.getFile());
+					String urlString = url.getProtocol() + "://" + url.getHost() +
+							":" + port + url.getFile();
+					listenUrls[i] = URLFactory.of(urlString);
 				} catch (MalformedURLException e)
 				{
 					throw new RuntimeException("Ups, URL can not " +

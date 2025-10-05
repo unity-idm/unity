@@ -16,6 +16,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 
 
@@ -23,7 +24,7 @@ class KeyResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, KeyResource.class);
 
-	private HttpRequestConfigurer requestFactory;
+	private final HttpRequestConfigurer requestFactory;
 
 	KeyResource()
 	{
@@ -39,7 +40,7 @@ class KeyResource
 	public JWKSet getJWKSet(JWKSetRequest jwkSetRequest)
 			throws IOException, ParseException
 	{
-		URL providerMetadataEndpoint = new URL(jwkSetRequest.url);
+		URL providerMetadataEndpoint = URLFactory.of(jwkSetRequest.url);
 		log.debug("Download JWKSet from " + providerMetadataEndpoint);
 		HTTPRequest request = requestFactory.secureRequest(new HTTPRequest(Method.GET, providerMetadataEndpoint),
 				jwkSetRequest.validator, jwkSetRequest.hostnameChecking);

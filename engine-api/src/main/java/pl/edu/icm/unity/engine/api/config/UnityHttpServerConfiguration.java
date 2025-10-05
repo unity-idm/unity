@@ -9,7 +9,6 @@
 package pl.edu.icm.unity.engine.api.config;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -25,6 +24,7 @@ import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import eu.unicore.util.jetty.HttpServerProperties;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 
 /**
  * Configuration of the Jetty server, baseline for all HTTP based endpoints
@@ -37,7 +37,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	{
 		deny("DENY"), sameOrigin("SAMEORIGIN"), allowFrom("ALLOW-FROM"), allow("");
 		
-		private String httpValue;
+		private final String httpValue;
 		
 		XFrameOptions(String httpValue)
 		{
@@ -48,7 +48,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 		{
 			return httpValue;
 		}
-	};
+	}
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = UnityServerConfiguration.P+HttpServerProperties.DEFAULT_PREFIX;
@@ -81,7 +81,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	
 	/**
 	 * CORS support. For the parameters see 
-	 * https://www.eclipse.org/jetty/documentation/9.4.x/cross-origin-filter.html
+	 * <a href="https://www.eclipse.org/jetty/documentation/9.4.x/cross-origin-filter.html">...</a>
 	 */
 	public static final String ENABLE_CORS = "enableCORS";
 	public static final String CORS_PFX = "cors.";
@@ -103,7 +103,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	
 	
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> defaults=new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> defaults=new HashMap<>();
 	
 	static
 	{
@@ -256,7 +256,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 						+ "but not the protocol prefix.");
 			try
 			{
-				new URL("https://" + advertisedHost);
+				URLFactory.of("https://" + advertisedHost);
 			} catch (MalformedURLException e)
 			{
 				throw new ConfigurationException(getKeyDescription(ADVERTISED_HOST) + 

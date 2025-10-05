@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.rp.verificator;
 
-import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,6 +27,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
@@ -42,7 +43,7 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, MitreTokenVerificator.class);
 	private static final String DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
-	private OAuthRPProperties config;
+	private final OAuthRPProperties config;
 	
 	public MitreTokenVerificator(OAuthRPProperties config)
 	{
@@ -54,9 +55,9 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 	{
 		String verificationEndpoint = config.getValue(OAuthRPProperties.VERIFICATION_ENDPOINT);
 		
-		HTTPRequest httpReq = new HTTPRequest(Method.POST, new URL(verificationEndpoint));
+		HTTPRequest httpReq = new HTTPRequest(Method.POST, URLFactory.of(verificationEndpoint));
 		StringBuilder queryB = new StringBuilder();
-		queryB.append("token=").append(URLEncoder.encode(token.getValue(), "UTF-8"));
+		queryB.append("token=").append(URLEncoder.encode(token.getValue(), StandardCharsets.UTF_8));
 		
 		
 		ClientAuthnMode clientAuthnMode = config.getEnumValue(OAuthRPProperties.CLIENT_AUTHN_MODE, 
@@ -71,10 +72,10 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 			httpReq.setAuthorization(secret.toHTTPAuthorizationHeader());
 			break;
 		case secretPost:
-			queryB.append("&client_id=").append(URLEncoder.encode(config.getValue(OAuthRPProperties.CLIENT_ID), 
-					"UTF-8"));
+			queryB.append("&client_id=").append(URLEncoder.encode(config.getValue(OAuthRPProperties.CLIENT_ID),
+					StandardCharsets.UTF_8));
 			queryB.append("&client_secret=").append(URLEncoder.encode(
-					config.getValue(OAuthRPProperties.CLIENT_SECRET), "UTF-8"));
+					config.getValue(OAuthRPProperties.CLIENT_SECRET), StandardCharsets.UTF_8));
 			break;
 		default:
 			throw new IllegalStateException("Unsupported client authentication mode for "
@@ -144,10 +145,10 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 
 	private Date parseExpiry(String expiry) throws java.text.ParseException
 	{
-		Date result = null;
+		Date result;
 		try 
 		{
-			Long timeStamp = 1000 * Long.parseLong(expiry);
+			long timeStamp = 1000 * Long.parseLong(expiry);
 			result = new Date(timeStamp);
 		} catch(NumberFormatException nfe)
 		{

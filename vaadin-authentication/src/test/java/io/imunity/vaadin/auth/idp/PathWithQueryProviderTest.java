@@ -9,6 +9,8 @@ import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
+
 public class PathWithQueryProviderTest
 {
 	private URL simpleUrl;
@@ -20,15 +22,15 @@ public class PathWithQueryProviderTest
 	@BeforeEach
 	public void setUp() throws MalformedURLException
 	{
-		simpleUrl = new URL("https://example.com/path");
-		urlWithParams = new URL("https://example.com/path?param1=value1");
-		urlWithMultipleParams = new URL("https://example.com/path?param1=value1¶m2=value2");
-		emptyPathUrl = new URL("https://example.com");
-		encodedParamUrl = new URL("https://example.com/path?param=value%20with%20spaces");
+		simpleUrl = URLFactory.of("https://example.com/path");
+		urlWithParams = URLFactory.of("https://example.com/path?param1=value1");
+		urlWithMultipleParams = URLFactory.of("https://example.com/path?param1=value1¶m2=value2");
+		emptyPathUrl = URLFactory.of("https://example.com");
+		encodedParamUrl = URLFactory.of("https://example.com/path?param=value%20with%20spaces");
 	}
 
 	@Test
-	void shouldReturnPathWithoutQueryParams() throws MalformedURLException
+	void shouldReturnPathWithoutQueryParams()
 	{
 		// given
 		PathWithQueryProvider provider = new PathWithQueryProvider(simpleUrl);
@@ -41,7 +43,7 @@ public class PathWithQueryProviderTest
 	}
 
 	@Test
-	void shouldReturnPathWithExistingQueryParams() throws MalformedURLException
+	void shouldReturnPathWithExistingQueryParams()
 	{
 		// given
 		PathWithQueryProvider provider = new PathWithQueryProvider(urlWithParams);
@@ -54,7 +56,7 @@ public class PathWithQueryProviderTest
 	}
 
 	@Test
-	void shouldReturnPathWithMultipleExistingQueryParams() throws MalformedURLException
+	void shouldReturnPathWithMultipleExistingQueryParams()
 	{
 		// given
 		PathWithQueryProvider provider = new PathWithQueryProvider(urlWithMultipleParams);
@@ -67,7 +69,7 @@ public class PathWithQueryProviderTest
 	}
 
 	@Test
-	void shouldAddNewQueryParam() throws MalformedURLException
+	void shouldAddNewQueryParam()
 	{
 		// given
 		PathWithQueryProvider provider = new PathWithQueryProvider(simpleUrl);
@@ -81,7 +83,7 @@ public class PathWithQueryProviderTest
 	}
 
 	@Test
-	void shouldAddNewQueryParamToExistingParams() throws MalformedURLException
+	void shouldAddNewQueryParamToExistingParams()
 	{
 		// given
 		PathWithQueryProvider provider = new PathWithQueryProvider(urlWithParams);
@@ -95,7 +97,7 @@ public class PathWithQueryProviderTest
 	}
 
 	@Test
-	void shouldHandleEmptyPath() throws MalformedURLException
+	void shouldHandleEmptyPath()
 	{
 		// given
 		PathWithQueryProvider provider = new PathWithQueryProvider(emptyPathUrl);
@@ -111,7 +113,7 @@ public class PathWithQueryProviderTest
 	void shouldHandleEmptyPathWithQueryParam() throws MalformedURLException
 	{
 		// given
-		URL url = new URL("https://example.com?param=value");
+		URL url = URLFactory.of("https://example.com?param=value");
 		PathWithQueryProvider provider = new PathWithQueryProvider(url);
 
 		// when
@@ -122,7 +124,7 @@ public class PathWithQueryProviderTest
 	}
 
 	@Test
-	void shouldPreserveEncodedQueryParameters() throws MalformedURLException
+	void shouldPreserveEncodedQueryParameters()
 	{
 		// given
 		PathWithQueryProvider provider = new PathWithQueryProvider(encodedParamUrl);
@@ -135,7 +137,7 @@ public class PathWithQueryProviderTest
 	}
 
 	@Test
-	void shouldAddEncodedQueryParameter() throws MalformedURLException
+	void shouldAddEncodedQueryParameter()
 	{
 		// given
 		PathWithQueryProvider provider = new PathWithQueryProvider(simpleUrl);
@@ -149,7 +151,7 @@ public class PathWithQueryProviderTest
 	}
 
 	@Test
-	void shouldHandleSpecialCharactersInQueryParams() throws MalformedURLException
+	void shouldHandleSpecialCharactersInQueryParams()
 	{
 		// given
 		PathWithQueryProvider provider = new PathWithQueryProvider(simpleUrl);

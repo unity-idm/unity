@@ -4,7 +4,6 @@ package pl.edu.icm.unity.oauth.rp.local;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.net.URL;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +35,7 @@ import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
@@ -46,18 +46,27 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
 public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 {
-	private static final String OAUTH_ENDP_CFG_FORMAT = "unity.oauth2.as.issuerUri=https://localhost:%s/oauth2\n"
-			+ "unity.oauth2.as.signingCredential=MAIN\n" + "unity.oauth2.as.clientsGroup=/oauth-clients\n"
-			+ "unity.oauth2.as.usersGroup=/oauth-users\n" + "#unity.oauth2.as.translationProfile=\n"
-			+ "unity.oauth2.as.scopes.1.name=foo\n"
-			+ "unity.oauth2.as.scopes.1.description=Provides access to foo info\n"
-			+ "unity.oauth2.as.scopes.1.attributes.1=stringA\n" + "unity.oauth2.as.scopes.1.attributes.2=o\n"
-			+ "unity.oauth2.as.scopes.1.attributes.3=email\n" + "unity.oauth2.as.scopes.2.name=bar\n"
-			+ "unity.oauth2.as.scopes.2.description=Provides access to bar info\n"
-			+ "unity.oauth2.as.scopes.2.attributes.1=c\n" + "unity.oauth2.as.refreshTokenIssuePolicy=ALWAYS\n";
+	private static final String OAUTH_ENDP_CFG_FORMAT = """
+			unity.oauth2.as.issuerUri=https://localhost:%s/oauth2
+			unity.oauth2.as.signingCredential=MAIN
+			unity.oauth2.as.clientsGroup=/oauth-clients
+			unity.oauth2.as.usersGroup=/oauth-users
+			#unity.oauth2.as.translationProfile=
+			unity.oauth2.as.scopes.1.name=foo
+			unity.oauth2.as.scopes.1.description=Provides access to foo info
+			unity.oauth2.as.scopes.1.attributes.1=stringA
+			unity.oauth2.as.scopes.1.attributes.2=o
+			unity.oauth2.as.scopes.1.attributes.3=email
+			unity.oauth2.as.scopes.2.name=bar
+			unity.oauth2.as.scopes.2.description=Provides access to bar info
+			unity.oauth2.as.scopes.2.attributes.1=c
+			unity.oauth2.as.refreshTokenIssuePolicy=ALWAYS
+			""";
 
-	private static final String OAUTH_RP_CFG_INTERNAL = "unity.oauth2-local-rp.requiredScopes.1=sc1\n"
-			+ "unity.oauth2-local-rp.credential=credential1\n";
+	private static final String OAUTH_RP_CFG_INTERNAL = """
+			unity.oauth2-local-rp.requiredScopes.1=sc1
+			unity.oauth2-local-rp.credential=credential1
+			""";
 
 	private static final String JWT_ENDP_CFG = "unity.jwtauthn.credential=MAIN\n";
 
@@ -127,7 +136,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
 		AccessToken ac = resp1.getAccessToken();
 
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50QTpwYXNzd29yZA==");
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
@@ -143,7 +152,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
 		AccessToken ac = resp1.getAccessToken();
 
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization("Bearer " + ac.getValue());
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
@@ -155,7 +164,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	@Test
 	public void shouldFailWhenOnlyClientCredential() throws Exception
 	{
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization("Basic Y2xpZW50QTpwYXNzd29yZA==");
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
@@ -173,7 +182,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
 		AccessToken ac = resp1.getAccessToken();
 
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50MjpjbGllbnQy");
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
