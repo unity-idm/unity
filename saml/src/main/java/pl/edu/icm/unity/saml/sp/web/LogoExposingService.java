@@ -48,7 +48,7 @@ class LogoExposingService
 	{
 		try
 		{
-			return externalLogoFileLoader.getFile(configuration.federationId, configKey, getCurrentRequest().getLocale())
+			return externalLogoFileLoader.getFile(configuration.federationId, configKey, getSafeLocale())
 				.map(LogoExposingService::createImage)
 				.orElse(null);
 		} catch (Exception e)
@@ -56,6 +56,12 @@ class LogoExposingService
 			log.debug("Can not load logo fetched from URI " + configuration.logoURI, e);
 			return null;
 		}
+	}
+	
+	private static java.util.Locale getSafeLocale()
+	{
+		var req = getCurrentRequest();
+		return req != null ? req.getLocale() : java.util.Locale.getDefault();
 	}
 
 	private static Image createImage(File file)
