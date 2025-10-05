@@ -15,7 +15,7 @@
 - Whenever you are running full build w/ or w/o tests, redirect the output of the build to a file. In case the build fails, examine an output file to find the root cause, and address the issue. This is to optimize context window usage. Delete the output file when it is no longer needed.
 
 ## Coding Style & Naming Conventions & Gudeslines
-- Language: Java 17; use tab indentation, make formatting consistent with current project files; UTF‑8 encoding
+- Language: Java 21; use tab indentation, make formatting consistent with current project files; UTF‑8 encoding
 - Maximum line length: 120 characters
 - Naming: classes `PascalCase`, methods/fields `camelCase`, constants `UPPER_SNAKE_CASE`
 - New packages: use `io.imunity`
