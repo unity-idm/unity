@@ -17,8 +17,8 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
 		<jetty.version>12.0.7</jetty.version>
-		<slf4j.version>2.0.12</slf4j.version>
-		<log4j.version>2.23.1</log4j.version>
+		<slf4j.version>2.0.17</slf4j.version>
+		<log4j.version>2.25.2</log4j.version>
 		<spring.version>5.3.33</spring.version>
 		<vaadin.version>24.3.20</vaadin.version>
 		<cxf.version>4.0.5</cxf.version>
