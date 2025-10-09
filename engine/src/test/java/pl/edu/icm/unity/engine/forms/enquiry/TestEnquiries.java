@@ -55,6 +55,7 @@ import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector;
 import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.AccessMode;
 import pl.edu.icm.unity.engine.api.enquiry.EnquirySelector.Type;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.engine.api.utils.NameToURLEncoder;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
@@ -118,6 +119,20 @@ public class TestEnquiries extends DBIntegrationTestBase
 	public void formWithDuplicateNameCantBeAdded() throws Exception
 	{
 		EnquiryForm form = initAndCreateEnquiry(null);
+		
+		Throwable error = catchThrowable(() -> enquiryManagement.addEnquiry(form));
+		
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
+	}
+	
+	@Test 
+	public void formWithForbiddenSuffixInNameCantBeAdded() throws Exception
+	{
+		EnquiryForm form = new EnquiryFormBuilder()
+				.withName("e1" + NameToURLEncoder.suffix)
+				.withTargetGroups(new String[] {"/"})
+				.withType(EnquiryType.REQUESTED_MANDATORY)
+				.build();
 		
 		Throwable error = catchThrowable(() -> enquiryManagement.addEnquiry(form));
 		
