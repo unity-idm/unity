@@ -26,6 +26,7 @@ import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
+import pl.edu.icm.unity.engine.api.utils.NameToURLEncoder;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
@@ -65,6 +66,8 @@ public class BaseFormValidator
 
 		if (form.getName() == null)
 			throw new IllegalArgumentException("Form name is not set.");
+		if (form.getName().endsWith(NameToURLEncoder.suffix))
+			throw new IllegalArgumentException("Form name contains forbidden suffix");
 		
 		if (form.getTranslationProfile() == null)
 			throw new IllegalArgumentException("Translation profile is not set.");

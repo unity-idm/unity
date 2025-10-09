@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.forms.reg;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -39,6 +39,7 @@ import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.base.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.base.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.base.registration.RegistrationContext;
+import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.base.registration.RegistrationRequest;
@@ -46,7 +47,6 @@ import pl.edu.icm.unity.base.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.base.registration.RegistrationRequestBuilder;
 import pl.edu.icm.unity.base.registration.RegistrationRequestState;
 import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
@@ -55,6 +55,7 @@ import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.engine.api.utils.NameToURLEncoder;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
@@ -103,6 +104,19 @@ public class TestRegistrations extends RegistrationTestBase
 			registrationsMan.addForm(form);
 			fail("Added the same form twice");
 		} catch (IllegalArgumentException e) {/*ok*/}
+	}
+	
+	
+	@Test 
+	public void formWithForbiddenSuffixInNameCantBeAdded() throws Exception
+	{
+		RegistrationForm form = initAndCreateForm(false, null);
+		RegistrationFormBuilder builder = new RegistrationFormBuilder(form);
+		builder.withName(form.getName() + NameToURLEncoder.suffix);
+		
+		Throwable error = catchThrowable(() -> registrationsMan.addForm(builder.build()));
+		
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	@Test 

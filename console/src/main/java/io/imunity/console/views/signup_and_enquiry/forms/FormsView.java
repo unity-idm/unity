@@ -37,16 +37,17 @@ import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.invitation.InvitationParam.InvitationType;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
-import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
+import pl.edu.icm.unity.engine.api.utils.NameToURLEncoder;
 
 @PermitAll
 @Breadcrumb(key = "WebConsoleMenu.signupAndEnquiry.forms", parent = "WebConsoleMenu.signupAndEnquiry")
@@ -83,7 +84,7 @@ public class FormsView extends ConsoleViewComponent
 		registrationFormsList = new GridWithActionColumn<>(msg::getMessage, getRegistrationActionsHandlers());
 		registrationFormsList.addHamburgerActions(getRegistrationHamburgerActionsHandlers());
 		registrationFormsList
-				.addComponentColumn(f -> new RouterLink(f.getName(), RegistrationView.class, f.getName()))
+				.addComponentColumn(f -> new RouterLink(f.getName(), RegistrationView.class, NameToURLEncoder.encode(f.getName())))
 				.setHeader(msg.getMessage("RegistrationFormsComponent.nameCaption"))
 				.setSortable(true)
 				.setComparator(Comparator.comparing(DescribedObjectROImpl::getName))
@@ -117,7 +118,7 @@ public class FormsView extends ConsoleViewComponent
 		enquiryFormsList = new GridWithActionColumn<>(msg::getMessage, getEnquiryActionsHandlers());
 		enquiryFormsList.addHamburgerActions(getEnquiryHamburgerActionsHandlers());
 		enquiryFormsList
-				.addComponentColumn(f -> new RouterLink(f.getName(), EnquiryView.class, f.getName()))
+				.addComponentColumn(f -> new RouterLink(f.getName(), EnquiryView.class, NameToURLEncoder.encode(f.getName())))
 				.setHeader(msg.getMessage("EnquiryFormsComponent.nameCaption"))
 				.setSortable(true)
 				.setComparator(Comparator.comparing(DescribedObjectROImpl::getName))
@@ -147,7 +148,7 @@ public class FormsView extends ConsoleViewComponent
 	{
 		SingleActionHandler<RegistrationForm> edit = SingleActionHandler
 				.builder4Edit(msg::getMessage, RegistrationForm.class)
-				.withHandler(r -> UI.getCurrent().navigate(RegistrationView.class, r.iterator().next().getName()))
+				.withHandler(r -> UI.getCurrent().navigate(RegistrationView.class, NameToURLEncoder.encode(r.iterator().next().getName())))
 				.build();
 		return Collections.singletonList(edit);
 	}
@@ -156,7 +157,7 @@ public class FormsView extends ConsoleViewComponent
 	{
 		SingleActionHandler<EnquiryForm> edit = SingleActionHandler
 				.builder4Edit(msg::getMessage, EnquiryForm.class)
-				.withHandler(r -> UI.getCurrent().navigate(EnquiryView.class, r.iterator().next().getName()))
+				.withHandler(r -> UI.getCurrent().navigate(EnquiryView.class, NameToURLEncoder.encode(r.iterator().next().getName())))
 				.build();
 		return Collections.singletonList(edit);
 	}

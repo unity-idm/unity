@@ -5,26 +5,28 @@
 
 package io.imunity.console.views.signup_and_enquiry.forms;
 
+import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
+
+import java.util.List;
+import java.util.Optional;
+
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.signup_and_enquiry.RegistrationFormEditor;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
-import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
-
-import java.util.List;
-import java.util.Optional;
-
-import static io.imunity.console.views.EditViewActionLayoutFactory.createActionLayout;
+import pl.edu.icm.unity.engine.api.utils.NameToURLEncoder;
 
 @PermitAll
 @Route(value = "/forms/registration", layout = ConsoleMenu.class)
@@ -46,13 +48,15 @@ public class RegistrationView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String registrationName)
+	public void setParameter(BeforeEvent event,  @OptionalParameter String registrationName)
 	{
+		String decodedregistrationName = registrationName == null ? null : NameToURLEncoder.decode(registrationName);
+
 		getContent().removeAll();
 
 		try
 		{
-			if (registrationName == null)
+			if (decodedregistrationName == null)
 			{
 				breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 				edit = false;
@@ -62,15 +66,15 @@ public class RegistrationView extends ConsoleViewComponent
 						.getOrDefault("clone", List.of())
 						.stream().findFirst();
 				if (clone.isPresent())
-					editor = controller.getEditor(controller.getRegistrationForm(clone.get()), true);
+					editor = controller.getEditor(controller.getRegistrationForm(NameToURLEncoder.decode(clone.get())), true);
 				else
 					editor = controller.getEditor(null, false);
 
 			}
 			else
 			{
-				editor = controller.getEditor(controller.getRegistrationForm(registrationName), false);
-				breadCrumbParameter = new BreadCrumbParameter(registrationName, registrationName);
+				editor = controller.getEditor(controller.getRegistrationForm(decodedregistrationName), false);
+				breadCrumbParameter = new BreadCrumbParameter(decodedregistrationName, decodedregistrationName);
 				edit = true;
 			}
 
