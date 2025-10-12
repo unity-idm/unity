@@ -14,10 +14,16 @@
 - Integration tests: `mvn -pl integration-tests -am test -Dgpg.skip=true` (Selenium/JUnit; requires browser drivers/headless env)
 - Whenever you are running full build w/ or w/o tests, redirect the output of the build to a file. In case the build fails, examine an output file to find the root cause, and address the issue. This is to optimize context window usage. Delete the output file when it is no longer needed.
 
-## Coding Style & Naming Conventions & Gudeslines
-- Language: Java 21; use tab indentation, make formatting consistent with current project files; UTF‑8 encoding
+## Coding Style
+- Indentation: use tabs.
+- Opening bracket ({) placement: new line. At the same time do not add additional line between brackets and code.
+- Closing bracket (}) placement: new line.
 - Maximum line length: 120 characters
-- Naming: classes `PascalCase`, methods/fields `camelCase`, constants `UPPER_SNAKE_CASE`
+- UTF-8 encoding
+- Naming: use default Java naming conventions
+
+## General Guidelines
+- Language: Java 21
 - New packages: use `io.imunity`
 - Imports: organize and avoid wildcards; keep visibility minimal
 - Remove unused imports
@@ -26,8 +32,8 @@
 - A variable name should be proportional to the size of the scope that contains it
 - Favor private access modifiers, if not possible, then use default 'package' access. Fallback to public only in the last resort.
 - Use Java Records (`record`) for immutable data transfer objects (DTOs)
-- Favor immutability for objects where appropriate, especially for DTOs and configuration
-- Include comments only for complex logic
+- Strongly favor immutability for objects where appropriate, especially for DTOs and configuration
+- Include comments only for complex logic. This should be super rare case: instead try to break longer code into methods with meaningful names.
 - Strongly prefer a **package-by-feature** structure over package-by-layer
 
   **Example:** **PREFER THIS (Package-by-Feature)**
@@ -73,12 +79,16 @@
     ```
 
 ## Testing Guidelines
-- Frameworks: JUnit 5, AssertJ, Mockito; Selenium for UI/integration in `integration-tests/`
+- Use Junit 5 as general framework for tests.
+- Use Mockito for mocking
+- Use AssertJ for assertions 
+- Selenium for UI/integration in `integration-tests/`
 - Locations: unit tests beside code in each module; browser‑level tests only in `integration-tests/`
 - Coverage: JaCoCo configured; add tests for new logic and regressions
-- Naming: unit tests `*Test`; prefer descriptive test method names
+- Name unit tests `*Test`. This is required for both unit and integrations tests.
 - Examples: run a single class `mvn -Dtest=MyServiceTest test`
 - Test Method Naming: Use the "should" prefix for test method names followed by a descriptive name of what the test is verifying. For example, use `shouldReturnUserWhenValidIdProvided()` instead of `testGetUserById()`
+- In rare cases underscore is permitted to strongly separate some variants, but this should be pretty rare.
 - Test Structure: Use the given/when/then pattern (BDD style) for structuring test methods instead of Arrange/Act/Assert.
 - All new services, parsers, and transformation logic must have comprehensive test coverage
 - All tests must pass before considering implementation complete
