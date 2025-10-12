@@ -60,7 +60,7 @@ public class AuthenticationInterceptorTest
 				Collections.emptyList(), null, 0);
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(null, mockProcessor, List.of(flow1),
 				new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0), mock(SessionManagement.class), Set.of("/p1"),
-				Set.of("/optional"), null, mock(EntityManagement.class));
+				Set.of("/optional"), null, mock(EntityManagement.class), e -> new Fault(new Exception("error")));
 		HTTPRequestContext.setCurrent(new HTTPRequestContext("192.168.0.1", "agent"));
 		Message message = new MessageImpl();
 		message.put(Message.REQUEST_URI, "/optional");
@@ -82,7 +82,8 @@ public class AuthenticationInterceptorTest
 
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(mock(MessageSource.class), mockProcessor,
 				List.of(flow1), new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0), sessionMan, Set.of("/p1"),
-				Set.of("/optional"), null, mock(EntityManagement.class));
+				Set.of("/optional"), null, mock(EntityManagement.class),
+				e -> new Fault(new Exception("error")));
 		HTTPRequestContext.setCurrent(new HTTPRequestContext("192.168.0.1", "agent"));
 
 		Message message = new MessageImpl();
@@ -119,7 +120,8 @@ public class AuthenticationInterceptorTest
 
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(mock(MessageSource.class), mockProcessor,
 				List.of(flow1, flow2), new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0), sessionMan,
-				Set.of("/p1"), Set.of("/optional"), null, mock(EntityManagement.class));
+				Set.of("/p1"), Set.of("/optional"), null, mock(EntityManagement.class),
+				e -> new Fault(new Exception("error")));
 		HTTPRequestContext.setCurrent(new HTTPRequestContext("192.168.0.1", "agent"));
 		interceptor.handleMessage(new MessageImpl());
 	}
@@ -141,7 +143,8 @@ public class AuthenticationInterceptorTest
 		when(mockProcessor.processPrimaryAuthnResult(any(), any(), any(), any())).thenThrow(new AuthenticationException(""));
 		AuthenticationInterceptor interceptor = new AuthenticationInterceptor(mock(MessageSource.class), mockProcessor,
 				List.of(flow1, flow2), new AuthenticationRealm("realm1", null, 0, 0, null, 0, 0),
-				mock(SessionManagement.class), Set.of("/p1"), Set.of("/optional"), null, mock(EntityManagement.class));
+				mock(SessionManagement.class), Set.of("/p1"), Set.of("/optional"), null,
+				mock(EntityManagement.class), e -> new Fault(new Exception("error")));
 		HTTPRequestContext.setCurrent(new HTTPRequestContext("192.168.0.1", "agent"));
 		Assertions.assertThrows(Fault.class, () -> interceptor.handleMessage(new MessageImpl()));
 	}
