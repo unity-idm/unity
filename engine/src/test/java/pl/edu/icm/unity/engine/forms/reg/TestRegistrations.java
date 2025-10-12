@@ -112,7 +112,7 @@ public class TestRegistrations extends RegistrationTestBase
 	{
 		RegistrationForm form = initAndCreateForm(false, null);
 		RegistrationFormBuilder builder = new RegistrationFormBuilder(form);
-		builder.withName(form.getName() + NameToURLEncoder.suffix);
+		builder.withName(form.getName() + NameToURLEncoder.ENCODED_NAME_SUFFIX);
 		
 		Throwable error = catchThrowable(() -> registrationsMan.addForm(builder.build()));
 		

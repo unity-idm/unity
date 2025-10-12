@@ -66,7 +66,7 @@ public class BaseFormValidator
 
 		if (form.getName() == null)
 			throw new IllegalArgumentException("Form name is not set.");
-		if (form.getName().endsWith(NameToURLEncoder.suffix))
+		if (form.getName().endsWith(NameToURLEncoder.ENCODED_NAME_SUFFIX))
 			throw new IllegalArgumentException("Form name contains forbidden suffix");
 		
 		if (form.getTranslationProfile() == null)
