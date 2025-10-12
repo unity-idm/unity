@@ -23,7 +23,7 @@ public class NameToURLEncoderTest
 	public void shouldEncodeUnsafeName()
 	{
 		assertThat(NameToURLEncoder.encode("/name")).isEqualTo(new String(Base64.getUrlEncoder()
-				.encode("/name".getBytes())) + NameToURLEncoder.suffix);
+				.encode("/name".getBytes())) + NameToURLEncoder.ENCODED_NAME_SUFFIX);
 	}
 	
 	@Test
@@ -36,6 +36,6 @@ public class NameToURLEncoderTest
 	public void shouldDecodeUnsafeName()
 	{
 		assertThat(NameToURLEncoder.decode(new String(Base64.getUrlEncoder()
-				.encode("/name".getBytes())) + NameToURLEncoder.suffix)).isEqualTo("/name");
+				.encode("/name".getBytes())) + NameToURLEncoder.ENCODED_NAME_SUFFIX)).isEqualTo("/name");
 	}
 }

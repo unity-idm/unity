@@ -129,7 +129,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	public void formWithForbiddenSuffixInNameCantBeAdded() throws Exception
 	{
 		EnquiryForm form = new EnquiryFormBuilder()
-				.withName("e1" + NameToURLEncoder.suffix)
+				.withName("e1" + NameToURLEncoder.ENCODED_NAME_SUFFIX)
 				.withTargetGroups(new String[] {"/"})
 				.withType(EnquiryType.REQUESTED_MANDATORY)
 				.build();
