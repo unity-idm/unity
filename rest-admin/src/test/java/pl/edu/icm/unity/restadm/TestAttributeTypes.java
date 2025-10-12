@@ -47,20 +47,12 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 
 public class TestAttributeTypes extends TestRESTBase
 {
-	private int port;
-
 	private ObjectMapper m = new ObjectMapper();
 	
 	{
 		m.enable(SerializationFeature.INDENT_OUTPUT);
 	}
 
-	@BeforeEach
-	public void setup() throws Exception
-	{
-		port = httpServer.getUrls()[0].getPort();
-	}
-	
 	@Test
 	public void testQuery() throws Exception
 	{
@@ -69,7 +61,7 @@ public class TestAttributeTypes extends TestRESTBase
 		super.deployEndpoint(RESTAdminEndpoint.NAME, 
 				"restAdmin", "/restadm");
 		createTestContents();
-		
+		int port = httpServer.getUrls()[0].getPort();
 		HttpClient client = getClient(port);
 		HttpHost host = new HttpHost("https", "localhost", port);
 		HttpGet resolve = new HttpGet("/restadm/v1/attributeTypes");
@@ -84,7 +76,7 @@ public class TestAttributeTypes extends TestRESTBase
 		createUsernameUserWithRole("System Manager");
 		super.deployEndpoint(RESTAdminEndpoint.NAME, 
 				"restAdmin", "/restadm");
-		
+		int port = httpServer.getUrls()[0].getPort();
 		HttpClient client = getClient(port);
 		HttpHost host = new HttpHost("https", "localhost", port);
 		

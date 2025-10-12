@@ -4,6 +4,17 @@
  */
 package io.imunity.vaadin.registration;
 
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.REGISTRATION_PATH;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -18,6 +29,7 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.WrappedSession;
+
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
@@ -27,18 +39,17 @@ import io.imunity.vaadin.endpoint.common.forms.RegCodeException;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
-
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.util.Strings;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.registration.*;
+import pl.edu.icm.unity.base.registration.RegistrationContext;
 import pl.edu.icm.unity.base.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.registration.RegistrationRequest;
+import pl.edu.icm.unity.base.registration.RegistrationRequestState;
+import pl.edu.icm.unity.base.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.base.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -48,14 +59,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
-
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.REGISTRATION_PATH;
+import pl.edu.icm.unity.engine.api.utils.NameToURLEncoder;
 
 @Route(value = REGISTRATION_PATH + ":" + StandaloneRegistrationView.FORM_PARAM, layout = WrappedLayout.class)
 class StandaloneRegistrationView extends UnityViewComponent implements BeforeEnterObserver
@@ -455,12 +459,12 @@ class StandaloneRegistrationView extends UnityViewComponent implements BeforeEnt
 
 	private RegistrationForm getForm(String name)
 	{
-		name = URLDecoder.decode(name, StandardCharsets.UTF_8);
+		String decodedName = NameToURLEncoder.decode(name);
 		try
 		{
 			List<RegistrationForm> forms = regMan.getForms();
 			for (RegistrationForm regForm: forms)
-				if (regForm.isPubliclyAvailable() && regForm.getName().equals(name))
+				if (regForm.isPubliclyAvailable() && regForm.getName().equals(decodedName))
 					return regForm;
 		} catch (EngineException e)
 		{

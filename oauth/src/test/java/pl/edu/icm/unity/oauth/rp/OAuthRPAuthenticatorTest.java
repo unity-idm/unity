@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import java.io.File;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -46,6 +45,7 @@ import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
@@ -65,61 +65,65 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
  */
 public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 {
-	private static final String OAUTH_ENDP_CFG_FORMAT =
-			"unity.oauth2.as.issuerUri=https://localhost:%s/oauth2\n"
-			+ "unity.oauth2.as.signingCredential=MAIN\n"
-			+ "unity.oauth2.as.clientsGroup=/oauth-clients\n"
-			+ "unity.oauth2.as.usersGroup=/oauth-users\n"
-			+ "#unity.oauth2.as.translationProfile=\n"
-			+ "unity.oauth2.as.scopes.1.name=foo\n"
-			+ "unity.oauth2.as.scopes.1.description=Provides access to foo info\n"
-			+ "unity.oauth2.as.scopes.1.attributes.1=stringA\n"
-			+ "unity.oauth2.as.scopes.1.attributes.2=o\n"
-			+ "unity.oauth2.as.scopes.1.attributes.3=email\n"
-			+ "unity.oauth2.as.scopes.2.name=bar\n"
-			+ "unity.oauth2.as.scopes.2.description=Provides access to bar info\n"
-			+ "unity.oauth2.as.scopes.2.attributes.1=c\n" 
-			+ "unity.oauth2.as.refreshTokenIssuePolicy=ALWAYS\n";
+	private static final String OAUTH_ENDP_CFG_FORMAT = """
+			unity.oauth2.as.issuerUri=https://localhost:%s/oauth2
+			unity.oauth2.as.signingCredential=MAIN
+			unity.oauth2.as.clientsGroup=/oauth-clients
+			unity.oauth2.as.usersGroup=/oauth-users
+			#unity.oauth2.as.translationProfile=
+			unity.oauth2.as.scopes.1.name=foo
+			unity.oauth2.as.scopes.1.description=Provides access to foo info
+			unity.oauth2.as.scopes.1.attributes.1=stringA
+			unity.oauth2.as.scopes.1.attributes.2=o
+			unity.oauth2.as.scopes.1.attributes.3=email
+			unity.oauth2.as.scopes.2.name=bar
+			unity.oauth2.as.scopes.2.description=Provides access to bar info
+			unity.oauth2.as.scopes.2.attributes.1=c
+			unity.oauth2.as.refreshTokenIssuePolicy=ALWAYS
+			""";
 
-	private static final String OAUTH_RP_CFG_FORMAT =
-			"unity.oauth2-rp.profileEndpoint=https://localhost:%s/oauth/userinfo\n"
-			+ "unity.oauth2-rp.cacheTime=20\n"
-			+ "unity.oauth2-rp.verificationProtocol=unity\n"
-			+ "unity.oauth2-rp.verificationEndpoint=https://localhost:%s/oauth/tokeninfo\n"
-			+ "unity.oauth2-rp.clientId=\n"
-			+ "unity.oauth2-rp.clientSecret=\n"
-			+ "#unity.oauth2-rp.clientAuthenticationMode=\n"
-			+ "unity.oauth2-rp.opeinidConnectMode=false\n"
-			+ "unity.oauth2-rp.httpClientTruststore=MAIN\n"
-			+ "unity.oauth2-rp.httpClientHostnameChecking=NONE\n"
-			+ "unity.oauth2-rp.translationProfile=tr-oauth\n";
+	private static final String OAUTH_RP_CFG_FORMAT = """
+			unity.oauth2-rp.profileEndpoint=https://localhost:%s/oauth/userinfo
+			unity.oauth2-rp.cacheTime=20
+			unity.oauth2-rp.verificationProtocol=unity
+			unity.oauth2-rp.verificationEndpoint=https://localhost:%s/oauth/tokeninfo
+			unity.oauth2-rp.clientId=
+			unity.oauth2-rp.clientSecret=
+			#unity.oauth2-rp.clientAuthenticationMode=
+			unity.oauth2-rp.opeinidConnectMode=false
+			unity.oauth2-rp.httpClientTruststore=MAIN
+			unity.oauth2-rp.httpClientHostnameChecking=NONE
+			unity.oauth2-rp.translationProfile=tr-oauth
+			""";
 
-	private static final String OAUTH_RP_CFG_INTERNAL_FORMAT =
-			"#unity.oauth2-rp.profileEndpoint=https://localhost:%s/oauth/userinfo\n"
-			+ "unity.oauth2-rp.cacheTime=2\n"
-			+ "unity.oauth2-rp.verificationProtocol=internal\n"
-			+ "#unity.oauth2-rp.verificationEndpoint=https://localhost:%s/oauth/tokeninfo\n"
-			+ "unity.oauth2-rp.clientId=\n"
-			+ "unity.oauth2-rp.clientSecret=\n"
-			+ "#unity.oauth2-rp.clientAuthenticationMode=\n"
-			+ "unity.oauth2-rp.requiredScopes.1=sc1\n"
-			+ "unity.oauth2-rp.opeinidConnectMode=true\n"
-			+ "unity.oauth2-rp.httpClientTruststore=MAIN\n"
-			+ "unity.oauth2-rp.httpClientHostnameChecking=NONE\n"
-			+ "unity.oauth2-rp.translationProfile=tr-oauth\n";
+	private static final String OAUTH_RP_CFG_INTERNAL_FORMAT = """
+			#unity.oauth2-rp.profileEndpoint=https://localhost:%s/oauth/userinfo
+			unity.oauth2-rp.cacheTime=2
+			unity.oauth2-rp.verificationProtocol=internal
+			#unity.oauth2-rp.verificationEndpoint=https://localhost:%s/oauth/tokeninfo
+			unity.oauth2-rp.clientId=
+			unity.oauth2-rp.clientSecret=
+			#unity.oauth2-rp.clientAuthenticationMode=
+			unity.oauth2-rp.requiredScopes.1=sc1
+			unity.oauth2-rp.opeinidConnectMode=true
+			unity.oauth2-rp.httpClientTruststore=MAIN
+			unity.oauth2-rp.httpClientHostnameChecking=NONE
+			unity.oauth2-rp.translationProfile=tr-oauth
+			""";
 
-	private static final String OAUTH_RP_CFG_MITRE = 
-			"unity.oauth2-rp.profileEndpoint=https://mitreid.org/userinfo\n"
-			+ "unity.oauth2-rp.cacheTime=20\n"
-			+ "unity.oauth2-rp.verificationProtocol=mitre\n"
-			+ "unity.oauth2-rp.verificationEndpoint=https://mitreid.org/introspect\n"
-			+ "unity.oauth2-rp.clientId=unity\n"
-			+ "unity.oauth2-rp.clientSecret=unity-pass\n"
-			+ "#unity.oauth2-rp.clientAuthenticationMode=\n"
-			+ "unity.oauth2-rp.opeinidConnectMode=false\n"
-			+ "#unity.oauth2-rp.httpClientTruststore=MAIN\n"
-			+ "unity.oauth2-rp.httpClientHostnameChecking=NONE\n"
-			+ "unity.oauth2-rp.translationProfile=tr-oauth\n";
+	private static final String OAUTH_RP_CFG_MITRE = """
+			unity.oauth2-rp.profileEndpoint=https://mitreid.org/userinfo
+			unity.oauth2-rp.cacheTime=20
+			unity.oauth2-rp.verificationProtocol=mitre
+			unity.oauth2-rp.verificationEndpoint=https://mitreid.org/introspect
+			unity.oauth2-rp.clientId=unity
+			unity.oauth2-rp.clientSecret=unity-pass
+			#unity.oauth2-rp.clientAuthenticationMode=
+			unity.oauth2-rp.opeinidConnectMode=false
+			#unity.oauth2-rp.httpClientTruststore=MAIN
+			unity.oauth2-rp.httpClientHostnameChecking=NONE
+			unity.oauth2-rp.translationProfile=tr-oauth
+			""";
 
 	
 	private static final String JWT_ENDP_CFG = 
@@ -220,7 +224,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 				OAuthTestUtils.getOAuthProcessor(tokensMan));
 		AccessToken ac = resp1.getAccessToken();
 		
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(endpoint));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(endpoint));
 		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true), 
 				ServerHostnameCheckingMode.NONE);
@@ -233,8 +237,8 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	public void OauthRPAuthnWorksWithMitre() throws Exception
 	{
 		AccessToken ac = new BearerAccessToken("----FILL-ME-----");
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, 
-				new URL(getBaseUrl() + "/jwt-mitre/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET,
+				URLFactory.of(getBaseUrl() + "/jwt-mitre/token"));
 		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true), 
 				ServerHostnameCheckingMode.NONE);
@@ -257,8 +261,6 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	/**
 	 * Authentication is performed normally. Then the token is removed and the authN is repeated 
 	 * - cached results should be used. Tests wait for cache expiration and repeats authN once more - should fail.
-	 * 
-	 * @throws Exception
 	 */
 	@Test
 	public void OauthRPAuthnWithCache() throws Exception
@@ -268,7 +270,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 				OAuthTestUtils.getOAuthProcessor(tokensMan));
 		AccessToken ac = resp1.getAccessToken();
 		
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(getBaseUrl() + "/jwt-int/token"));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
 		httpReqRaw.setAuthorization(ac.toAuthorizationHeader());
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true), 
 				ServerHostnameCheckingMode.NONE);

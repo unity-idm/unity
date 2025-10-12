@@ -39,7 +39,6 @@ import io.imunity.vaadin.endpoint.common.EopException;
 import io.imunity.vaadin.endpoint.common.LanguageCookie;
 import io.imunity.vaadin.endpoint.common.QueryBuilder;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -106,14 +105,14 @@ public class OAuthParseServlet extends HttpServlet
 	 * GET handling
 	 */
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		log.trace("Received GET request to the OAuth2 authorization endpoint");
 		processRequest(request, response);
 	}
 
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException
+			throws IOException
 	{
 		try
 		{
@@ -137,7 +136,7 @@ public class OAuthParseServlet extends HttpServlet
 	}
 
 	protected void processRequestInterruptible(HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException, EopException
+			throws IOException, EopException
 	{
 		log.trace("Starting OAuth2 authorization request processing");
 		AuthorizationRequest authzRequest;
@@ -150,7 +149,7 @@ public class OAuthParseServlet extends HttpServlet
 			if (log.isTraceEnabled())
 			{
 				log.trace("Request to OAuth2 endpoint address, " + "with invalid/missing parameters, error: "
-						+ e.toString());
+						+ e);
 			}
 			errorHandler.showErrorPage("Error parsing OAuth request parameters", e.getMessage(), response);
 			return;
@@ -164,7 +163,7 @@ public class OAuthParseServlet extends HttpServlet
 			if (log.isTraceEnabled())
 			{
 				log.trace("Request to OAuth2 endpoint address, which is not OIDC request, "
-						+ "will try plain OAuth. OIDC parse error: " + e.toString());
+						+ "will try plain OAuth. OIDC parse error: " + e);
 			}
 			try
 			{
@@ -173,7 +172,7 @@ public class OAuthParseServlet extends HttpServlet
 				if (requestedScopes != null && requestedScopes.contains(OIDCScopeValue.OPENID))
 				{
 					log.warn("Request to OAuth2 endpoint address, which is not OIDC request, "
-							+ "but OIDC profile requested. OIDC parse error: " + e.toString());
+							+ "but OIDC profile requested. OIDC parse error: " + e);
 					errorHandler.showErrorPage("Error parsing OAuth OIDC request", e.getMessage(), response);
 					return;
 				}
@@ -182,7 +181,7 @@ public class OAuthParseServlet extends HttpServlet
 				if (log.isTraceEnabled())
 				{
 					log.trace("Request to OAuth2 endpoint address, " + "with invalid/missing parameters, error: "
-							+ e.toString());
+							+ e);
 				}
 				errorHandler.showErrorPage("Error parsing OAuth request", e.getMessage(), response);
 				return;
@@ -277,7 +276,7 @@ public class OAuthParseServlet extends HttpServlet
 	{
 		for (Locale langTag : requestedLocales)
 		{
-			Locale onlyLang = new Locale(langTag.getLanguage());
+			Locale onlyLang = Locale.forLanguageTag(langTag.getLanguage());
 			if (serverConfig.isLocaleSupported(onlyLang))
 			{
 				return Optional.of(onlyLang);

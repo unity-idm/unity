@@ -19,6 +19,8 @@ import java.util.stream.StreamSupport;
 
 import static java.util.Arrays.stream;
 
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
+
 public abstract class CustomResourceProvider implements ResourceProvider
 {
 	private final Map<String, CachedStreamData> cache = new ConcurrentHashMap<>();
@@ -47,7 +49,7 @@ public abstract class CustomResourceProvider implements ResourceProvider
 		URL url;
 		try
 		{
-			url = new URL(vale);
+			url = URLFactory.of(vale);
 		} catch (MalformedURLException e)
 		{
 			throw new RuntimeException("Occurred during preparation jar's paths for jetty", e);
