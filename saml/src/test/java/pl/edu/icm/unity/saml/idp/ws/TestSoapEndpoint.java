@@ -124,7 +124,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		
 		assertThat(error).isInstanceOf(WebServiceException.class)
 			.hasCauseInstanceOf(SoapFault.class)
-			.hasRootCauseMessage("Invalid user name, credential or external authentication failed. ");
+			.hasRootCauseMessage("Authentication failed");
 	}
 	
 	@Test

@@ -23,6 +23,7 @@ import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -82,7 +83,6 @@ public class AccessTokenLocalVerificator extends AbstractVerificator implements 
 			Properties properties = new Properties();
 			properties.load(new StringReader(config));
 			verificatorProperties = new LocalOAuthRPProperties(properties);
-
 		} catch (ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the Local OAuth RP verificator", e);
@@ -112,7 +112,7 @@ public class AccessTokenLocalVerificator extends AbstractVerificator implements 
 			log.debug("HTTP Bearer access token verification result: {}", tokenVerificationResult.result.getStatus());
 			return tokenVerificationResult.result;
 		}
-		updateInvocationContext(tokenVerificationResult.token.get());
+		updateInvocationContext(tokenVerificationResult.token);
 		return tokenVerificationResult.result;
 	}
 	

@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
@@ -21,6 +22,7 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.http.HttpStatus;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -75,13 +77,15 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	protected final Set<String> optionalAuthnPaths;
 	private Properties endpointProperties;
 	private final EntityManagement entityMan;
+	private final Function<Optional<Exception>, Fault> authenticationFaultGenerator;
 	
 	public AuthenticationInterceptor(MessageSource msg, AuthenticationProcessor authenticationProcessor, 
 			List<AuthenticationFlow> authenticators,
 			AuthenticationRealm realm, SessionManagement sessionManagement, 
 			Set<String> notProtectedPaths,
 			Set<String> optionalAuthnPaths,
-			Properties endpointProperties, EntityManagement entityMan)
+			Properties endpointProperties, EntityManagement entityMan,
+			Function<Optional<Exception>, Fault> authenticationFaultGenerator)
 	{
 		super(Phase.PRE_INVOKE);
 		this.msg = msg;
@@ -95,6 +99,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		this.sessionMan = sessionManagement;
 		this.notProtectedPaths = ImmutableSet.copyOf(notProtectedPaths);
 		this.optionalAuthnPaths = ImmutableSet.copyOf(optionalAuthnPaths);
+		this.authenticationFaultGenerator = authenticationFaultGenerator;
 	}
 
 	@Override
@@ -151,7 +156,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			{
 				log.info("Authentication failed for client");
 				UnsuccessfulAuthenticationCounterImpl.unsuccessfulAttempt(ip);
-				throw new Fault(authenticationError == null ? new Exception("Authentication failed") : authenticationError);
+				throw authenticationFaultGenerator.apply(Optional.ofNullable(authenticationError));
 			}
 		} else
 		{

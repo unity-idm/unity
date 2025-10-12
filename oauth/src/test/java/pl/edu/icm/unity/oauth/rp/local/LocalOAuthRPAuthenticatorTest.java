@@ -136,7 +136,7 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		AccessToken ac = resp1.getAccessToken();
 
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
-		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50QTpwYXNzd29yZA==");
+		httpReqRaw.setAuthorization("Bearer " + ac.getValue());
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
@@ -145,35 +145,21 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void shouldFailWhenOnlyClientCredential() throws Exception
+	public void shouldFailToAuthenticateViaLocalOAuthRPWithInvalidToken() throws Exception
 	{
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
-		httpReqRaw.setAuthorization("Basic Y2xpZW50QTpwYXNzd29yZA==");
-
-		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
-				ServerHostnameCheckingMode.NONE);
-		HTTPResponse response = httpReq.send();
-		assertEquals(500, response.getStatusCode());
-	}
-	
-	@Test
-	public void shouldFailWhenClientNotMatchToToken() throws Exception
-	{
-		createUsernameUser("client2", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE, "client2", CRED_REQ_PASS);
-
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(),
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
 		AccessToken ac = resp1.getAccessToken();
 
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
-		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50MjpjbGllbnQy");
+		httpReqRaw.setAuthorization("Bearer " + ac.getValue()+"modified");
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
-		assertEquals(500, response.getStatusCode());
+		assertEquals(403, response.getStatusCode());
 	}
-	
+
 	private String getBaseUrl()
 	{
 		return "https://localhost:" + port;
