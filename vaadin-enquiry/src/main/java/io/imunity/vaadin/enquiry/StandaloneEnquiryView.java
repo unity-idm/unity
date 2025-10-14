@@ -9,8 +9,6 @@ import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyConte
 import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.SEC_ENQUIRY_PATH;
 import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQUIRY_PATH;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -572,7 +570,7 @@ class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObs
 		VerticalLayout layout = new VerticalLayout(
 				new LinkButton(
 						buttonTxt,
-						e -> authnProcessor.logout(true, SEC_ENQUIRY_PATH + URLEncoder.encode(form.getName(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
+						e -> authnProcessor.logout(true, SEC_ENQUIRY_PATH + NameToURLEncoder.encode(form.getName()))
 				)
 		);
 		layout.setAlignItems(FlexComponent.Alignment.END);
