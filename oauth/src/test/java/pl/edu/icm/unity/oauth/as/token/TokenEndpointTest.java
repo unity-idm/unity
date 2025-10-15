@@ -75,7 +75,7 @@ public class TokenEndpointTest extends TokenTestBase
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
-		TokenRequest request = new TokenRequest.Builder(new URI("https://localhost:52443/oauth/token"), ca,
+		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
 						.build();
 		
@@ -103,7 +103,7 @@ public class TokenEndpointTest extends TokenTestBase
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("wrong"));
-		TokenRequest request = new TokenRequest.Builder(new URI("https://localhost:52443/oauth/token"), ca,
+		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
 						.build();
 		HTTPRequest bare = request.toHTTPRequest();
@@ -122,7 +122,7 @@ public class TokenEndpointTest extends TokenTestBase
 				GrantFlow.authorizationCode, clientId1.getEntityId());
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx);	
-		TokenRequest request = new TokenRequest.Builder(new URI("https://localhost:52443/oauth/token"), new ClientID("client1"),
+		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), new ClientID("client1"),
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
 						.build();
 		HTTPRequest bare = request.toHTTPRequest();
@@ -144,7 +144,7 @@ public class TokenEndpointTest extends TokenTestBase
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
-		TokenRequest request = new TokenRequest.Builder(new URI("https://localhost:52443/oauth/token"), ca,
+		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
 						.build();	
 		HTTPRequest bare = request.toHTTPRequest();
@@ -156,7 +156,7 @@ public class TokenEndpointTest extends TokenTestBase
 		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
 
 		UserInfoRequest uiRequest = new UserInfoRequest(
-				new URI("https://localhost:52443/oauth/userinfo"),
+				new URI(getUserInfoUrl()),
 				(BearerAccessToken) parsedResp.getTokens().getAccessToken());
 		HTTPRequest bare2 = uiRequest.toHTTPRequest();
 		HTTPRequest wrapped2 = new HttpRequestConfigurer().secureRequest(bare2, pkiMan.getValidator("MAIN"),
@@ -182,7 +182,7 @@ public class TokenEndpointTest extends TokenTestBase
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
-		TokenRequest request = new TokenRequest.Builder(new URI("https://localhost:52443/oauth/token"), ca,
+		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
 						.build();	
 		HTTPRequest bare = request.toHTTPRequest();
@@ -202,7 +202,7 @@ public class TokenEndpointTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		TokenRequest request = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca,
+				new URI(getOauthUrl("/oauth/token")), ca,
 				new ClientCredentialsGrant(), new Scope("foo"));
 		HTTPRequest bare = request.toHTTPRequest();
 		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
@@ -224,7 +224,7 @@ public class TokenEndpointTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		TokenRequest request = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca,
+				new URI(getOauthUrl("/oauth/token")), ca,
 				new ClientCredentialsGrant(), new Scope("foo"));
 		HTTPRequest bare = request.toHTTPRequest();
 		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
@@ -248,7 +248,7 @@ public class TokenEndpointTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		TokenRequest request = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca,
+				new URI(getOauthUrl("/oauth/token")), ca,
 				new ClientCredentialsGrant(), new Scope("foo"));
 		HTTPRequest bare = request.toHTTPRequest();
 		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
@@ -272,7 +272,7 @@ public class TokenEndpointTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 		TokenRequest request = new TokenRequest(
-				new URI("https://localhost:52443/oauth/token"), ca,
+				new URI(getOauthUrl("/oauth/token")), ca,
 				new ClientCredentialsGrant(), new Scope("foo", "missing"));
 		HTTPRequest bare = request.toHTTPRequest();
 		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
@@ -285,5 +285,10 @@ public class TokenEndpointTest extends TokenTestBase
 		assertThat(accessToken.getScope()).isNotNull();
 		assertThat(accessToken.getScope().contains("foo")).isEqualTo(true);
 		assertThat(accessToken.getScope().size()).isEqualTo(1);
+	}
+
+	private String getUserInfoUrl()
+	{
+		return getOauthUrl("/oauth/userinfo");
 	}
 }

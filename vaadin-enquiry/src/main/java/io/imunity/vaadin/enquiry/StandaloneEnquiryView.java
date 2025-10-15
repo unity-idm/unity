@@ -5,6 +5,22 @@
 
 package io.imunity.vaadin.enquiry;
 
+import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER;
+import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.SEC_ENQUIRY_PATH;
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQUIRY_PATH;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -19,18 +35,22 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
-import io.imunity.vaadin.endpoint.common.forms.*;
+import io.imunity.vaadin.endpoint.common.forms.InvitationResolver;
+import io.imunity.vaadin.endpoint.common.forms.PrefilledSet;
+import io.imunity.vaadin.endpoint.common.forms.RegCodeException;
 import io.imunity.vaadin.endpoint.common.forms.RegCodeException.ErrorCause;
+import io.imunity.vaadin.endpoint.common.forms.ResolvedInvitationParam;
+import io.imunity.vaadin.endpoint.common.forms.URLQueryPrefillCreator;
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import io.imunity.vaadin.endpoint.common.forms.components.GetRegistrationCodeDialog;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
 import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
 import jakarta.annotation.security.PermitAll;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -53,16 +73,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedPrincipal;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
-
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.Map.Entry;
-
-import static com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode.CENTER;
-import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.SEC_ENQUIRY_PATH;
-import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQUIRY_PATH;
+import pl.edu.icm.unity.engine.api.utils.NameToURLEncoder;
 
 @PermitAll
 @RouteAlias(value = SEC_ENQUIRY_PATH + ":" + StandaloneEnquiryView.FORM_PARAM, layout = WrappedLayout.class)
@@ -151,10 +162,10 @@ class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObs
 
 	private EnquiryForm getForm(String name)
 	{
-		name = URLDecoder.decode(name, StandardCharsets.UTF_8);
+		String nameDecoded = NameToURLEncoder.decode(name);
 		try
 		{
-			return enqMan.getEnquiry(name);
+			return enqMan.getEnquiry(nameDecoded);
 		} catch (EngineException e)
 		{
 			log.error("Can't load registration forms", e);
@@ -559,7 +570,7 @@ class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObs
 		VerticalLayout layout = new VerticalLayout(
 				new LinkButton(
 						buttonTxt,
-						e -> authnProcessor.logout(true, SEC_ENQUIRY_PATH + URLEncoder.encode(form.getName(), StandardCharsets.UTF_8).replaceAll("\\+", "%20"))
+						e -> authnProcessor.logout(true, SEC_ENQUIRY_PATH + NameToURLEncoder.encode(form.getName()))
 				)
 		);
 		layout.setAlignItems(FlexComponent.Alignment.END);

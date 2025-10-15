@@ -4,8 +4,14 @@
  */
 package pl.edu.icm.unity.test.headlessui.reg;
 
+import static java.lang.invoke.MethodHandles.lookup;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
 
 import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
 
@@ -36,25 +42,23 @@ public class TestAccountAssociation extends SeleniumTestBase
 		
 		//go back to the main window and complete wizard
 		driver.switchTo().window(cwh);
-		waitForPageLoad(By.id("Wizard.finish")).click();
-		waitForPageLoad(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']")).click();
+		WebElement finishButton = waitForElement(By.id("Wizard.finish"));
+		((JavascriptExecutor)driver).executeScript("arguments[0].click();", finishButton);
+
+		waitForElementNotPresent(By.id("overlay"));
+		waitForElement(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']")).click();
 	}
 	
 	private String waitForPopup() throws InterruptedException
 	{
 		String cwh = driver.getWindowHandle();
 		waitForElement(By.id("Wizard.next")).click();
-		int i=0;
-		while (driver.getWindowHandles().size() == 1 && i <= WAIT_TIME_S)
-		{
-			Thread.sleep(SLEEP_TIME_MS);
-			i+=SLEEP_TIME_MS;
-		}
+		waitFor(() -> driver.getWindowHandles().size() > 1);
 		for (String h: driver.getWindowHandles())
 		{
 			if (!h.equals(cwh))
 				return h;
 		}
-		throw new IllegalStateException("Popup closed immediatly");
+		throw new IllegalStateException("Popup closed immediately");
 	}
 }

@@ -91,7 +91,8 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	private AuthenticatorManagement authnMan;
 	@Autowired
 	private AuthenticationFlowManagement authnFlowMan;
-	
+
+	protected int port;
 	
 	@BeforeEach
 	public void setup() throws Exception
@@ -113,6 +114,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		assertEquals(1, endpoints.size());
 
 		httpServer.start();
+		port = httpServer.getUrls()[0].getPort();
 	}
 	
 	private TranslationProfile createOutputProfile() throws IllegalTypeException, EngineException
@@ -227,5 +229,10 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		
 		authnMan.createAuthenticator("Apass", "password", "", "credential1");
 		authnMan.createAuthenticator("Acert", "certificate", "", "credential2");
+	}
+
+	protected String getServerUrl()
+	{
+		return "https://localhost:" + port;
 	}
 }

@@ -65,7 +65,7 @@ Please check documentation of the 3.x version. Below we are only focused on Unit
 
 ===== Java platform requirement
 
-The minimum Java version required to run Unity 4.0.0 is Java 17.
+The minimum Java version required to run Unity 4.0.0 is Java 21.
 
 
 ===== Custom styling and branding

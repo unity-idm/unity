@@ -13,6 +13,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -294,6 +295,15 @@ public class SAMLEditorGeneralTab extends VerticalLayout implements ServiceEdito
 		configBinder.forField(returnSingleAssertion)
 				.bind(SAMLServiceConfiguration::isReturnSingleAssertion, SAMLServiceConfiguration::setReturnSingleAssertion);
 		advancedLayout.addFormItem(returnSingleAssertion, "");
+
+		Checkbox ignoreAttrConsumingIdx = new Checkbox(
+				msg.getMessage("SAMLEditorGeneralTab.ignoreAttributeConsumingServiceIndex"));
+		configBinder.forField(ignoreAttrConsumingIdx)
+				.bind(SAMLServiceConfiguration::isIgnoreAttributeConsumingServiceIndex,
+						SAMLServiceConfiguration::setIgnoreAttributeConsumingServiceIndex);
+		FormItem ignoreAttrConsumingIdxItem = advancedLayout.addFormItem(ignoreAttrConsumingIdx, "");
+		ignoreAttrConsumingIdxItem.add(htmlTooltipFactory.get(
+				msg.getMessage("SAMLEditorGeneralTab.ignoreAttributeConsumingServiceIndexDesc")));
 
 		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("SAMLEditorGeneralTab.advanced"),
 				advancedLayout);

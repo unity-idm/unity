@@ -24,9 +24,11 @@ public class WebAuthRequestValidator extends UnityAuthnRequestValidator
 {
 
 	public WebAuthRequestValidator(String consumerEndpointUri, SamlTrustChecker trustChecker,
-	                               Duration requestValidity, ReplayAttackChecker replayChecker)
+	                               Duration requestValidity, ReplayAttackChecker replayChecker,
+	                               boolean ignoreAttributeConsumingServiceIndex)
 	{
-		super(consumerEndpointUri, trustChecker, requestValidity, replayChecker);
+		super(consumerEndpointUri, trustChecker, requestValidity, replayChecker,
+				ignoreAttributeConsumingServiceIndex);
 	}
 
 	@Override

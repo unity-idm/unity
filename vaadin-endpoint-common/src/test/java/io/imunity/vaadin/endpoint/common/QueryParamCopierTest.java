@@ -9,10 +9,11 @@ package io.imunity.vaadin.endpoint.common;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 
 public class QueryParamCopierTest
 {
@@ -20,15 +21,15 @@ public class QueryParamCopierTest
 	void shouldPresaveQueryParamFromDestination() throws MalformedURLException, URISyntaxException
 	{
 		URI uriWithParams = QueryParamCopier.copyParam("https://destination.com?param1=val1",
-				new URL("https://current.com?param2=val2"));
-		Assertions.assertEquals(uriWithParams.toString(), "https://destination.com?param1=val1&param2=val2");
+				URLFactory.of("https://current.com?param2=val2"));
+		Assertions.assertEquals("https://destination.com?param1=val1&param2=val2", uriWithParams.toString());
 	}
 
 	@Test
 	void shouldSetQueryParamFromCurrentUrl() throws MalformedURLException, URISyntaxException
 	{
 		URI uriWithParams = QueryParamCopier.copyParam("https://destination.com",
-				new URL("https://current.com?param1=val1"));
-		Assertions.assertEquals(uriWithParams.toString(), "https://destination.com?param1=val1");
+				URLFactory.of("https://current.com?param1=val1"));
+		Assertions.assertEquals("https://destination.com?param1=val1", uriWithParams.toString());
 	}
 }

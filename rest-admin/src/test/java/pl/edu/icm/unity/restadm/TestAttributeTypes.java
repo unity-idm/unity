@@ -23,6 +23,7 @@ import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.entity.StringEntity;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,13 +47,12 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 
 public class TestAttributeTypes extends TestRESTBase
 {
-	
 	private ObjectMapper m = new ObjectMapper();
 	
 	{
 		m.enable(SerializationFeature.INDENT_OUTPUT);
 	}
-	
+
 	@Test
 	public void testQuery() throws Exception
 	{
@@ -61,9 +61,9 @@ public class TestAttributeTypes extends TestRESTBase
 		super.deployEndpoint(RESTAdminEndpoint.NAME, 
 				"restAdmin", "/restadm");
 		createTestContents();
-		
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		int port = httpServer.getUrls()[0].getPort();
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		HttpGet resolve = new HttpGet("/restadm/v1/attributeTypes");
 		String contents = client.execute(host, resolve, getClientContext(host), new BasicHttpClientResponseHandler());
 		System.out.println("Attribute types:\n" + formatJson(contents));
@@ -76,9 +76,9 @@ public class TestAttributeTypes extends TestRESTBase
 		createUsernameUserWithRole("System Manager");
 		super.deployEndpoint(RESTAdminEndpoint.NAME, 
 				"restAdmin", "/restadm");
-		
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("https", "localhost", 53456);
+		int port = httpServer.getUrls()[0].getPort();
+		HttpClient client = getClient(port);
+		HttpHost host = new HttpHost("https", "localhost", port);
 		
 		HttpPost addAT = new HttpPost("/restadm/v1/attributeType");
 		

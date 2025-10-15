@@ -93,7 +93,7 @@ endpoint of a remote AS.
 . If the token is valid then another query to a profile endpoint at the OAuth AS is performed,
 to obtain information about the user initiated token generation. 
 
-Of course Unity supports caching the verification results.
+Of course, Unity supports caching the verification results.
 
 [IMPORTANT]
 The current implementation authenticates the client in somewhat simplistic way: as the

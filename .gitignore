@@ -5,3 +5,6 @@ target/
 .idea/
 integration-tests/debug.log
 /.run/TstServer.run.xml
+GEMINI.md
+/.agents/plans/
+CLAUDE.md

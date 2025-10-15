@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
@@ -28,7 +29,6 @@ import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.config.OrcidProviderProperties;
 
 import java.net.URI;
-import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -101,14 +101,14 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 			AccessToken clientAccessToken) throws Exception
 	{
 		String userid = attributesSoFar.get("orcid") == null ? null
-				: attributesSoFar.get("orcid").get(0);
+				: attributesSoFar.get("orcid").getFirst();
 		
 		if (userid == null)
 			throw new AuthenticationException("Authentication was successful "
 					+ "but the orcid id is missing in the received access token");
 		
 		String userBioEndpoint = bioEndpointBase + userid;
-		HTTPRequest httpReq = new HTTPRequest(Method.GET, new URL(userBioEndpoint));
+		HTTPRequest httpReq = new HTTPRequest(Method.GET, URLFactory.of(userBioEndpoint));
 		new HttpRequestConfigurer().secureRequest(httpReq, providerConfig.getValidator(), checkingMode);
 		httpReq.setAuthorization(clientAccessToken.toAuthorizationHeader());
 		httpReq.setAccept(org.apache.hc.core5.http.ContentType.APPLICATION_JSON.getMimeType());

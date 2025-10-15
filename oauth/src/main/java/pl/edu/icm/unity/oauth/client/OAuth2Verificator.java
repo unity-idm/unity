@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.client;
 
+import static pl.edu.icm.unity.oauth.client.URLObfuscator.obfuscateURLParams;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -377,17 +379,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
 			httpRequest.setAccept(MediaType.APPLICATION_JSON);
 		
-		if (log.isTraceEnabled())
-		{
-			String notSecretQuery = httpRequest.getURL().getQuery().replaceFirst(
-					"client_secret=[^&]*", "client_secret=xxxxxx");
-			log.trace("Exchanging authorization code for access token with request to: " + 
-					httpRequest.getURL() + "?" + notSecretQuery);
-		} else if (log.isDebugEnabled())
-		{
-			log.debug("Exchanging authorization code for access token with request to: " + 
-					httpRequest.getURL());
-		}
+		log.debug("Exchanging authorization code for access token with request to: {}",
+					obfuscateURLParams(httpRequest.getURL()));
 		HTTPResponse response = httpRequest.send();
 		
 		log.debug("Received answer: {}", response.getStatusCode());
@@ -399,8 +392,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 					.orElse(null));
 		return response;
 	}
-	
-	private ClientAuthentication getClientAuthentication(String clientId, String clientSecret, 
+
+	private ClientAuthentication getClientAuthentication(String clientId, String clientSecret,
 			ClientAuthnMode mode)
 	{
 		switch (mode)

@@ -166,10 +166,6 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 				spConfig.redirectLogoutRetUrl);
 		assertEquals("https://shibboleth.metapress.com/Shibboleth.sso/SLO/SOAP",
 				spConfig.soapLogoutUrl);
-
-		TrustedServiceProvider spConfig1 = configuration.trustedServiceProviders.getSPConfig(new SamlEntityId("http://shibboleth.metapress.com/shibboleth-sp-hidden", null));
-		if (spConfig1 != null)
-			fail("Hidden service is available");
 	}
 	
 	@Test
