@@ -14,6 +14,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>unity-rest-api</artifactId>
+    <name>UNITY Server ${m.name} module</name>
+    <properties>
+        <m.name>rest-api</m.name>
+    </properties>
 
     <scm>
         <connection>${scm.base}/${m.name}</connection>
