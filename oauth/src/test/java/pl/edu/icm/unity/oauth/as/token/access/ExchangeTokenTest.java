@@ -129,7 +129,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		assertThat(parsed.get("sub")).isEqualTo("userA");
 		assertThat(parsed.get("client_id")).isEqualTo("client2");
 		assertThat(parsed.get("aud")).isEqualTo("client2");
-		assertThat(((JSONArray) parsed.get("scope")).get(0)).isEqualTo("foo");
+		assertThat(((JSONArray) parsed.get("scope"))).contains("openid", "foo", "bar");
 		assertThat(parsed.get("exp")).isNotNull();
 	}
 	
