@@ -79,6 +79,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String SCOPE_DESCRIPTION = "description";
 	public static final String SCOPE_NAME = "name";
 	public static final String SCOPE_ENABLED = "enabled";
+	public static final String SCOPE_IS_WILDCARD = "isWildcard";
+
 
 	public static final String TRUSTED_UPSTREAM_AS = "trustedUpstreamAS.";
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_ID = "clientId";
@@ -164,6 +166,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("Name of the scope as used in OAuth protocol."));
 		defaults.put(SCOPE_ENABLED, new PropertyMD("true").setStructuredListEntry(SCOPES)
 				.setDescription("Indicates whether the scope is available."));
+		defaults.put(SCOPE_IS_WILDCARD, new PropertyMD("false").setStructuredListEntry(SCOPES)
+				.setDescription("Indicates whether the scope is wildcard."));
 		defaults.put(SCOPE_DESCRIPTION, new PropertyMD().setStructuredListEntry(SCOPES)
 				.setDescription("Human readable description of the scope meaning."));
 		defaults.put(SCOPE_ATTRIBUTES, new PropertyMD().setStructuredListEntry(SCOPES)

@@ -576,10 +576,15 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 				.setResizable(true)
 				.setAutoWidth(true)
 				.setFlexGrow(0);
+		scopesGrid.addCheckboxColumn(OAuthScopeBean::isWildcard)
+				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scopeIsWildcard"))
+				.setResizable(true)
+				.setAutoWidth(true)
+				.setFlexGrow(0);
 		scopesGrid.addTextColumn(OAuthScopeBean::getDescription)
 				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scopeDescription"))
 				.setResizable(true)
-				.setAutoWidth(true);
+				.setWidth("30em");
 		scopesGrid
 				.addTextColumn(s -> s.getAttributes() != null ? String.join(",", s.getAttributes()) : "")
 				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scopeAttributes"))
@@ -763,6 +768,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		private final MultiSelectComboBox<String> attributes;
 		private boolean blockedEdit = false;
 		private final Checkbox enable;
+		private final Checkbox wildcard;
 		private final List<String> systemScopes;
 
 		public ScopeEditor(MessageSource msg, List<String> attrTypes, List<String> systemScopes)
@@ -786,8 +792,12 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 					})
 					.bind("name");
 			enable = new Checkbox(msg.getMessage("OAuthEditorGeneralTab.scopeEnabled"));
+			wildcard = new Checkbox(msg.getMessage("OAuthEditorGeneralTab.scopeIsWildcard"));
+
 			binder.forField(enable)
 					.bind("enabled");
+			binder.forField(wildcard)
+					.bind("wildcard");
 
 			TextField desc = new TextField();
 			desc.setWidthFull();
@@ -806,6 +816,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 			main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 			main.addFormItem(name, msg.getMessage("OAuthEditorGeneralTab.scopeName") + ":");
 			main.addFormItem(enable, "");
+			main.addFormItem(wildcard, "");
 			main.addFormItem(desc, msg.getMessage("OAuthEditorGeneralTab.scopeDescription") + ":");
 			main.addFormItem(attributes, msg.getMessage("OAuthEditorGeneralTab.scopeAttributes") + ":");
 			add(main);
@@ -833,6 +844,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 							.contains(value.getName());
 			boolean fullBlock = value != null && value.getName() != null && systemScopes.contains(value.getName());
 			enable.setReadOnly(enableDisableblock);
+			wildcard.setReadOnly(fullBlock);
 			name.setReadOnly(fullBlock);
 			attributes.setEnabled(!fullBlock);
 			blockedEdit = fullBlock || enableDisableblock;
