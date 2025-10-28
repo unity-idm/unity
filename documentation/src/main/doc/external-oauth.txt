@@ -66,6 +66,9 @@ the whole authenticator, then a separate table shows the options which can be se
 
 include::ref-oauthClientProperties.txt[]
 
+The following table lists options which can be set for any individual OAuth provider.
+Substitute +CLIENT_ID+ with any identifier you prefer to use in the configuration file (it is not used elsewhere).
+
 include::ref-oauthProviderProperties.txt[]
 
 
