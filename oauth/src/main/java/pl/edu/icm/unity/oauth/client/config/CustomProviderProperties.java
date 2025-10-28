@@ -47,7 +47,7 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 	public enum ClientHttpMethod {post, get};
 	
 	@DocumentationReferencePrefix
-	public static final String P = "unity.oauth2.client.CLIENT_ID.";
+	public static final String P = OAuthClientProperties.P + OAuthClientProperties.PROVIDERS + "CLIENT_ID.";
 	
 	public static final String PROVIDER_TYPE = "type";
 	public static final String PROVIDER_LOCATION = "authEndpoint";
