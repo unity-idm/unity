@@ -47,6 +47,7 @@ public class OAuthScopesService
 			scopes.add(OAuthScope.builder().withName(config.getValue(scopeKey + OAuthASProperties.SCOPE_NAME))
 					.withDescription(config.getValue(scopeKey + OAuthASProperties.SCOPE_DESCRIPTION))
 					.withEnabled(config.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_ENABLED))
+					.withWildcard(config.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_IS_WILDCARD))
 					.withAttributes(config.getListOfValues(scopeKey + OAuthASProperties.SCOPE_ATTRIBUTES)).build());
 
 		}

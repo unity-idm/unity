@@ -134,16 +134,33 @@ public class OAuthRequestValidator
 
 		Set<String> notDefinedOnServer = requestedScopes.stream().map(s -> s.getValue())
 				.filter(scope -> !scopesDefinedOnServer.stream()
-						.filter(serverScope -> scope.equals(serverScope.name)).findAny().isPresent())
+						.filter(serverScope -> serverScope.match(scope)).findAny().isPresent())
 				.collect(Collectors.toSet());
 		if (!notDefinedOnServer.isEmpty())
 		{
 			log.info("Requested scopes not available on the endpoint and ignored: "
 					+ String.join(",", notDefinedOnServer));
 		}
-		return scopesDefinedOnServer.stream().filter(
-				scope -> (requestedScopes.contains(scope.name) && !notAllowedByClient.contains(scope.name)))
-				.collect(Collectors.toList());
+
+		return requestedScopes.stream()
+				.filter(s -> !notDefinedOnServer.contains(s.getValue()) && !notAllowedByClient.contains(s.getValue()))
+				.map(s -> rewriteScope(s.getValue(), scopesDefinedOnServer.stream()
+						.filter(serverScope -> serverScope.match(s.getValue()))
+						.findFirst()
+						.get()))
+				.collect(Collectors.toList());		
+	}
+	
+	private OAuthScope rewriteScope(String scope, OAuthScope serverScope)
+	{
+		return OAuthScope.builder()
+				.withName(scope)
+				.withAttributes(serverScope.attributes)
+				.withDescription(serverScope.description)
+				.withEnabled(serverScope.enabled)
+				.withWildcard(serverScope.wildcard)
+				.build();
+
 	}
 	
 	@Component
