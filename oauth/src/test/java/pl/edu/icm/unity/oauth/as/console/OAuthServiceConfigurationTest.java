@@ -50,7 +50,7 @@ public class OAuthServiceConfigurationTest
 
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
 
-		createComparator(P, defaults).ignoringSuperflous("embeddedTranslationProfile", "scopes.1.enabled").checkMatching(result, sourceCfg);
+		createComparator(P, defaults).ignoringSuperflous("embeddedTranslationProfile", "scopes.1.enabled", "scopes.1.isWildcard").checkMatching(result, sourceCfg);
 		String defaultProfileJson = DEF_PROFILE.toJsonObject().toString();
 		assertThat(result.get(P + "embeddedTranslationProfile")).isEqualTo(defaultProfileJson);
 	}
