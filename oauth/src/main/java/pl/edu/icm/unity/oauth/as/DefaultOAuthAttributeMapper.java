@@ -10,14 +10,18 @@ import java.util.Map;
 import com.nimbusds.jose.util.Base64;
 
 import net.minidev.json.JSONArray;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
+import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.verifiable.VerifiableEmail;
 import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.JsonAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 
@@ -37,7 +41,8 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 				new SimpleValueConverter(),
 				new EmailValueConverter(),
 				new ImageValueConverter(),
-				new BooleanValueConverter()
+				new BooleanValueConverter(),
+				new JsonValueConverter()
 		};
 
 		for (ValueToJsonConverter conv: converters)
@@ -159,7 +164,30 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 			return new String[] {BooleanAttributeSyntax.ID};
 		}
 	}
+	
+	private static class JsonValueConverter implements ValueToJsonConverter
+	{
+		private final JSONParser parser = new JSONParser(JSONParser.MODE_PERMISSIVE);
 
+		@Override
+		public Object convertValueToJson(String value)
+		{
+			try
+			{
+				return parser.parse(value);
+			} catch (ParseException e)
+			{
+				throw new InternalException("Invalid Json string", e);
+			}
+		}
+
+		@Override
+		public String[] getSupportedSyntaxes()
+		{
+			return new String[]
+			{ JsonAttributeSyntax.ID };
+		}
+	}
 	
 	private interface ValueToJsonConverter
 	{

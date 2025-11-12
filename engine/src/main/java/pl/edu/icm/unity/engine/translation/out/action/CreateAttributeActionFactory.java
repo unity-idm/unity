@@ -29,6 +29,8 @@ import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.attr.JsonAttributeSyntax;
+
 
 /**
  * Creates new outgoing attributes which are not persisted locally.
@@ -134,6 +136,8 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 			{
 			case BooleanAttributeSyntax.ID:
 				return createBooleanAttribute(sValues);
+			case JsonAttributeSyntax.ID:
+				return createJsonAttribute(sValues);	
 			case StringAttributeSyntax.ID:
 			default:
 				return createStringAttribute(sValues);
@@ -159,8 +163,15 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 					attrDisplayname, attrDescription, attrMandatory);
 		}
 
-		
-		
+		private DynamicAttribute createJsonAttribute(List<String> sValues)
+		{
+			Attribute newAttr = new Attribute(attrNameString, JsonAttributeSyntax.ID,
+					"/", sValues);
+			return new DynamicAttribute(newAttr,
+					new AttributeType(attrNameString, JsonAttributeSyntax.ID),
+					attrDisplayname, attrDescription, attrMandatory);
+		}
+	
 		private void setParameters(String[] parameters)
 		{
 			attrNameString = parameters[0];
