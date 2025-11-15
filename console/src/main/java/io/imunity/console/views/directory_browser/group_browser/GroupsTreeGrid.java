@@ -19,6 +19,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
@@ -400,9 +401,10 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 				msg.getMessage("cancel"),
 				e -> {}
 		);
-		confirmDialog.add(new Span(msg.getMessage("GroupRemovalDialog.confirmDelete",
+
+		confirmDialog.setText(new VerticalLayout(new Span(msg.getMessage("GroupRemovalDialog.confirmDelete",
 				realToRemove.stream().map(TreeNode::toString)
-						.collect(Collectors.joining(", ")))), checkbox);
+						.collect(Collectors.joining(", ")))), checkbox));
 		confirmDialog.setWidth("30em");
 		confirmDialog.open();
 	}

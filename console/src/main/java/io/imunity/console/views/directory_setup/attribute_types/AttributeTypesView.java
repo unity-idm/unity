@@ -248,7 +248,9 @@ public class AttributeTypesView extends ConsoleViewComponent
 				msg.getMessage("ok"), e -> remove(items, checkbox.getValue()), msg.getMessage("cancel"), e ->
 				{
 				});
-		confirmDialog.add(new NativeLabel(msg.getMessage("AttributeTypesView.confirmDelete", confirmText)), checkbox);
+		confirmDialog.setText(new VerticalLayout(
+			new NativeLabel(msg.getMessage("AttributeTypesView.confirmDelete", confirmText)), checkbox)
+		);
 		confirmDialog.open();
 
 	}
