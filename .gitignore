@@ -9,4 +9,12 @@ GEMINI.md
 /.agents/plans/
 CLAUDE.md
 */src/main/frontend/
+*/node_modules
+*/tsconfig.json
+*/types.d.ts
+*/.vaadin-node-tasks.lock
+*/package.json
+*/package-lock.json
+*/vite.config.ts
+*/vite.generated.ts
 */src/main/bundles/prod.bundle
