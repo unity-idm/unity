@@ -8,3 +8,5 @@ integration-tests/debug.log
 GEMINI.md
 /.agents/plans/
 CLAUDE.md
+*/src/main/frontend/
+*/src/main/bundles/prod.bundle
