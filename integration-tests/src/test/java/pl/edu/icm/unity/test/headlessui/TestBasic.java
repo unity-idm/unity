@@ -22,6 +22,7 @@ public class TestBasic extends SeleniumTestBase
 	public void loginTest()
 	{
 		driver.get(baseUrl + "/home");
+		waitForPageLoadByURL("/home/authentication");
 		waitForPageLoad(By.className("u-passwordSignInButton"));
 		
 		Cookie sessionBefore = driver.manage().getCookieNamed("JSESSIONID");
