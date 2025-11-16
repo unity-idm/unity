@@ -340,7 +340,7 @@ public class OAuthWebRequestValidatorTest
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
 	{
 		Properties config = new Properties();
-		config.setProperty("unity.oauth2.as.scopes.1.name", "scope.*foo?");
+		config.setProperty("unity.oauth2.as.scopes.1.name", "scope.*foo.?");
 		config.setProperty("unity.oauth2.as.scopes.1.isWildcard", "true");
 		config.setProperty("unity.oauth2.as.scopes.2.name", "Scope2");
 		config.setProperty("unity.oauth2.as.scopes.3.name", "ToSkip4");
