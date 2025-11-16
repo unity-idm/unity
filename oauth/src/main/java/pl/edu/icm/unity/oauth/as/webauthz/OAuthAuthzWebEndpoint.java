@@ -171,7 +171,7 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);
 		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 
-		Servlet oauthConsentDeciderServlet = dispatcherServletFactory.getInstance(getServletUrl(OAUTH_UI_SERVLET_PATH), description);
+		Servlet oauthConsentDeciderServlet = dispatcherServletFactory.getInstance(getServletUrl(OAUTH_UI_SERVLET_PATH), description, oauthProperties);
 		ServletHolder oauthConsentDeciderHolder = createServletHolder(oauthConsentDeciderServlet);
 		servletContextHandler.addServlet(oauthConsentDeciderHolder, OAUTH_CONSENT_DECIDER_SERVLET_PATH + "/*");
 

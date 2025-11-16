@@ -69,7 +69,8 @@ public class OAuthServiceConfiguration
 	private AccessTokenFormat accessTokenFormat;
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 	private List<TrustedUpstreamASBean> trustedUpstreamAS;
-
+	private List<AuthorizationScriptBean> authorizationScripts;
+	
 	public OAuthServiceConfiguration()
 	{
 
@@ -111,6 +112,7 @@ public class OAuthServiceConfiguration
 		refreshTokenIssuePolicy = RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED;
 		setRefreshTokenRotationForPublicClients(false);
 		trustedUpstreamAS = new ArrayList<>();
+		authorizationScripts = new ArrayList<>();
 	}
 
 	public String toProperties(MessageSource msg, PKIManagement pkiForValidation)
@@ -179,6 +181,16 @@ public class OAuthServiceConfiguration
 								+ (attributes.indexOf(attr) + 1), attr);
 					}
 				}
+			}
+		}
+		
+		if (authorizationScripts != null)
+		{
+			for (AuthorizationScriptBean script : authorizationScripts)
+			{
+				String key = OAuthASProperties.AUTHORIZATION_SCRIPTS + (authorizationScripts.indexOf(script) + 1) + ".";
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE, script.getScope());
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.AUTHORIZATION_SCRIPT_PATH, script.getPath());				
 			}
 		}
 		if (activeValueSelections != null)
@@ -357,6 +369,11 @@ public class OAuthServiceConfiguration
 					oauthScope.setWildcard(s.wildcard);
 					scopes.add(oauthScope);
 				});
+		
+		authorizationScripts.clear();
+		Set<String> scriptKeys = oauthProperties.getStructuredListKeys(OAuthASProperties.AUTHORIZATION_SCRIPTS);
+		scriptKeys.forEach(scriptKey -> authorizationScripts.add(new AuthorizationScriptBean(oauthProperties.getValue(scriptKey + OAuthASProperties.AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE),
+					oauthProperties.getValue(scriptKey + OAuthASProperties.AUTHORIZATION_SCRIPT_PATH))));
 
 		trustedUpstreamAS.clear();
 		Set<String> trustedUpstreamASKeys = oauthProperties
@@ -731,5 +748,15 @@ public class OAuthServiceConfiguration
 	public void setTrustedUpstreamAS(List<TrustedUpstreamASBean> trustedUpstreamAS)
 	{
 		this.trustedUpstreamAS = trustedUpstreamAS;
+	}
+
+	public List<AuthorizationScriptBean> getAuthorizationScripts()
+	{
+		return authorizationScripts;
+	}
+
+	public void setAuthorizationScripts(List<AuthorizationScriptBean> authorizationScripts)
+	{
+		this.authorizationScripts = authorizationScripts;
 	}
 }

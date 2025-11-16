@@ -69,6 +69,8 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
+import pl.edu.icm.unity.oauth.as.webauthz.externalScript.ExternalAuthorizationScriptResponse;
+import pl.edu.icm.unity.oauth.as.webauthz.externalScript.ExternalAuthorizationScriptRunner;
 
 @PermitAll
 @Route(value = OAUTH_UI_SERVLET_PATH,  layout =WrappedLayout.class)
@@ -94,6 +96,7 @@ class OAuthAuthzView extends UnityViewComponent
 	private IdentityParam identity;
 	private final OAuthIdpStatisticReporterFactory idpStatisticReporterFactory;
 	private final FreemarkerAppHandler freemarkerHandler;
+	private final ExternalAuthorizationScriptRunner externalAuthorizationScriptRunner;
 
 	@Autowired
 	public OAuthAuthzView(MessageSource msg,
@@ -111,7 +114,8 @@ class OAuthAuthzView extends UnityViewComponent
 	                      PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
 	                      EnquiresDialogLauncher enquiresDialogLauncher,
 						  VaadinLogoImageLoader imageAccessService,
-	                      NotificationPresenter notificationPresenter
+	                      NotificationPresenter notificationPresenter,
+	                      ExternalAuthorizationScriptRunner externalAuthorizationScriptRunner
 	)
 	{
 		this.msg = msg;
@@ -129,6 +133,7 @@ class OAuthAuthzView extends UnityViewComponent
 		this.policyAgreementRepresentationBuilder = policyAgreementRepresentationBuilder;
 		this.notificationPresenter = notificationPresenter;
 		this.imageAccessService = imageAccessService;
+		this.externalAuthorizationScriptRunner = externalAuthorizationScriptRunner;
 		enquiresDialogLauncher.showEnquiryDialogIfNeeded(this::enter);
 	}
 
@@ -195,12 +200,26 @@ class OAuthAuthzView extends UnityViewComponent
 		{
 			return;
 		}
+	
+		Optional<ExternalAuthorizationScriptResponse> resp = externalAuthorizationScriptRunner.runConfiguredExternalAuthnScript(ctx, translationResult, config);
+		if (resp.isPresent() && resp.get().status().equals(ExternalAuthorizationScriptResponse.Status.Deny))
+		{
+			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
+					OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
+					ctx.getRequest().impliedResponseMode());
+			oauthResponseHandler.returnOauthResponseNotThrowingAndReportStatistic(oauthResponse, false, ctx, Status.FAILED);
+			return;
+		}
 		
 		identity = idpEngine.getIdentity(translationResult, ctx.getConfig().getSubjectIdentityType());
-
 		Set<DynamicAttribute> allAttributes = OAuthProcessor.filterAttributes(translationResult,
 				ctx.getEffectiveRequestedAttrs());
 		
+		if (resp.isPresent())
+		{
+			allAttributes = ExternalScriptClaimsToAttributeMerger.mergeClaimsWithAttributes(allAttributes, resp.get().claims()).stream().collect(Collectors.toSet());
+		}
+	
 		Set<DynamicAttribute> filteredByClaimAttributes = AttributeValueFilter.filterAttributes(ctx.getClaimValueFilters(), allAttributes);
 
 		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = ActiveValueClientHelper
@@ -341,6 +360,7 @@ class OAuthAuthzView extends UnityViewComponent
 	private void onFinalConfirm(IdentityParam identity, Collection<DynamicAttribute> attributes, Collection<DynamicAttribute> filteredAttributes)
 	{
 		OAuthAuthzContext ctx = OAuthSessionService.getVaadinContext();
+		
 		try
 		{
 			AuthorizationSuccessResponse oauthResponse = oauthProcessor

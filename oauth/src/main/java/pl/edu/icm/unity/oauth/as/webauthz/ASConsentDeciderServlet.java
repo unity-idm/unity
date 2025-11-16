@@ -22,6 +22,7 @@ import org.eclipse.jetty.security.AuthenticationState;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.openid.connect.sdk.OIDCError;
@@ -46,12 +47,15 @@ import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.oauth.as.AttributeValueFilter;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
+import pl.edu.icm.unity.oauth.as.webauthz.externalScript.ExternalAuthorizationScriptResponse;
+import pl.edu.icm.unity.oauth.as.webauthz.externalScript.ExternalAuthorizationScriptRunner;
 
 /**
  * Invoked after authentication, main OAuth AS servlet. It decides whether the
@@ -72,11 +76,14 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private final OAuthProcessor oauthProcessor;
 	private final OAuthIdpStatisticReporter statReporter;
 	private final ASConsentDecider consentDecider;
+	private final ExternalAuthorizationScriptRunner externalAuthorizationScriptRunner;
+	private final OAuthASProperties config;
 
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
 			OAuthProcessor oauthProcessor, OAuthSessionService oauthSessionService, String oauthUiServletPath,
 			EnquiryManagement enquiryManagement,
-			PolicyAgreementManagement policyAgreementsMan, OAuthIdpStatisticReporter idpStatisticReporter, MessageSource msg)
+			PolicyAgreementManagement policyAgreementsMan, OAuthIdpStatisticReporter idpStatisticReporter, MessageSource msg,
+			ExternalAuthorizationScriptRunner externalAuthorizationScriptRunner, OAuthASProperties config)
 	{
 		this.oauthProcessor = oauthProcessor;
 		this.preferencesMan = preferencesMan;
@@ -85,6 +92,8 @@ public class ASConsentDeciderServlet extends HttpServlet
 		this.oauthUiServletPath = oauthUiServletPath;
 		this.statReporter = idpStatisticReporter;
 		this.consentDecider = new ASConsentDecider(enquiryManagement, policyAgreementsMan, msg);
+		this.externalAuthorizationScriptRunner = externalAuthorizationScriptRunner;
+		this.config = config;
 	}
 
 	@Override
@@ -168,15 +177,10 @@ public class ASConsentDeciderServlet extends HttpServlet
 	}
 	
 	private void sendNonePromptError(OAuthAuthzContext oauthCtx, HttpServletRequest req, HttpServletResponse resp)
-			throws IOException
+			throws IOException, EopException
 	{
 		log.info("Consent is required but 'none' prompt was requested");
-		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
-				OIDCError.CONSENT_REQUIRED, oauthCtx.getRequest().getState(),
-				oauthCtx.getRequest().impliedResponseMode());
-		
-		
-		sendReturnRedirect(oauthResponse, req, resp, true);
+		failAndRedirect(oauthCtx, OIDCError.CONSENT_REQUIRED, req, resp, true);
 	}
 
 	protected OAuthClientSettings loadPreferences(OAuthAuthzContext oauthCtx) throws EngineException
@@ -190,29 +194,41 @@ public class ASConsentDeciderServlet extends HttpServlet
 	 */
 	protected void autoReplay(OAuthClientSettings clientPreferences, OAuthAuthzContext oauthCtx,
 			HttpServletRequest request, HttpServletResponse response) throws EopException, IOException
-	{
+	{	
 		if (!clientPreferences.isDefaultAccept())
 		{
 			log.debug("User preferences are set to decline authZ from the client");
-			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
-					OAuth2Error.ACCESS_DENIED, oauthCtx.getRequest().getState(),
-					oauthCtx.getRequest().impliedResponseMode());
-			statReporter.reportStatus(oauthCtx, Status.FAILED);
-
-			sendReturnRedirect(oauthResponse, request, response, false);
+            failAndRedirect(oauthCtx, OAuth2Error.ACCESS_DENIED, request, response, false);
+			return;
 		}
 
 		AuthorizationSuccessResponse respDoc;
 		try
 		{
 			TranslationResult userInfo = idpEngine.getUserInfo(oauthCtx);
+	
+			
+			Optional<ExternalAuthorizationScriptResponse> scriptResp = externalAuthorizationScriptRunner.runConfiguredExternalAuthnScript(oauthCtx, userInfo, config);
+			if (scriptResp.map(r -> r.status() == ExternalAuthorizationScriptResponse.Status.Deny).orElse(false)) {
+	            failAndRedirect(oauthCtx, OAuth2Error.ACCESS_DENIED, request, response, false);
+	            return;
+	        }
+			
+			
 			handleTranslationProfileRedirectIfNeeded(userInfo, request, response);
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo,
 					oauthCtx.getConfig().getSubjectIdentityType());
 			log.info("Authentication of " + selectedIdentity);
 			Collection<DynamicAttribute> attributes =  OAuthProcessor.filterAttributes(userInfo,
 					oauthCtx.getEffectiveRequestedAttrs());
+			
+			if (scriptResp.isPresent())
+			{
+				attributes = ExternalScriptClaimsToAttributeMerger.mergeClaimsWithAttributes(attributes, scriptResp.get().claims());
+			}
+
 			Set<DynamicAttribute> filteredAttributes = AttributeValueFilter.filterAttributes(oauthCtx.getClaimValueFilters(), attributes);
+	
 			EssentialACRConsistencyValidator.verifyEssentialRequestedACRisReturned(oauthCtx, filteredAttributes);
 			respDoc = oauthProcessor.prepareAuthzResponseAndRecordInternalState(filteredAttributes, selectedIdentity, oauthCtx,
 					statReporter, InvocationContext.getCurrent().getLoginSession().getAuthenticationTime(), oauthCtx.getClaimValueFilters());
@@ -226,15 +242,25 @@ public class ASConsentDeciderServlet extends HttpServlet
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
-			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(oauthCtx.getReturnURI(),
-					OAuth2Error.SERVER_ERROR, oauthCtx.getRequest().getState(),
-					oauthCtx.getRequest().impliedResponseMode());
-			statReporter.reportStatus(oauthCtx, Status.FAILED);
-			sendReturnRedirect(oauthResponse, request, response, false);
+	        failAndRedirect(oauthCtx, OAuth2Error.SERVER_ERROR, request, response, false);
 			return;
 		}
 		sendReturnRedirect(respDoc, request, response, false);
 	}
+	
+	private void failAndRedirect(OAuthAuthzContext ctx, ErrorObject err, HttpServletRequest req,
+			HttpServletResponse resp, boolean invalidate) throws IOException
+	{
+
+		AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(), err,
+				ctx.getRequest()
+						.getState(),
+				ctx.getRequest()
+						.impliedResponseMode());
+
+		statReporter.reportStatus(ctx, Status.FAILED);
+		sendReturnRedirect(oauthResponse, req, resp, invalidate);
+}
 
 	private void handleTranslationProfileRedirectIfNeeded(TranslationResult userInfo, HttpServletRequest request,
 			HttpServletResponse response) throws IOException, EopException

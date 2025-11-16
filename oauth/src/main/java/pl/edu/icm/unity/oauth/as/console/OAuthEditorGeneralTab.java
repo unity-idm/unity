@@ -38,6 +38,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -103,6 +104,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 	private ComboBox<AccessTokenFormat> accessTokenFormat;
 	private TextField signingSecret;
 	private GridWithEditorInDetails<OAuthScopeBean> scopesGrid;
+	private GridWithEditorInDetails<AuthorizationScriptBean> scriptsGrid;
 	private OutputTranslationProfileFieldFactory profileFieldFactory;
 	private SubViewSwitcher subViewSwitcher;
 	private TextField name;
@@ -148,9 +150,12 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		VerticalLayout main = new VerticalLayout();
 		main.setPadding(false);
 
-		AccordionPanel accordionPanel = buildScopesSection();
+		AccordionPanel scopesPanel = buildScopesSection();
+		AccordionPanel scriptsAccordionPanel = buildScriptsSection();
+
 		main.add(buildHeaderSection());
-		main.add(accordionPanel);
+		main.add(scopesPanel);
+		main.add(scriptsAccordionPanel);
 		main.add(buildAdvancedSection());
 		main.add(
 				profileFieldFactory.getWrappedFieldInstance(subViewSwitcher, configBinder, "translationProfile"));
@@ -601,6 +606,34 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		return accordionPanel;
 	}
 	
+	private AccordionPanel buildScriptsSection()
+	{
+
+		scriptsGrid = new GridWithEditorInDetails<>(msg::getMessage, AuthorizationScriptBean.class, () -> new ScriptEditor(msg),
+				s -> false, s -> false, false);
+
+		Grid.Column<AuthorizationScriptBean> addGotoEditColumn = scriptsGrid.addGotoEditColumn(AuthorizationScriptBean::getScope)
+				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scriptTriggeringScope"))
+				.setResizable(true);
+		scriptsGrid.addTextColumn(AuthorizationScriptBean::getPath)
+				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scriptPath"))
+				.setResizable(true);
+
+		configBinder.forField(scriptsGrid)
+				.bind("authorizationScripts");
+		scriptsGrid.addValueChangeListener(e -> scriptsGrid.sort(addGotoEditColumn));
+		scriptsGrid.setWidthFull();
+		HorizontalLayout label = new HorizontalLayout(
+				new NativeLabel(msg.getMessage("OAuthEditorGeneralTab.authorizationScripts")),
+				htmlTooltipFactory.get(msg.getMessage("OAuthEditorGeneralTab.authorizationScriptsDescription")));
+		label.setWidthFull();
+
+		AccordionPanel accordionPanel = new AccordionPanel(label, scriptsGrid);
+		accordionPanel.setWidthFull();
+
+		return accordionPanel;
+	}
+
 	private AccordionPanel buildTrustedUpstremsSection()
 	{
 		trustedUpstreamAsGrid = new GridWithEditorInDetails<>(msg::getMessage, TrustedUpstreamASBean.class,
@@ -861,6 +894,72 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		{
 
 		}
+	}
+	
+	public static class ScriptEditor extends CustomField<AuthorizationScriptBean> implements GridWithEditorInDetails.EmbeddedEditor<AuthorizationScriptBean>
+	{		
+		private final Binder<AuthorizationScriptBean> binder;
+		private final TextField scope;
+		private final TextField path;
+
+		
+		public ScriptEditor(MessageSource msg)
+		{
+			binder = new Binder<>(AuthorizationScriptBean.class);
+			scope = new TextField();
+			scope.setWidth(TEXT_FIELD_BIG.value());
+			binder.forField(scope)
+					.asRequired(msg.getMessage("fieldRequired"))
+					.withValidator(new NoSpaceValidator(msg::getMessage))
+					.bind("scope");
+			
+			path = new TextField();
+			path.setWidth(TEXT_FIELD_BIG.value());
+			binder.forField(path)
+					.asRequired(msg.getMessage("fieldRequired"))
+					.withValidator(new NoSpaceValidator(msg::getMessage))
+					.bind("path");
+			
+			FormLayout main = new FormLayout();
+			main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+			main.addFormItem(scope, msg.getMessage("OAuthEditorGeneralTab.scriptTriggeringScope") + ":");
+			main.addFormItem(path, msg.getMessage("OAuthEditorGeneralTab.scriptPath") + ":");
+
+			add(main);
+			setSizeFull();
+		}
+		
+		@Override
+		public void setValue(AuthorizationScriptBean value)
+		{
+			binder.setBean(new AuthorizationScriptBean(value.getScope(), value.getPath()));
+		}
+		
+		@Override
+		public AuthorizationScriptBean getValidValue() throws FormValidationException
+		{
+			if (binder.validate()
+					.hasErrors())
+			{
+				throw new FormValidationException();
+			}
+
+			return binder.getBean();
+		}
+		
+
+		@Override
+		protected AuthorizationScriptBean generateModelValue()
+		{
+			return null;
+		}
+
+		@Override
+		protected void setPresentationValue(AuthorizationScriptBean newPresentationValue)
+		{
+			
+		}
+		
 	}
 
 	public static class TrustedUpstreamEditor extends CustomField<TrustedUpstreamASBean> implements GridWithEditorInDetails.EmbeddedEditor<TrustedUpstreamASBean>

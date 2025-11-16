@@ -62,10 +62,7 @@ public class OAuthScope
 
 		try
 		{
-			Pattern pattern = Pattern.compile(name);
-			return pattern.matcher(scope)
-					.find();
-
+			return Pattern.matches(name, scope);	
 		} catch (PatternSyntaxException e)
 		{
 			log.error("Incorrect pattern", e);
