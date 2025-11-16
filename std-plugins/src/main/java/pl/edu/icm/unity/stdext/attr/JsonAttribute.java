@@ -8,13 +8,10 @@ package pl.edu.icm.unity.stdext.attr;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.attribute.Attribute;
-import pl.edu.icm.unity.base.exceptions.InternalException;
 
 public class JsonAttribute
 {
@@ -41,16 +38,7 @@ public class JsonAttribute
 
 	private static List<String> toString(List<JsonNode> values)
 	{
-		return values.stream().map(v ->
-				{
-					try
-					{
-						return Constants.MAPPER.writeValueAsString(v);
-					} catch (JsonProcessingException e)
-					{
-						throw new InternalException("Can not convert attribute value to string", e);
-					}
-				})
+		return values.stream().map(JsonAttributeSyntax::toString)
 				.collect(Collectors.toList());
 	}
 }
