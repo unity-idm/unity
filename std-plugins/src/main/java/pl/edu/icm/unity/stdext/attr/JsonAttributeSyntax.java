@@ -75,6 +75,11 @@ public class JsonAttributeSyntax implements AttributeValueSyntax<JsonNode>
 	@Override
 	public JsonNode convertFromString(String stringRepresentation)
 	{
+		return fromString(stringRepresentation);
+	}
+	
+	static JsonNode fromString(String stringRepresentation)
+	{
 		if (stringRepresentation == null)
 			return NullNode.getInstance();
 
@@ -89,6 +94,11 @@ public class JsonAttributeSyntax implements AttributeValueSyntax<JsonNode>
 
 	@Override
 	public String convertToString(JsonNode value)
+	{
+		return toString(value);
+	}
+	
+	static String toString(JsonNode value)
 	{
 		try
 		{
