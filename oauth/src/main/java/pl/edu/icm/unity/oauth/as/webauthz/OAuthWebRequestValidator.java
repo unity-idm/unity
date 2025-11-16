@@ -41,12 +41,12 @@ import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
 /**
@@ -277,10 +277,10 @@ class OAuthWebRequestValidator
 	
 		if (requestedScopes != null)
 		{
-			List<OAuthScope> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes,
+			List<RequestedOAuthScope> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes,
 					requestedScopes);
-			Optional<OAuthScope> offlineScope = validRequestedScopes.stream()
-					.filter(s -> s.name.equals(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE))
+			Optional<RequestedOAuthScope> offlineScope = validRequestedScopes.stream()
+					.filter(s -> s.scopeValue().equals(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE))
 					.findAny();
 
 			if (!offlineScope.isEmpty() && !context.getPrompts()
@@ -303,11 +303,11 @@ class OAuthWebRequestValidator
 	}
 	
 	private void assertScopeSupportedByServer(OIDCScopeValue scope, Scope requestedScopes,
-			List<OAuthScope> validRequestedScopes) throws OAuthValidationException
+			List<RequestedOAuthScope> validRequestedScopes) throws OAuthValidationException
 	{
 		boolean scopeRequested = requestedScopes.contains(scope.getValue());
 		boolean scopeAvailable = validRequestedScopes.stream()
-				.filter(vscope -> vscope.name.equals(scope.getValue()))
+				.filter(vscope -> vscope.scopeValue().equals(scope.getValue()))
 				.findAny()
 				.isPresent();
 		if (scopeRequested && !scopeAvailable)

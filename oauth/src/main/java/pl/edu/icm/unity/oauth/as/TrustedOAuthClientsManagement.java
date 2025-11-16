@@ -232,7 +232,7 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 		List<String> scopes = new ArrayList<>();
 		for (String scope : accessToken.token.getEffectiveScope())
 		{
-			Optional<OAuthScope> desc = service.scopes.stream().filter(s -> s.name.equals(scope)).findFirst();
+			Optional<OAuthScopeDefinition> desc = service.scopes.stream().filter(s -> s.name.equals(scope)).findFirst();
 			if (desc.isEmpty() || desc.get().description == null)
 			{
 				scopes.add(scope);
@@ -472,7 +472,7 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 	private class OAuthServiceConfiguration
 	{
 		public final String issuerURI;
-		public final List<OAuthScope> scopes;
+		public final List<OAuthScopeDefinition> scopes;
 		public final List<OAuthClientInfo> clients;
 
 		public OAuthServiceConfiguration(MessageSource msg, String properties, OAuthScopesService scopeService)

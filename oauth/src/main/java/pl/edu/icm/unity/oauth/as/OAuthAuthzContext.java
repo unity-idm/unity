@@ -44,7 +44,7 @@ public class OAuthAuthzContext
 	private Attribute clientLogo;
 	private TranslationProfile translationProfile;
 	private String usersGroup;
-	private Set<OAuthScope> effectiveRequestedScopes = new HashSet<>();
+	private Set<RequestedOAuthScope> effectiveRequestedScopes = new HashSet<>();
 	private Set<String> requestedScopes = new HashSet<>();
 	private Set<String> effectiveRequestedAttrs = new HashSet<>();
 	private Set<Prompt> prompts= new HashSet<>();
@@ -138,10 +138,10 @@ public class OAuthAuthzContext
 		this.translationProfile = translationProfile;
 	}
 	
-	public void addEffectiveScopeInfo(OAuthScope scopeInfo)
+	public void addEffectiveScopeInfo(RequestedOAuthScope scopeInfo)
 	{
 		effectiveRequestedScopes.add(scopeInfo);
-		effectiveRequestedAttrs.addAll(scopeInfo.attributes);
+		effectiveRequestedAttrs.addAll(scopeInfo.scopeDefinition().attributes);
 	}
 	
 	public Set<String> getEffectiveRequestedAttrs()
@@ -149,7 +149,7 @@ public class OAuthAuthzContext
 		return effectiveRequestedAttrs;
 	}
 
-	public Set<OAuthScope> getEffectiveRequestedScopes()
+	public Set<RequestedOAuthScope> getEffectiveRequestedScopes()
 	{
 		return effectiveRequestedScopes;
 	}
@@ -157,9 +157,9 @@ public class OAuthAuthzContext
 	public String[] getEffectiveRequestedScopesList()
 	{
 		String[] ret = new String[effectiveRequestedScopes.size()];
-		Iterator<OAuthScope> sIt = effectiveRequestedScopes.iterator();
+		Iterator<RequestedOAuthScope> sIt = effectiveRequestedScopes.iterator();
 		for (int i=0; i<ret.length; i++)
-			ret[i] = sIt.next().name;
+			ret[i] = sIt.next().scopeValue();
 		return ret;
 	}
 
@@ -196,7 +196,7 @@ public class OAuthAuthzContext
 	public boolean hasOfflineAccessScope()
 	{
 		return !getEffectiveRequestedScopes().stream()
-				.filter(a -> a.name.equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty();
+				.filter(a -> a.scopeValue().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty();
 	}
 	
 	public long getClientEntityId()

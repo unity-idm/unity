@@ -15,9 +15,9 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 
-public class OAuthScope
+public class OAuthScopeDefinition
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthScope.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthScopeDefinition.class);
 	
 	public final String name;
 	public final String description;
@@ -26,7 +26,7 @@ public class OAuthScope
 	public final boolean wildcard;
 
 	
-	private OAuthScope(Builder builder)
+	private OAuthScopeDefinition(Builder builder)
 	{
 		this.name = builder.name;
 		this.description = builder.description;
@@ -50,7 +50,7 @@ public class OAuthScope
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		OAuthScope other = (OAuthScope) obj;
+		OAuthScopeDefinition other = (OAuthScopeDefinition) obj;
 		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description)
 				&& enabled == other.enabled && wildcard == other.wildcard && Objects.equals(name, other.name);
 	}
@@ -119,9 +119,9 @@ public class OAuthScope
 			return this;
 		}
 		
-		public OAuthScope build()
+		public OAuthScopeDefinition build()
 		{
-			return new OAuthScope(this);
+			return new OAuthScopeDefinition(this);
 		}
 	}
 

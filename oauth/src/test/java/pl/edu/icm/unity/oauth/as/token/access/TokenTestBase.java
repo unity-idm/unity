@@ -48,11 +48,12 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
+import pl.edu.icm.unity.oauth.as.OAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -211,8 +212,8 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 
 		ctx.setRequestedScopes(new HashSet<>(scopes));
 		for (String scope: scopes)
-			ctx.addEffectiveScopeInfo(OAuthScope.builder().withName(scope).withDescription(scope)
-					.withAttributes(Lists.newArrayList(scope + " attr")).withEnabled(true).build());					
+			ctx.addEffectiveScopeInfo(new  RequestedOAuthScope(OAuthScopeDefinition.builder().withName(scope).withDescription(scope)
+					.withAttributes(Lists.newArrayList(scope + " attr")).withEnabled(true).build(), scope));					
 					
 		ctx.setOpenIdMode(true);
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils

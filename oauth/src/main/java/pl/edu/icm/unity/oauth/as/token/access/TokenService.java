@@ -55,8 +55,8 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.oauth.as.token.access.ClientAttributesProvider.ClientAttributesProviderFactory;
@@ -103,10 +103,10 @@ class TokenService
 		// get new attributes for identity
 		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
 
-		List<OAuthScope> newValidRequestedScopes = requestValidator.getValidRequestedScopes(
+		List<RequestedOAuthScope> newValidRequestedScopes = requestValidator.getValidRequestedScopes(
 				clientAttributesProvider.getClientAttributes(new EntityParam(clientId)),
 				AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList));
-		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.name).toArray(String[]::new));
+		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.scopeValue()).toArray(String[]::new));
 
 		List<AttributeFilteringSpec> claimFiltersFromScopes = AttributeValueFilterUtils.getFiltersFromScopes(newRequestedScopeList);
 		List<AttributeFilteringSpec> mergedFilters = AttributeValueFilterUtils.mergeFiltersWithPreservingLast(newToken.getAttributeValueFilters(), claimFiltersFromScopes);
@@ -183,12 +183,12 @@ class TokenService
 		return userInfoRes;
 	}
 
-	private UserInfo createUserInfo(List<OAuthScope> validScopes, String userIdentity, TranslationResult userInfoRes,
+	private UserInfo createUserInfo(List<RequestedOAuthScope> validScopes, String userIdentity, TranslationResult userInfoRes,
 			List<AttributeFilteringSpec> claimValueFilters)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
-		for (OAuthScope si : validScopes)
-			requestedAttributes.addAll(si.attributes);
+		for (RequestedOAuthScope si : validScopes)
+			requestedAttributes.addAll(si.scopeDefinition().attributes);
 
 		Collection<DynamicAttribute> attributes = 
 				OAuthProcessor.filterAttributes(userInfoRes, requestedAttributes, claimValueFilters);
