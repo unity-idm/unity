@@ -73,7 +73,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointPathValidator;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
+import pl.edu.icm.unity.oauth.as.OAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
@@ -109,7 +109,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 	private SubViewSwitcher subViewSwitcher;
 	private TextField name;
 	private boolean editMode;
-	private List<OAuthScope> systemScopes;
+	private List<OAuthScopeDefinition> systemScopes;
 	private GridWithEditorInDetails<TrustedUpstreamASBean> trustedUpstreamAsGrid;
 	private Set<String> validators;
 	private final HtmlTooltipFactory htmlTooltipFactory;
@@ -117,7 +117,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 	OAuthEditorGeneralTab(MessageSource msg, PKIManagement pkiManagement, HtmlTooltipFactory htmlTooltipFactory, String serverPrefix, Set<String> serverContextPaths,
 			SubViewSwitcher subViewSwitcher, OutputTranslationProfileFieldFactory profileFieldFactory, boolean editMode,
 			Set<String> credentials, Collection<IdentityType> identityTypes, List<String> attrTypes,
-			List<String> usedEndpointsPaths, List<OAuthScope> systemScopes, Set<String> validators, Set<String> certificates)
+			List<String> usedEndpointsPaths, List<OAuthScopeDefinition> systemScopes, Set<String> validators, Set<String> certificates)
 	{
 		this.msg = msg;
 		this.pkiManagement = pkiManagement;

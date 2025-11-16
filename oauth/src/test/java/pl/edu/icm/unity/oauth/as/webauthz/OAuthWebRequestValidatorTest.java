@@ -230,7 +230,7 @@ public class OAuthWebRequestValidatorTest
 		validator.validate(context);
 
 		assertThat(context.getEffectiveRequestedScopes().stream()
-				.filter(s -> s.name.equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
+				.filter(s -> s.scopeValue().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
 						.isTrue();
 
 	}
@@ -305,7 +305,7 @@ public class OAuthWebRequestValidatorTest
 		validator.validate(context);
 
 		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(1);
-		assertThat(context.getEffectiveRequestedScopes().iterator().next().name).isEqualTo("Scope1");
+		assertThat(context.getEffectiveRequestedScopes().iterator().next().scopeValue()).isEqualTo("Scope1");
 	}
 	
 	@Test
@@ -332,7 +332,7 @@ public class OAuthWebRequestValidatorTest
 		validator.validate(context);
 
 		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(2);
-		assertThat(context.getEffectiveRequestedScopes().stream().map(s -> s.name).collect(Collectors.toSet())).contains("Scope1", "Scope2");
+		assertThat(context.getEffectiveRequestedScopes().stream().map(s -> s.scopeValue()).collect(Collectors.toSet())).contains("Scope1", "Scope2");
 	}
 	
 	@Test
@@ -360,7 +360,7 @@ public class OAuthWebRequestValidatorTest
 		validator.validate(context);
 
 		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(2);
-		assertThat(context.getEffectiveRequestedScopes().stream().map(s -> s.name).collect(Collectors.toSet())).contains("scopeAAfooB", "Scope2");
+		assertThat(context.getEffectiveRequestedScopes().stream().map(s -> s.scopeValue()).collect(Collectors.toSet())).contains("scopeAAfooB", "Scope2");
 	}
 	
 	@Test
@@ -390,7 +390,7 @@ public class OAuthWebRequestValidatorTest
 		validator.validate(context);
 
 		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(1);
-		assertThat(context.getEffectiveRequestedScopes().stream().map(s -> s.description).collect(Collectors.toSet())).contains("scope1");
+		assertThat(context.getEffectiveRequestedScopes().stream().map(s -> s.scopeDefinition().description).collect(Collectors.toSet())).contains("scope1");
 	}
 	
 	@Test
@@ -415,7 +415,7 @@ public class OAuthWebRequestValidatorTest
 		validator.validate(context);
 
 		assertThat(context.getEffectiveRequestedScopes().stream()
-				.filter(s -> s.name.equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
+				.filter(s -> s.scopeValue().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
 						.isFalse();
 	}
 	

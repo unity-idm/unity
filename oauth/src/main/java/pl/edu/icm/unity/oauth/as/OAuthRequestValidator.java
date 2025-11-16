@@ -120,9 +120,9 @@ public class OAuthRequestValidator
 		}
 	}
 
-	public List<OAuthScope> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
+	public List<RequestedOAuthScope> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
 	{
-		List<OAuthScope> scopesDefinedOnServer = scopeService.getActiveScopes(oauthConfig);
+		List<OAuthScopeDefinition> scopesDefinedOnServer = scopeService.getActiveScopes(oauthConfig);
 		Optional<Set<String>> allowedByClientScopes = getAllowedScopes(clientAttributes);
 		Set<String> notAllowedByClient = requestedScopes.stream().map(s -> s.getValue())
 				.filter(scope -> (allowedByClientScopes.isPresent() && !allowedByClientScopes.get().contains(scope)))
@@ -144,23 +144,16 @@ public class OAuthRequestValidator
 
 		return requestedScopes.stream()
 				.filter(s -> !notDefinedOnServer.contains(s.getValue()) && !notAllowedByClient.contains(s.getValue()))
-				.map(s -> rewriteScope(s.getValue(), scopesDefinedOnServer.stream()
+				.map(s -> toRequestedScope(s.getValue(), scopesDefinedOnServer.stream()
 						.filter(serverScope -> serverScope.match(s.getValue()))
 						.findFirst()
 						.get()))
 				.collect(Collectors.toList());		
 	}
 	
-	private OAuthScope rewriteScope(String scope, OAuthScope serverScope)
+	private RequestedOAuthScope toRequestedScope(String scope, OAuthScopeDefinition serverScope)
 	{
-		return OAuthScope.builder()
-				.withName(scope)
-				.withAttributes(serverScope.attributes)
-				.withDescription(serverScope.description)
-				.withEnabled(serverScope.enabled)
-				.withWildcard(serverScope.wildcard)
-				.build();
-
+		return new RequestedOAuthScope(serverScope, scope); 
 	}
 	
 	@Component

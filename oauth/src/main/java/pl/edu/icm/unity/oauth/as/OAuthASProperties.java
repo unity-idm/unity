@@ -170,7 +170,7 @@ public class OAuthASProperties extends UnityPropertiesHelper
 		defaults.put(SCOPE_ENABLED, new PropertyMD("true").setStructuredListEntry(SCOPES)
 				.setDescription("Indicates whether the scope is available."));
 		defaults.put(SCOPE_IS_WILDCARD, new PropertyMD("false").setStructuredListEntry(SCOPES)
-				.setDescription("Indicates whether the scope is wildcard."));
+				.setDescription("Indicates whether the scope is treated as a wildcard. All concrete scopes matching the wildcard will be accepted."));
 		defaults.put(SCOPE_DESCRIPTION, new PropertyMD().setStructuredListEntry(SCOPES)
 				.setDescription("Human readable description of the scope meaning."));
 		defaults.put(SCOPE_ATTRIBUTES, new PropertyMD().setStructuredListEntry(SCOPES)

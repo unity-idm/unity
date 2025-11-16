@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,21 +34,21 @@ public class OAuthScopesService
 		return getActiveScopes(config).stream().map(s -> s.name).collect(Collectors.toList());
 	}
 
-	public List<OAuthScope> getActiveScopes(OAuthASProperties config)
+	public List<OAuthScopeDefinition> getActiveScopes(OAuthASProperties config)
 	{
 		return getScopes(config).stream().filter(s -> s.enabled).collect(Collectors.toList());
 	}
 
-	public List<OAuthScope> getScopes(OAuthASProperties config)
+	public List<OAuthScopeDefinition> getScopes(OAuthASProperties config)
 	{
 		Set<String> scopeKeys = config.getStructuredListKeys(OAuthASProperties.SCOPES);
-		List<OAuthScope> scopes = new ArrayList<>();
+		List<OAuthScopeDefinition> scopes = new ArrayList<>();
 		for (String scopeKey : scopeKeys)
 		{
-			scopes.add(OAuthScope.builder().withName(config.getValue(scopeKey + OAuthASProperties.SCOPE_NAME))
+			scopes.add(OAuthScopeDefinition.builder().withName(config.getValue(scopeKey + OAuthASProperties.SCOPE_NAME))
 					.withDescription(config.getValue(scopeKey + OAuthASProperties.SCOPE_DESCRIPTION))
 					.withEnabled(config.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_ENABLED))
-					.withWildcard(config.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_IS_WILDCARD))
+					.withWildcard(Optional.ofNullable(config.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_IS_WILDCARD)).orElse(false))
 					.withAttributes(config.getListOfValues(scopeKey + OAuthASProperties.SCOPE_ATTRIBUTES)).build());
 
 		}
@@ -56,25 +57,25 @@ public class OAuthScopesService
 
 	}
 
-	public List<OAuthScope> getSystemScopes()
+	public List<OAuthScopeDefinition> getSystemScopes()
 	{
-		List<OAuthScope> systenScope = new ArrayList<>();
+		List<OAuthScopeDefinition> systenScope = new ArrayList<>();
 		for (SystemScopeProvider provider : systemScopeProvidersRegistry.getAll())
 		{
 			for (Scope scope : provider.getScopes())
 			{
-				systenScope.add(OAuthScope.builder().withName(scope.name).withEnabled(false)
+				systenScope.add(OAuthScopeDefinition.builder().withName(scope.name).withEnabled(false)
 						.withDescription(scope.description).build());
 			}
 		}
 		return systenScope;
 	}
 
-	private List<OAuthScope> getMissingSystemScopes(OAuthASProperties config)
+	private List<OAuthScopeDefinition> getMissingSystemScopes(OAuthASProperties config)
 	{
 		List<String> configured = config.getStructuredListKeys(OAuthASProperties.SCOPES).stream()
 				.map(s -> config.getValue(s + OAuthASProperties.SCOPE_NAME)).collect(Collectors.toList());
-		List<OAuthScope> missingSystemScope = new ArrayList<>();
+		List<OAuthScopeDefinition> missingSystemScope = new ArrayList<>();
 		for (SystemScopeProvider provider : systemScopeProvidersRegistry.getAll())
 		{
 			for (Scope scope : provider.getScopes())
@@ -83,7 +84,7 @@ public class OAuthScopesService
 				{
 					continue;
 				}
-				missingSystemScope.add(OAuthScope.builder().withName(scope.name)
+				missingSystemScope.add(OAuthScopeDefinition.builder().withName(scope.name)
 						.withEnabled(getSystemScopeDefaultStatusForNotAdded(scope, config))
 						.withDescription(scope.description).build());
 			}
