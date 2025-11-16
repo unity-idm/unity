@@ -80,7 +80,10 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String SCOPE_NAME = "name";
 	public static final String SCOPE_ENABLED = "enabled";
 	public static final String SCOPE_IS_WILDCARD = "isWildcard";
-
+	
+	public static final String AUTHORIZATION_SCRIPTS = "authorizationScripts.";
+	public static final String AUTHORIZATION_SCRIPT_PATH = "path";
+	public static final String AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE = "triggeringScope";
 
 	public static final String TRUSTED_UPSTREAM_AS = "trustedUpstreamAS.";
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_ID = "clientId";
@@ -175,6 +178,17 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("List of Unity attributes that should be returned when the scope is "
 						+ "requested. Note that those attribtues are merely an input to the "
 						+ "configured output translation profile."));
+		
+		defaults.put(AUTHORIZATION_SCRIPTS, new PropertyMD().setStructuredList(false)
+				.setDescription("Under this prefix external authorization of request scrips can be defined."));
+		defaults.put(AUTHORIZATION_SCRIPT_PATH, new PropertyMD().setStructuredListEntry(AUTHORIZATION_SCRIPTS)
+				.setMandatory()
+				.setDescription("Path of the script to be run"));
+		defaults.put(AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE, new PropertyMD().setStructuredListEntry(AUTHORIZATION_SCRIPTS)
+				.setMandatory()
+				.setDescription("Script triggering scope - wildcard"));
+		
+		
 		defaults.put(SIGNING_ALGORITHM, new PropertyMD(SigningAlgorithms.RS256)
 				.setDescription("An algorithm used for JWT access token and id token (OIDC mode) signing."));
 		defaults.put(SIGNING_SECRET,
