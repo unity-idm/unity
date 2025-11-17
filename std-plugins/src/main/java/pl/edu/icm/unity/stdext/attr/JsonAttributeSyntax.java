@@ -100,6 +100,8 @@ public class JsonAttributeSyntax implements AttributeValueSyntax<JsonNode>
 	
 	static String toString(JsonNode value)
 	{
+		if (value instanceof NullNode)
+			return null; 
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(value);
