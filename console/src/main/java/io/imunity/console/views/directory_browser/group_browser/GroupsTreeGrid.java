@@ -91,7 +91,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		hamburgerMenu.addActionHandler(deleteAction);
 
 		toolbar.addCompactHamburger(hamburgerMenu, FlexComponent.Alignment.CENTER);
-		hamburgerMenu.add(new Hr());
+		hamburgerMenu.addComponent(new Hr());
 		hamburgerMenu.addItem(msg.getMessage("GroupDetails.multiselect"), event ->
 		{
 			if(event.getSource().isChecked())
