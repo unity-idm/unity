@@ -19,6 +19,6 @@ public class TestJsonAttribute
 		JsonAttributeSyntax jsonAttributeSyntax = new JsonAttributeSyntax();
 		JsonNode fromNullString = jsonAttributeSyntax.convertFromString(null);
 		String toStringFromNull = jsonAttributeSyntax.convertToString(fromNullString);
-		assertEquals("null", toStringFromNull);
+		assertEquals(null, toStringFromNull);
 	}
 }
