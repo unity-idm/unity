@@ -125,7 +125,7 @@ public class AttributesGrid extends VerticalLayout
 		sourceColumn.setVisible(false);
 		columnToggleMenu.addColumn(msg.getMessage("AttributesGrid.sourceCaption"), sourceColumn);
 
-		attributesGrid.setClassNameGenerator(a ->
+		attributesGrid.setPartNameGenerator(a ->
 		{
 			StringBuilder style = new StringBuilder();
 			if (checkAttributeImmutable(a) || !a.isDirect())

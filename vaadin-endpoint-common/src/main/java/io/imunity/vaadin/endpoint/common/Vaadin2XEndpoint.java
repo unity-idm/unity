@@ -142,6 +142,7 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 		ServletHolder servletHolder = context.addServlet(servletClass, "/*");
 		servletHolder.setAsyncSupported(true);
 		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");
+		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_PRODUCTION_MODE, "true");
 		context.addEventListener(new ServletContextListeners());
 
 		return context;
