@@ -159,7 +159,7 @@ public class OAuthAuthzContext
 		String[] ret = new String[effectiveRequestedScopes.size()];
 		Iterator<RequestedOAuthScope> sIt = effectiveRequestedScopes.iterator();
 		for (int i=0; i<ret.length; i++)
-			ret[i] = sIt.next().scopeValue();
+			ret[i] = sIt.next().scope();
 		return ret;
 	}
 
@@ -196,7 +196,7 @@ public class OAuthAuthzContext
 	public boolean hasOfflineAccessScope()
 	{
 		return !getEffectiveRequestedScopes().stream()
-				.filter(a -> a.scopeValue().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty();
+				.filter(a -> a.scope().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty();
 	}
 	
 	public long getClientEntityId()

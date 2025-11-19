@@ -153,7 +153,7 @@ public class OAuthRequestValidator
 	
 	private RequestedOAuthScope toRequestedScope(String scope, OAuthScopeDefinition serverScope)
 	{
-		return new RequestedOAuthScope(serverScope, scope); 
+		return new RequestedOAuthScope(scope, serverScope); 
 	}
 	
 	@Component

@@ -68,10 +68,10 @@ public class TokenServiceTest
 		result.getAttributes()
 				.add(new DynamicAttribute(new Attribute("attr2", "string", null, List.of("attr2v1"))));
 
-		when(requestValidator.getValidRequestedScopes(any(), any())).thenReturn(List.of(new RequestedOAuthScope(OAuthScopeDefinition.builder()
+		when(requestValidator.getValidRequestedScopes(any(), any())).thenReturn(List.of(new RequestedOAuthScope("scope1", OAuthScopeDefinition.builder()
 				.withAttributes(List.of("attr1", "attr2"))
 				.withName("scope1")
-				.build(), "scope1")));
+				.build())));
 		when(clientAttributesProvider.getClientAttributes(any())).thenReturn(Map.of());
 
 		when(notAuthorizedOauthIdpEngine.getUserInfoUnsafe(anyLong(), any(), any(), any(), any(), any(), any()))
@@ -106,10 +106,10 @@ public class TokenServiceTest
 		result.getAttributes()
 				.add(new DynamicAttribute(new Attribute("attr1", "string", null, List.of("attr1v1"))));
 
-		when(requestValidator.getValidRequestedScopes(any(), any())).thenReturn(List.of(new RequestedOAuthScope(OAuthScopeDefinition.builder()
+		when(requestValidator.getValidRequestedScopes(any(), any())).thenReturn(List.of(new RequestedOAuthScope("scope1", OAuthScopeDefinition.builder()
 				.withAttributes(List.of("attr1"))
 				.withName("scope1")
-				.build(), "scope1")));
+				.build())));
 		when(clientAttributesProvider.getClientAttributes(any())).thenReturn(Map.of());
 
 		when(notAuthorizedOauthIdpEngine.getUserInfoUnsafe(anyLong(), any(), any(), any(), any(), any(), any()))
