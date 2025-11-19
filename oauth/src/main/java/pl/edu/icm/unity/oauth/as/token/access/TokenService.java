@@ -106,7 +106,7 @@ class TokenService
 		List<RequestedOAuthScope> newValidRequestedScopes = requestValidator.getValidRequestedScopes(
 				clientAttributesProvider.getClientAttributes(new EntityParam(clientId)),
 				AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList));
-		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.scopeValue()).toArray(String[]::new));
+		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.scope()).toArray(String[]::new));
 
 		List<AttributeFilteringSpec> claimFiltersFromScopes = AttributeValueFilterUtils.getFiltersFromScopes(newRequestedScopeList);
 		List<AttributeFilteringSpec> mergedFilters = AttributeValueFilterUtils.mergeFiltersWithPreservingLast(newToken.getAttributeValueFilters(), claimFiltersFromScopes);

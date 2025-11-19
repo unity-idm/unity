@@ -198,7 +198,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		if (!clientPreferences.isDefaultAccept())
 		{
 			log.debug("User preferences are set to decline authZ from the client");
-            failAndRedirect(oauthCtx, OAuth2Error.ACCESS_DENIED, request, response, false);
+			failAndRedirect(oauthCtx, OAuth2Error.ACCESS_DENIED, request, response, false);
 			return;
 		}
 
@@ -206,14 +206,14 @@ public class ASConsentDeciderServlet extends HttpServlet
 		try
 		{
 			TranslationResult userInfo = idpEngine.getUserInfo(oauthCtx);
-	
-			
-			Optional<ExternalAuthorizationScriptResponse> scriptResp = externalAuthorizationScriptRunner.runConfiguredExternalAuthnScript(oauthCtx, userInfo, config);
-			if (scriptResp.map(r -> r.status() == ExternalAuthorizationScriptResponse.Status.Deny).orElse(false)) {
-	            failAndRedirect(oauthCtx, OAuth2Error.ACCESS_DENIED, request, response, false);
-	            return;
-	        }
-			
+		
+			ExternalAuthorizationScriptResponse scriptResp = externalAuthorizationScriptRunner.runConfiguredExternalAuthnScript(oauthCtx, userInfo, config);
+			if (scriptResp.status()
+					.equals(ExternalAuthorizationScriptResponse.Status.DENY))
+			{
+				failAndRedirect(oauthCtx, OAuth2Error.ACCESS_DENIED, request, response, false);
+				return;
+			}
 			
 			handleTranslationProfileRedirectIfNeeded(userInfo, request, response);
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo,
@@ -222,10 +222,8 @@ public class ASConsentDeciderServlet extends HttpServlet
 			Collection<DynamicAttribute> attributes =  OAuthProcessor.filterAttributes(userInfo,
 					oauthCtx.getEffectiveRequestedAttrs());
 			
-			if (scriptResp.isPresent())
-			{
-				attributes = ExternalScriptClaimsToAttributeMerger.mergeClaimsWithAttributes(attributes, scriptResp.get().claims());
-			}
+			attributes = ExternalScriptClaimsToAttributeMerger.mergeClaimsWithAttributes(attributes, scriptResp.claims());
+			
 
 			Set<DynamicAttribute> filteredAttributes = AttributeValueFilter.filterAttributes(oauthCtx.getClaimValueFilters(), attributes);
 	

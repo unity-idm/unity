@@ -8,10 +8,10 @@ def main():
         
         # Example checks:
         # Deny if any attribute named 'blocked' is present
-        for attr in input_data.get("attributes", []):
-            if attr.get("name") == "blocked":
+        for attribute in input_data.get("attributes", []):
+            if attribute.get("name") == "blocked":
                 response = {
-                    "status": "Deny",
+                    "status": "D",
                     "claims": []
                 }
                 json.dump(response, sys.stdout)
@@ -19,10 +19,10 @@ def main():
                 return
         
         # Deny if any identity with typeId 'banned' is present
-        for ident in input_data.get("identities", []):
-            if ident.get("typeId") == "banned":
+        for identity in input_data.get("identities", []):
+            if identity.get("typeId") == "banned":
                 response = {
-                    "status": "Deny",
+                    "status": "DENY",
                     "claims": []
                 }
                 json.dump(response, sys.stdout)
@@ -33,7 +33,7 @@ def main():
         request = input_data.get("request", {})
         if request.get("clientID") == "evil-client":
             response = {
-                "status": "Deny",
+                "status": "DENY",
                 "claims": []
             }
             json.dump(response, sys.stdout)
@@ -42,13 +42,16 @@ def main():
         
         # Otherwise, proceed and add a claim
         response = {
-            "status": "Proceed"
+            "status": "PROCEED",
+            "claims": [
+                    {"type": "example_claim", "value": "authorized"}
+            ]
         }
         json.dump(response, sys.stdout)
         sys.stdout.flush()
     except Exception:
         response = {
-            "status": "Deny",
+            "status": "DENY",
             "claims": []
         }
         json.dump(response, sys.stdout)

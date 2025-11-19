@@ -13,9 +13,18 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 
-public record InputRequest(List<String> responseType, String clientID, String redirectURI, List<InputScope> scope,
-		String responseMode, List<String> resources, String requestURI, List<String> prompt,
-		Map<String, List<String>> customParams, List<String> acrValues, List<String> uiLocales)
+public record InputRequest(
+		List<String> responseType,
+		String clientID,
+		String redirectURI,
+		List<InputScope> scope,
+		String responseMode,
+		List<String> resources,
+		String requestURI,
+		List<String> prompt,
+		Map<String, List<String>> customParams,
+		List<String> acrValues,
+		List<String> uiLocales)
 {
 
 	public static InputRequest from(AuthorizationRequest req)

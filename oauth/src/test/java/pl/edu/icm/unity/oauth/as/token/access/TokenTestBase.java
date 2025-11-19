@@ -212,8 +212,8 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 
 		ctx.setRequestedScopes(new HashSet<>(scopes));
 		for (String scope: scopes)
-			ctx.addEffectiveScopeInfo(new  RequestedOAuthScope(OAuthScopeDefinition.builder().withName(scope).withDescription(scope)
-					.withAttributes(Lists.newArrayList(scope + " attr")).withEnabled(true).build(), scope));					
+			ctx.addEffectiveScopeInfo(new  RequestedOAuthScope(scope, OAuthScopeDefinition.builder().withName(scope).withDescription(scope)
+					.withAttributes(Lists.newArrayList(scope + " attr")).withEnabled(true).build()));					
 					
 		ctx.setOpenIdMode(true);
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils

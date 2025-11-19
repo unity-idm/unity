@@ -130,8 +130,8 @@ public class OAuthTestUtils
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(true);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addEffectiveScopeInfo(new RequestedOAuthScope(OAuthScopeDefinition.builder().withName("sc1").withDescription("scope 1")
-				.withAttributes(Lists.newArrayList("email")).withEnabled(true).build(), "sc1"));
+		ctx.addEffectiveScopeInfo(new RequestedOAuthScope("sc1", OAuthScopeDefinition.builder().withName("sc1").withDescription("scope 1")
+				.withAttributes(Lists.newArrayList("email")).withEnabled(true).build()));
 		return ctx;
 	}
 
@@ -157,8 +157,8 @@ public class OAuthTestUtils
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(false);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addEffectiveScopeInfo( new RequestedOAuthScope(OAuthScopeDefinition.builder().withName("sc1").withDescription("scope 1")
-				.withAttributes(Lists.newArrayList("email")).withEnabled(true).build(), "sc1"));
+		ctx.addEffectiveScopeInfo( new RequestedOAuthScope("sc1", OAuthScopeDefinition.builder().withName("sc1").withDescription("scope 1")
+				.withAttributes(Lists.newArrayList("email")).withEnabled(true).build()));
 		return ctx;
 	}
 

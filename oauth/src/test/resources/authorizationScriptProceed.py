@@ -4,7 +4,7 @@ import sys, json
 try:
     data = json.load(sys.stdin)         
     result = {
-            "status": "Proceed",
+            "status": "PROCEED",
             "claims": [ {
                 "name": "test",
                 "values": ['test']
@@ -17,7 +17,7 @@ try:
     sys.stdout.flush()             
 except Exception as e:
     result = {
-        "status": "Deny"
+        "status": "DENY"
     }
     json.dump(result, sys.stdout)  
     sys.stdout.flush()

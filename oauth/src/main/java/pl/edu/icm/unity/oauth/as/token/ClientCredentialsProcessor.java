@@ -124,7 +124,7 @@ public class ClientCredentialsProcessor
 		{	
 			List<RequestedOAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, AttributeValueFilterUtils.getScopesWithoutFilterClaims(scope));
 			String[] array = validRequestedScopes.stream().
-					map(si -> si.scopeValue()).
+					map(si -> si.scope()).
 					toArray(String[]::new);
 			internalToken.setEffectiveScope(array);
 			for (RequestedOAuthScope si: validRequestedScopes)

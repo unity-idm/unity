@@ -280,7 +280,7 @@ class OAuthWebRequestValidator
 			List<RequestedOAuthScope> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes,
 					requestedScopes);
 			Optional<RequestedOAuthScope> offlineScope = validRequestedScopes.stream()
-					.filter(s -> s.scopeValue().equals(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE))
+					.filter(s -> s.scope().equals(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE))
 					.findAny();
 
 			if (!offlineScope.isEmpty() && !context.getPrompts()
@@ -307,7 +307,7 @@ class OAuthWebRequestValidator
 	{
 		boolean scopeRequested = requestedScopes.contains(scope.getValue());
 		boolean scopeAvailable = validRequestedScopes.stream()
-				.filter(vscope -> vscope.scopeValue().equals(scope.getValue()))
+				.filter(vscope -> vscope.scope().equals(scope.getValue()))
 				.findAny()
 				.isPresent();
 		if (scopeRequested && !scopeAvailable)

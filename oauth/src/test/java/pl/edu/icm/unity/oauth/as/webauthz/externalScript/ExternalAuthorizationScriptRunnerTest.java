@@ -2,7 +2,6 @@ package pl.edu.icm.unity.oauth.as.webauthz.externalScript;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
@@ -10,7 +9,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -56,22 +54,25 @@ class ExternalAuthorizationScriptRunnerTest
 		when(ctx.getRequest()).thenReturn(authRequest);
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
-		Optional<ExternalAuthorizationScriptResponse> result = runner.runConfiguredExternalAuthnScript(ctx,
+		
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
 				translationResult, config);
-		assertTrue(result.isPresent());
-		assertEquals(ExternalAuthorizationScriptResponse.Status.Deny, result.get().status());
+		
+		assertEquals(ExternalAuthorizationScriptResponse.Status.DENY, result.status());
 	}
 
 	@Test
-	void shouldReturnEmptyWhenNoScriptsConfigured()
+	void shouldReturnProceedWhenNoScriptsConfigured()
 	{
 		OAuthAuthzContext ctx = mock(OAuthAuthzContext.class);
 		TranslationResult translationResult = mock(TranslationResult.class);
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		when(config.getStructuredListKeys(anyString())).thenReturn(Collections.emptySet());
-		Optional<ExternalAuthorizationScriptResponse> result = runner.runConfiguredExternalAuthnScript(ctx,
+		
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
 				translationResult, config);
-		assertTrue(result.isEmpty());
+		
+		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}
 
 	@Test
@@ -88,10 +89,11 @@ class ExternalAuthorizationScriptRunnerTest
 		when(ctx.getRequest()).thenReturn(authRequest);
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
-		Optional<ExternalAuthorizationScriptResponse> result = runner.runConfiguredExternalAuthnScript(ctx,
+		
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
 				translationResult, config);
-		assertTrue(result.isPresent());
-		assertEquals(ExternalAuthorizationScriptResponse.Status.Proceed, result.get().status());
+		
+		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}
 
 	@Test
@@ -108,10 +110,11 @@ class ExternalAuthorizationScriptRunnerTest
 		when(ctx.getRequest()).thenReturn(authRequest);
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
-		Optional<ExternalAuthorizationScriptResponse> result = runner.runConfiguredExternalAuthnScript(ctx,
+		
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
 				translationResult, config);
-		assertTrue(result.isPresent());
-		assertEquals(ExternalAuthorizationScriptResponse.Status.Deny, result.get().status());
+		
+		assertEquals(ExternalAuthorizationScriptResponse.Status.DENY, result.status());
 	}
 
 	@Test
@@ -128,11 +131,12 @@ class ExternalAuthorizationScriptRunnerTest
 		when(ctx.getRequest()).thenReturn(authRequest);
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
-		Optional<ExternalAuthorizationScriptResponse> result = runner.runConfiguredExternalAuthnScript(ctx,
+		
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
 				translationResult, config);
-		assertTrue(result.isPresent());
-		assertEquals(ExternalAuthorizationScriptResponse.Status.Proceed, result.get().status());
-		assertThat(result.get().claims()).containsExactlyInAnyOrder(Claim.builder()
+		
+		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
+		assertThat(result.claims()).containsExactlyInAnyOrder(Claim.builder()
 				.withName("test")
 				.withValues(List.of(Constants.MAPPER.readTree("\"test\"")))
 				.build(),
@@ -159,10 +163,11 @@ class ExternalAuthorizationScriptRunnerTest
 		when(ctx.getRequest()).thenReturn(authRequest);
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
-		Optional<ExternalAuthorizationScriptResponse> result = runner.runConfiguredExternalAuthnScript(ctx,
+		
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
 				translationResult, config);
-		assertTrue(result.isPresent());
-		assertEquals(ExternalAuthorizationScriptResponse.Status.Proceed, result.get().status());
+		
+		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}
 
 }
