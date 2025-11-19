@@ -12,11 +12,13 @@ import java.util.Optional;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = ExternalAuthorizationScriptResponse.Builder.class)
-public record ExternalAuthorizationScriptResponse(Status status, List<Claim> claims)
+public record ExternalAuthorizationScriptResponse(
+		Status status,
+		List<Claim> claims)
 {
 	public enum Status
 	{
-		Deny, Proceed
+		DENY, PROCEED
 	}
 
 	public ExternalAuthorizationScriptResponse

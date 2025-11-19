@@ -10,8 +10,13 @@ import java.util.Objects;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 
-public record InputAttribute(String name, String valueSyntax, String groupPath, List<String> values,
-		String translationProfile, String remoteIdp)
+public record InputAttribute(
+		String name,
+		String valueSyntax,
+		String groupPath,
+		List<String> values,
+		String translationProfile,
+		String remoteIdp)
 {
 	public InputAttribute
 	{

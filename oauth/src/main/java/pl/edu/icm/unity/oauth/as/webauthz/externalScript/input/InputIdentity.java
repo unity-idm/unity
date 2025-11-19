@@ -14,8 +14,14 @@ import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record InputIdentity(String typeId, String value, String target, String realm, String translationProfile,
-		String remoteIdp, ConfirmationInfo confirmationInfo)
+public record InputIdentity(
+		String typeId,
+		String value,
+		String target,
+		String realm,
+		String translationProfile,
+		String remoteIdp,
+		ConfirmationInfo confirmationInfo)
 {
 
 	public static InputIdentity fromIdentity(IdentityParam id, IdentityTypesRegistry registry)

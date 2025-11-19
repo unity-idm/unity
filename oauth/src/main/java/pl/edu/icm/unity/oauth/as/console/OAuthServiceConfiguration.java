@@ -372,8 +372,9 @@ public class OAuthServiceConfiguration
 		
 		authorizationScripts.clear();
 		Set<String> scriptKeys = oauthProperties.getStructuredListKeys(OAuthASProperties.AUTHORIZATION_SCRIPTS);
-		scriptKeys.forEach(scriptKey -> authorizationScripts.add(new AuthorizationScriptBean(oauthProperties.getValue(scriptKey + OAuthASProperties.AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE),
-					oauthProperties.getValue(scriptKey + OAuthASProperties.AUTHORIZATION_SCRIPT_PATH))));
+		scriptKeys.forEach(scriptKey -> authorizationScripts.add(new AuthorizationScriptBean(
+				oauthProperties.getValue(scriptKey + OAuthASProperties.AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE),
+				oauthProperties.getValue(scriptKey + OAuthASProperties.AUTHORIZATION_SCRIPT_PATH))));
 
 		trustedUpstreamAS.clear();
 		Set<String> trustedUpstreamASKeys = oauthProperties

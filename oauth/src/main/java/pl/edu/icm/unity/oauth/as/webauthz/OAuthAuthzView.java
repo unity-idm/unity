@@ -201,8 +201,8 @@ class OAuthAuthzView extends UnityViewComponent
 			return;
 		}
 	
-		Optional<ExternalAuthorizationScriptResponse> resp = externalAuthorizationScriptRunner.runConfiguredExternalAuthnScript(ctx, translationResult, config);
-		if (resp.isPresent() && resp.get().status().equals(ExternalAuthorizationScriptResponse.Status.Deny))
+		ExternalAuthorizationScriptResponse resp = externalAuthorizationScriptRunner.runConfiguredExternalAuthnScript(ctx, translationResult, config);
+		if (resp.status().equals(ExternalAuthorizationScriptResponse.Status.DENY))
 		{
 			AuthorizationErrorResponse oauthResponse = new AuthorizationErrorResponse(ctx.getReturnURI(),
 					OAuth2Error.ACCESS_DENIED, ctx.getRequest().getState(),
@@ -215,10 +215,9 @@ class OAuthAuthzView extends UnityViewComponent
 		Set<DynamicAttribute> allAttributes = OAuthProcessor.filterAttributes(translationResult,
 				ctx.getEffectiveRequestedAttrs());
 		
-		if (resp.isPresent())
-		{
-			allAttributes = ExternalScriptClaimsToAttributeMerger.mergeClaimsWithAttributes(allAttributes, resp.get().claims()).stream().collect(Collectors.toSet());
-		}
+		
+		allAttributes = ExternalScriptClaimsToAttributeMerger.mergeClaimsWithAttributes(allAttributes, resp.claims()).stream().collect(Collectors.toSet());
+		
 	
 		Set<DynamicAttribute> filteredByClaimAttributes = AttributeValueFilter.filterAttributes(ctx.getClaimValueFilters(), allAttributes);
 

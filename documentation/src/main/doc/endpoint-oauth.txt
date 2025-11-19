@@ -292,13 +292,6 @@ The script receives a JSON document containing the following information:
 ----
  {
   "attributes" : [ {
-    "name" : "country",
-    "valueSyntax" : "string",
-    "groupPath" : "/",
-    "values" : [ "Poland" ],
-    "translationProfile" : null,
-    "remoteIdp" : null
-  }, {
     "name" : "blocked",
     "valueSyntax" : "boolean",
     "groupPath" : "/",
@@ -310,13 +303,6 @@ The script receives a JSON document containing the following information:
     "valueSyntax" : "string",
     "groupPath" : "/",
     "values" : [ "/" ],
-    "translationProfile" : null,
-    "remoteIdp" : null
-  }, {
-    "name" : "name",
-    "valueSyntax" : "string",
-    "groupPath" : "/",
-    "values" : [ "Default Administrator" ],
     "translationProfile" : null,
     "remoteIdp" : null
   }, {
@@ -334,40 +320,9 @@ The script receives a JSON document containing the following information:
     "realm" : null,
     "translationProfile" : null,
     "remoteIdp" : null
-  }, {
-    "typeId" : "persistent",
-    "value" : "55e3de6e-b1b4-4979-a227-8af306633d54",
-    "target" : null,
-    "realm" : null,
-    "translationProfile" : null,
-    "remoteIdp" : null
-  }, {
-    "typeId" : "targetedPersistent",
-    "value" : "dc9f3603-07f0-4045-966f-1f3bd836150a",
-    "target" : "oauth-client",
-    "realm" : "main",
-    "translationProfile" : null,
-    "remoteIdp" : null
-  }, {
-    "typeId" : "email",
-    "value" : "test@test.com",
-    "target" : null,
-    "realm" : null,
-    "translationProfile" : null,
-    "remoteIdp" : null,
-    "confirmationInfo" : {
-      "confirmed" : true,
-      "confirmationDate" : 1762860656104,
-      "sentRequestAmount" : 0
-    }
-  }, {
-    "typeId" : "transient",
-    "value" : "64361c27-ef8f-41ab-8046-a18f6582af1d",
-    "target" : "oauth-client",
-    "realm" : "main",
-    "translationProfile" : null,
-    "remoteIdp" : null
-  } ],
+  } 
+  ....
+  ],
   "request" : {
     "responseType" : [ "code" ],
     "clientID" : "oauth-client",
@@ -404,7 +359,7 @@ The script must return a JSON object with the following structure:
 
 ----
 {
-  "status": "Proceed",
+  "status": "PROCEED",
   "claims": [
     {
       "name": "example_claim",
@@ -416,10 +371,10 @@ The script must return a JSON object with the following structure:
 }
 ----
 
-Unity taking into account the scripts responses, processes the oauth request:
+Unity taking into account the scripts responses, processes the OAuth request:
 
-* +Deny+ the entire OAuth interaction if a triggered script fails or returns a DENY status.
-* +Proceed+ with the request otherwise, supplementing the resulting token with any claims returned by the triggered script.
+* +DENY+ the entire OAuth interaction if a triggered script fails or returns a DENY status.
+* +PROCEED+ with the request otherwise, supplementing the resulting token with any claims returned by the triggered script.
 
 
 

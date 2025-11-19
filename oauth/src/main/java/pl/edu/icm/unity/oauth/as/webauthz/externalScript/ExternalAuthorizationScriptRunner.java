@@ -12,7 +12,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -49,14 +48,16 @@ public class ExternalAuthorizationScriptRunner
 		this.identityTypesRegistry = identityTypesRegistry;
 	}
 
-	public Optional<ExternalAuthorizationScriptResponse> runConfiguredExternalAuthnScript(
+	public ExternalAuthorizationScriptResponse runConfiguredExternalAuthnScript(
 			OAuthAuthzContext ctx,
 			TranslationResult translationResult,
 			OAuthASProperties config)
 	{
 		List<AuthorizationScriptBean> scripts = getScriptsFromConfig(config);
 		if (scripts.isEmpty())
-			return Optional.empty();
+			 return ExternalAuthorizationScriptResponse.builder()
+					.withStatus(Status.PROCEED)
+					.build();
 
 		Scope scope = ctx.getRequest().getScope();
 
@@ -76,29 +77,30 @@ public class ExternalAuthorizationScriptRunner
 
 		for (AuthorizationScriptBean script : scripts)
 		{
-			if (scope != null && scriptMatches(scope.toStringList(), script.getScope()))
+			if (scope != null && scriptMatches(scope.toStringList(), script))
 			{
 				ExternalAuthorizationScriptResponse resp = runSingleScript(input, script.getPath());
 
-				if (resp.status() == Status.Deny)
-					return Optional.of(resp);
+				if (resp.status() == Status.DENY)
+					return resp;
 
 				responses.add(resp);
 			}
 		}
 
-		return Optional.of(ExternalAuthorizationScriptResponse.builder()
-				.withStatus(Status.Proceed)
+		return ExternalAuthorizationScriptResponse.builder()
+				.withStatus(Status.PROCEED)
 				.withClaims(responses.stream()
 						.flatMap(r -> r.claims().stream())
 						.toList())
-				.build());
+				.build();
 	}
 
 	private ExternalAuthorizationScriptResponse runSingleScript(ExternalAuthorizationScriptInput input, String path)
 	{
 		try
 		{
+			log.debug("Running external authorization script: {}", path);
 			ProcessBuilder pb = new ProcessBuilder(path);
 			pb.redirectErrorStream(false);
 
@@ -119,7 +121,7 @@ public class ExternalAuthorizationScriptRunner
 		{
 			log.error("External authorization script error", e);
 			return ExternalAuthorizationScriptResponse.builder()
-					.withStatus(Status.Deny)
+					.withStatus(Status.DENY)
 					.build();
 		}
 	}
@@ -170,17 +172,22 @@ public class ExternalAuthorizationScriptRunner
 				.toList();
 	}
 
-	private boolean scriptMatches(List<String> requestedScopes, String triggeringScope)
+	private boolean scriptMatches(List<String> requestedScopes, AuthorizationScriptBean script)
 	{
 		try
 		{
-			return requestedScopes.stream().anyMatch(
-					requested -> Pattern.matches(triggeringScope, requested)
-			);
-		}
-		catch (PatternSyntaxException e)
+			for (String requested : requestedScopes)
+			{
+				if (Pattern.matches(script.getScope(), requested))
+				{
+					log.debug("Matched scope: '{}' with authorization script definition: scope='{}', path= '{}'", requested, script.getScope(), script.getPath());
+					return true;
+				}
+			}
+			return false;
+		} catch (PatternSyntaxException e)
 		{
-			log.error("Invalid scope pattern: {}", triggeringScope, e);
+			log.error("Invalid scope pattern: {}", script, e);
 			return false;
 		}
 	}

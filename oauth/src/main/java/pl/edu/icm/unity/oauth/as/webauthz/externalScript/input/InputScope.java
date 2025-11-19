@@ -6,8 +6,7 @@
 package pl.edu.icm.unity.oauth.as.webauthz.externalScript.input;
 
 public record InputScope(
-        String value,
-        String requirement
-) { }
-
-
+		String value,
+		String requirement)
+{
+}
