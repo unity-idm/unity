@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @JsonDeserialize(builder = ExternalAuthorizationScriptResponse.Builder.class)
 public record ExternalAuthorizationScriptResponse(
 		Status status,
-		List<Claim> claims)
+		List<ExternalAuthzClaim> claims)
 {
 	public enum Status
 	{
@@ -34,7 +34,7 @@ public record ExternalAuthorizationScriptResponse(
 	public static final class Builder
 	{
 		private Status status;
-		private List<Claim> claims = Collections.emptyList();
+		private List<ExternalAuthzClaim> claims = Collections.emptyList();
 
 		public Builder()
 		{
@@ -46,7 +46,7 @@ public record ExternalAuthorizationScriptResponse(
 			return this;
 		}
 
-		public Builder withClaims(List<Claim> claims)
+		public Builder withClaims(List<ExternalAuthzClaim> claims)
 		{
 			this.claims = claims;
 			return this;

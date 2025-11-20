@@ -284,7 +284,8 @@ public class ASConsentDeciderServlet extends HttpServlet
 		oauthSessionService.cleanupBeforeResponseSent(session);
 		try
 		{
-			String redirectURL = oauthResponse.toURI().toString();
+			String redirectURL = oauthResponse.toURI()
+					.toString();
 			log.trace("Sending OAuth reply via return redirect: " + redirectURL);
 			response.sendRedirect(redirectURL);
 		} catch (SerializeException e)

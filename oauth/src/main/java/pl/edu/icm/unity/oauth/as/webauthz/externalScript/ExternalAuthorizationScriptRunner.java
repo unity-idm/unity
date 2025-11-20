@@ -68,7 +68,7 @@ public class ExternalAuthorizationScriptRunner
 				.withIdentities(translationResult.getIdentities().stream()
 						.map(id -> InputIdentity.fromIdentity(id, identityTypesRegistry))
 						.toList())
-				.withRequest(InputRequest.from(ctx.getRequest()))
+				.withRequest(InputRequest.fromAuthorizationRequest(ctx.getRequest()))
 				.build();
 
 		logPretty("External authorization script input", input);
