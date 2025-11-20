@@ -136,11 +136,11 @@ class ExternalAuthorizationScriptRunnerTest
 				translationResult, config);
 		
 		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
-		assertThat(result.claims()).containsExactlyInAnyOrder(Claim.builder()
+		assertThat(result.claims()).containsExactlyInAnyOrder(ExternalAuthzClaim.builder()
 				.withName("test")
 				.withValues(List.of(Constants.MAPPER.readTree("\"test\"")))
 				.build(),
-				Claim.builder()
+				ExternalAuthzClaim.builder()
 						.withName("test2")
 						.withValues(List.of(Constants.MAPPER.readTree("1"), Constants.MAPPER.readTree("2")))
 						.build());

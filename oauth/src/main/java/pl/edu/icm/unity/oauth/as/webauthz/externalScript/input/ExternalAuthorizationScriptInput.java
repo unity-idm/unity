@@ -8,6 +8,7 @@ package pl.edu.icm.unity.oauth.as.webauthz.externalScript.input;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
@@ -20,8 +21,12 @@ public class ExternalAuthorizationScriptInput
 
 	private ExternalAuthorizationScriptInput(Builder builder)
 	{
-		this.attributes = builder.attributes;
-		this.identities = builder.identities;
+		this.attributes = Optional.ofNullable(builder.attributes)
+				.map(List::copyOf)
+				.orElse(Collections.emptyList());
+		this.identities = Optional.ofNullable(builder.identities)
+				.map(List::copyOf)
+				.orElse(Collections.emptyList());
 		this.request = builder.request;
 	}
 

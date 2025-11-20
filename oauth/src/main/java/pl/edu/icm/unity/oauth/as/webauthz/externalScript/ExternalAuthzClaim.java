@@ -11,10 +11,10 @@ import java.util.Optional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(builder = Claim.Builder.class)
-public record Claim(String name, List<JsonNode> values)
+@JsonDeserialize(builder = ExternalAuthzClaim.Builder.class)
+public record ExternalAuthzClaim(String name, List<JsonNode> values)
 {
-	public Claim
+	public ExternalAuthzClaim
 	{
 		values = Optional.ofNullable(values) .map(List::copyOf) .orElse(null);
 	}
@@ -45,9 +45,9 @@ public record Claim(String name, List<JsonNode> values)
 			return this;
 		}
 
-		public Claim build()
+		public ExternalAuthzClaim build()
 		{
-			return new Claim(name, Optional.ofNullable(values)
+			return new ExternalAuthzClaim(name, Optional.ofNullable(values)
 					.map(List::copyOf)
 					.orElse(null));
 		}

@@ -27,7 +27,7 @@ public record InputRequest(
 		List<String> uiLocales)
 {
 
-	public static InputRequest from(AuthorizationRequest req)
+	public static InputRequest fromAuthorizationRequest(AuthorizationRequest req)
 	{
 		Builder builder = builder().withClientID(Optional.ofNullable(req.getClientID())
 				.map(c -> c.getValue())
