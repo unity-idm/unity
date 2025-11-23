@@ -27,6 +27,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
@@ -133,8 +134,8 @@ public class RefreshTokenHandlerTest
 		oAuthToken.setTokenValidity(1000);
 		token.setContents(oAuthToken.getSerialized());
 		when(refreshTokensRepository.readRefreshToken("token")).thenReturn(token);
-		when(tokenService.prepareNewTokenBasedOnOldToken(any(OAuthToken.class), anyString(), anyList(), anyLong(),
-				anyLong(), anyString(), eq(true), anyString())).thenReturn(oAuthToken);
+		when(tokenService.prepareNewTokenBasedOnOldToken(any(OAuthToken.class), any(Scope.class), anyList(), anyLong(),
+				anyLong(), anyList(), eq(true), anyString())).thenReturn(oAuthToken);
 		when(tokenService.getAccessTokenResponse(any(OAuthToken.class), any(AccessToken.class), eq(null), eq(null)))
 				.thenReturn(new AccessTokenResponse(new Tokens(new BearerAccessToken(), null)));
 		Response response = refreshTokenHandler.handleRefreshTokenGrant("token", "scope", "");

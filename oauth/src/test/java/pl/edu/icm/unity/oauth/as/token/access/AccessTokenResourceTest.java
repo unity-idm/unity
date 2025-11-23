@@ -69,7 +69,7 @@ public class AccessTokenResourceTest
 
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(),
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null,
-				null, null, null, null);
+				null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -93,7 +93,7 @@ public class AccessTokenResourceTest
 		{ GrantType.CLIENT_CREDENTIALS, GrantType.TOKEN_EXCHANGE })
 		{
 			Response r = tested.getToken(grant.getValue(), step1Resp.getAuthorizationCode().getValue(), null,
-					"https://return.host.com/foo", null, null, null, null, null, null, null);
+					"https://return.host.com/foo", null, null, null, null, null, null, null, null, null, null);
 			assertEquals(HTTPResponse.SC_UNAUTHORIZED, r.getStatus());
 		}
 	}
@@ -116,7 +116,7 @@ public class AccessTokenResourceTest
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensManagement), ctx);
 
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), step1Resp.getAuthorizationCode()
-				.getValue(), null, "https://return.host.com/foo", null, null, null, null, null, null, null);
+				.getValue(), null, "https://return.host.com/foo", null, null, null, null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_UNAUTHORIZED, r.getStatus());
 
 	}
@@ -137,7 +137,7 @@ public class AccessTokenResourceTest
 
 		Response r = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(),
 				step1Resp.getAuthorizationCode().getValue(), null, "https://wrong.com", null, null, null, null, null,
-				null, null);
+				null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 
@@ -150,7 +150,7 @@ public class AccessTokenResourceTest
 		setupInvocationContext(100);
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), "1234", null,
-				"https://return.host.com/foo", null, null, null, null, null, null, null);
+				"https://return.host.com/foo", null, null, null, null, null, null, null, null, null, null);
 		assertEquals(400, resp.getStatus());
 		JSONObject ret = (JSONObject) JSONValue.parse(resp.getEntity().toString());
 		assertEquals("invalid_grant", ret.get("error"));
@@ -170,7 +170,7 @@ public class AccessTokenResourceTest
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(),
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null,
-				null, null, null, null);
+				null, null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setBody(resp.getEntity().toString());
@@ -200,7 +200,7 @@ public class AccessTokenResourceTest
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(),
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null,
-				null, null, null, null);
+				null, null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setBody(resp.getEntity().toString());
@@ -229,7 +229,7 @@ public class AccessTokenResourceTest
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(),
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null,
-				null, null, null, null);
+				null, null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setBody(resp.getEntity().toString());
@@ -254,7 +254,7 @@ public class AccessTokenResourceTest
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(),
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null,
-				null, null, null, null);
+				null, null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setBody(resp.getEntity().toString());
@@ -280,7 +280,7 @@ public class AccessTokenResourceTest
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(),
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null,
-				null, null, null, null);
+				null, null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setBody(resp.getEntity().toString());

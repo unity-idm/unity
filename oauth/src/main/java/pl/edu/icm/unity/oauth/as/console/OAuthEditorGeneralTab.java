@@ -99,6 +99,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 	private String serverPrefix;
 	private Set<String> serverContextPaths;
 	private Checkbox openIDConnect;
+	private Checkbox exchangeToken;
 	private ComboBox<String> credential;
 	private ComboBox<SigningAlgorithms> signingAlg;
 	private ComboBox<AccessTokenFormat> accessTokenFormat;
@@ -359,7 +360,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 			refreshTokenExp.setEnabled(!e.getValue()
 					.equals(RefreshTokenIssuePolicy.NEVER));
 			refreshScope(e.getValue()
-					.equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED), OIDCScopeValue.OFFLINE_ACCESS);
+					.equals(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED), OIDCScopeValue.OFFLINE_ACCESS.getValue());
 
 		});
 
@@ -461,10 +462,21 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		signingSecret.setEnabled(false);
 		mainGeneralLayout.addFormItem(signingSecret, msg.getMessage("OAuthEditorGeneralTab.signingSecret"));
 
+		exchangeToken = new Checkbox(msg.getMessage("OAuthEditorGeneralTab.exchangeToken"));
+		configBinder.forField(exchangeToken)
+				.bind("exchangeToken");
+		mainGeneralLayout.addFormItem(exchangeToken, "");
+		
+		
 		openIDConnect.addValueChangeListener(e ->
 		{
 			refreshSigningControls();
-			refreshScope(e.getValue(), OIDCScopeValue.OPENID);
+			refreshScope(e.getValue(), OIDCScopeValue.OPENID.getValue());
+		});
+		
+		exchangeToken.addValueChangeListener(e ->
+		{
+			refreshScope(e.getValue(), OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
 		});
 
 		
@@ -516,13 +528,13 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		return ValidationResult.ok();
 	}
 	
-	private void refreshScope(boolean add, OIDCScopeValue value)
+	private void refreshScope(boolean add, String value)
 	{
 		Optional<OAuthScopeBean> scope = configBinder.getBean()
 				.getScopes()
 				.stream()
 				.filter(s -> s.getName()
-						.equals(value.getValue()))
+						.equals(value))
 				.findFirst();
 		if (scope.isPresent())
 		{

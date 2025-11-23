@@ -5,7 +5,6 @@
 
 package pl.edu.icm.unity.oauth.as.token.access;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -80,17 +79,11 @@ class TokenService
 		this.clientAttributesProvider = clientAttributesProvider;
 	}
 
-	OAuthToken prepareNewTokenBasedOnOldToken(OAuthToken oldToken, String scope, List<String> oldRequestedScopesList,
-			long ownerId, long clientId, String clientUserName, boolean createIdToken, String grant)
+	OAuthToken prepareNewTokenBasedOnOldToken(OAuthToken oldToken, Scope newRequestedScopeList, List<String> oldRequestedScopesList,
+			long ownerId, long clientId, List<String> audience, boolean createIdToken, String grant)
 			throws OAuthErrorException
 	{
 		OAuthToken newToken = new OAuthToken(oldToken);
-		
-		Scope newRequestedScopeList = new Scope();
-		if (scope != null && !scope.isEmpty())
-		{
-			newRequestedScopeList = Scope.parse(scope);
-		}
 		
 		List<String> filteredScopes = AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList).stream().map(v -> v.getValue()).toList();
 		
@@ -121,7 +114,7 @@ class TokenService
 			try
 			{
 				newToken.setOpenidToken(
-						createIdToken(now, newToken, Arrays.asList(new Audience(clientUserName)), userInfoClaimSet));
+						createIdToken(now, newToken, Audience.create(audience), userInfoClaimSet));
 			} catch (Exception e)
 			{
 				log.error("Cannot create new id token", e);
@@ -215,14 +208,23 @@ class TokenService
 				new Subject(token.getSubject()), audience, TokenUtils.getAccessTokenExpiration(config, now), now);
 		newClaims.setNonce(oldClaims.getNonce());
 
-		ResponseType responseType = null;
-		if (token.getResponseType() != null && !token.getResponseType().isEmpty())
+		if (token.hasSupportAttributesInIdToken().isPresent())
 		{
-			responseType = ResponseType.parse(token.getResponseType());
-			if (responseType.contains(OIDCResponseTypeValue.ID_TOKEN) && responseType.size() == 1)
+			if (token.hasSupportAttributesInIdToken().get())
+			{
 				newClaims.putAll(userInfoClaimSet);
+			}	
+		} else
+		{
+			ResponseType responseType = null;
+			if (token.getResponseType() != null && !token.getResponseType()
+					.isEmpty())
+			{
+				responseType = ResponseType.parse(token.getResponseType());
+				if (responseType.contains(OIDCResponseTypeValue.ID_TOKEN) && responseType.size() == 1)
+					newClaims.putAll(userInfoClaimSet);
+			}
 		}
-
 		return config.getTokenSigner().sign(newClaims).serialize();
 	}
 

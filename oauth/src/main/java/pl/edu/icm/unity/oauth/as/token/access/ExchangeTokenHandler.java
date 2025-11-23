@@ -5,11 +5,15 @@
 
 package pl.edu.icm.unity.oauth.as.token.access;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+
+import org.apache.commons.lang3.StringUtils;
 
 import jakarta.ws.rs.core.Response;
 
@@ -17,6 +21,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 
@@ -66,7 +71,7 @@ class ExchangeTokenHandler
 	}
 
 	Response handleExchangeToken(String subjectToken, String subjectTokenType, String requestedTokenType,
-			String audience, String scope, String acceptHeader) throws EngineException, JsonProcessingException
+			String audience, String scope, String actorToken, String actorTokenType, List<String> resource, String acceptHeader) throws EngineException, JsonProcessingException
 	{
 
 		long callerEntityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
@@ -84,22 +89,35 @@ class ExchangeTokenHandler
 			return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "wrong subject_token");
 		}
 
+		Scope newRequestedScopeList = new Scope();
+		if (scope != null && !scope.isEmpty())
+		{
+			newRequestedScopeList = Scope.parse(scope);
+		}
+		
+		
 		List<String> oldRequestedScopesList = Arrays.asList(parsedSubjectToken.getRequestedScope());
 
 		try
 		{
 			validateExchangeRequest(subjectTokenType, requestedTokenType, audience, callerEntityId, audienceEntity,
-					oldRequestedScopesList);
+					oldRequestedScopesList, newRequestedScopeList, actorToken, actorTokenType);
 		} catch (OAuthErrorException e)
 		{
 			return e.response;
 		}
 
+		List<String> newAudience = new ArrayList<>(
+			    Stream.concat(Stream.of(audience),
+			                  resource == null ? Stream.empty() : resource.stream())
+			          .toList()
+			);
+		
 		OAuthToken newToken = null;
 		try
 		{
-			newToken = tokenService.prepareNewTokenBasedOnOldToken(parsedSubjectToken, scope, oldRequestedScopesList,
-					subToken.getOwner(), callerEntityId, audience,
+			newToken = tokenService.prepareNewTokenBasedOnOldToken(parsedSubjectToken, newRequestedScopeList, oldRequestedScopesList,
+					subToken.getOwner(), callerEntityId, newAudience,
 					requestedTokenType != null && requestedTokenType.equals(AccessTokenResource.ID_TOKEN_TYPE_ID),
 					GrantType.TOKEN_EXCHANGE.getValue());
 		} catch (OAuthErrorException e)
@@ -108,7 +126,7 @@ class ExchangeTokenHandler
 		}
 
 		newToken.setClientId(callerEntityId);
-		newToken.setAudience(List.of(audience));
+		newToken.setAudience(newAudience);
 		newToken.setClientUsername(audience);
 		newToken.setClientType(parsedSubjectToken.getClientType());
 
@@ -141,8 +159,10 @@ class ExchangeTokenHandler
 		return BaseOAuthResource.toResponse(Response.ok(BaseOAuthResource.getResponseContent(oauthResponse)));
 	}
 
+	
 	private void validateExchangeRequest(String subjectTokenType, String requestedTokenType, String audience,
-			long callerEntityId, EntityParam audienceEntity, List<String> oldRequestedScopesList)
+			long callerEntityId, EntityParam audienceEntity, List<String> oldRequestedScopesList, Scope newRequestedScopeList, String actorToken,
+			String actorTokenType)
 			throws OAuthErrorException
 	{
 		if (!subjectTokenType.equals(AccessTokenResource.ACCESS_TOKEN_TYPE_ID))
@@ -159,6 +179,18 @@ class ExchangeTokenHandler
 				throw new OAuthErrorException(
 						BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "unsupported requested_token_type"));
 			}
+		}
+		
+		if (StringUtils.isNoneEmpty(actorToken))
+		{
+			throw new OAuthErrorException(
+					BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "unsupported actor_token"));
+		}
+				
+		if (StringUtils.isNoneEmpty(actorTokenType))
+		{
+			throw new OAuthErrorException(
+					BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "unsupported actor_token_type"));
 		}
 
 		Entity audienceResolvedEntity = null;
@@ -184,5 +216,11 @@ class ExchangeTokenHandler
 			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_SCOPE,
 					"Orginal token must have  " + AccessTokenResource.EXCHANGE_SCOPE + " scope"));
 		}
+		
+		if (newRequestedScopeList.contains(AccessTokenResource.EXCHANGE_SCOPE))
+		{
+			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_SCOPE,
+					"Invalid  requested scope:" + AccessTokenResource.EXCHANGE_SCOPE));
+		}	
 	}
 }
