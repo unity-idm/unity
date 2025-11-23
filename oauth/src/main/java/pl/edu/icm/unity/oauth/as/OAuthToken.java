@@ -344,6 +344,15 @@ public class OAuthToken
 		return claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.token);	
 	}
 	
+	@JsonIgnore
+	public Optional<Boolean> hasSupportAttributesInIdToken()
+	{
+		if (claimsInTokenAttribute.isEmpty())
+			return Optional.empty();
+		
+		return Optional.of(claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.id_token));	
+	}
+	
 	public Instant getAuthenticationTime()
 	{
 		return authenticationTime;

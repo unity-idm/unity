@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
@@ -96,13 +97,19 @@ class RefreshTokenHandler
 		OAuthToken newToken = null;
 
 		// When no scopes are requested RFC mandates to assign all originally assigned
-		if (scope == null)
-			scope = String.join(" ", oldRequestedScopesList);
-
+		Scope newRequestedScopeList = new Scope();
+		if (scope != null && !scope.isEmpty())
+		{
+			newRequestedScopeList = Scope.parse(scope);
+		}else
+		{
+			oldRequestedScopesList.forEach(newRequestedScopeList::add);
+		}
+		
 		try
 		{
-			newToken = tokenService.prepareNewTokenBasedOnOldToken(parsedRefreshToken, scope, oldRequestedScopesList,
-					refreshToken.getOwner(), callerEntityId, parsedRefreshToken.getClientUsername(), true,
+			newToken = tokenService.prepareNewTokenBasedOnOldToken(parsedRefreshToken, newRequestedScopeList, oldRequestedScopesList,
+					refreshToken.getOwner(), callerEntityId, List.of(parsedRefreshToken.getClientUsername()), true,
 					GrantType.REFRESH_TOKEN.getValue());
 		} catch (OAuthErrorException e)
 		{

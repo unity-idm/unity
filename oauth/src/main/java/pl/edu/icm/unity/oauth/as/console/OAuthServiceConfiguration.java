@@ -5,8 +5,17 @@
 
 package pl.edu.icm.unity.oauth.as.console;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Strings;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.services.idp.ActiveValueConfig;
 import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
@@ -27,12 +36,8 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
+import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Represent full OAuth service configuration.
@@ -70,6 +75,7 @@ public class OAuthServiceConfiguration
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 	private List<TrustedUpstreamASBean> trustedUpstreamAS;
 	private List<AuthorizationScriptBean> authorizationScripts;
+	private boolean exchangeToken;
 	
 	public OAuthServiceConfiguration()
 	{
@@ -104,6 +110,7 @@ public class OAuthServiceConfiguration
 		usersGroup = new GroupWithIndentIndicator(root, false);
 		clientGroup = new GroupWithIndentIndicator(root, false);
 		openIDConnect = false;
+		exchangeToken= false;
 		supportExtendTokenValidity = false;
 		skipUserImport = false;
 		userImports = new ArrayList<>();
@@ -403,13 +410,9 @@ public class OAuthServiceConfiguration
 			trustedUpstreamAS.add(trustedUpstreamASBean);
 		}
 
-		Optional<OAuthScopeBean> openIdScope = scopes.stream()
-				.filter(s -> s.getName()
-						.equals(OIDCScopeValue.OPENID.getValue()))
-				.findFirst();
-		openIDConnect = openIdScope.isPresent() && openIdScope.get()
-				.isEnabled();
-
+		openIDConnect = isScopeEnabled(OIDCScopeValue.OPENID.getValue());
+		exchangeToken = isScopeEnabled(OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
+		
 		if (oauthProperties.isSet(CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE))
 		{
 			translationProfile = TranslationProfileGenerator
@@ -474,6 +477,14 @@ public class OAuthServiceConfiguration
 		}
 
 		policyAgreementConfig = IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, oauthProperties);
+	}
+	
+	private boolean isScopeEnabled(String scopeName) {
+	    return scopes.stream()
+	            .filter(s -> scopeName.equals(s.getName()))
+	            .findFirst()
+	            .map(OAuthScopeBean::isEnabled)
+	            .orElse(false);
 	}
 
 	public List<UserImportConfig> getUserImports()
@@ -759,5 +770,15 @@ public class OAuthServiceConfiguration
 	public void setAuthorizationScripts(List<AuthorizationScriptBean> authorizationScripts)
 	{
 		this.authorizationScripts = authorizationScripts;
+	}
+
+	public boolean isExchangeToken()
+	{
+		return exchangeToken;
+	}
+
+	public void setExchangeToken(boolean exchangeToken)
+	{
+		this.exchangeToken = exchangeToken;
 	}
 }

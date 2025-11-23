@@ -51,7 +51,7 @@ public class RefreshTokenTest extends TokenTestBase
 {
 	private RefreshToken initRefresh(List<String> scope, ClientAuthentication ca) throws Exception
 	{
-		return init(scope, ca).getTokens().getRefreshToken();	
+		return init(scope, ca, null, null).getTokens().getRefreshToken();	
 	}
 	
 

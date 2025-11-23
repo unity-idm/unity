@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.token.access;
 
+import java.util.List;
+
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -64,7 +66,11 @@ public class AccessTokenResource extends BaseOAuthResource
 			@FormParam("refresh_token") String refreshToken, @FormParam("audience") String audience,
 			@FormParam("requested_token_type") String requestedTokenType,
 			@FormParam("subject_token") String subjectToken, @FormParam("subject_token_type") String subjectTokenType,
-			@FormParam("code_verifier") String codeVerifier, @HeaderParam("Accept") String acceptHeader)
+			@FormParam("code_verifier") String codeVerifier,
+			@FormParam("actor_token") String actorToken,
+			@FormParam("actor_token_type") String actorTokenType,
+			@FormParam("resource") List<String> resource,
+			@HeaderParam("Accept") String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
 		if (grantType == null)
@@ -98,7 +104,7 @@ public class AccessTokenResource extends BaseOAuthResource
 			if (subjectTokenType == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "subject_token_type is required");
 			return exchangeTokenHandler.handleExchangeToken(subjectToken, subjectTokenType, requestedTokenType,
-					audience, scope, acceptHeader);
+					audience, scope, actorToken, actorTokenType, resource, acceptHeader);
 		} else if (grantType.equals(GrantType.REFRESH_TOKEN.getValue()))
 		{
 			if (refreshToken == null)

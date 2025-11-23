@@ -9,6 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,9 +32,9 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
-import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -50,10 +51,11 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
-import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
+import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
+import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -202,7 +204,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	 * @param ca user auth 
 	 * @return Parsed access token response
 	 */
-	protected AccessTokenResponse init(List<String> scopes, ClientAuthentication ca)
+	protected AccessTokenResponse init(List<String> scopes, ClientAuthentication ca, List<String> additionalAudience, ClaimsInTokenAttribute claimInIdToken)
 			throws Exception
 	{
 		IdentityParam identity = initUser("userA");
@@ -216,6 +218,13 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 					.withAttributes(Lists.newArrayList(scope + " attr")).withEnabled(true).build()));					
 					
 		ctx.setOpenIdMode(true);
+		if (additionalAudience != null)
+		{
+			ctx.setAdditionalAudience(additionalAudience);
+		}
+		ctx.setClaimsInTokenAttribute(Optional.ofNullable(claimInIdToken));
+		
+		
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx, identity);
 		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,

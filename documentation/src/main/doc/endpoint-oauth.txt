@@ -187,8 +187,27 @@ There are several conditions that must be met to perform a successful exchange:
  - _id token_ can be issued only if +requested_token_type+ is equal to +urn:ietf:params:oauth:token-type:id_token+ 
  and scopes contain +openid+. 
  - Exchange may be only performed by an authenticated Unity client.
+ - +actor_token+ and +actor_token_type+ parameters are not supported
 
-Sample exchange request parameters:
+Sample exchange flow:
+
+. Orginal access token issued for clien "oauth-client"
+
+----
+{
+  "sub": "dc9f3603-07f0-4045-966f-1f3bd836150a",
+  "aud": "oauth-client",
+  "scope": "openid token-exchange profile",
+  "auth_time": 1763889199,
+  "iss": "https://localhost:2443/oauth2",
+  "exp": 1763893256,
+  "iat": 1763889656,
+  "jti": "907379fa-25fe-4eab-8521-9674c6b89bbd",
+  "client_id": "oauth-client"
+}
+----
+
+. Exchange request perforned by another client "oauth-client2"
 
 ----
 client_id=oauth-client2
@@ -199,9 +218,27 @@ subject_token=ZCrlkMyxzhJ0CyQlskOsIgkcDqjW51ViZko0bopHzfM \ # This token was rec
 subject_token_type=urn:ietf:params:oauth:token-type:access_token
 requested_token_type=urn:ietf:params:oauth:token-type:id_token
 scope="openid profile read-tasks" 
+resource="https://resource1.com"
 ----
 
+. Received new access token
 
+----
+{
+  "sub": "dc9f3603-07f0-4045-966f-1f3bd836150a",
+  "aud": [
+    "oauth-client2",
+    "https://resource1.com"
+  ],
+  "scope": "openid",
+  "auth_time": 1763889199,
+  "iss": "https://localhost:2443/oauth2",
+  "exp": 1763893375,
+  "iat": 1763889775,
+  "jti": "89634969-04b8-4dac-bb7c-7bc5fb35f0f5",
+  "client_id": "oauth-client2"
+}
+----
 
 ==== Revocation and logout
 

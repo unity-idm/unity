@@ -21,6 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -77,7 +78,7 @@ public class TokenServiceTest
 		when(notAuthorizedOauthIdpEngine.getUserInfoUnsafe(anyLong(), any(), any(), any(), any(), any(), any()))
 				.thenReturn(result);
 		OAuthToken newTokenBasedOnOldToken = tokenService.prepareNewTokenBasedOnOldToken(oAuthToken,
-				"scope1 claim_filter:attr2:attr2v2", List.of("scope1", "scope2"), 0, 0, "client", true, "grant");
+				new Scope("scope1", "claim_filter:attr2:attr2v2"), List.of("scope1", "scope2"), 0, 0, List.of("client"), true, "grant");
 
 		assertThat(newTokenBasedOnOldToken.getAttributeValueFilters()).containsExactlyInAnyOrder(
 				new AttributeFilteringSpec("attr1", Set.of("attr1v1")), new AttributeFilteringSpec("attr2", Set.of("attr2v2")));
@@ -114,8 +115,8 @@ public class TokenServiceTest
 
 		when(notAuthorizedOauthIdpEngine.getUserInfoUnsafe(anyLong(), any(), any(), any(), any(), any(), any()))
 				.thenReturn(result);
-		OAuthToken newTokenBasedOnOldToken = tokenService.prepareNewTokenBasedOnOldToken(oAuthToken, "scope1",
-				List.of("scope1"), 0, 0, "client", true, "grant");
+		OAuthToken newTokenBasedOnOldToken = tokenService.prepareNewTokenBasedOnOldToken(oAuthToken, new Scope("scope1"),
+				List.of("scope1"), 0, 0, List.of("client"), true, "grant");
 
 		assertThat(newTokenBasedOnOldToken.getAttributeValueFilters())
 				.containsExactlyInAnyOrder(new AttributeFilteringSpec("attr1", Set.of("attr1v1")));
