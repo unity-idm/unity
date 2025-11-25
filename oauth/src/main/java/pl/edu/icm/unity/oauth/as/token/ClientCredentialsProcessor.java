@@ -123,12 +123,10 @@ public class ClientCredentialsProcessor
 		if (scope != null && !scope.isEmpty())
 		{	
 			List<RequestedOAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, AttributeValueFilterUtils.getScopesWithoutFilterClaims(scope));
-			String[] array = validRequestedScopes.stream().
-					map(si -> si.scope()).
-					toArray(String[]::new);
-			internalToken.setEffectiveScope(array);
+		
+			internalToken.setEffectiveScope(validRequestedScopes);
 			for (RequestedOAuthScope si: validRequestedScopes)
-				requestedAttributes.addAll(si.scopeDefinition().attributes);
+				requestedAttributes.addAll(si.scopeDefinition().attributes());
 		}
 		return requestedAttributes;
 	}

@@ -31,12 +31,19 @@ public class OAuthScopesService
 
 	public List<String> getActiveScopeNames(OAuthASProperties config)
 	{
-		return getActiveScopes(config).stream().map(s -> s.name).collect(Collectors.toList());
+		return getActiveScopes(config).stream().map(s -> s.name()).collect(Collectors.toList());
 	}
 
-	public List<OAuthScopeDefinition> getActiveScopes(OAuthASProperties config)
+	public List<ActiveOAuthScopeDefinition> getActiveScopes(OAuthASProperties config)
 	{
-		return getScopes(config).stream().filter(s -> s.enabled).collect(Collectors.toList());
+		return getScopes(config).stream()
+				.filter(s -> s.enabled)
+				.map(s -> ActiveOAuthScopeDefinition.builder()
+						.withName(s.name)
+						.withAttributes(s.attributes)
+						.withDescription(s.description)
+						.withWildcard(s.wildcard).build())
+				.collect(Collectors.toList());
 	}
 
 	public List<OAuthScopeDefinition> getScopes(OAuthASProperties config)

@@ -8,7 +8,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -55,7 +54,6 @@ public class OAuthAuthzContext
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute = Optional.empty();
 	private ACRRequest requestedACR;
 	private List<AttributeFilteringSpec> claimValueFilters;
-	
 	public OAuthAuthzContext(AuthorizationRequest request, OAuthASProperties properties)
 	{
 		this.config = properties;
@@ -141,7 +139,7 @@ public class OAuthAuthzContext
 	public void addEffectiveScopeInfo(RequestedOAuthScope scopeInfo)
 	{
 		effectiveRequestedScopes.add(scopeInfo);
-		effectiveRequestedAttrs.addAll(scopeInfo.scopeDefinition().attributes);
+		effectiveRequestedAttrs.addAll(scopeInfo.scopeDefinition().attributes());
 	}
 	
 	public Set<String> getEffectiveRequestedAttrs()
@@ -156,11 +154,9 @@ public class OAuthAuthzContext
 
 	public String[] getEffectiveRequestedScopesList()
 	{
-		String[] ret = new String[effectiveRequestedScopes.size()];
-		Iterator<RequestedOAuthScope> sIt = effectiveRequestedScopes.iterator();
-		for (int i=0; i<ret.length; i++)
-			ret[i] = sIt.next().scope();
-		return ret;
+		 return effectiveRequestedScopes.stream()
+		            .map(RequestedOAuthScope::scope)
+		            .toArray(String[]::new);
 	}
 
 	public Set<Prompt> getPrompts()

@@ -10,6 +10,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -23,10 +24,12 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 
 public class OAuthRefreshTokenRepositoryTest
 {
@@ -120,13 +123,11 @@ public class OAuthRefreshTokenRepositoryTest
 
 		OAuthToken oAuthToken = new OAuthToken();
 		oAuthToken.setClientType(ClientType.PUBLIC);
-		oAuthToken.setEffectiveScope(new String[]
-		{ "scope1" });
+		oAuthToken.setEffectiveScope(List.of(new RequestedOAuthScope("scope1", ActiveOAuthScopeDefinition.builder().withName("sc1").build(), false)));
 		OAuthToken oldRefresh = new OAuthToken();
 		oAuthToken.setClientType(ClientType.PUBLIC);
 		oldRefresh.setRefreshToken("ref");
-		oldRefresh.setEffectiveScope(new String[]
-		{ "scope1" });
+		oldRefresh.setEffectiveScope(List.of(new RequestedOAuthScope("scope1", ActiveOAuthScopeDefinition.builder().withName("sc1").build(), false)));
 		Optional<RefreshToken> refreshToken = rep.rotateRefreshTokenIfNeeded(config, new Date(), oAuthToken, oldRefresh,
 				1L);
 		assertThat(refreshToken.isEmpty()).isFalse();

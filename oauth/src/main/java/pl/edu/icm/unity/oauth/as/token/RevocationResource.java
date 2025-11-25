@@ -213,7 +213,7 @@ public class RevocationResource extends BaseOAuthResource
 	{
 		if (parsedAccessToken.getEffectiveScope() == null)
 			return makeError(OAuth2Error.INVALID_SCOPE, "Insufficent scope to perform full logout.");
-		Optional<String> logoutScope = Arrays.stream(parsedAccessToken.getEffectiveScope()).
+		Optional<String> logoutScope = Arrays.stream(parsedAccessToken.getEffectiveScopeAsString()).
 				filter(scope -> LOGOUT_SCOPE.equals(scope)).
 				findAny();
 		if (!logoutScope.isPresent())

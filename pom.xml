@@ -431,7 +431,6 @@
 				<version>3.5.3</version>
 			</dependency>
 
-
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>
@@ -768,6 +767,11 @@
 				<groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
 				<artifactId>owasp-java-html-sanitizer</artifactId>
 				<version>20240325.1</version>
+			</dependency>
+			<dependency>
+				<groupId>dk.brics.automaton</groupId>	
+				<artifactId>automaton</artifactId>
+				<version>1.11-8</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -28,10 +28,12 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.MockPKIMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.TokenSigner;
 
 public class AccessTokenFactoryTest
@@ -200,7 +202,7 @@ public class AccessTokenFactoryTest
 		ret.setSubject("subject");
 		ret.setIssuerUri("issuer");
 		ret.setClientUsername("client");
-		ret.setEffectiveScope(new String []{"sc1"});
+		ret.setEffectiveScope(List.of(new RequestedOAuthScope("sc1", ActiveOAuthScopeDefinition.builder().withName("sc1").build(), false)));
 		ret.setAudience(List.of("audience"));
 		ret.setAuthenticationTime(authTime);
 		return ret;

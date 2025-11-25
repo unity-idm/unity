@@ -47,9 +47,9 @@ import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.OAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
@@ -214,8 +214,8 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 
 		ctx.setRequestedScopes(new HashSet<>(scopes));
 		for (String scope: scopes)
-			ctx.addEffectiveScopeInfo(new  RequestedOAuthScope(scope, OAuthScopeDefinition.builder().withName(scope).withDescription(scope)
-					.withAttributes(Lists.newArrayList(scope + " attr")).withEnabled(true).build()));					
+			ctx.addEffectiveScopeInfo(new  RequestedOAuthScope(scope, ActiveOAuthScopeDefinition.builder().withName(scope).withDescription(scope)
+					.withAttributes(Lists.newArrayList(scope + " attr")).build(), false));					
 					
 		ctx.setOpenIdMode(true);
 		if (additionalAudience != null)

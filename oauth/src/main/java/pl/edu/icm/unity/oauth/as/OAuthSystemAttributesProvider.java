@@ -19,6 +19,7 @@ import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
+import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -39,6 +40,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String CLIENT_NAME = "sys:oauth:clientName";
 	public static final String CLIENT_LOGO = "sys:oauth:clientLogo";
 	public static final String CLIENT_TYPE = "sys:oauth:clientType";
+	public static final String ALLOW_FOR_REQUESTING_WILDCARD_SCOPES = "sys:oauth:allowForRequestingWildcardScopes";
 	
 	public static final int MAXIMUM_ALLOWED_URIS = 512;
 	public static final int MAXIMUM_ALLOWED_SCOPES = 512;
@@ -58,6 +60,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		oauthAttributes.add(getLogoAT());
 		oauthAttributes.add(getNameAT());
 		oauthAttributes.add(getPerClientGroupAT());
+		oauthAttributes.add(getAllowForRequestingWildcardScopesAT());
 	}
 	
 	private AttributeType getAllowedGrantFlowsAT()
@@ -148,6 +151,15 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		nameAt.setMaxElements(1);
 		nameAt.setUniqueValues(false);
 		return nameAt;
+	}
+	
+	private AttributeType getAllowForRequestingWildcardScopesAT()
+	{
+		AttributeType allowedScopesAt = new AttributeType(ALLOW_FOR_REQUESTING_WILDCARD_SCOPES, BooleanAttributeSyntax.ID, msg);
+		allowedScopesAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
+		allowedScopesAt.setMinElements(1);
+		allowedScopesAt.setMaxElements(1);
+		return allowedScopesAt;
 	}
 
 	@Override

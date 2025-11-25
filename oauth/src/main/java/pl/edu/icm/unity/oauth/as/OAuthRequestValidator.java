@@ -122,7 +122,7 @@ public class OAuthRequestValidator
 
 	public List<RequestedOAuthScope> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
 	{
-		List<OAuthScopeDefinition> scopesDefinedOnServer = scopeService.getActiveScopes(oauthConfig);
+		List<ActiveOAuthScopeDefinition> scopesDefinedOnServer = scopeService.getActiveScopes(oauthConfig);
 		Optional<Set<String>> allowedByClientScopes = getAllowedScopes(clientAttributes);
 		Set<String> notAllowedByClient = requestedScopes.stream().map(s -> s.getValue())
 				.filter(scope -> (allowedByClientScopes.isPresent() && !allowedByClientScopes.get().contains(scope)))
@@ -131,29 +131,34 @@ public class OAuthRequestValidator
 		{
 			log.info("Requested scopes not allowed for the client and ignored: %", String.join(",", notAllowedByClient));
 		}
-
+		
+		boolean isAllowedForRequestingWildcardScopes = ClientAttributeExtractor.isAllowedForRequestingWildcardScopes(clientAttributes);
+		
 		Set<String> notDefinedOnServer = requestedScopes.stream().map(s -> s.getValue())
 				.filter(scope -> !scopesDefinedOnServer.stream()
-						.filter(serverScope -> serverScope.match(scope)).findAny().isPresent())
+						.filter(serverScope -> serverScope.match(scope, isAllowedForRequestingWildcardScopes)).findAny().isPresent())
 				.collect(Collectors.toSet());
 		if (!notDefinedOnServer.isEmpty())
 		{
 			log.info("Requested scopes not available on the endpoint and ignored: "
 					+ String.join(",", notDefinedOnServer));
 		}
+		
+		
 
 		return requestedScopes.stream()
 				.filter(s -> !notDefinedOnServer.contains(s.getValue()) && !notAllowedByClient.contains(s.getValue()))
 				.map(s -> toRequestedScope(s.getValue(), scopesDefinedOnServer.stream()
-						.filter(serverScope -> serverScope.match(s.getValue()))
+						.filter(serverScope -> serverScope.match(s.getValue(), isAllowedForRequestingWildcardScopes))
 						.findFirst()
-						.get()))
+						.get(), isAllowedForRequestingWildcardScopes))
 				.collect(Collectors.toList());		
 	}
 	
-	private RequestedOAuthScope toRequestedScope(String scope, OAuthScopeDefinition serverScope)
+	
+	private RequestedOAuthScope toRequestedScope(String scope, ActiveOAuthScopeDefinition activeOAuthScopeDefinition, boolean isAllowedToRequestingWildcard)
 	{
-		return new RequestedOAuthScope(scope, serverScope); 
+		return new RequestedOAuthScope(scope, activeOAuthScopeDefinition, activeOAuthScopeDefinition.wildcard() && isAllowedToRequestingWildcard); 
 	}
 	
 	@Component

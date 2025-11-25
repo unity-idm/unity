@@ -95,11 +95,11 @@ class TokenService
 
 		// get new attributes for identity
 		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
-
+		
 		List<RequestedOAuthScope> newValidRequestedScopes = requestValidator.getValidRequestedScopes(
 				clientAttributesProvider.getClientAttributes(new EntityParam(clientId)),
 				AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList));
-		newToken.setEffectiveScope(newValidRequestedScopes.stream().map(s -> s.scope()).toArray(String[]::new));
+		newToken.setEffectiveScope(newValidRequestedScopes);
 
 		List<AttributeFilteringSpec> claimFiltersFromScopes = AttributeValueFilterUtils.getFiltersFromScopes(newRequestedScopeList);
 		List<AttributeFilteringSpec> mergedFilters = AttributeValueFilterUtils.mergeFiltersWithPreservingLast(newToken.getAttributeValueFilters(), claimFiltersFromScopes);
@@ -181,7 +181,7 @@ class TokenService
 	{
 		Set<String> requestedAttributes = new HashSet<>();
 		for (RequestedOAuthScope si : validScopes)
-			requestedAttributes.addAll(si.scopeDefinition().attributes);
+			requestedAttributes.addAll(si.scopeDefinition().attributes());
 
 		Collection<DynamicAttribute> attributes = 
 				OAuthProcessor.filterAttributes(userInfoRes, requestedAttributes, claimValueFilters);

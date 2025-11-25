@@ -161,7 +161,7 @@ class OAuthConsentScreen extends VerticalLayout
 
 		for (RequestedOAuthScope si : ctx.getEffectiveRequestedScopes())
 		{
-			String label = Strings.isNullOrEmpty(si.scopeDefinition().description) ? si.scope() : si.scopeDefinition().description;
+			String label = Strings.isNullOrEmpty(si.scopeDefinition().description()) ? si.scope() : si.scopeDefinition().description();
 			Span scope = new Span("● " + label);
 			eiLayout.add(scope);
 		}

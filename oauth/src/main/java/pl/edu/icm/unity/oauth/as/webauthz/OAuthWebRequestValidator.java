@@ -276,7 +276,7 @@ class OAuthWebRequestValidator
 		Scope requestedScopes = AttributeValueFilterUtils.getScopesWithoutFilterClaims(authzRequest.getScope());
 	
 		if (requestedScopes != null)
-		{
+		{			
 			List<RequestedOAuthScope> validRequestedScopes = baseRequestValidator.getValidRequestedScopes(clientAttributes,
 					requestedScopes);
 			Optional<RequestedOAuthScope> offlineScope = validRequestedScopes.stream()

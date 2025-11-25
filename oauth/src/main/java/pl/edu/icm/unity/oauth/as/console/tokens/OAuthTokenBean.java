@@ -100,7 +100,7 @@ class OAuthTokenBean implements FilterableEntry
 
 	public String getScopes()
 	{
-		return Stream.of(oauthToken.getEffectiveScope()).collect(Collectors.joining(", "));
+		return Stream.of(oauthToken.getEffectiveScopeAsString()).collect(Collectors.joining(", "));
 	}
 
 	public String getOwner()

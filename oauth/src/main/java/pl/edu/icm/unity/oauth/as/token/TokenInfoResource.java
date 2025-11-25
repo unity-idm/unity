@@ -81,7 +81,7 @@ public class TokenInfoResource extends BaseTokenResource
 		
 		JSONObject contents = toJSON(tokens.parsedToken.getSubject(), tokens.parsedToken.getClientUsername(), 
 				tokens.tokenSrc.getExpires(), 
-				tokens.parsedToken.getEffectiveScope(), tokens.parsedToken.getAudience());
+				tokens.parsedToken.getEffectiveScopeAsString(), tokens.parsedToken.getAudience());
 		return toResponse(Response.ok(contents.toJSONString()));
 	}
 	

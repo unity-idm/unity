@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.client.ClientType;
@@ -32,7 +31,7 @@ public class OAuthToken
 	private String accessToken;
 	private String refreshToken;
 	private String firstRefreshRollingToken;
-	private String[] effectiveScope;
+	private List<RequestedOAuthScope> effectiveScope;
 	private String[] requestedScope;
 	private long clientEntityId;
 	private String redirectUri;
@@ -49,7 +48,6 @@ public class OAuthToken
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute;
 	private Instant authenticationTime;
 	private List<AttributeFilteringSpec> attributeValueFilters;
-	
 	
 	public OAuthToken()
 	{
@@ -146,12 +144,18 @@ public class OAuthToken
 		this.refreshToken = refreshToken;
 	}
 
-	public String[] getEffectiveScope()
+	public List<RequestedOAuthScope> getEffectiveScope()
 	{
 		return effectiveScope;
 	}
+	
+	@JsonIgnore
+	public String[] getEffectiveScopeAsString()
+	{
+		return effectiveScope.stream().map(s -> s.scope()).toArray(String[]::new);
+	}
 
-	public void setEffectiveScope(String[] scope)
+	public void setEffectiveScope(List<RequestedOAuthScope> scope)
 	{
 		this.effectiveScope = scope;
 	}
@@ -378,7 +382,7 @@ public class OAuthToken
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Arrays.hashCode(effectiveScope);
+		result = prime * result + Objects.hashCode(effectiveScope);
 		result = prime * result + Arrays.hashCode(requestedScope);
 		result = prime * result + Objects.hash(accessToken, audience, authzCode, clientEntityId, clientName,
 				clientType, clientUsername, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
@@ -401,7 +405,7 @@ public class OAuthToken
 				&& Objects.equals(authzCode, other.authzCode) && clientEntityId == other.clientEntityId
 				&& Objects.equals(clientName, other.clientName) && clientType == other.clientType
 				&& Objects.equals(clientUsername, other.clientUsername)
-				&& Arrays.equals(effectiveScope, other.effectiveScope)
+				&& Objects.equals(effectiveScope, other.effectiveScope)
 				&& Objects.equals(issuerUri, other.issuerUri)
 				&& maxExtendedValidity == other.maxExtendedValidity
 				&& Objects.equals(openidInfo, other.openidInfo)
@@ -423,7 +427,7 @@ public class OAuthToken
 	{
 		return "OAuthToken [userInfo=" + userInfo + ", openidInfo=" + openidInfo + ", authzCode=" + authzCode
 				+ ", accessToken=" + accessToken + ", refreshToken=" + refreshToken + ", firstRefreshRollingToken=" + firstRefreshRollingToken
-				+ ", effectiveScope=" + Arrays.toString(effectiveScope) + ", requestedScope="
+				+ ", effectiveScope=" + effectiveScope + ", requestedScope="
 				+ Arrays.toString(requestedScope) + ", clientEntityId=" + clientEntityId
 				+ ", redirectUri=" + redirectUri + ", subject=" + subject + ", clientName=" + clientName
 				+ ", clientUsername=" + clientUsername + ", maxExtendedValidity=" + maxExtendedValidity
@@ -431,7 +435,6 @@ public class OAuthToken
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
 				+ pkcsInfo + ", attributeValueFilters=" + attributeValueFilters + "]";
 	}
-	
 
 	public static class PKCSInfo
 	{
