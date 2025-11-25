@@ -8,17 +8,9 @@ package pl.edu.icm.unity.oauth.as;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import org.apache.logging.log4j.Logger;
-
-import pl.edu.icm.unity.base.utils.Log;
 
 public class OAuthScopeDefinition
-{
-	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthScopeDefinition.class);
-	
+{	
 	public final String name;
 	public final String description;
 	public final List<String> attributes;
@@ -54,23 +46,6 @@ public class OAuthScopeDefinition
 		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description)
 				&& enabled == other.enabled && wildcard == other.wildcard && Objects.equals(name, other.name);
 	}
-	
-	public boolean match(String scope)
-	{
-		if (!wildcard)
-			return name.equals(scope);
-
-		try
-		{
-			return Pattern.matches(name, scope);	
-		} catch (PatternSyntaxException e)
-		{
-			log.error("Incorrect pattern", e);
-			return false;
-		}
-	}
-	
-	
 
 	public static Builder builder()
 	{

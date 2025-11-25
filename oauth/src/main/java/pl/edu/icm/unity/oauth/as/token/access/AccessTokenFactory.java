@@ -68,12 +68,12 @@ public class AccessTokenFactory
 	private AccessToken createPlainAccessToken(OAuthToken token)
 	{
 		int tokenValidity = token.getTokenValidity();
-		return new BearerAccessToken(tokenValidity, new Scope(token.getEffectiveScope()));
+		return new BearerAccessToken(tokenValidity, new Scope(token.getEffectiveScopeAsString()));
 	}
 	
 	private AccessToken createJWTAccessToken(OAuthToken token, Date issueTime) throws OAuthErrorException
 	{
-		Scope scope = new Scope(token.getEffectiveScope());
+		Scope scope = new Scope(token.getEffectiveScopeAsString());
 		Builder claimsSetBuilder = new JWTClaimsSet.Builder()
 				.subject(token.getSubject())
 				.issueTime(issueTime)

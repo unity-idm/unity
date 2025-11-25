@@ -16,6 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import jakarta.ws.rs.core.Response;
@@ -37,8 +38,10 @@ import com.nimbusds.oauth2.sdk.token.Tokens;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 
 @ExtendWith(MockitoExtension.class)
 public class RefreshTokenHandlerTest
@@ -129,8 +132,7 @@ public class RefreshTokenHandlerTest
 		oAuthToken.setClientUsername("client");
 		oAuthToken.setRequestedScope(new String[]
 		{ "scope" });
-		oAuthToken.setEffectiveScope(new String[]
-		{ "scope" });
+		oAuthToken.setEffectiveScope(List.of(new RequestedOAuthScope("scope", ActiveOAuthScopeDefinition.builder().withName("scope").build(), false)));
 		oAuthToken.setTokenValidity(1000);
 		token.setContents(oAuthToken.getSerialized());
 		when(refreshTokensRepository.readRefreshToken("token")).thenReturn(token);

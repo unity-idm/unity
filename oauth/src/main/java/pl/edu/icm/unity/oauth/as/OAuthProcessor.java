@@ -110,7 +110,7 @@ public class OAuthProcessor
 	{
 		OAuthToken internalToken = new OAuthToken();
 		OAuthASProperties config = ctx.getConfig();
-		internalToken.setEffectiveScope(ctx.getEffectiveRequestedScopesList());
+		internalToken.setEffectiveScope(ctx.getEffectiveRequestedScopes().stream().toList());
 		internalToken.setRequestedScope(ctx.getRequestedScopes().stream().toArray(String[]::new));
 		internalToken.setClientId(ctx.getClientEntityId());
 		internalToken.setRedirectUri(ctx.getReturnURI().toASCIIString());

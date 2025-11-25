@@ -11,8 +11,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Locale;
 
-import jakarta.ws.rs.core.Response;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
@@ -31,16 +29,17 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
 
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import jakarta.ws.rs.core.Response;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.OAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
@@ -311,8 +310,8 @@ public class PKCETest
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(false);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addEffectiveScopeInfo(new RequestedOAuthScope("sc1", OAuthScopeDefinition.builder().withName("sc1").withDescription("scope 1")
-				.withAttributes(Lists.newArrayList("email")).withEnabled(true).build()));
+		ctx.addEffectiveScopeInfo(new RequestedOAuthScope("sc1", ActiveOAuthScopeDefinition.builder().withName("sc1").withDescription("scope 1")
+				.withAttributes(Lists.newArrayList("email")).build(), false));
 		return ctx;
 	}
 }

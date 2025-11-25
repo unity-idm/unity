@@ -28,10 +28,10 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.OAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
@@ -58,8 +58,9 @@ public class TokenServiceTest
 		OAuthToken oAuthToken = new OAuthToken();
 		oAuthToken.setRequestedScope(new String[]
 		{ "scope1", "scope2" });
-		oAuthToken.setEffectiveScope(new String[]
-		{ "scope1", "scope2" });
+		oAuthToken.setEffectiveScope(
+				List.of(new RequestedOAuthScope("scope1", ActiveOAuthScopeDefinition.builder().withName("scope1").build(), false), 
+						new RequestedOAuthScope("scope2", ActiveOAuthScopeDefinition.builder().withName("scope2").build(), false)));
 		oAuthToken.setAttributeValueFilters(List.of(new AttributeFilteringSpec("attr1", Set.of("attr1v1"))));
 		oAuthToken.setSubject("subject");
 
@@ -69,10 +70,10 @@ public class TokenServiceTest
 		result.getAttributes()
 				.add(new DynamicAttribute(new Attribute("attr2", "string", null, List.of("attr2v1"))));
 
-		when(requestValidator.getValidRequestedScopes(any(), any())).thenReturn(List.of(new RequestedOAuthScope("scope1", OAuthScopeDefinition.builder()
+		when(requestValidator.getValidRequestedScopes(any(), any())).thenReturn(List.of(new RequestedOAuthScope("scope1", ActiveOAuthScopeDefinition.builder()
 				.withAttributes(List.of("attr1", "attr2"))
 				.withName("scope1")
-				.build())));
+				.build(), false)));
 		when(clientAttributesProvider.getClientAttributes(any())).thenReturn(Map.of());
 
 		when(notAuthorizedOauthIdpEngine.getUserInfoUnsafe(anyLong(), any(), any(), any(), any(), any(), any()))
@@ -98,8 +99,7 @@ public class TokenServiceTest
 		OAuthToken oAuthToken = new OAuthToken();
 		oAuthToken.setRequestedScope(new String[]
 		{ "scope1" });
-		oAuthToken.setEffectiveScope(new String[]
-		{ "scope1" });
+		oAuthToken.setEffectiveScope(List.of(new RequestedOAuthScope("scope1", ActiveOAuthScopeDefinition.builder().withName("scope1").build(), false)));
 		oAuthToken.setAttributeValueFilters(List.of(new AttributeFilteringSpec("attr1", Set.of("attr1v1"))));
 		oAuthToken.setSubject("subject");
 
@@ -107,10 +107,10 @@ public class TokenServiceTest
 		result.getAttributes()
 				.add(new DynamicAttribute(new Attribute("attr1", "string", null, List.of("attr1v1"))));
 
-		when(requestValidator.getValidRequestedScopes(any(), any())).thenReturn(List.of(new RequestedOAuthScope("scope1", OAuthScopeDefinition.builder()
+		when(requestValidator.getValidRequestedScopes(any(), any())).thenReturn(List.of(new RequestedOAuthScope("scope1", ActiveOAuthScopeDefinition.builder()
 				.withAttributes(List.of("attr1"))
 				.withName("scope1")
-				.build())));
+				.build(), false)));
 		when(clientAttributesProvider.getClientAttributes(any())).thenReturn(Map.of());
 
 		when(notAuthorizedOauthIdpEngine.getUserInfoUnsafe(anyLong(), any(), any(), any(), any(), any(), any()))

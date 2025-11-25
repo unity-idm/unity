@@ -248,8 +248,7 @@ public class TrustedOAuthClientsManagementTest
 		oauthToken.setClientUsername("clientEntityId");
 		oauthToken.setClientId(1);
 		oauthToken.setIssuerUri("uri");
-		String[] scopes =
-		{ "scope" };
+		List<RequestedOAuthScope> scopes = List.of(new RequestedOAuthScope("scope", ActiveOAuthScopeDefinition.builder().withName("scope").build(), false));
 		oauthToken.setEffectiveScope(scopes);
 		Token token = new Token("", "ac", 1L);
 		token.setContents(oauthToken.getSerialized());

@@ -230,7 +230,7 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 	private List<String> getScopes(OAuthTokenWithTime accessToken, OAuthServiceConfiguration service)
 	{
 		List<String> scopes = new ArrayList<>();
-		for (String scope : accessToken.token.getEffectiveScope())
+		for (String scope : accessToken.token.getEffectiveScopeAsString())
 		{
 			Optional<OAuthScopeDefinition> desc = service.scopes.stream().filter(s -> s.name.equals(scope)).findFirst();
 			if (desc.isEmpty() || desc.get().description == null)

@@ -19,6 +19,7 @@ import static pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.CLIENT_TYP
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,6 @@ import java.util.stream.Collectors;
 import org.assertj.core.util.Maps;
 import org.junit.jupiter.api.Test;
 
-import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
@@ -39,6 +39,7 @@ import com.nimbusds.oauth2.sdk.pkce.CodeVerifier;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.nimbusds.openid.connect.sdk.Prompt;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -49,8 +50,10 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
+import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
@@ -61,30 +64,30 @@ public class OAuthWebRequestValidatorTest
 	{
 		OAuthASProperties oauthConfig = getConfig();
 		OAuthWebRequestValidator validator = getValidator(oauthConfig, "http://127.0.0.1/some/path");
-		
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
-				.redirectionURI(new URI("http://127.0.0.1:1234/some/path"))
-				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-				.build();
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://127.0.0.1:1234/some/path"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
-		
+
 		Throwable error = catchThrowable(() -> validator.validate(context));
 
 		assertThat(error).isNull();
 	}
-	
+
 	@Test
 	public void shouldAcceptIpv6LoopbackRedirectWithDifferentPort() throws Exception
 	{
 		OAuthASProperties oauthConfig = getConfig();
 		OAuthWebRequestValidator validator = getValidator(oauthConfig, "http://[::1]/some/path");
-		
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
-				.redirectionURI(new URI("http://[::1]:1234/some/path"))
-				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-				.build();
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://[::1]:1234/some/path"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
-		
+
 		Throwable error = catchThrowable(() -> validator.validate(context));
 
 		assertThat(error).isNull();
@@ -95,30 +98,30 @@ public class OAuthWebRequestValidatorTest
 	{
 		OAuthASProperties oauthConfig = getConfig();
 		OAuthWebRequestValidator validator = getValidator(oauthConfig, "https://127.0.0.1/some/path");
-		
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
-				.redirectionURI(new URI("http://127.0.0.1/some/path"))
-				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-				.build();
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://127.0.0.1/some/path"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
-		
+
 		Throwable error = catchThrowable(() -> validator.validate(context));
 
 		assertThat(error).isNull();
 	}
-	
+
 	@Test
 	public void shouldAcceptIpv6LoopbackRedirectWithDifferentScheme() throws Exception
 	{
 		OAuthASProperties oauthConfig = getConfig();
 		OAuthWebRequestValidator validator = getValidator(oauthConfig, "https://[::1]:1234/some/path");
-		
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
-				.redirectionURI(new URI("http://[::1]:1234/some/path"))
-				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-				.build();
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://[::1]:1234/some/path"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
-		
+
 		Throwable error = catchThrowable(() -> validator.validate(context));
 
 		assertThat(error).isNull();
@@ -129,13 +132,13 @@ public class OAuthWebRequestValidatorTest
 	{
 		OAuthASProperties oauthConfig = getConfig();
 		OAuthWebRequestValidator validator = getValidator(oauthConfig, "http://127.0.0.1/some/path");
-		
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
-				.redirectionURI(new URI("http://127.0.0.1/OTHER"))
-				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-				.build();
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://127.0.0.1/OTHER"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
-		
+
 		Throwable error = catchThrowable(() -> validator.validate(context));
 
 		assertThat(error).isInstanceOf(OAuthValidationException.class);
@@ -146,13 +149,13 @@ public class OAuthWebRequestValidatorTest
 	{
 		OAuthASProperties oauthConfig = getConfig();
 		OAuthWebRequestValidator validator = getValidator(oauthConfig, "http://[::1]/some/path");
-		
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
-				.redirectionURI(new URI("http://[::1]/OTHER"))
-				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-				.build();
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://[::1]/OTHER"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
-		
+
 		Throwable error = catchThrowable(() -> validator.validate(context));
 
 		assertThat(error).isInstanceOf(OAuthValidationException.class);
@@ -163,30 +166,30 @@ public class OAuthWebRequestValidatorTest
 	{
 		OAuthASProperties oauthConfig = getConfig();
 		OAuthWebRequestValidator validator = getValidator(oauthConfig, "http://222.2.2.2:1234");
-		
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
-				.redirectionURI(new URI("http://222.2.2.2:9999"))
-				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-				.build();
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
-		
+
 		Throwable error = catchThrowable(() -> validator.validate(context));
 
 		assertThat(error).isInstanceOf(OAuthValidationException.class);
 	}
-	
+
 	@Test
 	public void shouldDenyPrivateUseURIWithoutDot() throws Exception
 	{
 		OAuthASProperties oauthConfig = getConfig();
 		OAuthWebRequestValidator validator = getValidator(oauthConfig, "private:/some/path");
-		
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
-				.redirectionURI(new URI("private:/some/path"))
-				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-				.build();
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("private:/some/path"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
-		
+
 		Throwable error = catchThrowable(() -> validator.validate(context));
 
 		assertThat(error).isInstanceOf(OAuthValidationException.class);
@@ -197,18 +200,18 @@ public class OAuthWebRequestValidatorTest
 	{
 		OAuthASProperties oauthConfig = getConfig();
 		OAuthWebRequestValidator validator = getValidator(oauthConfig, "private.scheme:/some/path");
-		
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"), new ClientID("client"))
-				.redirectionURI(new URI("private.scheme:/some/path"))
-				.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-				.build();
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("private.scheme:/some/path"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
-		
+
 		Throwable error = catchThrowable(() -> validator.validate(context));
 
 		assertThat(error).isNull();
 	}
-	
+
 	@Test
 	public void shouldSkipOfflineAccessIfNoConsentPrompt()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
@@ -216,7 +219,7 @@ public class OAuthWebRequestValidatorTest
 		Properties config = new Properties();
 		config.setProperty("unity.oauth2.as.scopes.99.name", OIDCScopeValue.OFFLINE_ACCESS.getValue());
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
-	
+
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
 
@@ -229,12 +232,15 @@ public class OAuthWebRequestValidatorTest
 
 		validator.validate(context);
 
-		assertThat(context.getEffectiveRequestedScopes().stream()
-				.filter(s -> s.scope().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
-						.isTrue();
+		assertThat(context.getEffectiveRequestedScopes()
+				.stream()
+				.filter(s -> s.scope()
+						.equals(OIDCScopeValue.OFFLINE_ACCESS.getValue()))
+				.findAny()
+				.isEmpty()).isTrue();
 
 	}
-	
+
 	@Test
 	public void shouldErrorWhenIdTokenClaimsSetAndOpenidIsNotConfigured()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
@@ -242,7 +248,7 @@ public class OAuthWebRequestValidatorTest
 		Properties config = new Properties();
 		config.setProperty("unity.oauth2.as.scopes.99.name", "profile");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
-	
+
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
 
@@ -256,7 +262,7 @@ public class OAuthWebRequestValidatorTest
 		Throwable error = catchThrowable(() -> validator.validate(context));
 		assertThat(error).isNotNull();
 	}
-	
+
 	@Test
 	public void shouldErrorWhenTokenClaimsSetAndJWTIsNotConfigured()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
@@ -265,7 +271,7 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.99.name", "profile");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.tokenFormat", "PLAIN");
-		
+
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
 
@@ -279,8 +285,7 @@ public class OAuthWebRequestValidatorTest
 		Throwable error = catchThrowable(() -> validator.validate(context));
 		assertThat(error).isNotNull();
 	}
-	
-	
+
 	@Test
 	public void shouldTrimScopesToAllowedByIdpAndClient()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
@@ -291,23 +296,28 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.3.name", "ToSkip2");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
-		
+
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
-				Optional.of(Arrays.asList("Scope1")));
+				Optional.of(Arrays.asList("Scope1")), Optional.empty());
 
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
 				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
 						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-						.scope(Scope.parse("Scope1 ToSkip1 ToSkip2 ToSkip3")).build();
+						.scope(Scope.parse("Scope1 ToSkip1 ToSkip2 ToSkip3"))
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
 
 		validator.validate(context);
 
-		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(1);
-		assertThat(context.getEffectiveRequestedScopes().iterator().next().scope()).isEqualTo("Scope1");
+		assertThat(context.getEffectiveRequestedScopes()
+				.size()).isEqualTo(1);
+		assertThat(context.getEffectiveRequestedScopes()
+				.iterator()
+				.next()
+				.scope()).isEqualTo("Scope1");
 	}
-	
+
 	@Test
 	public void shouldTrimScopesToAllowedByIdp()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
@@ -318,23 +328,27 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.3.name", "ToSkip4");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
-		
+
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
-		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
-				Optional.empty());
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999", Optional.empty(), Optional.empty());
 
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
 				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
 						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-						.scope(Scope.parse("Scope1 ToSkip1 ToSkip2 Scope2")).build();
+						.scope(Scope.parse("Scope1 ToSkip1 ToSkip2 Scope2"))
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
 
 		validator.validate(context);
 
-		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(2);
-		assertThat(context.getEffectiveRequestedScopes().stream().map(s -> s.scope()).collect(Collectors.toSet())).contains("Scope1", "Scope2");		
+		assertThat(context.getEffectiveRequestedScopes()
+				.size()).isEqualTo(2);
+		assertThat(context.getEffectiveRequestedScopes()
+				.stream()
+				.map(s -> s.scope())
+				.collect(Collectors.toSet())).contains("Scope1", "Scope2");
 	}
-	
+
 	@Test
 	public void shouldTrimScopesToAllowedByIdpWithWildcard()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
@@ -346,23 +360,24 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.3.name", "ToSkip4");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
-		
+
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
-		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
-				Optional.empty());
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999", Optional.empty(), Optional.empty());
 
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
 				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
 						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-						.scope(Scope.parse("scopeAAfooB ToSkip1 ToSkip2 Scope2")).build();
+						.scope(Scope.parse("scopeAAfooB ToSkip1 ToSkip2 Scope2"))
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
 
 		validator.validate(context);
 
-		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(2);
+		assertThat(context.getEffectiveRequestedScopes()
+				.size()).isEqualTo(2);
 		assertThat(context.getEffectiveRequestedScopesList()).contains("scopeAAfooB", "Scope2");
 	}
-	
+
 	@Test
 	public void shouldTrimScopesToAllowedByIdpAsRegularString()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
@@ -374,23 +389,24 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.3.name", "ToSkip4");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
-		
+
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
-		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
-				Optional.empty());
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999", Optional.empty(), Optional.empty());
 
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
 				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
 						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-						.scope(Scope.parse("scopeAAfooB ToSkip1 ToSkip2 Scope2")).build();
+						.scope(Scope.parse("scopeAAfooB ToSkip1 ToSkip2 Scope2"))
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
 
 		validator.validate(context);
 
-		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(1);
+		assertThat(context.getEffectiveRequestedScopes()
+				.size()).isEqualTo(1);
 		assertThat(context.getEffectiveRequestedScopesList()).contains("Scope2");
 	}
-	
+
 	@Test
 	public void shouldGetFirstMatchingWildcardScope()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
@@ -404,23 +420,104 @@ public class OAuthWebRequestValidatorTest
 		config.setProperty("unity.oauth2.as.scopes.2.isWildcard", "true");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
-		
+
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
-		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999",
-				Optional.empty());
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999", Optional.empty(), Optional.empty());
 
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
 				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
 						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-						.scope(Scope.parse("scope1b")).build();
+						.scope(Scope.parse("scope1b"))
+						.build();
 		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
 
 		validator.validate(context);
 
-		assertThat(context.getEffectiveRequestedScopes().size()).isEqualTo(1);
-		assertThat(context.getEffectiveRequestedScopes().stream().map(s -> s.scopeDefinition().description).collect(Collectors.toSet())).contains("scope1");
+		assertThat(context.getEffectiveRequestedScopes()
+				.size()).isEqualTo(1);
+		assertThat(context.getEffectiveRequestedScopes()
+				.stream()
+				.map(s -> s.scopeDefinition().description())
+				.collect(Collectors.toSet())).contains("scope1");
 	}
-	
+
+	@Test
+	public void shouldGetFirstMatchingWildcardScopeForRequestedWildcardScopeByClientWithNotAllowedWildcardScopes()
+			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
+	{
+		Properties config = new Properties();
+		config.setProperty("unity.oauth2.as.scopes.1.name", "read/dir/.*");
+		config.setProperty("unity.oauth2.as.scopes.1.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.scopes.1.description", "scope1");
+		config.setProperty("unity.oauth2.as.scopes.2.name", "scope?b");
+		config.setProperty("unity.oauth2.as.scopes.2.description", "scope2");
+		config.setProperty("unity.oauth2.as.scopes.2.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
+		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
+
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999", Optional.empty(), Optional.empty());
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.scope(Scope.parse("read/dir/subdir/.*"))
+						.build();
+		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
+
+		validator.validate(context);
+
+		assertThat(context.getEffectiveRequestedScopes()
+				.size()).isEqualTo(1);
+		assertThat(context.getEffectiveRequestedScopes()
+				.stream()
+				.map(s -> s.scope())
+				.collect(Collectors.toSet())).contains("read/dir/subdir/.*");
+		assertThat(context.getEffectiveRequestedScopes()
+				.stream()
+				.map(s -> s.wildcard())
+				.collect(Collectors.toSet())).doesNotContain(true);
+		
+	}
+
+	@Test
+	public void shouldGetFirstMatchingWildcardScopeForRequestedWildcardScopeByClientWithAllowedWildcardScopes()
+			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
+	{
+		Properties config = new Properties();
+		config.setProperty("unity.oauth2.as.scopes.1.name", "read/dir/.*");
+		config.setProperty("unity.oauth2.as.scopes.1.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.scopes.1.description", "scope1");
+		config.setProperty("unity.oauth2.as.scopes.2.name", "scope?b");
+		config.setProperty("unity.oauth2.as.scopes.2.description", "scope2");
+		config.setProperty("unity.oauth2.as.scopes.2.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
+		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
+
+		OAuthASProperties props = new OAuthASProperties(config, null, null);
+		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999", Optional.empty(),
+				Optional.of(List.of(new AttributeExt(
+						new Attribute(OAuthSystemAttributesProvider.ALLOW_FOR_REQUESTING_WILDCARD_SCOPES,
+								BooleanAttributeSyntax.ID, "/oauth-clients", List.of("true")),
+						false))));
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.scope(Scope.parse("read/dir/subdir/.*"))
+						.build();
+		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
+
+		validator.validate(context);
+
+		assertThat(context.getEffectiveRequestedScopes()
+				.size()).isEqualTo(1);
+		assertThat(context.getEffectiveRequestedScopes().iterator().next().scope()).isEqualTo("read/dir/subdir/.*");
+		assertThat(context.getEffectiveRequestedScopes().iterator().next().wildcard()).isEqualTo(true);
+
+		
+	}
+
 	@Test
 	public void shouldProcessOfflineAccessIfConsentPrompt()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
@@ -428,7 +525,7 @@ public class OAuthWebRequestValidatorTest
 		Properties config = new Properties();
 		config.setProperty("unity.oauth2.as.scopes.99.name", OIDCScopeValue.OFFLINE_ACCESS.getValue());
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
-	
+
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999");
 
@@ -442,48 +539,58 @@ public class OAuthWebRequestValidatorTest
 
 		validator.validate(context);
 
-		assertThat(context.getEffectiveRequestedScopes().stream()
-				.filter(s -> s.scope().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty())
-						.isFalse();
+		assertThat(context.getEffectiveRequestedScopes()
+				.stream()
+				.filter(s -> s.scope()
+						.equals(OIDCScopeValue.OFFLINE_ACCESS.getValue()))
+				.findAny()
+				.isEmpty()).isFalse();
 	}
-	
+
 	private static OAuthASProperties getConfig()
 	{
 		Properties config = new Properties();
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.signingAlgorithm", "HS256");
-		config.setProperty("unity.oauth2.as.signingSecret", "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+		config.setProperty("unity.oauth2.as.signingSecret",
+				"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
 		return new OAuthASProperties(config, null, null);
 	}
-	
-	private static OAuthWebRequestValidator getValidator(OAuthASProperties oauthConfig,
-			String authorizedURI) throws EngineException
+
+	private static OAuthWebRequestValidator getValidator(OAuthASProperties oauthConfig, String authorizedURI)
+			throws EngineException
 	{
-		return getValidator(oauthConfig, authorizedURI, Optional.empty());
+		return getValidator(oauthConfig, authorizedURI, Optional.empty(), Optional.empty());
 	}
-	private static OAuthWebRequestValidator getValidator(OAuthASProperties oauthConfig,
-			String authorizedURI, Optional<List<String>> allowedScopes) throws EngineException
+
+	private static OAuthWebRequestValidator getValidator(OAuthASProperties oauthConfig, String authorizedURI,
+			Optional<List<String>> allowedScopes, Optional<List<AttributeExt>> attributes) throws EngineException
 	{
 		AttributesManagement attributesMan = mock(AttributesManagement.class);
 		EntityManagement identitiesMan = mock(EntityManagement.class);
 		Entity client = mock(Entity.class);
+
 		when(identitiesMan.getEntity(any())).thenReturn(client);
+
 		EntityParam clientEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "client"));
 		when(identitiesMan.getGroups(eq(clientEntity))).thenReturn(Maps.newHashMap("/oauth-clients", null));
-		AttributeExt allowedFlows = new AttributeExt(StringAttribute.of(ALLOWED_RETURN_URI, "/oauth-clients", 
-				authorizedURI), true);
-		
-		AttributeExt allowedScopesA = null;
-		if (!allowedScopes.isEmpty())
-		{
-			allowedScopesA = new AttributeExt(StringAttribute.of(ALLOWED_SCOPES, "/oauth-clients", allowedScopes.get()),
-					true);
-		}
-		AttributeExt clientType = new AttributeExt(StringAttribute.of(CLIENT_TYPE, "/oauth-clients", ClientType.PUBLIC.name()), true);
+
+		List<AttributeExt> result = new ArrayList<>();
+
+		result.add(new AttributeExt(StringAttribute.of(ALLOWED_RETURN_URI, "/oauth-clients", authorizedURI), true));
+
+		result.add(new AttributeExt(StringAttribute.of(CLIENT_TYPE, "/oauth-clients", ClientType.PUBLIC.name()), true));
+
+		allowedScopes.ifPresent(
+				sc -> result.add(new AttributeExt(StringAttribute.of(ALLOWED_SCOPES, "/oauth-clients", sc), true)));
+
+		attributes.ifPresent(result::addAll);
+
 		when(attributesMan.getAllAttributes(eq(clientEntity), anyBoolean(), anyString(), any(), anyBoolean()))
-			.thenReturn( allowedScopesA == null ? Lists.newArrayList(allowedFlows, clientType) : Lists.newArrayList(allowedFlows, clientType, allowedScopesA));
-		
-		return new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan, new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
+				.thenReturn(result);
+
+		return new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan,
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
 	}
 }
