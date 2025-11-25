@@ -84,7 +84,7 @@ class LocalTokenIntrospectionService
 		JSONObject ret = new JSONObject();
 		ret.put("active", true);
 		ret.put("scope", Joiner.on(' ')
-				.join(parsedToken.getEffectiveScope()));
+				.join(parsedToken.getEffectiveScopeAsString()));
 		ret.put("client_id", parsedToken.getClientUsername());
 		ret.put("token_type", "bearer");
 		ret.put("exp", DateUtils.toSecondsSinceEpoch(tokens.tokenSrc.getExpires()));
