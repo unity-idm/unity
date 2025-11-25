@@ -107,7 +107,7 @@ public class TokenIntrospectionResourceTest
 				.toString()));
 		log.info("{}", parsed);
 		assertThat(parsed.getAsString("active")).isEqualTo("true");
-		assertThat(parsed.getAsString("scope")).isEqualTo("sc1");
+		assertThat(parsed.get("scope")).isEqualTo("sc1");
 		assertThat(parsed.getAsString("client_id")).isEqualTo("clientC");
 		assertThat(parsed.getAsString("token_type")).isEqualTo("bearer");
 		assertThat(parsed.getAsNumber("exp")).isEqualTo(parsed.getAsNumber("iat")

@@ -2,6 +2,7 @@ package pl.edu.icm.unity.oauth.as;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -21,7 +22,7 @@ public record ActiveOAuthScopeDefinition(
 
 	public ActiveOAuthScopeDefinition
 	{
-		attributes = List.copyOf(attributes);
+		attributes = Optional.ofNullable(attributes).map(List::copyOf).orElse(List.of());
 	}
 
 	public boolean match(String scope, boolean allowForRequestingWildcard)
