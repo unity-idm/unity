@@ -51,7 +51,9 @@ public class UpdateHelperTo4_3Test
 				.asText());
 		assertFalse(firstDef.get("wildcard")
 				.asBoolean());
-
+		assertTrue(firstDef.get("attributes")
+				.isNull());
+		
 		// Check second scope
 		ObjectNode second = (ObjectNode) effectiveScope.get(1);
 		assertEquals("write", second.get("scope")

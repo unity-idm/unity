@@ -98,6 +98,11 @@ public class TestJsonDumpUpdateFromV21
 				.get("scopeDefinition")
 				.get("wildcard")
 				.asBoolean()).isEqualTo(false);
+		
+		assertThat(scopeArray.get(0)
+				.get("scopeDefinition")
+				.get("attributes")
+				.isNull()).isTrue();
 		assertThat(scopeArray.get(0)
 				.get("wildcard")
 				.asBoolean()).isEqualTo(false);

@@ -10,8 +10,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jwt.SignedJWT;
-import com.nimbusds.oauth2.sdk.*;
-import com.nimbusds.oauth2.sdk.auth.*;
+import com.nimbusds.oauth2.sdk.AccessTokenResponse;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.TokenRequest;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
+import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
+import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Audience;
@@ -24,7 +28,9 @@ import com.nimbusds.oauth2.sdk.tokenexchange.TokenExchangeGrant;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 
@@ -51,7 +57,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("bar", AccessTokenResource.EXCHANGE_SCOPE));
+		AccessToken at = issueToken(Set.of("bar", AccessTokenResource.EXCHANGE_SCOPE));
 
 		TokenRequest req = exchange(at).withScopes("bar", AccessTokenResource.EXCHANGE_SCOPE)
 				.withAudience("client2")
@@ -65,7 +71,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("bar", "foo", AccessTokenResource.EXCHANGE_SCOPE));
+		AccessToken at = issueToken(Set.of("bar", "foo", AccessTokenResource.EXCHANGE_SCOPE));
 
 		TokenRequest req = exchange(at).withScopes("bar", "new scope")
 				.withAudience("client2")
@@ -75,11 +81,103 @@ public class ExchangeTokenTest extends TokenTestBase
 	}
 
 	@Test
+	public void shouldExchangeTokenWithScopeConcretization() throws Exception
+	{
+		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
+
+		AccessToken at = issueToken(List.of(new RequestedOAuthScope(AccessTokenResource.EXCHANGE_SCOPE,
+				ActiveOAuthScopeDefinition.builder()
+						.withName(AccessTokenResource.EXCHANGE_SCOPE)
+						.withDescription(AccessTokenResource.EXCHANGE_SCOPE)
+						.withAttributes(List.of())
+						.build(),
+				false),
+				new RequestedOAuthScope("read:files/.*", ActiveOAuthScopeDefinition.builder()
+						.withName("read:files/.*")
+						.withDescription("\"read:files/.*\"")
+						.withAttributes(List.of())
+						.withWildcard(true)
+						.build(), true), 
+				new RequestedOAuthScope("foo", ActiveOAuthScopeDefinition.builder()
+						.withName("foo")
+						.withDescription("foo")
+						.withAttributes(List.of("email"))
+						.withWildcard(false)
+						.build(), true)));
+
+		TokenRequest req = exchange(at).withScopes("read:files/dir1/.*", "foo")
+				.withAudience("client2")
+				.build();
+
+		AccessTokenResponse parsed = AccessTokenResponse.parse(exec(req));
+		JSONObject info = getTokenInfo(parsed.getTokens()
+				.getAccessToken());
+
+		assertThat(info.get("sub")).isEqualTo("userA");
+		assertThat(info.get("client_id")).isEqualTo("client2");
+		assertThat(info.get("aud")).isEqualTo("client2");
+		assertThat(((JSONArray) info.get("scope"))).containsExactly("read:files/dir1/.*", "foo");
+		assertThat(info.get("exp")).isNotNull();
+	}
+	
+	@Test
+	public void shouldDenyToExchangeTokenWithConcretizationWithScopeWhichIsNotWildcardScope() throws Exception
+	{
+		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
+
+		AccessToken at = issueToken(List.of(new RequestedOAuthScope(AccessTokenResource.EXCHANGE_SCOPE,
+				ActiveOAuthScopeDefinition.builder()
+						.withName(AccessTokenResource.EXCHANGE_SCOPE)
+						.withDescription(AccessTokenResource.EXCHANGE_SCOPE)
+						.withAttributes(List.of())
+						.build(),
+				false),
+				new RequestedOAuthScope("read:files/.*", ActiveOAuthScopeDefinition.builder()
+						.withName("read:files/.*")
+						.withDescription("\"read:files/.*\"")
+						.withAttributes(List.of())
+						.withWildcard(true)
+						.build(), false)));
+
+		TokenRequest req = exchange(at).withScopes("read:files/dir1/.*")
+				.withAudience("client2")
+				.build();
+		assertBadRequest(req);
+	}
+	
+	@Test
+	public void shouldDenyExchangeTokenWithInvalidScopeConcretization() throws Exception
+	{
+		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
+
+		AccessToken at = issueToken(List.of(new RequestedOAuthScope(AccessTokenResource.EXCHANGE_SCOPE,
+				ActiveOAuthScopeDefinition.builder()
+						.withName(AccessTokenResource.EXCHANGE_SCOPE)
+						.withDescription(AccessTokenResource.EXCHANGE_SCOPE)
+						.withAttributes(List.of())
+						.build(),
+				false),
+				new RequestedOAuthScope("read:files/.*", ActiveOAuthScopeDefinition.builder()
+						.withName("read:files/.*")
+						.withDescription("\"read:files/.*\"")
+						.withAttributes(List.of())
+						.withWildcard(true)
+						.build(), true)));
+
+		TokenRequest req = exchange(at).withScopes("read:filess/dir1/.*")
+				.withAudience("client2")
+				.build();
+
+		assertBadRequest(req);
+	}
+	
+	
+	@Test
 	public void shouldExchangeTokenWithRequestedNarrowedScopes() throws Exception
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("bar", "foo", AccessTokenResource.EXCHANGE_SCOPE));
+		AccessToken at = issueToken(Set.of("bar", "foo", AccessTokenResource.EXCHANGE_SCOPE));
 
 		TokenRequest req = exchange(at).withScopes("bar")
 				.withAudience("client2")
@@ -101,7 +199,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("bar", AccessTokenResource.EXCHANGE_SCOPE));
+		AccessToken at = issueToken(Set.of("bar", AccessTokenResource.EXCHANGE_SCOPE));
 
 		TokenRequest req = exchange(at).withScopes("bar")
 				.withAudience("client2")
@@ -117,7 +215,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("bar", AccessTokenResource.EXCHANGE_SCOPE));
+		AccessToken at = issueToken(Set.of("bar", AccessTokenResource.EXCHANGE_SCOPE));
 
 		TokenRequest req = exchange(at).withScopes("bar")
 				.withAudience("client3")
@@ -131,7 +229,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("bar", AccessTokenResource.EXCHANGE_SCOPE));
+		AccessToken at = issueToken(Set.of("bar", AccessTokenResource.EXCHANGE_SCOPE));
 
 		TokenRequest req = exchange(at).forType(TokenTypeURI.parse("wrong"))
 				.withScopes("bar")
@@ -146,7 +244,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("openid", "foo", "bar", AccessTokenResource.EXCHANGE_SCOPE));
+		AccessToken at = issueToken(Set.of("openid", "foo", "bar", AccessTokenResource.EXCHANGE_SCOPE));
 
 		TokenRequest req = exchange(at).withScopes("openid", "foo", "bar")
 				.forType(TokenTypeURI.ID_TOKEN)
@@ -166,7 +264,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("foo", "bar", AccessTokenResource.EXCHANGE_SCOPE));
+		AccessToken at = issueToken(Set.of("foo", "bar", AccessTokenResource.EXCHANGE_SCOPE));
 
 		TokenRequest req = exchange(at).withScopes("foo", "bar")
 				.withAudience("client2")
@@ -190,7 +288,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("openid", AccessTokenResource.EXCHANGE_SCOPE));
+		AccessToken at = issueToken(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE));
 
 		TokenRequest req = exchange(at).withScopes("openid")
 				.withAudience("client2")
@@ -230,7 +328,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("openid", AccessTokenResource.EXCHANGE_SCOPE));
+		AccessToken at = issueToken(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE));
 
 		TokenRequest req = exchange(at).withScopes("openid")
 				.withAudience("client2")
@@ -252,7 +350,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessTokenResponse original = init(List.of("openid", AccessTokenResource.EXCHANGE_SCOPE, "foo"), ca1, null,
+		AccessTokenResponse original = init(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE, "sc1"), ca1, null,
 				ClaimsInTokenAttribute.builder()
 						.withValues(Set.of(ClaimsInTokenAttribute.Value.token, ClaimsInTokenAttribute.Value.id_token))
 						.build());
@@ -274,7 +372,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				.getClaimAsString("email")).contains("example@example.com");
 
 		TokenRequest req = exchange(at).forType(TokenTypeURI.ID_TOKEN)
-				.withScopes("openid", "foo")
+				.withScopes("openid", "sc1")
 				.withAudience("client2")
 				.build();
 
@@ -301,7 +399,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of("openid", AccessTokenResource.EXCHANGE_SCOPE),
+		AccessToken at = issueToken(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE),
 				List.of("additionalAudience1", "additionalAudience2"));
 
 		TokenRequest req = exchange(at).forType(TokenTypeURI.ID_TOKEN)
@@ -332,13 +430,20 @@ public class ExchangeTokenTest extends TokenTestBase
 		return new ClientSecretBasic(new ClientID(id), new Secret("clientPass"));
 	}
 
-	private AccessToken issueToken(List<String> scopes) throws Exception
+	private AccessToken issueToken(Set<String> scopes) throws Exception
 	{
 		return init(scopes, ca1, null, null).getTokens()
 				.getAccessToken();
 	}
 
-	private AccessToken issueToken(List<String> scopes, List<String> additionalAudience) throws Exception
+	private AccessToken issueToken(List<RequestedOAuthScope> scopes) throws Exception
+	{
+		return init(scopes, ca1, null, null).getTokens()
+				.getAccessToken();
+	}
+	
+	
+	private AccessToken issueToken(Set<String> scopes, List<String> additionalAudience) throws Exception
 	{
 		return init(scopes, ca1, additionalAudience, null).getTokens()
 				.getAccessToken();

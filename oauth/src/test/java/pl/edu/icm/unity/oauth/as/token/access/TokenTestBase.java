@@ -7,9 +7,10 @@ package pl.edu.icm.unity.oauth.as.token.access;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -194,42 +195,49 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 		}
 	}
 	
-	
 	/**
 	 * Initialize environment before token refresh or exchange:
 	 * -add attributes to the user
 	 * -create OAuth context
 	 * -prepare access token request (with refresh token) and invoke them. 
-	 * @param scope requested scope in code flow
-	 * @param ca user auth 
-	 * @return Parsed access token response
 	 */
-	protected AccessTokenResponse init(List<String> scopes, ClientAuthentication ca, List<String> additionalAudience, ClaimsInTokenAttribute claimInIdToken)
-			throws Exception
+	protected AccessTokenResponse init(Set<String> scopes, ClientAuthentication ca, List<String> additionalAudience,
+			ClaimsInTokenAttribute claimInIdToken) throws Exception
+	{
+		return init(scopes.stream()
+				.map(s -> new RequestedOAuthScope(s, ActiveOAuthScopeDefinition.builder()
+						.withName(s)
+						.withDescription(s)
+						.withAttributes(Lists.newArrayList(s + " attr"))
+						.build(), false))
+				.toList(), ca, additionalAudience, claimInIdToken);
+	}
+	
+	protected AccessTokenResponse init(List<RequestedOAuthScope> scopes, ClientAuthentication ca,
+			List<String> additionalAudience, ClaimsInTokenAttribute claimInIdToken) throws Exception
 	{
 		IdentityParam identity = initUser("userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getOIDCConfig(),
-				new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode, clientId1.getEntityId());
+				new ResponseType(ResponseType.Value.CODE), GrantFlow.authorizationCode, clientId1.getEntityId());
 
-		ctx.setRequestedScopes(new HashSet<>(scopes));
-		for (String scope: scopes)
-			ctx.addEffectiveScopeInfo(new  RequestedOAuthScope(scope, ActiveOAuthScopeDefinition.builder().withName(scope).withDescription(scope)
-					.withAttributes(Lists.newArrayList(scope + " attr")).build(), false));					
-					
+		ctx.setRequestedScopes(scopes.stream()
+				.map(s -> s.scope())
+				.collect(Collectors.toSet()));
+
+		scopes.forEach(s -> ctx.addEffectiveScopeInfo(s));
+
 		ctx.setOpenIdMode(true);
 		if (additionalAudience != null)
 		{
 			ctx.setAdditionalAudience(additionalAudience);
 		}
 		ctx.setClaimsInTokenAttribute(Optional.ofNullable(claimInIdToken));
-		
-		
+
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx, identity);
 		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
-						.build();	
+						.build();
 		HTTPRequest bare = request.toHTTPRequest();
 		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
 				ServerHostnameCheckingMode.NONE);

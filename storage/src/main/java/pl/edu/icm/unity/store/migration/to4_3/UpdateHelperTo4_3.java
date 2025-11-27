@@ -35,7 +35,8 @@ public class UpdateHelperTo4_3
 				scopeDef.put("name", s.asText());
 				scopeDef.put("description", "");
 				scopeDef.put("wildcard", false);
-
+				scopeDef.putNull("attributes");
+				
 				ObjectNode scopeObj = Constants.MAPPER.createObjectNode();
 				scopeObj.put("scope", s.asText());
 				scopeObj.set("scopeDefinition", scopeDef);
