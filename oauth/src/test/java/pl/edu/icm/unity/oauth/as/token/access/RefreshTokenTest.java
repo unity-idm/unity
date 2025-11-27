@@ -8,8 +8,8 @@ package pl.edu.icm.unity.oauth.as.token.access;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +37,8 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.identity.IdentityParam;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -49,7 +51,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
  */
 public class RefreshTokenTest extends TokenTestBase
 {
-	private RefreshToken initRefresh(List<String> scope, ClientAuthentication ca) throws Exception
+	private RefreshToken initRefresh(Set<String> scope, ClientAuthentication ca) throws Exception
 	{
 		return init(scope, ca, null, null).getTokens().getRefreshToken();	
 	}
@@ -61,7 +63,7 @@ public class RefreshTokenTest extends TokenTestBase
 		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 
 		AccessTokenResponse parsedResp = getRefreshedAccessToken(refreshToken, ca, "foo", "bar");
 		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
@@ -77,7 +79,7 @@ public class RefreshTokenTest extends TokenTestBase
 		super.setupPlain(RefreshTokenIssuePolicy.NEVER);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 		assertThat(refreshToken).isNull();
 	}
 
@@ -87,7 +89,7 @@ public class RefreshTokenTest extends TokenTestBase
 		super.setupPlain(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 		assertThat(refreshToken).isNull();
 	}
 
@@ -97,7 +99,7 @@ public class RefreshTokenTest extends TokenTestBase
 		super.setupPlain(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar", OIDCScopeValue.OFFLINE_ACCESS.getValue()),
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar", OIDCScopeValue.OFFLINE_ACCESS.getValue()),
 				ca);
 		assertThat(refreshToken).isNotNull();
 	}
@@ -109,7 +111,7 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 
 		AccessTokenResponse parsedResp = getRefreshedAccessToken(refreshToken, ca);
 		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
@@ -126,8 +128,22 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
-
+		
+		RefreshToken refreshToken =init(List.of(
+		new RequestedOAuthScope("foo", ActiveOAuthScopeDefinition.builder()
+				.withName("foo")
+				.withDescription("foo")
+				.withAttributes(List.of("email"))
+				.withWildcard(true)
+				.build(), true), 
+		new RequestedOAuthScope("bar", ActiveOAuthScopeDefinition.builder()
+				.withName("bar")
+				.withDescription("bar")
+				.withAttributes(List.of("c"))
+				.withWildcard(true)
+				.build(), true)), ca, null, null).getTokens().getRefreshToken();
+		
+		
 		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");
 
 		assertThat(claimSet.getClaim("c")).isEqualTo("PL");
@@ -142,7 +158,7 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("openid"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("openid"), ca);
 
 		TokenRequest refreshRequest = new TokenRequest(
 				new URI(getOauthUrl("/oauth/token")), ca,
@@ -165,7 +181,7 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 
 		// check wrong scope
 		TokenRequest refreshRequest = new TokenRequest(
@@ -189,7 +205,7 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 
 		TokenRequest refreshRequest = new TokenRequest(
 				new URI(getOauthUrl("/oauth/token")), ca2,
@@ -211,7 +227,19 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken =init(List.of(
+				new RequestedOAuthScope("foo", ActiveOAuthScopeDefinition.builder()
+						.withName("foo")
+						.withDescription("foo")
+						.withAttributes(List.of("email"))
+						.withWildcard(true)
+						.build(), true), 
+				new RequestedOAuthScope("bar", ActiveOAuthScopeDefinition.builder()
+						.withName("bar")
+						.withDescription("bar")
+						.withAttributes(List.of("c"))
+						.withWildcard(true)
+						.build(), true)), ca, null, null).getTokens().getRefreshToken();
 
 		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");	
 		

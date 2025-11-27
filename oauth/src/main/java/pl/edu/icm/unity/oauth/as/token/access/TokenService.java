@@ -7,11 +7,13 @@ package pl.edu.icm.unity.oauth.as.token.access;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,35 +50,29 @@ import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
-import pl.edu.icm.unity.oauth.as.token.access.ClientAttributesProvider.ClientAttributesProviderFactory;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
 
 class TokenService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, TokenService.class);
 
-	private final OAuthRequestValidator requestValidator;
 	private final OAuthASProperties config;
 	private final OAuthIdPEngine notAuthorizedOauthIdpEngine;
-	private final ClientAttributesProvider clientAttributesProvider;
 
-	TokenService(OAuthRequestValidator requestValidator, OAuthASProperties config,
-			OAuthIdPEngine notAuthorizedOauthIdpEngine, ClientAttributesProvider clientAttributesProvider)
+	TokenService( OAuthASProperties config,
+			OAuthIdPEngine notAuthorizedOauthIdpEngine)
 	{
-		this.requestValidator = requestValidator;
 		this.config = config;
 		this.notAuthorizedOauthIdpEngine = notAuthorizedOauthIdpEngine;
-		this.clientAttributesProvider = clientAttributesProvider;
 	}
 
 	OAuthToken prepareNewTokenBasedOnOldToken(OAuthToken oldToken, Scope newRequestedScopeList, List<String> oldRequestedScopesList,
@@ -87,7 +83,9 @@ class TokenService
 		
 		List<String> filteredScopes = AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList).stream().map(v -> v.getValue()).toList();
 		
-		if (!oldRequestedScopesList.containsAll(filteredScopes))
+		Map<String, RequestedOAuthScope> requestedScopeToEffectiveMap = mapToEffectiveScopes(oldToken.getEffectiveScope(), filteredScopes);
+		
+		if (requestedScopeToEffectiveMap.values().contains(null))
 		{
 			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_SCOPE, "wrong scope"));
 		}
@@ -96,9 +94,11 @@ class TokenService
 		// get new attributes for identity
 		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
 		
-		List<RequestedOAuthScope> newValidRequestedScopes = requestValidator.getValidRequestedScopes(
-				clientAttributesProvider.getClientAttributes(new EntityParam(clientId)),
-				AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList));
+		List<RequestedOAuthScope> newValidRequestedScopes = requestedScopeToEffectiveMap.entrySet()
+				.stream()
+				.map(s -> new RequestedOAuthScope(s.getKey(), s.getValue()
+						.scopeDefinition(), false))
+				.toList();
 		newToken.setEffectiveScope(newValidRequestedScopes);
 
 		List<AttributeFilteringSpec> claimFiltersFromScopes = AttributeValueFilterUtils.getFiltersFromScopes(newRequestedScopeList);
@@ -138,7 +138,41 @@ class TokenService
 	}
 	
 	
-	
+	private Map<String, RequestedOAuthScope> mapToEffectiveScopes(List<RequestedOAuthScope> effective, List<String> requested)
+	{
+		Map<String, RequestedOAuthScope> result = new HashMap<>();
+
+		Map<String, RequestedOAuthScope> exactLookup = effective.stream()
+				.filter(s -> !s.wildcard())
+				.collect(Collectors.toMap(RequestedOAuthScope::scope, s -> s, (a, b) -> a));
+
+		List<RequestedOAuthScope> wildcardScopes = effective.stream()
+				.filter(RequestedOAuthScope::wildcard)
+				.toList();
+
+		for (String req : requested)
+		{
+			RequestedOAuthScope exact = exactLookup.get(req);
+			if (exact != null)
+			{
+				result.put(req, exact);
+				continue;
+			}
+
+			for (RequestedOAuthScope w : wildcardScopes)
+			{
+				if (ActiveOAuthScopeDefinition.isSubsetOfWildcardScope(req, w.scope()))
+				{
+					result.put(req, w);
+					break;
+				}
+			}
+
+			result.putIfAbsent(req, null);
+		}
+
+		return result;
+	}
 	
 	
 	AccessTokenResponse getAccessTokenResponse(OAuthToken internalToken, AccessToken accessToken,
@@ -233,24 +267,19 @@ class TokenService
 	@Component
 	public static class TokenServiceFactory
 	{
-		private final OAuthRequestValidatorFactory requestValidatorFactory;
 		private final IdPEngine idPEngine;
-		private final ClientAttributesProviderFactory clientAttributesProviderFactory;
 
 		@Autowired
-		public TokenServiceFactory(OAuthRequestValidatorFactory requestValidatorFactory,
-				@Qualifier("insecure") IdPEngine idPEngine,
-				ClientAttributesProviderFactory clientAttributesProviderFactory)
+		public TokenServiceFactory(
+				@Qualifier("insecure") IdPEngine idPEngine)
 		{
-			this.requestValidatorFactory = requestValidatorFactory;
 			this.idPEngine = idPEngine;
-			this.clientAttributesProviderFactory = clientAttributesProviderFactory;
 		}
 
 		public TokenService getTokenService(OAuthASProperties config)
 		{
-			return new TokenService(requestValidatorFactory.getOAuthRequestValidator(config), config,
-					new OAuthIdPEngine(idPEngine), clientAttributesProviderFactory.getClientAttributeProvider(config));
+			return new TokenService( config,
+					new OAuthIdPEngine(idPEngine));
 
 		}
 	}

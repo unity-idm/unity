@@ -54,14 +54,18 @@ public class RefreshTokenHandlerTest
 	private OAuthClientTokensCleaner tokenCleaner;
 	@Mock
 	private TokenService tokenService;
+	@Mock
+	private OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter; 
 
+	
 	@Test
 	public void shouldReturnErrorWhenTokenUsedAgain() throws JsonProcessingException, EngineException
 	{
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
+		
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokensRepository,
-				accessTokenFactory, accessTokensRepository, tokenCleaner, tokenService);
+				accessTokenFactory, accessTokensRepository, tokenCleaner, tokenService, oAuthTokenEffectiveScopesAttributesCompleter);
 		when(config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION))
 				.thenReturn(true);
 		Token token = new Token(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN, "token", 1l);
@@ -78,7 +82,7 @@ public class RefreshTokenHandlerTest
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokensRepository,
-				accessTokenFactory, accessTokensRepository, tokenCleaner, tokenService);
+				accessTokenFactory, accessTokensRepository, tokenCleaner, tokenService, oAuthTokenEffectiveScopesAttributesCompleter);
 		when(config.getBooleanValue(OAuthASProperties.ENABLE_REFRESH_TOKENS_FOR_PUBLIC_CLIENTS_WITH_ROTATION))
 				.thenReturn(true);
 		Token token = new Token(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN, "token", 1l);
@@ -98,7 +102,7 @@ public class RefreshTokenHandlerTest
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokensRepository,
-				accessTokenFactory, accessTokensRepository, tokenCleaner, tokenService);
+				accessTokenFactory, accessTokensRepository, tokenCleaner, tokenService, oAuthTokenEffectiveScopesAttributesCompleter);
 
 		Token token = new Token(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN, "token", 1l);
 		OAuthToken oAuthToken = new OAuthToken();
@@ -122,7 +126,7 @@ public class RefreshTokenHandlerTest
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		AccessTokenFactory accessTokenFactory = new AccessTokenFactory(config);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokensRepository,
-				accessTokenFactory, accessTokensRepository, tokenCleaner, tokenService);
+				accessTokenFactory, accessTokensRepository, tokenCleaner, tokenService, oAuthTokenEffectiveScopesAttributesCompleter);
 
 		Token token = new Token(OAuthRefreshTokenRepository.INTERNAL_USED_REFRESH_TOKEN, "token", 1l);
 		OAuthToken oAuthToken = new OAuthToken();

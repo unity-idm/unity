@@ -70,18 +70,18 @@ public class TokenIntrospectionResourceTest
 		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement,
 				mock(SecuredTokensManagement.class));
 
-		ClientAttributesProvider clientAttributesProvider = new ClientAttributesProvider(null);
-		TokenService tokenUtils = new TokenService(null, config, null, clientAttributesProvider);
+		TokenService tokenUtils = new TokenService(config, null);
 		OAuthTokenStatisticPublisher publisher = new OAuthTokenStatisticPublisher(mock(ApplicationEventPublisher.class),
 				null, null, null, null, mock(LastIdPClinetAccessAttributeManagement.class), null, config,
 				OAuthTestUtils.getEndpoint());
 
 		AuthzCodeHandler authzCodeHandler = new AuthzCodeHandler(tokensManagement, accessTokenRepository,
 				refreshTokenRepository, tx, new AccessTokenFactory(config), publisher, config, tokenUtils);
+		OAuthTokenEffectiveScopesAttributesCompleter fixer = mock(OAuthTokenEffectiveScopesAttributesCompleter.class);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokenRepository, null,
-				accessTokenRepository, null, null);
+				accessTokenRepository, null, null, fixer);
 		ExchangeTokenHandler exchangeTokenHandler = new ExchangeTokenHandler(config, refreshTokenRepository, null,
-				accessTokenRepository, null, null, null, null, null);
+				accessTokenRepository, null, null, null, null, null, fixer);
 		CredentialFlowHandler credentialFlowHandler = new CredentialFlowHandler(config, null, null, null,
 				accessTokenRepository, null);
 

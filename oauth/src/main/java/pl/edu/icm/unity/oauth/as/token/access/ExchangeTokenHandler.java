@@ -53,11 +53,13 @@ class ExchangeTokenHandler
 	private final OAuthTokenStatisticPublisher statisticPublisher;
 	private final OAuthRequestValidator requestValidator;
 	private final EntityManagement idMan;
+	private final OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
 
 	public ExchangeTokenHandler(OAuthASProperties config, OAuthRefreshTokenRepository refreshTokensDAO,
 			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO, TokenService tokenService,
 			OAuthTokenStatisticPublisher statisticPublisher, OAuthRequestValidator requestValidator,
-			EntityManagement idMan, ClientAttributesProvider clientAttributesProvider)
+			EntityManagement idMan, ClientAttributesProvider clientAttributesProvider,
+			OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
 	{
 		this.config = config;
 		this.refreshTokensDAO = refreshTokensDAO;
@@ -68,6 +70,7 @@ class ExchangeTokenHandler
 		this.requestValidator = requestValidator;
 		this.idMan = idMan;
 		this.clientAttributesProvider = clientAttributesProvider;
+		this.oAuthTokenEffectiveScopesAttributesCompleter = oAuthTokenEffectiveScopesAttributesCompleter;
 	}
 
 	Response handleExchangeToken(String subjectToken, String subjectTokenType, String requestedTokenType,
@@ -89,6 +92,8 @@ class ExchangeTokenHandler
 			return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "wrong subject_token");
 		}
 
+		oAuthTokenEffectiveScopesAttributesCompleter.fixScopesAttributesIfNeeded(config, parsedSubjectToken);
+		
 		Scope newRequestedScopeList = new Scope();
 		if (scope != null && !scope.isEmpty())
 		{

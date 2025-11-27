@@ -25,13 +25,15 @@ class ExchangeTokenHandlerFactory
 	private final OAuthRequestValidatorFactory requestValidatorFactory;
 	private final EntityManagement idMan;
 	private final ClientAttributesProviderFactory clientAttributesProviderFactory;
+	private final OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
 
 	@Autowired
 	ExchangeTokenHandlerFactory(OAuthRefreshTokenRepository refreshTokensDAO,
 			OAuthAccessTokenRepository accessTokensDAO, TokenServiceFactory tokenUtilsFactory,
 			OAuthTokenStatisticPublisherFactory statisticPublisherFactory,
 			OAuthRequestValidatorFactory requestValidatorFactory, EntityManagement idMan,
-			ClientAttributesProviderFactory clientAttributesProviderFactory)
+			ClientAttributesProviderFactory clientAttributesProviderFactory,
+			OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
 	{
 
 		this.refreshTokensDAO = refreshTokensDAO;
@@ -41,6 +43,7 @@ class ExchangeTokenHandlerFactory
 		this.requestValidatorFactory = requestValidatorFactory;
 		this.idMan = idMan;
 		this.clientAttributesProviderFactory = clientAttributesProviderFactory;
+		this.oAuthTokenEffectiveScopesAttributesCompleter = oAuthTokenEffectiveScopesAttributesCompleter;
 	}
 
 	ExchangeTokenHandler getHandler(OAuthASProperties config, ResolvedEndpoint endpoint)
@@ -49,7 +52,7 @@ class ExchangeTokenHandlerFactory
 				tokenServiceFactory.getTokenService(config),
 				statisticPublisherFactory.getOAuthTokenStatisticPublisher(config, endpoint),
 				requestValidatorFactory.getOAuthRequestValidator(config), idMan,
-				clientAttributesProviderFactory.getClientAttributeProvider(config));
+				clientAttributesProviderFactory.getClientAttributeProvider(config), oAuthTokenEffectiveScopesAttributesCompleter);
 	}
 
 }

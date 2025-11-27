@@ -43,10 +43,12 @@ class RefreshTokenHandler
 	private final OAuthAccessTokenRepository accessTokensRepository;
 	private final OAuthClientTokensCleaner tokenCleaner;
 	private final TokenService tokenService;
-
+	private final OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
+	
 	RefreshTokenHandler(OAuthASProperties config, OAuthRefreshTokenRepository refreshTokensDAO,
 			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO,
-			OAuthClientTokensCleaner tokenCleaner, TokenService tokenService)
+			OAuthClientTokensCleaner tokenCleaner, TokenService tokenService, 
+			OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
 	{
 		this.config = config;
 		this.refreshTokensRepository = refreshTokensDAO;
@@ -54,8 +56,9 @@ class RefreshTokenHandler
 		this.accessTokensRepository = accessTokensDAO;
 		this.tokenCleaner = tokenCleaner;
 		this.tokenService = tokenService;
+		this.oAuthTokenEffectiveScopesAttributesCompleter = oAuthTokenEffectiveScopesAttributesCompleter;
 	}
-
+	
 	Response handleRefreshTokenGrant(String refToken, String scope, String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
@@ -77,6 +80,8 @@ class RefreshTokenHandler
 			return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "wrong refresh token");
 		}
 
+		oAuthTokenEffectiveScopesAttributesCompleter.fixScopesAttributesIfNeeded(config, parsedRefreshToken);
+		
 		if (isRequiredAuthenticationMissing(parsedRefreshToken.getClientType()))
 		{
 			return BaseOAuthResource.makeError(OAuth2Error.INVALID_CLIENT, "not authenticated");

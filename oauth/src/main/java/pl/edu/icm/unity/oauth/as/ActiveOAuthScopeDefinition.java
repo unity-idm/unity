@@ -22,7 +22,7 @@ public record ActiveOAuthScopeDefinition(
 
 	public ActiveOAuthScopeDefinition
 	{
-		attributes = Optional.ofNullable(attributes).map(List::copyOf).orElse(List.of());
+		attributes = Optional.ofNullable(attributes).map(List::copyOf).orElse(null);
 	}
 
 	public boolean match(String scope, boolean allowForRequestingWildcard)
@@ -46,7 +46,7 @@ public record ActiveOAuthScopeDefinition(
 		}
 	}
 
-	private boolean isSubsetOfWildcardScope(String wildcard1, String wildcard2)
+	public static boolean isSubsetOfWildcardScope(String wildcard1, String wildcard2)
 	{
 		Automaton a1 = new RegExp(wildcard1).toAutomaton();
 		Automaton a2 = new RegExp(wildcard2).toAutomaton();
