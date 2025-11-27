@@ -50,13 +50,13 @@ import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
+import pl.edu.icm.unity.oauth.as.ScopeMatcher;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
@@ -161,7 +161,7 @@ class TokenService
 
 			for (RequestedOAuthScope w : wildcardScopes)
 			{
-				if (ActiveOAuthScopeDefinition.isSubsetOfWildcardScope(req, w.scope()))
+				if (ScopeMatcher.isSubsetOfWildcardScope(req, w.scope()))
 				{
 					result.put(req, w);
 					break;

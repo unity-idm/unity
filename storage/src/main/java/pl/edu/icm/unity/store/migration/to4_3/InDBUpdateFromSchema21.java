@@ -57,11 +57,11 @@ class InDBUpdateFromSchema21 implements InDBContentsUpdater
 				continue;
 			ObjectNode objContent = JsonUtil.parse(token.getContents());
 
-			Optional<ObjectNode> fixed = UpdateHelperTo4_3.fixOauthToken(objContent);
+			Optional<ObjectNode> fixed = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(objContent);
 			if (fixed.isPresent())
 			{
 				token.setContents(JsonUtil.serialize2Bytes(fixed.get()));
-				System.out.println(JsonUtil.serializeHumanReadable(fixed.get()));
+				log.debug("Update OAuthToken: {}", JsonUtil.serializeHumanReadable(fixed.get()));
 				tokensDAO.update(token);
 				log.info("Updated OAuth token audience {}", objContent);
 			}

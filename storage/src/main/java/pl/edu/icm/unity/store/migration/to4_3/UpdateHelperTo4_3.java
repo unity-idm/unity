@@ -15,12 +15,12 @@ import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.base.Constants;
 
-public class UpdateHelperTo4_3
+class UpdateHelperTo4_3
 {
-	public final static Set<String> oauthTokenTypes = Sets.newHashSet("oauth2Code", "oauth2Access", "oauth2Refresh",
+	final static Set<String> oauthTokenTypes = Sets.newHashSet("oauth2Code", "oauth2Access", "oauth2Refresh",
 			"usedOauth2Refresh");
 
-	public static Optional<ObjectNode> fixOauthToken(ObjectNode objContent)
+	static Optional<ObjectNode> updateEffectiveScopesInOauthToken(ObjectNode objContent)
 	{
 		if (objContent.has("effectiveScope"))
 		{
@@ -36,7 +36,7 @@ public class UpdateHelperTo4_3
 				scopeDef.put("description", "");
 				scopeDef.put("wildcard", false);
 				scopeDef.putNull("attributes");
-				
+
 				ObjectNode scopeObj = Constants.MAPPER.createObjectNode();
 				scopeObj.put("scope", s.asText());
 				scopeObj.set("scopeDefinition", scopeDef);
