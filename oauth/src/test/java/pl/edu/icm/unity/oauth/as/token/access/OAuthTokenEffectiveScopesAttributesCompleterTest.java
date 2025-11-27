@@ -21,7 +21,7 @@ import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 
 @ExtendWith(MockitoExtension.class)
-class OAuthTokenAttributesFixerTest
+class OAuthTokenEffectiveScopesAttributesCompleterTest
 {
 	@Mock
 	private OAuthScopesService scopeService;
@@ -58,7 +58,7 @@ class OAuthTokenAttributesFixerTest
 		ArgumentCaptor<List<RequestedOAuthScope>> captor = ArgumentCaptor.forClass(List.class);
 		verify(token).setEffectiveScope(captor.capture());
 		List<RequestedOAuthScope> result = captor.getValue();
-		assertEquals(2, result.size());
+		assertEquals(1, result.size());
 		assertEquals(List.of("attr1"), result.get(0)
 				.scopeDefinition()
 				.attributes());
@@ -80,7 +80,7 @@ class OAuthTokenAttributesFixerTest
 		ArgumentCaptor<List<RequestedOAuthScope>> captor = ArgumentCaptor.forClass(List.class);
 		verify(token).setEffectiveScope(captor.capture());
 		List<RequestedOAuthScope> result = captor.getValue();
-		assertEquals(2, result.size());
+		assertEquals(1, result.size());
 		assertEquals(List.of(), result.get(0)
 				.scopeDefinition()
 				.attributes());
