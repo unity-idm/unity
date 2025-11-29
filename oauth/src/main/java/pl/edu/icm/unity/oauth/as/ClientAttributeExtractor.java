@@ -9,17 +9,19 @@ import java.util.Map;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 
-public class ClientAttributeExtractor
+class ClientAttributeExtractor
 {
-	public static boolean isAllowedForRequestingWildcardScopes(Map<String, AttributeExt> attributes)
+	static boolean isAllowedForRequestingWildcardScopes(Map<String, AttributeExt> attributes)
 	{
-		AttributeExt allowedForRequestingWildcardScopesA = attributes.get(OAuthSystemAttributesProvider.ALLOW_FOR_REQUESTING_WILDCARD_SCOPES);
+		AttributeExt allowedForRequestingWildcardScopesA = attributes
+				.get(OAuthSystemAttributesProvider.ALLOW_FOR_REQUESTING_WILDCARD_SCOPES);
 		if (allowedForRequestingWildcardScopesA == null)
 		{
 			return false;
 		} else
 		{
-			return allowedForRequestingWildcardScopesA.getValues().stream()
+			return allowedForRequestingWildcardScopesA.getValues()
+					.stream()
 					.anyMatch(v -> Boolean.parseBoolean(v.toString()));
 		}
 	}

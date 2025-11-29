@@ -3,14 +3,6 @@ package pl.edu.icm.unity.oauth.as;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
-
-import org.apache.logging.log4j.Logger;
-
-import dk.brics.automaton.Automaton;
-import dk.brics.automaton.RegExp;
-import pl.edu.icm.unity.base.utils.Log;
 
 public record ActiveOAuthScopeDefinition(
 		String name,
@@ -18,40 +10,12 @@ public record ActiveOAuthScopeDefinition(
 		List<String> attributes,
 		boolean wildcard)
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ActiveOAuthScopeDefinition.class);
 
 	public ActiveOAuthScopeDefinition
 	{
-		attributes = Optional.ofNullable(attributes).map(List::copyOf).orElse(null);
-	}
-
-	public boolean match(String scope, boolean allowForRequestingWildcard)
-	{
-		if (!wildcard)
-			return name.equals(scope);
-
-		if (!allowForRequestingWildcard)
-		{
-			try
-			{
-				return Pattern.matches(name, scope);
-			} catch (PatternSyntaxException e)
-			{
-				log.error("Incorrect pattern", e);
-				return false;
-			}
-		} else
-		{
-			return isSubsetOfWildcardScope(scope, name);
-		}
-	}
-
-	public static boolean isSubsetOfWildcardScope(String wildcard1, String wildcard2)
-	{
-		Automaton a1 = new RegExp(wildcard1).toAutomaton();
-		Automaton a2 = new RegExp(wildcard2).toAutomaton();
-		return a1.minus(a2)
-				.isEmpty();
+		attributes = Optional.ofNullable(attributes)
+				.map(List::copyOf)
+				.orElse(null);
 	}
 
 	public static Builder builder()

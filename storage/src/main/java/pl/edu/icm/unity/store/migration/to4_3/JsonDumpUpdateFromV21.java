@@ -59,12 +59,14 @@ public class JsonDumpUpdateFromV21 implements JsonDumpUpdate
 				continue;
 			ObjectNode objContent = JsonUtil.parse(tokenObj.get("contents")
 					.binaryValue());
-			Optional<ObjectNode> fixed = UpdateHelperTo4_3.fixOauthToken(objContent);
-			if (fixed.isPresent())
+			Optional<ObjectNode> fixed = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(objContent);
+			
+			fixed.ifPresent(f ->
 			{
 				tokenObj.remove("contents");
-				tokenObj.put("contents", JsonUtil.serialize2Bytes(fixed.get()));
-			}
+				tokenObj.put("contents", JsonUtil.serialize2Bytes(f));
+			});
+			
 			log.info("Updated OAuth token audience {}", objContent);
 		}
 	}

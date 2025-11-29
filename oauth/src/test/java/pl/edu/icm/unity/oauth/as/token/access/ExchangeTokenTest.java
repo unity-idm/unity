@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
+import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
@@ -53,7 +54,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	}
 
 	@Test
-	public void shouldDenyToExchangeTokenWithRequestedTokenExchangeScope() throws Exception
+	public void shouldExchangeTokenWithSkippedRequestedTokenExchangeScope() throws Exception
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
@@ -63,7 +64,15 @@ public class ExchangeTokenTest extends TokenTestBase
 				.withAudience("client2")
 				.build();
 
-		assertBadRequest(req);
+		AccessTokenResponse parsed = AccessTokenResponse.parse(exec(req));
+		JSONObject info = getTokenInfo(parsed.getTokens()
+				.getAccessToken());
+
+		assertThat(info.get("sub")).isEqualTo("userA");
+		assertThat(info.get("client_id")).isEqualTo("client2");
+		assertThat(info.get("aud")).isEqualTo("client2");
+		assertThat(((JSONArray) info.get("scope"))).containsExactly("bar");
+		assertThat(info.get("exp")).isNotNull();
 	}
 
 	@Test
@@ -77,7 +86,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				.withAudience("client2")
 				.build();
 
-		assertBadRequest(req);
+		assertBadRequestWithInvalidScope(req);
 	}
 
 	@Test
@@ -116,7 +125,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		assertThat(info.get("sub")).isEqualTo("userA");
 		assertThat(info.get("client_id")).isEqualTo("client2");
 		assertThat(info.get("aud")).isEqualTo("client2");
-		assertThat(((JSONArray) info.get("scope"))).containsExactly("read:files/dir1/.*", "foo");
+		assertThat(((JSONArray) info.get("scope"))).containsExactlyInAnyOrder("read:files/dir1/.*", "foo");
 		assertThat(info.get("exp")).isNotNull();
 	}
 	
@@ -142,7 +151,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		TokenRequest req = exchange(at).withScopes("read:files/dir1/.*")
 				.withAudience("client2")
 				.build();
-		assertBadRequest(req);
+		assertBadRequestWithInvalidScope(req);
 	}
 	
 	@Test
@@ -168,7 +177,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				.withAudience("client2")
 				.build();
 
-		assertBadRequest(req);
+		assertBadRequestWithInvalidScope(req);
 	}
 	
 	
@@ -190,7 +199,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		assertThat(info.get("sub")).isEqualTo("userA");
 		assertThat(info.get("client_id")).isEqualTo("client2");
 		assertThat(info.get("aud")).isEqualTo("client2");
-		assertThat(((JSONArray) info.get("scope"))).contains("bar");
+		assertThat(((JSONArray) info.get("scope"))).containsExactly("bar");
 		assertThat(info.get("exp")).isNotNull();
 	}
 
@@ -207,7 +216,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				.withActorTokenType(TokenTypeURI.ACCESS_TOKEN)
 				.build();
 
-		assertBadRequest(req);
+		assertBadRequestWithInvalidParams(req);
 	}
 
 	@Test
@@ -221,7 +230,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				.withAudience("client3")
 				.build();
 
-		assertBadRequest(req);
+		assertBadRequestWithInvalidParams(req);
 	}
 
 	@Test
@@ -236,7 +245,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				.withAudience("client2")
 				.build();
 
-		assertBadRequest(req);
+		assertBadRequestWithInvalidParams(req);
 	}
 
 	@Test
@@ -312,14 +321,14 @@ public class ExchangeTokenTest extends TokenTestBase
 				.get("id_token")
 				.toString());
 		assertThat(idToken.getJWTClaimsSet()
-				.getAudience()).contains("client2", "https://resource1.uri", "https://resource2.uri");
+				.getAudience()).containsExactlyInAnyOrder("client2", "https://resource1.uri", "https://resource2.uri");
 
 		JSONObject info = getTokenInfo(parsed.getTokens()
 				.getAccessToken());
 		assertThat(info.get("sub")).isEqualTo("userA");
 		assertThat(info.get("client_id")).isEqualTo("client2");
-		assertThat((JSONArray) info.get("aud")).contains("client2", "https://resource1.uri", "https://resource2.uri");
-		assertThat(((JSONArray) info.get("scope"))).contains("openid");
+		assertThat((JSONArray) info.get("aud")).containsExactlyInAnyOrder("client2", "https://resource1.uri", "https://resource2.uri");
+		assertThat(((JSONArray) info.get("scope"))).containsExactlyInAnyOrder("openid");
 		assertThat(info.get("exp")).isNotNull();
 	}
 
@@ -342,7 +351,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				.getValue()
 				.toString());
 		assertThat(access.getJWTClaimsSet()
-				.getAudience()).contains("client2");
+				.getAudience()).containsExactlyInAnyOrder("client2");
 	}
 
 	@Test
@@ -387,7 +396,7 @@ public class ExchangeTokenTest extends TokenTestBase
 				.toString());
 
 		assertThat(idEx.getJWTClaimsSet()
-				.getAudience()).contains("client2");
+				.getAudience()).containsExactlyInAnyOrder("client2");
 		assertThat(idEx.getJWTClaimsSet()
 				.getClaimAsString("email")).contains("example@example.com");
 		assertThat(atEx.getJWTClaimsSet()
@@ -414,14 +423,14 @@ public class ExchangeTokenTest extends TokenTestBase
 				.get("id_token")
 				.toString());
 		assertThat(idToken.getJWTClaimsSet()
-				.getAudience()).contains("client2", "https://resource1.uri", "https://resource2.uri");
+				.getAudience()).containsExactlyInAnyOrder("client2", "https://resource1.uri", "https://resource2.uri");
 
 		JSONObject info = getTokenInfo(parsed.getTokens()
 				.getAccessToken());
 		assertThat(info.get("sub")).isEqualTo("userA");
 		assertThat(info.get("client_id")).isEqualTo("client2");
-		assertThat((JSONArray) info.get("aud")).contains("client2", "https://resource1.uri", "https://resource2.uri");
-		assertThat(((JSONArray) info.get("scope"))).contains("openid");
+		assertThat((JSONArray) info.get("aud")).containsExactlyInAnyOrder("client2", "https://resource1.uri", "https://resource2.uri");
+		assertThat(((JSONArray) info.get("scope"))).containsExactlyInAnyOrder("openid");
 		assertThat(info.get("exp")).isNotNull();
 	}
 
@@ -526,9 +535,18 @@ public class ExchangeTokenTest extends TokenTestBase
 		return wrapped.send();
 	}
 
-	private void assertBadRequest(TokenRequest req) throws Exception
+	private void assertBadRequestWithInvalidScope(TokenRequest req) throws Exception
 	{
 		assertThat(exec(req).getStatusCode()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
+		assertThat(exec(req).getBodyAsJSONObject().get("error")).isEqualTo(OAuth2Error.INVALID_SCOPE_CODE);
+
+	}
+
+	private void assertBadRequestWithInvalidParams(TokenRequest req) throws Exception
+	{
+		assertThat(exec(req).getStatusCode()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
+		assertThat(exec(req).getBodyAsJSONObject().get("error")).isEqualTo(OAuth2Error.INVALID_REQUEST_CODE);
+
 	}
 
 }

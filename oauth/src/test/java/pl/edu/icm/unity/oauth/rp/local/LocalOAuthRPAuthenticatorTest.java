@@ -3,7 +3,6 @@ package pl.edu.icm.unity.oauth.rp.local;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.net.URL;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;

@@ -147,8 +147,8 @@
 				<artifactId>jackson-datatype-jdk8</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>dk.brics.automaton</groupId>
-			<artifactId>automaton</artifactId>
+				<groupId>dk.brics</groupId>
+				<artifactId>automaton</artifactId>
 		</dependency>
 	</dependencies>
 	

@@ -99,7 +99,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 	private String serverPrefix;
 	private Set<String> serverContextPaths;
 	private Checkbox openIDConnect;
-	private Checkbox exchangeToken;
+	private Checkbox tokenExchangeSupport;
 	private ComboBox<String> credential;
 	private ComboBox<SigningAlgorithms> signingAlg;
 	private ComboBox<AccessTokenFormat> accessTokenFormat;
@@ -462,11 +462,11 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		signingSecret.setEnabled(false);
 		mainGeneralLayout.addFormItem(signingSecret, msg.getMessage("OAuthEditorGeneralTab.signingSecret"));
 
-		exchangeToken = new Checkbox(msg.getMessage("OAuthEditorGeneralTab.exchangeToken"));
-		configBinder.forField(exchangeToken)
-				.bind("exchangeToken");
-		mainGeneralLayout.addFormItem(exchangeToken, "");
-		
+		tokenExchangeSupport = new Checkbox(msg.getMessage("OAuthEditorGeneralTab.tokenExchangeSupport"));
+		configBinder.forField(tokenExchangeSupport)
+				.bind("tokenExchangeSupport");
+		mainGeneralLayout.addFormItem(tokenExchangeSupport, "")
+				.add(htmlTooltipFactory.get(msg.getMessage("OAuthEditorGeneralTab.tokenExchangeSupportDescription")));		
 		
 		openIDConnect.addValueChangeListener(e ->
 		{
@@ -474,7 +474,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 			refreshScope(e.getValue(), OIDCScopeValue.OPENID.getValue());
 		});
 		
-		exchangeToken.addValueChangeListener(e ->
+		tokenExchangeSupport.addValueChangeListener(e ->
 		{
 			refreshScope(e.getValue(), OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
 		});

@@ -136,7 +136,7 @@ public class OAuthRequestValidator
 		
 		Set<String> notDefinedOnServer = requestedScopes.stream().map(s -> s.getValue())
 				.filter(scope -> !scopesDefinedOnServer.stream()
-						.filter(serverScope -> serverScope.match(scope, isAllowedForRequestingWildcardScopes)).findAny().isPresent())
+						.filter(serverScope -> ScopeMatcher.match(serverScope, scope, isAllowedForRequestingWildcardScopes)).findAny().isPresent())
 				.collect(Collectors.toSet());
 		if (!notDefinedOnServer.isEmpty())
 		{
@@ -149,7 +149,7 @@ public class OAuthRequestValidator
 		return requestedScopes.stream()
 				.filter(s -> !notDefinedOnServer.contains(s.getValue()) && !notAllowedByClient.contains(s.getValue()))
 				.map(s -> toRequestedScope(s.getValue(), scopesDefinedOnServer.stream()
-						.filter(serverScope -> serverScope.match(s.getValue(), isAllowedForRequestingWildcardScopes))
+						.filter(serverScope -> ScopeMatcher.match(serverScope, s.getValue(), isAllowedForRequestingWildcardScopes))
 						.findFirst()
 						.get(), isAllowedForRequestingWildcardScopes))
 				.collect(Collectors.toList());		

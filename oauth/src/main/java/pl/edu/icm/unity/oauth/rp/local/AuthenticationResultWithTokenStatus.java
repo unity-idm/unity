@@ -5,8 +5,6 @@
 
 package pl.edu.icm.unity.oauth.rp.local;
 
-import java.util.Optional;
-
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.oauth.rp.verificator.TokenStatus;
 

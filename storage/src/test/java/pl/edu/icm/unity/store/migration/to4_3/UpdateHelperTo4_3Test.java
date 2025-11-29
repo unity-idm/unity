@@ -30,7 +30,7 @@ public class UpdateHelperTo4_3Test
 		scopes.add("write");
 		input.set("effectiveScope", scopes);
 
-		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.fixOauthToken(input);
+		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(input);
 
 		assertTrue(resultOpt.isPresent());
 		ObjectNode result = resultOpt.get();
@@ -67,7 +67,7 @@ public class UpdateHelperTo4_3Test
 		ArrayNode scopes = Constants.MAPPER.createArrayNode();
 		input.set("effectiveScope", scopes);
 
-		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.fixOauthToken(input);
+		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(input);
 
 		assertFalse(resultOpt.isPresent());
 	}
@@ -78,7 +78,7 @@ public class UpdateHelperTo4_3Test
 		ObjectNode input = Constants.MAPPER.createObjectNode();
 		input.put("someOtherField", "value");
 
-		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.fixOauthToken(input);
+		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(input);
 
 		assertFalse(resultOpt.isPresent());
 	}

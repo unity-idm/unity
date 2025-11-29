@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -50,13 +51,13 @@ import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
+import pl.edu.icm.unity.oauth.as.ScopeMatcher;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
@@ -161,7 +162,7 @@ class TokenService
 
 			for (RequestedOAuthScope w : wildcardScopes)
 			{
-				if (ActiveOAuthScopeDefinition.isSubsetOfWildcardScope(req, w.scope()))
+				if (ScopeMatcher.isSubsetOfWildcardScope(req, w.scope()))
 				{
 					result.put(req, w);
 					break;
@@ -253,8 +254,7 @@ class TokenService
 		} else
 		{
 			ResponseType responseType = null;
-			if (token.getResponseType() != null && !token.getResponseType()
-					.isEmpty())
+			if (StringUtils.isNoneEmpty(token.getResponseType()))
 			{
 				responseType = ResponseType.parse(token.getResponseType());
 				if (responseType.contains(OIDCResponseTypeValue.ID_TOKEN) && responseType.size() == 1)
