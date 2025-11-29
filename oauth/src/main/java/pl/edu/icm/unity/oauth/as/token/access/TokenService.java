@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -253,8 +254,7 @@ class TokenService
 		} else
 		{
 			ResponseType responseType = null;
-			if (token.getResponseType() != null && !token.getResponseType()
-					.isEmpty())
+			if (StringUtils.isNoneEmpty(token.getResponseType()))
 			{
 				responseType = ResponseType.parse(token.getResponseType());
 				if (responseType.contains(OIDCResponseTypeValue.ID_TOKEN) && responseType.size() == 1)

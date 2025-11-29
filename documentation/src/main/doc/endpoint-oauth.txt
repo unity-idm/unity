@@ -189,9 +189,17 @@ There are several conditions that must be met to perform a successful exchange:
  - Exchange may be only performed by an authenticated Unity client.
  - +actor_token+ and +actor_token_type+ parameters are not supported
 
-Sample exchange flow:
+Example Token Exchange Flow:
 
-. Orginal access token issued for clien "oauth-client"
+In this example, the client *oauth-client* obtains an access token that it uses to call
+a resource provider. That resource provider, acting as a different Unity client
+(*oauth-client2*), needs to access another downstream service.  
+To do this, *oauth-client2* performs a token exchange: it takes the original access token
+issued to *oauth-client* and exchanges it for a new token whose audience and permissions
+match its own identity and requirements.
+
+
+. Orginal access token issued for client *oauth-client*
 
 ----
 {
@@ -207,14 +215,14 @@ Sample exchange flow:
 }
 ----
 
-. Exchange request perforned by another client "oauth-client2"
+. Token exchange request performed by client *oauth-client2*.  Subject token was received from the initial client 
 
 ----
 client_id=oauth-client2
 client_secret=secretPass
 grant_type=urn:ietf:params:oauth:grant-type:token-exchange 
 audience=oauth-client2
-subject_token=ZCrlkMyxzhJ0CyQlskOsIgkcDqjW51ViZko0bopHzfM \ # This token was received from the initial client 
+subject_token=ZCrlkMyxzhJ0CyQlskOsIgkcDqjW51ViZko0bopHzfM 
 subject_token_type=urn:ietf:params:oauth:token-type:access_token
 requested_token_type=urn:ietf:params:oauth:token-type:id_token
 scope="openid profile read-tasks" 

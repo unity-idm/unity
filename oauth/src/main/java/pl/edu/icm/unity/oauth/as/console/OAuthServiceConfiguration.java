@@ -75,7 +75,7 @@ public class OAuthServiceConfiguration
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 	private List<TrustedUpstreamASBean> trustedUpstreamAS;
 	private List<AuthorizationScriptBean> authorizationScripts;
-	private boolean exchangeToken;
+	private boolean tokenExchangeSupport;
 	
 	public OAuthServiceConfiguration()
 	{
@@ -110,7 +110,7 @@ public class OAuthServiceConfiguration
 		usersGroup = new GroupWithIndentIndicator(root, false);
 		clientGroup = new GroupWithIndentIndicator(root, false);
 		openIDConnect = false;
-		exchangeToken= false;
+		tokenExchangeSupport= false;
 		supportExtendTokenValidity = false;
 		skipUserImport = false;
 		userImports = new ArrayList<>();
@@ -411,7 +411,7 @@ public class OAuthServiceConfiguration
 		}
 
 		openIDConnect = isScopeEnabled(OIDCScopeValue.OPENID.getValue());
-		exchangeToken = isScopeEnabled(OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
+		tokenExchangeSupport = isScopeEnabled(OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
 		
 		if (oauthProperties.isSet(CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE))
 		{
@@ -479,12 +479,13 @@ public class OAuthServiceConfiguration
 		policyAgreementConfig = IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, oauthProperties);
 	}
 	
-	private boolean isScopeEnabled(String scopeName) {
-	    return scopes.stream()
-	            .filter(s -> scopeName.equals(s.getName()))
-	            .findFirst()
-	            .map(OAuthScopeBean::isEnabled)
-	            .orElse(false);
+	private boolean isScopeEnabled(String scopeName)
+	{
+		return scopes.stream()
+				.filter(s -> scopeName.equals(s.getName()))
+				.findFirst()
+				.map(OAuthScopeBean::isEnabled)
+				.orElse(false);
 	}
 
 	public List<UserImportConfig> getUserImports()
@@ -772,13 +773,13 @@ public class OAuthServiceConfiguration
 		this.authorizationScripts = authorizationScripts;
 	}
 
-	public boolean isExchangeToken()
+	public boolean isTokenExchangeSupport()
 	{
-		return exchangeToken;
+		return tokenExchangeSupport;
 	}
 
-	public void setExchangeToken(boolean exchangeToken)
+	public void setTokenExchangeSupport(boolean exchangeToken)
 	{
-		this.exchangeToken = exchangeToken;
+		this.tokenExchangeSupport = exchangeToken;
 	}
 }
