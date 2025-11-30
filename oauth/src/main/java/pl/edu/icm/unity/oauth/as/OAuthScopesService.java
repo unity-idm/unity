@@ -42,7 +42,7 @@ public class OAuthScopesService
 						.withName(s.name)
 						.withAttributes(s.attributes)
 						.withDescription(s.description)
-						.withWildcard(s.wildcard).build())
+						.withPattern(s.pattern).build())
 				.collect(Collectors.toList());
 	}
 
@@ -55,7 +55,7 @@ public class OAuthScopesService
 			scopes.add(OAuthScopeDefinition.builder().withName(config.getValue(scopeKey + OAuthASProperties.SCOPE_NAME))
 					.withDescription(config.getValue(scopeKey + OAuthASProperties.SCOPE_DESCRIPTION))
 					.withEnabled(config.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_ENABLED))
-					.withWildcard(Optional.ofNullable(config.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_IS_WILDCARD)).orElse(false))
+					.withPattern(Optional.ofNullable(config.getBooleanValue(scopeKey + OAuthASProperties.SCOPE_IS_PATTERN)).orElse(false))
 					.withAttributes(config.getListOfValues(scopeKey + OAuthASProperties.SCOPE_ATTRIBUTES)).build());
 
 		}

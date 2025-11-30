@@ -144,11 +144,11 @@ class TokenService
 		Map<String, RequestedOAuthScope> result = new HashMap<>();
 
 		Map<String, RequestedOAuthScope> exactLookup = effective.stream()
-				.filter(s -> !s.wildcard())
+				.filter(s -> !s.pattern())
 				.collect(Collectors.toMap(RequestedOAuthScope::scope, s -> s, (a, b) -> a));
 
-		List<RequestedOAuthScope> wildcardScopes = effective.stream()
-				.filter(RequestedOAuthScope::wildcard)
+		List<RequestedOAuthScope> patternScopes = effective.stream()
+				.filter(RequestedOAuthScope::pattern)
 				.toList();
 
 		for (String req : requested)
@@ -160,9 +160,9 @@ class TokenService
 				continue;
 			}
 
-			for (RequestedOAuthScope w : wildcardScopes)
+			for (RequestedOAuthScope w : patternScopes)
 			{
-				if (ScopeMatcher.isSubsetOfWildcardScope(req, w.scope()))
+				if (ScopeMatcher.isSubsetOfPatternScope(req, w.scope()))
 				{
 					result.put(req, w);
 					break;

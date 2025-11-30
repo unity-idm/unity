@@ -19,7 +19,7 @@ public class OAuthScopeBean
 {
 	private String name;
 	private boolean enabled;
-	private boolean wildcard;
+	private boolean pattern;
 	private String description;
 	private List<String> attributes = new ArrayList<>();
 
@@ -80,14 +80,14 @@ public class OAuthScopeBean
 		this.enabled = enabled;
 	}
 	
-	public boolean isWildcard()
+	public boolean isPattern()
 	{
-		return wildcard;
+		return pattern;
 	}
 
-	public void setWildcard(boolean wildcard)
+	public void setPattern(boolean pattern)
 	{
-		this.wildcard = wildcard;
+		this.pattern = pattern;
 	}
 	
 	@Override
@@ -98,7 +98,7 @@ public class OAuthScopeBean
 		clone.setAttributes(getAttributes());
 		clone.setEnabled(isEnabled());
 		clone.setDescription(getDescription());
-		clone.setWildcard(isWildcard());
+		clone.setPattern(isPattern());
 		return clone;
 	}
 	
@@ -113,6 +113,6 @@ public class OAuthScopeBean
 			return false;
 		OAuthScopeBean other = (OAuthScopeBean) obj;
 		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description)
-				&& enabled == other.enabled && wildcard == other.wildcard && Objects.equals(name, other.name);
+				&& enabled == other.enabled && pattern == other.pattern && Objects.equals(name, other.name);
 	}
 }

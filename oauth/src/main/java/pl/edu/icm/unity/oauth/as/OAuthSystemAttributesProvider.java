@@ -40,7 +40,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String CLIENT_NAME = "sys:oauth:clientName";
 	public static final String CLIENT_LOGO = "sys:oauth:clientLogo";
 	public static final String CLIENT_TYPE = "sys:oauth:clientType";
-	public static final String ALLOW_FOR_REQUESTING_WILDCARD_SCOPES = "sys:oauth:allowForRequestingWildcardScopes";
+	public static final String ALLOW_FOR_REQUESTING_PATTERN_SCOPES = "sys:oauth:allowForRequestingPatternScopes";
 	
 	public static final int MAXIMUM_ALLOWED_URIS = 512;
 	public static final int MAXIMUM_ALLOWED_SCOPES = 512;
@@ -60,7 +60,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		oauthAttributes.add(getLogoAT());
 		oauthAttributes.add(getNameAT());
 		oauthAttributes.add(getPerClientGroupAT());
-		oauthAttributes.add(getAllowForRequestingWildcardScopesAT());
+		oauthAttributes.add(getAllowForRequestingScopePatternsAT());
 	}
 	
 	private AttributeType getAllowedGrantFlowsAT()
@@ -153,9 +153,9 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		return nameAt;
 	}
 	
-	private AttributeType getAllowForRequestingWildcardScopesAT()
+	private AttributeType getAllowForRequestingScopePatternsAT()
 	{
-		AttributeType allowedScopesAt = new AttributeType(ALLOW_FOR_REQUESTING_WILDCARD_SCOPES, BooleanAttributeSyntax.ID, msg);
+		AttributeType allowedScopesAt = new AttributeType(ALLOW_FOR_REQUESTING_PATTERN_SCOPES, BooleanAttributeSyntax.ID, msg);
 		allowedScopesAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		allowedScopesAt.setMinElements(1);
 		allowedScopesAt.setMaxElements(1);

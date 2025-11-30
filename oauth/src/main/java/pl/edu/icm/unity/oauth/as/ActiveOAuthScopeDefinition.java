@@ -8,7 +8,7 @@ public record ActiveOAuthScopeDefinition(
 		String name,
 		String description,
 		List<String> attributes,
-		boolean wildcard)
+		boolean pattern)
 {
 
 	public ActiveOAuthScopeDefinition
@@ -28,7 +28,7 @@ public record ActiveOAuthScopeDefinition(
 		private String name;
 		private String description;
 		private List<String> attributes = Collections.emptyList();
-		private boolean wildcard;
+		private boolean pattern;
 
 		private Builder()
 		{
@@ -52,15 +52,15 @@ public record ActiveOAuthScopeDefinition(
 			return this;
 		}
 
-		public Builder withWildcard(boolean wildcard)
+		public Builder withPattern(boolean pattern)
 		{
-			this.wildcard = wildcard;
+			this.pattern = pattern;
 			return this;
 		}
 
 		public ActiveOAuthScopeDefinition build()
 		{
-			return new ActiveOAuthScopeDefinition(name, description, attributes, wildcard);
+			return new ActiveOAuthScopeDefinition(name, description, attributes, pattern);
 		}
 	}
 }
