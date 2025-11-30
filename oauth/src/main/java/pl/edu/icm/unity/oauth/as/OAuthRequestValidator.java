@@ -132,11 +132,15 @@ public class OAuthRequestValidator
 			log.info("Requested scopes not allowed for the client and ignored: %", String.join(",", notAllowedByClient));
 		}
 		
-		boolean isAllowedForRequestingWildcardScopes = ClientAttributeExtractor.isAllowedForRequestingWildcardScopes(clientAttributes);
+		boolean isAllowedForRequestingPatternScopes = isAllowedForRequestingPatternScopes(clientAttributes);
 		
-		Set<String> notDefinedOnServer = requestedScopes.stream().map(s -> s.getValue())
+		Set<String> notDefinedOnServer = requestedScopes.stream()
+				.map(s -> s.getValue())
 				.filter(scope -> !scopesDefinedOnServer.stream()
-						.filter(serverScope -> ScopeMatcher.match(serverScope, scope, isAllowedForRequestingWildcardScopes)).findAny().isPresent())
+						.filter(serverScope -> ScopeMatcher.match(serverScope, scope,
+								isAllowedForRequestingPatternScopes))
+						.findAny()
+						.isPresent())
 				.collect(Collectors.toSet());
 		if (!notDefinedOnServer.isEmpty())
 		{
@@ -144,23 +148,37 @@ public class OAuthRequestValidator
 					+ String.join(",", notDefinedOnServer));
 		}
 		
-		
-
 		return requestedScopes.stream()
 				.filter(s -> !notDefinedOnServer.contains(s.getValue()) && !notAllowedByClient.contains(s.getValue()))
 				.map(s -> toRequestedScope(s.getValue(), scopesDefinedOnServer.stream()
-						.filter(serverScope -> ScopeMatcher.match(serverScope, s.getValue(), isAllowedForRequestingWildcardScopes))
+						.filter(serverScope -> ScopeMatcher.match(serverScope, s.getValue(), isAllowedForRequestingPatternScopes))
 						.findFirst()
-						.get(), isAllowedForRequestingWildcardScopes))
+						.get(), isAllowedForRequestingPatternScopes))
 				.collect(Collectors.toList());		
 	}
 	
-	
-	private RequestedOAuthScope toRequestedScope(String scope, ActiveOAuthScopeDefinition activeOAuthScopeDefinition, boolean isAllowedToRequestingWildcard)
+	private boolean isAllowedForRequestingPatternScopes(Map<String, AttributeExt> attributes)
 	{
-		return new RequestedOAuthScope(scope, activeOAuthScopeDefinition, activeOAuthScopeDefinition.wildcard() && isAllowedToRequestingWildcard); 
+		AttributeExt allowedForRequestingPatternScopes = attributes
+				.get(OAuthSystemAttributesProvider.ALLOW_FOR_REQUESTING_PATTERN_SCOPES);
+		if (allowedForRequestingPatternScopes == null)
+		{
+			return false;
+		} else
+		{
+			return allowedForRequestingPatternScopes.getValues()
+					.stream()
+					.anyMatch(v -> Boolean.parseBoolean(v.toString()));
+		}
 	}
-	
+
+	private RequestedOAuthScope toRequestedScope(String scope, ActiveOAuthScopeDefinition activeOAuthScopeDefinition,
+			boolean supportPattern)
+	{
+		return new RequestedOAuthScope(scope, activeOAuthScopeDefinition,
+				activeOAuthScopeDefinition.pattern() && supportPattern);
+	}
+
 	@Component
 	public static class OAuthRequestValidatorFactory
 	{

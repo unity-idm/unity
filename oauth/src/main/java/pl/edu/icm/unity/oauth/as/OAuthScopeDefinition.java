@@ -15,7 +15,7 @@ public class OAuthScopeDefinition
 	public final String description;
 	public final List<String> attributes;
 	public final boolean enabled;
-	public final boolean wildcard;
+	public final boolean pattern;
 
 	
 	private OAuthScopeDefinition(Builder builder)
@@ -24,13 +24,13 @@ public class OAuthScopeDefinition
 		this.description = builder.description;
 		this.attributes = List.copyOf(builder.attributes);
 		this.enabled = builder.enabled;
-		this.wildcard = builder.wildcard;
+		this.pattern = builder.pattern;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(attributes, description, enabled, name, wildcard);
+		return Objects.hash(attributes, description, enabled, name, pattern);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class OAuthScopeDefinition
 			return false;
 		OAuthScopeDefinition other = (OAuthScopeDefinition) obj;
 		return Objects.equals(attributes, other.attributes) && Objects.equals(description, other.description)
-				&& enabled == other.enabled && wildcard == other.wildcard && Objects.equals(name, other.name);
+				&& enabled == other.enabled && pattern == other.pattern && Objects.equals(name, other.name);
 	}
 
 	public static Builder builder()
@@ -58,7 +58,7 @@ public class OAuthScopeDefinition
 		private String description;
 		private List<String> attributes = Collections.emptyList();
 		private boolean enabled;
-		private boolean wildcard;
+		private boolean pattern;
 
 		private Builder()
 		{
@@ -88,9 +88,9 @@ public class OAuthScopeDefinition
 			return this;
 		}
 
-		public Builder withWildcard(boolean wildcard)
+		public Builder withPattern(boolean pattern)
 		{
-			this.wildcard = wildcard;
+			this.pattern = pattern;
 			return this;
 		}
 		
@@ -99,5 +99,4 @@ public class OAuthScopeDefinition
 			return new OAuthScopeDefinition(this);
 		}
 	}
-
 }

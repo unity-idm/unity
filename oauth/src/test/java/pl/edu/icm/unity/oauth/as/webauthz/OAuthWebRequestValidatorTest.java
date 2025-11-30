@@ -350,12 +350,12 @@ public class OAuthWebRequestValidatorTest
 	}
 
 	@Test
-	public void shouldTrimScopesToAllowedByIdpWithWildcard()
+	public void shouldTrimScopesToAllowedByIdpWithPattern()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
 	{
 		Properties config = new Properties();
 		config.setProperty("unity.oauth2.as.scopes.1.name", "scope.*foo.?");
-		config.setProperty("unity.oauth2.as.scopes.1.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.scopes.1.isPattern", "true");
 		config.setProperty("unity.oauth2.as.scopes.2.name", "Scope2");
 		config.setProperty("unity.oauth2.as.scopes.3.name", "ToSkip4");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
@@ -384,7 +384,7 @@ public class OAuthWebRequestValidatorTest
 	{
 		Properties config = new Properties();
 		config.setProperty("unity.oauth2.as.scopes.1.name", "scope.*foo.?");
-		config.setProperty("unity.oauth2.as.scopes.1.isWildcard", "false");
+		config.setProperty("unity.oauth2.as.scopes.1.isPattern", "false");
 		config.setProperty("unity.oauth2.as.scopes.2.name", "Scope2");
 		config.setProperty("unity.oauth2.as.scopes.3.name", "ToSkip4");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
@@ -408,16 +408,16 @@ public class OAuthWebRequestValidatorTest
 	}
 
 	@Test
-	public void shouldGetFirstMatchingWildcardScope()
+	public void shouldGetFirstMatchingPatternScope()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
 	{
 		Properties config = new Properties();
 		config.setProperty("unity.oauth2.as.scopes.1.name", "scope.*");
-		config.setProperty("unity.oauth2.as.scopes.1.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.scopes.1.isPattern", "true");
 		config.setProperty("unity.oauth2.as.scopes.1.description", "scope1");
 		config.setProperty("unity.oauth2.as.scopes.2.name", "scope?b");
 		config.setProperty("unity.oauth2.as.scopes.2.description", "scope2");
-		config.setProperty("unity.oauth2.as.scopes.2.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.scopes.2.isPattern", "true");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
 
@@ -442,16 +442,16 @@ public class OAuthWebRequestValidatorTest
 	}
 
 	@Test
-	public void shouldGetFirstMatchingWildcardScopeForRequestedWildcardScopeByClientWithNotAllowedWildcardScopes()
+	public void shouldGetFirstMatchingPatternScopeForRequestedPatternScopeByClientWithNotAllowedPatternScopes()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
 	{
 		Properties config = new Properties();
 		config.setProperty("unity.oauth2.as.scopes.1.name", "read/dir/.*");
-		config.setProperty("unity.oauth2.as.scopes.1.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.scopes.1.isPattern", "true");
 		config.setProperty("unity.oauth2.as.scopes.1.description", "scope1");
 		config.setProperty("unity.oauth2.as.scopes.2.name", "scope?b");
 		config.setProperty("unity.oauth2.as.scopes.2.description", "scope2");
-		config.setProperty("unity.oauth2.as.scopes.2.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.scopes.2.isPattern", "true");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
 
@@ -475,29 +475,29 @@ public class OAuthWebRequestValidatorTest
 				.collect(Collectors.toSet())).contains("read/dir/subdir/.*");
 		assertThat(context.getEffectiveRequestedScopes()
 				.stream()
-				.map(s -> s.wildcard())
+				.map(s -> s.pattern())
 				.collect(Collectors.toSet())).doesNotContain(true);
 		
 	}
 
 	@Test
-	public void shouldGetFirstMatchingWildcardScopeForRequestedWildcardScopeByClientWithAllowedWildcardScopes()
+	public void shouldGetFirstMatchingPatternScopeForRequestedPatternScopeByClientWithAllowedPScopes()
 			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
 	{
 		Properties config = new Properties();
 		config.setProperty("unity.oauth2.as.scopes.1.name", "read/dir/.*");
-		config.setProperty("unity.oauth2.as.scopes.1.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.scopes.1.isPattern", "true");
 		config.setProperty("unity.oauth2.as.scopes.1.description", "scope1");
 		config.setProperty("unity.oauth2.as.scopes.2.name", "scope?b");
 		config.setProperty("unity.oauth2.as.scopes.2.description", "scope2");
-		config.setProperty("unity.oauth2.as.scopes.2.isWildcard", "true");
+		config.setProperty("unity.oauth2.as.scopes.2.isPattern", "true");
 		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
 		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
 
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999", Optional.empty(),
 				Optional.of(List.of(new AttributeExt(
-						new Attribute(OAuthSystemAttributesProvider.ALLOW_FOR_REQUESTING_WILDCARD_SCOPES,
+						new Attribute(OAuthSystemAttributesProvider.ALLOW_FOR_REQUESTING_PATTERN_SCOPES,
 								BooleanAttributeSyntax.ID, "/oauth-clients", List.of("true")),
 						false))));
 
@@ -513,7 +513,7 @@ public class OAuthWebRequestValidatorTest
 		assertThat(context.getEffectiveRequestedScopes()
 				.size()).isEqualTo(1);
 		assertThat(context.getEffectiveRequestedScopes().iterator().next().scope()).isEqualTo("read/dir/subdir/.*");
-		assertThat(context.getEffectiveRequestedScopes().iterator().next().wildcard()).isEqualTo(true);
+		assertThat(context.getEffectiveRequestedScopes().iterator().next().pattern()).isEqualTo(true);
 
 		
 	}

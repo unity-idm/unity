@@ -105,13 +105,13 @@ public class ExchangeTokenTest extends TokenTestBase
 						.withName("read:files/.*")
 						.withDescription("\"read:files/.*\"")
 						.withAttributes(List.of())
-						.withWildcard(true)
+						.withPattern(true)
 						.build(), true), 
 				new RequestedOAuthScope("foo", ActiveOAuthScopeDefinition.builder()
 						.withName("foo")
 						.withDescription("foo")
 						.withAttributes(List.of("email"))
-						.withWildcard(false)
+						.withPattern(false)
 						.build(), true)));
 
 		TokenRequest req = exchange(at).withScopes("read:files/dir1/.*", "foo")
@@ -130,7 +130,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	}
 	
 	@Test
-	public void shouldDenyToExchangeTokenWithConcretizationWithScopeWhichIsNotWildcardScope() throws Exception
+	public void shouldDenyToExchangeTokenWithConcretizationWithScopeWhichIsNotPatternScope() throws Exception
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
@@ -145,7 +145,7 @@ public class ExchangeTokenTest extends TokenTestBase
 						.withName("read:files/.*")
 						.withDescription("\"read:files/.*\"")
 						.withAttributes(List.of())
-						.withWildcard(true)
+						.withPattern(true)
 						.build(), false)));
 
 		TokenRequest req = exchange(at).withScopes("read:files/dir1/.*")
@@ -170,7 +170,7 @@ public class ExchangeTokenTest extends TokenTestBase
 						.withName("read:files/.*")
 						.withDescription("\"read:files/.*\"")
 						.withAttributes(List.of())
-						.withWildcard(true)
+						.withPattern(true)
 						.build(), true)));
 
 		TokenRequest req = exchange(at).withScopes("read:filess/dir1/.*")

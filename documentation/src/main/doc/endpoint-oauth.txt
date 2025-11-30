@@ -329,7 +329,7 @@ unity.oauth2.as.authorizationScripts.1.path=/opt/unity/scripts/oauth_external_au
 
 
 An external script can be triggered based on the scopes requested by an OAuth client.  
-If the incoming OAuth request contains at least one scope matching a configured *triggering scope* (wildcards are supported), Unity will execute the associated external script.
+If the incoming OAuth request contains at least one scope matching a configured *triggering scope* (regexp pattern are supported), Unity will execute the associated external script.
 
 ===== Input JSON
 

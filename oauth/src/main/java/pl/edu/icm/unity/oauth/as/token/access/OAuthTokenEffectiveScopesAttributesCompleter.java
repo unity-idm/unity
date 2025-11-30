@@ -49,12 +49,12 @@ class OAuthTokenEffectiveScopesAttributesCompleter
 
 				ActiveOAuthScopeDefinition newDefinition = ActiveOAuthScopeDefinition.builder()
 						.withName(originalDef.name())
-						.withWildcard(originalDef.wildcard())
+						.withPattern(originalDef.pattern())
 						.withDescription(originalDef.description())
 						.withAttributes(newAttributes)
 						.build();
 
-				fixedScopes.add(new RequestedOAuthScope(scope.scope(), newDefinition, scope.wildcard()));
+				fixedScopes.add(new RequestedOAuthScope(scope.scope(), newDefinition, scope.pattern()));
 			} else
 			{
 				fixedScopes.add(scope);

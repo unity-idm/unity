@@ -19,12 +19,12 @@ public class ScopeMatcher
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ScopeMatcher.class);
 
 	
-	public static boolean match(ActiveOAuthScopeDefinition scopeDef,  String scope, boolean allowForRequestingWildcard)
+	public static boolean match(ActiveOAuthScopeDefinition scopeDef,  String scope, boolean supportPattern)
 	{
-		if (!scopeDef.wildcard())
+		if (!scopeDef.pattern())
 			return scopeDef.name().equals(scope);
 
-		if (!allowForRequestingWildcard)
+		if (!supportPattern)
 		{
 			try
 			{
@@ -36,11 +36,11 @@ public class ScopeMatcher
 			}
 		} else
 		{
-			return isSubsetOfWildcardScope(scope, scopeDef.name());
+			return isSubsetOfPatternScope(scope, scopeDef.name());
 		}
 	}
 
-	public static boolean isSubsetOfWildcardScope(String regExp1, String regExp2)
+	public static boolean isSubsetOfPatternScope(String regExp1, String regExp2)
 	{
 		Automaton a1 = new RegExp(regExp1).toAutomaton();
 		Automaton a2 = new RegExp(regExp2).toAutomaton();

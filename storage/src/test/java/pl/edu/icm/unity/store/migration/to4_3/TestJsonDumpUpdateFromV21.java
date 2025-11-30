@@ -96,7 +96,7 @@ public class TestJsonDumpUpdateFromV21
 				.asText()).isEqualTo("openid");
 		assertThat(scopeArray.get(0)
 				.get("scopeDefinition")
-				.get("wildcard")
+				.get("pattern")
 				.asBoolean()).isEqualTo(false);
 		
 		assertThat(scopeArray.get(0)
@@ -104,7 +104,7 @@ public class TestJsonDumpUpdateFromV21
 				.get("attributes")
 				.isNull()).isTrue();
 		assertThat(scopeArray.get(0)
-				.get("wildcard")
+				.get("pattern")
 				.asBoolean()).isEqualTo(false);
 	}
 }

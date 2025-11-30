@@ -4,56 +4,57 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ScopeMatcherTest {
-    static ActiveOAuthScopeDefinition nonWildcardScope(String name) {
-        return ActiveOAuthScopeDefinition.builder().withName(name).withWildcard(false).build();
+    static ActiveOAuthScopeDefinition nonPatternScope(String name) {
+        return ActiveOAuthScopeDefinition.builder().withName(name).withPattern(false).build();
     }
-    static ActiveOAuthScopeDefinition wildcardScope(String pattern) {
-        return ActiveOAuthScopeDefinition.builder().withName(pattern).withWildcard(true).build();
+
+    static ActiveOAuthScopeDefinition patternScope(String pattern) {
+        return ActiveOAuthScopeDefinition.builder().withName(pattern).withPattern(true).build();
     }
 
     @Test
-    void shouldReturnTrueForExactMatchNonWildcard() {
-        assertTrue(ScopeMatcher.match(nonWildcardScope("read"), "read", false));
+    void shouldReturnTrueForExactMatchNonPattern() {
+        assertTrue(ScopeMatcher.match(nonPatternScope("read"), "read", false));
     }
 
     @Test
-    void shouldReturnFalseForNonMatchingNonWildcard() {
-        assertFalse(ScopeMatcher.match(nonWildcardScope("read"), "write", false));
+    void shouldReturnFalseForNonMatchingNonPattern() {
+        assertFalse(ScopeMatcher.match(nonPatternScope("read"), "write", false));
     }
 
     @Test
-    void shouldUseRegexForWildcardAndNotAllowRequestingWildcard() {
-        assertTrue(ScopeMatcher.match(wildcardScope("rea.*"), "read", false));
-        assertFalse(ScopeMatcher.match(wildcardScope("rea.*"), "write", false));
+    void shouldUseRegexForPatternScopesAndNotAllowRequestingPatternScope() {
+        assertTrue(ScopeMatcher.match(patternScope("rea.*"), "read", false));
+        assertFalse(ScopeMatcher.match(patternScope("rea.*"), "write", false));
     }
 
     @Test
-    void shouldReturnFalseForInvalidRegex() {
-        assertFalse(ScopeMatcher.match(wildcardScope("[invalid"), "read", false));
+    void shouldReturnFalseForInvalidRegexPattern() {
+        assertFalse(ScopeMatcher.match(patternScope("[invalid"), "read", false));
     }
 
     @Test
-    void shouldUseIsSubsetOfWildcardScopeWhenAllowed() {
+    void shouldUseIsSubsetOfPatternScopeWhenAllowed() {
         // "rea.*" is a superset of "read"
-        assertTrue(ScopeMatcher.match(wildcardScope("rea.*"), "read", true));
+        assertTrue(ScopeMatcher.match(patternScope("rea.*"), "read", true));
         // "read" is not a superset of "rea.*"
-        assertFalse(ScopeMatcher.match(wildcardScope("read"), "rea.*", true));
+        assertFalse(ScopeMatcher.match(patternScope("read"), "rea.*", true));
     }
 
     @Test
-    void isSubsetOfWildcardScope_shouldReturnTrueIfSubset() {
-        assertTrue(ScopeMatcher.isSubsetOfWildcardScope("read", "rea.*"));
+    void isSubsetOfPatternScope_shouldReturnTrueIfSubset() {
+        assertTrue(ScopeMatcher.isSubsetOfPatternScope("read", "rea.*"));
     }
 
     @Test
-    void isSubsetOfWildcardScope_shouldReturnFalseIfNotSubset() {
-        assertFalse(ScopeMatcher.isSubsetOfWildcardScope("write", "rea.*"));
+    void isSubsetOfPatternScope_shouldReturnFalseIfNotSubset() {
+        assertFalse(ScopeMatcher.isSubsetOfPatternScope("write", "rea.*"));
     }
 
     @Test
     void match_shouldHandleEmptyStrings() {
-        assertFalse(ScopeMatcher.match(nonWildcardScope(""), "read", false));
-        assertTrue(ScopeMatcher.match(nonWildcardScope(""), "", false));
-        assertTrue(ScopeMatcher.match(wildcardScope(".*"), "", false));
+        assertFalse(ScopeMatcher.match(nonPatternScope(""), "read", false));
+        assertTrue(ScopeMatcher.match(nonPatternScope(""), "", false));
+        assertTrue(ScopeMatcher.match(patternScope(".*"), "", false));
     }
 }

@@ -134,13 +134,13 @@ public class RefreshTokenTest extends TokenTestBase
 				.withName("foo")
 				.withDescription("foo")
 				.withAttributes(List.of("email"))
-				.withWildcard(true)
+				.withPattern(true)
 				.build(), true), 
 		new RequestedOAuthScope("bar", ActiveOAuthScopeDefinition.builder()
 				.withName("bar")
 				.withDescription("bar")
 				.withAttributes(List.of("c"))
-				.withWildcard(true)
+				.withPattern(true)
 				.build(), true)), ca, null, null).getTokens().getRefreshToken();
 		
 		
@@ -232,13 +232,13 @@ public class RefreshTokenTest extends TokenTestBase
 						.withName("foo")
 						.withDescription("foo")
 						.withAttributes(List.of("email"))
-						.withWildcard(true)
+						.withPattern(true)
 						.build(), true), 
 				new RequestedOAuthScope("bar", ActiveOAuthScopeDefinition.builder()
 						.withName("bar")
 						.withDescription("bar")
 						.withAttributes(List.of("c"))
-						.withWildcard(true)
+						.withPattern(true)
 						.build(), true)), ca, null, null).getTokens().getRefreshToken();
 
 		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");	

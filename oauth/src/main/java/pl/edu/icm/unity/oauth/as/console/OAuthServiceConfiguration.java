@@ -172,7 +172,7 @@ public class OAuthServiceConfiguration
 				String key = OAuthASProperties.SCOPES + (scopes.indexOf(scope) + 1) + ".";
 				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_NAME, scope.getName());
 				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_ENABLED, String.valueOf(scope.isEnabled()));
-				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_IS_WILDCARD, String.valueOf(scope.isWildcard()));
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_IS_PATTERN, String.valueOf(scope.isPattern()));
 
 				if (scope.getDescription() != null)
 				{
@@ -373,7 +373,7 @@ public class OAuthServiceConfiguration
 					oauthScope.setDescription(s.description);
 					oauthScope.setAttributes(s.attributes);
 					oauthScope.setEnabled(s.enabled);
-					oauthScope.setWildcard(s.wildcard);
+					oauthScope.setPattern(s.pattern);
 					scopes.add(oauthScope);
 				});
 		
