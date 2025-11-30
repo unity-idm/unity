@@ -6,8 +6,6 @@
 package pl.edu.icm.unity.oauth.as.token.introspection;
 
 import java.net.MalformedURLException;
-import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,16 +14,7 @@ import java.util.Optional;
 import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jose.KeyTypeException;
-import com.nimbusds.jose.crypto.ECDSAVerifier;
-import com.nimbusds.jose.crypto.RSASSAVerifier;
-import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jose.jwk.KeyType;
-import com.nimbusds.jose.jwk.KeyUse;
-import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
@@ -33,11 +22,10 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.api.utils.URLFactory;
 import pl.edu.icm.unity.oauth.oidc.metadata.JWKSetRequest;
-import pl.edu.icm.unity.oauth.oidc.metadata.OAuthJWKSetCache;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
+import pl.edu.icm.unity.oauth.oidc.metadata.OAuthJWKSetCache;
 import pl.edu.icm.unity.oauth.oidc.metadata.OIDCMetadataRequest;
 
 class IntrospectionServiceContextProvider
@@ -119,14 +107,12 @@ class IntrospectionServiceContextProvider
 			TrustedUpstreamConfiguration trustedUpstreamConfiguration) throws MalformedURLException, JOSEException
 	{
 
-		JWSVerifier verifier = getJWSVerifier(getCertificate(trustedUpstreamConfiguration.certificate));
 		X509CertChainValidatorExt validator = getValidator(trustedUpstreamConfiguration.clientTrustStore);
 
 		return RemoteIntrospectionServiceContext.builder()
 				.withClientId(trustedUpstreamConfiguration.clientId)
 				.withClientSecret(trustedUpstreamConfiguration.clientSecret)
 				.withIssuer(trustedUpstreamConfiguration.issuerURI)
-				.withVerifier(verifier)
 				.withUrl(URLFactory.of(trustedUpstreamConfiguration.introspectionEndpointURL))
 				.withValidator(validator)
 				.withHostnameCheckingMode(trustedUpstreamConfiguration.clientHostnameChecking)
@@ -176,16 +162,6 @@ class IntrospectionServiceContextProvider
 			return Optional.empty();
 		}
 
-		JWSVerifier verifier;
-		try
-		{
-			verifier = getJWSVerifier(jwkSet);
-		} catch (Exception e)
-		{
-			log.error("Can not build JWSVerifier from JWKSet", e);
-			return Optional.empty();
-		}
-
 		try
 		{
 			return Optional.of(RemoteIntrospectionServiceContext.builder()
@@ -193,7 +169,6 @@ class IntrospectionServiceContextProvider
 					.withClientSecret(trustedUpstreamConfiguration.clientSecret)
 					.withIssuer(metadata.getIssuer()
 							.getValue())
-					.withVerifier(verifier)
 					.withValidator(validator)
 					.withHostnameCheckingMode(trustedUpstreamConfiguration.clientHostnameChecking)
 					.withUrl(metadata.getIntrospectionEndpointURI()
@@ -205,66 +180,6 @@ class IntrospectionServiceContextProvider
 			return Optional.empty();
 		}
 
-	}
-
-	private JWSVerifier getJWSVerifier(NamedCertificate certificate) throws JOSEException
-	{
-
-		if (certificate.value.getPublicKey() instanceof RSAPublicKey)
-		{
-			return new RSASSAVerifier((RSAPublicKey) certificate.value.getPublicKey());
-		} else if (certificate.value.getPublicKey() instanceof ECPublicKey)
-		{
-			return new ECDSAVerifier((ECPublicKey) certificate.value.getPublicKey());
-		}
-
-		throw new ConfigurationException("Can not build JWSVerifier from certificate " + certificate.name);
-
-	}
-
-	private JWSVerifier getJWSVerifier(JWKSet jwkSet) throws JOSEException
-	{
-		for (JWK jwk : jwkSet.getKeys())
-		{
-			if (!jwk.getKeyUse()
-					.equals(KeyUse.SIGNATURE))
-				continue;
-
-			if (jwk.getKeyType()
-					.equals(KeyType.RSA))
-			{
-				if (!(jwk instanceof RSAKey))
-				{
-					throw new KeyTypeException(RSAPublicKey.class);
-				}
-				RSAPublicKey rsaPublicKey = jwk.toRSAKey()
-						.toRSAPublicKey();
-				return new RSASSAVerifier(rsaPublicKey);
-			} else if (jwk.getKeyType()
-					.equals(KeyType.EC))
-			{
-				if (!(jwk instanceof ECKey))
-				{
-					throw new KeyTypeException(ECPublicKey.class);
-				}
-				ECPublicKey ecPublicKey = jwk.toECKey()
-						.toECPublicKey();
-				return new ECDSAVerifier(ecPublicKey);
-			}
-		}
-
-		throw new ConfigurationException("Can not find JWK key to build verifier");
-	}
-
-	private NamedCertificate getCertificate(String certificateName)
-	{
-		try
-		{
-			return pkiManagement.getCertificate(certificateName);
-		} catch (EngineException e)
-		{
-			throw new ConfigurationException("Can not establish the certificate " + certificateName, e);
-		}
 	}
 
 	private X509CertChainValidatorExt getValidator(String validatorName)
@@ -286,5 +201,4 @@ class IntrospectionServiceContextProvider
 			throw new ConfigurationException("Can not establish the http client truststore " + validatorName, e);
 		}
 	}
-
 }
