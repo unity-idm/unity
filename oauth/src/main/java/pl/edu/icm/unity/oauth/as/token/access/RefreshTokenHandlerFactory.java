@@ -18,12 +18,12 @@ class RefreshTokenHandlerFactory
 	private final OAuthAccessTokenRepository accessTokensDAO;
 	private final OAuthClientTokensCleaner tokenCleaner;
 	private final TokenServiceFactory tokenUtilsFactory;
-	private final OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
+	private final EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
 
 	@Autowired
 	RefreshTokenHandlerFactory(OAuthRefreshTokenRepository refreshTokensDAO, OAuthAccessTokenRepository accessTokensDAO,
 			OAuthClientTokensCleaner tokenCleaner, TokenServiceFactory tokenUtilsFactory,
-			OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
+			EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
 	{
 		this.refreshTokensDAO = refreshTokensDAO;
 		this.accessTokensDAO = accessTokensDAO;

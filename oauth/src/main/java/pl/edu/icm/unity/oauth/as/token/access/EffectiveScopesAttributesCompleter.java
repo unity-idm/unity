@@ -19,29 +19,36 @@ import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 
 @Component
-class OAuthTokenEffectiveScopesAttributesCompleter
+class EffectiveScopesAttributesCompleter
 {
 	private OAuthScopesService scopeService;
 
-	OAuthTokenEffectiveScopesAttributesCompleter(OAuthScopesService scopeService)
+	EffectiveScopesAttributesCompleter(OAuthScopesService scopeService)
 	{
 		this.scopeService = scopeService;
 	}
 
-	void fixScopesAttributesIfNeeded(OAuthASProperties config, OAuthToken token)
+	void addAttributesToScopesDefinitionIfMissing(OAuthASProperties config, OAuthToken token)
 	{
-		Map<String, ActiveOAuthScopeDefinition> activeScopes = scopeService.getActiveScopes(config)
+		Map<String, ActiveOAuthScopeDefinition> activeScopesByName = scopeService.getActiveScopes(config)
 				.stream()
 				.collect(Collectors.toMap(ActiveOAuthScopeDefinition::name, s -> s));
 
+		token.setEffectiveScope(
+				getRequestedScopesWithScopeDefinitionsWithAttributes(activeScopesByName, token.getEffectiveScope()));
+	}
+
+	private List<RequestedOAuthScope> getRequestedScopesWithScopeDefinitionsWithAttributes(
+			Map<String, ActiveOAuthScopeDefinition> activeScopesByName, List<RequestedOAuthScope> requestedScopes)
+	{
 		List<RequestedOAuthScope> fixedScopes = new ArrayList<>();
 
-		for (RequestedOAuthScope scope : token.getEffectiveScope())
+		for (RequestedOAuthScope scope : requestedScopes)
 		{
 			ActiveOAuthScopeDefinition originalDef = scope.scopeDefinition();
 			if (originalDef.attributes() == null)
 			{
-				List<String> newAttributes = activeScopes
+				List<String> newAttributes = activeScopesByName
 						.getOrDefault(scope.scope(), ActiveOAuthScopeDefinition.builder()
 								.withAttributes(List.of())
 								.build())
@@ -60,7 +67,6 @@ class OAuthTokenEffectiveScopesAttributesCompleter
 				fixedScopes.add(scope);
 			}
 		}
-
-		token.setEffectiveScope(List.copyOf(fixedScopes));
+		return List.copyOf(fixedScopes);
 	}
 }

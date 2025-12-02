@@ -180,7 +180,8 @@ public class ExternalAuthorizationScriptRunner
 			{
 				if (Pattern.matches(script.getScope(), requested))
 				{
-					log.debug("Matched scope: '{}' with authorization script definition: scope='{}', path= '{}'", requested, script.getScope(), script.getPath());
+					log.debug("Matched scope: '{}' with authorization script definition: scope='{}', path= '{}'",
+							requested, script.getScope(), script.getPath());
 					return true;
 				}
 			}

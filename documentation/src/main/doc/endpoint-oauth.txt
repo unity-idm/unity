@@ -189,7 +189,7 @@ There are several conditions that must be met to perform a successful exchange:
  - Exchange may be only performed by an authenticated Unity client.
  - +actor_token+ and +actor_token_type+ parameters are not supported
 
-Example Token Exchange Flow:
+Example Token Exchange flow:
 
 In this example, the client *oauth-client* obtains an access token that it uses to call
 a resource provider. That resource provider, acting as a different Unity client

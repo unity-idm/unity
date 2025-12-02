@@ -5,7 +5,10 @@
 
 package pl.edu.icm.unity.oauth.as;
 
-public record RequestedOAuthScope(String scope, ActiveOAuthScopeDefinition scopeDefinition, boolean pattern)
+public record RequestedOAuthScope(
+		String scope,
+		ActiveOAuthScopeDefinition scopeDefinition,
+		boolean pattern)
 {
 
 }

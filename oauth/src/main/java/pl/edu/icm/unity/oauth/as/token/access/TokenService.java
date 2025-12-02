@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.oauth.as.token.access;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.BiFunction;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -76,96 +77,213 @@ class TokenService
 		this.notAuthorizedOauthIdpEngine = notAuthorizedOauthIdpEngine;
 	}
 
-	OAuthToken prepareNewTokenBasedOnOldToken(OAuthToken oldToken, Scope newRequestedScopeList, List<String> oldRequestedScopesList,
-			long ownerId, long clientId, List<String> audience, boolean createIdToken, String grant)
+	OAuthToken prepareNewTokenBasedOnOldTokenForTokenExchange(
+	        OAuthToken oldToken, Scope newRequestedScopeList, List<String> oldRequestedScopesList,
+	        long ownerId, long clientId, List<String> audience,
+	        boolean createIdToken, String grant) throws OAuthErrorException {
+
+	    return prepareNewTokenBasedOnOldToken(
+	            oldToken,
+	            newRequestedScopeList,
+	            ownerId,
+	            clientId,
+	            audience,
+	            createIdToken,
+	            grant,
+	            this::mapToPreviouslyAssignedScopesWithPatternSupport);
+	}
+
+	OAuthToken prepareNewTokenBasedOnOldTokenForTokenRefresh(
+	        OAuthToken oldToken, Scope newRequestedScopeList, List<String> oldRequestedScopesList,
+	        long ownerId, long clientId, List<String> audience,
+	        boolean createIdToken, String grant) throws OAuthErrorException {
+
+	    return prepareNewTokenBasedOnOldToken(
+	            oldToken,
+	            newRequestedScopeList,
+	            ownerId,
+	            clientId,
+	            audience,
+	            createIdToken,
+	            grant,
+	            this::mapToPreviouslyAssignedScopesWithoutPatternSupport);
+	}
+	
+	private OAuthToken prepareNewTokenBasedOnOldToken(
+	        OAuthToken oldToken,
+	        Scope newRequestedScopeList,
+	        long ownerId,
+	        long clientId,
+	        List<String> audience,
+	        boolean createIdToken,
+	        String grant,
+	        BiFunction<List<RequestedOAuthScope>, List<String>, Map<String, RequestedOAuthScope>> scopeMapper
+	) throws OAuthErrorException {
+
+	    OAuthToken newToken = new OAuthToken(oldToken);
+
+	    List<String> filteredScopes = extractScopesWithoutFilterClaims(newRequestedScopeList);
+	    Map<String, RequestedOAuthScope> scopeMapping =
+	            validateAndMapScopes(oldToken, filteredScopes, scopeMapper);
+
+	    newToken.setRequestedScope(filteredScopes.toArray(String[]::new));
+
+	    TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
+	    List<RequestedOAuthScope> newValidScopes = buildNewEffectiveScopes(scopeMapping);
+
+	    newToken.setEffectiveScope(newValidScopes);
+
+	    UserInfo userInfoClaimSet =
+	            updateUserInfoAndFilters(newToken, newRequestedScopeList, newValidScopes, userInfoRes);
+
+	    handleIdTokenIfNeeded(newToken, filteredScopes, audience, createIdToken, userInfoClaimSet);
+
+	    applyTokenMetadata(newToken);
+
+	    return newToken;
+	}
+
+
+	private List<String> extractScopesWithoutFilterClaims(Scope newRequestedScopeList)
+	{
+		return AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList)
+				.stream()
+				.map(v -> v.getValue())
+				.toList();
+	}
+
+	private Map<String, RequestedOAuthScope> validateAndMapScopes(OAuthToken oldToken, List<String> filteredScopes,
+			BiFunction<List<RequestedOAuthScope>, List<String>, Map<String, RequestedOAuthScope>> mapper)
 			throws OAuthErrorException
 	{
-		OAuthToken newToken = new OAuthToken(oldToken);
-		
-		List<String> filteredScopes = AttributeValueFilterUtils.getScopesWithoutFilterClaims(newRequestedScopeList).stream().map(v -> v.getValue()).toList();
-		
-		Map<String, RequestedOAuthScope> requestedScopeToEffectiveMap = mapToEffectiveScopes(oldToken.getEffectiveScope(), filteredScopes);
-		
-		if (requestedScopeToEffectiveMap.values().contains(null))
-		{
-			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_SCOPE, "wrong scope"));
-		}
-		newToken.setRequestedScope(filteredScopes.stream().toArray(String[]::new));
 
-		// get new attributes for identity
-		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
-		
-		List<RequestedOAuthScope> newValidRequestedScopes = requestedScopeToEffectiveMap.entrySet()
+		Map<String, RequestedOAuthScope> map = mapper.apply(oldToken.getEffectiveScope(), filteredScopes);
+
+		for (RequestedOAuthScope v : map.values())
+		{
+			if (v == null)
+			{
+				throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_SCOPE, "wrong scope"));
+			}
+		}
+		return map;
+	}
+
+	private List<RequestedOAuthScope> buildNewEffectiveScopes(Map<String, RequestedOAuthScope> scopeMapping)
+	{
+
+		return scopeMapping.entrySet()
 				.stream()
-				.map(s -> new RequestedOAuthScope(s.getKey(), s.getValue()
+				.map(e -> new RequestedOAuthScope(e.getKey(), e.getValue()
 						.scopeDefinition(), false))
 				.toList();
-		newToken.setEffectiveScope(newValidRequestedScopes);
+	}
 
-		List<AttributeFilteringSpec> claimFiltersFromScopes = AttributeValueFilterUtils.getFiltersFromScopes(newRequestedScopeList);
-		List<AttributeFilteringSpec> mergedFilters = AttributeValueFilterUtils.mergeFiltersWithPreservingLast(newToken.getAttributeValueFilters(), claimFiltersFromScopes);
-		UserInfo userInfoClaimSet = createUserInfo(newValidRequestedScopes, newToken.getSubject(), userInfoRes, mergedFilters);
-		newToken.setUserInfo(userInfoClaimSet.toJSONObject().toJSONString());
+	private UserInfo updateUserInfoAndFilters(OAuthToken newToken, Scope newRequestedScopeList,
+			List<RequestedOAuthScope> newValidScopes, TranslationResult userInfoRes)
+	{
+
+		List<AttributeFilteringSpec> claimFilters = AttributeValueFilterUtils
+				.getFiltersFromScopes(newRequestedScopeList);
+
+		List<AttributeFilteringSpec> mergedFilters = AttributeValueFilterUtils
+				.mergeFiltersWithPreservingLast(newToken.getAttributeValueFilters(), claimFilters);
+
+		UserInfo userInfoClaimSet = createUserInfo(newValidScopes, newToken.getSubject(), userInfoRes, mergedFilters);
+
+		newToken.setUserInfo(userInfoClaimSet.toJSONObject()
+				.toJSONString());
 		newToken.setAttributeValueFilters(mergedFilters);
-		
-		Date now = new Date();
-		// if openid mode build new id_token using new userinfo.
-		if (filteredScopes.contains(OIDCScopeValue.OPENID.getValue()) && createIdToken)
+
+		return userInfoClaimSet;
+	}
+
+	private void handleIdTokenIfNeeded(OAuthToken newToken, List<String> filteredScopes, List<String> audience,
+			boolean createIdToken, UserInfo userInfoClaimSet) throws OAuthErrorException
+	{
+
+		boolean openid = filteredScopes.contains(OIDCScopeValue.OPENID.getValue());
+
+		if (!openid || !createIdToken)
 		{
-			try
-			{
-				newToken.setOpenidToken(
-						createIdToken(now, newToken, Audience.create(audience), userInfoClaimSet));
-			} catch (Exception e)
-			{
-				log.error("Cannot create new id token", e);
-				throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.SERVER_ERROR, e.getMessage()));
-			}
-		} else
-		{
-			// clear openidToken
 			newToken.setOpenidToken(null);
+			return;
 		}
 
+		try
+		{
+			Date now = new Date();
+			newToken.setOpenidToken(createIdToken(now, newToken, Audience.create(audience), userInfoClaimSet));
+		} catch (Exception e)
+		{
+			log.error("Cannot create new id token", e);
+			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.SERVER_ERROR, e.getMessage()));
+		}
+	}
+
+	private void applyTokenMetadata(OAuthToken newToken)
+	{
 		newToken.setMaxExtendedValidity(config.getMaxExtendedAccessTokenValidity());
 		newToken.setTokenValidity(config.getAccessTokenValidity());
 		newToken.setAccessToken(null);
 		newToken.setRefreshToken(null);
 		newToken.setIssuerUri(config.getIssuerName());
-		// responseType in newToken is the same as in oldToken
-		// subject in newToken is the same as in oldToken
-
-		return newToken;
 	}
-	
-	
-	private Map<String, RequestedOAuthScope> mapToEffectiveScopes(List<RequestedOAuthScope> effective, List<String> requested)
+
+	private Map<String, RequestedOAuthScope> mapToPreviouslyAssignedScopesWithPatternSupport(
+			List<RequestedOAuthScope> previouslyAssigned, List<String> newlyRequested)
 	{
-		Map<String, RequestedOAuthScope> result = new HashMap<>();
+		return mapToPreviouslyAssignedScopes(previouslyAssigned, newlyRequested, true);
+	}
 
-		Map<String, RequestedOAuthScope> exactLookup = effective.stream()
-				.filter(s -> !s.pattern())
-				.collect(Collectors.toMap(RequestedOAuthScope::scope, s -> s, (a, b) -> a));
+	private Map<String, RequestedOAuthScope> mapToPreviouslyAssignedScopesWithoutPatternSupport(
+			List<RequestedOAuthScope> previouslyAssigned, List<String> newlyRequested)
+	{
+		return mapToPreviouslyAssignedScopes(previouslyAssigned, newlyRequested, false);
+	}
 
-		List<RequestedOAuthScope> patternScopes = effective.stream()
-				.filter(RequestedOAuthScope::pattern)
-				.toList();
+	private Map<String, RequestedOAuthScope> mapToPreviouslyAssignedScopes(List<RequestedOAuthScope> previouslyAssigned,
+			List<String> newlyRequested, boolean patternSupport)
+	{
+		int size = newlyRequested.size();
+		Map<String, RequestedOAuthScope> result = new HashMap<>(size);
 
-		for (String req : requested)
+		Map<String, RequestedOAuthScope> exactLookup = new HashMap<>();
+		List<RequestedOAuthScope> patternScopes = patternSupport ? new ArrayList<>() : null;
+
+		for (RequestedOAuthScope s : previouslyAssigned)
+		{
+			if (s.pattern())
+			{
+				if (patternSupport)
+				{
+					patternScopes.add(s);
+				}
+			} else
+			{
+				exactLookup.putIfAbsent(s.scope(), s);
+			}
+		}
+
+		for (String req : newlyRequested)
 		{
 			RequestedOAuthScope exact = exactLookup.get(req);
+
 			if (exact != null)
 			{
 				result.put(req, exact);
 				continue;
 			}
 
-			for (RequestedOAuthScope w : patternScopes)
+			if (patternSupport)
 			{
-				if (ScopeMatcher.isSubsetOfPatternScope(req, w.scope()))
+				for (RequestedOAuthScope w : patternScopes)
 				{
-					result.put(req, w);
-					break;
+					if (ScopeMatcher.isSubsetOfPatternScope(req, w.scope()))
+					{
+						result.put(req, w);
+						break;
+					}
 				}
 			}
 
@@ -174,7 +292,6 @@ class TokenService
 
 		return result;
 	}
-	
 	
 	AccessTokenResponse getAccessTokenResponse(OAuthToken internalToken, AccessToken accessToken,
 			RefreshToken refreshToken, Map<String, Object> additionalParams)

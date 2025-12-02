@@ -30,16 +30,16 @@ class OAuthTokenEffectiveScopesAttributesCompleterTest
 	@Mock
 	private OAuthToken token;
 
-	private OAuthTokenEffectiveScopesAttributesCompleter tokenScopesCompleter;
+	private EffectiveScopesAttributesCompleter tokenScopesCompleter;
 
 	@BeforeEach
 	void setUp()
 	{
-		tokenScopesCompleter = new OAuthTokenEffectiveScopesAttributesCompleter(scopeService);
+		tokenScopesCompleter = new EffectiveScopesAttributesCompleter(scopeService);
 	}
 
 	@Test
-	void shouldFixAttributesWhenNullAndScopeExists()
+	void shouldAddAttributesToScopeDefinitionWhenNullAndScopeExists()
 	{
 		ActiveOAuthScopeDefinition activeDef = ActiveOAuthScopeDefinition.builder()
 				.withName("scope1")
@@ -52,7 +52,7 @@ class OAuthTokenEffectiveScopesAttributesCompleterTest
 		when(scopeService.getActiveScopes(config)).thenReturn(List.of(activeDef));
 		when(token.getEffectiveScope()).thenReturn(List.of(scope));
 
-		tokenScopesCompleter.fixScopesAttributesIfNeeded(config, token);
+		tokenScopesCompleter.addAttributesToScopesDefinitionIfMissing(config, token);
 
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<List<RequestedOAuthScope>> captor = ArgumentCaptor.forClass(List.class);
@@ -65,7 +65,7 @@ class OAuthTokenEffectiveScopesAttributesCompleterTest
 	}
 
 	@Test
-	void shouldFixAttributesWhenNullAndScopeNotExists()
+	void shouldNotAddAttributesToScopeWhenNullAndScopeNotExists()
 	{
 		RequestedOAuthScope scope = new RequestedOAuthScope("scope2", ActiveOAuthScopeDefinition.builder()
 				.withName("scope2")
@@ -74,7 +74,7 @@ class OAuthTokenEffectiveScopesAttributesCompleterTest
 		when(scopeService.getActiveScopes(config)).thenReturn(List.of());
 		when(token.getEffectiveScope()).thenReturn(List.of(scope));
 
-		tokenScopesCompleter.fixScopesAttributesIfNeeded(config, token);
+		tokenScopesCompleter.addAttributesToScopesDefinitionIfMissing(config, token);
 
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<List<RequestedOAuthScope>> captor = ArgumentCaptor.forClass(List.class);
@@ -87,7 +87,7 @@ class OAuthTokenEffectiveScopesAttributesCompleterTest
 	}
 
 	@Test
-	void shouldNotFixAttributesWhenNotNull()
+	void shouldPreserveAttributesWhenNotNull()
 	{
 		RequestedOAuthScope scope = new RequestedOAuthScope("scope3", ActiveOAuthScopeDefinition.builder()
 				.withName("scope3")
@@ -96,7 +96,7 @@ class OAuthTokenEffectiveScopesAttributesCompleterTest
 		when(scopeService.getActiveScopes(config)).thenReturn(List.of());
 		when(token.getEffectiveScope()).thenReturn(List.of(scope));
 
-		tokenScopesCompleter.fixScopesAttributesIfNeeded(config, token);
+		tokenScopesCompleter.addAttributesToScopesDefinitionIfMissing(config, token);
 
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<List<RequestedOAuthScope>> captor = ArgumentCaptor.forClass(List.class);
@@ -114,7 +114,7 @@ class OAuthTokenEffectiveScopesAttributesCompleterTest
 		when(scopeService.getActiveScopes(config)).thenReturn(List.of());
 		when(token.getEffectiveScope()).thenReturn(List.of());
 
-		tokenScopesCompleter.fixScopesAttributesIfNeeded(config, token);
+		tokenScopesCompleter.addAttributesToScopesDefinitionIfMissing(config, token);
 
 		@SuppressWarnings("unchecked")
 		ArgumentCaptor<List<RequestedOAuthScope>> captor = ArgumentCaptor.forClass(List.class);
