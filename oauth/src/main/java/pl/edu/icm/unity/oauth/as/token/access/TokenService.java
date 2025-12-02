@@ -233,32 +233,16 @@ class TokenService
 	private Map<String, RequestedOAuthScope> mapToPreviouslyAssignedScopesWithPatternSupport(
 			List<RequestedOAuthScope> previouslyAssigned, List<String> newlyRequested)
 	{
-		return mapToPreviouslyAssignedScopes(previouslyAssigned, newlyRequested, true);
-	}
-
-	private Map<String, RequestedOAuthScope> mapToPreviouslyAssignedScopesWithoutPatternSupport(
-			List<RequestedOAuthScope> previouslyAssigned, List<String> newlyRequested)
-	{
-		return mapToPreviouslyAssignedScopes(previouslyAssigned, newlyRequested, false);
-	}
-
-	private Map<String, RequestedOAuthScope> mapToPreviouslyAssignedScopes(List<RequestedOAuthScope> previouslyAssigned,
-			List<String> newlyRequested, boolean patternSupport)
-	{
-		int size = newlyRequested.size();
-		Map<String, RequestedOAuthScope> result = new HashMap<>(size);
+		Map<String, RequestedOAuthScope> result = new HashMap<>();
 
 		Map<String, RequestedOAuthScope> exactLookup = new HashMap<>();
-		List<RequestedOAuthScope> patternScopes = patternSupport ? new ArrayList<>() : null;
+		List<RequestedOAuthScope> patternScopes = new ArrayList<>();
 
 		for (RequestedOAuthScope s : previouslyAssigned)
 		{
 			if (s.pattern())
 			{
-				if (patternSupport)
-				{
-					patternScopes.add(s);
-				}
+				patternScopes.add(s);
 			} else
 			{
 				exactLookup.putIfAbsent(s.scope(), s);
@@ -275,16 +259,41 @@ class TokenService
 				continue;
 			}
 
-			if (patternSupport)
+			for (RequestedOAuthScope w : patternScopes)
 			{
-				for (RequestedOAuthScope w : patternScopes)
+				if (ScopeMatcher.isSubsetOfPatternScope(req, w.scope()))
 				{
-					if (ScopeMatcher.isSubsetOfPatternScope(req, w.scope()))
-					{
-						result.put(req, w);
-						break;
-					}
+					result.put(req, w);
+					break;
 				}
+
+			}
+
+			result.putIfAbsent(req, null);
+		}
+
+		return result;
+	}
+
+	private Map<String, RequestedOAuthScope> mapToPreviouslyAssignedScopesWithoutPatternSupport(
+			List<RequestedOAuthScope> previouslyAssigned, List<String> newlyRequested)
+	{
+		Map<String, RequestedOAuthScope> result = new HashMap<>();
+
+		Map<String, RequestedOAuthScope> exactLookup = new HashMap<>();
+		for (RequestedOAuthScope s : previouslyAssigned)     
+		{
+			exactLookup.putIfAbsent(s.scope(), s);
+		}
+
+		for (String req : newlyRequested)
+		{
+			RequestedOAuthScope exact = exactLookup.get(req);
+
+			if (exact != null)
+			{
+				result.put(req, exact);
+				continue;
 			}
 
 			result.putIfAbsent(req, null);
