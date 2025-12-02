@@ -25,7 +25,7 @@ class ExchangeTokenHandlerFactory
 	private final OAuthRequestValidatorFactory requestValidatorFactory;
 	private final EntityManagement idMan;
 	private final ClientAttributesProviderFactory clientAttributesProviderFactory;
-	private final OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
+	private final EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
 
 	@Autowired
 	ExchangeTokenHandlerFactory(OAuthRefreshTokenRepository refreshTokensDAO,
@@ -33,7 +33,7 @@ class ExchangeTokenHandlerFactory
 			OAuthTokenStatisticPublisherFactory statisticPublisherFactory,
 			OAuthRequestValidatorFactory requestValidatorFactory, EntityManagement idMan,
 			ClientAttributesProviderFactory clientAttributesProviderFactory,
-			OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
+			EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
 	{
 
 		this.refreshTokensDAO = refreshTokensDAO;

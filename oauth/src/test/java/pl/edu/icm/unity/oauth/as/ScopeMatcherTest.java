@@ -42,17 +42,17 @@ class ScopeMatcherTest {
     }
 
     @Test
-    void isSubsetOfPatternScope_shouldReturnTrueIfSubset() {
+    void shouldReturnTrueIfSubset() {
         assertTrue(ScopeMatcher.isSubsetOfPatternScope("read", "rea.*"));
     }
 
     @Test
-    void isSubsetOfPatternScope_shouldReturnFalseIfNotSubset() {
+    void shouldReturnFalseIfNotSubset() {
         assertFalse(ScopeMatcher.isSubsetOfPatternScope("write", "rea.*"));
     }
 
     @Test
-    void match_shouldHandleEmptyStrings() {
+    void shouldHandleEmptyStrings() {
         assertFalse(ScopeMatcher.match(nonPatternScope(""), "read", false));
         assertTrue(ScopeMatcher.match(nonPatternScope(""), "", false));
         assertTrue(ScopeMatcher.match(patternScope(".*"), "", false));

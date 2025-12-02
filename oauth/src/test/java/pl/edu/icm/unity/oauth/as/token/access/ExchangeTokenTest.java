@@ -90,7 +90,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	}
 
 	@Test
-	public void shouldExchangeTokenWithScopeConcretization() throws Exception
+	public void shouldExchangeTokenWithPatternScopeConcretization() throws Exception
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
@@ -128,9 +128,9 @@ public class ExchangeTokenTest extends TokenTestBase
 		assertThat(((JSONArray) info.get("scope"))).containsExactlyInAnyOrder("read:files/dir1/.*", "foo");
 		assertThat(info.get("exp")).isNotNull();
 	}
-	
+		
 	@Test
-	public void shouldDenyToExchangeTokenWithConcretizationWithScopeWhichIsNotPatternScope() throws Exception
+	public void shouldDenyExchangeTokenWithNotMatchingPlainScopeConcretization() throws Exception
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
@@ -141,21 +141,22 @@ public class ExchangeTokenTest extends TokenTestBase
 						.withAttributes(List.of())
 						.build(),
 				false),
-				new RequestedOAuthScope("read:files/.*", ActiveOAuthScopeDefinition.builder()
-						.withName("read:files/.*")
-						.withDescription("\"read:files/.*\"")
+				new RequestedOAuthScope("read:files", ActiveOAuthScopeDefinition.builder()
+						.withName("read:files")
+						.withDescription("read:files")
 						.withAttributes(List.of())
 						.withPattern(true)
 						.build(), false)));
 
-		TokenRequest req = exchange(at).withScopes("read:files/dir1/.*")
+		TokenRequest req = exchange(at).withScopes("read:dirs")
 				.withAudience("client2")
 				.build();
+
 		assertBadRequestWithInvalidScope(req);
 	}
 	
 	@Test
-	public void shouldDenyExchangeTokenWithInvalidScopeConcretization() throws Exception
+	public void shouldDenyExchangeTokenWithNonMatchingPatternScopeConcretization() throws Exception
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
@@ -168,18 +169,17 @@ public class ExchangeTokenTest extends TokenTestBase
 				false),
 				new RequestedOAuthScope("read:files/.*", ActiveOAuthScopeDefinition.builder()
 						.withName("read:files/.*")
-						.withDescription("\"read:files/.*\"")
+						.withDescription("read:files.*")
 						.withAttributes(List.of())
 						.withPattern(true)
 						.build(), true)));
 
-		TokenRequest req = exchange(at).withScopes("read:filess/dir1/.*")
+		TokenRequest req = exchange(at).withScopes("read:filess/dir1")
 				.withAudience("client2")
 				.build();
 
 		assertBadRequestWithInvalidScope(req);
 	}
-	
 	
 	@Test
 	public void shouldExchangeTokenWithRequestedNarrowedScopes() throws Exception

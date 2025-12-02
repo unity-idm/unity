@@ -43,12 +43,12 @@ class RefreshTokenHandler
 	private final OAuthAccessTokenRepository accessTokensRepository;
 	private final OAuthClientTokensCleaner tokenCleaner;
 	private final TokenService tokenService;
-	private final OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
+	private final EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
 	
 	RefreshTokenHandler(OAuthASProperties config, OAuthRefreshTokenRepository refreshTokensDAO,
 			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO,
 			OAuthClientTokensCleaner tokenCleaner, TokenService tokenService, 
-			OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
+			EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
 	{
 		this.config = config;
 		this.refreshTokensRepository = refreshTokensDAO;
@@ -80,7 +80,7 @@ class RefreshTokenHandler
 			return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "wrong refresh token");
 		}
 
-		oAuthTokenEffectiveScopesAttributesCompleter.fixScopesAttributesIfNeeded(config, parsedRefreshToken);
+		oAuthTokenEffectiveScopesAttributesCompleter.addAttributesToScopesDefinitionIfMissing(config, parsedRefreshToken);
 		
 		if (isRequiredAuthenticationMissing(parsedRefreshToken.getClientType()))
 		{
@@ -113,7 +113,7 @@ class RefreshTokenHandler
 		
 		try
 		{
-			newToken = tokenService.prepareNewTokenBasedOnOldToken(parsedRefreshToken, newRequestedScopeList, oldRequestedScopesList,
+			newToken = tokenService.prepareNewTokenBasedOnOldTokenForTokenRefresh(parsedRefreshToken, newRequestedScopeList, oldRequestedScopesList,
 					refreshToken.getOwner(), callerEntityId, List.of(parsedRefreshToken.getClientUsername()), true,
 					GrantType.REFRESH_TOKEN.getValue());
 		} catch (OAuthErrorException e)

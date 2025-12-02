@@ -54,13 +54,13 @@ class ExchangeTokenHandler
 	private final OAuthTokenStatisticPublisher statisticPublisher;
 	private final OAuthRequestValidator requestValidator;
 	private final EntityManagement idMan;
-	private final OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
+	private final EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
 
 	public ExchangeTokenHandler(OAuthASProperties config, OAuthRefreshTokenRepository refreshTokensDAO,
 			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO, TokenService tokenService,
 			OAuthTokenStatisticPublisher statisticPublisher, OAuthRequestValidator requestValidator,
 			EntityManagement idMan, ClientAttributesProvider clientAttributesProvider,
-			OAuthTokenEffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
+			EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
 	{
 		this.config = config;
 		this.refreshTokensDAO = refreshTokensDAO;
@@ -94,7 +94,7 @@ class ExchangeTokenHandler
 			return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "wrong subject_token");
 		}
 
-		oAuthTokenEffectiveScopesAttributesCompleter.fixScopesAttributesIfNeeded(config, parsedSubjectToken);
+		oAuthTokenEffectiveScopesAttributesCompleter.addAttributesToScopesDefinitionIfMissing(config, parsedSubjectToken);
 		
 		Scope newRequestedScopeList = getNewRequestedScopeWitoutTokenExchangeScope(scope);
 		
@@ -118,7 +118,7 @@ class ExchangeTokenHandler
 		OAuthToken newToken = null;
 		try
 		{
-			newToken = tokenService.prepareNewTokenBasedOnOldToken(parsedSubjectToken, newRequestedScopeList, oldRequestedScopesList,
+			newToken = tokenService.prepareNewTokenBasedOnOldTokenForTokenExchange(parsedSubjectToken, newRequestedScopeList, oldRequestedScopesList,
 					subToken.getOwner(), callerEntityId, newAudience,
 					requestedTokenType != null && requestedTokenType.equals(AccessTokenResource.ID_TOKEN_TYPE_ID),
 					GrantType.TOKEN_EXCHANGE.getValue());

@@ -255,7 +255,7 @@ public class PKCETest
 		AuthzCodeHandler authzCodeHandler = new AuthzCodeHandler(tokensManagement, accessTokenRepository,
 				refreshTokenRepository, tx, new AccessTokenFactory(config), publisher, config, tokenUtils);
 	
-		OAuthTokenEffectiveScopesAttributesCompleter fixer = mock(OAuthTokenEffectiveScopesAttributesCompleter.class);
+		EffectiveScopesAttributesCompleter fixer = mock(EffectiveScopesAttributesCompleter.class);
 
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokenRepository, null,
 				accessTokenRepository, null, null, fixer);
