@@ -114,7 +114,7 @@ public class IdPEngineImplBaseTest
 				"protocol", 
 				"protocolSubType", 
 				false, 
-				config);
+				config, null);
 		
 		ArgumentCaptor<TranslationInput> captor = ArgumentCaptor.forClass(TranslationInput.class);
 		verify(outputProfileExecutor).execute(eq(TranslationProfileGenerator.generateIncludeOutputProfile("profile")), captor.capture());
@@ -163,7 +163,7 @@ public class IdPEngineImplBaseTest
 				"protocol", 
 				"protocolSubType", 
 				false, 
-				config);
+				config, null);
 		
 		ArgumentCaptor<TranslationInput> captor = ArgumentCaptor.forClass(TranslationInput.class);
 		verify(outputProfileExecutor).execute(eq(TranslationProfileGenerator.generateIncludeOutputProfile("profile")), captor.capture());

@@ -4,16 +4,17 @@
  */
 package pl.edu.icm.unity.engine.api.idp;
 
+import java.util.List;
+import java.util.Optional;
+
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface IdPEngine
 {
@@ -53,13 +54,14 @@ public interface IdPEngine
 	 * @param protocol
 	 * @param protocolSubType
 	 * @param allowIdentityCreate
+	 * @param remoteAuthnMetadata 
 	 * @param userImports
 	 * @return
 	 * @throws EngineException
 	 */
 	TranslationResult obtainUserInformationWithEnrichingImport(EntityParam entity, String group, TranslationProfile profile,
 			String requester, Optional<EntityInGroup> requesterEntity, String protocol, String protocolSubType,
-			boolean allowIdentityCreate, UserImportConfigs userImportConfigs) throws EngineException;
+			boolean allowIdentityCreate, UserImportConfigs userImportConfigs, RemoteAuthnMetadata remoteAuthnMetadata) throws EngineException;
 	
 	/**
 	 * Finds selected identity among validIdentities and returns it as IdentityParam. Argument must be given

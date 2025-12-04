@@ -353,7 +353,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 				processor.getChosenGroup(), samlIdPConfiguration.getOutputTranslationProfile(),
 				processor.getIdentityTarget(), Optional.empty(), "SAML2", binding,
 				processor.isIdentityCreationAllowed(),
-				samlIdPConfiguration.userImportConfigs);
+				samlIdPConfiguration.userImportConfigs, null);
 	}
 
 	

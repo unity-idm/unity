@@ -116,17 +116,20 @@ public class ClientCredentialsProcessor
 		internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());
 		return internalToken;
 	}
-	
-	private Set<String> establishFlowsAndAttributes(OAuthToken internalToken, Scope scope, Map<String, AttributeExt> clientAttributes)
+
+	private Set<String> establishFlowsAndAttributes(OAuthToken internalToken, Scope scope,
+			Map<String, AttributeExt> clientAttributes)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
 		if (scope != null && !scope.isEmpty())
-		{	
-			List<RequestedOAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, AttributeValueFilterUtils.getScopesWithoutFilterClaims(scope));
-		
+		{
+			List<RequestedOAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes,
+					AttributeValueFilterUtils.getScopesWithoutFilterClaims(scope));
+
 			internalToken.setEffectiveScope(validRequestedScopes);
-			for (RequestedOAuthScope si: validRequestedScopes)
-				requestedAttributes.addAll(si.scopeDefinition().attributes());
+			for (RequestedOAuthScope si : validRequestedScopes)
+				requestedAttributes.addAll(si.scopeDefinition()
+						.attributes());
 		}
 		return requestedAttributes;
 	}
@@ -148,7 +151,7 @@ public class ClientCredentialsProcessor
 				"OAuth2", 
 				GrantType.CLIENT_CREDENTIALS.getValue(),
 				true,
-				config.getUserImportConfigs());
+				config.getUserImportConfigs(), null);
 		return translationResult;
 	}
 	

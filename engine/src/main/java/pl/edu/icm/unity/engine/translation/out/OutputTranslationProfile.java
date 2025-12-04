@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -209,7 +210,7 @@ public class OutputTranslationProfile
 			ret.put(OutputTranslationMVELContextKey.authentications.name(), usedAuthenticators);
 			ret.put(OutputTranslationMVELContextKey.mfa.name(), usedAuthenticators.size() > 1);
 			ret.put(OutputTranslationMVELContextKey.twoStepAuthn.name(), usedAuthenticators.size() > 1);
-			ret.putAll(getAuthnContextMvelVariables(loginSession.getFirstFactorRemoteIdPAuthnContext()));
+			ret.putAll(getAuthnContextMvelVariables(Optional.ofNullable(input.getRemoteAuthnMetadata()).orElse(loginSession.getFirstFactorRemoteIdPAuthnContext())));
 			ret.put(OutputTranslationMVELContextKey.amr.name(), AuthenticationMethodsToMvelContextMapper
 					.getAuthenticationMethodsWithMFAandMCAIfUsed(loginSession.getAuthenticationMethods()));
 			

@@ -54,6 +54,7 @@ public class OAuthAuthzContext
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute = Optional.empty();
 	private ACRRequest requestedACR;
 	private List<AttributeFilteringSpec> claimValueFilters;
+	
 	public OAuthAuthzContext(AuthorizationRequest request, OAuthASProperties properties)
 	{
 		this.config = properties;
