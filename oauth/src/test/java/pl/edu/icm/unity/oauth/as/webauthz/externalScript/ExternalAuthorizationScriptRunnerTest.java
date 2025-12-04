@@ -22,10 +22,12 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
 import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
 
 @ExtendWith(MockitoExtension.class)
 class ExternalAuthorizationScriptRunnerTest
@@ -129,7 +131,7 @@ class ExternalAuthorizationScriptRunnerTest
 		AuthorizationRequest authRequest = mock(AuthorizationRequest.class);
 		when(authRequest.getScope()).thenReturn(new com.nimbusds.oauth2.sdk.Scope("scope1"));
 		when(ctx.getRequest()).thenReturn(authRequest);
-		when(translationResult.getAttributes()).thenReturn(List.of());
+		when(translationResult.getAttributes()).thenReturn(List.of(new DynamicAttribute(StringAttribute.of("role", "/", List.of("spy")))));
 		when(translationResult.getIdentities()).thenReturn(List.of());
 		
 		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,

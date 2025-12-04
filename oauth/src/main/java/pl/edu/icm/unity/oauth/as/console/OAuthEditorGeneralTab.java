@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as.console;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 import static io.imunity.vaadin.elements.CssClassNames.IDP_INFO_LAYOUT;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
@@ -621,7 +622,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 	private AccordionPanel buildScriptsSection()
 	{
 
-		scriptsGrid = new GridWithEditorInDetails<>(msg::getMessage, AuthorizationScriptBean.class, () -> new ScriptEditor(msg),
+		scriptsGrid = new GridWithEditorInDetails<>(msg::getMessage, AuthorizationScriptBean.class, () -> new ScriptEditor(msg, htmlTooltipFactory),
 				s -> false, s -> false, false);
 
 		Grid.Column<AuthorizationScriptBean> addGotoEditColumn = scriptsGrid.addGotoEditColumn(AuthorizationScriptBean::getScope)
@@ -915,11 +916,12 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		private final TextField path;
 
 		
-		public ScriptEditor(MessageSource msg)
+		public ScriptEditor(MessageSource msg, HtmlTooltipFactory htmlTooltipFactory)
 		{
 			binder = new Binder<>(AuthorizationScriptBean.class);
 			scope = new TextField();
 			scope.setWidth(TEXT_FIELD_BIG.value());
+	
 			binder.forField(scope)
 					.asRequired(msg.getMessage("fieldRequired"))
 					.withValidator(new NoSpaceValidator(msg::getMessage))
@@ -933,8 +935,11 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 					.bind("path");
 			
 			FormLayout main = new FormLayout();
+			main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 			main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-			main.addFormItem(scope, msg.getMessage("OAuthEditorGeneralTab.scriptTriggeringScope") + ":");
+			main.addFormItem(scope, msg.getMessage("OAuthEditorGeneralTab.scriptTriggeringScope") + ":")
+					.add(htmlTooltipFactory
+							.get(msg.getMessage("OAuthEditorGeneralTab.scriptTriggeringScopeDescription")));
 			main.addFormItem(path, msg.getMessage("OAuthEditorGeneralTab.scriptPath") + ":");
 
 			add(main);

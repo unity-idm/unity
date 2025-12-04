@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.oauth2.sdk.Scope;
 
@@ -70,8 +71,6 @@ public class ExternalAuthorizationScriptRunner
 						.toList())
 				.withRequest(InputRequest.fromAuthorizationRequest(ctx.getRequest()))
 				.build();
-
-		logPretty("External authorization script input", input);
 
 		List<ExternalAuthorizationScriptResponse> responses = new ArrayList<>();
 
@@ -143,9 +142,15 @@ public class ExternalAuthorizationScriptRunner
 	{
 		try (InputStream is = process.getInputStream())
 		{
-			ExternalAuthorizationScriptResponse resp = mapper.readValue(is, ExternalAuthorizationScriptResponse.class);
+			JsonNode resp = mapper.readValue(is, JsonNode.class);
 			logPretty("Received JSON response from external authorization script " + path, resp);
-			return resp;
+			
+			ExternalAuthorizationScriptResponse respMapped = mapper.treeToValue(resp,
+					ExternalAuthorizationScriptResponse.class);
+			
+			return respMapped;
+		}catch (JsonProcessingException e) {
+			throw new IOException("Invalid JSON response from external authorization script " + path, e);
 		}
 	}
 
