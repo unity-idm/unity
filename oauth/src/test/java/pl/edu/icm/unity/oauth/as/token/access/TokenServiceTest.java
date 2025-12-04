@@ -179,7 +179,7 @@ public class TokenServiceTest
 	}
 
 	private void mockUserInfo(TranslationResult tr) throws EngineException {
-		when(notAuthorizedOauthIdpEngine.getUserInfoUnsafe(anyLong(), any(), any(), any(), any(), any(), any()))
+		when(notAuthorizedOauthIdpEngine.getUserInfoUnsafe(anyLong(), any(), any(), any(), any(), any(), any(), any()))
 				.thenReturn(tr);
 	}
 

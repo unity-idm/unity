@@ -180,7 +180,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		TranslationInput input = new TranslationInput(new ArrayList<>(), userE, 
 				"/", Collections.singleton(new Group("/")),
 				"req", Collections.emptyList(), 
-				"proto", "subProto", Collections.emptyMap());
+				"proto", "subProto", Collections.emptyMap(), null);
 
 		tx.runInTransactionThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, 
@@ -253,7 +253,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 				userE, 
 				"/", Collections.singleton(new Group("/")),
 				"req", Collections.emptyList(),
-				"proto", "subProto", Collections.emptyMap());
+				"proto", "subProto", Collections.emptyMap(), null);
 		
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg, 
@@ -326,7 +326,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 				userE, "/", Collections.singleton(new Group("/")), 
 				"req", Collections.emptyList(),
 				"proto", "subProto", 
-				Collections.emptyMap());
+				Collections.emptyMap(), null);
 		TranslationResult res = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tpMain,
 					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
@@ -391,7 +391,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 				userE, "/", Collections.singleton(new Group("/")), 
 				"req", Collections.emptyList(),
 				"proto", "subProto", 
-				Collections.emptyMap());
+				Collections.emptyMap(), null);
 
 		TranslationResult res = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tpMain,
@@ -435,7 +435,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 				getUser(), "/", Collections.singleton(new Group("/")), 
 				"req", Collections.emptyList(),
 				"proto",
-				"subProto", Collections.emptyMap());
+				"subProto", Collections.emptyMap(), null);
 
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg,
@@ -473,7 +473,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 						"email@example.com")),
 				getUser(), "/", Collections.singleton(new Group("/")), 
 				"req", Collections.emptyList(),
-				"proto", "subProto", Collections.emptyMap());
+				"proto", "subProto", Collections.emptyMap(), null);
 
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp1Cfg,
@@ -522,7 +522,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		TranslationInput input = new TranslationInput(Lists.newArrayList(), e, "/",
 				Collections.singleton(new Group("/")), "req", Collections.emptyList(),
 				"proto", "subProto", 
-				Collections.emptyMap());
+				Collections.emptyMap(), null);
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
 					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
@@ -556,7 +556,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		TranslationInput input = new TranslationInput(Lists.newArrayList(), e, "/",
 				Collections.singleton(new Group("/")), "req", Collections.emptyList(),
 				"proto", "subProto", 
-				Collections.emptyMap());
+				Collections.emptyMap(), null);
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
 					outputProfileRepo, outtactionReg, attrConverter, groupsMan);
@@ -595,7 +595,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		TranslationInput input = new TranslationInput(Lists.newArrayList(), getUser(), "/",
 				Collections.singleton(new Group("/")), "req", Collections.emptyList(),
 				"proto", "subProto", 
-				Collections.emptyMap());
+				Collections.emptyMap(), null);
 
 		TranslationResult result = tx.runInTransactionRetThrowing(() -> {
 			OutputTranslationProfile tp1 = new OutputTranslationProfile(tp2Cfg,
@@ -623,7 +623,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		TranslationInput input = new TranslationInput(Lists.newArrayList(), getUser(), "/",
 				Collections.singleton(new Group("/")), "req", Collections.emptyList(),
 				"proto", "subProto", 
-				Collections.emptyMap());
+				Collections.emptyMap(), null);
 		aTypeMan.removeAttributeType("o", true);	
 		try{
 			TranslationResult result = tx.runInTransactionRetThrowing(() -> {
@@ -662,7 +662,7 @@ public class OutputTranslationProfileITest extends DBIntegrationTestBase
 		TranslationInput input = new TranslationInput(new ArrayList<>(), userE, 
 				"/", Arrays.asList(new Group("/"), foo),
 				"req", Collections.emptyList(), 
-				"proto", "subProto", Collections.emptyMap());
+				"proto", "subProto", Collections.emptyMap(), null);
 
 		OutputTranslationProfile tp1 = new OutputTranslationProfile(
 				tp1Cfg, 

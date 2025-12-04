@@ -15,6 +15,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
+import pl.edu.icm.unity.engine.api.authn.SerializableRemoteAuthnMetadata;
 import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
 
 /**
@@ -48,6 +50,9 @@ public class OAuthToken
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute;
 	private Instant authenticationTime;
 	private List<AttributeFilteringSpec> attributeValueFilters;
+	private SerializableRemoteAuthnMetadata remoteIdPAuthnContext;
+	private RequestedAuthenticationContextClassReference requestedACR;
+
 	
 	public OAuthToken()
 	{
@@ -83,6 +88,8 @@ public class OAuthToken
 		setClaimsInTokenAttribute(source.getClaimsInTokenAttribute());
 		setAuthenticationTime(source.getAuthenticationTime());
 		setAttributeValueFilters(source.getAttributeValueFilters());
+		setRemoteIdPAuthnContext(source.getRemoteIdPAuthnContext());
+		setRequestedACR(source.getRequestedACR());
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -377,17 +384,39 @@ public class OAuthToken
 		this.attributeValueFilters = attributeValueFilters;
 	}
 	
+	public SerializableRemoteAuthnMetadata getRemoteIdPAuthnContext()
+	{
+		return remoteIdPAuthnContext;
+	}
+
+	public void setRemoteIdPAuthnContext(SerializableRemoteAuthnMetadata remoteIdPAuthnContext)
+	{
+		this.remoteIdPAuthnContext = remoteIdPAuthnContext;
+	}
+
+	public RequestedAuthenticationContextClassReference getRequestedACR()
+	{
+		return requestedACR;
+	}
+
+	public void setRequestedACR(RequestedAuthenticationContextClassReference requestedACR)
+	{
+		this.requestedACR = requestedACR;
+	}
+	
+	
+
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Objects.hashCode(effectiveScope);
 		result = prime * result + Arrays.hashCode(requestedScope);
-		result = prime * result + Objects.hash(accessToken, audience, authzCode, clientEntityId, clientName,
-				clientType, clientUsername, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
-				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo, firstRefreshRollingToken, authenticationTime);
-		result = prime * result + Objects.hash(attributeValueFilters);
+		result = prime * result + Objects.hash(accessToken, attributeValueFilters, audience, authenticationTime,
+				authzCode, claimsInTokenAttribute, clientEntityId, clientName, clientType, clientUsername,
+				effectiveScope, firstRefreshRollingToken, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
+				redirectUri, refreshToken, remoteIdPAuthnContext, requestedACR, responseType, subject, tokenValidity,
+				userInfo);
 		return result;
 	}
 
@@ -401,26 +430,25 @@ public class OAuthToken
 		if (getClass() != obj.getClass())
 			return false;
 		OAuthToken other = (OAuthToken) obj;
-		return Objects.equals(accessToken, other.accessToken) && Objects.equals(audience, other.audience)
-				&& Objects.equals(authzCode, other.authzCode) && clientEntityId == other.clientEntityId
-				&& Objects.equals(clientName, other.clientName) && clientType == other.clientType
-				&& Objects.equals(clientUsername, other.clientUsername)
-				&& Objects.equals(effectiveScope, other.effectiveScope)
-				&& Objects.equals(issuerUri, other.issuerUri)
-				&& maxExtendedValidity == other.maxExtendedValidity
-				&& Objects.equals(openidInfo, other.openidInfo)
-				&& Objects.equals(pkcsInfo, other.pkcsInfo)
-				&& Objects.equals(redirectUri, other.redirectUri)
-				&& Objects.equals(refreshToken, other.refreshToken)
-				&& Arrays.equals(requestedScope, other.requestedScope)
-				&& Objects.equals(responseType, other.responseType)
-				&& Objects.equals(subject, other.subject) && tokenValidity == other.tokenValidity
-				&& Objects.equals(userInfo, other.userInfo)
-				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken)
+		return Objects.equals(accessToken, other.accessToken)
+				&& Objects.equals(attributeValueFilters, other.attributeValueFilters)
+				&& Objects.equals(audience, other.audience)
 				&& Objects.equals(authenticationTime, other.authenticationTime)
-				&& Objects.equals(attributeValueFilters, other.attributeValueFilters);
+				&& Objects.equals(authzCode, other.authzCode)
+				&& Objects.equals(claimsInTokenAttribute, other.claimsInTokenAttribute)
+				&& clientEntityId == other.clientEntityId && Objects.equals(clientName, other.clientName)
+				&& clientType == other.clientType && Objects.equals(clientUsername, other.clientUsername)
+				&& Objects.equals(effectiveScope, other.effectiveScope)
+				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken)
+				&& Objects.equals(issuerUri, other.issuerUri) && maxExtendedValidity == other.maxExtendedValidity
+				&& Objects.equals(openidInfo, other.openidInfo) && Objects.equals(pkcsInfo, other.pkcsInfo)
+				&& Objects.equals(redirectUri, other.redirectUri) && Objects.equals(refreshToken, other.refreshToken)
+				&& Objects.equals(remoteIdPAuthnContext, other.remoteIdPAuthnContext)
+				&& Objects.equals(requestedACR, other.requestedACR)
+				&& Arrays.equals(requestedScope, other.requestedScope)
+				&& Objects.equals(responseType, other.responseType) && Objects.equals(subject, other.subject)
+				&& tokenValidity == other.tokenValidity && Objects.equals(userInfo, other.userInfo);
 	}
-
 
 	@Override
 	public String toString()
@@ -433,7 +461,8 @@ public class OAuthToken
 				+ ", clientUsername=" + clientUsername + ", maxExtendedValidity=" + maxExtendedValidity
 				+ ", tokenValidity=" + tokenValidity + ", responseType=" + responseType + ", audience="
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
-				+ pkcsInfo + ", attributeValueFilters=" + attributeValueFilters + "]";
+				+ pkcsInfo + ", attributeValueFilters=" + attributeValueFilters + ", requestedACR=" + requestedACR
+				+ ", remoteIdPAuthnContext=" + remoteIdPAuthnContext + "]";
 	}
 
 	public static class PKCSInfo

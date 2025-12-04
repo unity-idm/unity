@@ -40,7 +40,7 @@ public class MvelContextCreationTest
 		invocationContext.setLoginSession(loginSession);
 
 		TranslationInput input = new TranslationInput(List.of(), new Entity(List.of(), null, null), "/", List.of(),
-				null, List.of(), null, null, Map.of());
+				null, List.of(), null, null, Map.of(), null);
 		Map<String, Object> mvelContext = OutputTranslationProfile.createMvelContext(input, null, null);
 
 		assertThat(mvelContext.get(OutputTranslationMVELContextKey.upstreamProtocol.name()))

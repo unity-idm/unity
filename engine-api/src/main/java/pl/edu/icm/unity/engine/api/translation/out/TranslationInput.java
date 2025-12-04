@@ -16,6 +16,7 @@ import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 
 /**
  * Translation input: a complete information about an entity. Immutable.
@@ -33,12 +34,13 @@ public class TranslationInput
 	private String protocol;
 	private String protocolSubType;
 	private Map<String, Status> importStatus;
+	private RemoteAuthnMetadata remoteAuthnMetadata;
 	
 	public TranslationInput(Collection<? extends Attribute> attributes, Entity entity, String chosenGroup,
 			Collection<Group> groups, 
 			String requester, Collection<? extends Attribute> requesterAttributes,
 			String protocol,
-			String protocolSubType, Map<String, Status> importStatus)
+			String protocolSubType, Map<String, Status> importStatus, RemoteAuthnMetadata remoteAuthnMetadata)
 	{
 		this.requesterAttributes = Lists.newArrayList(requesterAttributes);
 		this.importStatus = importStatus;
@@ -50,6 +52,7 @@ public class TranslationInput
 		this.requester = requester;
 		this.protocol = protocol;
 		this.protocolSubType = protocolSubType;
+		this.remoteAuthnMetadata = remoteAuthnMetadata;
 	}
 
 	public Collection<Attribute> getAttributes()
@@ -102,6 +105,11 @@ public class TranslationInput
 		return requester + " - eId: " + entity.getId();
 	}
 
+	public RemoteAuthnMetadata getRemoteAuthnMetadata()
+	{
+		return remoteAuthnMetadata;
+	}
+	
 	/**
 	 * @return Multiline string with a complete contents 
 	 */
@@ -136,7 +144,8 @@ public class TranslationInput
 			for (Attribute at: requesterAttributes)
 				sb.append(" - ").append(at).append("\n");
 		}
-		sb.append("Protocol: " + protocol + ":" + protocolSubType);
+		sb.append("Protocol: " + protocol + ":" + protocolSubType + "\n");
+		sb.append("remoteAuthnMetadata: " + remoteAuthnMetadata);
 
 		return sb.toString();
 	}

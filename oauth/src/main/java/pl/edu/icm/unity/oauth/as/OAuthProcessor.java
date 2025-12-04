@@ -49,6 +49,8 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.SerializableRemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
@@ -125,6 +127,16 @@ public class OAuthProcessor
 		internalToken.setClaimsInTokenAttribute(ctx.getClaimsInTokenAttribute());
 		internalToken.setAuthenticationTime(authenticationTime);
 		internalToken.setAttributeValueFilters(attributeWhiteList);
+		internalToken.setRequestedACR(RequestedACRMapper.mapToInternalACRFromNimbusdsACRType(ctx.getRequestedAcr()));
+		Optional.ofNullable(InvocationContext.getCurrent())
+				.ifPresent(context -> Optional.ofNullable(context.getLoginSession())
+						.ifPresent(loginSession -> Optional.ofNullable(loginSession.getFirstFactorRemoteIdPAuthnContext())
+								.ifPresent(firstFactorRemoteIdPContext -> internalToken
+										.setRemoteIdPAuthnContext(SerializableRemoteAuthnMetadata.builder()
+												.withClassReferences(firstFactorRemoteIdPContext.classReferences())
+												.withProtocol(firstFactorRemoteIdPContext.protocol())
+												.withRemoteIdPId(firstFactorRemoteIdPContext.remoteIdPId())
+												.build()))));
 		
 		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
 				null : ctx.getRequest().getCodeChallenge().getValue();

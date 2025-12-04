@@ -47,6 +47,8 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
+import pl.edu.icm.unity.engine.api.authn.SerializableRemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
@@ -128,8 +130,11 @@ class TokenService
 
 	    newToken.setRequestedScope(filteredScopes.toArray(String[]::new));
 
-	    TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant);
-	    List<RequestedOAuthScope> newValidScopes = buildNewEffectiveScopes(scopeMapping);
+		SerializableRemoteAuthnMetadata serializableRemoteAuthnMetadata = newToken.getRemoteIdPAuthnContext();
+		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant,
+				Optional.ofNullable(serializableRemoteAuthnMetadata).map(remoteMeta -> new RemoteAuthnMetadata(remoteMeta.protocol,
+						remoteMeta.remoteIdPId, remoteMeta.classReferences)).orElse(null));
+		   List<RequestedOAuthScope> newValidScopes = buildNewEffectiveScopes(scopeMapping);
 
 	    newToken.setEffectiveScope(newValidScopes);
 
@@ -189,7 +194,7 @@ class TokenService
 		List<AttributeFilteringSpec> mergedFilters = AttributeValueFilterUtils
 				.mergeFiltersWithPreservingLast(newToken.getAttributeValueFilters(), claimFilters);
 
-		UserInfo userInfoClaimSet = createUserInfo(newValidScopes, newToken.getSubject(), userInfoRes, mergedFilters);
+		UserInfo userInfoClaimSet = createUserInfo(newValidScopes, newToken, userInfoRes, mergedFilters);
 
 		newToken.setUserInfo(userInfoClaimSet.toJSONObject()
 				.toJSONString());
@@ -312,7 +317,7 @@ class TokenService
 		return oauthResponse;
 	}
 
-	private TranslationResult getAttributes(long clientId, long ownerId, String grant) throws OAuthErrorException
+	private TranslationResult getAttributes(long clientId, long ownerId, String grant, RemoteAuthnMetadata remoteAuthnMetadata) throws OAuthErrorException
 	{
 		EntityInGroup client = new EntityInGroup(config.getValue(OAuthASProperties.CLIENTS_GROUP),
 				new EntityParam(clientId));
@@ -322,7 +327,7 @@ class TokenService
 		{
 			userInfoRes = notAuthorizedOauthIdpEngine.getUserInfoUnsafe(ownerId, String.valueOf(clientId),
 					Optional.of(client), config.getValue(OAuthASProperties.USERS_GROUP),
-					config.getOutputTranslationProfile(), grant, config);
+					config.getOutputTranslationProfile(), grant, config, remoteAuthnMetadata);
 		} catch (ExecutionFailException e)
 		{
 			log.debug("Authentication failed due to profile's decision, returning error");
@@ -339,16 +344,22 @@ class TokenService
 		return userInfoRes;
 	}
 
-	private UserInfo createUserInfo(List<RequestedOAuthScope> validScopes, String userIdentity, TranslationResult userInfoRes,
+	private UserInfo createUserInfo(List<RequestedOAuthScope> validScopes, OAuthToken token, TranslationResult userInfoRes,
 			List<AttributeFilteringSpec> claimValueFilters)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
 		for (RequestedOAuthScope si : validScopes)
 			requestedAttributes.addAll(si.scopeDefinition().attributes());
-
+		
+		if(token.getRequestedACR() != null && !token.getRequestedACR().isEmpty())
+		{
+			requestedAttributes.add(IDTokenClaimsSet.ACR_CLAIM_NAME);
+		}
+		
 		Collection<DynamicAttribute> attributes = 
 				OAuthProcessor.filterAttributes(userInfoRes, requestedAttributes, claimValueFilters);
-		return OAuthProcessor.prepareUserInfoClaimSet(userIdentity, attributes);
+
+		return OAuthProcessor.prepareUserInfoClaimSet(token.getSubject(), attributes);
 	}
 
 	private String createIdToken(Date now, OAuthToken token, List<Audience> audience, UserInfo userInfoClaimSet)

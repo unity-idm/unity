@@ -139,7 +139,7 @@ class SamlIdPWebView extends UnityViewComponent
 				samlProcessor.getIdentityTarget(), Optional.empty(), 
 				"SAML2", SAMLConstants.BINDING_HTTP_REDIRECT,
 				processor.isIdentityCreationAllowed(),
-				samlCtx.getSamlConfiguration().userImportConfigs);
+				samlCtx.getSamlConfiguration().userImportConfigs, null);
 	}
 
 	void enter()

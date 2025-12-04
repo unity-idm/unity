@@ -127,7 +127,7 @@ class SAMLAuthnImpl implements SAMLAuthnInterface
 		return idpEngine.obtainUserInformationWithEnrichingImport(new EntityParam(ae.getEntityId()),
 				processor.getChosenGroup(), samlConfiguration.getOutputTranslationProfile(), processor.getIdentityTarget(),
 				Optional.empty(), "SAML2", SAMLConstants.BINDING_SOAP, processor.isIdentityCreationAllowed(),
-				samlConfiguration.userImportConfigs);
+				samlConfiguration.userImportConfigs, null);
 	}
 
 	protected IdentityParam getIdentity(TranslationResult userInfo, AuthnResponseProcessor samlProcessor,

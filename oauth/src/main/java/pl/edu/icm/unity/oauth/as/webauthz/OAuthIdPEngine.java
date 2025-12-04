@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.util.Optional;
+
+import org.apache.logging.log4j.Logger;
+
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
-import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -17,6 +20,7 @@ import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
@@ -27,8 +31,6 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-
-import java.util.Optional;
 
 /**
  * Wraps {@link IdPEngine} with code used by OAuth AS. In the first place provides standard error handling.
@@ -106,18 +108,18 @@ public class OAuthIdPEngine
 		return getUserInfoUnsafe(ae.getEntityId(), ctx.getRequest().getClientID().getValue(),
 				Optional.of(requesterEntity), ctx.getUsersGroup(),
 				ctx.getTranslationProfile() ,
-				flow, ctx.getConfig());
+				flow, ctx.getConfig(), null);
 	}
 
 	public TranslationResult getUserInfoUnsafe(long entityId, String clientId, 
 			Optional<EntityInGroup> requesterEntity, 
 			String userGroup, TranslationProfile translationProfile, String flow,
-			OAuthASProperties config) throws EngineException
+			OAuthASProperties config, RemoteAuthnMetadata remoteAuthnMetadata) throws EngineException
 	{
 		return idpEngine.obtainUserInformationWithEnrichingImport(
 				new EntityParam(entityId), userGroup, translationProfile, 
 				clientId, requesterEntity,
-				"OAuth2", flow, true, config.getUserImportConfigs());
+				"OAuth2", flow, true, config.getUserImportConfigs(), remoteAuthnMetadata);
 	}
 	
 }

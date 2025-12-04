@@ -15,4 +15,11 @@ public record RemoteAuthnMetadata(Protocol protocol, String remoteIdPId, List<St
 	{
 		SAML, OIDC, OTHER
 	};
+	
+	@Override
+	public String toString()
+	{
+		return "[protocol=" + protocol + ", remoteIdPId=" + remoteIdPId
+				+ ", classReferences=" + classReferences + "]";
+	}
 }
