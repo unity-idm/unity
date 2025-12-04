@@ -128,16 +128,19 @@ public class OAuthProcessor
 		internalToken.setAuthenticationTime(authenticationTime);
 		internalToken.setAttributeValueFilters(attributeWhiteList);
 		internalToken.setRequestedACR(RequestedACRMapper.mapToInternalACRFromNimbusdsACRType(ctx.getRequestedAcr()));
-		Optional.ofNullable(InvocationContext.getCurrent())
-				.ifPresent(context -> Optional.ofNullable(context.getLoginSession())
-						.ifPresent(loginSession -> Optional.ofNullable(loginSession.getFirstFactorRemoteIdPAuthnContext())
-								.ifPresent(firstFactorRemoteIdPContext -> internalToken
-										.setRemoteIdPAuthnContext(SerializableRemoteAuthnMetadata.builder()
-												.withClassReferences(firstFactorRemoteIdPContext.classReferences())
-												.withProtocol(firstFactorRemoteIdPContext.protocol())
-												.withRemoteIdPId(firstFactorRemoteIdPContext.remoteIdPId())
-												.build()))));
-		
+		if (InvocationContext.hasCurrent())
+		{
+			Optional.ofNullable(InvocationContext.getCurrent())
+					.ifPresent(context -> Optional.ofNullable(context.getLoginSession())
+							.ifPresent(loginSession -> Optional
+									.ofNullable(loginSession.getFirstFactorRemoteIdPAuthnContext())
+									.ifPresent(firstFactorRemoteIdPContext -> internalToken
+											.setRemoteIdPAuthnContext(SerializableRemoteAuthnMetadata.builder()
+													.withClassReferences(firstFactorRemoteIdPContext.classReferences())
+													.withProtocol(firstFactorRemoteIdPContext.protocol())
+													.withRemoteIdPId(firstFactorRemoteIdPContext.remoteIdPId())
+													.build()))));
+		}
 		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
 				null : ctx.getRequest().getCodeChallenge().getValue();
 		String codeChallengeMethod = ctx.getRequest().getCodeChallengeMethod() == null ? 
