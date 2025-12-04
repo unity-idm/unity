@@ -2,6 +2,7 @@
 
 import sys
 import json
+
 def main():
     try:
         input_data = json.load(sys.stdin)
@@ -11,7 +12,7 @@ def main():
         for attribute in input_data.get("attributes", []):
             if attribute.get("name") == "blocked":
                 response = {
-                    "status": "D",
+                    "status": "DENY",
                     "claims": []
                 }
                 json.dump(response, sys.stdout)
@@ -56,5 +57,7 @@ def main():
         }
         json.dump(response, sys.stdout)
         sys.stdout.flush()
+        
+        
 if __name__ == "__main__":
     main()
