@@ -497,7 +497,7 @@ public class OAuthWebRequestValidatorTest
 		OAuthASProperties props = new OAuthASProperties(config, null, null);
 		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999", Optional.empty(),
 				Optional.of(List.of(new AttributeExt(
-						new Attribute(OAuthSystemAttributesProvider.ALLOW_FOR_REQUESTING_PATTERN_SCOPES,
+						new Attribute(OAuthSystemAttributesProvider.PATTERN_SCOPES_ALLOWED,
 								BooleanAttributeSyntax.ID, "/oauth-clients", List.of("true")),
 						false))));
 

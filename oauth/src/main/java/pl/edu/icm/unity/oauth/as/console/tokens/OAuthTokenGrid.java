@@ -100,7 +100,7 @@ class OAuthTokenGrid extends VerticalLayout
 		refreshTokenColumn.setVisible(false);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.refreshToken"), refreshTokenColumn);
 
-		Grid.Column<OAuthTokenBean> scopesColumn = tokensGrid.addColumn(OAuthTokenBean::getScopes)
+		Grid.Column<OAuthTokenBean> scopesColumn = tokensGrid.addComponentColumn(t -> new EffectiveScopeComponent(t.getOAuthToken(), msg))
 				.setHeader(msg.getMessage("OAuthToken.scopes"))
 				.setSortable(true)
 				.setAutoWidth(true);

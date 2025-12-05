@@ -160,7 +160,7 @@ public class OAuthRequestValidator
 	private boolean isAllowedForRequestingPatternScopes(Map<String, AttributeExt> attributes)
 	{
 		AttributeExt allowedForRequestingPatternScopes = attributes
-				.get(OAuthSystemAttributesProvider.ALLOW_FOR_REQUESTING_PATTERN_SCOPES);
+				.get(OAuthSystemAttributesProvider.PATTERN_SCOPES_ALLOWED);
 		if (allowedForRequestingPatternScopes == null)
 		{
 			return false;

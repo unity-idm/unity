@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.oauth.as.console.tokens;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Optional;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -13,16 +17,13 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
+
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.token.BearerJWTAccessToken;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Optional;
 
 /**
  * Show Oauth token details
@@ -42,6 +43,7 @@ class OAuthTokenViewer extends VerticalLayout
 	private Span redirectUri;
 	private Span maxTokenValidity;
 	private Span requestedScopes;
+	private Span effectiveScopes;
 	private FormLayout userInfoComponent;
 
 	OAuthTokenViewer(MessageSource msg)
@@ -85,6 +87,10 @@ class OAuthTokenViewer extends VerticalLayout
 		requestedScopes = new Span();
 		main.addFormItem(requestedScopes, msg.getMessage("OAuthTokenViewer.requestedScopes"));
 
+		effectiveScopes = new Span();
+		main.addFormItem(effectiveScopes, msg.getMessage("OAuthTokenViewer.effectiveScopes"));
+
+		
 		userInfoComponent = new FormLayout();
 		userInfoComponent.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		main.addFormItem(userInfoComponent, msg.getMessage("OAuthTokenViewer.userInfo"));
@@ -112,6 +118,7 @@ class OAuthTokenViewer extends VerticalLayout
 			redirectUri.setText("");
 			maxTokenValidity.setText("");
 			requestedScopes.setText("");
+			effectiveScopes.setText("");
 			setVisible(false);
 			return;
 		}
@@ -137,7 +144,8 @@ class OAuthTokenViewer extends VerticalLayout
 				rawToken.getCreated().getTime() + oauthToken.getMaxExtendedValidity() * 1000);
 		maxTokenValidity.setText(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(maxValidity));
 		requestedScopes.setText(String.join(", ", oauthToken.getRequestedScope()));
-
+		effectiveScopes.add(new EffectiveScopeComponent(oauthToken, msg));
+			
 		setTokenCoreInfo(tokenBean.get());
 		
 		try

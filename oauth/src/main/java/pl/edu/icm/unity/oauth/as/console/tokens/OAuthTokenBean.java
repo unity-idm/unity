@@ -98,11 +98,11 @@ class OAuthTokenBean implements FilterableEntry
 				: oauthToken.getClientUsername();
 	}
 
-	public String getScopes()
+	public String getScopesAsString()
 	{
 		return Stream.of(oauthToken.getEffectiveScopeAsString()).collect(Collectors.joining(", "));
 	}
-
+	
 	public String getOwner()
 	{
 		return owner;
@@ -141,7 +141,7 @@ class OAuthTokenBean implements FilterableEntry
 		if (getCreateTime() != null && getCreateTime().toLowerCase().contains(textLower))
 			return true;
 
-		if (getScopes() != null && getScopes().toLowerCase().contains(textLower))
+		if (getScopesAsString() != null && getScopesAsString().toLowerCase().contains(textLower))
 			return true;
 
 		if (getServerId() != null && getServerId().toLowerCase().contains(textLower))
