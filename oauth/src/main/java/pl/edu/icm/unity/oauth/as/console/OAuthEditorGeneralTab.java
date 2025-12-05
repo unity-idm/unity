@@ -581,13 +581,14 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 				.map(s -> s.name)
 				.collect(Collectors.toList());
 		scopesGrid = new GridWithEditorInDetails<>(msg::getMessage, OAuthScopeBean.class,
-				() -> new ScopeEditor(msg, attrTypes, systemScopesNames), s -> false,
+				() -> new ScopeEditor(msg, attrTypes, systemScopesNames, htmlTooltipFactory), s -> false,
 				s -> s != null && s.getName() != null && systemScopesNames.contains(s.getName()), false);
-
+		scopesGrid.setWidthFull();
 		Grid.Column<OAuthScopeBean> addGotoEditColumn = scopesGrid
 				.addGotoEditColumn(OAuthScopeBean::getName)
 				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scopeName"))
-				.setResizable(true);
+				.setResizable(true)
+				.setFlexGrow(1);
 		addGotoEditColumn.setId("name");
 		scopesGrid.addCheckboxColumn(OAuthScopeBean::isEnabled)
 				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scopeEnabled"))
@@ -601,13 +602,11 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 				.setFlexGrow(0);
 		scopesGrid.addTextColumn(OAuthScopeBean::getDescription)
 				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scopeDescription"))
-				.setResizable(true)
-				.setWidth("30em");
+				.setResizable(true);
 		scopesGrid
 				.addTextColumn(s -> s.getAttributes() != null ? String.join(",", s.getAttributes()) : "")
 				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scopeAttributes"))
-				.setResizable(true)
-				.setAutoWidth(true);
+				.setResizable(true);
 		addGotoEditColumn.setComparator((s1, s2) -> compareScopes(systemScopesNames, s1, s2));
 		configBinder.forField(scopesGrid)
 				.bind("scopes");
@@ -817,7 +816,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		private final Checkbox pattern;
 		private final List<String> systemScopes;
 
-		public ScopeEditor(MessageSource msg, List<String> attrTypes, List<String> systemScopes)
+		public ScopeEditor(MessageSource msg, List<String> attrTypes, List<String> systemScopes, HtmlTooltipFactory htmlTooltipFactory)
 		{
 			this.systemScopes = systemScopes;
 
@@ -862,7 +861,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 			main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 			main.addFormItem(name, msg.getMessage("OAuthEditorGeneralTab.scopeName") + ":");
 			main.addFormItem(enable, "");
-			main.addFormItem(pattern, "");
+			main.addFormItem(pattern, "").add(htmlTooltipFactory.get(msg.getMessage("OAuthEditorGeneralTab.scopeIsPatternDescription")));
 			main.addFormItem(desc, msg.getMessage("OAuthEditorGeneralTab.scopeDescription") + ":");
 			main.addFormItem(attributes, msg.getMessage("OAuthEditorGeneralTab.scopeAttributes") + ":");
 			add(main);
