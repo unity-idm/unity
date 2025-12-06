@@ -168,7 +168,7 @@ class TokenService
 		{
 			if (v == null)
 			{
-				throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_SCOPE, "wrong scope"));
+				throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_SCOPE, null));
 			}
 		}
 		return map;

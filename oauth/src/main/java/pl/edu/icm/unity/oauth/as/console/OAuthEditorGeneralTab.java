@@ -38,6 +38,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
@@ -815,7 +816,11 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		private final Checkbox enable;
 		private final Checkbox pattern;
 		private final List<String> systemScopes;
-
+		private final FormItem formItemName;
+		private final FormItem formItemEnable;
+		private final FormItem formItemPattern;
+		private final FormItem formItemAttrs;
+		
 		public ScopeEditor(MessageSource msg, List<String> attrTypes, List<String> systemScopes, HtmlTooltipFactory htmlTooltipFactory)
 		{
 			this.systemScopes = systemScopes;
@@ -859,11 +864,15 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 					.bind(OAuthScopeBean::getAttributes, OAuthScopeBean::setAttributes);
 			FormLayout main = new FormLayout();
 			main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-			main.addFormItem(name, msg.getMessage("OAuthEditorGeneralTab.scopeName") + ":");
-			main.addFormItem(enable, "");
-			main.addFormItem(pattern, "").add(htmlTooltipFactory.get(msg.getMessage("OAuthEditorGeneralTab.scopeIsPatternDescription")));
-			main.addFormItem(desc, msg.getMessage("OAuthEditorGeneralTab.scopeDescription") + ":");
-			main.addFormItem(attributes, msg.getMessage("OAuthEditorGeneralTab.scopeAttributes") + ":");
+			formItemName = main.addFormItem(name, msg.getMessage("OAuthEditorGeneralTab.scopeName") + ":");
+			formItemEnable = main.addFormItem(enable, "");
+			formItemPattern = main.addFormItem(pattern, "");
+			formItemPattern
+					.add(htmlTooltipFactory.get(msg.getMessage("OAuthEditorGeneralTab.scopeIsPatternDescription")));
+			main.addFormItem(desc,
+					msg.getMessage("OAuthEditorGeneralTab.scopeDescription") + ":");
+			formItemAttrs = main.addFormItem(attributes,
+					msg.getMessage("OAuthEditorGeneralTab.scopeAttributes") + ":");
 			add(main);
 			setSizeFull();
 		}
@@ -889,9 +898,13 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 							.contains(value.getName());
 			boolean fullBlock = value != null && value.getName() != null && systemScopes.contains(value.getName());
 			enable.setReadOnly(enableDisableblock);
+			formItemEnable.setVisible(!enableDisableblock);
 			pattern.setReadOnly(fullBlock);
+			formItemPattern.setVisible(!fullBlock);
 			name.setReadOnly(fullBlock);
+			formItemName.setVisible(!fullBlock);
 			attributes.setEnabled(!fullBlock);
+			formItemAttrs.setVisible(!fullBlock);
 			blockedEdit = fullBlock || enableDisableblock;
 		}
 

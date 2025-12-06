@@ -24,7 +24,6 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 
 import jakarta.ws.rs.core.Response;
-import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
@@ -210,10 +209,9 @@ class ExchangeTokenHandler
 					BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "unsupported actor_token_type"));
 		}
 
-		Entity audienceResolvedEntity = null;
 		try
 		{
-			audienceResolvedEntity = idMan.getEntity(audienceEntity);
+			idMan.getEntity(audienceEntity);
 			requestValidator.validateGroupMembership(audienceEntity, audience);
 
 		} catch (IllegalIdentityValueException | OAuthValidationException oe)
@@ -225,13 +223,10 @@ class ExchangeTokenHandler
 					"Internal error, can not retrieve OAuth client's data"));
 		}
 
-		if (!audienceResolvedEntity.getId().equals(callerEntityId))
-			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "wrong audience"));
-
 		if (!oldRequestedScopesList.contains(AccessTokenResource.EXCHANGE_SCOPE))
 		{
-			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_SCOPE,
-					"Orginal token must have  " + AccessTokenResource.EXCHANGE_SCOPE + " scope"));
+			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.UNAUTHORIZED_CLIENT,
+					"subject_token must have  " + AccessTokenResource.EXCHANGE_SCOPE + " scope"));
 		}
 	}
 }
