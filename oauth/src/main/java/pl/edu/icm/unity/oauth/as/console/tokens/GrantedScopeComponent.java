@@ -18,9 +18,9 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 
-class EffectiveScopeComponent extends Span
+class GrantedScopeComponent extends Span
 {
-	EffectiveScopeComponent(OAuthToken oauthToken, MessageSource msg)
+	GrantedScopeComponent(OAuthToken oauthToken, MessageSource msg)
 	{
 		List<String> regestedScopeAsList = Stream.of(oauthToken.getRequestedScope())
 				.toList();
@@ -34,13 +34,13 @@ class EffectiveScopeComponent extends Span
 		{
 			RequestedOAuthScope scope = it.next();
 			NativeLabel scopeLabel = new NativeLabel(scope.scope());
+			scopeLabel.addClassName(CssClassNames.MONOSPACE.getName());
+
 			add(scopeLabel);
 
 			if (scope.pattern())
 			{
-				NativeLabel pattern = new NativeLabel(msg.getMessage("OAuthTokenViewer.pattern"));
-				pattern.addClassName(CssClassNames.ITALIC.getName());
-				add(pattern);
+				add(new NativeLabel(msg.getMessage("OAuthTokenViewer.pattern")));
 			}
 
 			if (it.hasNext())

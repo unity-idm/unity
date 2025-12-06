@@ -55,25 +55,30 @@ class OAuthTokenGrid extends VerticalLayout
 		tokensGrid.addColumn(OAuthTokenBean::getType)
 				.setHeader(msg.getMessage("OAuthToken.type"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		tokensGrid.addColumn(OAuthTokenBean::getId)
 				.setHeader(msg.getMessage("OAuthToken.id"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		Grid.Column<OAuthTokenBean> ownerColumn = tokensGrid.addColumn(OAuthTokenBean::getOwner)
 				.setHeader(msg.getMessage("OAuthToken.owner"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.owner"), ownerColumn);
 
 		Grid.Column<OAuthTokenBean> clientColumn = tokensGrid.addColumn(OAuthTokenBean::getClientName)
 				.setHeader(msg.getMessage("OAuthToken.clientName"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.clientName"), clientColumn);
 
 		Grid.Column<OAuthTokenBean> createTimeColumn = tokensGrid.addColumn(OAuthTokenBean::getCreateTime)
 				.setHeader(msg.getMessage("OAuthToken.createTime"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
 		createTimeColumn.setVisible(false);
@@ -81,12 +86,14 @@ class OAuthTokenGrid extends VerticalLayout
 
 		Grid.Column<OAuthTokenBean> expiresColumn = tokensGrid.addColumn(OAuthTokenBean::getExpires)
 				.setHeader(msg.getMessage("OAuthToken.expires"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.expires"), expiresColumn);
 
 		Grid.Column<OAuthTokenBean> serverIdColumn = tokensGrid.addColumn(OAuthTokenBean::getServerId)
 				.setHeader(msg.getMessage("OAuthToken.serverId"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
 		serverIdColumn.setVisible(false);
@@ -95,19 +102,25 @@ class OAuthTokenGrid extends VerticalLayout
 		Grid.Column<OAuthTokenBean> refreshTokenColumn = tokensGrid.addColumn(
 						OAuthTokenBean::getAssociatedRefreshTokenForAccessToken)
 				.setHeader(msg.getMessage("OAuthToken.refreshToken"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
 		refreshTokenColumn.setVisible(false);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.refreshToken"), refreshTokenColumn);
 
-		Grid.Column<OAuthTokenBean> scopesColumn = tokensGrid.addComponentColumn(t -> new EffectiveScopeComponent(t.getOAuthToken(), msg))
-				.setHeader(msg.getMessage("OAuthToken.scopes"))
+		Grid.Column<OAuthTokenBean> scopesColumn = tokensGrid
+				.addComponentColumn(t -> new GrantedScopeComponent(t.getOAuthToken(), msg))
+				.setHeader(msg.getMessage("OAuthToken.grantedScopes"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
-		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.scopes"), scopesColumn);
+		scopesColumn.setVisible(false);
+				
+		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.grantedScopes"), scopesColumn);
 
 		Grid.Column<OAuthTokenBean> hasIdTokenColumn = tokensGrid.addColumn(r -> String.valueOf(r.getHasIdToken()))
 				.setHeader(msg.getMessage("OAuthToken.hasIdToken"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
 		hasIdTokenColumn.setVisible(false);

@@ -6,7 +6,9 @@ package pl.edu.icm.unity.oauth.as.console.tokens;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -14,10 +16,12 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 
+import io.imunity.vaadin.elements.CssClassNames;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -43,7 +47,7 @@ class OAuthTokenViewer extends VerticalLayout
 	private Span redirectUri;
 	private Span maxTokenValidity;
 	private Span requestedScopes;
-	private Span effectiveScopes;
+	private Span grantedScopes;
 	private FormLayout userInfoComponent;
 
 	OAuthTokenViewer(MessageSource msg)
@@ -69,7 +73,7 @@ class OAuthTokenViewer extends VerticalLayout
 
 		jwtInfo = new Span();
 		main.addFormItem(jwtInfo, msg.getMessage("OAuthTokenViewer.jwtInfo"));
-		
+
 		idToken = new TextArea();
 		idToken.setSizeFull();
 		idToken.setReadOnly(true);
@@ -87,10 +91,9 @@ class OAuthTokenViewer extends VerticalLayout
 		requestedScopes = new Span();
 		main.addFormItem(requestedScopes, msg.getMessage("OAuthTokenViewer.requestedScopes"));
 
-		effectiveScopes = new Span();
-		main.addFormItem(effectiveScopes, msg.getMessage("OAuthTokenViewer.effectiveScopes"));
+		grantedScopes = new Span();
+		main.addFormItem(grantedScopes, msg.getMessage("OAuthTokenViewer.grantedScopes"));
 
-		
 		userInfoComponent = new FormLayout();
 		userInfoComponent.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		main.addFormItem(userInfoComponent, msg.getMessage("OAuthTokenViewer.userInfo"));
@@ -118,44 +121,52 @@ class OAuthTokenViewer extends VerticalLayout
 			redirectUri.setText("");
 			maxTokenValidity.setText("");
 			requestedScopes.setText("");
-			effectiveScopes.setText("");
+			grantedScopes.setText("");
 			setVisible(false);
 			return;
 		}
 
 		setVisible(true);
-		Token rawToken = tokenBean.get().getToken();
-		OAuthToken oauthToken = tokenBean.get().getOAuthToken();
+		Token rawToken = tokenBean.get()
+				.getToken();
+		OAuthToken oauthToken = tokenBean.get()
+				.getOAuthToken();
 
-		token.setValue(tokenBean.get().getTokenValue());
+		token.setValue(tokenBean.get()
+				.getTokenValue());
 		if (oauthToken.getOpenidInfo() != null)
 		{
-			idToken.getParent().get().setVisible(true);
+			idToken.getParent()
+					.get()
+					.setVisible(true);
 			setIdToken(oauthToken.getOpenidInfo());
 		} else
 		{
-			idToken.getParent().get().setVisible(false);
+			idToken.getParent()
+					.get()
+					.setVisible(false);
 		}
-
 
 		audience.setText(String.join(",", oauthToken.getAudience()));
 		redirectUri.setText(oauthToken.getRedirectUri());
-		Date maxValidity = new Date(
-				rawToken.getCreated().getTime() + oauthToken.getMaxExtendedValidity() * 1000);
+		Date maxValidity = new Date(rawToken.getCreated()
+				.getTime() + oauthToken.getMaxExtendedValidity() * 1000);
 		maxTokenValidity.setText(new SimpleDateFormat(Constants.SIMPLE_DATE_FORMAT).format(maxValidity));
-		requestedScopes.setText(String.join(", ", oauthToken.getRequestedScope()));
-		effectiveScopes.add(new EffectiveScopeComponent(oauthToken, msg));
-			
+		requestedScopes.add(new RequestedScopesComponent(oauthToken.getRequestedScope()));
+		grantedScopes.add(new GrantedScopeComponent(oauthToken, msg));
+
 		setTokenCoreInfo(tokenBean.get());
-		
+
 		try
 		{
 			UserInfo userInfoClaimSet = UserInfo.parse(oauthToken.getUserInfo());
 			JWTClaimsSet jwtClaimSet = userInfoClaimSet.toJWTClaimsSet();
 
-			for (String name : jwtClaimSet.getClaims().keySet())
+			for (String name : jwtClaimSet.getClaims()
+					.keySet())
 			{
-				Span infoL = new Span(jwtClaimSet.getClaim(name).toString());
+				Span infoL = new Span(jwtClaimSet.getClaim(name)
+						.toString());
 				userInfoComponent.addFormItem(infoL, name + ":");
 
 			}
@@ -171,16 +182,49 @@ class OAuthTokenViewer extends VerticalLayout
 		Optional<JWTClaimsSet> claims = BearerJWTAccessToken.tryParseJWTClaimSet(jwt);
 		if (!oAuthTokenBean.isRefreshToken() && claims.isPresent())
 		{
-			jwtClaimsSet.getParent().get().setVisible(true);
-			jwtInfo.getParent().get().setVisible(true);
-			JsonNode tree = JsonUtil.parse(claims.get().toString());
+			jwtClaimsSet.getParent()
+					.get()
+					.setVisible(true);
+			jwtInfo.getParent()
+					.get()
+					.setVisible(true);
+			JsonNode tree = JsonUtil.parse(claims.get()
+					.toString());
 			jwtClaimsSet.setValue(JsonUtil.serializeHumanReadable(tree));
-			jwtInfo.setText(jwt.get().getHeader().toString());
+			jwtInfo.setText(jwt.get()
+					.getHeader()
+					.toString());
 		} else
 		{
-			jwtClaimsSet.getParent().get().setVisible(false);
-			jwtInfo.getParent().get().setVisible(false);
+			jwtClaimsSet.getParent()
+					.get()
+					.setVisible(false);
+			jwtInfo.getParent()
+					.get()
+					.setVisible(false);
 		}
 	}
 
+	private static class RequestedScopesComponent extends Span
+	{
+
+		RequestedScopesComponent(String[] scopes)
+		{
+			Iterator<String> it = Stream.of(scopes)
+					.toList()
+					.iterator();
+			while (it.hasNext())
+			{
+				String scope = it.next();
+				NativeLabel scopeLabel = new NativeLabel(scope);
+				scopeLabel.addClassName(CssClassNames.MONOSPACE.getName());
+
+				add(scopeLabel);
+				if (it.hasNext())
+				{
+					add(new NativeLabel(", "));
+				}
+			}
+		}
+	}
 }
