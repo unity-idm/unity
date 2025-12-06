@@ -183,7 +183,6 @@ There are several conditions that must be met to perform a successful exchange:
  - Only the +urn:ietf:params:oauth:token-type:access_token+ token type exchange can be used as +subject_token_type+.
  - Only the original scopes or their subset can can be requested for the exchanged scope.
  - Audience parameter in exchange request is mandatory and must contain Unity username of the new _access token_ owner 
- (and must be the same as the +client_id+ parameter).  
  - _id token_ can be issued only if +requested_token_type+ is equal to +urn:ietf:params:oauth:token-type:id_token+ 
  and scopes contain +openid+. 
  - Exchange may be only performed by an authenticated Unity client.
