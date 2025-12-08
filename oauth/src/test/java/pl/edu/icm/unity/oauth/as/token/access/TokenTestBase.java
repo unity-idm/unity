@@ -83,8 +83,10 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			+ "unity.oauth2.as.scopes.2.attributes.1=c\n"
 			+ "unity.oauth2.as.scopes.99.name=" + OIDCScopeValue.OFFLINE_ACCESS.getValue() + "\n"
 			+ "unity.oauth2.as.refreshTokenValidity=3600\n"
-			+ "unity.oauth2.as.tokenFormat=JWT\n";
-			
+			+ "unity.oauth2.as.tokenFormat=JWT\n"
+			+ "unity.oauth2.as.embeddedTranslationProfile={\"ver\":\"2\",\"name\":\"Embedded\",\"description\":\"\",\"type\":\"OUTPUT\","
+			+ "\"mode\":\"DEFAULT\",\"rules\":[{\"condition\":{\"conditionValue\":\"upstreamACRs.size()!=0\"},\"action\":{\"name\":\"createAttribute\","
+			+ "\"parameters\":[\"acr\",\"upstreamACRs[0]\",\"false\",\"\",\"\",\"\"]}}]}\n";
 	
 
 	private static final String OIDC_ENDP_CFG = OAUTH_ENDP_CFG 
