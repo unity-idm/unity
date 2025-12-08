@@ -140,7 +140,7 @@ public class RefreshTokenHandlerTest
 		oAuthToken.setTokenValidity(1000);
 		token.setContents(oAuthToken.getSerialized());
 		when(refreshTokensRepository.readRefreshToken("token")).thenReturn(token);
-		when(tokenService.prepareNewTokenBasedOnOldTokenForTokenRefresh(any(OAuthToken.class), any(Scope.class), anyList(), anyLong(),
+		when(tokenService.prepareTokenForRefresh(any(OAuthToken.class), any(Scope.class), anyList(), anyLong(),
 				anyLong(), anyList(), eq(true), anyString())).thenReturn(oAuthToken);
 		when(tokenService.getAccessTokenResponse(any(OAuthToken.class), any(AccessToken.class), eq(null), eq(null)))
 				.thenReturn(new AccessTokenResponse(new Tokens(new BearerAccessToken(), null)));

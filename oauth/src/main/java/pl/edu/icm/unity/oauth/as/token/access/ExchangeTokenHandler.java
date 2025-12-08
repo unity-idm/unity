@@ -117,7 +117,7 @@ class ExchangeTokenHandler
 		OAuthToken newToken = null;
 		try
 		{
-			newToken = tokenService.prepareNewTokenBasedOnOldTokenForTokenExchange(parsedSubjectToken, newRequestedScopeList, oldRequestedScopesList,
+			newToken = tokenService.prepareTokenForExchange(parsedSubjectToken, newRequestedScopeList, oldRequestedScopesList,
 					subToken.getOwner(), callerEntityId, newAudience,
 					requestedTokenType != null && requestedTokenType.equals(AccessTokenResource.ID_TOKEN_TYPE_ID),
 					GrantType.TOKEN_EXCHANGE.getValue());

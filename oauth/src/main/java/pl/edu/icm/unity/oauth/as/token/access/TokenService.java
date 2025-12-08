@@ -72,82 +72,78 @@ class TokenService
 	private final OAuthASProperties config;
 	private final OAuthIdPEngine notAuthorizedOauthIdpEngine;
 
-	TokenService( OAuthASProperties config,
-			OAuthIdPEngine notAuthorizedOauthIdpEngine)
+	TokenService(OAuthASProperties config, OAuthIdPEngine notAuthorizedOauthIdpEngine)
 	{
 		this.config = config;
 		this.notAuthorizedOauthIdpEngine = notAuthorizedOauthIdpEngine;
 	}
 
-	OAuthToken prepareNewTokenBasedOnOldTokenForTokenExchange(
-	        OAuthToken oldToken, Scope newRequestedScopeList, List<String> oldRequestedScopesList,
-	        long ownerId, long clientId, List<String> audience,
-	        boolean createIdToken, String grant) throws OAuthErrorException {
+	OAuthToken prepareTokenForExchange(OAuthToken oldToken, Scope newRequestedScopeList,
+			List<String> oldRequestedScopesList, long ownerId, long clientId, List<String> audience,
+			boolean createIdToken, String grant) throws OAuthErrorException
+	{
 
-	    return prepareNewTokenBasedOnOldToken(
-	            oldToken,
-	            newRequestedScopeList,
-	            ownerId,
-	            clientId,
-	            audience,
-	            createIdToken,
-	            grant,
-	            this::mapToPreviouslyAssignedScopesWithPatternSupport);
-	}
+		OAuthToken newToken = new OAuthToken(oldToken);
 
-	OAuthToken prepareNewTokenBasedOnOldTokenForTokenRefresh(
-	        OAuthToken oldToken, Scope newRequestedScopeList, List<String> oldRequestedScopesList,
-	        long ownerId, long clientId, List<String> audience,
-	        boolean createIdToken, String grant) throws OAuthErrorException {
+		List<String> filteredScopes = extractScopesWithoutFilterClaims(newRequestedScopeList);
+		Map<String, RequestedOAuthScope> scopeMapping = getValidatedReMappedScopes(oldToken, filteredScopes,
+				this::mapToPreviouslyAssignedScopesWithPatternSupport);
 
-	    return prepareNewTokenBasedOnOldToken(
-	            oldToken,
-	            newRequestedScopeList,
-	            ownerId,
-	            clientId,
-	            audience,
-	            createIdToken,
-	            grant,
-	            this::mapToPreviouslyAssignedScopesWithoutPatternSupport);
-	}
-	
-	private OAuthToken prepareNewTokenBasedOnOldToken(
-	        OAuthToken oldToken,
-	        Scope newRequestedScopeList,
-	        long ownerId,
-	        long clientId,
-	        List<String> audience,
-	        boolean createIdToken,
-	        String grant,
-	        BiFunction<List<RequestedOAuthScope>, List<String>, Map<String, RequestedOAuthScope>> scopeMapper
-	) throws OAuthErrorException {
-
-	    OAuthToken newToken = new OAuthToken(oldToken);
-
-	    List<String> filteredScopes = extractScopesWithoutFilterClaims(newRequestedScopeList);
-	    Map<String, RequestedOAuthScope> scopeMapping =
-	            validateAndMapScopes(oldToken, filteredScopes, scopeMapper);
-
-	    newToken.setRequestedScope(filteredScopes.toArray(String[]::new));
+		newToken.setRequestedScope(filteredScopes.toArray(String[]::new));
 
 		SerializableRemoteAuthnMetadata serializableRemoteAuthnMetadata = newToken.getRemoteIdPAuthnContext();
 		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant,
-				Optional.ofNullable(serializableRemoteAuthnMetadata).map(remoteMeta -> new RemoteAuthnMetadata(remoteMeta.protocol,
-						remoteMeta.remoteIdPId, remoteMeta.classReferences)).orElse(null));
-		   List<RequestedOAuthScope> newValidScopes = buildNewEffectiveScopes(scopeMapping);
+				Optional.ofNullable(serializableRemoteAuthnMetadata)
+						.map(remoteMeta -> new RemoteAuthnMetadata(remoteMeta.protocol, remoteMeta.remoteIdPId,
+								remoteMeta.classReferences))
+						.orElse(null));
+		List<RequestedOAuthScope> newValidScopes = buildNewEffectiveScopes(scopeMapping);
 
-	    newToken.setEffectiveScope(newValidScopes);
+		newToken.setEffectiveScope(newValidScopes);
 
-	    UserInfo userInfoClaimSet =
-	            updateUserInfoAndFilters(newToken, newRequestedScopeList, newValidScopes, userInfoRes);
+		UserInfo userInfoClaimSet = updateUserInfoAndFilters(newToken, newRequestedScopeList, newValidScopes,
+				userInfoRes);
 
-	    handleIdTokenIfNeeded(newToken, filteredScopes, audience, createIdToken, userInfoClaimSet);
+		handleIdTokenIfNeeded(newToken, filteredScopes, audience, createIdToken, userInfoClaimSet);
 
-	    applyTokenMetadata(newToken);
+		applyTokenMetadata(newToken);
 
-	    return newToken;
+		return newToken;
 	}
 
+	OAuthToken prepareTokenForRefresh(OAuthToken oldToken, Scope newRequestedScopeList,
+			List<String> oldRequestedScopesList, long ownerId, long clientId, List<String> audience,
+			boolean createIdToken, String grant) throws OAuthErrorException
+	{
+
+		OAuthToken newToken = new OAuthToken(oldToken);
+
+		List<String> filteredScopes = extractScopesWithoutFilterClaims(newRequestedScopeList);
+		Map<String, RequestedOAuthScope> scopeMapping = getValidatedReMappedScopes(oldToken, filteredScopes,
+				this::mapToPreviouslyAssignedScopesWithoutPatternSupport);
+
+		newToken.setRequestedScope(filteredScopes.toArray(String[]::new));
+
+		SerializableRemoteAuthnMetadata serializableRemoteAuthnMetadata = newToken.getRemoteIdPAuthnContext();
+		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant,
+				Optional.ofNullable(serializableRemoteAuthnMetadata)
+						.map(remoteMeta -> new RemoteAuthnMetadata(remoteMeta.protocol, remoteMeta.remoteIdPId,
+								remoteMeta.classReferences))
+						.orElse(null));
+		List<RequestedOAuthScope> newValidScopes = buildNewEffectiveScopes(scopeMapping);
+
+		newToken.setEffectiveScope(newValidScopes);
+
+		UserInfo userInfoClaimSet = updateUserInfoAndFilters(newToken, newRequestedScopeList, newValidScopes,
+				userInfoRes);
+
+		handleIdTokenIfNeeded(newToken, filteredScopes, audience, createIdToken, userInfoClaimSet);
+
+		applyTokenMetadata(newToken);
+
+		return newToken;
+
+	}
 
 	private List<String> extractScopesWithoutFilterClaims(Scope newRequestedScopeList)
 	{
@@ -157,7 +153,7 @@ class TokenService
 				.toList();
 	}
 
-	private Map<String, RequestedOAuthScope> validateAndMapScopes(OAuthToken oldToken, List<String> filteredScopes,
+	private Map<String, RequestedOAuthScope> getValidatedReMappedScopes(OAuthToken oldToken, List<String> filteredScopes,
 			BiFunction<List<RequestedOAuthScope>, List<String>, Map<String, RequestedOAuthScope>> mapper)
 			throws OAuthErrorException
 	{
@@ -286,7 +282,7 @@ class TokenService
 		Map<String, RequestedOAuthScope> result = new HashMap<>();
 
 		Map<String, RequestedOAuthScope> exactLookup = new HashMap<>();
-		for (RequestedOAuthScope s : previouslyAssigned)     
+		for (RequestedOAuthScope s : previouslyAssigned)
 		{
 			exactLookup.putIfAbsent(s.scope(), s);
 		}
@@ -306,7 +302,7 @@ class TokenService
 
 		return result;
 	}
-	
+
 	AccessTokenResponse getAccessTokenResponse(OAuthToken internalToken, AccessToken accessToken,
 			RefreshToken refreshToken, Map<String, Object> additionalParams)
 	{
@@ -317,7 +313,8 @@ class TokenService
 		return oauthResponse;
 	}
 
-	private TranslationResult getAttributes(long clientId, long ownerId, String grant, RemoteAuthnMetadata remoteAuthnMetadata) throws OAuthErrorException
+	private TranslationResult getAttributes(long clientId, long ownerId, String grant,
+			RemoteAuthnMetadata remoteAuthnMetadata) throws OAuthErrorException
 	{
 		EntityInGroup client = new EntityInGroup(config.getValue(OAuthASProperties.CLIENTS_GROUP),
 				new EntityParam(clientId));
@@ -344,20 +341,22 @@ class TokenService
 		return userInfoRes;
 	}
 
-	private UserInfo createUserInfo(List<RequestedOAuthScope> validScopes, OAuthToken token, TranslationResult userInfoRes,
-			List<AttributeFilteringSpec> claimValueFilters)
+	private UserInfo createUserInfo(List<RequestedOAuthScope> validScopes, OAuthToken token,
+			TranslationResult userInfoRes, List<AttributeFilteringSpec> claimValueFilters)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
 		for (RequestedOAuthScope si : validScopes)
-			requestedAttributes.addAll(si.scopeDefinition().attributes());
-		
-		if(token.getRequestedACR() != null && !token.getRequestedACR().isEmpty())
+			requestedAttributes.addAll(si.scopeDefinition()
+					.attributes());
+
+		if (token.getRequestedACR() != null && !token.getRequestedACR()
+				.isEmpty())
 		{
 			requestedAttributes.add(IDTokenClaimsSet.ACR_CLAIM_NAME);
 		}
-		
-		Collection<DynamicAttribute> attributes = 
-				OAuthProcessor.filterAttributes(userInfoRes, requestedAttributes, claimValueFilters);
+
+		Collection<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(userInfoRes, requestedAttributes,
+				claimValueFilters);
 
 		return OAuthProcessor.prepareUserInfoClaimSet(token.getSubject(), attributes);
 	}
@@ -382,12 +381,14 @@ class TokenService
 				new Subject(token.getSubject()), audience, TokenUtils.getAccessTokenExpiration(config, now), now);
 		newClaims.setNonce(oldClaims.getNonce());
 
-		if (token.hasSupportAttributesInIdToken().isPresent())
+		if (token.hasSupportAttributesInIdToken()
+				.isPresent())
 		{
-			if (token.hasSupportAttributesInIdToken().get())
+			if (token.hasSupportAttributesInIdToken()
+					.get())
 			{
 				newClaims.putAll(userInfoClaimSet);
-			}	
+			}
 		} else
 		{
 			ResponseType responseType = null;
@@ -398,7 +399,9 @@ class TokenService
 					newClaims.putAll(userInfoClaimSet);
 			}
 		}
-		return config.getTokenSigner().sign(newClaims).serialize();
+		return config.getTokenSigner()
+				.sign(newClaims)
+				.serialize();
 	}
 
 	@Component
@@ -407,16 +410,14 @@ class TokenService
 		private final IdPEngine idPEngine;
 
 		@Autowired
-		public TokenServiceFactory(
-				@Qualifier("insecure") IdPEngine idPEngine)
+		public TokenServiceFactory(@Qualifier("insecure") IdPEngine idPEngine)
 		{
 			this.idPEngine = idPEngine;
 		}
 
 		public TokenService getTokenService(OAuthASProperties config)
 		{
-			return new TokenService( config,
-					new OAuthIdPEngine(idPEngine));
+			return new TokenService(config, new OAuthIdPEngine(idPEngine));
 
 		}
 	}

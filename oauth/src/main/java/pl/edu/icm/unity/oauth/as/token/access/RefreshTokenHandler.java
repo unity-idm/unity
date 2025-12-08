@@ -113,7 +113,7 @@ class RefreshTokenHandler
 		
 		try
 		{
-			newToken = tokenService.prepareNewTokenBasedOnOldTokenForTokenRefresh(parsedRefreshToken, newRequestedScopeList, oldRequestedScopesList,
+			newToken = tokenService.prepareTokenForRefresh(parsedRefreshToken, newRequestedScopeList, oldRequestedScopesList,
 					refreshToken.getOwner(), callerEntityId, List.of(parsedRefreshToken.getClientUsername()), true,
 					GrantType.REFRESH_TOKEN.getValue());
 		} catch (OAuthErrorException e)
