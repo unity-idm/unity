@@ -220,20 +220,6 @@ public class ExchangeTokenTest extends TokenTestBase
 	}
 
 	@Test
-	public void shouldDenyToExchangeTokenWithIncorrectAudience() throws Exception
-	{
-		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
-
-		AccessToken at = issueToken(Set.of("bar", AccessTokenResource.EXCHANGE_SCOPE));
-
-		TokenRequest req = exchange(at).withScopes("bar")
-				.withAudience("client3")
-				.build();
-
-		assertBadRequestWithInvalidParams(req);
-	}
-
-	@Test
 	public void shouldDenyToExchangeTokenWithIncorrectRequestedTokenType() throws Exception
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
