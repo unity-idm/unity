@@ -34,6 +34,5 @@ public class OAuthTokenParsingTest
 
 		assertThat(token.getAudience().get(0)).isEqualTo("oauth-client");
 		assertThat(token.getAudience().get(1)).isEqualTo("oauth-client2");
-
 	}
 }

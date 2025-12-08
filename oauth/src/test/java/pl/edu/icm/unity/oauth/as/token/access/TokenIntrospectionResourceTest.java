@@ -81,7 +81,7 @@ public class TokenIntrospectionResourceTest
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokenRepository, null,
 				accessTokenRepository, null, null, fixer);
 		ExchangeTokenHandler exchangeTokenHandler = new ExchangeTokenHandler(config, refreshTokenRepository, null,
-				accessTokenRepository, null, null, null, null, null, fixer);
+				accessTokenRepository, null, null, null, fixer);
 		CredentialFlowHandler credentialFlowHandler = new CredentialFlowHandler(config, null, null, null,
 				accessTokenRepository, null);
 

@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
-import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
 import pl.edu.icm.unity.oauth.as.token.access.ClientAttributesProvider.ClientAttributesProviderFactory;
 import pl.edu.icm.unity.oauth.as.token.access.TokenService.TokenServiceFactory;
 
@@ -22,8 +20,6 @@ class ExchangeTokenHandlerFactory
 	private final OAuthAccessTokenRepository accessTokensDAO;
 	private final TokenServiceFactory tokenServiceFactory;
 	private final OAuthTokenStatisticPublisherFactory statisticPublisherFactory;
-	private final OAuthRequestValidatorFactory requestValidatorFactory;
-	private final EntityManagement idMan;
 	private final ClientAttributesProviderFactory clientAttributesProviderFactory;
 	private final EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
 
@@ -31,7 +27,6 @@ class ExchangeTokenHandlerFactory
 	ExchangeTokenHandlerFactory(OAuthRefreshTokenRepository refreshTokensDAO,
 			OAuthAccessTokenRepository accessTokensDAO, TokenServiceFactory tokenUtilsFactory,
 			OAuthTokenStatisticPublisherFactory statisticPublisherFactory,
-			OAuthRequestValidatorFactory requestValidatorFactory, EntityManagement idMan,
 			ClientAttributesProviderFactory clientAttributesProviderFactory,
 			EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
 	{
@@ -40,8 +35,6 @@ class ExchangeTokenHandlerFactory
 		this.accessTokensDAO = accessTokensDAO;
 		this.tokenServiceFactory = tokenUtilsFactory;
 		this.statisticPublisherFactory = statisticPublisherFactory;
-		this.requestValidatorFactory = requestValidatorFactory;
-		this.idMan = idMan;
 		this.clientAttributesProviderFactory = clientAttributesProviderFactory;
 		this.oAuthTokenEffectiveScopesAttributesCompleter = oAuthTokenEffectiveScopesAttributesCompleter;
 	}
@@ -51,7 +44,6 @@ class ExchangeTokenHandlerFactory
 		return new ExchangeTokenHandler(config, refreshTokensDAO, new AccessTokenFactory(config), accessTokensDAO,
 				tokenServiceFactory.getTokenService(config),
 				statisticPublisherFactory.getOAuthTokenStatisticPublisher(config, endpoint),
-				requestValidatorFactory.getOAuthRequestValidator(config), idMan,
 				clientAttributesProviderFactory.getClientAttributeProvider(config), oAuthTokenEffectiveScopesAttributesCompleter);
 	}
 

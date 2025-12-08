@@ -27,15 +27,11 @@ import jakarta.ws.rs.core.Response;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
-import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
-import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -51,14 +47,11 @@ class ExchangeTokenHandler
 	private final TokenService tokenService;
 	private final ClientAttributesProvider clientAttributesProvider;
 	private final OAuthTokenStatisticPublisher statisticPublisher;
-	private final OAuthRequestValidator requestValidator;
-	private final EntityManagement idMan;
 	private final EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter;
 
 	public ExchangeTokenHandler(OAuthASProperties config, OAuthRefreshTokenRepository refreshTokensDAO,
 			AccessTokenFactory accessTokenFactory, OAuthAccessTokenRepository accessTokensDAO, TokenService tokenService,
-			OAuthTokenStatisticPublisher statisticPublisher, OAuthRequestValidator requestValidator,
-			EntityManagement idMan, ClientAttributesProvider clientAttributesProvider,
+			OAuthTokenStatisticPublisher statisticPublisher, ClientAttributesProvider clientAttributesProvider,
 			EffectiveScopesAttributesCompleter oAuthTokenEffectiveScopesAttributesCompleter)
 	{
 		this.config = config;
@@ -67,8 +60,6 @@ class ExchangeTokenHandler
 		this.accessTokensDAO = accessTokensDAO;
 		this.tokenService = tokenService;
 		this.statisticPublisher = statisticPublisher;
-		this.requestValidator = requestValidator;
-		this.idMan = idMan;
 		this.clientAttributesProvider = clientAttributesProvider;
 		this.oAuthTokenEffectiveScopesAttributesCompleter = oAuthTokenEffectiveScopesAttributesCompleter;
 	}
@@ -101,7 +92,7 @@ class ExchangeTokenHandler
 
 		try
 		{
-			validateExchangeRequest(subjectTokenType, requestedTokenType, audience, callerEntityId, audienceEntity,
+			validateExchangeRequest(subjectTokenType, requestedTokenType, callerEntityId, audienceEntity,
 					oldRequestedScopesList, actorToken, actorTokenType);
 		} catch (OAuthErrorException e)
 		{
@@ -176,7 +167,7 @@ class ExchangeTokenHandler
 		return newRequestedScopeList;
 	}
 	
-	private void validateExchangeRequest(String subjectTokenType, String requestedTokenType, String audience,
+	private void validateExchangeRequest(String subjectTokenType, String requestedTokenType,
 			long callerEntityId, EntityParam audienceEntity, List<String> oldRequestedScopesList, String actorToken,
 			String actorTokenType)
 			throws OAuthErrorException
@@ -207,20 +198,6 @@ class ExchangeTokenHandler
 		{
 			throw new OAuthErrorException(
 					BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "unsupported actor_token_type"));
-		}
-
-		try
-		{
-			idMan.getEntity(audienceEntity);
-			requestValidator.validateGroupMembership(audienceEntity, audience);
-
-		} catch (IllegalIdentityValueException | OAuthValidationException oe)
-		{
-			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "wrong audience"));
-		} catch (EngineException e)
-		{
-			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.SERVER_ERROR,
-					"Internal error, can not retrieve OAuth client's data"));
 		}
 
 		if (!oldRequestedScopesList.contains(AccessTokenResource.EXCHANGE_SCOPE))
