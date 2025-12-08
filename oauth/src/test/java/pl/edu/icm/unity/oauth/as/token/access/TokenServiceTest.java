@@ -42,7 +42,8 @@ public class TokenServiceTest
 	@Mock
 	private OAuthIdPEngine notAuthorizedOauthIdpEngine;
 
-	private TokenService newService() {
+	private TokenService newService()
+	{
 		return new TokenService(config, notAuthorizedOauthIdpEngine);
 	}
 
@@ -54,12 +55,9 @@ public class TokenServiceTest
 		TranslationResult tr = buildFullTranslationResult();
 		mockUserInfo(tr);
 
-		OAuthToken newToken = newService().prepareNewTokenBasedOnOldTokenForTokenExchange(
-				oldToken,
-				new Scope("scope1", "claim_filter:attr2:attr2v2"),
-				List.of("scope1", "scope2"),
-				0, 0, List.of("client"), true, "grant"
-		);
+		OAuthToken newToken = newService().prepareTokenForExchange(oldToken,
+				new Scope("scope1", "claim_filter:attr2:attr2v2"), List.of("scope1", "scope2"), 0, 0, List.of("client"),
+				true, "grant");
 
 		assertTwoAttributeFilters(newToken);
 		assertClaimsForTwoFilters(newToken);
@@ -73,12 +71,9 @@ public class TokenServiceTest
 		TranslationResult tr = buildFullTranslationResult();
 		mockUserInfo(tr);
 
-		OAuthToken newToken = newService().prepareNewTokenBasedOnOldTokenForTokenRefresh(
-				oldToken,
-				new Scope("scope1", "claim_filter:attr2:attr2v2"),
-				List.of("scope1", "scope2"),
-				0, 0, List.of("client"), true, "grant"
-		);
+		OAuthToken newToken = newService().prepareTokenForRefresh(oldToken,
+				new Scope("scope1", "claim_filter:attr2:attr2v2"), List.of("scope1", "scope2"), 0, 0, List.of("client"),
+				true, "grant");
 
 		assertTwoAttributeFilters(newToken);
 		assertClaimsForTwoFilters(newToken);
@@ -89,14 +84,11 @@ public class TokenServiceTest
 			throws JsonProcessingException, EngineException, ParseException
 	{
 		OAuthToken oldToken = buildTokenWithSingleScope();
-        TranslationResult tr = buildSingleAttributeTranslationResult();
+		TranslationResult tr = buildSingleAttributeTranslationResult();
 		mockUserInfo(tr);
 
-		OAuthToken newToken = newService().prepareNewTokenBasedOnOldTokenForTokenExchange(
-				oldToken, new Scope("scope1"),
-				List.of("scope1"),
-				0, 0, List.of("client"), true, "grant"
-		);
+		OAuthToken newToken = newService().prepareTokenForExchange(oldToken, new Scope("scope1"), List.of("scope1"), 0,
+				0, List.of("client"), true, "grant");
 
 		assertSingleAttributeFilter(newToken);
 		assertSingleClaim(newToken);
@@ -107,105 +99,100 @@ public class TokenServiceTest
 			throws JsonProcessingException, EngineException, ParseException
 	{
 		OAuthToken oldToken = buildTokenWithSingleScope();
-        TranslationResult tr = buildSingleAttributeTranslationResult();
+		TranslationResult tr = buildSingleAttributeTranslationResult();
 		mockUserInfo(tr);
 
-		OAuthToken newToken = newService().prepareNewTokenBasedOnOldTokenForTokenRefresh(
-				oldToken, new Scope("scope1"),
-				List.of("scope1"),
-				0, 0, List.of("client"), true, "grant"
-		);
+		OAuthToken newToken = newService().prepareTokenForRefresh(oldToken, new Scope("scope1"), List.of("scope1"), 0,
+				0, List.of("client"), true, "grant");
 
 		assertSingleAttributeFilter(newToken);
 		assertSingleClaim(newToken);
 	}
 
-	/* ============================================================
-	 *                     Helper methods
-	 * ============================================================ */
+	/*
+	 * ============================================================ Helper methods
+	 * ============================================================
+	 */
 
-	private OAuthToken buildTokenWithTwoScopes() {
+	private OAuthToken buildTokenWithTwoScopes()
+	{
 		OAuthToken t = new OAuthToken();
-		t.setRequestedScope(new String[]{"scope1", "scope2"});
-		t.setEffectiveScope(List.of(
-				new RequestedOAuthScope("scope1",
+		t.setRequestedScope(new String[]
+		{ "scope1", "scope2" });
+		t.setEffectiveScope(List.of(new RequestedOAuthScope("scope1", ActiveOAuthScopeDefinition.builder()
+				.withName("scope1")
+				.withAttributes(List.of("attr1", "attr2"))
+				.build(), false), new RequestedOAuthScope("scope2",
 						ActiveOAuthScopeDefinition.builder()
-								.withName("scope1")
-								.withAttributes(List.of("attr1", "attr2"))
+								.withName("scope2")
 								.build(),
-						false),
-				new RequestedOAuthScope("scope2",
-						ActiveOAuthScopeDefinition.builder()
-								.withName("scope2").build(), false)
-		));
+						false)));
 		t.setAttributeValueFilters(List.of(new AttributeFilteringSpec("attr1", Set.of("attr1v1"))));
 		t.setSubject("subject");
 		return t;
 	}
 
-	private OAuthToken buildTokenWithSingleScope() {
+	private OAuthToken buildTokenWithSingleScope()
+	{
 		OAuthToken t = new OAuthToken();
-		t.setRequestedScope(new String[]{"scope1"});
-		t.setEffectiveScope(List.of(
-				new RequestedOAuthScope("scope1",
-						ActiveOAuthScopeDefinition.builder()
-								.withName("scope1")
-								.withAttributes(List.of("attr1"))
-								.build(),
-						false)
-		));
+		t.setRequestedScope(new String[]
+		{ "scope1" });
+		t.setEffectiveScope(List.of(new RequestedOAuthScope("scope1", ActiveOAuthScopeDefinition.builder()
+				.withName("scope1")
+				.withAttributes(List.of("attr1"))
+				.build(), false)));
 		t.setAttributeValueFilters(List.of(new AttributeFilteringSpec("attr1", Set.of("attr1v1"))));
 		t.setSubject("subject");
 		return t;
 	}
 
-	private TranslationResult buildFullTranslationResult() {
+	private TranslationResult buildFullTranslationResult()
+	{
 		TranslationResult tr = new TranslationResult();
-		tr.getAttributes().add(new DynamicAttribute(
-				new Attribute("attr1", "string", null, List.of("attr1v1"))
-		));
-		tr.getAttributes().add(new DynamicAttribute(
-				new Attribute("attr2", "string", null, List.of("attr2v1"))
-		));
+		tr.getAttributes()
+				.add(new DynamicAttribute(new Attribute("attr1", "string", null, List.of("attr1v1"))));
+		tr.getAttributes()
+				.add(new DynamicAttribute(new Attribute("attr2", "string", null, List.of("attr2v1"))));
 		return tr;
 	}
 
-	private TranslationResult buildSingleAttributeTranslationResult() {
+	private TranslationResult buildSingleAttributeTranslationResult()
+	{
 		TranslationResult tr = new TranslationResult();
-		tr.getAttributes().add(new DynamicAttribute(
-				new Attribute("attr1", "string", null, List.of("attr1v1"))
-		));
+		tr.getAttributes()
+				.add(new DynamicAttribute(new Attribute("attr1", "string", null, List.of("attr1v1"))));
 		return tr;
 	}
 
-	private void mockUserInfo(TranslationResult tr) throws EngineException {
+	private void mockUserInfo(TranslationResult tr) throws EngineException
+	{
 		when(notAuthorizedOauthIdpEngine.getUserInfoUnsafe(anyLong(), any(), any(), any(), any(), any(), any(), any()))
 				.thenReturn(tr);
 	}
 
-
-	private void assertTwoAttributeFilters(OAuthToken token) {
-		assertThat(token.getAttributeValueFilters())
-				.containsExactlyInAnyOrder(
-						new AttributeFilteringSpec("attr1", Set.of("attr1v1")),
-						new AttributeFilteringSpec("attr2", Set.of("attr2v2"))
-				);
+	private void assertTwoAttributeFilters(OAuthToken token)
+	{
+		assertThat(token.getAttributeValueFilters()).containsExactlyInAnyOrder(
+				new AttributeFilteringSpec("attr1", Set.of("attr1v1")),
+				new AttributeFilteringSpec("attr2", Set.of("attr2v2")));
 	}
 
-	private void assertClaimsForTwoFilters(OAuthToken token) throws ParseException {
+	private void assertClaimsForTwoFilters(OAuthToken token) throws ParseException
+	{
 		UserInfo info = UserInfo.parse(token.getUserInfo());
 		assertThat(info.getClaim("attr1")).isEqualTo("attr1v1");
 		assertThat(info.getClaim("attr2")).isNull();
 	}
 
-	private void assertSingleAttributeFilter(OAuthToken token) {
+	private void assertSingleAttributeFilter(OAuthToken token)
+	{
 		assertThat(token.getAttributeValueFilters())
 				.containsExactly(new AttributeFilteringSpec("attr1", Set.of("attr1v1")));
 	}
 
-	private void assertSingleClaim(OAuthToken token) throws ParseException {
+	private void assertSingleClaim(OAuthToken token) throws ParseException
+	{
 		UserInfo info = UserInfo.parse(token.getUserInfo());
 		assertThat(info.getClaim("attr1")).isEqualTo("attr1v1");
 	}
 }
-
