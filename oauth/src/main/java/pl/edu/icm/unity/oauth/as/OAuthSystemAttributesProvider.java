@@ -40,7 +40,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String CLIENT_NAME = "sys:oauth:clientName";
 	public static final String CLIENT_LOGO = "sys:oauth:clientLogo";
 	public static final String CLIENT_TYPE = "sys:oauth:clientType";
-	public static final String PATTERN_SCOPES_ALLOWED = "sys:oauth:patternScopesAllowed";
+	public static final String CAN_RECEIVE_PATTERN_SCOPES = "sys:oauth:canReceivePatternScopes";
 	
 	public static final int MAXIMUM_ALLOWED_URIS = 512;
 	public static final int MAXIMUM_ALLOWED_SCOPES = 512;
@@ -60,7 +60,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		oauthAttributes.add(getLogoAT());
 		oauthAttributes.add(getNameAT());
 		oauthAttributes.add(getPerClientGroupAT());
-		oauthAttributes.add(getAllowForRequestingScopePatternsAT());
+		oauthAttributes.add(getCanReceivePatternScopesAT());
 	}
 	
 	private AttributeType getAllowedGrantFlowsAT()
@@ -153,9 +153,9 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		return nameAt;
 	}
 	
-	private AttributeType getAllowForRequestingScopePatternsAT()
+	private AttributeType getCanReceivePatternScopesAT()
 	{
-		AttributeType allowedScopesAt = new AttributeType(PATTERN_SCOPES_ALLOWED, BooleanAttributeSyntax.ID, msg);
+		AttributeType allowedScopesAt = new AttributeType(CAN_RECEIVE_PATTERN_SCOPES, BooleanAttributeSyntax.ID, msg);
 		allowedScopesAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		allowedScopesAt.setMinElements(1);
 		allowedScopesAt.setMaxElements(1);

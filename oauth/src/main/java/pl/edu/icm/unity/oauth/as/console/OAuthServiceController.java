@@ -56,6 +56,7 @@ import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
+import pl.edu.icm.unity.stdext.attr.BooleanAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.ImageAttribute;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
@@ -496,6 +497,19 @@ class OAuthServiceController implements IdpServiceController
 				attrMan.removeAttribute(entity, group, OAuthSystemAttributesProvider.ALLOWED_SCOPES);
 			}
 		}
+		
+		if (client.isCanReceivePatternScopes())
+		{
+			Attribute canReceivePatternScopes = BooleanAttribute.of(OAuthSystemAttributesProvider.CAN_RECEIVE_PATTERN_SCOPES, group,
+					List.of(true));
+			attrMan.setAttribute(entity, canReceivePatternScopes);
+		} else
+		{
+			if (attrMan.getAttributes(entity, group, OAuthSystemAttributesProvider.CAN_RECEIVE_PATTERN_SCOPES).size() > 0)
+			{
+				attrMan.removeAttribute(entity, group, OAuthSystemAttributesProvider.CAN_RECEIVE_PATTERN_SCOPES);
+			}
+		}
 
 		if (client.getTitle() != null)
 		{
@@ -671,8 +685,19 @@ class OAuthServiceController implements IdpServiceController
 			{
 				throw new EngineException(e);
 			}
-
 		}
+		
+		if (attrs.containsKey(OAuthSystemAttributesProvider.CAN_RECEIVE_PATTERN_SCOPES))
+		{
+			c.setCanReceivePatternScopes(
+					Boolean.valueOf(attrs.get(OAuthSystemAttributesProvider.CAN_RECEIVE_PATTERN_SCOPES)
+							.getValues()
+							.get(0)));
+		} else
+		{
+			c.setCanReceivePatternScopes(false);
+		}
+		
 		return c;
 	}
 

@@ -29,6 +29,7 @@ public class OAuthClient
 	private String secret;
 	private List<String> flows;
 	private boolean allowAnyScopes;
+	private boolean canReceivePatternScopes;
 	private List<String> scopes;
 	private String type;
 	private List<String> redirectURIs;
@@ -197,6 +198,16 @@ public class OAuthClient
 		this.allowAnyScopes = allowAnyScopes;
 	}
 	
+	public boolean isCanReceivePatternScopes()
+	{
+		return canReceivePatternScopes;
+	}
+
+	public void setCanReceivePatternScopes(boolean canReceivePatternScopes)
+	{
+		this.canReceivePatternScopes = canReceivePatternScopes;
+	}
+	
 	public OAuthClient clone()
 	{
 		OAuthClient clone = new OAuthClient();
@@ -228,6 +239,7 @@ public class OAuthClient
 		clone.setType(this.getType());
 		clone.setUpdated(this.isUpdated());
 		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);
+		clone.setCanReceivePatternScopes(this.isCanReceivePatternScopes());
 		return clone;
 	}
 

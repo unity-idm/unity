@@ -259,6 +259,10 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		
 		header.addFormItem(allowAllScopes, "");
 		header.addFormItem(allowedScopes, msg.getMessage("EditOAuthClientSubView.allowedScopes"));
+		
+		Checkbox canReceivePatternScopes = new Checkbox(msg.getMessage("EditOAuthClientSubView.canReceivePatternScopes"));
+		binder.forField(canReceivePatternScopes).bind("canReceivePatternScopes");
+		header.addFormItem(canReceivePatternScopes, "");
 
 		return header;
 	}
