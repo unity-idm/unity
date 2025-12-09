@@ -9,6 +9,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.html.Div;
@@ -20,7 +21,10 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
+import com.vaadin.flow.data.selection.SelectionListener;
 import com.vaadin.flow.function.SerializablePredicate;
+import com.vaadin.flow.shared.Registration;
+
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.console.views.directory_browser.GridSelectionSupport;
 import io.imunity.console.views.directory_browser.group_browser.GroupChangedEvent;
@@ -106,6 +110,8 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	private IdentityEntry lastSelected;
 	private Column<IdentityEntry> actionColumn;
 
+	private Registration deselectionIdentitiesListener;
+
 	IdentitiesTreeGrid(MessageSource msg, AttributeSupport attributeSupport,
 	                          IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
 	                          AttributeHandlerRegistry attrHandlerRegistry, PreferencesManagement preferencesMan,
@@ -155,6 +161,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		setSelectionMode(SelectionMode.MULTI);
 		GridSelectionSupport.installClickListener(this);
 		addSelectionListener(event -> selectionChanged(event.getAllSelectedItems()));
+		addDeselectionIdentityListener();
 		setSizeFull();
 		addColumnResizeListener(event -> savePreferences());
 		addColumnReorderListener(event ->
@@ -169,6 +176,36 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		loadPreferences();
 		setupDragAndDrop();
 		refreshActionColumn();
+	}
+
+	public Registration addSelectionListenerBeforeDeselectionListener(SelectionListener<Grid<IdentityEntry>, IdentityEntry> listener)
+	{
+		if (deselectionIdentitiesListener != null)
+		{
+			deselectionIdentitiesListener.remove();
+		}
+		Registration selectionListener = super.addSelectionListener(listener);
+		addDeselectionIdentityListener();		
+		return selectionListener;
+	}
+
+	private void addDeselectionIdentityListener()
+	{
+		deselectionIdentitiesListener = asMultiSelect()
+				.addSelectionListener(event -> deselectIdenties(event.getRemovedSelection()));
+	}
+	
+	private void deselectIdenties(Set<IdentityEntry> removedSelection)
+	{
+		if (groupByEntity)
+		{
+			Set<EntityWithLabel> deselectedEntities = removedSelection.stream()
+					.filter(e -> e.getSourceIdentity() == null).map(e -> e.getSourceEntity())
+					.collect(Collectors.toSet());
+			asMultiSelect().deselect(getSelectedItems().stream()
+					.filter(e -> deselectedEntities.contains(e.getSourceEntity()))
+					.toList());
+		}
 	}
 
 	private void setupDragAndDrop()
