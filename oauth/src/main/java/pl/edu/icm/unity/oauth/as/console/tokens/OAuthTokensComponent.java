@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as.console.tokens;
 import static io.imunity.vaadin.elements.CssClassNames.AVOID_MAIN_LAYOUT_Y_SCROLLER;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.splitlayout.SplitLayout;
@@ -59,8 +60,8 @@ class OAuthTokensComponent extends VerticalLayout
 	{
 		OAuthTokenViewer viewer = new OAuthTokenViewer(msg);
 		viewer.setVisible(false);
-		tokensGrid.addValueChangeListener(e -> viewer.setInput(e.getFirstSelectedItem()));
-
+		tokensGrid.addValueChangeListener(e -> viewer.setInput(e.getAllSelectedItems()
+				.size() > 1 ? Optional.empty() : e.getFirstSelectedItem()));
 		SplitLayout splitPanel = new SplitLayout(tokensGrid, viewer);
 		splitPanel.setOrientation(SplitLayout.Orientation.VERTICAL);
 		splitPanel.setSplitterPosition(50);
