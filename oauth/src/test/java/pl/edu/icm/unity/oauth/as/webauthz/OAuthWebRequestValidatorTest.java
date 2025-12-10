@@ -194,6 +194,23 @@ public class OAuthWebRequestValidatorTest
 
 		assertThat(error).isInstanceOf(OAuthValidationException.class);
 	}
+	
+	@Test
+	public void shouldDenyPrivateUseURIWithoutScheme() throws Exception
+	{
+		OAuthASProperties oauthConfig = getConfig();
+		OAuthWebRequestValidator validator = getValidator(oauthConfig, "private:/some/path");
+
+		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
+				new ClientID("client")).redirectionURI(new URI("test.data.oidc-agent"))
+						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
+						.build();
+		OAuthAuthzContext context = new OAuthAuthzContext(request, oauthConfig);
+
+		Throwable error = catchThrowable(() -> validator.validate(context));
+
+		assertThat(error).isInstanceOf(OAuthValidationException.class);
+	}
 
 	@Test
 	public void shouldAllowPrivateUseURIWithDot() throws Exception

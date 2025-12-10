@@ -372,6 +372,10 @@ class OAuthWebRequestValidator
 	private void assertPrivateUseURIIsSane(URI requestedURI) throws OAuthValidationException
 	{
 		String scheme = requestedURI.getScheme();
+		if (scheme == null)
+			throw new OAuthValidationException(
+					"The requested return URI seems to be private use URI, but has no scheme: '" + requestedURI + "'");
+		
 		if (!scheme.equals("http") && !scheme.equals("https"))
 			if (!scheme.contains("."))
 				throw new OAuthValidationException("The requested return URI "
