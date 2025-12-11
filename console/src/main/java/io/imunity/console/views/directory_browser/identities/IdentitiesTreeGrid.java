@@ -26,13 +26,13 @@ import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.shared.Registration;
 
 import io.imunity.console.views.directory_browser.EntityWithLabel;
-import io.imunity.console.views.directory_browser.GridSelectionSupport;
 import io.imunity.console.views.directory_browser.group_browser.GroupChangedEvent;
 import io.imunity.console.views.directory_browser.group_browser.GroupsTreeGrid;
 import io.imunity.console.views.directory_browser.identities.credentials.CredentialsChangeDialog;
 import io.imunity.vaadin.elements.ColumnToggleMenu;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.GridSelectionSupport;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;

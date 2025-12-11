@@ -24,10 +24,11 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
 import com.vaadin.flow.function.SerializablePredicate;
-import io.imunity.console.views.directory_browser.GridSelectionSupport;
+
 import io.imunity.console.views.directory_browser.identities.IdentityTreeGridDragItems;
 import io.imunity.vaadin.elements.SearchField;
 import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.GridSelectionSupport;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.Toolbar;
 import io.imunity.vaadin.endpoint.common.WebSession;
