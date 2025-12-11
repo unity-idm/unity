@@ -2,7 +2,7 @@
  * Copyright (c) 2021 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.imunity.console.views.directory_browser;
+package io.imunity.vaadin.elements.grid;
 
 
 import com.vaadin.flow.component.grid.Grid;

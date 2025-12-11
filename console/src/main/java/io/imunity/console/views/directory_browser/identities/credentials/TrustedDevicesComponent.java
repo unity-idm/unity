@@ -13,9 +13,10 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.function.ValueProvider;
-import io.imunity.console.views.directory_browser.GridSelectionSupport;
+
 import io.imunity.vaadin.elements.ColumnToggleMenu;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.grid.GridSelectionSupport;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.message.MessageSource;

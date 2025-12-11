@@ -14,6 +14,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.SearchField;
 import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
 import io.imunity.vaadin.elements.grid.GridSearchFieldFactory;
+import io.imunity.vaadin.elements.grid.GridSelectionSupport;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
@@ -132,7 +133,6 @@ class OAuthTokenGrid extends VerticalLayout
 		ActionMenuWithHandlerSupport<OAuthTokenBean> hamburgerMenu = new ActionMenuWithHandlerSupport<>();
 		hamburgerMenu.addActionHandlers(Collections.singletonList(getDeleteAction()));
 		tokensGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
-		tokensGrid.addItemClickListener(e -> tokensGrid.select(e.getItem()));
 
 		SearchField search = GridSearchFieldFactory.generateSearchField(tokensGrid, msg::getMessage);
 		Toolbar<OAuthTokenBean> toolbar = new Toolbar<>();
@@ -143,6 +143,8 @@ class OAuthTokenGrid extends VerticalLayout
 		reqGridWithToolbar.setWidthFull();
 		reqGridWithToolbar.setSpacing(false);
 
+		GridSelectionSupport.installClickListener(tokensGrid);
+		
 		add(reqGridWithToolbar, tokensGrid);
 		setWidthFull();
 	}
