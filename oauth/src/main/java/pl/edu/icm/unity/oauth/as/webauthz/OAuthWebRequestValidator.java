@@ -374,7 +374,7 @@ class OAuthWebRequestValidator
 		String scheme = requestedURI.getScheme();
 		if (scheme == null)
 			throw new OAuthValidationException(
-					"The requested return URI seems to be private use URI, but has no scheme: '" + requestedURI + "'");
+					"The requested return URI is missing the required scheme: '" + requestedURI + "'");
 		
 		if (!scheme.equals("http") && !scheme.equals("https"))
 			if (!scheme.contains("."))
