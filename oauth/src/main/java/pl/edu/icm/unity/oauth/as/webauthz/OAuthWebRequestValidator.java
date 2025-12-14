@@ -375,7 +375,7 @@ class OAuthWebRequestValidator
 		String scheme = requestedURI.getScheme();
 		if (StringUtils.isEmpty(scheme))
 			throw new OAuthValidationException(
-					"The requested return URI is missing the required scheme: '" + requestedURI + "'");
+					"The requested return URI '" + requestedURI + "' is missing the required scheme component");
 		
 		if (!scheme.equals("http") && !scheme.equals("https"))
 			if (!scheme.contains("."))
