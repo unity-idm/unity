@@ -635,6 +635,11 @@ vaadin-details.u-multi-tab-details {
     font-family: Monospace;
 }
 
+.u-token-value {
+    font-family: Monospace;
+    word-break: break-all;
+}
+
 .u-edit-view-action-buttons-layout {
     width: 13em;
 }

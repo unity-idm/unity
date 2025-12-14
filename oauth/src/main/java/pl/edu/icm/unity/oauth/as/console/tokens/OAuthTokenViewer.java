@@ -64,6 +64,7 @@ class OAuthTokenViewer extends VerticalLayout
 		token = new TextArea();
 		token.setSizeFull();
 		token.setReadOnly(true);
+		token.addClassName(CssClassNames.TOKEN_VALUE.getName());
 		main.addFormItem(token, msg.getMessage("OAuthTokenViewer.token"));
 
 		jwtClaimsSet = new TextArea();
@@ -77,6 +78,7 @@ class OAuthTokenViewer extends VerticalLayout
 		idToken = new TextArea();
 		idToken.setSizeFull();
 		idToken.setReadOnly(true);
+		idToken.addClassName(CssClassNames.TOKEN_VALUE.getName());
 		main.addFormItem(idToken, msg.getMessage("OAuthTokenViewer.idtoken"));
 
 		audience = new Span();
