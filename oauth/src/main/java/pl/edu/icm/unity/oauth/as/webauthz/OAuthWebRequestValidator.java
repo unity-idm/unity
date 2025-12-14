@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.AntPathMatcher;
 
@@ -372,7 +373,7 @@ class OAuthWebRequestValidator
 	private void assertPrivateUseURIIsSane(URI requestedURI) throws OAuthValidationException
 	{
 		String scheme = requestedURI.getScheme();
-		if (scheme == null)
+		if (StringUtils.isEmpty(scheme))
 			throw new OAuthValidationException(
 					"The requested return URI is missing the required scheme: '" + requestedURI + "'");
 		
