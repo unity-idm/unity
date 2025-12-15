@@ -300,7 +300,7 @@ class ExchangeTokenHandler
 		return BaseOAuthResource.toResponse(Response.ok(BaseOAuthResource.getResponseContent(tokenResponse)));
 
 	}
-	
+
 	private void validateExchangeToIdToken(long callerEntityId, List<String> audiences) throws OAuthErrorException
 	{
 		if (audiences == null || audiences.isEmpty())

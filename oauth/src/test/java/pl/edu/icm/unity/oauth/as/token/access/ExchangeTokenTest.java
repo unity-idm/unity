@@ -55,20 +55,21 @@ public class ExchangeTokenTest extends TokenTestBase
 	}
 
 	@Test
-	public void shouldPreserveClaimFilterWhenExchangeToken()
-			throws Exception
+	public void shouldPreserveClaimFilterWhenExchangeToken() throws Exception
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
 		AccessTokenResponse original = init(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE, "sc1"), ca1, null,
 				ClaimsInTokenAttribute.builder()
 						.withValues(Set.of(ClaimsInTokenAttribute.Value.token, ClaimsInTokenAttribute.Value.id_token))
-						.build(), List.of(new AttributeFilteringSpec("email", Set.of("example@example.com"))));
-		
-		TokenRequest req = exchange(original.getTokens().getAccessToken()).withScopes("openid", "sc1")
-				.withAudience("client1")
-				.forType(TokenTypeURI.ACCESS_TOKEN)
-				.build();
+						.build(),
+				List.of(new AttributeFilteringSpec("email", Set.of("example@example.com"))));
+
+		TokenRequest req = exchange(original.getTokens()
+				.getAccessToken()).withScopes("openid", "sc1")
+						.withAudience("client1")
+						.forType(TokenTypeURI.ACCESS_TOKEN)
+						.build();
 
 		AccessTokenResponse parsed = AccessTokenResponse.parse(exec(req));
 		SignedJWT access = SignedJWT.parse(parsed.getTokens()
@@ -78,22 +79,23 @@ public class ExchangeTokenTest extends TokenTestBase
 		assertThat(access.getJWTClaimsSet()
 				.getClaim("email")).isEqualTo("example@example.com");
 	}
-	
-	
+
 	@Test
-	public void shouldRespectNewClaimFilterWhenExchangeToken() throws Exception		
+	public void shouldRespectNewClaimFilterWhenExchangeToken() throws Exception
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
 		AccessTokenResponse original = init(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE, "sc1"), ca1, null,
 				ClaimsInTokenAttribute.builder()
 						.withValues(Set.of(ClaimsInTokenAttribute.Value.token, ClaimsInTokenAttribute.Value.id_token))
-						.build(), List.of(new AttributeFilteringSpec("email", Set.of("example@example.com"))));
-		
-		TokenRequest req = exchange(original.getTokens().getAccessToken()).withScopes("openid", "sc1 claim_filter:email:example2@example.com")
-				.withAudience("client1")
-				.forType(TokenTypeURI.ACCESS_TOKEN)
-				.build();
+						.build(),
+				List.of(new AttributeFilteringSpec("email", Set.of("example@example.com"))));
+
+		TokenRequest req = exchange(original.getTokens()
+				.getAccessToken()).withScopes("openid", "sc1 claim_filter:email:example2@example.com")
+						.withAudience("client1")
+						.forType(TokenTypeURI.ACCESS_TOKEN)
+						.build();
 
 		AccessTokenResponse parsed = AccessTokenResponse.parse(exec(req));
 		SignedJWT access = SignedJWT.parse(parsed.getTokens()
@@ -103,8 +105,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		assertThat(access.getJWTClaimsSet()
 				.getClaim("email")).isEqualTo("example2@example.com");
 	}
-	
-	
+
 	@Test
 	public void shouldDenyExchangeWitoutInvalidAudienceWhenIdTokenRequested() throws Exception
 	{
@@ -425,7 +426,8 @@ public class ExchangeTokenTest extends TokenTestBase
 		AccessTokenResponse original = init(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE, "sc1"), ca1, null,
 				ClaimsInTokenAttribute.builder()
 						.withValues(Set.of(ClaimsInTokenAttribute.Value.token, ClaimsInTokenAttribute.Value.id_token))
-						.build(), null);
+						.build(),
+				null);
 
 		AccessToken at = original.getTokens()
 				.getAccessToken();
@@ -467,7 +469,8 @@ public class ExchangeTokenTest extends TokenTestBase
 		AccessTokenResponse original = init(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE, "sc1"), ca1, null,
 				ClaimsInTokenAttribute.builder()
 						.withValues(Set.of(ClaimsInTokenAttribute.Value.token, ClaimsInTokenAttribute.Value.id_token))
-						.build(), null);
+						.build(),
+				null);
 
 		AccessToken at = original.getTokens()
 				.getAccessToken();
