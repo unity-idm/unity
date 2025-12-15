@@ -80,8 +80,8 @@ public class TokenIntrospectionResourceTest
 		EffectiveScopesAttributesCompleter fixer = mock(EffectiveScopesAttributesCompleter.class);
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokenRepository, null,
 				accessTokenRepository, null, null, fixer);
-		ExchangeTokenHandler exchangeTokenHandler = new ExchangeTokenHandler(config, refreshTokenRepository, null,
-				accessTokenRepository, null, null, null, fixer);
+		ExchangeTokenHandler exchangeTokenHandler = new ExchangeTokenHandler(config, null,
+				accessTokenRepository, null, null, fixer, null, null);
 		CredentialFlowHandler credentialFlowHandler = new CredentialFlowHandler(config, null, null, null,
 				accessTokenRepository, null);
 

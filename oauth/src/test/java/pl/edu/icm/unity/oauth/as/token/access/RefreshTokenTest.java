@@ -73,7 +73,7 @@ public class RefreshTokenTest extends TokenTestBase
 {
 	private RefreshToken initRefresh(Set<String> scope, ClientAuthentication ca) throws Exception
 	{
-		return init(scope, ca, null, null).getTokens().getRefreshToken();	
+		return init(scope, ca, null, null, null).getTokens().getRefreshToken();	
 	}
 	
 
@@ -161,13 +161,13 @@ public class RefreshTokenTest extends TokenTestBase
 				.withDescription("bar")
 				.withAttributes(List.of("c"))
 				.withPattern(true)
-				.build(), true)), ca, null, null).getTokens().getRefreshToken();
+				.build(), true)), ca, null, null, null).getTokens().getRefreshToken();
 		
 		
 		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");
 
 		assertThat(claimSet.getClaim("c")).isEqualTo("PL");
-		assertThat(claimSet.getClaim("email")).isEqualTo("example@example.com");
+		assertThat(claimSet.getListClaim("email")).contains("example@example.com");
 		assertThat(claimSet.getClaim("sub")).isEqualTo("userA");
 	}
 
@@ -259,7 +259,7 @@ public class RefreshTokenTest extends TokenTestBase
 						.withDescription("bar")
 						.withAttributes(List.of("c"))
 						.withPattern(true)
-						.build(), true)), ca, null, null).getTokens().getRefreshToken();
+						.build(), true)), ca, null, null, null).getTokens().getRefreshToken();
 
 		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");	
 		

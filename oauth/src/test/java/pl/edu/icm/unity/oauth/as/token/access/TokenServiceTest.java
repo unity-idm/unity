@@ -47,21 +47,7 @@ public class TokenServiceTest
 		return new TokenService(config, notAuthorizedOauthIdpEngine);
 	}
 
-	@Test
-	public void shouldRespectNewClaimFilterWhenBuildNewTokenBasedOnOldTokenForTokenExchange()
-			throws JsonProcessingException, EngineException, ParseException
-	{
-		OAuthToken oldToken = buildTokenWithTwoScopes();
-		TranslationResult tr = buildFullTranslationResult();
-		mockUserInfo(tr);
-
-		OAuthToken newToken = newService().prepareTokenForExchange(oldToken,
-				new Scope("scope1", "claim_filter:attr2:attr2v2"), List.of("scope1", "scope2"), 0, 0, List.of("client"),
-				true, "grant");
-
-		assertTwoAttributeFilters(newToken);
-		assertClaimsForTwoFilters(newToken);
-	}
+	
 
 	@Test
 	public void shouldRespectNewClaimFilterWhenBuildNewTokenBasedOnOldTokenForTokenRefresh()
@@ -77,21 +63,6 @@ public class TokenServiceTest
 
 		assertTwoAttributeFilters(newToken);
 		assertClaimsForTwoFilters(newToken);
-	}
-
-	@Test
-	public void shouldPreserveClaimFilterWhenBuildNewTokenBasedOnOldTokenForTokenExchange()
-			throws JsonProcessingException, EngineException, ParseException
-	{
-		OAuthToken oldToken = buildTokenWithSingleScope();
-		TranslationResult tr = buildSingleAttributeTranslationResult();
-		mockUserInfo(tr);
-
-		OAuthToken newToken = newService().prepareTokenForExchange(oldToken, new Scope("scope1"), List.of("scope1"), 0,
-				0, List.of("client"), true, "grant");
-
-		assertSingleAttributeFilter(newToken);
-		assertSingleClaim(newToken);
 	}
 
 	@Test

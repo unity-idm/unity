@@ -30,6 +30,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
+import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
@@ -51,6 +52,91 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		ca1 = client("client1");
 		ca2 = client("client2");
+	}
+
+	@Test
+	public void shouldPreserveClaimFilterWhenExchangeToken()
+			throws Exception
+	{
+		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
+
+		AccessTokenResponse original = init(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE, "sc1"), ca1, null,
+				ClaimsInTokenAttribute.builder()
+						.withValues(Set.of(ClaimsInTokenAttribute.Value.token, ClaimsInTokenAttribute.Value.id_token))
+						.build(), List.of(new AttributeFilteringSpec("email", Set.of("example@example.com"))));
+		
+		TokenRequest req = exchange(original.getTokens().getAccessToken()).withScopes("openid", "sc1")
+				.withAudience("client1")
+				.forType(TokenTypeURI.ACCESS_TOKEN)
+				.build();
+
+		AccessTokenResponse parsed = AccessTokenResponse.parse(exec(req));
+		SignedJWT access = SignedJWT.parse(parsed.getTokens()
+				.getAccessToken()
+				.getValue()
+				.toString());
+		assertThat(access.getJWTClaimsSet()
+				.getClaim("email")).isEqualTo("example@example.com");
+	}
+	
+	
+	@Test
+	public void shouldRespectNewClaimFilterWhenExchangeToken() throws Exception		
+	{
+		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
+
+		AccessTokenResponse original = init(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE, "sc1"), ca1, null,
+				ClaimsInTokenAttribute.builder()
+						.withValues(Set.of(ClaimsInTokenAttribute.Value.token, ClaimsInTokenAttribute.Value.id_token))
+						.build(), List.of(new AttributeFilteringSpec("email", Set.of("example@example.com"))));
+		
+		TokenRequest req = exchange(original.getTokens().getAccessToken()).withScopes("openid", "sc1 claim_filter:email:example2@example.com")
+				.withAudience("client1")
+				.forType(TokenTypeURI.ACCESS_TOKEN)
+				.build();
+
+		AccessTokenResponse parsed = AccessTokenResponse.parse(exec(req));
+		SignedJWT access = SignedJWT.parse(parsed.getTokens()
+				.getAccessToken()
+				.getValue()
+				.toString());
+		assertThat(access.getJWTClaimsSet()
+				.getClaim("email")).isEqualTo("example2@example.com");
+	}
+	
+	
+	@Test
+	public void shouldDenyExchangeWitoutInvalidAudienceWhenIdTokenRequested() throws Exception
+	{
+		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
+
+		AccessToken at = issueToken(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE));
+
+		TokenRequest req = exchange(at).withScopes("openid")
+				.withAudience("client1")
+				.forType(TokenTypeURI.ID_TOKEN)
+				.build();
+		assertBadRequestWithInvalidParams(req);
+	}
+
+	@Test
+	public void shouldExchangeWithoutAudienceWhenIdTokenRequested() throws Exception
+	{
+		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
+
+		AccessToken at = issueToken(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE));
+
+		TokenRequest req = exchange(at).withScopes("openid")
+				.forType(TokenTypeURI.ID_TOKEN)
+				.build();
+
+		AccessTokenResponse parsed = AccessTokenResponse.parse(exec(req));
+		SignedJWT access = SignedJWT.parse(parsed.getTokens()
+				.getAccessToken()
+				.getValue()
+				.toString());
+		assertThat(access.getJWTClaimsSet()
+				.getAudience()).containsExactlyInAnyOrder("client2");
 	}
 
 	@Test
@@ -94,19 +180,18 @@ public class ExchangeTokenTest extends TokenTestBase
 	{
 		setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 
-		AccessToken at = issueToken(List.of(new RequestedOAuthScope(AccessTokenResource.EXCHANGE_SCOPE,
-				ActiveOAuthScopeDefinition.builder()
+		AccessToken at = issueToken(List.of(
+				new RequestedOAuthScope(AccessTokenResource.EXCHANGE_SCOPE, ActiveOAuthScopeDefinition.builder()
 						.withName(AccessTokenResource.EXCHANGE_SCOPE)
 						.withDescription(AccessTokenResource.EXCHANGE_SCOPE)
 						.withAttributes(List.of())
-						.build(),
-				false),
+						.build(), false),
 				new RequestedOAuthScope("read:files/.*", ActiveOAuthScopeDefinition.builder()
 						.withName("read:files/.*")
 						.withDescription("\"read:files/.*\"")
 						.withAttributes(List.of())
 						.withPattern(true)
-						.build(), true), 
+						.build(), true),
 				new RequestedOAuthScope("foo", ActiveOAuthScopeDefinition.builder()
 						.withName("foo")
 						.withDescription("foo")
@@ -128,7 +213,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		assertThat(((JSONArray) info.get("scope"))).containsExactlyInAnyOrder("read:files/dir1/.*", "foo");
 		assertThat(info.get("exp")).isNotNull();
 	}
-		
+
 	@Test
 	public void shouldDenyExchangeTokenWithNotMatchingPlainScopeConcretization() throws Exception
 	{
@@ -154,7 +239,7 @@ public class ExchangeTokenTest extends TokenTestBase
 
 		assertBadRequestWithInvalidScope(req);
 	}
-	
+
 	@Test
 	public void shouldDenyExchangeTokenWithNonMatchingPatternScopeConcretization() throws Exception
 	{
@@ -180,7 +265,7 @@ public class ExchangeTokenTest extends TokenTestBase
 
 		assertBadRequestWithInvalidScope(req);
 	}
-	
+
 	@Test
 	public void shouldExchangeTokenWithRequestedNarrowedScopes() throws Exception
 	{
@@ -235,7 +320,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	}
 
 	@Test
-	public void shouldExchangeTokenWithIdToken() throws Exception
+	public void shouldExchangeOnlyToIdToken() throws Exception
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
@@ -251,7 +336,7 @@ public class ExchangeTokenTest extends TokenTestBase
 		assertThat(parsed.getTokens()
 				.getAccessToken()).isNotNull();
 		assertThat(parsed.getCustomParameters()
-				.get("id_token")).isNotNull();
+				.get("id_token")).isNull();
 	}
 
 	@Test
@@ -279,7 +364,7 @@ public class ExchangeTokenTest extends TokenTestBase
 	}
 
 	@Test
-	public void shouldExchangeTokenWithIdTokenRespectingAudienceAndResource() throws Exception
+	public void shouldExchangeTokenRespectingAudienceAndResource() throws Exception
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
@@ -287,7 +372,7 @@ public class ExchangeTokenTest extends TokenTestBase
 
 		TokenRequest req = exchange(at).withScopes("openid")
 				.withAudience("client2")
-				.forType(TokenTypeURI.ID_TOKEN)
+				.forType(TokenTypeURI.ACCESS_TOKEN)
 				.withResources("https://resource1.uri", "https://resource2.uri")
 				.build();
 
@@ -295,25 +380,17 @@ public class ExchangeTokenTest extends TokenTestBase
 
 		assertThat(parsed.getTokens()
 				.getAccessToken()).isNotNull();
-		assertThat(parsed.getCustomParameters()
-				.get("id_token")).isNotNull();
 		assertThat(parsed.getTokens()
 				.getAccessToken()
 				.getIssuedTokenType()
 				.getURI()
 				.toASCIIString()).isEqualTo(AccessTokenResource.ACCESS_TOKEN_TYPE_ID);
-
-		SignedJWT idToken = SignedJWT.parse(parsed.getCustomParameters()
-				.get("id_token")
-				.toString());
-		assertThat(idToken.getJWTClaimsSet()
-				.getAudience()).containsExactlyInAnyOrder("client2", "https://resource1.uri", "https://resource2.uri");
-
 		JSONObject info = getTokenInfo(parsed.getTokens()
 				.getAccessToken());
 		assertThat(info.get("sub")).isEqualTo("userA");
 		assertThat(info.get("client_id")).isEqualTo("client2");
-		assertThat((JSONArray) info.get("aud")).containsExactlyInAnyOrder("client2", "https://resource1.uri", "https://resource2.uri");
+		assertThat((JSONArray) info.get("aud")).containsExactlyInAnyOrder("client2", "https://resource1.uri",
+				"https://resource2.uri");
 		assertThat(((JSONArray) info.get("scope"))).containsExactlyInAnyOrder("openid");
 		assertThat(info.get("exp")).isNotNull();
 	}
@@ -341,14 +418,14 @@ public class ExchangeTokenTest extends TokenTestBase
 	}
 
 	@Test
-	public void shouldExchangeTokenRespectingClaimInTokensFromOriginalToken() throws Exception
+	public void shouldExchangeTokenRespectingClaimInTokensFromOriginalTokenWhenAccessTokenRequested() throws Exception
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
 		AccessTokenResponse original = init(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE, "sc1"), ca1, null,
 				ClaimsInTokenAttribute.builder()
 						.withValues(Set.of(ClaimsInTokenAttribute.Value.token, ClaimsInTokenAttribute.Value.id_token))
-						.build());
+						.build(), null);
 
 		AccessToken at = original.getTokens()
 				.getAccessToken();
@@ -362,9 +439,51 @@ public class ExchangeTokenTest extends TokenTestBase
 				.toString());
 
 		assertThat(idOrig.getJWTClaimsSet()
-				.getClaimAsString("email")).contains("example@example.com");
+				.getListClaim("email")).contains("example@example.com");
 		assertThat(atOrig.getJWTClaimsSet()
-				.getClaimAsString("email")).contains("example@example.com");
+				.getListClaim("email")).contains("example@example.com");
+
+		TokenRequest req = exchange(at).forType(TokenTypeURI.ACCESS_TOKEN)
+				.withScopes("openid", "sc1")
+				.withAudience("client2")
+				.build();
+
+		AccessTokenResponse parsed = AccessTokenResponse.parse(exec(req));
+		SignedJWT atEx = SignedJWT.parse(parsed.getTokens()
+				.getAccessToken()
+				.getValue()
+				.toString());
+		assertThat(atEx.getJWTClaimsSet()
+				.getListClaim("email")).contains("example@example.com");
+		assertThat(atEx.getJWTClaimsSet()
+				.getListClaim("aud")).contains("client2");
+	}
+
+	@Test
+	public void shouldExchangeTokenRespectingClaimInTokensFromOriginalTokenWhenIdTokenRequested() throws Exception
+	{
+		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
+
+		AccessTokenResponse original = init(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE, "sc1"), ca1, null,
+				ClaimsInTokenAttribute.builder()
+						.withValues(Set.of(ClaimsInTokenAttribute.Value.token, ClaimsInTokenAttribute.Value.id_token))
+						.build(), null);
+
+		AccessToken at = original.getTokens()
+				.getAccessToken();
+
+		SignedJWT idOrig = SignedJWT.parse(original.getCustomParameters()
+				.get("id_token")
+				.toString());
+		SignedJWT atOrig = SignedJWT.parse(original.getTokens()
+				.getAccessToken()
+				.getValue()
+				.toString());
+
+		assertThat(idOrig.getJWTClaimsSet()
+				.getListClaim("email")).contains("example@example.com");
+		assertThat(atOrig.getJWTClaimsSet()
+				.getListClaim("email")).contains("example@example.com");
 
 		TokenRequest req = exchange(at).forType(TokenTypeURI.ID_TOKEN)
 				.withScopes("openid", "sc1")
@@ -372,50 +491,37 @@ public class ExchangeTokenTest extends TokenTestBase
 				.build();
 
 		AccessTokenResponse parsed = AccessTokenResponse.parse(exec(req));
-
-		SignedJWT idEx = SignedJWT.parse(parsed.getCustomParameters()
-				.get("id_token")
-				.toString());
 		SignedJWT atEx = SignedJWT.parse(parsed.getTokens()
 				.getAccessToken()
 				.getValue()
 				.toString());
-
-		assertThat(idEx.getJWTClaimsSet()
-				.getAudience()).containsExactlyInAnyOrder("client2");
-		assertThat(idEx.getJWTClaimsSet()
-				.getClaimAsString("email")).contains("example@example.com");
 		assertThat(atEx.getJWTClaimsSet()
-				.getClaimAsString("email")).contains("example@example.com");
+				.getListClaim("email")).contains("example@example.com");
+		assertThat(atEx.getJWTClaimsSet()
+				.getListClaim("aud")).contains("client2");
 	}
 
 	@Test
-	public void shouldExchangeTokenWithoutOriginalAudience() throws Exception
+	public void shouldExchangeTokenWitoutAudienceValidationIfRequestedTokenIsAccess() throws Exception
 	{
 		setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 
 		AccessToken at = issueToken(Set.of("openid", AccessTokenResource.EXCHANGE_SCOPE),
 				List.of("additionalAudience1", "additionalAudience2"));
 
-		TokenRequest req = exchange(at).forType(TokenTypeURI.ID_TOKEN)
+		TokenRequest req = exchange(at).forType(TokenTypeURI.ACCESS_TOKEN)
 				.withScopes("openid")
 				.withAudience("client2")
 				.withResources("https://resource1.uri", "https://resource2.uri")
 				.build();
 
 		AccessTokenResponse parsed = AccessTokenResponse.parse(exec(req));
-
-		SignedJWT idToken = SignedJWT.parse(parsed.getCustomParameters()
-				.get("id_token")
-				.toString());
-		assertThat(idToken.getJWTClaimsSet()
-				.getAudience()).containsExactlyInAnyOrder("client2", "https://resource1.uri", "https://resource2.uri");
-
 		JSONObject info = getTokenInfo(parsed.getTokens()
 				.getAccessToken());
 		assertThat(info.get("sub")).isEqualTo("userA");
 		assertThat(info.get("client_id")).isEqualTo("client2");
-		assertThat((JSONArray) info.get("aud")).containsExactlyInAnyOrder("client2", "https://resource1.uri", "https://resource2.uri");
+		assertThat((JSONArray) info.get("aud")).containsExactlyInAnyOrder("client2", "https://resource1.uri",
+				"https://resource2.uri");
 		assertThat(((JSONArray) info.get("scope"))).containsExactlyInAnyOrder("openid");
 		assertThat(info.get("exp")).isNotNull();
 	}
@@ -427,20 +533,19 @@ public class ExchangeTokenTest extends TokenTestBase
 
 	private AccessToken issueToken(Set<String> scopes) throws Exception
 	{
-		return init(scopes, ca1, null, null).getTokens()
+		return init(scopes, ca1, null, null, null).getTokens()
 				.getAccessToken();
 	}
 
 	private AccessToken issueToken(List<RequestedOAuthScope> scopes) throws Exception
 	{
-		return init(scopes, ca1, null, null).getTokens()
+		return init(scopes, ca1, null, null, null).getTokens()
 				.getAccessToken();
 	}
-	
-	
+
 	private AccessToken issueToken(Set<String> scopes, List<String> additionalAudience) throws Exception
 	{
-		return init(scopes, ca1, additionalAudience, null).getTokens()
+		return init(scopes, ca1, additionalAudience, null, null).getTokens()
 				.getAccessToken();
 	}
 
@@ -523,15 +628,19 @@ public class ExchangeTokenTest extends TokenTestBase
 
 	private void assertBadRequestWithInvalidScope(TokenRequest req) throws Exception
 	{
-		assertThat(exec(req).getStatusCode()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
-		assertThat(exec(req).getBodyAsJSONObject().get("error")).isEqualTo(OAuth2Error.INVALID_SCOPE_CODE);
+		HTTPResponse resp = exec(req);
+		assertThat(resp.getStatusCode()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
+		assertThat(resp.getBodyAsJSONObject()
+				.get("error")).isEqualTo(OAuth2Error.INVALID_SCOPE_CODE);
 
 	}
 
 	private void assertBadRequestWithInvalidParams(TokenRequest req) throws Exception
 	{
-		assertThat(exec(req).getStatusCode()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
-		assertThat(exec(req).getBodyAsJSONObject().get("error")).isEqualTo(OAuth2Error.INVALID_REQUEST_CODE);
+		HTTPResponse resp = exec(req);
+		assertThat(resp.getStatusCode()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
+		assertThat(resp.getBodyAsJSONObject()
+				.get("error")).isEqualTo(OAuth2Error.INVALID_REQUEST_CODE);
 
 	}
 

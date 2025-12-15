@@ -207,11 +207,11 @@ public class OAuthTestUtils
 			OAuthAuthzContext ctx, IdentityParam identity) throws Exception
 	{
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
-		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com", "example2@example.com")));
 		attributes.add(new DynamicAttribute(StringAttribute.of("c", "/", "PL")));
 		
 		return processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now(), null);
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now(), ctx.getClaimValueFilters());
 	}
 
 	public static Identity createOauthClient(EntityManagement idsMan, AttributesManagement attrsMan,

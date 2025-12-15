@@ -49,6 +49,7 @@ import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
+import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
@@ -110,10 +111,13 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	{
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		groupsMan.addMemberFromParent("/oauth-users", new EntityParam(identity));
-		aTypeMan.addAttributeType(new AttributeType("email", StringAttributeSyntax.ID));
+		
+		AttributeType emailAttributeType = new AttributeType("email", StringAttributeSyntax.ID);
+		emailAttributeType.setMaxElements(2);
+		aTypeMan.addAttributeType(emailAttributeType);
 		aTypeMan.addAttributeType(new AttributeType("c", StringAttributeSyntax.ID));
 		attrsMan.createAttribute(new EntityParam(identity),
-				StringAttribute.of("email", "/oauth-users", "example@example.com"));
+				StringAttribute.of("email", "/oauth-users", "example@example.com", "example2@example.com"));
 		attrsMan.createAttribute(new EntityParam(identity),
 				StringAttribute.of("c", "/oauth-users", "PL"));
 		return identity;
@@ -202,9 +206,10 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	 * -add attributes to the user
 	 * -create OAuth context
 	 * -prepare access token request (with refresh token) and invoke them. 
+	 * @param list 
 	 */
 	protected AccessTokenResponse init(Set<String> scopes, ClientAuthentication ca, List<String> additionalAudience,
-			ClaimsInTokenAttribute claimInIdToken) throws Exception
+			ClaimsInTokenAttribute claimInIdToken, List<AttributeFilteringSpec> claimValueFilters) throws Exception
 	{
 		return init(scopes.stream()
 				.map(s -> new RequestedOAuthScope(s, ActiveOAuthScopeDefinition.builder()
@@ -212,11 +217,11 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 						.withDescription(s)
 						.withAttributes(Lists.newArrayList(s + " attr"))
 						.build(), false))
-				.toList(), ca, additionalAudience, claimInIdToken);
+				.toList(), ca, additionalAudience, claimInIdToken, claimValueFilters);
 	}
 	
 	protected AccessTokenResponse init(List<RequestedOAuthScope> scopes, ClientAuthentication ca,
-			List<String> additionalAudience, ClaimsInTokenAttribute claimInIdToken) throws Exception
+			List<String> additionalAudience, ClaimsInTokenAttribute claimInIdToken, List<AttributeFilteringSpec> claimValueFilters) throws Exception
 	{
 		IdentityParam identity = initUser("userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getOIDCConfig(),
@@ -235,6 +240,11 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 		}
 		ctx.setClaimsInTokenAttribute(Optional.ofNullable(claimInIdToken));
 
+		if (claimValueFilters != null && !claimValueFilters.isEmpty())
+		{
+			ctx.setClaimValueFilters(claimValueFilters);
+		}
+		
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx, identity);
 		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,
