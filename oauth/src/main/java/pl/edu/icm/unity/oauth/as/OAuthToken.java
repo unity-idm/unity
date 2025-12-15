@@ -10,13 +10,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
-import pl.edu.icm.unity.engine.api.authn.SerializableRemoteAuthnMetadata;
 import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
 
 /**
@@ -50,7 +50,7 @@ public class OAuthToken
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute;
 	private Instant authenticationTime;
 	private List<AttributeFilteringSpec> attributeValueFilters;
-	private SerializableRemoteAuthnMetadata remoteIdPAuthnContext;
+	private SerializableUserAuthnDetails userAuthnDetails;
 	private RequestedAuthenticationContextClassReference requestedACR;
 
 	
@@ -88,7 +88,7 @@ public class OAuthToken
 		setClaimsInTokenAttribute(source.getClaimsInTokenAttribute());
 		setAuthenticationTime(source.getAuthenticationTime());
 		setAttributeValueFilters(source.getAttributeValueFilters());
-		setRemoteIdPAuthnContext(source.getRemoteIdPAuthnContext());
+		setUserAuthnDetails(source.getUserAuthnDetails());
 		setRequestedACR(source.getRequestedACR());
 	}
 	
@@ -383,16 +383,6 @@ public class OAuthToken
 	{
 		this.attributeValueFilters = attributeValueFilters;
 	}
-	
-	public SerializableRemoteAuthnMetadata getRemoteIdPAuthnContext()
-	{
-		return remoteIdPAuthnContext;
-	}
-
-	public void setRemoteIdPAuthnContext(SerializableRemoteAuthnMetadata remoteIdPAuthnContext)
-	{
-		this.remoteIdPAuthnContext = remoteIdPAuthnContext;
-	}
 
 	public RequestedAuthenticationContextClassReference getRequestedACR()
 	{
@@ -404,7 +394,15 @@ public class OAuthToken
 		this.requestedACR = requestedACR;
 	}
 	
-	
+	public SerializableUserAuthnDetails getUserAuthnDetails()
+	{
+		return userAuthnDetails;
+	}
+
+	public void setUserAuthnDetails(SerializableUserAuthnDetails userAuthnDetails)
+	{
+		this.userAuthnDetails = userAuthnDetails;
+	}
 
 	@Override
 	public int hashCode()
@@ -415,7 +413,7 @@ public class OAuthToken
 		result = prime * result + Objects.hash(accessToken, attributeValueFilters, audience, authenticationTime,
 				authzCode, claimsInTokenAttribute, clientEntityId, clientName, clientType, clientUsername,
 				effectiveScope, firstRefreshRollingToken, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
-				redirectUri, refreshToken, remoteIdPAuthnContext, requestedACR, responseType, subject, tokenValidity,
+				redirectUri, refreshToken, userAuthnDetails, requestedACR, responseType, subject, tokenValidity,
 				userInfo);
 		return result;
 	}
@@ -443,7 +441,7 @@ public class OAuthToken
 				&& Objects.equals(issuerUri, other.issuerUri) && maxExtendedValidity == other.maxExtendedValidity
 				&& Objects.equals(openidInfo, other.openidInfo) && Objects.equals(pkcsInfo, other.pkcsInfo)
 				&& Objects.equals(redirectUri, other.redirectUri) && Objects.equals(refreshToken, other.refreshToken)
-				&& Objects.equals(remoteIdPAuthnContext, other.remoteIdPAuthnContext)
+				&& Objects.equals(userAuthnDetails, other.userAuthnDetails)
 				&& Objects.equals(requestedACR, other.requestedACR)
 				&& Arrays.equals(requestedScope, other.requestedScope)
 				&& Objects.equals(responseType, other.responseType) && Objects.equals(subject, other.subject)
@@ -462,7 +460,7 @@ public class OAuthToken
 				+ ", tokenValidity=" + tokenValidity + ", responseType=" + responseType + ", audience="
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
 				+ pkcsInfo + ", attributeValueFilters=" + attributeValueFilters + ", requestedACR=" + requestedACR
-				+ ", remoteIdPAuthnContext=" + remoteIdPAuthnContext + "]";
+				+ ", userAuthnDetails=" + userAuthnDetails + "]";
 	}
 
 	public static class PKCSInfo

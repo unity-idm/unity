@@ -20,10 +20,10 @@ import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.idp.UserAuthnDetails;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.StopAuthenticationException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
@@ -114,12 +114,12 @@ public class OAuthIdPEngine
 	public TranslationResult getUserInfoUnsafe(long entityId, String clientId, 
 			Optional<EntityInGroup> requesterEntity, 
 			String userGroup, TranslationProfile translationProfile, String flow,
-			OAuthASProperties config, RemoteAuthnMetadata remoteAuthnMetadata) throws EngineException
+			OAuthASProperties config, UserAuthnDetails userAuthnDetails) throws EngineException
 	{
 		return idpEngine.obtainUserInformationWithEnrichingImport(
 				new EntityParam(entityId), userGroup, translationProfile, 
 				clientId, requesterEntity,
-				"OAuth2", flow, true, config.getUserImportConfigs(), remoteAuthnMetadata);
+				"OAuth2", flow, true, config.getUserImportConfigs(), userAuthnDetails);
 	}
 	
 }
