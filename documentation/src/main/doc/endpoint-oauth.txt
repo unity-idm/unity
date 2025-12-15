@@ -166,35 +166,39 @@ separating them with space.
 
 ==== Token exchange
 
-Unity supports token exchange according to https://tools.ietf.org/html/draft-ietf-oauth-token-exchange-08 specification. 
+Unity supports token exchange according to https://datatracker.ietf.org/doc/html/rfc8693[RFC 8693] specification.
 For this purpose a special grant type +urn:ietf:params:oauth:grant-type:token-exchange+ is used.
 
 The token exchange process can be described in a simplified way:
 
- - Client A receives an _access token A_ from Unity. 
- - Client A gives the obtained _access token A_ to Resource Provider B (to authorize itself).
+ - Client A receives an access token *AT-A* from Unity, with audience set to Resource Provider B.
+ - Client A gives the obtained access token *AT-A* to Resource Provider B (to authorize itself).
  - Resource Provider B wants to play a role of client -- Client B -- and access Resource Provider C. 
- To do so Client B exchanges the _access token A_ for a new _access token B_ 
+ To do so Client B exchanges the access token *AT-A* for a new access token *AT-B*, with updated audience,
  which can be used to obtain data from Resource Provider C. The exchange is supported by Unity token endpoint.
+
+Token exchange supports also other use cases, such as change of scopes.
 
 There are several conditions that must be met to perform a successful exchange:
 
- - Only an _access token_ which was issued with a special scope +token-exchange+ can be exchanged. 
- - Only the +urn:ietf:params:oauth:token-type:access_token+ token type exchange can be used as +subject_token_type+.
- - Only the original scopes or their subset can can be requested for the exchanged scope.
+ - Only an _access token_ which was issued with a special scope +token-exchange+ can be exchanged.
+ - Exchanged token can not be exchanged again (to eliminate possibility of infinite extension of token lifetime).
+ This behaviour is a result of scope limitation: exchanged token won't have +token-exchange+ scope.
+ - Only the +urn:ietf:params:oauth:token-type:access_token+ token type can be used as +subject_token_type+.
+ - Only the original scopes, their subset or scopes mattching a pattern scope can can be requested as the exchanged scopes.
+ See <<pattern-scopes>> for details on usage of pattern scopes in token exchange.
  - _id token_ can be issued only if +requested_token_type+ is equal to +urn:ietf:params:oauth:token-type:id_token+ 
  and scopes contain +openid+. 
  - Exchange may be only performed by an authenticated Unity client.
- - +actor_token+ and +actor_token_type+ parameters are not supported
+ - +actor_token+ and +actor_token_type+ parameters are not supported.
 
 Example Token Exchange flow:
 
 In this example, the client *oauth-client* obtains an access token that it uses to call
-a resource provider. That resource provider, acting as a different Unity client
-(*oauth-client2*), needs to access another downstream service.  
-To do this, *oauth-client2* performs a token exchange: it takes the original access token
-issued to *oauth-client* and exchanges it for a new token whose audience and permissions
-match its own identity and requirements.
+a resource provider RP1. RP1, acting as a different Unity client (*oauth-client2*),
+needs to access another downstream service RP2. To do this, *oauth-client2* performs a token exchange:
+it takes the original access token issued to *oauth-client* and exchanges it for a new token whose audience
+match RP2.
 
 
 . Orginal access token issued for client *oauth-client*
@@ -202,7 +206,7 @@ match its own identity and requirements.
 ----
 {
   "sub": "dc9f3603-07f0-4045-966f-1f3bd836150a",
-  "aud": "oauth-client",
+  "aud": "oauth-client2",
   "scope": "openid token-exchange profile",
   "auth_time": 1763889199,
   "iss": "https://localhost:2443/oauth2",
@@ -219,12 +223,12 @@ match its own identity and requirements.
 client_id=oauth-client2
 client_secret=secretPass
 grant_type=urn:ietf:params:oauth:grant-type:token-exchange 
-audience=oauth-client2
+audience=RP2
 subject_token=ZCrlkMyxzhJ0CyQlskOsIgkcDqjW51ViZko0bopHzfM 
 subject_token_type=urn:ietf:params:oauth:token-type:access_token
-requested_token_type=urn:ietf:params:oauth:token-type:id_token
+requested_token_type=urn:ietf:params:oauth:token-type:access_token
 scope="openid profile read-tasks" 
-resource="https://resource1.com"
+resource="https://RP2.example.com"
 ----
 
 . Received new access token
@@ -233,8 +237,8 @@ resource="https://resource1.com"
 {
   "sub": "dc9f3603-07f0-4045-966f-1f3bd836150a",
   "aud": [
-    "oauth-client2",
-    "https://resource1.com"
+    "RP2",
+    "https://RP2.example.com"
   ],
   "scope": "openid",
   "auth_time": 1763889199,
@@ -301,23 +305,54 @@ and what forms of return redirections are available for native clients.
 
 ==== Client-Requested Claim Value Filtering
 
-Unity supports a proprietary feature that allows OAuth clients to request filtering of claim values. This feature is activated when the client uses a special scope prefixed with +claim_filter:+, as follows:
+Unity supports a proprietary feature that allows OAuth clients to request filtering of claim values.
+This feature is activated when the client uses a special scope prefixed with +claim_filter:+, as follows:
 
 ----
 scope=profile%20claim_filter:entitlements:abc
 ----
 
-In this example, one regular scope +profile+ is requested, as well as one claim value filter. If the +entitlements+ claim is returned as part of the +profile+ scope, only its +abc+ value is included. If the +entitlements+ claim has no +abc+ value, it is not returned.
+In this example, one regular scope +profile+ is requested, as well as one claim value filter. If the +entitlements+
+claim is returned as part of the +profile+ scope, only its +abc+ value is included. If the +entitlements+ claim
+has no +abc+ value, it is not returned.
 
-Multiple claim value filters can be used together, even for the same claim. These filters function as a whitelist: every value matching a filter is returned.
+Multiple claim value filters can be used together, even for the same claim. These filters function as a whitelist:
+every value matching a filter is returned.
 
 Note that when requesting a refresh token, a client may change (or completely omit) claim filters.
 
+[[pattern-scopes]]
+==== Pattern scopes
+
+Unity supports scopes defined using regular expressions. Such scopes must be explicitly marked as Pattern scope in the server configuration.
+
+Pattern scopes support dynamic configuration, where the scope name contains a dynamic component, typically denoting an accessed resource. Clients may request arbitrary scopes that match defined pattern scopes.
+
+There is also a more advanced feature that allows for granting clients a pattern scope. Granting a client a pattern scope is useful when the client requires broad permissions that are concretized at a later stage.
+
+A practical realization of such a workflow is as follows:
+
+. An OAuth IdP on the server defines a pattern scope.
+. A registered OAuth client is granted the right to obtain pattern scopes, either via its settings in the Console or by assigning
+the attribute +sys:oauth:canReceivePatternScopes+ with the value +true+.
+. The client requests a token with a scope that is itself a regular expression. The requested regular-expression scope
+must be a subset of the pattern scope defined on the server.
+. After obtaining a token with a pattern scope, the client uses the Unity token exchange endpoint to exchange the token
+for a new token with a regular scope that matches the pattern scope granted in the original token.
+
+Example:
+
+. Pattern scope defined in the OAuth IdP: +read:.*+
+. An authorized client requests a token with scope +read:/home/user1/.*+.
+. The client exchanges the obtained token for a new token with scope +read:/home/user1/data.txt+ and uses this token to access the file.
 
 ==== External Authorization of OAuth Requests
 
 Unity supports integration with external scripts for fine-grained authorization of OAuth Authorization Code Grant requests.  
-This mechanism allows administrators to configure scripts — written in any language (e.g. Python) — that can intercept and evaluate OAuth authorization requests before the consent screen is displayed, or, if consent is implicit, before the authorization code is issued.
+This mechanism allows administrators to configure scripts — written in any language (e.g. Python) — that can intercept
+and evaluate OAuth authorization requests before the consent screen is displayed, or, if consent is implicit, before
+the authorization code is issued.
+
 Example of config:
 
 ----
@@ -327,7 +362,8 @@ unity.oauth2.as.authorizationScripts.1.path=/opt/unity/scripts/oauth_external_au
 
 
 An external script can be triggered based on the scopes requested by an OAuth client.  
-If the incoming OAuth request contains at least one scope matching a configured *triggering scope* (regexp pattern are supported), Unity will execute the associated external script.
+If the incoming OAuth request contains at least one scope matching a configured *triggering scope* (regexp pattern are
+supported), Unity will execute the associated external script.
 
 ===== Input JSON
 
