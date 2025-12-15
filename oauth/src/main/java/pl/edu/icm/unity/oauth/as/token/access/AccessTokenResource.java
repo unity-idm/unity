@@ -63,7 +63,7 @@ public class AccessTokenResource extends BaseOAuthResource
 	@POST
 	public Response getToken(@FormParam("grant_type") String grantType, @FormParam("code") String code,
 			@FormParam("scope") String scope, @FormParam("redirect_uri") String redirectUri,
-			@FormParam("refresh_token") String refreshToken, @FormParam("audience") String audience,
+			@FormParam("refresh_token") String refreshToken, @FormParam("audience") List<String> audiences,
 			@FormParam("requested_token_type") String requestedTokenType,
 			@FormParam("subject_token") String subjectToken, @FormParam("subject_token_type") String subjectTokenType,
 			@FormParam("code_verifier") String codeVerifier,
@@ -97,14 +97,12 @@ public class AccessTokenResource extends BaseOAuthResource
 			return credentialFlowHandler.handleClientCredentialFlow(scope, acceptHeader);
 		} else if (grantType.equals(GrantType.TOKEN_EXCHANGE.getValue()))
 		{
-			if (audience == null)
-				return makeError(OAuth2Error.INVALID_REQUEST, "audience is required");
 			if (subjectToken == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "subject_token is required");
 			if (subjectTokenType == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "subject_token_type is required");
 			return exchangeTokenHandler.handleExchangeToken(subjectToken, subjectTokenType, requestedTokenType,
-					audience, scope, actorToken, actorTokenType, resource, acceptHeader);
+					audiences, scope, actorToken, actorTokenType, resource, acceptHeader);
 		} else if (grantType.equals(GrantType.REFRESH_TOKEN.getValue()))
 		{
 			if (refreshToken == null)

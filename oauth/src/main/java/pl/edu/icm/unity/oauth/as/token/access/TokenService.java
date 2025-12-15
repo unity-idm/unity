@@ -5,7 +5,6 @@
 
 package pl.edu.icm.unity.oauth.as.token.access;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -60,7 +59,6 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
-import pl.edu.icm.unity.oauth.as.ScopeMatcher;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
@@ -76,39 +74,6 @@ class TokenService
 	{
 		this.config = config;
 		this.notAuthorizedOauthIdpEngine = notAuthorizedOauthIdpEngine;
-	}
-
-	OAuthToken prepareTokenForExchange(OAuthToken oldToken, Scope newRequestedScopeList,
-			List<String> oldRequestedScopesList, long ownerId, long clientId, List<String> audience,
-			boolean createIdToken, String grant) throws OAuthErrorException
-	{
-
-		OAuthToken newToken = new OAuthToken(oldToken);
-
-		List<String> filteredScopes = extractScopesWithoutFilterClaims(newRequestedScopeList);
-		Map<String, RequestedOAuthScope> scopeMapping = getValidatedReMappedScopes(oldToken, filteredScopes,
-				this::mapToPreviouslyAssignedScopesWithPatternSupport);
-
-		newToken.setRequestedScope(filteredScopes.toArray(String[]::new));
-
-		SerializableRemoteAuthnMetadata serializableRemoteAuthnMetadata = newToken.getRemoteIdPAuthnContext();
-		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant,
-				Optional.ofNullable(serializableRemoteAuthnMetadata)
-						.map(remoteMeta -> new RemoteAuthnMetadata(remoteMeta.protocol, remoteMeta.remoteIdPId,
-								remoteMeta.classReferences))
-						.orElse(null));
-		List<RequestedOAuthScope> newValidScopes = buildNewEffectiveScopes(scopeMapping);
-
-		newToken.setEffectiveScope(newValidScopes);
-
-		UserInfo userInfoClaimSet = updateUserInfoAndFilters(newToken, newRequestedScopeList, newValidScopes,
-				userInfoRes);
-
-		handleIdTokenIfNeeded(newToken, filteredScopes, audience, createIdToken, userInfoClaimSet);
-
-		applyTokenMetadata(newToken);
-
-		return newToken;
 	}
 
 	OAuthToken prepareTokenForRefresh(OAuthToken oldToken, Scope newRequestedScopeList,
@@ -229,51 +194,6 @@ class TokenService
 		newToken.setAccessToken(null);
 		newToken.setRefreshToken(null);
 		newToken.setIssuerUri(config.getIssuerName());
-	}
-
-	private Map<String, RequestedOAuthScope> mapToPreviouslyAssignedScopesWithPatternSupport(
-			List<RequestedOAuthScope> previouslyAssigned, List<String> newlyRequested)
-	{
-		Map<String, RequestedOAuthScope> result = new HashMap<>();
-
-		Map<String, RequestedOAuthScope> exactLookup = new HashMap<>();
-		List<RequestedOAuthScope> patternScopes = new ArrayList<>();
-
-		for (RequestedOAuthScope s : previouslyAssigned)
-		{
-			if (s.pattern())
-			{
-				patternScopes.add(s);
-			} else
-			{
-				exactLookup.putIfAbsent(s.scope(), s);
-			}
-		}
-
-		for (String req : newlyRequested)
-		{
-			RequestedOAuthScope exact = exactLookup.get(req);
-
-			if (exact != null)
-			{
-				result.put(req, exact);
-				continue;
-			}
-
-			for (RequestedOAuthScope w : patternScopes)
-			{
-				if (ScopeMatcher.isSubsetOfPatternScope(req, w.scope()))
-				{
-					result.put(req, w);
-					break;
-				}
-
-			}
-
-			result.putIfAbsent(req, null);
-		}
-
-		return result;
 	}
 
 	private Map<String, RequestedOAuthScope> mapToPreviouslyAssignedScopesWithoutPatternSupport(

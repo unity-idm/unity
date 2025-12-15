@@ -199,7 +199,7 @@ public class OAuthWebRequestValidatorTest
 	public void shouldDenyPrivateUseURIWithoutScheme() throws Exception
 	{
 		OAuthASProperties oauthConfig = getConfig();
-		OAuthWebRequestValidator validator = getValidator(oauthConfig, "private:/some/path");
+		OAuthWebRequestValidator validator = getValidator(oauthConfig, "test.data.oidc-agent");
 
 		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
 				new ClientID("client")).redirectionURI(new URI("test.data.oidc-agent"))
