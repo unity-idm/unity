@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as;
 import static com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue.ID_TOKEN;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -43,6 +44,7 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -50,7 +52,9 @@ import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.SerializableRemoteAuthnMetadata;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
@@ -132,14 +136,8 @@ public class OAuthProcessor
 		{
 			Optional.ofNullable(InvocationContext.getCurrent())
 					.ifPresent(context -> Optional.ofNullable(context.getLoginSession())
-							.ifPresent(loginSession -> Optional
-									.ofNullable(loginSession.getFirstFactorRemoteIdPAuthnContext())
-									.ifPresent(firstFactorRemoteIdPContext -> internalToken
-											.setRemoteIdPAuthnContext(SerializableRemoteAuthnMetadata.builder()
-													.withClassReferences(firstFactorRemoteIdPContext.classReferences())
-													.withProtocol(firstFactorRemoteIdPContext.protocol())
-													.withRemoteIdPId(firstFactorRemoteIdPContext.remoteIdPId())
-													.build()))));
+							.ifPresent(loginSession -> internalToken
+									.setUserAuthnDetails(getAuthnDetailsfromLoginSession(loginSession))));
 		}
 		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
 				null : ctx.getRequest().getCodeChallenge().getValue();
@@ -362,5 +360,35 @@ public class OAuthProcessor
 		}
 		
 		return userInfo;
+	}
+	
+	private SerializableUserAuthnDetails getAuthnDetailsfromLoginSession(LoginSession loginSession)
+	{
+		if (loginSession == null)
+		{
+			return new SerializableUserAuthnDetails(null, null, null, null, null);
+		}
+		SerializableRemoteAuthnMetadata remoteAuthnMetadata = null;
+		RemoteAuthnMetadata remote = loginSession.getFirstFactorRemoteIdPAuthnContext();
+		if (remote != null)
+		{
+			remoteAuthnMetadata = SerializableRemoteAuthnMetadata.builder()
+					.withProtocol(remote.protocol())
+					.withRemoteIdPId(remote.remoteIdPId())
+					.withClassReferences(remote.classReferences())
+					.build();
+		}
+		Set<AuthenticationMethod> authenticationMethods = loginSession.getAuthenticationMethods();
+		Set<String> authenticatedIdentities = loginSession.getAuthenticatedIdentities();
+		List<String> usedAuthenticators = new ArrayList<>();
+		if (loginSession.getLogin1stFactor() != null && loginSession.getLogin1stFactor().optionId != null)
+			usedAuthenticators.add(loginSession.getLogin1stFactor().optionId.getAuthenticatorKey());
+		if (loginSession.getLogin2ndFactor() != null && loginSession.getLogin2ndFactor().optionId != null)
+			usedAuthenticators.add(loginSession.getLogin2ndFactor().optionId.getAuthenticatorKey());
+
+		String remoteIdp = loginSession.getRemoteIdP();
+		return new SerializableUserAuthnDetails(remoteAuthnMetadata,
+				authenticationMethods != null ? authenticationMethods : Set.of(),
+				authenticatedIdentities != null ? authenticatedIdentities : Set.of(), usedAuthenticators, remoteIdp);
 	}
 }

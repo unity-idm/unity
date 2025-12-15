@@ -50,10 +50,9 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
-import pl.edu.icm.unity.engine.api.authn.SerializableRemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
+import pl.edu.icm.unity.engine.api.idp.UserAuthnDetails;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
@@ -63,6 +62,8 @@ import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.ScopeMatcher;
+import pl.edu.icm.unity.oauth.as.SerializableUserAuthnDetails;
+import pl.edu.icm.unity.oauth.as.UserAuthnDetailsMapper;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
 import pl.edu.icm.unity.oauth.as.token.OAuthErrorException;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
@@ -179,13 +180,10 @@ class ExchangeTokenHandler
 		List<RequestedOAuthScope> newValidScopes = buildNewEffectiveScopes(mappedScopes);
 		newToken.setEffectiveScope(newValidScopes);
 
-		SerializableRemoteAuthnMetadata serializableRemoteAuthnMetadata = oldToken.getRemoteIdPAuthnContext();
+		SerializableUserAuthnDetails serializableUserAuthnDetails = oldToken.getUserAuthnDetails();
 
 		TranslationResult userInfoRes = getAttributes(callerEntityId, tokenOwnerEntityId,
-				GrantType.TOKEN_EXCHANGE.getValue(), Optional.ofNullable(serializableRemoteAuthnMetadata)
-						.map(remoteMeta -> new RemoteAuthnMetadata(remoteMeta.protocol, remoteMeta.remoteIdPId,
-								remoteMeta.classReferences))
-						.orElse(null));
+				GrantType.TOKEN_EXCHANGE.getValue(), UserAuthnDetailsMapper.getUserAuthnDetails(serializableUserAuthnDetails));
 
 		List<AttributeFilteringSpec> mergedFilters = mergeFilters(newRequestedScopeList,
 				oldToken.getAttributeValueFilters());
@@ -261,12 +259,9 @@ class ExchangeTokenHandler
 		}
 		List<RequestedOAuthScope> newValidScopes = buildNewEffectiveScopes(mappedScopes);
 
-		SerializableRemoteAuthnMetadata serializableRemoteAuthnMetadata = oldToken.getRemoteIdPAuthnContext();
+		SerializableUserAuthnDetails serializableUserAuthnDetails = oldToken.getUserAuthnDetails();
 		TranslationResult userInfoRes = getAttributes(callerEntityId, tokenOwnerEntityId,
-				GrantType.TOKEN_EXCHANGE.getValue(), Optional.ofNullable(serializableRemoteAuthnMetadata)
-						.map(remoteMeta -> new RemoteAuthnMetadata(remoteMeta.protocol, remoteMeta.remoteIdPId,
-								remoteMeta.classReferences))
-						.orElse(null));
+				GrantType.TOKEN_EXCHANGE.getValue(), UserAuthnDetailsMapper.getUserAuthnDetails(serializableUserAuthnDetails));
 
 		List<AttributeFilteringSpec> mergedFilters = mergeFilters(newRequestedScopeList,
 				oldToken.getAttributeValueFilters());
@@ -415,7 +410,7 @@ class ExchangeTokenHandler
 	}
 
 	private TranslationResult getAttributes(long clientId, long ownerId, String grant,
-			RemoteAuthnMetadata remoteAuthnMetadata) throws OAuthErrorException
+			UserAuthnDetails userAuthnDetails) throws OAuthErrorException
 	{
 		EntityInGroup client = new EntityInGroup(config.getValue(OAuthASProperties.CLIENTS_GROUP),
 				new EntityParam(clientId));
@@ -425,7 +420,7 @@ class ExchangeTokenHandler
 		{
 			userInfoRes = notAuthorizedOauthIdpEngine.getUserInfoUnsafe(ownerId, String.valueOf(clientId),
 					Optional.of(client), config.getValue(OAuthASProperties.USERS_GROUP),
-					config.getOutputTranslationProfile(), grant, config, remoteAuthnMetadata);
+					config.getOutputTranslationProfile(), grant, config, userAuthnDetails);
 		} catch (ExecutionFailException e)
 		{
 			log.debug("Authentication failed due to profile's decision, returning error");
