@@ -11,6 +11,7 @@ import static org.mockito.Mockito.mock;
 import java.net.URI;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
@@ -45,12 +47,15 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.ACRRequest;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata.Protocol;
 import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
@@ -275,7 +280,7 @@ public class RefreshTokenTest extends TokenTestBase
 	}
 	
 	@Test
-	public void shouldPreserveAcrAndAuthnTimeAfterTokenRefresh() throws Exception
+	public void shouldPreserveUserAuthneticationDetailsAndAuthnTimeAfterTokenRefresh() throws Exception
 	{
 		super.setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
@@ -284,18 +289,27 @@ public class RefreshTokenTest extends TokenTestBase
 				new ResponseType(ResponseType.Value.CODE), GrantFlow.authorizationCode, clientId1.getEntityId());
 		ctx.setRequestedScopes(Set.of("openid"));
 		ctx.addEffectiveScopeInfo(new RequestedOAuthScope("openid", ActiveOAuthScopeDefinition.builder().withName("openid").build(), false));
+		ctx.addEffectiveScopeInfo(new RequestedOAuthScope("profile", ActiveOAuthScopeDefinition.builder()
+				.withName("profile")
+				.withAttributes(List.of("idp", "amr", "acr", "authentications", "authenticatedWith"))
+				.build(), false));
+
 		ctx.setOpenIdMode(true);
 		ctx.setRequestedAcr(new ACRRequest(List.of(new ACR("acrReq")), null));
 		ctx.setClaimsInTokenAttribute(Optional.of(ClaimsInTokenAttribute.builder().withValues(Set.of(ClaimsInTokenAttribute.Value.token)).build()));
 		InvocationContext simpltyContext = new InvocationContext(null, new AuthenticationRealm(), Collections.emptyList());
 		LoginSession session = new LoginSession();
 		session.setFirstFactorRemoteIdPAuthnContext(new RemoteAuthnMetadata(Protocol.OIDC, "idp", List.of("acr1")));
+		session.addAuthenticatedIdentities(Set.of("userA"));
+		session.setAuthenticationMethods(Set.of(AuthenticationMethod.U_OAUTH));
+		session.setRemoteIdP("idp1");
+		session.setLogin1stFactor(new AuthNInfo(AuthenticationOptionKey.authenticatorOnlyKey("1"), null));
+		
 		simpltyContext.setLoginSession(session);
 		InvocationContext.setCurrent(simpltyContext);
-		Instant authn_time = Instant.now();
-		AuthorizationSuccessResponse resp1 = OAuthTestUtils
-				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx, identity);
-		OAuthTestUtils.getOAuthProcessor(tokensMan).prepareAuthzResponseAndRecordInternalState(
+		Instant authn_time = Instant.ofEpochMilli(1000);
+	
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils.getOAuthProcessor(tokensMan).prepareAuthzResponseAndRecordInternalState(
 				List.of(), identity, ctx, mock(OAuthIdpStatisticReporter.class), authn_time , null);
 		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
@@ -306,11 +320,16 @@ public class RefreshTokenTest extends TokenTestBase
 		HTTPResponse resp2 = wrapped.send();
 		AccessTokenResponse parsedInitialResp = AccessTokenResponse.parse(resp2);
 		
-		AccessTokenResponse refreshParsedResp = getRefreshedAccessToken(parsedInitialResp.getTokens().getRefreshToken(), ca, "openid");
+		AccessTokenResponse refreshParsedResp = getRefreshedAccessToken(parsedInitialResp.getTokens().getRefreshToken(), ca, "openid", "profile");
 		
 		SignedJWT signedJWT = SignedJWT.parse(refreshParsedResp.getTokens().getAccessToken().getValue());
 		assertThat(signedJWT.getJWTClaimsSet().getClaim("acr")).isEqualTo("acr1");
-		assertThat(signedJWT.getJWTClaimsSet().getClaim("auth_time")).isEqualTo(authn_time.getEpochSecond());	
+		assertThat(signedJWT.getJWTClaimsSet()
+				.getClaim("auth_time")).isEqualTo(DateUtils.toSecondsSinceEpoch(Date.from(authn_time)));
+		assertThat(signedJWT.getJWTClaimsSet().getClaim("idp")).isEqualTo("idp1");	
+		assertThat(signedJWT.getJWTClaimsSet().getClaim("amr")).isEqualTo("[u_oauth]");	
+		assertThat(signedJWT.getJWTClaimsSet().getClaim("authentications")).isEqualTo("1");	
+		assertThat(signedJWT.getJWTClaimsSet().getClaim("authenticatedWith")).isEqualTo("userA");
 	}
 
 	private AccessTokenResponse getRefreshedAccessToken(RefreshToken token, 

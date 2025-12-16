@@ -16,7 +16,7 @@ public class UserAuthnDetailsMapper
 	{
 		if (serializableUserAuthnDetails == null)
 		{
-			return new UserAuthnDetails(null, null, null, null, null);
+			return null;
 		}
 
 		return new UserAuthnDetails(

@@ -86,8 +86,18 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			+ "unity.oauth2.as.refreshTokenValidity=3600\n"
 			+ "unity.oauth2.as.tokenFormat=JWT\n"
 			+ "unity.oauth2.as.embeddedTranslationProfile={\"ver\":\"2\",\"name\":\"Embedded\",\"description\":\"\",\"type\":\"OUTPUT\","
-			+ "\"mode\":\"DEFAULT\",\"rules\":[{\"condition\":{\"conditionValue\":\"upstreamACRs.size()!=0\"},\"action\":{\"name\":\"createAttribute\","
-			+ "\"parameters\":[\"acr\",\"upstreamACRs[0]\",\"false\",\"\",\"\",\"\"]}}]}\n";
+			+ "\"mode\":\"DEFAULT\",\"rules\":[{\"condition\":{\"conditionValue\":\"true\"},\"action\":{\"name\":\"createAttribute\","
+			+ "\"parameters\":[\"amr\",\"amr\",\"false\",\"\",\"\",\"\"]}},{\"condition\":{\"conditionValue\":\"true\"},"
+			+ "\"action\":{\"name\":\"createAttribute\",\"parameters\":[\"authenticatedWith\",\"authenticatedWith\","
+			+ "\"false\",\"\",\"\",\"\"]}},{\"condition\":{\"conditionValue\":\"true\"},\"action\":{\"name\":\"createAttribute\","
+			+ "\"parameters\":[\"authentications\",\"authentications\",\"false\",\"\",\"\",\"\"]}},"
+			+ "{\"condition\":{\"conditionValue\":\"true\"},\"action\":{\"name\":\"createAttribute\",\"parameters\":[\"idp\",\"idp\","
+			+ "\"false\",\"\",\"\",\"\"]}},{\"condition\":{\"conditionValue\":\"true\"},\"action\":{\"name\":\"createAttribute\","
+			+ "\"parameters\":[\"protocol\",\"protocol\",\"false\",\"\",\"\",\"\"]}},{\"condition\":{\"conditionValue\":\"true\"},"
+			+ "\"action\":{\"name\":\"createAttribute\",\"parameters\":[\"upstreamACRs\",\"upstreamACRs\",\"false\",\"\",\"\",\"\"]}},"
+			+ "{\"condition\":{\"conditionValue\":\"true\"},\"action\":{\"name\":\"createAttribute\",\"parameters\":[\"upstreamProtocol\","
+			+ "\"upstreamProtocol\",\"false\",\"\",\"\",\"\"]}},{\"condition\":{\"conditionValue\":\"upstreamACRs.size()!=0\"},"
+			+ "\"action\":{\"name\":\"createAttribute\",\"parameters\":[\"acr\",\"upstreamACRs[0]\",\"false\",\"\",\"\",\"\"]}}]}\n";
 	
 
 	private static final String OIDC_ENDP_CFG = OAUTH_ENDP_CFG 
