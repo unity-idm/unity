@@ -137,7 +137,7 @@ public class OAuthProcessor
 			Optional.ofNullable(InvocationContext.getCurrent())
 					.ifPresent(context -> Optional.ofNullable(context.getLoginSession())
 							.ifPresent(loginSession -> internalToken
-									.setUserAuthnDetails(getAuthnDetailsfromLoginSession(loginSession))));
+									.setUserAuthnDetails(getAuthnDetailsFromLoginSession(loginSession))));
 		}
 		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
 				null : ctx.getRequest().getCodeChallenge().getValue();
@@ -362,11 +362,11 @@ public class OAuthProcessor
 		return userInfo;
 	}
 	
-	private SerializableUserAuthnDetails getAuthnDetailsfromLoginSession(LoginSession loginSession)
+	private SerializableUserAuthnDetails getAuthnDetailsFromLoginSession(LoginSession loginSession)
 	{
 		if (loginSession == null)
 		{
-			return new SerializableUserAuthnDetails(null, null, null, null, null);
+			return null;
 		}
 		SerializableRemoteAuthnMetadata remoteAuthnMetadata = null;
 		RemoteAuthnMetadata remote = loginSession.getFirstFactorRemoteIdPAuthnContext();
@@ -385,7 +385,6 @@ public class OAuthProcessor
 			usedAuthenticators.add(loginSession.getLogin1stFactor().optionId.getAuthenticatorKey());
 		if (loginSession.getLogin2ndFactor() != null && loginSession.getLogin2ndFactor().optionId != null)
 			usedAuthenticators.add(loginSession.getLogin2ndFactor().optionId.getAuthenticatorKey());
-
 		String remoteIdp = loginSession.getRemoteIdP();
 		return new SerializableUserAuthnDetails(remoteAuthnMetadata,
 				authenticationMethods != null ? authenticationMethods : Set.of(),

@@ -183,7 +183,8 @@ class ExchangeTokenHandler
 		SerializableUserAuthnDetails serializableUserAuthnDetails = oldToken.getUserAuthnDetails();
 
 		TranslationResult userInfoRes = getAttributes(callerEntityId, tokenOwnerEntityId,
-				GrantType.TOKEN_EXCHANGE.getValue(), UserAuthnDetailsMapper.getUserAuthnDetails(serializableUserAuthnDetails));
+				GrantType.TOKEN_EXCHANGE.getValue(),
+				UserAuthnDetailsMapper.getUserAuthnDetails(serializableUserAuthnDetails));
 
 		List<AttributeFilteringSpec> mergedFilters = mergeFilters(newRequestedScopeList,
 				oldToken.getAttributeValueFilters());
