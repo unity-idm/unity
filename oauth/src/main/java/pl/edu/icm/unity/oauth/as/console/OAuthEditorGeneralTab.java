@@ -627,10 +627,12 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 
 		Grid.Column<AuthorizationScriptBean> addGotoEditColumn = scriptsGrid.addGotoEditColumn(AuthorizationScriptBean::getScope)
 				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scriptTriggeringScope"))
-				.setResizable(true);
+				.setResizable(true)
+				.setAutoWidth(true);
 		scriptsGrid.addTextColumn(AuthorizationScriptBean::getPath)
 				.setHeader(msg.getMessage("OAuthEditorGeneralTab.scriptPath"))
-				.setResizable(true);
+				.setResizable(true)
+				.setAutoWidth(true);
 
 		configBinder.forField(scriptsGrid)
 				.bind("authorizationScripts");
