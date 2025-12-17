@@ -90,7 +90,8 @@ class TokenService
 
 		newToken.setRequestedScope(filteredScopes.toArray(String[]::new));
 
-		SerializableUserAuthnDetails serializableUserAuthnDetails = oldToken.getUserAuthnDetails();		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant,
+		SerializableUserAuthnDetails serializableUserAuthnDetails = oldToken.getUserAuthnDetails();
+		TranslationResult userInfoRes = getAttributes(clientId, ownerId, grant,
 				UserAuthnDetailsMapper.getUserAuthnDetails(serializableUserAuthnDetails));
 		List<RequestedOAuthScope> newValidScopes = buildNewEffectiveScopes(scopeMapping);
 

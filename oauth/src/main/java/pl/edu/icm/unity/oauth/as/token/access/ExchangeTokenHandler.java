@@ -147,7 +147,7 @@ class ExchangeTokenHandler
 						audience, newRequestedScopeList, actorToken, actorTokenType, resource);
 			} else
 			{
-				return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "wrong requested token type");
+				return BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "not supported requested token type");
 			}
 
 		} catch (OAuthErrorException e)
