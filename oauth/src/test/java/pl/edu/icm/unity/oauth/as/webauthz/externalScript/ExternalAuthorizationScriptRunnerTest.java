@@ -23,6 +23,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -35,11 +36,59 @@ class ExternalAuthorizationScriptRunnerTest
 	@Mock
 	private IdentityTypesRegistry identityTypesRegistry;
 	private ExternalAuthorizationScriptRunner runner;
+	@Mock
+	private UnityServerConfiguration unityConfig;
 
 	@BeforeEach
 	void setUp()
 	{
-		runner = new ExternalAuthorizationScriptRunner(identityTypesRegistry);
+		runner = new ExternalAuthorizationScriptRunner(identityTypesRegistry, unityConfig);
+	}
+
+	@Test
+	void shouldReturnDenyWhenAccessToScriptIsDenied()
+	{
+		OAuthAuthzContext ctx = mock(OAuthAuthzContext.class);
+		TranslationResult translationResult = mock(TranslationResult.class);
+		OAuthASProperties config = mock(OAuthASProperties.class);
+		when(config.getStructuredListKeys(anyString())).thenReturn(Set.of("script1"));
+		when(config.getValue(contains("triggeringScope"))).thenReturn("scope.*");
+		when(config.getValue(contains("path"))).thenReturn("src/test/resources/authorizationScriptProceed.py");
+		AuthorizationRequest authRequest = mock(AuthorizationRequest.class);
+		when(authRequest.getScope()).thenReturn(new com.nimbusds.oauth2.sdk.Scope("scope1"));
+		when(ctx.getRequest()).thenReturn(authRequest);
+		when(translationResult.getAttributes()).thenReturn(List.of());
+		when(translationResult.getIdentities()).thenReturn(List.of());
+		when(unityConfig.getBooleanValue(UnityServerConfiguration.RESTRICT_FILE_SYSTEM_ACCESS)).thenReturn(true);
+		when(unityConfig.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH)).thenReturn("src/main");
+
+		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
+				unityConfig).runConfiguredExternalAuthnScript(ctx, translationResult, config);
+
+		assertEquals(ExternalAuthorizationScriptResponse.Status.DENY, result.status());
+	}
+
+	@Test
+	void shouldReturnProceedWhenRestrictedFileSystemIsOnAndScriptIsInWebcontent()
+	{
+		OAuthAuthzContext ctx = mock(OAuthAuthzContext.class);
+		TranslationResult translationResult = mock(TranslationResult.class);
+		OAuthASProperties config = mock(OAuthASProperties.class);
+		when(config.getStructuredListKeys(anyString())).thenReturn(Set.of("script1"));
+		when(config.getValue(contains("triggeringScope"))).thenReturn("scope.*");
+		when(config.getValue(contains("path"))).thenReturn("src/test/resources/authorizationScriptProceed.py");
+		AuthorizationRequest authRequest = mock(AuthorizationRequest.class);
+		when(authRequest.getScope()).thenReturn(new com.nimbusds.oauth2.sdk.Scope("scope1"));
+		when(ctx.getRequest()).thenReturn(authRequest);
+		when(translationResult.getAttributes()).thenReturn(List.of());
+		when(translationResult.getIdentities()).thenReturn(List.of());
+		when(unityConfig.getBooleanValue(UnityServerConfiguration.RESTRICT_FILE_SYSTEM_ACCESS)).thenReturn(true);
+		when(unityConfig.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH)).thenReturn("src/test");
+
+		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
+				unityConfig).runConfiguredExternalAuthnScript(ctx, translationResult, config);
+
+		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}
 
 	@Test
@@ -50,16 +99,37 @@ class ExternalAuthorizationScriptRunnerTest
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		when(config.getStructuredListKeys(anyString())).thenReturn(Set.of("script1"));
 		when(config.getValue(contains("triggeringScope"))).thenReturn("scope.*");
-		when(config.getValue(contains("path"))).thenReturn("nonExits.py");
+		when(config.getValue(contains("path"))).thenReturn("src/test/resources/authorizationScriptError.py");
 		AuthorizationRequest authRequest = mock(AuthorizationRequest.class);
 		when(authRequest.getScope()).thenReturn(new com.nimbusds.oauth2.sdk.Scope("scope1"));
 		when(ctx.getRequest()).thenReturn(authRequest);
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
-		
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
-				translationResult, config);
-		
+
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
+				config);
+
+		assertEquals(ExternalAuthorizationScriptResponse.Status.DENY, result.status());
+	}
+
+	@Test
+	void shouldReturnDenyIfScriptOutputItsToBig()
+	{
+		OAuthAuthzContext ctx = mock(OAuthAuthzContext.class);
+		TranslationResult translationResult = mock(TranslationResult.class);
+		OAuthASProperties config = mock(OAuthASProperties.class);
+		when(config.getStructuredListKeys(anyString())).thenReturn(Set.of("script1"));
+		when(config.getValue(contains("triggeringScope"))).thenReturn("scope.*");
+		when(config.getValue(contains("path"))).thenReturn("src/test/resources/authorizationScriptOutputExceeded.py");
+		AuthorizationRequest authRequest = mock(AuthorizationRequest.class);
+		when(authRequest.getScope()).thenReturn(new com.nimbusds.oauth2.sdk.Scope("scope1"));
+		when(ctx.getRequest()).thenReturn(authRequest);
+		when(translationResult.getAttributes()).thenReturn(List.of());
+		when(translationResult.getIdentities()).thenReturn(List.of());
+
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
+				config);
+
 		assertEquals(ExternalAuthorizationScriptResponse.Status.DENY, result.status());
 	}
 
@@ -70,10 +140,10 @@ class ExternalAuthorizationScriptRunnerTest
 		TranslationResult translationResult = mock(TranslationResult.class);
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		when(config.getStructuredListKeys(anyString())).thenReturn(Collections.emptySet());
-		
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
-				translationResult, config);
-		
+
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
+				config);
+
 		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}
 
@@ -91,10 +161,10 @@ class ExternalAuthorizationScriptRunnerTest
 		when(ctx.getRequest()).thenReturn(authRequest);
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
-		
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
-				translationResult, config);
-		
+
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
+				config);
+
 		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}
 
@@ -112,10 +182,10 @@ class ExternalAuthorizationScriptRunnerTest
 		when(ctx.getRequest()).thenReturn(authRequest);
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
-		
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
-				translationResult, config);
-		
+
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
+				config);
+
 		assertEquals(ExternalAuthorizationScriptResponse.Status.DENY, result.status());
 	}
 
@@ -131,12 +201,13 @@ class ExternalAuthorizationScriptRunnerTest
 		AuthorizationRequest authRequest = mock(AuthorizationRequest.class);
 		when(authRequest.getScope()).thenReturn(new com.nimbusds.oauth2.sdk.Scope("scope1"));
 		when(ctx.getRequest()).thenReturn(authRequest);
-		when(translationResult.getAttributes()).thenReturn(List.of(new DynamicAttribute(StringAttribute.of("role", "/", List.of("spy")))));
+		when(translationResult.getAttributes())
+				.thenReturn(List.of(new DynamicAttribute(StringAttribute.of("role", "/", List.of("spy")))));
 		when(translationResult.getIdentities()).thenReturn(List.of());
-		
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
-				translationResult, config);
-		
+
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
+				config);
+
 		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 		assertThat(result.claims()).containsExactlyInAnyOrder(ExternalAuthzClaim.builder()
 				.withName("test")
@@ -165,10 +236,10 @@ class ExternalAuthorizationScriptRunnerTest
 		when(ctx.getRequest()).thenReturn(authRequest);
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
-		
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx,
-				translationResult, config);
-		
+
+		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
+				config);
+
 		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}
 

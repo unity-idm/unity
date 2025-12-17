@@ -6,15 +6,23 @@
 package pl.edu.icm.unity.oauth.as.webauthz.externalScript;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Collectors;
 
+import org.apache.commons.io.input.BoundedInputStream;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,6 +34,7 @@ import com.nimbusds.oauth2.sdk.Scope;
 
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -39,14 +48,20 @@ import pl.edu.icm.unity.oauth.as.webauthz.externalScript.input.InputRequest;
 @Component
 public class ExternalAuthorizationScriptRunner
 {
+	private static final long MAX_SCRIPT_OUTPUT_BYTES = 1024L * 1024L; // 1 MB
+
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ExternalAuthorizationScriptRunner.class);
 	private final ObjectMapper mapper = Constants.MAPPER;
 	private final IdentityTypesRegistry identityTypesRegistry;
+	private boolean restrictFileSystemAccess;
+	private String webContentDir;
 
 	@Autowired
-	public ExternalAuthorizationScriptRunner(IdentityTypesRegistry identityTypesRegistry)
+	public ExternalAuthorizationScriptRunner(IdentityTypesRegistry identityTypesRegistry, UnityServerConfiguration config)
 	{
 		this.identityTypesRegistry = identityTypesRegistry;
+		restrictFileSystemAccess = config.getBooleanValue(UnityServerConfiguration.RESTRICT_FILE_SYSTEM_ACCESS);
+		webContentDir = config.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
 	}
 
 	public ExternalAuthorizationScriptResponse runConfiguredExternalAuthnScript(
@@ -99,21 +114,25 @@ public class ExternalAuthorizationScriptRunner
 	{
 		try
 		{
+			assertAccessToScript(path);
+			
 			log.debug("Running external authorization script: {}", path);
 			ProcessBuilder pb = new ProcessBuilder(path);
 			pb.redirectErrorStream(false);
 
 			Process process = pb.start();
 
-			Thread stderrThread = new Thread(() -> readErrorStream(process, path));
-			stderrThread.start();
+			ExecutorService executor = Executors.newFixedThreadPool(2);
+
+			Future<?> stderrTask = executor.submit(() ->
+			        readErrorStream(process, path));
 
 			writeInput(process, input);
 			ExternalAuthorizationScriptResponse response = readOutput(process, path);
 
 			process.waitFor();
-			stderrThread.join();
-
+			stderrTask.get();
+			executor.shutdown();
 			return response;
 
 		} catch (Exception e)
@@ -140,34 +159,72 @@ public class ExternalAuthorizationScriptRunner
 
 	private ExternalAuthorizationScriptResponse readOutput(Process process, String path) throws IOException
 	{
-		try (InputStream is = process.getInputStream())
+
+		BoundedInputStream bounded = BoundedInputStream.builder()
+				.setInputStream(process.getInputStream())
+				.setMaxCount(MAX_SCRIPT_OUTPUT_BYTES)
+				.setPropagateClose(false)
+				.get();
+
+		try (bounded)
 		{
-			JsonNode resp = mapper.readValue(is, JsonNode.class);
+			JsonNode resp = mapper.readValue(bounded, JsonNode.class);
+			if (bounded.getCount() >= MAX_SCRIPT_OUTPUT_BYTES) {
+	            throw new IOException(
+	                "External authorization script stdout exceeded "
+	                        + MAX_SCRIPT_OUTPUT_BYTES + " bytes limit"
+	            );
+	        }
+			
 			logPretty("Received JSON response from external authorization script " + path, resp);
+
+			return mapper.treeToValue(resp, ExternalAuthorizationScriptResponse.class);
+
+		} catch (JsonProcessingException e)
+		{
+			if (bounded.getCount() >= MAX_SCRIPT_OUTPUT_BYTES)
+			{
+				throw new IOException(
+						"External authorization script stdout exceeded " + MAX_SCRIPT_OUTPUT_BYTES + " bytes limit");
+			}
 			
-			ExternalAuthorizationScriptResponse respMapped = mapper.treeToValue(resp,
-					ExternalAuthorizationScriptResponse.class);
-			
-			return respMapped;
-		}catch (JsonProcessingException e) {
 			throw new IOException("Invalid JSON response from external authorization script " + path, e);
 		}
 	}
 
 	private void readErrorStream(Process process, String path)
 	{
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream())))
+		try (InputStream errorStream = process.getErrorStream())
 		{
-			String line;
-			while ((line = reader.readLine()) != null)
-				log.error("[External authorization script {} STDERR] {}", path, line);
-		}
-		catch (IOException e)
+			BoundedInputStream bounded = BoundedInputStream.builder()
+					.setInputStream(errorStream)
+					.setMaxCount(MAX_SCRIPT_OUTPUT_BYTES)
+					.setPropagateClose(false)
+					.get();
+			try (bounded; BufferedReader reader = new BufferedReader(new InputStreamReader(bounded)))
+			{
+
+				String error = reader.lines()
+						.collect(Collectors.joining(" "));
+
+				if (bounded.getCount() >= MAX_SCRIPT_OUTPUT_BYTES)
+				{
+					log.error("External authorization script stderr exceeded {} bytes limit", MAX_SCRIPT_OUTPUT_BYTES);
+					return;
+				}
+
+				if (!error.isBlank())
+				{
+					log.error("[External authorization script {} STDERR] {}", path, error);
+				}
+			}
+
+		} catch (IOException e)
 		{
 			log.error("Cannot read error stream of external authorization script {}", path, e);
 		}
 	}
-
+		
 	private List<AuthorizationScriptBean> getScriptsFromConfig(OAuthASProperties config)
 	{
 		return config.getStructuredListKeys(OAuthASProperties.AUTHORIZATION_SCRIPTS).stream()
@@ -207,6 +264,36 @@ public class ExternalAuthorizationScriptRunner
 		catch (JsonProcessingException e)
 		{
 			log.error("Cannot print object: {}", message, e);
+		}
+	}
+	
+	private void assertAccessToScript(String path) throws IOException
+	{
+		if (!restrictFileSystemAccess)
+			return;
+		Path realRoot;
+		try
+		{
+			realRoot = Paths.get(new File(webContentDir).getAbsolutePath())
+					.toRealPath();
+		} catch (IOException e)
+		{
+			throw new IOException("Web content dir " + webContentDir + " does not exists");
+		}
+
+		Path child;
+		try
+		{
+			child = Paths.get(new File(path).getAbsolutePath())
+					.toRealPath();
+		} catch (IOException e)
+		{
+			throw new IOException("Script " + path + " does not exists");
+		}
+
+		if (!child.startsWith(realRoot))
+		{
+			throw new IOException("Access to script " + path + " is limited");
 		}
 	}
 }
