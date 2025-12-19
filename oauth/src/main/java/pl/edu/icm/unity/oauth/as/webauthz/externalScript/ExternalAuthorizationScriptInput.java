@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.webauthz.externalScript.input;
+package pl.edu.icm.unity.oauth.as.webauthz.externalScript;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -13,7 +13,7 @@ import java.util.Optional;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = ExternalAuthorizationScriptInput.Builder.class)
-public class ExternalAuthorizationScriptInput
+class ExternalAuthorizationScriptInput
 {
 	public final Collection<InputAttribute> attributes;
 	public final Collection<InputIdentity> identities;
@@ -30,12 +30,12 @@ public class ExternalAuthorizationScriptInput
 		this.request = builder.request;
 	}
 
-	public static Builder builder()
+	static Builder builder()
 	{
 		return new Builder();
 	}
 
-	public static final class Builder
+	static final class Builder
 	{
 		private List<InputAttribute> attributes = Collections.emptyList();
 		private List<InputIdentity> identities = Collections.emptyList();
@@ -45,25 +45,25 @@ public class ExternalAuthorizationScriptInput
 		{
 		}
 
-		public Builder withAttributes(List<InputAttribute> attributes)
+		Builder withAttributes(List<InputAttribute> attributes)
 		{
 			this.attributes = attributes;
 			return this;
 		}
 
-		public Builder withIdentities(List<InputIdentity> identities)
+		Builder withIdentities(List<InputIdentity> identities)
 		{
 			this.identities = identities;
 			return this;
 		}
 
-		public Builder withRequest(InputRequest request)
+		Builder withRequest(InputRequest request)
 		{
 			this.request = request;
 			return this;
 		}
 
-		public ExternalAuthorizationScriptInput build()
+		ExternalAuthorizationScriptInput build()
 		{
 			return new ExternalAuthorizationScriptInput(this);
 		}

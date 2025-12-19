@@ -41,10 +41,7 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.console.AuthorizationScriptBean;
 import pl.edu.icm.unity.oauth.as.webauthz.externalScript.ExternalAuthorizationScriptResponse.Status;
-import pl.edu.icm.unity.oauth.as.webauthz.externalScript.input.ExternalAuthorizationScriptInput;
-import pl.edu.icm.unity.oauth.as.webauthz.externalScript.input.InputAttribute;
-import pl.edu.icm.unity.oauth.as.webauthz.externalScript.input.InputIdentity;
-import pl.edu.icm.unity.oauth.as.webauthz.externalScript.input.InputRequest;
+
 @Component
 public class ExternalAuthorizationScriptRunner
 {
@@ -159,7 +156,6 @@ public class ExternalAuthorizationScriptRunner
 
 	private ExternalAuthorizationScriptResponse readOutput(Process process, String path) throws IOException
 	{
-
 		BoundedInputStream bounded = BoundedInputStream.builder()
 				.setInputStream(process.getInputStream())
 				.setMaxCount(MAX_SCRIPT_OUTPUT_BYTES)
@@ -169,25 +165,18 @@ public class ExternalAuthorizationScriptRunner
 		try (bounded)
 		{
 			JsonNode resp = mapper.readValue(bounded, JsonNode.class);
-			if (bounded.getCount() >= MAX_SCRIPT_OUTPUT_BYTES) {
-	            throw new IOException(
-	                "External authorization script stdout exceeded "
-	                        + MAX_SCRIPT_OUTPUT_BYTES + " bytes limit"
-	            );
-	        }
-			
+			if (bounded.getCount() >= MAX_SCRIPT_OUTPUT_BYTES)
+				throw new IOException("External authorization script stdout exceeded "
+						+ MAX_SCRIPT_OUTPUT_BYTES + " bytes limit");
+
 			logPretty("Received JSON response from external authorization script " + path, resp);
 
 			return mapper.treeToValue(resp, ExternalAuthorizationScriptResponse.class);
-
 		} catch (JsonProcessingException e)
 		{
 			if (bounded.getCount() >= MAX_SCRIPT_OUTPUT_BYTES)
-			{
-				throw new IOException(
-						"External authorization script stdout exceeded " + MAX_SCRIPT_OUTPUT_BYTES + " bytes limit");
-			}
-			
+				throw new IOException("External authorization script stdout exceeded "
+						+ MAX_SCRIPT_OUTPUT_BYTES + " bytes limit");
 			throw new IOException("Invalid JSON response from external authorization script " + path, e);
 		}
 	}
@@ -203,19 +192,18 @@ public class ExternalAuthorizationScriptRunner
 					.get();
 			try (bounded; BufferedReader reader = new BufferedReader(new InputStreamReader(bounded)))
 			{
-
-				String error = reader.lines()
-						.collect(Collectors.joining(" "));
+				String error = reader.lines().collect(Collectors.joining("\n"));
 
 				if (bounded.getCount() >= MAX_SCRIPT_OUTPUT_BYTES)
 				{
-					log.error("External authorization script stderr exceeded {} bytes limit", MAX_SCRIPT_OUTPUT_BYTES);
+					log.error("External authorization script stderr exceeded {} bytes limit",
+							MAX_SCRIPT_OUTPUT_BYTES);
 					return;
 				}
 
 				if (!error.isBlank())
 				{
-					log.error("[External authorization script {} STDERR] {}", path, error);
+					log.error("[External authorization script {} STDERR]:\n{}", path, error);
 				}
 			}
 

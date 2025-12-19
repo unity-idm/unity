@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.webauthz.externalScript.input;
+package pl.edu.icm.unity.oauth.as.webauthz.externalScript;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.util.URIUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 
-public record InputRequest(
+record InputRequest(
 		List<String> responseType,
 		String clientID,
 		String redirectURI,
@@ -27,7 +27,7 @@ public record InputRequest(
 		List<String> uiLocales)
 {
 
-	public static InputRequest fromAuthorizationRequest(AuthorizationRequest req)
+	static InputRequest fromAuthorizationRequest(AuthorizationRequest req)
 	{
 		Builder builder = builder().withClientID(Optional.ofNullable(req.getClientID())
 				.map(c -> c.getValue())
@@ -77,12 +77,12 @@ public record InputRequest(
 
 	}
 
-	public static Builder builder()
+	static Builder builder()
 	{
 		return new Builder();
 	}
 
-	public static final class Builder
+	static final class Builder
 	{
 		private List<String> responseType;
 		private String clientID;
@@ -100,73 +100,73 @@ public record InputRequest(
 		{
 		}
 
-		public Builder withResponseType(List<String> responseType)
+		Builder withResponseType(List<String> responseType)
 		{
 			this.responseType = responseType;
 			return this;
 		}
 
-		public Builder withClientID(String clientID)
+		Builder withClientID(String clientID)
 		{
 			this.clientID = clientID;
 			return this;
 		}
 
-		public Builder withRedirectURI(String redirectURI)
+		Builder withRedirectURI(String redirectURI)
 		{
 			this.redirectURI = redirectURI;
 			return this;
 		}
 
-		public Builder withScope(List<InputScope> scope)
+		Builder withScope(List<InputScope> scope)
 		{
 			this.scope = scope;
 			return this;
 		}
 
-		public Builder withResponseMode(String responseMode)
+		Builder withResponseMode(String responseMode)
 		{
 			this.responseMode = responseMode;
 			return this;
 		}
 
-		public Builder withResources(List<String> resources)
+		Builder withResources(List<String> resources)
 		{
 			this.resources = resources;
 			return this;
 		}
 
-		public Builder withRequestURI(String requestURI)
+		Builder withRequestURI(String requestURI)
 		{
 			this.requestURI = requestURI;
 			return this;
 		}
 
-		public Builder withPrompt(List<String> prompt)
+		Builder withPrompt(List<String> prompt)
 		{
 			this.prompt = prompt;
 			return this;
 		}
 
-		public Builder withCustomParams(Map<String, List<String>> customParams)
+		Builder withCustomParams(Map<String, List<String>> customParams)
 		{
 			this.customParams = customParams;
 			return this;
 		}
 
-		public Builder withAcrValues(List<String> acrValues)
+		Builder withAcrValues(List<String> acrValues)
 		{
 			this.acrValues = acrValues;
 			return this;
 		}
 
-		public Builder withUiLocales(List<String> uiLocales)
+		Builder withUiLocales(List<String> uiLocales)
 		{
 			this.uiLocales = uiLocales;
 			return this;
 		}
 
-		public InputRequest build()
+		InputRequest build()
 		{
 			return new InputRequest(responseType, clientID, redirectURI, scope, responseMode, resources, requestURI,
 					prompt, customParams, acrValues, uiLocales);

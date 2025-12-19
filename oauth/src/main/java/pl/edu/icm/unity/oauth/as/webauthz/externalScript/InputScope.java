@@ -3,9 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.webauthz.externalScript.input;
+package pl.edu.icm.unity.oauth.as.webauthz.externalScript;
 
-public record InputScope(
+record InputScope(
 		String value,
 		String requirement)
 {

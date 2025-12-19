@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.webauthz.externalScript.input;
+package pl.edu.icm.unity.oauth.as.webauthz.externalScript;
 
 import java.util.Objects;
 
@@ -14,7 +14,7 @@ import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record InputIdentity(
+record InputIdentity(
 		String typeId,
 		String value,
 		String target,
@@ -24,7 +24,7 @@ public record InputIdentity(
 		ConfirmationInfo confirmationInfo)
 {
 
-	public static InputIdentity fromIdentity(IdentityParam id, IdentityTypesRegistry registry)
+	static InputIdentity fromIdentity(IdentityParam id, IdentityTypesRegistry registry)
 	{
 		Objects.requireNonNull(id, "IdentityParam must not be null");
 		Objects.requireNonNull(registry, "IdentityTypesRegistry must not be null");

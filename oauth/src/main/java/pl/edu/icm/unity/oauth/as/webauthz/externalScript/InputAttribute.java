@@ -3,14 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.as.webauthz.externalScript.input;
+package pl.edu.icm.unity.oauth.as.webauthz.externalScript;
 
 import java.util.List;
 import java.util.Objects;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 
-public record InputAttribute(
+record InputAttribute(
 		String name,
 		String valueSyntax,
 		String groupPath,
@@ -18,12 +18,12 @@ public record InputAttribute(
 		String translationProfile,
 		String remoteIdp)
 {
-	public InputAttribute
+	InputAttribute
 	{
 		values = values != null ? List.copyOf(values) : List.of();
 	}
 
-	public static InputAttribute fromAttribute(Attribute a)
+	static InputAttribute fromAttribute(Attribute a)
 	{
 		Objects.requireNonNull(a, "Attribute must not be null");
 
