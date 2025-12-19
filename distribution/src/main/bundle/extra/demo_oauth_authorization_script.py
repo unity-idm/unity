@@ -3,8 +3,11 @@
 import sys
 import json
 
-import sys
-import json
+def deny():
+    write_response({"status": "DENY", "claims": []})
+
+def proceed(claims: list[dict]):
+    write_response({"status": "PROCEED", "claims": claims})
 
 def write_response(response):
     json.dump(response, sys.stdout)
@@ -18,33 +21,28 @@ def main():
         for attribute in input_data.get("attributes", []):
             if attribute.get("name") == "role":
                 if "spy" in attribute.get("values", []):
-                    write_response({"status": "DENY", "claims": []})
-                    return
+                    deny(); return
 
         # Deny if any identity with value 'evil-user' is present
         for identity in input_data.get("identities", []):
             if identity.get("value") == "evil-user":
-                write_response({"status": "DENY", "claims": []})
-                return
+                deny(); return
 
-        # Deny if request clientID is 'evil-client'
+        # Deny if OAuth client id is 'evil-client'
         request = input_data.get("request", {})
         if request.get("clientID") == "evil-client":
-            write_response({"status": "DENY", "claims": []})
-            return
+            deny(); return
 
         # Otherwise, proceed and add claims
-        write_response({
-            "status": "PROCEED",
-            "claims": [
+        proceed([
                 {"name": "example_claim1", "values": ["authorized"]},
                 {"name": "organization", "values": ["org1", "org2"]}
-            ]
-        })
-
-    except Exception:
-        # Catch all: deny
-        write_response({"status": "DENY", "claims": []})
+            ])
+        return
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        deny()
+        return
 
 
 if __name__ == "__main__":
