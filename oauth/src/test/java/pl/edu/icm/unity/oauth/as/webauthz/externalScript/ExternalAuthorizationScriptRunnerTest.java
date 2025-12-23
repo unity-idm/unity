@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -22,28 +21,29 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
 import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.engine.files.URIAccessServiceImpl;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.store.api.FileDAO;
 
 @ExtendWith(MockitoExtension.class)
 class ExternalAuthorizationScriptRunnerTest
 {
 	@Mock
 	private IdentityTypesRegistry identityTypesRegistry;
-	private ExternalAuthorizationScriptRunner runner;
 	@Mock
 	private UnityServerConfiguration unityConfig;
-
-	@BeforeEach
-	void setUp()
-	{
-		runner = new ExternalAuthorizationScriptRunner(identityTypesRegistry, unityConfig);
-	}
+	@Mock
+	private FileDAO fileDao;
+	@Mock
+	private PKIManagement pkiMan;
+	
 
 	@Test
 	void shouldReturnDenyWhenAccessToScriptIsDenied()
@@ -63,7 +63,7 @@ class ExternalAuthorizationScriptRunnerTest
 		when(unityConfig.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH)).thenReturn("src/main");
 
 		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
-				unityConfig).runConfiguredExternalAuthnScript(ctx, translationResult, config);
+				new URIAccessServiceImpl(unityConfig, fileDao, pkiMan)).runConfiguredExternalAuthnScript(ctx, translationResult, config);
 
 		assertEquals(ExternalAuthorizationScriptResponse.Status.DENY, result.status());
 	}
@@ -86,7 +86,7 @@ class ExternalAuthorizationScriptRunnerTest
 		when(unityConfig.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH)).thenReturn("src/test");
 
 		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
-				unityConfig).runConfiguredExternalAuthnScript(ctx, translationResult, config);
+				new URIAccessServiceImpl(unityConfig, fileDao, pkiMan)).runConfiguredExternalAuthnScript(ctx, translationResult, config);
 
 		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}
@@ -106,7 +106,8 @@ class ExternalAuthorizationScriptRunnerTest
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
 
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
+		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
+				new URIAccessServiceImpl(unityConfig, fileDao, pkiMan)).runConfiguredExternalAuthnScript(ctx, translationResult,
 				config);
 
 		assertEquals(ExternalAuthorizationScriptResponse.Status.DENY, result.status());
@@ -127,8 +128,8 @@ class ExternalAuthorizationScriptRunnerTest
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
 
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
-				config);
+		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
+				new URIAccessServiceImpl(unityConfig, fileDao, pkiMan)).runConfiguredExternalAuthnScript(ctx, translationResult, config);
 
 		assertEquals(ExternalAuthorizationScriptResponse.Status.DENY, result.status());
 	}
@@ -141,8 +142,8 @@ class ExternalAuthorizationScriptRunnerTest
 		OAuthASProperties config = mock(OAuthASProperties.class);
 		when(config.getStructuredListKeys(anyString())).thenReturn(Collections.emptySet());
 
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
-				config);
+		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
+				new URIAccessServiceImpl(unityConfig, fileDao, pkiMan)).runConfiguredExternalAuthnScript(ctx, translationResult, config);
 
 		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}
@@ -162,8 +163,8 @@ class ExternalAuthorizationScriptRunnerTest
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
 
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
-				config);
+		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
+				new URIAccessServiceImpl(unityConfig, fileDao, pkiMan)).runConfiguredExternalAuthnScript(ctx, translationResult, config);
 
 		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}
@@ -183,8 +184,8 @@ class ExternalAuthorizationScriptRunnerTest
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
 
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
-				config);
+		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
+				new URIAccessServiceImpl(unityConfig, fileDao, pkiMan)).runConfiguredExternalAuthnScript(ctx, translationResult, config);
 
 		assertEquals(ExternalAuthorizationScriptResponse.Status.DENY, result.status());
 	}
@@ -205,8 +206,8 @@ class ExternalAuthorizationScriptRunnerTest
 				.thenReturn(List.of(new DynamicAttribute(StringAttribute.of("role", "/", List.of("spy")))));
 		when(translationResult.getIdentities()).thenReturn(List.of());
 
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
-				config);
+		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
+				new URIAccessServiceImpl(unityConfig, fileDao, pkiMan)).runConfiguredExternalAuthnScript(ctx, translationResult, config);
 
 		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 		assertThat(result.claims()).containsExactlyInAnyOrder(ExternalAuthzClaim.builder()
@@ -237,8 +238,8 @@ class ExternalAuthorizationScriptRunnerTest
 		when(translationResult.getAttributes()).thenReturn(List.of());
 		when(translationResult.getIdentities()).thenReturn(List.of());
 
-		ExternalAuthorizationScriptResponse result = runner.runConfiguredExternalAuthnScript(ctx, translationResult,
-				config);
+		ExternalAuthorizationScriptResponse result = new ExternalAuthorizationScriptRunner(identityTypesRegistry,
+				new URIAccessServiceImpl(unityConfig, fileDao, pkiMan)).runConfiguredExternalAuthnScript(ctx, translationResult, config);
 
 		assertEquals(ExternalAuthorizationScriptResponse.Status.PROCEED, result.status());
 	}

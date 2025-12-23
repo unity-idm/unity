@@ -34,7 +34,8 @@ import com.nimbusds.oauth2.sdk.Scope;
 
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -50,15 +51,13 @@ public class ExternalAuthorizationScriptRunner
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ExternalAuthorizationScriptRunner.class);
 	private final ObjectMapper mapper = Constants.MAPPER;
 	private final IdentityTypesRegistry identityTypesRegistry;
-	private boolean restrictFileSystemAccess;
-	private String webContentDir;
+	private final URIAccessService uriAccessService;
 
 	@Autowired
-	public ExternalAuthorizationScriptRunner(IdentityTypesRegistry identityTypesRegistry, UnityServerConfiguration config)
+	public ExternalAuthorizationScriptRunner(IdentityTypesRegistry identityTypesRegistry, URIAccessService uriAccessService)
 	{
 		this.identityTypesRegistry = identityTypesRegistry;
-		restrictFileSystemAccess = config.getBooleanValue(UnityServerConfiguration.RESTRICT_FILE_SYSTEM_ACCESS);
-		webContentDir = config.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
+		this.uriAccessService = uriAccessService;
 	}
 
 	public ExternalAuthorizationScriptResponse runConfiguredExternalAuthnScript(
@@ -257,18 +256,6 @@ public class ExternalAuthorizationScriptRunner
 	
 	private void assertAccessToScript(String path) throws IOException
 	{
-		if (!restrictFileSystemAccess)
-			return;
-		Path realRoot;
-		try
-		{
-			realRoot = Paths.get(new File(webContentDir).getAbsolutePath())
-					.toRealPath();
-		} catch (IOException e)
-		{
-			throw new IOException("Web content dir " + webContentDir + " does not exists");
-		}
-
 		Path child;
 		try
 		{
@@ -278,10 +265,7 @@ public class ExternalAuthorizationScriptRunner
 		{
 			throw new IOException("Script " + path + " does not exists");
 		}
-
-		if (!child.startsWith(realRoot))
-		{
-			throw new IOException("Access to script " + path + " is limited");
-		}
+		
+		uriAccessService.assertAccessToFile(child);	
 	}
 }
