@@ -4,7 +4,7 @@
  */
 package io.imunity.console.views.directory_browser.group_details;
 
-import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -109,6 +109,7 @@ class AttributeStatementComponent extends VerticalLayout
 		extraAttributesGroupCombo.setInput(group, false);
 		extraAttributesGroupCombo.setRequiredIndicatorVisible(false);
 		
+		
 		if (groups.isEmpty())
 			extraAttributesGroupCB.setEnabled(false);
 
@@ -150,7 +151,7 @@ class AttributeStatementComponent extends VerticalLayout
 
 		FormLayout main = new FormLayout();
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		main.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		main.addFormItem(extraAttributesGroupCB, "");
 		main.addFormItem(extraAttributesGroupCombo, msg.getMessage("AttributeStatementComponent.extraGroupSelect"));
 		main.addFormItem(condition, msg.getMessage("AttributeStatementComponent.condition"));
@@ -207,8 +208,8 @@ class AttributeStatementComponent extends VerticalLayout
 
 	void setInitialData(AttributeStatement initial)
 	{
-		binder.setBean(initial);
 		extraAttributesGroupCB.setValue(initial.getExtraAttributesGroup() != null);
+		binder.setBean(initial);
 		assignMode.setValue(initial.dynamicAttributeMode() ? MODE_DYNAMIC : MODE_FIXED);
 	}
 
