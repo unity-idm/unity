@@ -25,6 +25,8 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -73,7 +75,8 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 
 			FormLayout fl = new FormLayout();
 			fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		
+			fl.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+
 			IntegerField min = new IntegerFieldWithDefaultOutOfRangeError(msg);
 			min.setMin(0);
 			min.setStepButtonsVisible(true);
