@@ -140,6 +140,28 @@ public class URIAccessServiceImpl implements URIAccessService
 		log.warn("Can not read image uri: " + uri.toString());
 		throw new URIAccessException("Can not read image uri: " + uri.toString());
 	}
+	
+	@Transactional
+	@Override
+	public void assertAccessToFile(Path pathToCheck) throws IOException
+	{
+		if (!restrictFileSystemAccess)
+			return;
+		Path realRoot;
+		try
+		{
+			realRoot = Paths.get(new File(webContentDir).getAbsolutePath())
+					.toRealPath();
+		} catch (IOException e)
+		{
+			throw new IOException("Web content dir " + webContentDir + " does not exists");
+		}
+
+		if (!pathToCheck.startsWith(realRoot))
+		{
+			throw new IOException("Access to script " + pathToCheck + " is limited");
+		}
+	}
 
 	private FileData readUriInternal(String root, URI uri, String customTrustStore) throws EngineException
 	{
@@ -227,27 +249,13 @@ public class URIAccessServiceImpl implements URIAccessService
 	private FileData readRestrictedFile(URI uri, String root) throws IOException, IllegalURIException
 	{
 		Path toRead = getRealFilePath(root, URIHelper.getPathFromURI(uri));
-
-		Path realRoot;
-		try
-		{
-			realRoot = Paths.get(new File(webContentDir).getAbsolutePath()).toRealPath();
-		} catch (IOException e)
-		{
-			throw new IOException("Web content dir does not exists");
-		}
-
-		if (!toRead.startsWith(realRoot))
-		{
-			throw new IOException("Access to file is limited");
-		}
-
+		assertAccessToFile(toRead);
 		File read = toRead.toFile();
 		log.debug("Read file from path: " + toRead.toString());
 		
 		return new FileData(read.getName(), Files.readAllBytes(toRead), new Date(read.lastModified()));
 	}
-
+	
 	private FileData readUnRestrictedFile(URI uri, String root) throws IOException
 	{
 		Path toRead = getRealFilePath(root, URIHelper.getPathFromURI(uri));
