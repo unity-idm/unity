@@ -6,7 +6,6 @@ package pl.edu.icm.unity.store.impl.groups;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,7 +22,6 @@ public class DefaultGroupDAOFactory
 {
 	@Bean
 	@Primary
-	@Autowired
 	public GroupDAOInternal getDefaultGroupDAO(StorageConfiguration cfg, Map<String, GroupDAOInternal> daos)
 	{
 		return daos.get(GroupDAO.DAO_ID + cfg.getEngine().name());

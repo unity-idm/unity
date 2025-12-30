@@ -6,21 +6,14 @@
 package pl.edu.icm.unity.oauth.as.token.introspection;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import jakarta.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionRequest;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
@@ -31,6 +24,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
+import jakarta.ws.rs.core.Response;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
