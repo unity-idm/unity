@@ -22,7 +22,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.http.HttpStatus;
 
 import com.google.common.collect.ImmutableSet;
 
