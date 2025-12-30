@@ -313,14 +313,23 @@ class EffectiveAttributesEvaluator
 			case merge:
 				log.trace("Conflict detected, will try to merge values");					
 				AttributeType at = attrTypeProvider.apply(ret.getName());
-				if (at.getMaxElements() == Integer.MAX_VALUE)
+				int maxElements = at.getMaxElements();
+				int existingSize = existing.getValues()
+						.size();
+				int newSize = ret.getValues()
+						.size();
+
+				boolean canMerge = maxElements == Integer.MAX_VALUE || maxElements >= existingSize + newSize;
+
+				if (canMerge)
 				{
-					((List)existing.getValues()).addAll(ret.getValues());
-					log.trace("Merge of values was performed");					
+					((List) existing.getValues()).addAll(ret.getValues());
+					log.trace("Merge of values of attribute {} was performed", at.getName());
 				} else
 				{
-					log.trace("Merge of values was skipped as "
-							+ "attribute type has a values number limit");
+					log.debug("Merge of values was skipped as attribute type {} has a values number limit {}. "
+							+ "Actual attributes values size: {}. Attribute values size created by attribute statements: {}",
+							at.getName(), maxElements, existingSize, newSize);
 				}
 				return;
 			}
