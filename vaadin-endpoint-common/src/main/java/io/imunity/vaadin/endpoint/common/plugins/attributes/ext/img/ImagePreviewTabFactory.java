@@ -11,6 +11,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.server.streams.DownloadHandler;
 
+import io.imunity.vaadin.endpoint.common.file.UnityImageDownloadHandler;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
 
 class ImagePreviewTabFactory
