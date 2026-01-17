@@ -78,6 +78,6 @@ public class LocalOrRemoteResource extends Image
 		{
 			return new LocalOrRemoteResource(getSrc(), getAlt().orElse(null));
 		}
-		return new LocalOrRemoteResource(local.clone(), mimeType, "");
+		return new LocalOrRemoteResource(local.clone(), mimeType, getAlt().orElse(null));
 	}
 }
