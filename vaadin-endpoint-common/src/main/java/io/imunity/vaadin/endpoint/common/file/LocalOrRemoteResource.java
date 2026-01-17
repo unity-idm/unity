@@ -6,16 +6,13 @@
 package io.imunity.vaadin.endpoint.common.file;
 
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.server.AbstractStreamResource;
-import com.vaadin.flow.server.StreamResource;
-
-import java.io.ByteArrayInputStream;
 
 import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
 
 public class LocalOrRemoteResource extends Image
 {
 	private byte[] local;
+	private String mimeType;
 
 	public LocalOrRemoteResource()
 	{
@@ -28,16 +25,30 @@ public class LocalOrRemoteResource extends Image
 		addClassName(LOGO_IMAGE.getName());
 	}
 
-	public LocalOrRemoteResource(AbstractStreamResource src, String alt, byte[] local)
+	public LocalOrRemoteResource(byte[] local, String mimeType, String alt)
 	{
-		super(src, alt);
 		this.local = local;
+		this.mimeType = mimeType;
+		addClassName(LOGO_IMAGE.getName());
+		if (local != null && local.length > 0)
+		{
+			super.setSrc(ImageUtils.createDataUrl(local, mimeType));
+		}
+		setAlt(alt);
 	}
 
-	public void setSrc(AbstractStreamResource src, byte[] local)
+	public void setSrc(byte[] local, String mimeType)
 	{
 		this.local = local;
-		super.setSrc(src);
+		this.mimeType = mimeType;
+		if (local != null && local.length > 0)
+		{
+			super.setSrc(ImageUtils.createDataUrl(local, mimeType));
+		}
+		else
+		{
+			super.setSrc("");
+		}
 	}
 
 	public byte[] getLocal()
@@ -50,11 +61,23 @@ public class LocalOrRemoteResource extends Image
 		this.local = local;
 	}
 
-	public LocalOrRemoteResource clone()
+	public String getMimeType()
 	{
-		if(local == null)
-			return new LocalOrRemoteResource(getSrc(), getAlt().orElse(null));
-		return new LocalOrRemoteResource(new StreamResource("file", () -> new ByteArrayInputStream(local)), "", local.clone());
+		return mimeType;
 	}
 
+	public void setMimeType(String mimeType)
+	{
+		this.mimeType = mimeType;
+	}
+
+	@Override
+	public LocalOrRemoteResource clone()
+	{
+		if (local == null)
+		{
+			return new LocalOrRemoteResource(getSrc(), getAlt().orElse(null));
+		}
+		return new LocalOrRemoteResource(local.clone(), mimeType, "");
+	}
 }

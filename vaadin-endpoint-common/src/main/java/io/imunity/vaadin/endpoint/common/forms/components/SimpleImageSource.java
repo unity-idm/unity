@@ -5,19 +5,17 @@
 
 package io.imunity.vaadin.endpoint.common.forms.components;
 
-import com.vaadin.flow.server.StreamResource;
+import io.imunity.vaadin.endpoint.common.file.ImageUtils;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Random;
 
 class SimpleImageSource
 {
-	private static final Random random = new Random();
+	private static final String PNG_MIME_TYPE = "image/png";
 	private final byte[] data;
 
 	public SimpleImageSource(BufferedImage value)
@@ -26,15 +24,21 @@ class SimpleImageSource
 		try
 		{
 			ImageIO.write(value, "png", bos);
-		} catch (IOException e)
+		}
+		catch (IOException e)
 		{
 			throw new InternalException("Image can not be encoded as PNG", e);
 		}
 		data = bos.toByteArray();
 	}
 
-	public StreamResource getResource()
+	public String getDataUrl()
 	{
-		return new StreamResource("imgattribute-"+random.nextLong()+".png", () -> new ByteArrayInputStream(data));
+		return ImageUtils.createDataUrl(data, PNG_MIME_TYPE);
+	}
+
+	public byte[] getData()
+	{
+		return data;
 	}
 }

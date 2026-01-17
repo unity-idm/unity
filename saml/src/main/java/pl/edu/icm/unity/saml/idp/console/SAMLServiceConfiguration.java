@@ -5,7 +5,6 @@
 
 package pl.edu.icm.unity.saml.idp.console;
 
-import com.vaadin.flow.server.StreamResource;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.services.idp.ActiveValueConfig;
 import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
@@ -39,7 +38,6 @@ import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration.ResponseSigningPolicy;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
@@ -355,9 +353,7 @@ public class SAMLServiceConfiguration
 				} else
 				{
 					FileData fileData = uriAccessService.readURI(uri);
-					metadataSource = new LocalOrRemoteResource(new StreamResource("metadata",
-							() -> new ByteArrayInputStream(fileData.getContents())),
-							uri.toString(), fileData.getContents());
+					metadataSource = new LocalOrRemoteResource(fileData.getContents(), "text/xml", "");
 				}
 
 			} catch (Exception e)
