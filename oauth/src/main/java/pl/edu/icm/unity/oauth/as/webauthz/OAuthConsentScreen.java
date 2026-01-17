@@ -29,14 +29,13 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.server.StreamResource;
-
 import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
 import io.imunity.vaadin.endpoint.common.consent_utils.ExposedAttributesComponent;
 import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
 import io.imunity.vaadin.endpoint.common.consent_utils.IdentitySelectorComponent;
 import io.imunity.vaadin.endpoint.common.consent_utils.SPInfoComponent;
 import io.imunity.vaadin.endpoint.common.consent_utils.URIPresentationHelper;
+import io.imunity.vaadin.endpoint.common.file.ImageUtils;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
@@ -55,6 +54,13 @@ import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
+import io.imunity.vaadin.endpoint.common.consent_utils.URIPresentationHelper;
+
+import java.time.Instant;
+import java.util.*;
+import java.util.function.BiConsumer;
+
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_CONSENT_DECIDER_SERVLET_PATH;
 
 /**
  * Consent screen after resource owner login and obtaining set of effective attributes.
@@ -142,7 +148,7 @@ class OAuthConsentScreen extends VerticalLayout
 		{
 			ImageAttributeSyntax syntax = (ImageAttributeSyntax) aTypeSupport.getSyntax(logoAttr);
 			UnityImage image = syntax.convertFromString(logoAttr.getValues().get(0));
-			clientLogo = new Image(new StreamResource(UUID.randomUUID() + "." + image.getType().toExt(), () -> new ByteArrayInputStream(image.getImage())), "");
+			clientLogo = ImageUtils.createFromUnityImage(image, "");
 		}
 		SPInfoComponent spInfo = new SPInfoComponent(msg, clientLogo, oauthRequester, returnAddress);
 		

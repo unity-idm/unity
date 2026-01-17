@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.saml.sp.web;
 
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.server.StreamResource;
+import io.imunity.vaadin.endpoint.common.file.ImageUtils;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -15,8 +15,8 @@ import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileLoader;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import static com.vaadin.flow.server.VaadinService.getCurrentRequest;
 import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
@@ -66,15 +66,15 @@ class LogoExposingService
 
 	private static Image createImage(File file)
 	{
-		try 
+		try
 		{
-			@SuppressWarnings("resource")
-			FileInputStream byteArrayInputStream = new FileInputStream(file);
-			StreamResource streamResource = new StreamResource(file.getName(), () -> byteArrayInputStream);
-			Image img = new Image(streamResource, "");
+			byte[] bytes = Files.readAllBytes(file.toPath());
+			String mimeType = ImageUtils.getMimeTypeFromFilename(file.getName());
+			Image img = ImageUtils.createFromBytes(bytes, mimeType, "");
 			img.addClassName(LOGO_IMAGE.getName());
 			return img;
-		} catch (IOException  e)
+		}
+		catch (IOException e)
 		{
 			log.warn(e);
 			return new Image();
