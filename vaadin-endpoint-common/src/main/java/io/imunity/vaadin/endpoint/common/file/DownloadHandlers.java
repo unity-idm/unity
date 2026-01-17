@@ -46,7 +46,7 @@ public final class DownloadHandlers
 	}
 
 	/**
-	 * Creates a DownloadHandler for byte array data with content type auto-detection.
+	 * Creates a DownloadHandler for byte array data with a default MIME type of "application/octet-stream".
 	 *
 	 * @param data     the byte array to download
 	 * @param filename the filename for the download

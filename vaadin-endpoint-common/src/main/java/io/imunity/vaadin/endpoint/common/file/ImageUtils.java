@@ -94,7 +94,7 @@ public final class ImageUtils
 	 */
 	public static String createDataUrl(byte[] data, String mimeType)
 	{
-		if (data == null || data.length == 0)
+		if (data == null || data.length == 0 || mimeType == null || mimeType.isEmpty())
 		{
 			return "";
 		}
