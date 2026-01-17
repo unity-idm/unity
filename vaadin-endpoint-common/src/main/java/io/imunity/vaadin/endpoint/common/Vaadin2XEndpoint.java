@@ -128,7 +128,7 @@ public abstract class Vaadin2XEndpoint extends AbstractWebEndpoint implements We
 		context.setAttribute(CONTAINER_JAR_PATTERN, JarGetter.getJarsRegex(resourceProvider.getChosenClassPathElement()));
 		context.setConfigurationDiscovered(true);
 		context.setInitParameter("org.eclipse.jetty.servlet.Default.dirAllowed", "false");
-		context.getServerClassMatcher().exclude("org.eclipse.jetty.");
+		context.getHiddenClassMatcher().exclude("org.eclipse.jetty.");
 		context.setConfigurations(new Configuration[] {
 				new AnnotationConfiguration(),
 				new WebAppConfiguration(),

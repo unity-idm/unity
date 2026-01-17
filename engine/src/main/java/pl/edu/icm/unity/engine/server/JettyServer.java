@@ -7,11 +7,11 @@ package pl.edu.icm.unity.engine.server;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.jetty.SecuredServerConnector;
-import jakarta.servlet.ServletException;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.compression.gzip.GzipCompression;
+import org.eclipse.jetty.compression.server.CompressionHandler;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http.UriCompliance.Violation;
@@ -19,7 +19,7 @@ import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
 import org.eclipse.jetty.server.*;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
 import org.eclipse.jetty.session.SessionIdManager;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -39,7 +39,9 @@ import pl.edu.icm.unity.engine.api.utils.URLFactory;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.*;
+import java.util.regex.Pattern;
 
 import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.*;
 
@@ -382,7 +384,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	}
 
 	/**
-	 * Configures Gzip filter if gzipping is enabled, for all servlet
+	 * Configures compression if gzipping is enabled, for all servlet
 	 * handlers which are configured. Warning: if you use a complex setup of
 	 * handlers it might be better to override this method and enable
 	 * compression selectively.
@@ -392,14 +394,21 @@ public class JettyServer implements Lifecycle, NetworkServer
 		boolean enableGzip = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_GZIP);
 		if (enableGzip)
 		{
-			GzipHandler gzipHandler = new GzipHandler();
-			gzipHandler.setMinGzipSize(serverSettings.getIntValue(UnityHttpServerConfiguration.MIN_GZIP_SIZE));
-			log.info("Enabling GZIP compression filter");
-			gzipHandler.setServer(theServer);
-			gzipHandler.setHandler(handler);
-			return gzipHandler;
-		} else
+			log.info("Enabling GZIP compression");
+			CompressionHandler compressionHandler = new CompressionHandler();
+			compressionHandler.setServer(theServer);
+
+			GzipCompression gzip = new GzipCompression();
+			gzip.setMinCompressSize(serverSettings.getIntValue(UnityHttpServerConfiguration.MIN_GZIP_SIZE));
+			compressionHandler.putCompression(gzip);
+
+			compressionHandler.setHandler(handler);
+			return compressionHandler;
+		}
+		else
+		{
 			return handler;
+		}
 	}
 
 	/**
@@ -453,9 +462,9 @@ public class JettyServer implements Lifecycle, NetworkServer
 		}
 		handler.getServletHandler().setDecodeAmbiguousURIs(true);
 		addDoSFilter(handler);
-		addCORSFilter(handler);
 
-		ClientIPSettingHandler clientIPSettingHandler = applyClientIPDiscoveryHandler(handler, endpointId);
+		Handler wrappedHandler = applyCORSHandler(handler);
+		ClientIPSettingHandler clientIPSettingHandler = applyClientIPDiscoveryHandler(wrappedHandler, endpointId);
 		mainContextHandler.addHandler(clientIPSettingHandler);
 		if(theServer.isStarted())
 		{
@@ -573,50 +582,84 @@ public class JettyServer implements Lifecycle, NetworkServer
 		}
 	}
 
-	private void addCORSFilter(ServletContextHandler handler)
+	private Handler applyCORSHandler(Handler handler)
 	{
 		boolean enable = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_CORS);
 		if (!enable)
-			return;
+		{
+			return handler;
+		}
 
 		log.info("Enabling CORS");
-		CrossOriginFilter cors = new CrossOriginFilter();
-		jakarta.servlet.FilterConfig config = new jakarta.servlet.FilterConfig()
+		CrossOriginHandler corsHandler = new CrossOriginHandler();
+
+		String allowedOrigins = serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + "allowedOrigins");
+		if (allowedOrigins != null && !allowedOrigins.isEmpty())
 		{
-
-			@Override
-			public jakarta.servlet.ServletContext getServletContext()
-			{
-				throw new UnsupportedOperationException("Not implemented");
-			}
-
-			@Override
-			public Enumeration<String> getInitParameterNames()
-			{
-				throw new UnsupportedOperationException("Not implemented");
-			}
-
-			@Override
-			public String getInitParameter(String name)
-			{
-				return serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + name);
-			}
-
-			@Override
-			public String getFilterName()
-			{
-				return "CORS";
-			}
-		};
-		try
-		{
-			cors.init(config);
-		} catch (ServletException e)
-		{
-			throw new ConfigurationException("Error setting up CORS", e);
+			corsHandler.setAllowedOriginPatterns(parseOriginPatterns(allowedOrigins));
 		}
-		org.eclipse.jetty.ee10.servlet.FilterHolder filterHolder = new org.eclipse.jetty.ee10.servlet.FilterHolder(cors);
-		handler.addFilter(filterHolder, "/*", EnumSet.of(jakarta.servlet.DispatcherType.REQUEST, jakarta.servlet.DispatcherType.FORWARD));
+
+		String allowedMethods = serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + "allowedMethods");
+		if (allowedMethods != null && !allowedMethods.isEmpty())
+		{
+			corsHandler.setAllowedMethods(Set.of(allowedMethods.split(",")));
+		}
+
+		String allowedHeaders = serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + "allowedHeaders");
+		if (allowedHeaders != null && !allowedHeaders.isEmpty())
+		{
+			corsHandler.setAllowedHeaders(Set.of(allowedHeaders.split(",")));
+		}
+
+		String exposedHeaders = serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + "exposedHeaders");
+		if (exposedHeaders != null && !exposedHeaders.isEmpty())
+		{
+			corsHandler.setExposedHeaders(Set.of(exposedHeaders.split(",")));
+		}
+
+		String allowCredentials = serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + "allowCredentials");
+		if (allowCredentials != null)
+		{
+			corsHandler.setAllowCredentials(Boolean.parseBoolean(allowCredentials));
+		}
+
+		String preflightMaxAge = serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + "preflightMaxAge");
+		if (preflightMaxAge != null && !preflightMaxAge.isEmpty())
+		{
+			corsHandler.setPreflightMaxAge(Duration.ofSeconds(Long.parseLong(preflightMaxAge)));
+		}
+
+		String chainPreflight = serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + "chainPreflight");
+		if (chainPreflight != null)
+		{
+			corsHandler.setDeliverPreflightRequests(Boolean.parseBoolean(chainPreflight));
+		}
+
+		corsHandler.setHandler(handler);
+		return corsHandler;
+	}
+
+	private Set<String> parseOriginPatterns(String origins)
+	{
+		Set<String> patterns = new HashSet<>();
+		for (String origin : origins.split(","))
+		{
+			origin = origin.trim();
+			if (origin.equals("*"))
+			{
+				patterns.add(".*");
+			}
+			else if (origin.contains("*"))
+			{
+				String regex = origin.replace(".", "\\.").replace("*", ".*");
+				patterns.add(regex);
+			}
+			else
+			{
+				patterns.add(Pattern.quote(origin));
+			}
+		}
+		return patterns;
 	}
 
 

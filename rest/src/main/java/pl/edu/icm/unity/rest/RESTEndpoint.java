@@ -146,6 +146,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 		return context;
 	}
 	
+	@SuppressWarnings("removal")
 	protected FilterHolder getCorsFilter()
 	{
 		CrossOriginFilter filter = new CrossOriginFilter();
