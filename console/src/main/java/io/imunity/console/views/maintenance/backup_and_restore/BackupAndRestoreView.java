@@ -14,16 +14,16 @@ import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.streams.InMemoryUploadHandler;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.Panel;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import jakarta.annotation.security.PermitAll;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
@@ -35,8 +35,6 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 import static io.imunity.vaadin.elements.CSSVars.BASE_MARGIN;
@@ -57,7 +55,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 	private final NotificationPresenter notificationPresenter;
 	private final UnityServerConfiguration serverConfig;
 	private final UI ui;
-	private MemoryBuffer memoryBuffer;
+	private byte[] uploadedBytes;
 	private Upload upload;
 
 	BackupAndRestoreView(MessageSource msg, ServerManagement serverManagement,
@@ -133,7 +131,27 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 		users.getStyle().set("margin-left", BASE_MARGIN.value());
 		signupRequests.getStyle().set("margin-left", BASE_MARGIN.value());
 
-		Anchor download = new Anchor(getStreamResource(configBinder), "");
+		Anchor download = new Anchor(DownloadHandlers.forInputStream(
+			() ->
+			{
+				BinderDBDumpContentElements type = configBinder.getBean();
+				DBDumpContentElements dbDumpContentElements =
+						new DBDumpContentElements(type.isSystemConfig(), type.isDirectorySchema(), type.isUsers(),
+								type.isAuditLogs(), type.isSignupRequests(), type.isIdpStatistics()
+						);
+				try
+				{
+					return new FileInputStream(serverManagement.exportDb(dbDumpContentElements));
+				}
+				catch (Exception e)
+				{
+					ui.access(() -> notificationPresenter.showError(msg.getMessage("ImportExport.exportFailed"), e.getMessage()));
+					throw new RuntimeException(e);
+				}
+			},
+			getNewFilename(),
+			"application/json"
+		), "");
 		download.getElement().setAttribute("download", true);
 		download.removeAll();
 		Button createDump = new Button(msg.getMessage("ImportExport.createDump"));
@@ -148,36 +166,6 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 		configBinder.setBean(new BinderDBDumpContentElements());
 
 		return exportPanel;
-	}
-
-	private StreamResource getStreamResource(Binder<BinderDBDumpContentElements> configBinder)
-	{
-		return new StreamResource(getNewFilename(),
-				() ->
-				{
-					BinderDBDumpContentElements type = configBinder.getBean();
-					DBDumpContentElements dbDumpContentElements =
-							new DBDumpContentElements(type.isSystemConfig(), type.isDirectorySchema(), type.isUsers(),
-									type.isAuditLogs(), type.isSignupRequests(), type.isIdpStatistics()
-							);
-					try
-					{
-						return new FileInputStream(serverManagement.exportDb(dbDumpContentElements));
-					} catch (Exception e)
-					{
-						ui.access(() -> notificationPresenter.showError(msg.getMessage("ImportExport.exportFailed"), e.getMessage()));
-						throw new RuntimeException(e);
-					}
-				})
-		{
-			@Override
-			public Map<String, String> getHeaders()
-			{
-				Map<String, String> headers = new HashMap<>(super.getHeaders());
-				headers.put("Content-Disposition", "attachment; filename=\"" + getNewFilename() + "\"");
-				return headers;
-			}
-		};
 	}
 
 	private String getNewFilename()
@@ -197,12 +185,18 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 		Span fileUploaded = new Span(msg.getMessage("ImportExport.noFileUploaded"));
 		fileUploaded.addClassName(MARGIN_VERTICAL.getName());
 
-		memoryBuffer = new MemoryBuffer();
-		upload = new Upload(memoryBuffer);
+		upload = new Upload(new InMemoryUploadHandler((metadata, bytes) ->
+		{
+			uploadedBytes = bytes;
+			fileUploaded.setText(msg.getMessage("ImportExport.dumpUploaded", new Date()));
+		}));
 		upload.setMaxFileSize(getDBDumbFileSizeLimit());
 		upload.setAcceptedFileTypes("application/json");
-		upload.addFinishedListener(e -> fileUploaded.setText(msg.getMessage("ImportExport.dumpUploaded", new Date())));
-		upload.getElement().addEventListener("file-remove", e -> fileUploaded.setText(msg.getMessage("ImportExport.noFileUploaded")));
+		upload.getElement().addEventListener("file-remove", e ->
+		{
+			uploadedBytes = null;
+			fileUploaded.setText(msg.getMessage("ImportExport.noFileUploaded"));
+		});
 		upload.addFileRejectedListener(e -> notificationPresenter.showError(msg.getMessage("error"),
 				e.getErrorMessage()));
 
@@ -247,20 +241,10 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 			return;
 		}
 
-		try
-		{
-			if (memoryBuffer.getInputStream().available() == 0)
-			{
-				notificationPresenter.showError(msg.getMessage("error"),
-						msg.getMessage("ImportExport.uploadFileFirst"));
-				return;
-			}
-		}
-		catch (IOException e)
+		if (uploadedBytes == null || uploadedBytes.length == 0)
 		{
 			notificationPresenter.showError(msg.getMessage("error"),
 					msg.getMessage("ImportExport.uploadFileFirst"));
-			log.error("Occurred while memoryBuffer was read", e);
 			return;
 		}
 
@@ -268,7 +252,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 				msg.getMessage("ConfirmDialog.confirm"),
 				msg.getMessage("ImportExport.confirm"),
 				msg.getMessage("ok"),
-				e -> importDump(copyInputStreamToFile(memoryBuffer.getInputStream())),
+				e -> importDump(copyInputStreamToFile(new ByteArrayInputStream(uploadedBytes))),
 				msg.getMessage("cancel"),
 				e -> {}
 		);
