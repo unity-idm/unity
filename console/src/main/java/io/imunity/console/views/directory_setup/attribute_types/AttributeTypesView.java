@@ -25,7 +25,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.StreamResource;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
@@ -38,6 +37,7 @@ import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
 import io.imunity.vaadin.endpoint.common.Toolbar;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.Constants;
@@ -45,7 +45,6 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
-import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -189,41 +188,25 @@ public class AttributeTypesView extends ConsoleViewComponent
 
 	private void export(Set<AttributeTypeEntry> selectedItems)
 	{
-		Anchor download = new Anchor(getStreamResource(selectedItems), "");
-		download.getElement()
-				.setAttribute("download", true);
+		Anchor download = new Anchor(DownloadHandlers.forJson(() ->
+		{
+			try
+			{
+				return Constants.MAPPER.writeValueAsBytes(selectedItems.stream()
+						.map(at -> at.attributeType)
+						.collect(Collectors.toSet()));
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}, getNewFilename(selectedItems)), "");
+		download.getElement().setAttribute("download", true);
 		getContent().add(download);
 		download.getElement()
 				.executeJs("return new Promise(resolve =>{this.click(); setTimeout(() => resolve(true), 150)})",
 						download.getElement())
 				.then(j -> getContent().remove(download));
-	}
-
-	private StreamResource getStreamResource(Set<AttributeTypeEntry> selectedItems)
-	{
-		return new StreamResource(getNewFilename(selectedItems), () ->
-		{
-
-			try
-			{
-				byte[] content = Constants.MAPPER.writeValueAsBytes(selectedItems.stream()
-						.map(at -> at.attributeType)
-						.collect(Collectors.toSet()));
-				return new ByteArrayInputStream(content);
-			} catch (Exception e)
-			{
-				throw new RuntimeException(e);
-			}
-		})
-		{
-			@Override
-			public Map<String, String> getHeaders()
-			{
-				Map<String, String> headers = new HashMap<>(super.getHeaders());
-				headers.put("Content-Disposition", "attachment; filename=\"" + getNewFilename(selectedItems) + "\"");
-				return headers;
-			}
-		};
 	}
 
 	private String getNewFilename(Set<AttributeTypeEntry> selectedItems)

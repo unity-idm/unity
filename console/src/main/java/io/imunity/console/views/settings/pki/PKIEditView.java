@@ -14,7 +14,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.server.streams.InMemoryUploadHandler;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.OptionalParameter;
@@ -103,20 +103,12 @@ public class PKIEditView extends ConsoleViewComponent
 		name.setWidth(TEXT_FIELD_BIG.value());
 		name.setPlaceholder(msg.getMessage("Certificate.defaultName"));
 
-		MemoryBuffer memoryBuffer = new MemoryBuffer();
-		Upload upload = new Upload(memoryBuffer);
+		Upload upload = new Upload(new InMemoryUploadHandler((metadata, bytes) ->
+		{
+			value.setValue(new String(bytes, StandardCharsets.UTF_8));
+		}));
 		upload.setMaxFileSize(MAX_FILE_SIZE);
 		upload.getStyle().set("margin", "var(--unity-base-margin) 0");
-		upload.addSucceededListener(e ->
-		{
-			try
-			{
-				value.setValue(new String(memoryBuffer.getInputStream().readAllBytes(), StandardCharsets.UTF_8));
-			} catch (IOException ex)
-			{
-				notificationPresenter.showError(msg.getMessage("error"), ex.getMessage());
-			}
-		});
 		upload.setUploadButton(new Button(msg.getMessage("CertificateEditor.uploadButtonCaption")));
 
 		value = new TextArea();
