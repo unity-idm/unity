@@ -5,11 +5,16 @@
 package pl.edu.icm.unity.saml.slo;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.xmlbeans.XmlObject;
 
 import eu.emi.security.authn.x509.X509Credential;
-import eu.unicore.samly2.binding.HttpPostBindingSupport;
+import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
 import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.proto.AbstractSAMLMessage;
@@ -39,13 +44,28 @@ public class SamlRoutableSignableMessage<T extends XmlObject> implements SamlRou
 	}
 
 	@Override
-	public String getPOSTConents() throws DSigException
+	public String getPOSTConents(FreemarkerXHTMLHandler handler) throws DSigException
 	{
 		if (signingKey != null)
 			sign();
 		String xmlString = getRawMessage();
-		return HttpPostBindingSupport.getHtmlPOSTFormContents(
-				messageType, destinationURL, xmlString, relayState);
+		String encodedMessage = Base64.getEncoder().encodeToString(xmlString.getBytes(StandardCharsets.UTF_8));
+		Map<String, String> data = new HashMap<>();
+		data.put("samlMessage", encodedMessage);
+		data.put("messageType", messageType.name());
+		data.put("destinationURL", destinationURL);
+		if (relayState != null)
+			data.put("relayState", relayState);
+		
+		StringWriter out = new StringWriter();
+		try
+		{
+			handler.printXHTMLDocument(out, "postBinding.ftl", data);
+		} catch (IOException e)
+		{
+			throw new RuntimeException("Can't render SAML POST form", e);
+		}
+		return out.toString();
 	}
 
 	@Override

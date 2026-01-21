@@ -39,13 +39,15 @@ public class SAMLProxyAuthnHandler
 	
 	private final SAMLExchange credentialExchange;
 	private final SamlContextManagement samlContextManagement;
+	private final RedirectRequestHandler redirectRequestHandler;
 	private final String authenticatorId;
 
 	public SAMLProxyAuthnHandler(SAMLExchange credentialExchange, SamlContextManagement samlContextManagement,
-			String authenticatorId)
+			RedirectRequestHandler redirectRequestHandler, String authenticatorId)
 	{
 		this.credentialExchange = credentialExchange;
 		this.samlContextManagement = samlContextManagement;
+		this.redirectRequestHandler = redirectRequestHandler;
 		this.authenticatorId = authenticatorId;
 	}
 	
@@ -105,7 +107,7 @@ public class SAMLProxyAuthnHandler
 			throw new IllegalStateException("Can not create SAML authN request", e);
 		}
 		
-		RedirectRequestHandler.handleRequest(context, httpResponse);
+		redirectRequestHandler.handleRequest(context, httpResponse);
 		return true;
 	}
 	

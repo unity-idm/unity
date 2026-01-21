@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
+import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
 import io.imunity.vaadin.endpoint.common.EopException;
 
 import java.io.IOException;
@@ -25,10 +26,12 @@ public class SamlMessageHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlMessageHandler.class);
 	protected FreemarkerAppHandler freemarker;
+	protected FreemarkerXHTMLHandler xhtmlHandler;
 	
-	public SamlMessageHandler(FreemarkerAppHandler freemarker)
+	public SamlMessageHandler(FreemarkerAppHandler freemarker, FreemarkerXHTMLHandler xhtmlHandler)
 	{
 		this.freemarker = freemarker;
+		this.xhtmlHandler = xhtmlHandler;
 	}
 	
 	/**
@@ -102,7 +105,7 @@ public class SamlMessageHandler
 		response.setDateHeader("Expires", -1);
 
 		log.debug("Returning {} {} with HTTP POST binding to {}", info, type, samlMessage.getDestinationURL());
-		String htmlResponse = samlMessage.getPOSTConents();
+		String htmlResponse = samlMessage.getPOSTConents(xhtmlHandler);
 		if (log.isTraceEnabled())
 		{
 			log.trace("SAML {} is:\n{}", info, samlMessage.getRawMessage());

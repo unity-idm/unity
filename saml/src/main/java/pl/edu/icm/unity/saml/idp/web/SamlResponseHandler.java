@@ -41,11 +41,11 @@ import java.util.Map;
 public class SamlResponseHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlResponseHandler.class);
-	protected FreemarkerAppHandler freemarkerHandler;
+	protected FreemarkerXHTMLHandler freemarkerHandler;
 	protected AuthnResponseProcessor samlProcessor;
 	private final SamlIdpStatisticReporter reporter;
 
-	public SamlResponseHandler(FreemarkerAppHandler freemarkerHandler,
+	public SamlResponseHandler(FreemarkerXHTMLHandler freemarkerHandler,
 			AuthnResponseProcessor samlProcessor, 
 			SamlIdpStatisticReporterFactory reporterFactory,
 			Endpoint endpoint
@@ -134,7 +134,7 @@ public class SamlResponseHandler
 
 			response.setContentType("application/xhtml+xml; charset=utf-8");
 			PrintWriter writer = response.getWriter();
-			freemarkerHandler.printGenericPage(writer, "samlFinish.ftl", data);
+			freemarkerHandler.printXHTMLDocument(writer, "samlFinish.ftl", data);
 			return true;
 		}
 	}

@@ -76,7 +76,7 @@ class SamlIdPWebView extends UnityViewComponent
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebView.class);
 	private final MessageSource msg;
 	private final IdPEngine idpEngine;
-	private final FreemarkerAppHandler freemarkerHandler;
+	private final FreemarkerXHTMLHandler freemarkerHandler;
 	private final AttributeHandlerRegistry handlersRegistry;
 	private final IdentityTypeSupport identityTypeSupport;
 	private final PreferencesManagement preferencesMan;
@@ -98,18 +98,18 @@ class SamlIdPWebView extends UnityViewComponent
 
 	@Autowired
 	public SamlIdPWebView(MessageSource msg, VaadinLogoImageLoader imageAccessService,
-	                      FreemarkerAppHandler freemarkerHandler,
-	                      AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-	                      VaadinWebLogoutHandler authnProcessor, IdPEngine idpEngine,
-	                      IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan,
-	                      AttributeTypeManagement attrsMan,
-	                      AttributeTypeSupport aTypeSupport,
-	                      PolicyAgreementManagement policyAgreementsMan,
-	                      PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
-	                      SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-	                      LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
-	                      EnquiresDialogLauncher enquiresDialogLauncher,
-	                      NotificationPresenter notificationPresenter)
+			FreemarkerXHTMLHandler freemarkerHandler,
+			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
+			VaadinWebLogoutHandler authnProcessor, IdPEngine idpEngine,
+	                IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan,
+	                AttributeTypeManagement attrsMan,
+	                AttributeTypeSupport aTypeSupport,
+	                PolicyAgreementManagement policyAgreementsMan,
+	                PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
+	                SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+	                LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+	                EnquiresDialogLauncher enquiresDialogLauncher,
+	                NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;

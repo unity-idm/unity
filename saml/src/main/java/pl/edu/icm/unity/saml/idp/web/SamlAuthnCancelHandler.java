@@ -25,14 +25,15 @@ import io.imunity.vaadin.endpoint.common.EopException;
  */
 public class SamlAuthnCancelHandler implements CancelHandler
 {
-	private final FreemarkerAppHandler freemarkerHandler;
+	private final FreemarkerXHTMLHandler freemarkerHandler;
 	private final AttributeTypeSupport aTypeSupport;
 	private final Endpoint endpoint;
 	private final SamlIdpStatisticReporterFactory reporterFactory;
 	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
-	public SamlAuthnCancelHandler(FreemarkerAppHandler freemarkerHandler, AttributeTypeSupport aTypeSupport,
-			SamlIdpStatisticReporterFactory reporterFactory, LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement, Endpoint endpoint)
+	public SamlAuthnCancelHandler(FreemarkerXHTMLHandler freemarkerHandler, AttributeTypeSupport aTypeSupport,
+			SamlIdpStatisticReporterFactory reporterFactory,
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement, Endpoint endpoint)
 	{
 		this.freemarkerHandler = freemarkerHandler;
 		this.aTypeSupport = aTypeSupport;

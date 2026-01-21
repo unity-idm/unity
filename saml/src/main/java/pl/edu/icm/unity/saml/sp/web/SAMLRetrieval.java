@@ -45,17 +45,20 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	private final SamlContextManagement samlContextManagement;
 	private final NotificationPresenter notificationPresenter;
 	private final LogoExposingService logoExposingService;
+	private final RedirectRequestHandler redirectRequestHandler;
 	private SAMLProxyAuthnHandler proxyAuthnHandler;
 
 	@Autowired
 	public SAMLRetrieval(MessageSource msg, SamlContextManagement samlContextManagement,
-	                     LogoExposingService logoExposingService, NotificationPresenter notificationPresenter)
+	                     LogoExposingService logoExposingService, NotificationPresenter notificationPresenter,
+	                     RedirectRequestHandler redirectRequestHandler)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.samlContextManagement = samlContextManagement;
 		this.logoExposingService = logoExposingService;
 		this.notificationPresenter = notificationPresenter;
+		this.redirectRequestHandler = redirectRequestHandler;
 	}
 
 	@Override
@@ -85,6 +88,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 
 				ret.add(new SAMLRetrievalUI(msg, credentialExchange, 
 						samlContextManagement, 
+						redirectRequestHandler,
 						idp.key, context,
 						new AuthenticationStepContext(authnStepContext, authenticationOptionKey, SigInInProgressContextService.getVaadinContext()),
 						logoExposingService, notificationPresenter));
@@ -111,7 +115,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	{
 		super.setCredentialExchange(e, id);
 		proxyAuthnHandler = new SAMLProxyAuthnHandler((SAMLExchange) e, 
-				samlContextManagement, id);
+				samlContextManagement, redirectRequestHandler, id);
 	}
 	
 	@Override
