@@ -6,12 +6,13 @@ package pl.edu.icm.unity.saml.slo;
 
 import java.io.IOException;
 
+import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
 import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.security.dsig.DSigException;
 
 public interface SamlRoutableMessage
 {
-	String getPOSTConents() throws DSigException;
+	String getPOSTConents(FreemarkerXHTMLHandler handler) throws DSigException;
 
 	String getRedirectURL() throws IOException, DSigException;
 

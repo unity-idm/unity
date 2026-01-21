@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
+import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 
 import java.time.Duration;
@@ -42,14 +43,15 @@ public class SAMLLogoutProcessorFactory
 	public SAMLLogoutProcessorFactory(SessionManagement sessionManagement, 
 			@Qualifier("insecure") PKIManagement pkiManagement,
 			IdentityResolver idResolver, LogoutContextsStore contextsStore,
-			ReplayAttackChecker replayChecker, FreemarkerAppHandler freemarker, 
+			ReplayAttackChecker replayChecker, FreemarkerAppHandler freemarker,
+			FreemarkerXHTMLHandler xhtmlHandler,
 			SessionParticipantTypesRegistry registry, UnityServerConfiguration serverConfig)
 	{
 		this.sessionManagement = sessionManagement;
 		this.idResolver = idResolver;
 		this.contextsStore = contextsStore;
 		this.replayChecker = replayChecker;
-		this.responseHandler = new SLOAsyncMessageHandler(freemarker);
+		this.responseHandler = new SLOAsyncMessageHandler(freemarker, xhtmlHandler);
 		this.pkiManagement = pkiManagement;
 		this.registry = registry;
 		this.serverConfig = serverConfig;
