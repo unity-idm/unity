@@ -56,6 +56,7 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 	private final SamlContextManagement samlContextManagement;
 	private final LogoExposingService logoExposingService;
 	private final NotificationPresenter notificationPresenter;
+	private final RedirectRequestHandler redirectRequestHandler;
 
 	private final IdPVisalSettings configuration;
 	private Set<String> tags;
@@ -66,13 +67,16 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 	private BasicNameValuePair redirectParam;
 
 	public SAMLRetrievalUI(MessageSource msg, SAMLExchange credentialExchange,
-	                       SamlContextManagement samlContextManagement, TrustedIdPKey configKey,
+	                       SamlContextManagement samlContextManagement, 
+	                       RedirectRequestHandler redirectRequestHandler,
+	                       TrustedIdPKey configKey,
 	                       VaadinAuthentication.Context context, AuthenticationStepContext authenticationStepContext,
 	                       LogoExposingService logoExposingService, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
 		this.samlContextManagement = samlContextManagement;
+		this.redirectRequestHandler = redirectRequestHandler;
 		this.idpKey = authenticationStepContext.authnOptionId.getOptionKey();
 		this.configKey = configKey;
 		this.authenticationStepContext = authenticationStepContext;
@@ -137,13 +141,13 @@ public class SAMLRetrievalUI implements VaadinAuthentication.VaadinAuthenticatio
 		Collection<RequestHandler> requestHandlers = session.getRequestHandlers();
 		for (RequestHandler rh : requestHandlers)
 		{
-			if (rh instanceof VaadinRedirectRequestHandler)
+			if (rh instanceof VaadinRedirectRequestHandler vrrh)
 			{
-				return ((VaadinRedirectRequestHandler) rh).getTriggeringParam();
+				return vrrh.getTriggeringParam();
 			}
 		}
 
-		VaadinRedirectRequestHandler rh = new VaadinRedirectRequestHandler();
+		VaadinRedirectRequestHandler rh = new VaadinRedirectRequestHandler(redirectRequestHandler);
 		session.addRequestHandler(rh);
 		return rh.getTriggeringParam();
 	}

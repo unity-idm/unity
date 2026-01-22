@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.authn.LogoutProcessor;
 import pl.edu.icm.unity.engine.api.authn.LogoutProcessorFactory;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
 
 @Component
 class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
@@ -22,17 +23,20 @@ class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 	private LogoutContextsStore contextsStore;
 	private PKIManagement pkiManagement;
 	private FreemarkerAppHandler freemarker;
+	private FreemarkerXHTMLHandler xhtmlHandler;
 	private String consumerUri;
 	private SessionParticipantTypesRegistry registry;
 	
 	@Autowired
 	LogoutProcessorFactoryImpl(LogoutContextsStore contextsStore,
 			@Qualifier("insecure") PKIManagement pkiManagement, FreemarkerAppHandler freemarker,
+			FreemarkerXHTMLHandler xhtmlHandler,
 			SLOReplyInstaller sloReplyInstaller, SessionParticipantTypesRegistry registry)
 	{
 		this.contextsStore = contextsStore;
 		this.pkiManagement = pkiManagement;
 		this.freemarker = freemarker;
+		this.xhtmlHandler = xhtmlHandler;
 		this.registry = registry;
 		
 		try
@@ -48,7 +52,7 @@ class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 	@Override
 	public LogoutProcessor getInstance()
 	{
-		SLOAsyncMessageHandler responseHandler = new SLOAsyncMessageHandler(freemarker);
+		SLOAsyncMessageHandler responseHandler = new SLOAsyncMessageHandler(freemarker, xhtmlHandler);
 		InternalLogoutProcessor internalProcessor = new InternalLogoutProcessor(pkiManagement, contextsStore, 
 				responseHandler, consumerUri);
 		return new LogoutProcessorImpl(contextsStore, internalProcessor, registry);
