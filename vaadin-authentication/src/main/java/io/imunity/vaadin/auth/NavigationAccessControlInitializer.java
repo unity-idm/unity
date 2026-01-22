@@ -6,6 +6,7 @@
 package io.imunity.vaadin.auth;
 
 import static io.imunity.vaadin.endpoint.common.SessionStorage.REDIRECT_URL_SESSION_STORAGE_KEY;
+import static io.imunity.vaadin.endpoint.common.SessionStorage.SELECTED_AUTHN_STORAGE_KEY;
 import static io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.URL_PARAM_CONTEXT_KEY;
 import static java.util.Objects.nonNull;
 
@@ -41,6 +42,7 @@ public class NavigationAccessControlInitializer implements VaadinServiceInitList
 	public void serviceInit(ServiceInitEvent serviceInitEvent) {
 		serviceInitEvent.getSource().addUIInitListener(uiInitEvent -> uiInitEvent.getUI().addBeforeEnterListener(navigationAccessControl));
 		saveOriginalUrlRequestInSessionStorageBeforeAllRedirects(serviceInitEvent);
+		saveOrginalSelectedAuthn(serviceInitEvent);
 	}
 
 	private void saveOriginalUrlRequestInSessionStorageBeforeAllRedirects(ServiceInitEvent serviceInitEvent)
@@ -56,6 +58,19 @@ public class NavigationAccessControlInitializer implements VaadinServiceInitList
 			Document document = response.getDocument();
 			document.body().append("<script>window.sessionStorage.setItem("
 					+ "\"" + REDIRECT_URL_SESSION_STORAGE_KEY + "\", " + redirect + ");</script>");
+		});
+	}
+	
+	private void saveOrginalSelectedAuthn(ServiceInitEvent serviceInitEvent)
+	{
+		serviceInitEvent.addIndexHtmlRequestListener(response ->
+		{
+			String preferedIdp = response.getVaadinRequest()
+					.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
+			Document document = response.getDocument();
+			document.body()
+					.append("<script>window.sessionStorage.setItem(" + "\"" + SELECTED_AUTHN_STORAGE_KEY + "\", \""
+							+ preferedIdp + "\");</script>");
 		});
 	}
 }

@@ -4,17 +4,24 @@
  */
 package io.imunity.vaadin.auth;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import io.imunity.vaadin.elements.LinkButton;
-import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
-import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.utils.Log;
+import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createNonLoginComponent;
+import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createSimpleLoginComponent;
+import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_ADD_ALL;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMN_SEPARATOR;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMN_TITLE;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_GRIDS_PFX;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_GRID_CONTENTS;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_GRID_ROWS;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_OPTION_LABEL_PFX;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.AUTHN_SHOW_SEARCH;
+import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -23,11 +30,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId;
-import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createNonLoginComponent;
-import static io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId.createSimpleLoginComponent;
-import static io.imunity.vaadin.elements.CSSVars.BIG_MARGIN;
-import static io.imunity.vaadin.endpoint.common.VaadinEndpointProperties.*;
+import org.apache.logging.log4j.Logger;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+
+import io.imunity.vaadin.auth.AuthnOptionsColumn.ComponentWithId;
+import io.imunity.vaadin.elements.LinkButton;
+import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.utils.Log;
 
 /**
  * Core component maintaining set of columns with authentication options.
@@ -64,12 +80,15 @@ public class AuthnOptionsColumns extends VerticalLayout
 		this.authNPanelFactory = authNPanelFactory;
 		this.registrationLayoutLauncher = registrationLayoutLauncher;
 		
-		this.columns = new ArrayList<>();
-		setRootComponent(getAuthnColumnsComponent());
+		this.columns = new ArrayList<>();		
+		PreferredAuthenticationHelper.consumePreferredAuthn(preferredIdp -> {
+			setRootComponent(getAuthnColumnsComponent(preferredIdp));
+			focusFirst();
+		});
 		setSizeUndefined();
 		setMargin(false);
 		setPadding(false);
-		focusFirst();
+		
 	}
 
 	void disableAllExcept(String exception)
@@ -122,20 +141,20 @@ public class AuthnOptionsColumns extends VerticalLayout
 	}
 
 
-	private Component getAuthnColumnsComponent()
+	private Component getAuthnColumnsComponent(String selectedAuthn)
 	{
-		Component fullAuthnColumnsComponent = getFullAuthnColumnsComponent();
+		Component fullAuthnColumnsComponent = getFullAuthnColumnsComponent(selectedAuthn);
 		if (log.isDebugEnabled())
 			log.debug("Returning user UI decision: (config: {} preferredIdp: {} multipleOptionsConfigured: {})",
 					config.getBooleanValue(AUTHN_SHOW_LAST_OPTION_ONLY),
-					PreferredAuthenticationHelper.getPreferredIdp(),
+					selectedAuthn,
 					hasMoreThenOneOptionConfigured());
 		if (config.getBooleanValue(AUTHN_SHOW_LAST_OPTION_ONLY) && 
-				PreferredAuthenticationHelper.getPreferredIdp() != null &&
+				selectedAuthn != null &&
 				hasMoreThenOneOptionConfigured())
 		{
 			authnOptionsHandler.clear();
-			Component lastSelectionComponent = createLastSelectionLayout();
+			Component lastSelectionComponent = createLastSelectionLayout(selectedAuthn);
 			if (lastSelectionComponent != null)
 			{
 				return lastSelectionComponent;
@@ -147,7 +166,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 		return fullAuthnColumnsComponent;
 	}
 
-	private Component getFullAuthnColumnsComponent()
+	private Component getFullAuthnColumnsComponent(String selectedAuthn)
 	{
 		authnOptionsHandler.clear();
 		Set<String> columnsKeys = config.getStructuredListKeys(AUTHN_COLUMNS_PFX);
@@ -156,16 +175,16 @@ public class AuthnOptionsColumns extends VerticalLayout
 		if (!columnKeys.hasNext())
 		{
 			log.trace("Creating default layout");
-			return createDefaultLayout();
+			return createDefaultLayout(selectedAuthn);
 		} else
 		{
 			log.trace("Creating standard expanded layout");
-			return createStandardExpandedLayout(columnKeys);
+			return createStandardExpandedLayout(columnKeys, selectedAuthn);
 		}
 	}
 
 	
-	private Component createDefaultLayout()
+	private Component createDefaultLayout(String selectedAuthn)
 	{
 		HorizontalLayout columnsLayout = new HorizontalLayout();
 		columnsLayout.setMargin(false);
@@ -173,16 +192,16 @@ public class AuthnOptionsColumns extends VerticalLayout
 		columns.clear();
 		columns.add(columnComponent);
 		columnsLayout.add(columnComponent);
-		columnComponent.addOptions(getColumnAuthnComponents("", true));
+		columnComponent.addOptions(getColumnAuthnComponents("", true, selectedAuthn));
 		return columnsLayout;
 	}
 
-	private Component createLastSelectionLayout()
+	private Component createLastSelectionLayout(String selectedAuthn)
 	{
 		HorizontalLayout columnsLayout = new HorizontalLayout();
 		columnsLayout.setMargin(false);
 		String layout = config.getValue(AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT);
-		List<ComponentWithId> authnComponents = getColumnAuthnComponents(layout, false);
+		List<ComponentWithId> authnComponents = getColumnAuthnComponents(layout, false, selectedAuthn);
 		if (authnComponents.isEmpty())
 			return null;
 		AuthnOptionsColumn columnComponent = new AuthnOptionsColumn(null, DEFAULT_AUTHN_COLUMN_WIDTH);
@@ -216,7 +235,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 		return false;
 	}
 	
-	private Component createStandardExpandedLayout(Iterator<String> columnKeys)
+	private Component createStandardExpandedLayout(Iterator<String> columnKeys, String selectedAuthn)
 	{
 		HorizontalLayout columnsLayout = new HorizontalLayout();
 		columnsLayout.setMargin(false);
@@ -233,7 +252,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 			
 			boolean addRemaining = !columnKeys.hasNext() && showAll;
 			String spec = config.getValue(columnKey + AUTHN_COLUMN_CONTENTS);
-			List<ComponentWithId> columnAuthnComponents = getColumnAuthnComponents(spec, addRemaining);
+			List<ComponentWithId> columnAuthnComponents = getColumnAuthnComponents(spec, addRemaining, selectedAuthn);
 			
 			if (columnAuthnComponents.isEmpty())
 				continue;
@@ -258,7 +277,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 	}
 
 	
-	private List<ComponentWithId> getColumnAuthnComponents(String columnContents, boolean addRemaining)
+	private List<ComponentWithId> getColumnAuthnComponents(String columnContents, boolean addRemaining, String preferredIdp)
 	{
 		log.trace("Generating column for spec: {} (add remaining: {})", columnContents, addRemaining);
 		String[] specSplit = columnContents.trim().split("[ ]+");
@@ -295,7 +314,6 @@ public class AuthnOptionsColumns extends VerticalLayout
 				}
 			} else if (specEntry.equals(SPECIAL_ENTRY_LAST_USED))
 			{
-				String preferredIdp = PreferredAuthenticationHelper.getPreferredIdp();
 				if (preferredIdp != null)
 				{
 					AuthNOption authnOption = authnOptionsHandler.getFirstMatchingOption(preferredIdp);
@@ -311,7 +329,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 			{
 				if (lastAdded.contains(SPECIAL_ENTRY_LAST_USED))
 				{
-					ret.add(getExpandAllOptionsButton());
+					ret.add(getExpandAllOptionsButton(preferredIdp));
 					lastAdded.push(specEntry);
 				}
 			} else if (specEntry.startsWith(SPECIAL_ENTRY_GRID))
@@ -355,16 +373,16 @@ public class AuthnOptionsColumns extends VerticalLayout
 		return ret;
 	}
 	
-	private ComponentWithId getExpandAllOptionsButton()
+	private ComponentWithId getExpandAllOptionsButton(String preferredIdp)
 	{
-		LinkButton expand = new LinkButton(msg.getMessage("AuthenticationUI.showAllOptions"), event -> showAllOptions());
+		LinkButton expand = new LinkButton(msg.getMessage("AuthenticationUI.showAllOptions"), event -> showAllOptions(preferredIdp));
 		expand.getStyle().set("margin-top", BIG_MARGIN.value());
 		return createNonLoginComponent(SPECIAL_ENTRY_EXPAND, expand);
 	}
 
-	private void showAllOptions()
+	private void showAllOptions(String preferredIdp)
 	{
-		setRootComponent(getFullAuthnColumnsComponent());
+		setRootComponent(getFullAuthnColumnsComponent(preferredIdp));
 		focusFirst();
 	}
 
