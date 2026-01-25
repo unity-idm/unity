@@ -59,7 +59,15 @@ public class SignInToUIIdContextBinder implements VaadinServiceInitListener, UII
 				String[] param = query.split("=");
 				if (URL_PARAM_CONTEXT_KEY.equals(param[0]))
 				{
-					return new UrlParamSignInContextKey(param[1]);
+					if (param[1].contains("&"))
+					{
+						String key = param[1].substring(0, param[1].indexOf("&"));
+						return new UrlParamSignInContextKey(key);
+					}
+					else
+					{	
+						return new UrlParamSignInContextKey(param[1]);
+					}
 				}
 			}
 		}

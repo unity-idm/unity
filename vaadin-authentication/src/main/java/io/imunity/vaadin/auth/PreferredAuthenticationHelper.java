@@ -4,8 +4,12 @@
  */
 package io.imunity.vaadin.auth;
 
+import java.util.function.Consumer;
+
 import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
+
+import io.imunity.vaadin.endpoint.common.SessionStorage;
 import pl.edu.icm.unity.engine.api.authn.LastAuthenticationCookie;
 import pl.edu.icm.unity.engine.api.utils.CookieHelper;
 
@@ -19,10 +23,17 @@ public class PreferredAuthenticationHelper
 	 */
 	public static final String IDP_SELECT_PARAM = "uy_select_authn";
 	
-	public static String getPreferredIdp()
+	public static void consumePreferredAuthn(Consumer<String> preferedConsumer)
 	{
-		String requestedIdp = getIdpFromRequestParam(); 
-		return requestedIdp == null ? getLastIdpFromCookie() : requestedIdp;
+		SessionStorage.consumeSelectedAuthn((storedValue, currentRelativeURI) ->
+		{
+			String requestedIdp = getIdpFromRequestParam(); 
+			if (requestedIdp == null && storedValue != null)
+			{
+				requestedIdp = storedValue;
+			}
+			preferedConsumer.accept(requestedIdp == null ? getLastIdpFromCookie() : requestedIdp);		
+		});
 	}
 	
 	private static String getIdpFromRequestParam()

@@ -12,6 +12,13 @@ import com.vaadin.flow.component.UI;
 public class SessionStorage
 {
 	public static final String REDIRECT_URL_SESSION_STORAGE_KEY = "redirect-url";
+	public static final String SELECTED_AUTHN_STORAGE_KEY = "uy-select-authn";
+	
+
+	public static void consumeSelectedAuthn(StoredValueConsumer consumer)
+	{
+		consumeSessionStorageItem(SELECTED_AUTHN_STORAGE_KEY, consumer);
+	}
 	
 	public static void consumeRedirectUrl(StoredValueConsumer consumer)
 	{
@@ -23,7 +30,13 @@ public class SessionStorage
 		UI.getCurrent().getPage().fetchCurrentURL(currentRelativeURI ->
 		{
 			UI.getCurrent().getPage()
-				.executeJs("return window.sessionStorage.getItem($0);", key)
+			.executeJs(
+			        """
+			        const v = window.sessionStorage.getItem($0);
+			        return v === "null" ? null : v;
+			        """,
+			        key
+			    )
 				.then(String.class, storedValue -> consumer.consume(storedValue, currentRelativeURI));
 		});
 	}
