@@ -65,12 +65,12 @@ public class NavigationAccessControlInitializer implements VaadinServiceInitList
 	{
 		serviceInitEvent.addIndexHtmlRequestListener(response ->
 		{
-			String preferedIdp = response.getVaadinRequest()
+			String preferredIdp = response.getVaadinRequest()
 					.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
 			Document document = response.getDocument();
 			document.body()
 					.append("<script>window.sessionStorage.setItem(" + "\"" + SELECTED_AUTHN_STORAGE_KEY + "\", \""
-							+ preferedIdp + "\");</script>");
+							+ preferredIdp + "\");</script>");
 		});
 	}
 }
