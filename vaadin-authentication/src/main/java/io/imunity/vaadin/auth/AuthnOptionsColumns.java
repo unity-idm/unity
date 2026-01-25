@@ -277,7 +277,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 	}
 
 	
-	private List<ComponentWithId> getColumnAuthnComponents(String columnContents, boolean addRemaining, String preferredIdp)
+	private List<ComponentWithId> getColumnAuthnComponents(String columnContents, boolean addRemaining, String selectedAuthn)
 	{
 		log.trace("Generating column for spec: {} (add remaining: {})", columnContents, addRemaining);
 		String[] specSplit = columnContents.trim().split("[ ]+");
@@ -314,9 +314,9 @@ public class AuthnOptionsColumns extends VerticalLayout
 				}
 			} else if (specEntry.equals(SPECIAL_ENTRY_LAST_USED))
 			{
-				if (preferredIdp != null)
+				if (selectedAuthn != null)
 				{
-					AuthNOption authnOption = authnOptionsHandler.getFirstMatchingOption(preferredIdp);
+					AuthNOption authnOption = authnOptionsHandler.getFirstMatchingOption(selectedAuthn);
 					if (authnOption != null)
 					{
 						FirstFactorAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authnOption);
@@ -329,7 +329,7 @@ public class AuthnOptionsColumns extends VerticalLayout
 			{
 				if (lastAdded.contains(SPECIAL_ENTRY_LAST_USED))
 				{
-					ret.add(getExpandAllOptionsButton(preferredIdp));
+					ret.add(getExpandAllOptionsButton(selectedAuthn));
 					lastAdded.push(specEntry);
 				}
 			} else if (specEntry.startsWith(SPECIAL_ENTRY_GRID))
