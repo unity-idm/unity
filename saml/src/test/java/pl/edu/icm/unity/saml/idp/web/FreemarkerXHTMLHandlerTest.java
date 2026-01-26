@@ -10,6 +10,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 
 class FreemarkerXHTMLHandlerTest
 {

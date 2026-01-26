@@ -18,7 +18,8 @@ import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.Va
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
+import pl.edu.icm.unity.saml.ResponseTemplates;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -134,7 +135,7 @@ public class SamlResponseHandler
 
 			response.setContentType("application/xhtml+xml; charset=utf-8");
 			PrintWriter writer = response.getWriter();
-			freemarkerHandler.printXHTMLDocument(writer, "samlFinish.ftl", data);
+			freemarkerHandler.printXHTMLDocument(writer, ResponseTemplates.FINISH_TMPL.templateFile, data);
 			return true;
 		}
 	}

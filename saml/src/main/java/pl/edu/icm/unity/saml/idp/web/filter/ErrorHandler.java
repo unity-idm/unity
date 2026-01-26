@@ -12,10 +12,11 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.saml.ResponseTemplates;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import pl.edu.icm.unity.saml.slo.SamlMessageHandler;
 import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -105,7 +106,7 @@ public class ErrorHandler
 		
 		response.setContentType("application/xhtml+xml; charset=utf-8");
 		PrintWriter w = response.getWriter();
-		freemarker.printXHTMLDocument(w, "samlFinish.ftl", data);
+		freemarker.printXHTMLDocument(w, ResponseTemplates.FINISH_TMPL.templateFile, data);
 		throw new EopException();
 	}
 	

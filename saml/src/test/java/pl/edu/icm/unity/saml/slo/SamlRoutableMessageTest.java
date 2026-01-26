@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import eu.unicore.samly2.binding.SAMLMessageType;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 
 class SamlRoutableMessageTest
 {

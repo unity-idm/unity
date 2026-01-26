@@ -13,9 +13,10 @@ import java.util.Map;
 
 import org.apache.xmlbeans.XmlObject;
 
-import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
 import eu.unicore.samly2.binding.SAMLMessageType;
+import pl.edu.icm.unity.saml.ResponseTemplates;
 
 /**
  * SAML message with metadata which can be sent using either HTTP Redirect or POST bindings.
@@ -52,7 +53,7 @@ public class SamlRoutableUnsignedMessage implements SamlRoutableMessage
 		StringWriter out = new StringWriter();
 		try
 		{
-			handler.printXHTMLDocument(out, "postBinding.ftl", data);
+			handler.printXHTMLDocument(out, ResponseTemplates.POST_BINDING_TMPL.templateFile, data);
 		} catch (IOException e)
 		{
 			throw new RuntimeException("Can't render SAML POST form", e);
