@@ -68,7 +68,7 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
-import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;

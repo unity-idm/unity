@@ -12,15 +12,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
 import eu.unicore.samly2.binding.SAMLMessageType;
 import jakarta.servlet.http.HttpServletResponse;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.saml.ResponseTemplates;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 
 /**
@@ -32,7 +32,6 @@ public class RedirectRequestHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RedirectRequestHandler.class);
 	private final FreemarkerXHTMLHandler xhtmlHandler;
 
-	@Autowired
 	RedirectRequestHandler(FreemarkerXHTMLHandler xhtmlHandler)
 	{
 		this.xhtmlHandler = xhtmlHandler;
@@ -71,7 +70,7 @@ public class RedirectRequestHandler
 			data.put("relayState", context.getRelayState());
 		
 		StringWriter out = new StringWriter();
-		xhtmlHandler.printXHTMLDocument(out, "postBinding.ftl", data);
+		xhtmlHandler.printXHTMLDocument(out, ResponseTemplates.POST_BINDING_TMPL.templateFile, data);
 		String htmlResponse = out.toString();
 		
 		if (log.isTraceEnabled())

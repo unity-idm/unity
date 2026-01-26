@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.slo;
 
 import java.io.IOException;
 
-import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.security.dsig.DSigException;
 

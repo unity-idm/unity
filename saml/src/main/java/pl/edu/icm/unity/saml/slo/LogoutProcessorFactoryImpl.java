@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.authn.LogoutProcessor;
 import pl.edu.icm.unity.engine.api.authn.LogoutProcessorFactory;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
-import pl.edu.icm.unity.saml.idp.web.FreemarkerXHTMLHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 
 @Component
 class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
