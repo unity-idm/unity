@@ -148,7 +148,7 @@ class AuditEventEntry
 			return "";
 		
 		StringBuilder formatted = new StringBuilder();
-		Iterator<Entry<String, JsonNode>> fields = auditEvent.getDetails().fields();
+		Iterator<Entry<String, JsonNode>> fields = auditEvent.getDetails().properties().iterator();
 		fields.forEachRemaining(field ->
 		{
 			formatted.append(field.getKey()).append(": ").append(field.getValue().toString()).append(", ");
