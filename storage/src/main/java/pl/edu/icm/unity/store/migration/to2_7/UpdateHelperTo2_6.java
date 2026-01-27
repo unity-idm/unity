@@ -82,7 +82,7 @@ class UpdateHelperTo2_6
 			return Optional.empty();
 		}
 
-		Iterator<Entry<String, JsonNode>> fields = groupSelections.fields();
+		Iterator<Entry<String, JsonNode>> fields = groupSelections.properties().iterator();
 		while(fields.hasNext())
 		{
 			Entry<String, JsonNode> next = fields.next();

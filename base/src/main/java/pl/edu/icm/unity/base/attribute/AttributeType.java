@@ -286,7 +286,7 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 		if (main.has("metadata"))
 		{
 			JsonNode metaNode = main.get("metadata");
-			Iterator<Entry<String, JsonNode>> it = metaNode.fields();
+			Iterator<Entry<String, JsonNode>> it = metaNode.properties().iterator();
 			Map<String, String> meta = getMetadata();
 			while(it.hasNext())
 			{
