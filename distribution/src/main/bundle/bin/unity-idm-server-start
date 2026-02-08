@@ -9,6 +9,11 @@ BASE_DIR=`dirname "$BASE_DIR"`
 
 . "${BASE_DIR}"/conf/startup.properties
 
+FOREGROUND=false
+if [ "$1" = "-f" ]
+then
+	FOREGROUND=true
+fi
 
 if [ -e "$PID" ]
  then
@@ -34,13 +39,22 @@ PWD="`pwd`"
 cd "$BASE_DIR"
 
 RUN_COMMAND="$JAVA ${MEM} ${OPTS} ${DEFS} pl.edu.icm.unity.engine.server.UnityApplication ${PARAM}"
-if [ "${AUTHBIND}" ]
+if [ "$FOREGROUND" = true ]
 then
-        nohup "${AUTHBIND}" --deep ${RUN_COMMAND} >& "$STARTLOG" &
+	if [ "${AUTHBIND}" ]
+	then
+		"${AUTHBIND}" --deep ${RUN_COMMAND}
+	else
+		exec ${RUN_COMMAND}
+	fi
 else
-        nohup ${RUN_COMMAND} >& "$STARTLOG" &
-fi
+	if [ "${AUTHBIND}" ]
+	then
+		nohup "${AUTHBIND}" --deep ${RUN_COMMAND} >& "$STARTLOG" &
+	else
+		nohup ${RUN_COMMAND} >& "$STARTLOG" &
+	fi
 
-cd "$PWD"
- 
-echo $! > "$PID"
+	cd "$PWD"
+	echo $! > "$PID"
+fi
