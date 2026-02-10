@@ -55,7 +55,7 @@ public class TestGroupMembersService
 	}
 
 	@Test
-	public void shouldGerMembers() throws EngineException
+	public void shouldGetMembers() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/group",  new I18nString("group"),"group", false, false, "", false, 0);
