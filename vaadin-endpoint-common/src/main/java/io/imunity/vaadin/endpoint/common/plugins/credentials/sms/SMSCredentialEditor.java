@@ -201,7 +201,7 @@ public class SMSCredentialEditor implements CredentialEditor
 				formatter.getSimpleConfirmationStatusString(confirmationInfo),
 				confirmationInfo.isConfirmed());
 		editor.setVerifyButtonVisible(
-				!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
+				!confirmationInfo.isConfirmed() && !(editor.getValue() == null ||  editor.getValue().isEmpty()));
 		skipUpdate = true;
 		editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());
 		skipUpdate = false;

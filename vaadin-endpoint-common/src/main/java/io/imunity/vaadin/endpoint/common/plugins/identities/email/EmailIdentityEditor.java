@@ -142,7 +142,6 @@ public class EmailIdentityEditor implements IdentityEditor
 			
 		} catch (EngineException e1)
 		{
-			
 			log.warn("Cannot send cofirmation request", e1);
 			notificationPresenter.showError(msg.getMessage("EmailIdentityEditor.confirmationSendError"), e1.getMessage());
 		}
@@ -161,7 +160,8 @@ public class EmailIdentityEditor implements IdentityEditor
 					confirmationInfo.isConfirmed());
 		}
 		editor.setVerifyButtonVisible(!confirmationInfo.isConfirmed()
-				&& !editor.getValue().isEmpty() && value != null
+				&& !(editor.getValue() == null || editor.getValue().isEmpty()) 
+				&& value != null
 				&& editor.getValue().equals(value.getValue()));
 		skipUpdate = true;
 		editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());
