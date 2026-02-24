@@ -32,6 +32,7 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
@@ -411,6 +412,20 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		verify(mockGroupMan).addMemberFromParent(eq("/project/destination"), any());
 	}
+	
+	@Test
+	public void shouldPropagateAddMemberToAllParentGroups() throws EngineException
+	{
+		Map<String, GroupMembership> groups = new HashMap<>();
+		groups.put("/project", null);
+		when(mockIdMan.getGroups(any())).thenReturn(groups);
+
+		dGroupManNoAuthz.addMemberToGroup("/project", "/project/group1/subgroup1", 1L);
+
+		verify(mockGroupMan).addMemberFromParent(eq("/project/group1"), eq((new EntityParam(1L))));
+		verify(mockGroupMan).addMemberFromParent(eq("/project/group1/subgroup1"), eq((new EntityParam(1L))));
+	}
+	
 
 	@Test
 	public void shouldForwardRemoveMemberToCoreManager() throws EngineException

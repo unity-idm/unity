@@ -58,7 +58,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 {
 	public static final String DEMO_KS_PASS = "the!unity";
 	public static final String DEMO_KS_ALIAS = "unity-demo";
-	public static final String DEMO_SERVER_DN = "CN=localhost,O=Unity,L=Warsaw,C=EU";
+	public static final String DEMO_SERVER_DN = "CN=localhost,O=Unity-IdM,C=PL";
 	public static final String CRED_REQ_PASS = "cr-pass";
 	public static final String DEF_USER = "mockuser1";
 	public static final String DEF_PASSWORD = "mock~!)(@*#&$^%:?,'.\\|";
