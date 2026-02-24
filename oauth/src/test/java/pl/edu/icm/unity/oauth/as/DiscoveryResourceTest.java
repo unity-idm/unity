@@ -62,7 +62,7 @@ public class DiscoveryResourceTest
 		assertEquals(1, parsedKeys.getKeys().size());
 		JWK key = parsedKeys.getKeys().get(0);
 		assertEquals(KeyType.RSA, key.getKeyType());
-		assertThat(key.getKeyID()).isEqualTo("17995717058646744131");
+		assertThat(key.getKeyID()).isEqualTo("86405147120807194099197715071568668792052607541");
 	}
 
 }

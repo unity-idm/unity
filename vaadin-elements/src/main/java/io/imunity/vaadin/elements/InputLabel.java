@@ -55,4 +55,9 @@ public class InputLabel extends Span
 			addClassName(INDICATOR.getName());
 		}
 	}
+
+	public boolean isRequired()
+	{
+		return required;
+	}
 }

@@ -5,10 +5,7 @@
 
 package io.imunity.vaadin.elements;
 
-import static io.imunity.vaadin.elements.CssClassNames.INVALID;
 import static io.imunity.vaadin.elements.CssClassNames.POINTER;
-import static io.imunity.vaadin.elements.CssClassNames.REQUIRED_LABEL;
-import static java.util.Optional.ofNullable;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -16,7 +13,6 @@ import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -29,12 +25,11 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 {
 	private final Checkbox adminConfirmCheckBox;
 	private final TextField editor;
-	private final Span label;
+	private final InputLabel label;
 	private final HorizontalLayout fieldLayout;
 	private final Div verifyButtonIcon;
 	private final Div confirmationStatusIcon;
 	private final boolean showLabelInline;
-	private Span requiredIndicator;
 
 	public TextFieldWithVerifyButton(boolean addConfirmCheckbox,
 	                                 String verifyButtonDesc, Icon verifyButtonIcon,
@@ -48,7 +43,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		verifyButtonIcon.addClassName(POINTER.getName());
 		editor = new TextField();
 		editor.addValueChangeListener(
-				e -> fireEvent(new ComponentValueChangeEvent<>(this, this, getValue(), e.isFromClient())));
+				e -> updateValue());
 		editor.setTitle("");
 		editor.setWidthFull();
 		adminConfirmCheckBox = new Checkbox(adminConfirmCheckBoxLabel);
@@ -81,21 +76,15 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	@Override
 	public void setRequiredIndicatorVisible(boolean visible) 
 	{
-		if(requiredIndicator != null)
-		{
-			label.remove(requiredIndicator);
-			label.setVisible(false);
-		}
-		if(visible)
-		{ 
-			label.setVisible(true);
-			label.remove();
-			requiredIndicator = new Span();
-			requiredIndicator.setClassName(REQUIRED_LABEL.getName());
-			label.add(requiredIndicator);
-		}
+		label.setRequired(visible);
 	}
 
+	@Override
+	public boolean isRequiredIndicatorVisible()
+	{
+		return label.isRequired();
+	}
+	
 	public void setRequired(boolean visible)
 	{
 		editor.setRequired(visible);
@@ -107,33 +96,30 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		{
 			editor.setInvalid(true);
 			editor.setErrorMessage(error);
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName(INVALID.getName()));
+			label.setErrorMode();
 		}
 		else
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName(INVALID.getName()));
+		{
+			editor.setInvalid(false);
+			editor.setErrorMessage(null);
+			label.setNormalMode();
+		}
 	}
 
 
 	@Override
 	public void setInvalid(boolean invalid)
 	{
+		super.setInvalid(invalid);
 		editor.setInvalid(invalid);
 		if(invalid)
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.addClassName(INVALID.getName()));
+		{	
+			label.setErrorMode();
+		}
 		else
-			ofNullable(requiredIndicator).ifPresent(dot -> dot.removeClassName(INVALID.getName()));
-	}
-
-	@Override
-	public void setErrorMessage(String errorMessage)
-	{
-		editor.setErrorMessage(errorMessage);
-	}
-
-	@Override
-	public String getErrorMessage()
-	{
-		return editor.getErrorMessage();
+		{
+			label.setNormalMode();
+		}
 	}
 
 	@Override
@@ -149,21 +135,21 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	}
 
 	@Override
-	public String getValue()
-	{
-		return editor.getValue();
-	}
-
-	@Override
 	public String getEmptyValue() 
 	{
-		return "";
+		return editor.getEmptyValue();
 	}
 
 	@Override
-	public void setValue(String value)
+	public void setErrorMessage(String errorMessage)
 	{
-		editor.setValue(value);
+		editor.setErrorMessage(errorMessage);
+	}
+	
+	@Override
+	public String getErrorMessage()
+	{
+		return editor.getErrorMessage();
 	}
 	
 	public void setConfirmationStatusIcon(String value, boolean confirmed)
@@ -228,11 +214,17 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	}
 
 	@Override
-	protected void setPresentationValue(String newPresentationValue)
+	protected void setPresentationValue(String value)
 	{
-		editor.setValue(newPresentationValue);
+		if (value == null)
+		{
+			editor.clear();
+		} else
+		{
+			editor.setValue(value);
+		}
 	}
-
+    
 	@Override
 	public void setLabel(String label)
 	{

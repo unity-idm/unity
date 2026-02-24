@@ -4,12 +4,16 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext;
 
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.ValidationResult;
-import com.vaadin.flow.data.binder.ValueContext;
+
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.StringBindingValue;
 import io.imunity.vaadin.elements.TextFieldWithVerifyButton;
@@ -17,11 +21,17 @@ import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.confirmations.MobileNumberConfirmationConfigurationEditor;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
-import io.imunity.vaadin.endpoint.common.plugins.attributes.*;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeSyntaxEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeValueEditor;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.ConfirmationEditMode;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandler;
+import io.imunity.vaadin.endpoint.common.plugins.attributes.WebAttributeHandlerFactory;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.ConfirmationInfoFormatter;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleStringFieldBinder;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.sms.MobileNumberConfirmationDialog;
-import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
@@ -32,8 +42,6 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.MobileNumberConfirmationManager;
 import pl.edu.icm.unity.stdext.attr.VerifiableMobileNumberAttributeSyntax;
-
-import java.util.Optional;
 
 class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 {	
@@ -263,7 +271,7 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 			
 			binder = new SingleStringFieldBinder(msg);
 			binder.forField(editor, context.isRequired())
-				.withValidator(this::validate)
+				.withValidator((v,c) -> validate(v, context))
 				.bind("value");
 			binder.setBean(new StringBindingValue(value == null ? "" : value.getValue()));
 			
@@ -274,7 +282,9 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 		{
 			editor.setConfirmationStatusIcon(formatter.getSimpleConfirmationStatusString(
 					confirmationInfo), confirmationInfo.isConfirmed());
-			editor.setVerifyButtonVisible(!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
+			editor.setVerifyButtonVisible(
+					!confirmationInfo.isConfirmed() && !(editor.getValue() == null || editor.getValue()
+							.isEmpty()) && !editor.isInvalid());
 			skipUpdate = true;
 			editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());	
 			skipUpdate = false;
@@ -282,10 +292,10 @@ class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 				editor.setComponentError(null);
 		}
 
-		private ValidationResult validate(String value, ValueContext context)
+		private ValidationResult validate(String value, AttributeEditContext context)
 		{
-			if (value.isEmpty())
-				return ValidationResult.ok(); //fall through
+			if (!context.isRequired() && (value == null || value.isEmpty()))
+				return ValidationResult.ok();
 			try
 			{
 				VerifiableMobileNumber mobile = new VerifiableMobileNumber(value);

@@ -111,7 +111,7 @@ class GroupMembersService
 		return attrs;
 	}
 
-	public void addToGroup(ProjectGroup projectGroup, List<Group> groups, Set<MemberModel> items)
+	public void addToGroup(ProjectGroup projectGroup, Group group, Set<MemberModel> items)
 	{
 		List<String> added = new ArrayList<>();
 
@@ -119,16 +119,13 @@ class GroupMembersService
 		{
 			for (MemberModel member : items)
 			{
-				for (Group group : groups)
-				{
-					delGroupMan.addMemberToGroup(projectGroup.path, group.path, member.entityId);
-				}
+				delGroupMan.addMemberToGroup(projectGroup.path, group.path, member.entityId);
 				added.add(member.name);
 			}
 			notificationPresenter.showSuccess(msg.getMessage("GroupMembersComponent.addedToGroup"));
 		} catch (Exception e)
 		{
-			log.warn("Can not add member to group " + groups, e);
+			log.warn("Can not add member to group " + group, e);
 			if (added.isEmpty())
 			{
 				notificationPresenter.showError(msg.getMessage("GroupMembersController.addToGroupError"), msg.getMessage("GroupMembersController.notAdded"));
