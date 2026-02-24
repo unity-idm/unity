@@ -234,7 +234,7 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 				
 			binder = new SingleStringFieldBinder(msg);
 			binder.forField(editor, context.isRequired())
-				.withValidator((v,c) -> validate(v, context))
+				.withValidator((v,c) -> validate(v, context.isRequired()))
 				.bind("value");
 			binder.setBean(new StringBindingValue(value == null ? "" : value.getValue()));
 			
@@ -261,9 +261,9 @@ class VerifiableEmailAttributeHandler implements WebAttributeHandler
 			confirm.open();
 		}
 		
-		private ValidationResult validate(String value, AttributeEditContext context)
+		private ValidationResult validate(String value, boolean required)
 		{
-			if (!context.isRequired() && (value == null || value.isEmpty()))
+			if (!required && (value == null || value.isEmpty()))
 				return ValidationResult.ok();
 			try
 			{
