@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 public class NameToURLEncoderTest
 {
 	@Test
-	public void shouldNotEncodeSafeName()
+	public void shouldNotEncodeToBase64SafeName()
 	{
 		assertThat(NameToURLEncoder.encode("name")).isEqualTo("name");
 	}
@@ -37,5 +37,17 @@ public class NameToURLEncoderTest
 	{
 		assertThat(NameToURLEncoder.decode(new String(Base64.getUrlEncoder()
 				.encode("/name".getBytes())) + NameToURLEncoder.ENCODED_NAME_SUFFIX)).isEqualTo("/name");
+	}
+	
+	@Test
+	public void shouldEncodeSafeNameWithSpace()
+	{
+		assertThat(NameToURLEncoder.encode("name name")).isEqualTo("name+name");
+	}
+	
+	@Test
+	public void shouldDecodeSafeNameWithSpace()
+	{
+		assertThat(NameToURLEncoder.decode("name+name")).isEqualTo("name name");
 	}
 }
