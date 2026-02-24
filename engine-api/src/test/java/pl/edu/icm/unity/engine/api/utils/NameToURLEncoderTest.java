@@ -42,12 +42,12 @@ public class NameToURLEncoderTest
 	@Test
 	public void shouldEncodeSafeNameWithSpace()
 	{
-		assertThat(NameToURLEncoder.encode("name name")).isEqualTo("name+name");
+		assertThat(NameToURLEncoder.encode("name name")).isEqualTo("name%20name");
 	}
 	
 	@Test
 	public void shouldDecodeSafeNameWithSpace()
 	{
-		assertThat(NameToURLEncoder.decode("name+name")).isEqualTo("name name");
+		assertThat(NameToURLEncoder.decode("name%20name")).isEqualTo("name name");
 	}
 }

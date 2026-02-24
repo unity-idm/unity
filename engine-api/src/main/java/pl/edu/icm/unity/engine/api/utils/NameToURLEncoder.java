@@ -24,7 +24,7 @@ public class NameToURLEncoder
 			return Base64.getUrlEncoder()
 					.encodeToString(name.getBytes()) + ENCODED_NAME_SUFFIX;
 		}
-		return URLEncoder.encode(name, StandardCharsets.UTF_8);
+		return URLEncoder.encode(name, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 	}
 
 	public static String decode(String name)
