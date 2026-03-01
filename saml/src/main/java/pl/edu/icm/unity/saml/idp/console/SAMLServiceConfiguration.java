@@ -8,6 +8,7 @@ package pl.edu.icm.unity.saml.idp.console;
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.services.idp.ActiveValueConfig;
 import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.file.FileFieldUtils;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -45,6 +46,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+
+import com.vaadin.flow.server.streams.DownloadHandler;
 
 /**
  * Related to {@link SamlIdpProperties}. Contains whole SAML service configuration
@@ -353,7 +356,8 @@ public class SAMLServiceConfiguration
 				} else
 				{
 					FileData fileData = uriAccessService.readURI(uri);
-					metadataSource = new LocalOrRemoteResource(fileData.getContents(), "text/xml", "");
+					DownloadHandler downloadHandler = DownloadHandlers.forBytes(fileData.getContents(), "metadata", "text/xml");
+					setMetadataSource(new LocalOrRemoteResource(downloadHandler, uri.toString(), fileData.getContents()));
 				}
 
 			} catch (Exception e)

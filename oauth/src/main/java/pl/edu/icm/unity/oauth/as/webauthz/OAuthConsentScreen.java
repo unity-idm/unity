@@ -34,8 +34,8 @@ import io.imunity.vaadin.endpoint.common.consent_utils.ExposedAttributesComponen
 import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
 import io.imunity.vaadin.endpoint.common.consent_utils.IdentitySelectorComponent;
 import io.imunity.vaadin.endpoint.common.consent_utils.SPInfoComponent;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.consent_utils.URIPresentationHelper;
-import io.imunity.vaadin.endpoint.common.file.ImageUtils;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
@@ -148,7 +148,8 @@ class OAuthConsentScreen extends VerticalLayout
 		{
 			ImageAttributeSyntax syntax = (ImageAttributeSyntax) aTypeSupport.getSyntax(logoAttr);
 			UnityImage image = syntax.convertFromString(logoAttr.getValues().get(0));
-			clientLogo = ImageUtils.createFromUnityImage(image, "");
+			String filename = "%s.%s".formatted(UUID.randomUUID(), image.getType().toExt());
+			clientLogo = new Image(DownloadHandlers.forUnityImage(image, filename), "");
 		}
 		SPInfoComponent spInfo = new SPInfoComponent(msg, clientLogo, oauthRequester, returnAddress);
 		

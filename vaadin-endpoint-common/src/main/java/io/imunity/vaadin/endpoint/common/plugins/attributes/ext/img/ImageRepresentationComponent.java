@@ -4,16 +4,24 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.UUID;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasLabel;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.server.streams.DownloadEvent;
+import com.vaadin.flow.server.streams.DownloadHandler;
+import com.vaadin.flow.server.streams.DownloadResponse;
+import com.vaadin.flow.server.streams.InputStreamDownloadCallback;
 
 import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
-import io.imunity.vaadin.endpoint.common.file.ImageUtils;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -70,7 +78,8 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 
 	private static Image getImage(AttributeViewerContext context, UnityImage unityImage)
 	{
-		Image image = ImageUtils.createFromUnityImage(unityImage, "");
+		String filename = "imgattribute-%s.%s".formatted(UUID.randomUUID(), unityImage.getType().toExt());
+		Image image = new Image(DownloadHandlers.forUnityImage(unityImage, filename), "");
 
 		if (context.isCustomWidth() && !context.isScaleImage() && !context.isCustomMaxWidth())
 		{
@@ -78,14 +87,13 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 			{
 				if (context.getCustomWidth() > 0)
 				{
-					image.getElement().getStyle().set("width", context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
-				}
-				else
+					image.getElement().getStyle().set("width",
+						context.getCustomWidth() + context.getCustomWidthUnit().getSymbol());
+				} else
 				{
 					image.getElement().getStyle().set("width", "unset");
 				}
-			}
-			else
+			} else
 			{
 				image.getElement().getStyle().set("width", context.getCustomWidthAsString());
 			}
@@ -95,8 +103,7 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 			if (context.getCustomHeight() > 0)
 			{
 				image.setHeight(context.getCustomHeight() + context.getCustomHeightUnit().getSymbol());
-			}
-			else
+			} else
 			{
 				image.setHeight("unset");
 			}
@@ -107,8 +114,7 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 			if (context.getCustomMaxWidth() > 0)
 			{
 				image.setMaxWidth(context.getCustomMaxWidth() + context.getCustomMaxWidthUnit().getSymbol());
-			}
-			else
+			} else
 			{
 				image.setMaxWidth("unset");
 			}
@@ -119,8 +125,7 @@ class ImageRepresentationComponent extends VerticalLayout implements HasLabel
 			if (context.getCustomMaxHeight() > 0)
 			{
 				image.setMaxHeight(context.getCustomMaxHeight() + context.getCustomMaxHeightUnit().getSymbol());
-			}
-			else
+			} else
 			{
 				image.setMaxHeight("unset");
 			}

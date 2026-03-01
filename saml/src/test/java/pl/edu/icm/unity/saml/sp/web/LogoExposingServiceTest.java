@@ -24,8 +24,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class LogoExposingServiceTest {
-
+class LogoExposingServiceTest
+{
 	@Test
 	void shouldReturnNullWhenLogoUriIsNull()
 	{

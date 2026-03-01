@@ -6,6 +6,8 @@
 package pl.edu.icm.unity.oauth.as.console;
 
 import com.nimbusds.oauth2.sdk.client.ClientType;
+import com.vaadin.flow.server.streams.DownloadHandler;
+
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
@@ -15,6 +17,7 @@ import io.imunity.vaadin.auth.services.ServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceEditor;
 import io.imunity.vaadin.auth.services.idp.IdpServiceController;
 import io.imunity.vaadin.auth.services.idp.IdpUsersHelper;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
@@ -673,7 +676,8 @@ class OAuthServiceController implements IdpServiceController
 			{
 				ImageIO.write(image.getBufferedImage(), image.getType().toExt(), baos);
 				byte[] byteArray = baos.toByteArray();
-				LocalOrRemoteResource lrLogo = new LocalOrRemoteResource(byteArray, image.getType().getMimeType(), "");
+				DownloadHandler downloadHandler = DownloadHandlers.forBytes(byteArray, "logo", image.getType().getMimeType());
+				LocalOrRemoteResource lrLogo = new LocalOrRemoteResource(downloadHandler, "", byteArray);
 				c.setLogo(lrLogo);
 			}
 			catch (IOException e)

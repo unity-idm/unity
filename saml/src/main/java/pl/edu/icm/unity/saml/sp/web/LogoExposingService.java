@@ -5,9 +5,11 @@
 package pl.edu.icm.unity.saml.sp.web;
 
 import com.vaadin.flow.component.html.Image;
-import io.imunity.vaadin.endpoint.common.file.ImageUtils;
+import com.vaadin.flow.server.streams.DownloadHandler;
+
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
+import org.bouncycastle.jcajce.provider.digest.Skein;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -66,19 +68,9 @@ class LogoExposingService
 
 	private static Image createImage(File file)
 	{
-		try
-		{
-			byte[] bytes = Files.readAllBytes(file.toPath());
-			String mimeType = ImageUtils.getMimeTypeFromFilename(file.getName());
-			Image img = ImageUtils.createFromBytes(bytes, mimeType, "");
-			img.addClassName(LOGO_IMAGE.getName());
-			return img;
-		}
-		catch (IOException e)
-		{
-			log.warn(e);
-			return new Image();
-		}
+		Image img = new Image(DownloadHandler.forFile(file), "");
+		img.addClassName(LOGO_IMAGE.getName());
+		return img;
 	}
 
 	private Image getDirectlyDefinedImage(IdPVisalSettings configuration)

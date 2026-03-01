@@ -53,8 +53,7 @@ public class X500IdentityEditor implements IdentityEditor
 		if (context.isCustomWidth())
 		{
 			field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
-		}
-		else
+		} else
 		{
 			field.setWidthFull();
 		}
@@ -69,13 +68,13 @@ public class X500IdentityEditor implements IdentityEditor
 				);
 				return;
 			}
+
 			try
 			{
 				ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
 				X509Certificate loaded = CertificateUtils.loadCertificate(bis, Encoding.PEM);
 				field.setValue(X500NameUtils.getReadableForm(loaded.getSubjectX500Principal()));
-			}
-			catch (Exception e)
+			} catch (Exception e)
 			{
 				notificationPresenter.showError(msg.getMessage("X500IdentityEditor.uploadInvalid"), e.getMessage());
 			}
@@ -108,8 +107,7 @@ public class X500IdentityEditor implements IdentityEditor
 		{
 			X500NameUtils.getX500Principal(value);
 			return ValidationResult.ok();
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
 			return ValidationResult.error(msg.getMessage("X500IdentityEditor.dnError", e.getMessage()));
 		}
@@ -139,8 +137,7 @@ public class X500IdentityEditor implements IdentityEditor
 		if (context.isShowLabelInline())
 		{
 			field.setPlaceholder(value);
-		}
-		else
+		} else
 		{
 			field.setLabel(value + ":");
 		}

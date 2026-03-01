@@ -26,10 +26,11 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.streams.DownloadHandler;
 
 import io.imunity.home.views.HomeUiMenu;
 import io.imunity.home.views.HomeViewComponent;
-import io.imunity.vaadin.endpoint.common.file.ImageUtils;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.idp.IdPClientData;
 import io.imunity.vaadin.elements.Breadcrumb;
 import io.imunity.vaadin.elements.CssClassNames;
@@ -123,7 +124,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 		titleLayout.setAlignItems(FlexComponent.Alignment.CENTER);
 		if (application.logo.isPresent())
 		{
-			Image logoI = ImageUtils.createFromBytes(application.logo.get(), "image/png", "");
+			Image logoI = new Image(DownloadHandlers.forBytes(application.logo.get(), "logo", "image/png"), "");
 			logoI.setHeight(35, Unit.PIXELS);
 			titleLayout.add(logoI);
 		}

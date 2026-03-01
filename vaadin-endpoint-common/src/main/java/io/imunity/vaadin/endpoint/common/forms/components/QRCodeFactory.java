@@ -29,7 +29,7 @@ public class QRCodeFactory
 			throw new InternalException("Link can not be encoded as QRCode", e);
 		}
 
-		image.setSrc(new SimpleImageSource(MatrixToImageWriter.toBufferedImage(bitMatrix)).getDataUrl());
+		image.setSrc(new SimpleImageSource(MatrixToImageWriter.toBufferedImage(bitMatrix)).getSrc());
 		return image;
 	}
 }

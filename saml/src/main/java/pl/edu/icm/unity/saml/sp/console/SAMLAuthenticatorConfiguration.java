@@ -7,6 +7,7 @@ package pl.edu.icm.unity.saml.sp.console;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.file.FileFieldUtils;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -30,6 +31,8 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
 import java.util.*;
+
+import com.vaadin.flow.server.streams.DownloadHandler;
 
 
 public class SAMLAuthenticatorConfiguration
@@ -262,7 +265,8 @@ public class SAMLAuthenticatorConfiguration
 				} else
 				{
 					FileData fileData = uriAccessService.readURI(uri);
-					setMetadataSource(new LocalOrRemoteResource(fileData.getContents(), "text/xml", ""));
+					DownloadHandler downloadHandler = DownloadHandlers.forBytes(fileData.getContents(), "metadata", "text/xml");
+					setMetadataSource(new LocalOrRemoteResource(downloadHandler, uri.toString(), fileData.getContents()));
 				}
 
 			} catch (Exception e)
