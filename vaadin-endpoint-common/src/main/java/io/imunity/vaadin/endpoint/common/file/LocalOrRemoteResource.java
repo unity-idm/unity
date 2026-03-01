@@ -6,6 +6,7 @@
 package io.imunity.vaadin.endpoint.common.file;
 
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.server.streams.DownloadHandler;
 
 import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
 
@@ -25,30 +26,16 @@ public class LocalOrRemoteResource extends Image
 		addClassName(LOGO_IMAGE.getName());
 	}
 
-	public LocalOrRemoteResource(byte[] local, String mimeType, String alt)
+	public LocalOrRemoteResource(DownloadHandler src, String alt, byte[] local)
 	{
+		super(src, alt);
 		this.local = local;
-		this.mimeType = mimeType;
-		addClassName(LOGO_IMAGE.getName());
-		if (local != null && local.length > 0)
-		{
-			super.setSrc(ImageUtils.createDataUrl(local, mimeType));
-		}
-		setAlt(alt);
 	}
 
-	public void setSrc(byte[] local, String mimeType)
+	public void setSrc(DownloadHandler src, byte[] local)
 	{
 		this.local = local;
-		this.mimeType = mimeType;
-		if (local != null && local.length > 0)
-		{
-			super.setSrc(ImageUtils.createDataUrl(local, mimeType));
-		}
-		else
-		{
-			super.setSrc("");
-		}
+		super.setSrc(src);
 	}
 
 	public byte[] getLocal()
@@ -74,10 +61,6 @@ public class LocalOrRemoteResource extends Image
 	@Override
 	public LocalOrRemoteResource clone()
 	{
-		if (local == null)
-		{
-			return new LocalOrRemoteResource(getSrc(), getAlt().orElse(null));
-		}
-		return new LocalOrRemoteResource(local.clone(), mimeType, getAlt().orElse(null));
+		return new LocalOrRemoteResource(getSrc(), getAlt().orElse(null));
 	}
 }

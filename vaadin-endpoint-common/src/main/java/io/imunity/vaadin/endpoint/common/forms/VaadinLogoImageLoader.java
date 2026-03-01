@@ -5,7 +5,7 @@
 
 package io.imunity.vaadin.endpoint.common.forms;
 
-import io.imunity.vaadin.endpoint.common.file.ImageUtils;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 
 import org.apache.logging.log4j.Logger;
@@ -18,6 +18,8 @@ import pl.edu.icm.unity.engine.api.files.URIHelper;
 
 import java.net.URI;
 import java.util.Optional;
+
+import com.vaadin.flow.server.streams.DownloadHandler;
 
 @Component
 public class VaadinLogoImageLoader
@@ -41,8 +43,7 @@ public class VaadinLogoImageLoader
 		try
 		{
 			uri = URIHelper.parseURI(logoUri);
-		}
-		catch (IllegalURIException e1)
+		} catch (IllegalURIException e1)
 		{
 			log.error("Can not parse image URI  " + logoUri);
 			return Optional.empty();
@@ -59,14 +60,52 @@ public class VaadinLogoImageLoader
 		try
 		{
 			fileData = uriAccessService.readImageURI(uri);
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
 			log.error("Can not read image from URI: " + logoUri);
 			return Optional.empty();
 		}
 
-		String mimeType = ImageUtils.getMimeTypeFromFilename(fileData.getName());
-		return Optional.of(new LocalOrRemoteResource(fileData.getContents(), mimeType, ""));
+		String mimeType = getMimeTypeFromFilename(fileData.getName());
+		DownloadHandler downloadHandler = DownloadHandlers.forBytes(fileData.getContents(), fileData.getName(), mimeType);
+		return Optional.of(new LocalOrRemoteResource(downloadHandler, "", fileData.getContents()));
+	}
+
+	private static String getMimeTypeFromFilename(String filename)
+	{
+		if (filename == null)
+		{
+			return "application/octet-stream";
+		}
+		String lower = filename.toLowerCase();
+		if (lower.endsWith(".png"))
+		{
+			return "image/png";
+		}
+		if (lower.endsWith(".jpg") || lower.endsWith(".jpeg"))
+		{
+			return "image/jpeg";
+		}
+		if (lower.endsWith(".gif"))
+		{
+			return "image/gif";
+		}
+		if (lower.endsWith(".svg"))
+		{
+			return "image/svg+xml";
+		}
+		if (lower.endsWith(".webp"))
+		{
+			return "image/webp";
+		}
+		if (lower.endsWith(".bmp"))
+		{
+			return "image/bmp";
+		}
+		if (lower.endsWith(".ico"))
+		{
+			return "image/x-icon";
+		}
+		return "application/octet-stream";
 	}
 }

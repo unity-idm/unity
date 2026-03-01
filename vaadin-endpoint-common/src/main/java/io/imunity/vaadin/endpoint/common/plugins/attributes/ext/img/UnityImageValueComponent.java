@@ -5,6 +5,7 @@
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import org.apache.logging.log4j.Logger;
 
@@ -21,13 +22,14 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.server.streams.InMemoryUploadHandler;
 
 import io.imunity.vaadin.elements.ErrorLabel;
 import io.imunity.vaadin.elements.InputLabel;
 import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
 import io.imunity.vaadin.endpoint.common.WebSession;
-import io.imunity.vaadin.endpoint.common.file.ImageUtils;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeEditContext;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeModyficationEvent;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
@@ -168,12 +170,13 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		{
 			image.setVisible(true);
 			UnityImage scaledDown = new UnityImage(value.getImage(), value.getType());
-			ImageUtils.setSrcFromUnityImage(image, scaledDown);
+			DownloadHandler downloadHandler = DownloadHandlers.forUnityImage(scaledDown,
+				"imgattribute-%s.%s".formatted(UUID.randomUUID().toString(), scaledDown.getType().toExt()));
+			image.setSrc(downloadHandler);
 			error.setVisible(false);
 			image.setVisible(true);
 			HtmlTooltipAttacher.to(image, msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
-		}
-		catch (Exception e)
+		} catch (Exception e)
 		{
 			LOG.warn("Problem getting value's image as resource for editing: " + e, e);
 			cleanImage();
@@ -202,8 +205,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		try
 		{
 			validator.validate(value);
-		}
-		catch (IllegalAttributeValueException e)
+		} catch (IllegalAttributeValueException e)
 		{
 			error.setText(e.getMessage());
 			setErrorMode();

@@ -25,14 +25,6 @@ public final class DownloadHandlers
 	{
 	}
 
-	/**
-	 * Creates a DownloadHandler for byte array data.
-	 *
-	 * @param data     the byte array to download
-	 * @param filename the filename for the download
-	 * @param mimeType the MIME type of the content
-	 * @return a DownloadHandler instance
-	 */
 	public static DownloadHandler forBytes(byte[] data, String filename, String mimeType)
 	{
 		return new InputStreamDownloadHandler(
@@ -45,26 +37,6 @@ public final class DownloadHandlers
 		);
 	}
 
-	/**
-	 * Creates a DownloadHandler for byte array data with a default MIME type of "application/octet-stream".
-	 *
-	 * @param data     the byte array to download
-	 * @param filename the filename for the download
-	 * @return a DownloadHandler instance
-	 */
-	public static DownloadHandler forBytes(byte[] data, String filename)
-	{
-		return forBytes(data, filename, "application/octet-stream");
-	}
-
-	/**
-	 * Creates a DownloadHandler for lazily-supplied byte array data.
-	 *
-	 * @param dataSupplier supplier for the byte array
-	 * @param filename     the filename for the download
-	 * @param mimeType     the MIME type of the content
-	 * @return a DownloadHandler instance
-	 */
 	public static DownloadHandler forBytes(Supplier<byte[]> dataSupplier, String filename, String mimeType)
 	{
 		return new InputStreamDownloadHandler(
@@ -81,14 +53,6 @@ public final class DownloadHandlers
 		);
 	}
 
-	/**
-	 * Creates a DownloadHandler for an InputStream supplier.
-	 *
-	 * @param inputStreamSupplier supplier for the input stream
-	 * @param filename            the filename for the download
-	 * @param mimeType            the MIME type of the content
-	 * @return a DownloadHandler instance
-	 */
 	public static DownloadHandler forInputStream(
 		Supplier<InputStream> inputStreamSupplier,
 		String filename,
@@ -104,15 +68,6 @@ public final class DownloadHandlers
 		);
 	}
 
-	/**
-	 * Creates a DownloadHandler for an InputStream supplier with known content length.
-	 *
-	 * @param inputStreamSupplier supplier for the input stream
-	 * @param filename            the filename for the download
-	 * @param mimeType            the MIME type of the content
-	 * @param contentLength       the content length in bytes
-	 * @return a DownloadHandler instance
-	 */
 	public static DownloadHandler forInputStream(
 		Supplier<InputStream> inputStreamSupplier,
 		String filename,
@@ -129,13 +84,6 @@ public final class DownloadHandlers
 		);
 	}
 
-	/**
-	 * Creates a DownloadHandler for a UnityImage.
-	 *
-	 * @param image    the UnityImage to download
-	 * @param filename the filename for the download
-	 * @return a DownloadHandler instance
-	 */
 	public static DownloadHandler forUnityImage(UnityImage image, String filename)
 	{
 		return new InputStreamDownloadHandler(
@@ -148,13 +96,6 @@ public final class DownloadHandlers
 		);
 	}
 
-	/**
-	 * Creates a DownloadHandler for JSON content.
-	 *
-	 * @param jsonDataSupplier supplier for the JSON byte array
-	 * @param filename         the filename for the download (should end with .json)
-	 * @return a DownloadHandler instance
-	 */
 	public static DownloadHandler forJson(Supplier<byte[]> jsonDataSupplier, String filename)
 	{
 		return forBytes(jsonDataSupplier, filename, "application/json");

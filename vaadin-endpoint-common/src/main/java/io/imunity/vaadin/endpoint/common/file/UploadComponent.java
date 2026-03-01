@@ -13,6 +13,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
+import com.vaadin.flow.server.streams.DownloadHandler;
 import com.vaadin.flow.server.streams.InMemoryUploadHandler;
 
 import io.imunity.vaadin.endpoint.common.HtmlTooltipAttacher;
@@ -29,13 +30,11 @@ class UploadComponent extends CustomField<LocalOrRemoteResource>
 	private final Anchor downloader;
 	private final LocalOrRemoteResource image;
 	private final Button clear;
-	private final String mimeType;
 	private byte[] byteArray;
 	private String fileName;
 
 	UploadComponent(MessageSource msg, String mimeType, int maxFileSize)
 	{
-		this.mimeType = mimeType;
 		image = new LocalOrRemoteResource();
 		image.addClassName(LOGO_IMAGE.getName());
 		image.getStyle().set("margin-left", "unset");
@@ -44,7 +43,8 @@ class UploadComponent extends CustomField<LocalOrRemoteResource>
 		{
 			byteArray = bytes;
 			String detectedMimeType = metadata.contentType() != null ? metadata.contentType() : DEFAULT_MIME_TYPE;
-			image.setSrc(bytes, detectedMimeType);
+			DownloadHandler downloadHandler = DownloadHandlers.forBytes(bytes, "logo", detectedMimeType);
+			image.setSrc(downloadHandler, bytes);
 			fireEvent(new ComponentValueChangeEvent<>(this, this, image, true));
 		}));
 		upload.setMaxFiles(1);
@@ -120,7 +120,8 @@ class UploadComponent extends CustomField<LocalOrRemoteResource>
 		if (resource != null && resource.getLocal() != null)
 		{
 			String resourceMimeType = resource.getMimeType() != null ? resource.getMimeType() : DEFAULT_MIME_TYPE;
-			image.setSrc(resource.getLocal(), resourceMimeType);
+			DownloadHandler downloadHandler = DownloadHandlers.forBytes(resource.getLocal(), "logo", resourceMimeType);
+			image.setSrc(downloadHandler, resource.getLocal());
 			image.setVisible(true);
 			upload.setVisible(false);
 			downloader.setVisible(true);

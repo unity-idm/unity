@@ -70,7 +70,7 @@ public class CaptchaComponent
 	{
 		challenge = new Image();
 		SimpleImageSource src = new SimpleImageSource(engine.getImage());
-		challenge.setSrc(src.getDataUrl());
+		challenge.setSrc(src.getSrc());
 		answer = new TextField();
 		if(showLabelInline)
 			answer.setPlaceholder(msg.getMessage("CaptchaComponent.answer"));
@@ -94,7 +94,7 @@ public class CaptchaComponent
 	{
 		initEngine();
 		SimpleImageSource src = new SimpleImageSource(engine.getImage());
-		challenge.setSrc(src.getDataUrl());
+		challenge.setSrc(src.getSrc());
 		answer.setValue("");
 		answer.setInvalid(false);
 	}

@@ -24,12 +24,6 @@ public class BlankPageAnchor extends Anchor
 		setTarget("_blank");
 	}
 
-	public BlankPageAnchor(DownloadHandler downloadHandler, String text)
-	{
-		super(downloadHandler, text);
-		setTarget("_blank");
-	}
-
 	public BlankPageAnchor(String href, Component... components)
 	{
 		super(href, components);
