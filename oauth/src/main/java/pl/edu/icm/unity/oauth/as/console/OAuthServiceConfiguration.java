@@ -5,8 +5,17 @@
 
 package pl.edu.icm.unity.oauth.as.console;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Strings;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.services.idp.ActiveValueConfig;
 import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
@@ -27,12 +36,8 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
+import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Represent full OAuth service configuration.
@@ -69,7 +74,9 @@ public class OAuthServiceConfiguration
 	private AccessTokenFormat accessTokenFormat;
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 	private List<TrustedUpstreamASBean> trustedUpstreamAS;
-
+	private List<AuthorizationScriptBean> authorizationScripts;
+	private boolean tokenExchangeSupport;
+	
 	public OAuthServiceConfiguration()
 	{
 
@@ -103,6 +110,7 @@ public class OAuthServiceConfiguration
 		usersGroup = new GroupWithIndentIndicator(root, false);
 		clientGroup = new GroupWithIndentIndicator(root, false);
 		openIDConnect = false;
+		tokenExchangeSupport= false;
 		supportExtendTokenValidity = false;
 		skipUserImport = false;
 		userImports = new ArrayList<>();
@@ -111,6 +119,7 @@ public class OAuthServiceConfiguration
 		refreshTokenIssuePolicy = RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED;
 		setRefreshTokenRotationForPublicClients(false);
 		trustedUpstreamAS = new ArrayList<>();
+		authorizationScripts = new ArrayList<>();
 	}
 
 	public String toProperties(MessageSource msg, PKIManagement pkiForValidation)
@@ -163,7 +172,7 @@ public class OAuthServiceConfiguration
 				String key = OAuthASProperties.SCOPES + (scopes.indexOf(scope) + 1) + ".";
 				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_NAME, scope.getName());
 				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_ENABLED, String.valueOf(scope.isEnabled()));
-				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_IS_WILDCARD, String.valueOf(scope.isWildcard()));
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_IS_PATTERN, String.valueOf(scope.isPattern()));
 
 				if (scope.getDescription() != null)
 				{
@@ -179,6 +188,16 @@ public class OAuthServiceConfiguration
 								+ (attributes.indexOf(attr) + 1), attr);
 					}
 				}
+			}
+		}
+		
+		if (authorizationScripts != null)
+		{
+			for (AuthorizationScriptBean script : authorizationScripts)
+			{
+				String key = OAuthASProperties.AUTHORIZATION_SCRIPTS + (authorizationScripts.indexOf(script) + 1) + ".";
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE, script.getScope());
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.AUTHORIZATION_SCRIPT_PATH, script.getPath());				
 			}
 		}
 		if (activeValueSelections != null)
@@ -354,9 +373,15 @@ public class OAuthServiceConfiguration
 					oauthScope.setDescription(s.description);
 					oauthScope.setAttributes(s.attributes);
 					oauthScope.setEnabled(s.enabled);
-					oauthScope.setWildcard(s.wildcard);
+					oauthScope.setPattern(s.pattern);
 					scopes.add(oauthScope);
 				});
+		
+		authorizationScripts.clear();
+		Set<String> scriptKeys = oauthProperties.getStructuredListKeys(OAuthASProperties.AUTHORIZATION_SCRIPTS);
+		scriptKeys.forEach(scriptKey -> authorizationScripts.add(new AuthorizationScriptBean(
+				oauthProperties.getValue(scriptKey + OAuthASProperties.AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE),
+				oauthProperties.getValue(scriptKey + OAuthASProperties.AUTHORIZATION_SCRIPT_PATH))));
 
 		trustedUpstreamAS.clear();
 		Set<String> trustedUpstreamASKeys = oauthProperties
@@ -385,13 +410,9 @@ public class OAuthServiceConfiguration
 			trustedUpstreamAS.add(trustedUpstreamASBean);
 		}
 
-		Optional<OAuthScopeBean> openIdScope = scopes.stream()
-				.filter(s -> s.getName()
-						.equals(OIDCScopeValue.OPENID.getValue()))
-				.findFirst();
-		openIDConnect = openIdScope.isPresent() && openIdScope.get()
-				.isEnabled();
-
+		openIDConnect = isScopeEnabled(OIDCScopeValue.OPENID.getValue());
+		tokenExchangeSupport = isScopeEnabled(OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
+		
 		if (oauthProperties.isSet(CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE))
 		{
 			translationProfile = TranslationProfileGenerator
@@ -456,6 +477,15 @@ public class OAuthServiceConfiguration
 		}
 
 		policyAgreementConfig = IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, oauthProperties);
+	}
+	
+	private boolean isScopeEnabled(String scopeName)
+	{
+		return scopes.stream()
+				.filter(s -> scopeName.equals(s.getName()))
+				.findFirst()
+				.map(OAuthScopeBean::isEnabled)
+				.orElse(false);
 	}
 
 	public List<UserImportConfig> getUserImports()
@@ -731,5 +761,25 @@ public class OAuthServiceConfiguration
 	public void setTrustedUpstreamAS(List<TrustedUpstreamASBean> trustedUpstreamAS)
 	{
 		this.trustedUpstreamAS = trustedUpstreamAS;
+	}
+
+	public List<AuthorizationScriptBean> getAuthorizationScripts()
+	{
+		return authorizationScripts;
+	}
+
+	public void setAuthorizationScripts(List<AuthorizationScriptBean> authorizationScripts)
+	{
+		this.authorizationScripts = authorizationScripts;
+	}
+
+	public boolean isTokenExchangeSupport()
+	{
+		return tokenExchangeSupport;
+	}
+
+	public void setTokenExchangeSupport(boolean exchangeToken)
+	{
+		this.tokenExchangeSupport = exchangeToken;
 	}
 }

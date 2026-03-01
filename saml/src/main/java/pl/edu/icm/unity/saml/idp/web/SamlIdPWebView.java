@@ -49,7 +49,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.translation.StopAuthenticationException;
 import pl.edu.icm.unity.engine.api.translation.out.AuthenticationFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
-import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -76,7 +76,7 @@ class SamlIdPWebView extends UnityViewComponent
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlIdPWebView.class);
 	private final MessageSource msg;
 	private final IdPEngine idpEngine;
-	private final FreemarkerAppHandler freemarkerHandler;
+	private final FreemarkerXHTMLHandler freemarkerHandler;
 	private final AttributeHandlerRegistry handlersRegistry;
 	private final IdentityTypeSupport identityTypeSupport;
 	private final PreferencesManagement preferencesMan;
@@ -98,18 +98,18 @@ class SamlIdPWebView extends UnityViewComponent
 
 	@Autowired
 	public SamlIdPWebView(MessageSource msg, VaadinLogoImageLoader imageAccessService,
-	                      FreemarkerAppHandler freemarkerHandler,
-	                      AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
-	                      VaadinWebLogoutHandler authnProcessor, IdPEngine idpEngine,
-	                      IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan,
-	                      AttributeTypeManagement attrsMan,
-	                      AttributeTypeSupport aTypeSupport,
-	                      PolicyAgreementManagement policyAgreementsMan,
-	                      PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
-	                      SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
-	                      LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
-	                      EnquiresDialogLauncher enquiresDialogLauncher,
-	                      NotificationPresenter notificationPresenter)
+			FreemarkerXHTMLHandler freemarkerHandler,
+			AttributeHandlerRegistry handlersRegistry, PreferencesManagement preferencesMan,
+			VaadinWebLogoutHandler authnProcessor, IdPEngine idpEngine,
+	                IdentityTypeSupport identityTypeSupport, SessionManagement sessionMan,
+	                AttributeTypeManagement attrsMan,
+	                AttributeTypeSupport aTypeSupport,
+	                PolicyAgreementManagement policyAgreementsMan,
+	                PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
+	                SamlIdpStatisticReporterFactory idpStatisticReporterFactory,
+	                LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
+	                EnquiresDialogLauncher enquiresDialogLauncher,
+	                NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;
@@ -139,7 +139,7 @@ class SamlIdPWebView extends UnityViewComponent
 				samlProcessor.getIdentityTarget(), Optional.empty(), 
 				"SAML2", SAMLConstants.BINDING_HTTP_REDIRECT,
 				processor.isIdentityCreationAllowed(),
-				samlCtx.getSamlConfiguration().userImportConfigs);
+				samlCtx.getSamlConfiguration().userImportConfigs, null);
 	}
 
 	void enter()

@@ -12,9 +12,11 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.saml.ResponseTemplates;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import pl.edu.icm.unity.saml.slo.SamlMessageHandler;
 import io.imunity.vaadin.endpoint.common.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -37,16 +39,16 @@ public class ErrorHandler
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, ErrorHandler.class);
 	private AttributeTypeSupport aTypeSupport;
 	private final SamlMessageHandler messageHandler;
-	private final FreemarkerAppHandler freemarker;
+	private final FreemarkerXHTMLHandler freemarker;
 	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
 	public ErrorHandler(AttributeTypeSupport aTypeSupport, LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement,
-			FreemarkerAppHandler freemarker)
+			FreemarkerXHTMLHandler freemarker4xhtml, FreemarkerAppHandler freemarker4html)
 	{
 		this.aTypeSupport = aTypeSupport;
-		this.freemarker = freemarker;
+		this.freemarker = freemarker4xhtml;
 		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
-		messageHandler = new SamlMessageHandler(freemarker);
+		messageHandler = new SamlMessageHandler(freemarker4html, freemarker4xhtml);
 	}
 	
 	/**
@@ -104,7 +106,7 @@ public class ErrorHandler
 		
 		response.setContentType("application/xhtml+xml; charset=utf-8");
 		PrintWriter w = response.getWriter();
-		freemarker.printGenericPage(w, "samlFinish.ftl", data);
+		freemarker.printXHTMLDocument(w, ResponseTemplates.FINISH_TMPL.templateFile, data);
 		throw new EopException();
 	}
 	

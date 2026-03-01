@@ -6,9 +6,9 @@
 package pl.edu.icm.unity.oauth.as.token.introspection;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.ArgumentMatchers.any;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -17,13 +17,10 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.ws.rs.core.Response;
-
 import org.junit.jupiter.api.Test;
 
 import com.nimbusds.common.contenttype.ContentType;
 import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
@@ -31,6 +28,7 @@ import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 
+import jakarta.ws.rs.core.Response;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -74,7 +72,6 @@ public class RemoteTokenIntrospectionTest
 				IntrospectionServiceContextProvider.class);
 		HttpRequestConfigurer httpRequestConfigurer = mock(HttpRequestConfigurer.class);
 		HTTPRequest mockRequest = mock(HTTPRequest.class);
-		JWSVerifier jwsVerifier = mock(JWSVerifier.class);
 		RemoteTokenIntrospectionService remoteTokenIntrospectionService = new RemoteTokenIntrospectionService(
 				introspectionServiceContextProvider, httpRequestConfigurer);
 		when(introspectionServiceContextProvider.getRemoteServiceContext("issuer"))
@@ -82,10 +79,8 @@ public class RemoteTokenIntrospectionTest
 						.withUrl(URLFactory.of("https://test.com"))
 						.withClientId("id")
 						.withClientSecret("secret")
-						.withVerifier(jwsVerifier)
 						.build()));
 		when(httpRequestConfigurer.secureRequest(any(), any(), any())).thenReturn(mockRequest);
-		when(jwsVerifier.verify(any(), any(), any())).thenReturn(true);
 		HTTPResponse httpResponse = new HTTPResponse(HTTPResponse.SC_OK);
 		TokenIntrospectionResponse resp = new TokenIntrospectionSuccessResponse(new JSONObject(Map.of("active", true)));
 		httpResponse.setBody(resp.toSuccessResponse()

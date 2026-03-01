@@ -5,6 +5,9 @@
 
 package pl.edu.icm.unity.engine.api.utils;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Set;
 
@@ -21,7 +24,7 @@ public class NameToURLEncoder
 			return Base64.getUrlEncoder()
 					.encodeToString(name.getBytes()) + ENCODED_NAME_SUFFIX;
 		}
-		return name;
+		return URLEncoder.encode(name, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
 	}
 
 	public static String decode(String name)
@@ -31,6 +34,6 @@ public class NameToURLEncoder
 			return new String(Base64.getUrlDecoder()
 					.decode(name.substring(0, name.length() - ENCODED_NAME_SUFFIX.length())));
 		}
-		return name;
+		return URLDecoder.decode(name, StandardCharsets.UTF_8);
 	}
 }

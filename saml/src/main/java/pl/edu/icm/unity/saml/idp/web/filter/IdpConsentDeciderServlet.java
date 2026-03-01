@@ -68,6 +68,7 @@ import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
@@ -94,6 +95,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	private final EnquiryManagement enquiryManagement;
 	private final PolicyAgreementManagement policyAgreementsMan;
 	private final FreemarkerAppHandler freemarker;
+	private final FreemarkerXHTMLHandler xhtmlHandler;
 	private final SamlIdpStatisticReporterFactory idpStatisticReporterFactory;
 	protected final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 	
@@ -102,6 +104,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			PreferencesManagement preferencesMan, 
 			IdPEngine idpEngine,
 			FreemarkerAppHandler freemarker,
+			FreemarkerXHTMLHandler xhtmlHandler,
 			SessionManagement sessionMan,
 			@Qualifier("insecure") EnquiryManagement enquiryManagement,
 			PolicyAgreementManagement policyAgreementsMan,
@@ -116,13 +119,14 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.idpStatisticReporterFactory = idpStatisticReporterFactory;
 		this.freemarker = freemarker;
+		this.xhtmlHandler = xhtmlHandler;
 		this.lastAccessAttributeManagement = lastAccessAttributeManagement;
 	}
 
 	protected void init(String samlUiServletPath, Endpoint endpoint)
 	{
 		this.samlUiServletPath = samlUiServletPath;
-		this.ssoResponseHandler = new SSOResponseHandler(freemarker, idpStatisticReporterFactory, endpoint);
+		this.ssoResponseHandler = new SSOResponseHandler(freemarker, xhtmlHandler, idpStatisticReporterFactory, endpoint);
 	}
 	
 	@Override
@@ -353,7 +357,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 				processor.getChosenGroup(), samlIdPConfiguration.getOutputTranslationProfile(),
 				processor.getIdentityTarget(), Optional.empty(), "SAML2", binding,
 				processor.isIdentityCreationAllowed(),
-				samlIdPConfiguration.userImportConfigs);
+				samlIdPConfiguration.userImportConfigs, null);
 	}
 
 	

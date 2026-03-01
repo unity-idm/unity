@@ -460,7 +460,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 			throw new WrongArgumentException("There are (at least) two web " +
 					"applications configured at the same context path: " + contextPath);
 		}
-		handler.getServletHandler().setDecodeAmbiguousURIs(true);
 		addDoSFilter(handler);
 
 		Handler wrappedHandler = applyCORSHandler(handler);

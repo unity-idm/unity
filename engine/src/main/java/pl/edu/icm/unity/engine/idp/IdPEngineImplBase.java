@@ -32,6 +32,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.idp.UserAuthnDetails;
 import pl.edu.icm.unity.engine.api.idp.UserImportConfigs;
 import pl.edu.icm.unity.engine.api.idp.UserImportHelper;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
@@ -78,7 +79,7 @@ class IdPEngineImplBase implements IdPEngine
 			String group, TranslationProfile profile, String requester, 
 			Optional<EntityInGroup> requesterEntity, String protocol,
 			String protocolSubType, boolean allowIdentityCreate,
-			UserImportConfigs userImportConfigs) throws EngineException
+			UserImportConfigs userImportConfigs, UserAuthnDetails userAuthnDetails) throws EngineException
 	{
 		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
 		Map<String, String> firstIdentitiesByType = new HashMap<>();
@@ -95,7 +96,7 @@ class IdPEngineImplBase implements IdPEngine
 			fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
 		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
 				requester, requesterEntity, protocol, protocolSubType, 
-				assembleImportStatus(importResult));
+				assembleImportStatus(importResult), userAuthnDetails);
 	}
 	
 	private Identity getRegularIdentity(List<Identity> identities)
@@ -122,14 +123,14 @@ class IdPEngineImplBase implements IdPEngine
 		
 		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
 				requester, requesterEntity, protocol, protocolSubType, 
-				assembleImportStatus(importResult));
+				assembleImportStatus(importResult), null);
 	}
 	
 	private TranslationResult obtainUserInformationPostImport(EntityParam entity, Entity fullEntity,
 			String group, TranslationProfile profile,
 			String requester, Optional<EntityInGroup> requesterEntity, 
 			String protocol, String protocolSubType,
-			Map<String, Status> importStatus) throws EngineException
+			Map<String, Status> importStatus, UserAuthnDetails userAuthnDetails) throws EngineException
 	{
 		Set<String> allGroups = identitiesMan.getGroups(entity).keySet();
 		List<Group> resolvedGroups = groupManagement.getGroupsByWildcard("/**").stream()
@@ -146,7 +147,7 @@ class IdPEngineImplBase implements IdPEngine
 					requesterEntity.get().group, null) :
 			Collections.emptyList();
 		TranslationInput input = new TranslationInput(allAttributes, fullEntity, group, resolvedGroups, 
-				requester, requesterAttributes, protocol, protocolSubType, importStatus);
+				requester, requesterAttributes, protocol, protocolSubType, importStatus, userAuthnDetails);
 		return outputProfileExecutor.execute(profile, input);
 	}
 

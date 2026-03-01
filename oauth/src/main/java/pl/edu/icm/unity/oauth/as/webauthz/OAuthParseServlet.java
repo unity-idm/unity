@@ -31,7 +31,6 @@ import com.nimbusds.oauth2.sdk.util.URLUtils;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
-import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.op.ACRRequest;
 
 import io.imunity.vaadin.auth.SigInInProgressContextService;
@@ -47,7 +46,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationPolicy;
-import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
 import pl.edu.icm.unity.engine.api.authn.SigInInProgressContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
@@ -55,6 +53,7 @@ import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.oauth.as.RequestedACRMapper;
 
 /**
  * Low level servlet performing the initial OAuth handling.
@@ -226,15 +225,8 @@ public class OAuthParseServlet extends HttpServlet
 			LoginInProgressService.SignInContextKey key)
 	{
 		SigInInProgressContextService.setContext(session,
-				new SigInInProgressContext(new RequestedAuthenticationContextClassReference(
-						getMappedACRs(acrRequest != null ? acrRequest.getEssentialACRs() : null),
-						getMappedACRs(acrRequest != null ? acrRequest.getVoluntaryACRs() : null))),
+				new SigInInProgressContext(RequestedACRMapper.mapToInternalACRFromNimbusdsACRType(acrRequest)),
 				key);
-	}
-
-	private List<String> getMappedACRs(List<ACR> acrs)
-	{
-		return acrs != null  ? acrs.stream().map(a -> a.getValue()).toList() : List.of();
 	}
 	
 	private void setLanguageCookie(HttpServletResponse response, Optional<List<LangTag>> uiLocales)

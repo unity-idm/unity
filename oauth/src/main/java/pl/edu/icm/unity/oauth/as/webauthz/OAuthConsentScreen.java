@@ -4,6 +4,20 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import static pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint.OAUTH_CONSENT_DECIDER_SERVLET_PATH;
+
+import java.io.ByteArrayInputStream;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+
+import org.apache.logging.log4j.Logger;
+
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
@@ -21,8 +35,8 @@ import io.imunity.vaadin.endpoint.common.consent_utils.IdPButtonsBar;
 import io.imunity.vaadin.endpoint.common.consent_utils.IdentitySelectorComponent;
 import io.imunity.vaadin.endpoint.common.consent_utils.SPInfoComponent;
 import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
+import io.imunity.vaadin.endpoint.common.consent_utils.URIPresentationHelper;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
@@ -36,7 +50,7 @@ import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
@@ -152,9 +166,9 @@ class OAuthConsentScreen extends VerticalLayout
 		eiLayout.setWidthFull();
 		exposedInfoPanel.add(eiLayout);
 
-		for (OAuthScope si : ctx.getEffectiveRequestedScopes())
+		for (RequestedOAuthScope si : ctx.getEffectiveRequestedScopes())
 		{
-			String label = Strings.isNullOrEmpty(si.description) ? si.name : si.description;
+			String label = Strings.isNullOrEmpty(si.scopeDefinition().description()) ? si.scope() : si.scopeDefinition().description();
 			Span scope = new Span("● " + label);
 			eiLayout.add(scope);
 		}

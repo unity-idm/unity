@@ -51,6 +51,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfiguration;
 import pl.edu.icm.unity.saml.idp.SAMLIdPConfigurationParser;
@@ -94,6 +95,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 	protected String publicEntryPointPath;
 	protected SAMLIdPConfiguration samlConfiguration;
 	protected FreemarkerAppHandler freemarkerHandler;
+	protected FreemarkerXHTMLHandler freemarkerXHTMLHandler;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
 	protected IdpRemoteMetaManager myMetadataManager;
@@ -114,6 +116,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 	public SamlAuthVaadinEndpoint(NetworkServer server,
 	                              ApplicationContext applicationContext,
 	                              FreemarkerAppHandler freemarkerHandler,
+				      FreemarkerXHTMLHandler freemarkerXHTMLHandler,
 	                              @Qualifier("insecure") PKIManagement pkiManagement,
 	                              ExecutorsService executorsService,
 	                              IdpConsentDeciderServletFactory dispatcherServletFactory,
@@ -131,7 +134,8 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 	                              SAMLIdPConfigurationParser samlIdPConfigurationParser)
 	{
 		this(SAML_CONSUMER_SERVLET_PATH, server, advertisedAddrProvider, applicationContext, freemarkerHandler,
-				pkiManagement, executorsService, dispatcherServletFactory, logoutProcessorFactory,
+				freemarkerXHTMLHandler, pkiManagement, executorsService, dispatcherServletFactory,
+				logoutProcessorFactory,
 				sloReplyInstaller, msg, aTypeSupport, metadataService, uriAccessService,
 				remoteAuthnResponseProcessingFilter, idpStatisticReporterFactory, lastAccessAttributeManagement,
 				sandboxAuthnRouter, samlIdPConfigurationParser);
@@ -142,6 +146,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 			AdvertisedAddressProvider advertisedAddrProvider,
 			ApplicationContext applicationContext,
 			FreemarkerAppHandler freemarkerHandler,
+			FreemarkerXHTMLHandler freemarkerXHTMLHandler,
 			PKIManagement pkiManagement,
 			ExecutorsService executorsService,
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
@@ -161,6 +166,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 				remoteAuthnResponseProcessingFilter, sandboxAuthnRouter, SamlVaadin2XServlet.class);
 		this.publicEntryPointPath = publicEntryServletPath;
 		this.freemarkerHandler = freemarkerHandler;
+		this.freemarkerXHTMLHandler = freemarkerXHTMLHandler;
 		this.dispatcherServletFactory = dispatcherServletFactory;
 		this.pkiManagement = pkiManagement;
 		this.executorsService = executorsService;
@@ -214,7 +220,7 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 	public ServletContextHandler getServletContextHandler()
 	{
 		Vaadin2XWebAppContext vaadin2XWebAppContext = new Vaadin2XWebAppContext(properties, genericEndpointProperties, msg, description, authenticationFlows,
-				new SamlAuthnCancelHandler(freemarkerHandler, aTypeSupport, idpStatisticReporterFactory,
+				new SamlAuthnCancelHandler(freemarkerXHTMLHandler, aTypeSupport, idpStatisticReporterFactory,
 						lastAccessAttributeManagement, description.getEndpoint()), sandboxAuthnRouter);
 		context = getServletContextHandlerOverridable(vaadin2XWebAppContext);
 		return context;
@@ -245,7 +251,8 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 		servletContextHandler.addFilter(new FilterHolder(remoteAuthnResponseProcessingFilter), "/*",
 				EnumSet.of(DispatcherType.REQUEST));
 		
-		Filter samlGuardFilter = new SamlGuardFilter(new ErrorHandler(aTypeSupport, lastAccessAttributeManagement, freemarkerHandler));
+		Filter samlGuardFilter = new SamlGuardFilter(new ErrorHandler(aTypeSupport, lastAccessAttributeManagement,
+				freemarkerXHTMLHandler, freemarkerHandler));
 		servletContextHandler.addFilter(new FilterHolder(samlGuardFilter), SAML_CONSENT_DECIDER_SERVLET_PATH,
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
@@ -296,7 +303,8 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 	protected Servlet getSamlParseServlet(String endpointURL, String dispatcherUrl)
 	{
 		return new SamlParseServlet(myMetadataManager, 
-				endpointURL, dispatcherUrl, new ErrorHandler(aTypeSupport, lastAccessAttributeManagement, freemarkerHandler));
+				endpointURL, dispatcherUrl, new ErrorHandler(aTypeSupport, lastAccessAttributeManagement,
+				freemarkerXHTMLHandler, freemarkerHandler));
 	}
 
 	protected Servlet getMetadataServlet(String samlEndpointURL, String sloEndpointURL, String sloSoapEndpointURL)
@@ -322,7 +330,8 @@ public class SamlAuthVaadinEndpoint extends SecureVaadin2XEndpoint
 		sloSoap.setBinding(SAMLConstants.BINDING_SOAP);
 		EndpointType[] sloEndpoints = new EndpointType[] {sloPost, sloRedirect, sloSoap};
 
-		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(myMetadataManager.getSAMLIdPConfiguration(), uriAccessService,
+		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(myMetadataManager.getSAMLIdPConfiguration(),
+				uriAccessService,
 				executorsService, authnEndpoints, null, sloEndpoints,
 				description.getEndpoint().getConfiguration().getDisplayedName(), msg);
 		return new MetadataServlet(provider);

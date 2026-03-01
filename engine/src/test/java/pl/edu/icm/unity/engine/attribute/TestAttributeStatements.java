@@ -283,7 +283,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/D", "a1", false);
 		assertEquals(1, aRet.size());
-		assertEquals(1, aRet.iterator().next().getValues().size());
+		assertEquals(2, aRet.iterator().next().getValues().size());
 		assertEquals("base", aRet.iterator().next().getValues().get(0));
 
 		//add two rules to test merge working

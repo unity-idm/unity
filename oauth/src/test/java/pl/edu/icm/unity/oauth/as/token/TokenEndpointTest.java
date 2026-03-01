@@ -168,7 +168,7 @@ public class TokenEndpointTest extends TokenTestBase
 		JWTClaimsSet claimSet = ui.toJWTClaimsSet();
 
 		assertEquals("PL", claimSet.getClaim("c"));
-		assertEquals("example@example.com", claimSet.getClaim("email"));
+		assertThat(claimSet.getListClaim("email")).contains("example@example.com");
 		assertEquals("userA", claimSet.getClaim("sub"));
 	}
 

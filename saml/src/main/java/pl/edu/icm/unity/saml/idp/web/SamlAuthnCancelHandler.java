@@ -11,7 +11,7 @@ import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import io.imunity.vaadin.endpoint.common.CancelHandler;
@@ -25,14 +25,15 @@ import io.imunity.vaadin.endpoint.common.EopException;
  */
 public class SamlAuthnCancelHandler implements CancelHandler
 {
-	private final FreemarkerAppHandler freemarkerHandler;
+	private final FreemarkerXHTMLHandler freemarkerHandler;
 	private final AttributeTypeSupport aTypeSupport;
 	private final Endpoint endpoint;
 	private final SamlIdpStatisticReporterFactory reporterFactory;
 	private final LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement;
 
-	public SamlAuthnCancelHandler(FreemarkerAppHandler freemarkerHandler, AttributeTypeSupport aTypeSupport,
-			SamlIdpStatisticReporterFactory reporterFactory, LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement, Endpoint endpoint)
+	public SamlAuthnCancelHandler(FreemarkerXHTMLHandler freemarkerHandler, AttributeTypeSupport aTypeSupport,
+			SamlIdpStatisticReporterFactory reporterFactory,
+			LastIdPClinetAccessAttributeManagement lastAccessAttributeManagement, Endpoint endpoint)
 	{
 		this.freemarkerHandler = freemarkerHandler;
 		this.aTypeSupport = aTypeSupport;

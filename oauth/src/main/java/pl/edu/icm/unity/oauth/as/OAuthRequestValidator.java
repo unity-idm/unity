@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.Scope.Value;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -120,49 +121,94 @@ public class OAuthRequestValidator
 		}
 	}
 
-	public List<OAuthScope> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
+	public List<RequestedOAuthScope> getValidRequestedScopes(Map<String, AttributeExt> clientAttributes, Scope requestedScopes)
 	{
-		List<OAuthScope> scopesDefinedOnServer = scopeService.getActiveScopes(oauthConfig);
-		Optional<Set<String>> allowedByClientScopes = getAllowedScopes(clientAttributes);
-		Set<String> notAllowedByClient = requestedScopes.stream().map(s -> s.getValue())
-				.filter(scope -> (allowedByClientScopes.isPresent() && !allowedByClientScopes.get().contains(scope)))
-				.collect(Collectors.toSet());
+		Map<String, ActiveOAuthScopeDefinition> scopesDefinedOnServer = scopeService.getActiveScopes(oauthConfig)
+				.stream()
+				.collect(Collectors.toMap(s -> s.name(), s -> s));
+		boolean isAllowedForRequestingPatternScopes = isAllowedForRequestingPatternScopes(clientAttributes);
+		Set<String> notAllowedByClient = getNotAlloweByClient(clientAttributes, scopesDefinedOnServer, requestedScopes, isAllowedForRequestingPatternScopes);
 		if (!notAllowedByClient.isEmpty())
 		{
-			log.info("Requested scopes not allowed for the client and ignored: %", String.join(",", notAllowedByClient));
+			log.info("Requested scopes not allowed for the client and ignored: {}", String.join(",", notAllowedByClient));
 		}
-
-		Set<String> notDefinedOnServer = requestedScopes.stream().map(s -> s.getValue())
-				.filter(scope -> !scopesDefinedOnServer.stream()
-						.filter(serverScope -> serverScope.match(scope)).findAny().isPresent())
+			
+		Set<String> notDefinedOnServer = requestedScopes.stream()
+				.map(s -> s.getValue())
+				.filter(scope -> !scopesDefinedOnServer.values().stream()
+						.filter(serverScope -> ScopeMatcher.match(serverScope, scope,
+								isAllowedForRequestingPatternScopes))
+						.findAny()
+						.isPresent())
 				.collect(Collectors.toSet());
 		if (!notDefinedOnServer.isEmpty())
 		{
 			log.info("Requested scopes not available on the endpoint and ignored: "
 					+ String.join(",", notDefinedOnServer));
 		}
-
+		
 		return requestedScopes.stream()
 				.filter(s -> !notDefinedOnServer.contains(s.getValue()) && !notAllowedByClient.contains(s.getValue()))
-				.map(s -> rewriteScope(s.getValue(), scopesDefinedOnServer.stream()
-						.filter(serverScope -> serverScope.match(s.getValue()))
+				.map(s -> toRequestedScope(s.getValue(), scopesDefinedOnServer.values().stream()
+						.filter(serverScope -> ScopeMatcher.match(serverScope, s.getValue(), isAllowedForRequestingPatternScopes))
 						.findFirst()
-						.get()))
+						.get(), isAllowedForRequestingPatternScopes))
 				.collect(Collectors.toList());		
 	}
 	
-	private OAuthScope rewriteScope(String scope, OAuthScope serverScope)
+	private Set<String> getNotAlloweByClient(Map<String, AttributeExt> clientAttributes,
+			Map<String, ActiveOAuthScopeDefinition> scopesDefinedOnServer, Scope requestedScopes,
+			boolean isAllowedForRequestingPatternScopes)
 	{
-		return OAuthScope.builder()
-				.withName(scope)
-				.withAttributes(serverScope.attributes)
-				.withDescription(serverScope.description)
-				.withEnabled(serverScope.enabled)
-				.withWildcard(serverScope.wildcard)
-				.build();
+		Optional<Set<String>> allowedByClientScopes = getAllowedScopes(clientAttributes);
+		if (allowedByClientScopes.isEmpty())
+			return Set.of();
+		Set<String> notAllowedByClient = new HashSet<>();
+		for (Value requestedScope : requestedScopes)
+		{
+			if (allowedByClientScopes.get()
+					.contains(requestedScope.getValue())
+					|| scopesDefinedOnServer.values()
+							.stream()
+							.filter(s -> allowedByClientScopes.get()
+									.contains(s.name()))
+							.filter(serverScope -> ScopeMatcher.match(serverScope, requestedScope.getValue(),
+									isAllowedForRequestingPatternScopes))
+							.findAny()
+							.isPresent())
+			{
+				continue;
 
+			} else
+			{
+				notAllowedByClient.add(requestedScope.getValue());
+			}
+		}
+		return notAllowedByClient;
 	}
 	
+	private boolean isAllowedForRequestingPatternScopes(Map<String, AttributeExt> attributes)
+	{
+		AttributeExt allowedForRequestingPatternScopes = attributes
+				.get(OAuthSystemAttributesProvider.CAN_RECEIVE_PATTERN_SCOPES);
+		if (allowedForRequestingPatternScopes == null)
+		{
+			return false;
+		} else
+		{
+			return allowedForRequestingPatternScopes.getValues()
+					.stream()
+					.anyMatch(v -> Boolean.parseBoolean(v.toString()));
+		}
+	}
+
+	private RequestedOAuthScope toRequestedScope(String scope, ActiveOAuthScopeDefinition activeOAuthScopeDefinition,
+			boolean supportPattern)
+	{
+		return new RequestedOAuthScope(scope, activeOAuthScopeDefinition,
+				activeOAuthScopeDefinition.pattern() && supportPattern);
+	}
+
 	@Component
 	public static class OAuthRequestValidatorFactory
 	{

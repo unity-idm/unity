@@ -79,8 +79,11 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String SCOPE_DESCRIPTION = "description";
 	public static final String SCOPE_NAME = "name";
 	public static final String SCOPE_ENABLED = "enabled";
-	public static final String SCOPE_IS_WILDCARD = "isWildcard";
-
+	public static final String SCOPE_IS_PATTERN = "isPattern";
+	
+	public static final String AUTHORIZATION_SCRIPTS = "authorizationScripts.";
+	public static final String AUTHORIZATION_SCRIPT_PATH = "path";
+	public static final String AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE = "triggeringScope";
 
 	public static final String TRUSTED_UPSTREAM_AS = "trustedUpstreamAS.";
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_ID = "clientId";
@@ -166,8 +169,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("Name of the scope as used in OAuth protocol."));
 		defaults.put(SCOPE_ENABLED, new PropertyMD("true").setStructuredListEntry(SCOPES)
 				.setDescription("Indicates whether the scope is available."));
-		defaults.put(SCOPE_IS_WILDCARD, new PropertyMD("false").setStructuredListEntry(SCOPES)
-				.setDescription("Indicates whether the scope is wildcard."));
+		defaults.put(SCOPE_IS_PATTERN, new PropertyMD("false").setStructuredListEntry(SCOPES)
+				.setDescription("Indicates whether the scope is treated as a pattern. All concrete scopes matching the pattern will be accepted."));
 		defaults.put(SCOPE_DESCRIPTION, new PropertyMD().setStructuredListEntry(SCOPES)
 				.setDescription("Human readable description of the scope meaning."));
 		defaults.put(SCOPE_ATTRIBUTES, new PropertyMD().setStructuredListEntry(SCOPES)
@@ -175,6 +178,17 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("List of Unity attributes that should be returned when the scope is "
 						+ "requested. Note that those attribtues are merely an input to the "
 						+ "configured output translation profile."));
+		
+		defaults.put(AUTHORIZATION_SCRIPTS, new PropertyMD().setStructuredList(false)
+				.setDescription("Under this prefix external authorization of request scrips can be defined."));
+		defaults.put(AUTHORIZATION_SCRIPT_PATH, new PropertyMD().setStructuredListEntry(AUTHORIZATION_SCRIPTS)
+				.setMandatory()
+				.setDescription("Path of the script to be run"));
+		defaults.put(AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE, new PropertyMD().setStructuredListEntry(AUTHORIZATION_SCRIPTS)
+				.setMandatory()
+				.setDescription("Script triggering scope - pattern"));
+		
+		
 		defaults.put(SIGNING_ALGORITHM, new PropertyMD(SigningAlgorithms.RS256)
 				.setDescription("An algorithm used for JWT access token and id token (OIDC mode) signing."));
 		defaults.put(SIGNING_SECRET,

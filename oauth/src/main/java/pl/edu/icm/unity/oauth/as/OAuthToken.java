@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
 import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
 
 /**
@@ -32,7 +33,7 @@ public class OAuthToken
 	private String accessToken;
 	private String refreshToken;
 	private String firstRefreshRollingToken;
-	private String[] effectiveScope;
+	private List<RequestedOAuthScope> effectiveScope;
 	private String[] requestedScope;
 	private long clientEntityId;
 	private String redirectUri;
@@ -49,7 +50,9 @@ public class OAuthToken
 	private Optional<ClaimsInTokenAttribute> claimsInTokenAttribute;
 	private Instant authenticationTime;
 	private List<AttributeFilteringSpec> attributeValueFilters;
-	
+	private SerializableUserAuthnDetails userAuthnDetails;
+	private RequestedAuthenticationContextClassReference requestedACR;
+
 	
 	public OAuthToken()
 	{
@@ -85,6 +88,8 @@ public class OAuthToken
 		setClaimsInTokenAttribute(source.getClaimsInTokenAttribute());
 		setAuthenticationTime(source.getAuthenticationTime());
 		setAttributeValueFilters(source.getAttributeValueFilters());
+		setUserAuthnDetails(source.getUserAuthnDetails());
+		setRequestedACR(source.getRequestedACR());
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -146,12 +151,18 @@ public class OAuthToken
 		this.refreshToken = refreshToken;
 	}
 
-	public String[] getEffectiveScope()
+	public List<RequestedOAuthScope> getEffectiveScope()
 	{
 		return effectiveScope;
 	}
+	
+	@JsonIgnore
+	public String[] getEffectiveScopeAsString()
+	{
+		return effectiveScope.stream().map(s -> s.scope()).toArray(String[]::new);
+	}
 
-	public void setEffectiveScope(String[] scope)
+	public void setEffectiveScope(List<RequestedOAuthScope> scope)
 	{
 		this.effectiveScope = scope;
 	}
@@ -344,6 +355,15 @@ public class OAuthToken
 		return claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.token);	
 	}
 	
+	@JsonIgnore
+	public Optional<Boolean> hasSupportAttributesInIdToken()
+	{
+		if (claimsInTokenAttribute.isEmpty())
+			return Optional.empty();
+		
+		return Optional.of(claimsInTokenAttribute.get().values.contains(ClaimsInTokenAttribute.Value.id_token));	
+	}
+	
 	public Instant getAuthenticationTime()
 	{
 		return authenticationTime;
@@ -363,18 +383,38 @@ public class OAuthToken
 	{
 		this.attributeValueFilters = attributeValueFilters;
 	}
+
+	public RequestedAuthenticationContextClassReference getRequestedACR()
+	{
+		return requestedACR;
+	}
+
+	public void setRequestedACR(RequestedAuthenticationContextClassReference requestedACR)
+	{
+		this.requestedACR = requestedACR;
+	}
 	
+	public SerializableUserAuthnDetails getUserAuthnDetails()
+	{
+		return userAuthnDetails;
+	}
+
+	public void setUserAuthnDetails(SerializableUserAuthnDetails userAuthnDetails)
+	{
+		this.userAuthnDetails = userAuthnDetails;
+	}
+
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Arrays.hashCode(effectiveScope);
 		result = prime * result + Arrays.hashCode(requestedScope);
-		result = prime * result + Objects.hash(accessToken, audience, authzCode, clientEntityId, clientName,
-				clientType, clientUsername, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
-				redirectUri, refreshToken, responseType, subject, tokenValidity, userInfo, firstRefreshRollingToken, authenticationTime);
-		result = prime * result + Objects.hash(attributeValueFilters);
+		result = prime * result + Objects.hash(accessToken, attributeValueFilters, audience, authenticationTime,
+				authzCode, claimsInTokenAttribute, clientEntityId, clientName, clientType, clientUsername,
+				effectiveScope, firstRefreshRollingToken, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
+				redirectUri, refreshToken, userAuthnDetails, requestedACR, responseType, subject, tokenValidity,
+				userInfo);
 		return result;
 	}
 
@@ -388,41 +428,40 @@ public class OAuthToken
 		if (getClass() != obj.getClass())
 			return false;
 		OAuthToken other = (OAuthToken) obj;
-		return Objects.equals(accessToken, other.accessToken) && Objects.equals(audience, other.audience)
-				&& Objects.equals(authzCode, other.authzCode) && clientEntityId == other.clientEntityId
-				&& Objects.equals(clientName, other.clientName) && clientType == other.clientType
-				&& Objects.equals(clientUsername, other.clientUsername)
-				&& Arrays.equals(effectiveScope, other.effectiveScope)
-				&& Objects.equals(issuerUri, other.issuerUri)
-				&& maxExtendedValidity == other.maxExtendedValidity
-				&& Objects.equals(openidInfo, other.openidInfo)
-				&& Objects.equals(pkcsInfo, other.pkcsInfo)
-				&& Objects.equals(redirectUri, other.redirectUri)
-				&& Objects.equals(refreshToken, other.refreshToken)
-				&& Arrays.equals(requestedScope, other.requestedScope)
-				&& Objects.equals(responseType, other.responseType)
-				&& Objects.equals(subject, other.subject) && tokenValidity == other.tokenValidity
-				&& Objects.equals(userInfo, other.userInfo)
-				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken)
+		return Objects.equals(accessToken, other.accessToken)
+				&& Objects.equals(attributeValueFilters, other.attributeValueFilters)
+				&& Objects.equals(audience, other.audience)
 				&& Objects.equals(authenticationTime, other.authenticationTime)
-				&& Objects.equals(attributeValueFilters, other.attributeValueFilters);
+				&& Objects.equals(authzCode, other.authzCode)
+				&& Objects.equals(claimsInTokenAttribute, other.claimsInTokenAttribute)
+				&& clientEntityId == other.clientEntityId && Objects.equals(clientName, other.clientName)
+				&& clientType == other.clientType && Objects.equals(clientUsername, other.clientUsername)
+				&& Objects.equals(effectiveScope, other.effectiveScope)
+				&& Objects.equals(firstRefreshRollingToken, other.firstRefreshRollingToken)
+				&& Objects.equals(issuerUri, other.issuerUri) && maxExtendedValidity == other.maxExtendedValidity
+				&& Objects.equals(openidInfo, other.openidInfo) && Objects.equals(pkcsInfo, other.pkcsInfo)
+				&& Objects.equals(redirectUri, other.redirectUri) && Objects.equals(refreshToken, other.refreshToken)
+				&& Objects.equals(userAuthnDetails, other.userAuthnDetails)
+				&& Objects.equals(requestedACR, other.requestedACR)
+				&& Arrays.equals(requestedScope, other.requestedScope)
+				&& Objects.equals(responseType, other.responseType) && Objects.equals(subject, other.subject)
+				&& tokenValidity == other.tokenValidity && Objects.equals(userInfo, other.userInfo);
 	}
-
 
 	@Override
 	public String toString()
 	{
 		return "OAuthToken [userInfo=" + userInfo + ", openidInfo=" + openidInfo + ", authzCode=" + authzCode
 				+ ", accessToken=" + accessToken + ", refreshToken=" + refreshToken + ", firstRefreshRollingToken=" + firstRefreshRollingToken
-				+ ", effectiveScope=" + Arrays.toString(effectiveScope) + ", requestedScope="
+				+ ", effectiveScope=" + effectiveScope + ", requestedScope="
 				+ Arrays.toString(requestedScope) + ", clientEntityId=" + clientEntityId
 				+ ", redirectUri=" + redirectUri + ", subject=" + subject + ", clientName=" + clientName
 				+ ", clientUsername=" + clientUsername + ", maxExtendedValidity=" + maxExtendedValidity
 				+ ", tokenValidity=" + tokenValidity + ", responseType=" + responseType + ", audience="
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
-				+ pkcsInfo + ", attributeValueFilters=" + attributeValueFilters + "]";
+				+ pkcsInfo + ", attributeValueFilters=" + attributeValueFilters + ", requestedACR=" + requestedACR
+				+ ", userAuthnDetails=" + userAuthnDetails + "]";
 	}
-	
 
 	public static class PKCSInfo
 	{

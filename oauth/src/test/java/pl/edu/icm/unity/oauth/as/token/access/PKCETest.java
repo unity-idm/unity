@@ -11,8 +11,6 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Locale;
 
-import jakarta.ws.rs.core.Response;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationEventPublisher;
@@ -31,18 +29,20 @@ import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
 
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
+import jakarta.ws.rs.core.Response;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.TestTxRunner;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
@@ -68,7 +68,7 @@ public class PKCETest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -95,7 +95,7 @@ public class PKCETest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
 	}
 	
@@ -116,7 +116,7 @@ public class PKCETest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_UNAUTHORIZED, r.getStatus());
 	}
 	
@@ -139,7 +139,7 @@ public class PKCETest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -163,7 +163,7 @@ public class PKCETest
 				null,
 				"https://return.host.com/foo",
 				null, null, null, null, null, 
-				"WRONG_____123456789012345678901234567890123", null);
+				"WRONG_____123456789012345678901234567890123", null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 
@@ -211,7 +211,7 @@ public class PKCETest
 				null,
 				"https://return.host.com/foo",
 				null, null, null, null, null, 
-				verifier, null);
+				verifier, null, null, null, null);
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
 	}
 
@@ -235,7 +235,7 @@ public class PKCETest
 				null,
 				"https://return.host.com/foo",
 				null, null, null, null, null, 
-				verifier, null);
+				verifier, null, null, null, null);
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
 	}
 
@@ -247,18 +247,20 @@ public class PKCETest
 		OAuthAccessTokenRepository accessTokenRepository = new OAuthAccessTokenRepository(tokensManagement,
 				mock(SecuredTokensManagement.class));
 
-		ClientAttributesProvider clientAttributesProvider = new ClientAttributesProvider(null);
-		TokenService tokenUtils = new TokenService(null, config, null, clientAttributesProvider);
+		TokenService tokenUtils = new TokenService(config, null);
 		OAuthTokenStatisticPublisher publisher = new OAuthTokenStatisticPublisher(mock(ApplicationEventPublisher.class),
 				null, null, null, null, mock(LastIdPClinetAccessAttributeManagement.class), null, config,
 				OAuthTestUtils.getEndpoint());
 
 		AuthzCodeHandler authzCodeHandler = new AuthzCodeHandler(tokensManagement, accessTokenRepository,
 				refreshTokenRepository, tx, new AccessTokenFactory(config), publisher, config, tokenUtils);
+	
+		EffectiveScopesAttributesCompleter fixer = mock(EffectiveScopesAttributesCompleter.class);
+
 		RefreshTokenHandler refreshTokenHandler = new RefreshTokenHandler(config, refreshTokenRepository, null,
-				accessTokenRepository, null, null);
-		ExchangeTokenHandler exchangeTokenHandler = new ExchangeTokenHandler(config, refreshTokenRepository, null,
-				accessTokenRepository, null, null, null, null, null);
+				accessTokenRepository, null, null, fixer);
+		ExchangeTokenHandler exchangeTokenHandler = new ExchangeTokenHandler(config, null,
+				accessTokenRepository, null, null, fixer, null, null);
 		CredentialFlowHandler credentialFlowHandler = new CredentialFlowHandler(config, null, null, null,
 				accessTokenRepository, null);
 		
@@ -310,8 +312,8 @@ public class PKCETest
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(false);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addEffectiveScopeInfo(OAuthScope.builder().withName("sc1").withDescription("scope 1")
-				.withAttributes(Lists.newArrayList("email")).withEnabled(true).build());
+		ctx.addEffectiveScopeInfo(new RequestedOAuthScope("sc1", ActiveOAuthScopeDefinition.builder().withName("sc1").withDescription("scope 1")
+				.withAttributes(Lists.newArrayList("email")).build(), false));
 		return ctx;
 	}
 }

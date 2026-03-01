@@ -32,7 +32,8 @@ public enum AppSchemaVersions
 	V_SINCE_3_12_0(18, "3.12.0"),
 	V_SINCE_3_16_0(19, "3.16.0"),
 	V_SINCE_4_0_0(20, "4.0.0"),
-	V_SINCE_4_2_0(21, "4.2.0");
+	V_SINCE_4_2_0(21, "4.2.0"),
+	V_SINCE_4_3_0(22, "4.3.0");
 
 	
 	

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReport
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlSessionService;
 import pl.edu.icm.unity.saml.slo.SamlMessageHandler;
 import pl.edu.icm.unity.saml.slo.SamlRoutableMessage;
@@ -42,10 +43,10 @@ public class SSOResponseHandler
 	private final SamlMessageHandler messageHandler;
 	private final SamlIdpStatisticReporter reporter;
 
-	public SSOResponseHandler(FreemarkerAppHandler freemarker, SamlIdpStatisticReporterFactory reporterFactory,
-			Endpoint endpoint)
+	public SSOResponseHandler(FreemarkerAppHandler freemarker, FreemarkerXHTMLHandler xhtmlHandler,
+			SamlIdpStatisticReporterFactory reporterFactory, Endpoint endpoint)
 	{
-		messageHandler = new SamlMessageHandler(freemarker);
+		messageHandler = new SamlMessageHandler(freemarker, xhtmlHandler);
 		this.reporter = reporterFactory.getForEndpoint(endpoint);
 	}
 

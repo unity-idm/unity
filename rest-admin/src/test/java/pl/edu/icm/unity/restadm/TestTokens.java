@@ -7,6 +7,7 @@ package pl.edu.icm.unity.restadm;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -52,7 +53,9 @@ public class TestTokens extends RESTAdminTestBase
 				DEF_PASSWORD, CRED_REQ_PASS);
 
 		Date now = new Date();
-		Date exp = new Date(now.getTime() + 3600);
+		Date exp = new Date(now.getTime() + 36000);
+		
+		
 		tokenMan.addToken("type1", "v1", new EntityParam(id1), "v1".getBytes(), now, exp);
 		tokenMan.addToken("type1", "v2", new EntityParam(id2), "v2".getBytes(), now, exp);
 		tokenMan.addToken("type1", "v3", new EntityParam(id2), "v3".getBytes(), now, exp);
@@ -60,6 +63,7 @@ public class TestTokens extends RESTAdminTestBase
 		
 		tokenMan.addToken("session", "session", new EntityParam(id2), getSampleSessionToken().getTokenContents(), now,
 				exp);
+		
 	}
 	
 	@Test
@@ -116,7 +120,8 @@ public class TestTokens extends RESTAdminTestBase
 	{
 		LoginSession loginSession = new LoginSession();
 		loginSession.setRealm("realmv");
-		loginSession.setLastUsed(new Date(1));
+		loginSession.setLastUsed(Date.from(Instant.now()));
+		loginSession.setMaxInactivity(36000);
 		return loginSession;
 	}
 	

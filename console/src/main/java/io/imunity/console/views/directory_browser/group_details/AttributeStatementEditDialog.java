@@ -44,7 +44,7 @@ class AttributeStatementEditDialog extends DialogWithActionFooter
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.groupsMan = groupsMan;
 		this.notificationPresenter = notificationPresenter;
-		setWidth("64em");
+		setWidth("70em");
 		setHeaderTitle(msg.getMessage("AttributeStatementEditDialog.caption"));
 		setActionButton(msg.getMessage("ok"), this::onConfirm);
 		add(getContents());

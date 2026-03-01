@@ -6,21 +6,14 @@
 package pl.edu.icm.unity.oauth.as.token.introspection;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import jakarta.ws.rs.core.Response;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.nimbusds.jose.JOSEException;
-import com.nimbusds.jose.JWSVerifier;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionRequest;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
@@ -31,6 +24,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
+import jakarta.ws.rs.core.Response;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
@@ -97,17 +91,7 @@ class RemoteTokenIntrospectionService
 
 		RemoteIntrospectionServiceContext serviceContext = remoteService.get();
 
-		try
-		{
-			verifySignature(signedJWT.signedJWT, serviceContext.verifier);
-		} catch (Exception e)
-		{
-			log.error("Invalid sign of token " + BaseOAuthResource.tokenToLog(signedJWT.signedJWT.toString()), e);
-			return Optional.empty();
-		}
-
 		return getRemoteIntrospectionResponse(serviceContext, signedJWT);
-
 	}
 
 	private Optional<TokenIntrospectionResponse> getRemoteIntrospectionResponse(
@@ -140,25 +124,6 @@ class RemoteTokenIntrospectionService
 		{
 			log.error("Can not parse token instrospection response", e);
 			return Optional.empty();
-		}
-	}
-
-	void verifySignature(SignedJWT signedJWT, JWSVerifier verifier) throws JOSEException, java.text.ParseException
-	{
-		if (verifier == null)
-		{
-			throw new JOSEException("Can not verify signature");
-		}
-		log.trace("Verify token sign");
-		if (!signedJWT.verify(verifier))
-		{
-			throw new JOSEException("JWT signature is invalid");
-		}
-
-		JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
-		if (new Date().after(claims.getExpirationTime()))
-		{
-			throw new JOSEException("JWT is expired");
 		}
 	}
 

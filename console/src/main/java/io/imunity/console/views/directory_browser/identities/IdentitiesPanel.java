@@ -196,8 +196,7 @@ public class IdentitiesPanel extends VerticalLayout
 			IdentityConfirmHandler confirmHandler, EntityMergeHandler entityMergeHandler)
 	{
 		ActionMenuWithHandlerSupport<IdentityEntry> hamburgerMenu = new ActionMenuWithHandlerSupport<>();
-		identitiesTable.addSelectionListener(hamburgerMenu.getSelectionListener());
-
+		identitiesTable.addSelectionListenerBeforeDeselectionListener(hamburgerMenu.getSelectionListener());
 		SingleActionHandler<IdentityEntry> entityCreationAction = entityCreationDialogHandler
 				.getAction(identitiesTable::getGroup, added -> refresh());
 		hamburgerMenu.addActionHandler(entityCreationAction);
