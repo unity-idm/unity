@@ -22,6 +22,7 @@ public class TestAccountAssociation extends SeleniumTestBase
 	{
 		//login to home UI 
 		driver.get(baseUrl + "/home");
+		waitForPageLoadByURL("/home/authentication");
 		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user2");
 		waitForElement(By.className("u-passwordField")).sendKeys("the!test2");
 		waitForElement(By.className("u-passwordSignInButton")).click();

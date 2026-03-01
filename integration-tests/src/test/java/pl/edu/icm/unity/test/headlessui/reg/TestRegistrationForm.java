@@ -19,6 +19,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 	public void registrationTest()
 	{
 		driver.get(baseUrl + "/home2");
+		waitForPageLoadByURL("/home2/authentication");
 		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		
 		waitForPageLoadByURL("/saml-idp/authentication");
