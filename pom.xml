@@ -26,7 +26,7 @@
 		<bc.version>1.82</bc.version>
 		<selenium.version>4.36.0</selenium.version>
 		<junit5.version>5.9.3</junit5.version>
-		<jackson.version>2.20.0</jackson.version>
+		<jackson.version>2.21.1</jackson.version>
 		<javadocPlugin.version>3.12.0</javadocPlugin.version>
 		<java.source.version>21</java.source.version>
 
