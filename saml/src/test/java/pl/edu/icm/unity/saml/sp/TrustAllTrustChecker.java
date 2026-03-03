@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import eu.unicore.samly2.exceptions.SAMLValidationException;
+import eu.unicore.samly2.SAMLUtils;
 import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.trust.CheckingMode;
 import eu.unicore.samly2.trust.ResponseTrustCheckResult;
@@ -25,26 +25,25 @@ import xmlbeans.org.oasis.saml2.protocol.StatusResponseType;
 public class TrustAllTrustChecker implements SamlTrustChecker
 {
 	@Override
-	public void checkTrust(SAMLVerifiableElement message, RequestAbstractType request) throws SAMLValidationException
+	public void checkTrust(SAMLVerifiableElement message, RequestAbstractType request)
 	{
 	}
 
 	@Override
-	public void checkTrust(AssertionDocument assertionDoc,
+	public void checkTrust(SAMLUtils.XMLBeansWithDom<AssertionDocument> assertionDoc,
 			ResponseTrustCheckResult responseCheckResult)
-			throws SAMLValidationException
 	{
 	}
 
 	@Override
 	public ResponseTrustCheckResult checkTrust(SAMLVerifiableElement message,
-			StatusResponseType response) throws SAMLValidationException
+			StatusResponseType response)
 	{
 		return new ResponseTrustCheckResult(true);
 	}
 	
 	@Override
-	public void checkTrust(AssertionDocument assertionDoc) throws SAMLValidationException
+	public void checkTrust(SAMLUtils.XMLBeansWithDom<AssertionDocument> assertionDoc)
 	{
 		checkTrust(assertionDoc, new ResponseTrustCheckResult(true));
 	}

@@ -11,7 +11,7 @@ import java.util.Date;
 import org.w3c.dom.Document;
 
 import eu.unicore.security.dsig.DSigException;
-import eu.unicore.security.dsig.DigSignatureUtil;
+import eu.unicore.security.dsig.DigSignatureVerificator;
 import eu.unicore.security.dsig.IdAttribute;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties.MetadataSignatureValidation;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
@@ -82,7 +82,7 @@ public class MetadataVerificator
 	{
 		try
 		{
-			DigSignatureUtil sigUtil = new DigSignatureUtil();
+			DigSignatureVerificator sigUtil = new DigSignatureVerificator();
 			boolean result = sigUtil.verifyEnvelopedSignature(doc, 
 				Collections.singletonList(doc.getDocumentElement()), 
 				ID_QNAME, 
