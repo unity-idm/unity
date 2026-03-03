@@ -27,11 +27,13 @@
 		<selenium.version>4.36.0</selenium.version>
 		<junit5.version>5.9.3</junit5.version>
 		<jackson.version>2.20.0</jackson.version>
+		<javadocPlugin.version>3.12.0</javadocPlugin.version>
+		<java.source.version>21</java.source.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
 		<sonar.language>java</sonar.language>
-		<sonar.java.source>17</sonar.java.source>
+		<sonar.java.source>21</sonar.java.source>
 		<sonar.sources>src/main/java</sonar.sources>
 	</properties>
 
@@ -162,7 +164,7 @@
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>3.14.1</version>
 					<configuration>
-						<release>21</release>
+						<release>${java.source.version}</release>
 						<maxmem>256M</maxmem>
 						<encoding>UTF-8</encoding>
 						<compilerArgument>-Xlint:unchecked</compilerArgument>
@@ -176,7 +178,7 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
-					<version>3.12.0</version>
+					<version>${javadocPlugin.version}</version>
 					<configuration>
 						<failOnError>false</failOnError>
 					</configuration>
@@ -848,7 +850,7 @@
 						<configuration>
 							<failOnError>false</failOnError>
 							<encoding>${project.build.sourceEncoding}</encoding>
-							<source>${maven.compiler.source}</source>
+							<source>${java.source.version}</source>
 							<doclint>none</doclint>
 							<additionalJOptions>-Xdoclint:none</additionalJOptions>
 						</configuration>
