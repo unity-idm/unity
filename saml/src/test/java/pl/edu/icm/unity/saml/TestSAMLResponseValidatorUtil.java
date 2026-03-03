@@ -41,10 +41,11 @@ public class TestSAMLResponseValidatorUtil
 		
 		ResponseDocument respDoc = ResponseDocument.Factory.parse(
 				new File("src/test/resources/responseDocSigned.xml"));
-		List<AssertionDocument> authnAssertions = SAMLUtils.extractAllAssertions(
-				respDoc.getResponse(), null).stream()
-				.filter(a -> a.getAssertion().getAuthnStatementArray().length > 0)
-				.collect(Collectors.toList());
+		List<AssertionDocument> authnAssertions = 
+				SAMLUtils.extractAllAssertions(respDoc.getResponse(), null).stream()
+					.map(wrap -> wrap.xmlBean)
+					.filter(a -> a.getAssertion().getAuthnStatementArray().length > 0)
+					.collect(Collectors.toList());
 			
 		SSOAuthnResponseValidator validator = mock(SSOAuthnResponseValidator.class);
 		when(validator.getAuthNAssertions()).thenReturn(authnAssertions);
@@ -55,7 +56,7 @@ public class TestSAMLResponseValidatorUtil
 		RemoteAttribute authnCtxAttr = authnInput.getAttributes().get(AUTHN_CONTEXT_CLASS_REF_ATTR);
 		assertThat(authnCtxAttr).isNotNull();
 		assertThat(authnCtxAttr.getValues().isEmpty()).isFalse();
-		assertThat(authnInput.getAttributes().get(AUTHN_CONTEXT_CLASS_REF_ATTR).getValues().get(0)). 
+		assertThat(authnInput.getAttributes().get(AUTHN_CONTEXT_CLASS_REF_ATTR).getValues().getFirst()).
 				isEqualTo("urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
 		
 	}
@@ -70,10 +71,11 @@ public class TestSAMLResponseValidatorUtil
 		
 		ResponseDocument respDoc = ResponseDocument.Factory.parse(
 				new File("src/test/resources/responseDocSigned.xml"));
-		List<AssertionDocument> authnAssertions = SAMLUtils.extractAllAssertions(
-				respDoc.getResponse(), null).stream()
-				.filter(a -> a.getAssertion().getAuthnStatementArray().length > 0)
-				.collect(Collectors.toList());
+		List<AssertionDocument> authnAssertions = 
+				SAMLUtils.extractAllAssertions(respDoc.getResponse(), null).stream()
+					.map(wrap -> wrap.xmlBean)
+					.filter(a -> a.getAssertion().getAuthnStatementArray().length > 0)
+					.collect(Collectors.toList());
 			
 		SSOAuthnResponseValidator validator = mock(SSOAuthnResponseValidator.class);
 		when(validator.getAuthNAssertions()).thenReturn(authnAssertions);
@@ -84,7 +86,7 @@ public class TestSAMLResponseValidatorUtil
 		RemoteAuthnMetadata remoteAuthnMeta = authnInput.getRemoteAuthnMetadata();
 		assertThat(remoteAuthnMeta).isNotNull();
 		assertThat(remoteAuthnMeta.classReferences().isEmpty()).isFalse();
-		assertThat(remoteAuthnMeta.classReferences().get(0)). 
+		assertThat(remoteAuthnMeta.classReferences().getFirst()).
 				isEqualTo("urn:oasis:names:tc:SAML:2.0:ac:classes:Password");
 		assertThat(remoteAuthnMeta.protocol()).isEqualTo(Protocol.SAML);
 		assertThat(remoteAuthnMeta.remoteIdPId()).isEqualTo("http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php");
@@ -101,8 +103,8 @@ public class TestSAMLResponseValidatorUtil
 		ResponseDocument respDoc = ResponseDocument.Factory.parse(new File("src/test/resources/responseDocSigned.xml"));
 		List<AssertionDocument> authnAssertions = SAMLUtils.extractAllAssertions(respDoc.getResponse(), null)
 				.stream()
-				.filter(a -> a.getAssertion()
-						.getAuthnStatementArray().length > 0)
+				.map(wrap -> wrap.xmlBean)
+				.filter(a -> a.getAssertion().getAuthnStatementArray().length > 0)
 				.collect(Collectors.toList());
 
 		SSOAuthnResponseValidator validator = mock(SSOAuthnResponseValidator.class);

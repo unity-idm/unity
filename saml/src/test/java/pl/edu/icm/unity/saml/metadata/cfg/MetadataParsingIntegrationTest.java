@@ -21,10 +21,10 @@ import org.apache.xmlbeans.XmlException;
 import org.junit.jupiter.api.Test;
 
 import eu.unicore.samly2.SAMLUtils;
+import eu.unicore.samly2.SAMLUtils.XMLBeansWithDom;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.samly2.trust.ResponseTrustCheckResult;
 import eu.unicore.samly2.trust.SamlTrustChecker;
-import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.saml.sp.FakeSAMLSPConfiguration;
@@ -59,12 +59,12 @@ public class MetadataParsingIntegrationTest
 		
 		ResponseDocument respDoc = ResponseDocument.Factory.parse(
 				new File("src/test/resources/responseDocSigned.xml"));
-		List<AssertionDocument> authnAssertions = getAuthAssertions(respDoc);
+		List<XMLBeansWithDom<AssertionDocument>> authnAssertions = getAuthAssertions(respDoc);
 		XMLExpandedMessage response = new XMLExpandedMessage(respDoc, respDoc.getResponse());
 		
 		ResponseTrustCheckResult responseTrustCheckResult = checkerForIdP.checkTrust(response, respDoc.getResponse());
 		Throwable assertionValidationError = catchThrowable(() -> 
-			checkerForIdP.checkTrust(authnAssertions.get(0), responseTrustCheckResult));
+			checkerForIdP.checkTrust(authnAssertions.getFirst(), responseTrustCheckResult));
 		
 		assertThat(assertionValidationError).isNull();
 		assertThat(responseTrustCheckResult.isTrustEstablished()).isTrue();
@@ -80,15 +80,14 @@ public class MetadataParsingIntegrationTest
 				.build();
 	}
 
-	private List<AssertionDocument> getAuthAssertions(ResponseDocument respDoc) throws Exception
+	private List<XMLBeansWithDom<AssertionDocument>> getAuthAssertions(ResponseDocument respDoc) throws Exception
 	{
-		return SAMLUtils.extractAllAssertions(
-				respDoc.getResponse(), null).stream()
-				.filter(a -> a.getAssertion().getAuthnStatementArray().length > 0)
+		return SAMLUtils.extractAllAssertions(respDoc.getResponse(), null).stream()
+				.filter(a -> a.xmlBean.getAssertion().getAuthnStatementArray().length > 0)
 				.collect(Collectors.toList());
 	}
 	
-	private SAMLSPConfiguration createConfig() throws EngineException
+	private SAMLSPConfiguration createConfig()
 	{
 		return FakeSAMLSPConfiguration.getFakeBuilder()
 				.build();
