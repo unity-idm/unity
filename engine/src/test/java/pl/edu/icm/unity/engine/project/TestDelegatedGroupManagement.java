@@ -32,7 +32,9 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.entity.Entity;
+import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
@@ -255,7 +257,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 				.thenReturn(new Entity(
 						Arrays.asList(new Identity(EmailIdentity.ID, "demo@demo.com", 1,
 								new UsernameIdentity().getComparableValue("", "", ""))),
-						null, null));
+						new EntityInformation(1), null));
 
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
@@ -288,6 +290,43 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		assertThat(firstMember.name).isEqualTo("demo");
 		assertThat(firstMember.attributes.iterator().next().getValues().iterator().next()).isEqualTo("extraValue");
 
+	}
+	
+	@Test
+	public void shouldSkipDisabledEntity() throws EngineException
+	{
+
+		GroupContents con = getConfiguredGroupContents("/project");
+		GroupMembership member1 = new GroupMembership("/project", 1L, new Date());
+		GroupMembership member2 = new GroupMembership("/project", 2L, new Date());
+
+		con.setMembers(List.of(member1, member2));
+		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null, null, null, null,
+				Arrays.asList("extraAttr"), List.of()));
+
+		EntityInformation disabledEntityInfo = new EntityInformation(1);
+		disabledEntityInfo.setState(EntityState.disabled);
+		
+		when(mockIdMan.getEntity(new EntityParam(1L)))
+				.thenReturn(new Entity(
+						Arrays.asList(new Identity(EmailIdentity.ID, "demo@demo.com", 1,
+								new UsernameIdentity().getComparableValue("", "", ""))),
+						disabledEntityInfo, null));
+		
+		when(mockIdMan.getEntity(new EntityParam(2L)))
+		.thenReturn(new Entity(
+				Arrays.asList(new Identity(EmailIdentity.ID, "demo2@demo.com", 2,
+						new UsernameIdentity().getComparableValue("", "", ""))),
+				new EntityInformation(2L), null));
+
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
+
+		List<DelegatedGroupMember> delegatedGroupMemebers = dGroupManNoAuthz.getDelegatedGroupMembers("/project",
+				"/project");
+
+		assertThat(delegatedGroupMemebers.size()).isEqualTo(1);
+		assertThat(delegatedGroupMemebers.iterator().next().entityId).isEqualTo(2L);
 	}
 
 	@Test
@@ -363,7 +402,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		.thenReturn(new Entity(
 				Arrays.asList(new Identity(UsernameIdentity.ID, "xx", 1,
 						new UsernameIdentity().getComparableValue("", "", ""))),
-				null, null));
+				new EntityInformation(1), null));
 		
 		when(mockGroupMan.getContents(eq("/project"), anyInt()))
 				.thenReturn(getEnabledGroupContentsWithDefaultMember("/project"));
