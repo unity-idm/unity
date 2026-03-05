@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.group.Group;
@@ -419,15 +420,18 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 			List<String> projectAttrs = getProjectAttrs(projectPath);
 			for (GroupMembership member : orgMembers)
 			{
-				long entity = member.getEntityId();
+				Entity entity = getEntity(member.getEntityId());
+				if (!entity.getEntityInformation().getState().equals(EntityState.valid))
+					continue;
+				Long entityId = entity.getId();
 				VerifiableElementBase emailId = getEmailIdentity(entity);
-				DelegatedGroupMember entry = new DelegatedGroupMember(member.getEntityId(), projectPath,
-						member.getGroup(), getGroupAuthRoleAttr(entity, path),
-						projectAttrHelper.getAttributeFromMeta(entity, "/",
+				DelegatedGroupMember entry = new DelegatedGroupMember(entityId, projectPath,
+						member.getGroup(), getGroupAuthRoleAttr(entityId, path),
+						projectAttrHelper.getAttributeFromMeta(entityId, "/",
 								EntityNameMetadataProvider.NAME),
-						emailId != null ? emailId : projectAttrHelper.getVerifiableAttributeFromMeta(entity, "/",
+						emailId != null ? emailId : projectAttrHelper.getVerifiableAttributeFromMeta(entityId, "/",
 								ContactEmailMetadataProvider.NAME),
-						Optional.ofNullable(getProjectMemberAttributes(entity, projectPath, projectAttrs)));
+						Optional.ofNullable(getProjectMemberAttributes(entityId, projectPath, projectAttrs)));
 				members.add(entry);
 			}
 		}
@@ -513,9 +517,13 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		addToGroupRecursive(notMember, entity);
 	}
 	
-	private VerifiableElementBase getEmailIdentity(long entityId) throws EngineException
+	private Entity getEntity(long entityId) throws EngineException
 	{
-		Entity entity = identitiesMan.getEntity(new EntityParam(entityId));
+		return identitiesMan.getEntity(new EntityParam(entityId));
+	}
+	
+	private VerifiableElementBase getEmailIdentity(Entity entity) throws EngineException
+	{
 		for (IdentityParam id : entity.getIdentities())
 		{
 			if (id != null && id.getTypeId().equals(EmailIdentity.ID))
