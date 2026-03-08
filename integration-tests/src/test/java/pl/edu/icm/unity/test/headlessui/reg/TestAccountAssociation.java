@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.test.headlessui.reg;
 
-import static java.lang.invoke.MethodHandles.lookup;
-import static org.slf4j.LoggerFactory.getLogger;
+import java.time.Duration;
 
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
-import org.slf4j.Logger;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 import pl.edu.icm.unity.test.headlessui.SeleniumTestBase;
 
@@ -46,7 +46,9 @@ public class TestAccountAssociation extends SeleniumTestBase
 		WebElement finishButton = waitForElement(By.id("Wizard.finish"));
 		((JavascriptExecutor)driver).executeScript("arguments[0].click();", finishButton);
 
-		waitForElementNotPresent(By.id("overlay"));
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(WAIT_TIME_S));
+		wait.until(ExpectedConditions.invisibilityOfElementLocated(By.id("overlay")));
+
 		waitForElement(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']")).click();
 	}
 	
