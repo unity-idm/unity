@@ -101,6 +101,7 @@ public class AutomationRunView extends ConsoleViewComponent
 		if(binder.isValid() && actionEditor.getActionIfValid().isPresent())
 		{
 			TranslationRule rule = binder.getBean();
+			rule.setTranslationAction(actionEditor.getActionIfValid().get());
 			controller.applyRule(rule);
 			notificationPresenter.showSuccess(msg.getMessage("RunImmediateView.actionInvoked"), "");
 			UI.getCurrent().navigate(AutomationView.class);
