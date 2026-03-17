@@ -16,7 +16,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>12.1.2</jetty.version>
+		<jetty.version>12.1.6</jetty.version>
 		<slf4j.version>2.0.17</slf4j.version>
 		<log4j.version>2.25.3</log4j.version>
 		<spring.version>6.2.15</spring.version>
@@ -417,6 +417,16 @@
 				<groupId>jakarta.annotation</groupId>
 				<artifactId>jakarta.annotation-api</artifactId>
 				<version>2.1.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.compression</groupId>
+				<artifactId>jetty-compression-server</artifactId>
+				<version>${jetty.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.jetty.compression</groupId>
+				<artifactId>jetty-compression-gzip</artifactId>
+				<version>${jetty.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>javax.annotation</groupId>
