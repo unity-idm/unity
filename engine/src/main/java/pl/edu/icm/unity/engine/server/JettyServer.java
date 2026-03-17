@@ -4,22 +4,41 @@
  */
 package pl.edu.icm.unity.engine.server;
 
-import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.jetty.SecuredServerConnector;
-import jakarta.servlet.ServletException;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOWED_IMMEDIATE_CLIENTS;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOW_NOT_PROXIED_TRAFFIC;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.PROXY_COUNT;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.SNI_HOSTNAME_CHECK;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jetty.compression.gzip.GzipCompression;
+import org.eclipse.jetty.compression.server.CompressionHandler;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http.UriCompliance.Violation;
 import org.eclipse.jetty.rewrite.handler.HeaderPatternRule;
 import org.eclipse.jetty.rewrite.handler.RewriteHandler;
-import org.eclipse.jetty.server.*;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConfiguration;
+import org.eclipse.jetty.server.HttpConnectionFactory;
+import org.eclipse.jetty.server.NetworkConnector;
+import org.eclipse.jetty.server.SecureRequestCustomizer;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.server.handler.CrossOriginHandler;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
 import org.eclipse.jetty.session.SessionIdManager;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -27,21 +46,20 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.Lifecycle;
 import org.springframework.stereotype.Component;
+
+import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.jetty.SecuredServerConnector;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
+import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.XFrameOptions;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.URLFactory;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-
-import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.*;
 
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for deployed
@@ -389,19 +407,23 @@ public class JettyServer implements Lifecycle, NetworkServer
 	 */
 	private Handler configureGzip(Handler handler) throws ConfigurationException
 	{
-		boolean enableGzip = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_GZIP);
-		if (enableGzip)
-		{
-			GzipHandler gzipHandler = new GzipHandler();
-			gzipHandler.setMinGzipSize(serverSettings.getIntValue(UnityHttpServerConfiguration.MIN_GZIP_SIZE));
-			log.info("Enabling GZIP compression filter");
-			gzipHandler.setServer(theServer);
-			gzipHandler.setHandler(handler);
-			return gzipHandler;
-		} else
-			return handler;
-	}
+	    boolean enableGzip = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_GZIP);
 
+	    if (enableGzip)
+	    {
+	        CompressionHandler compressionHandler = new CompressionHandler();
+	        GzipCompression gzip = new GzipCompression();
+	        gzip.setMinCompressSize(serverSettings.getIntValue(UnityHttpServerConfiguration.MIN_GZIP_SIZE));
+	        compressionHandler.putCompression(gzip);
+	        compressionHandler.setHandler(handler);
+	        return compressionHandler;
+	    }
+	    else
+	    {
+	        return handler;
+	    }
+	}	
+	
 	/**
 	 * @return array of URLs where the server is listening
 	 */
@@ -452,9 +474,8 @@ public class JettyServer implements Lifecycle, NetworkServer
 					"applications configured at the same context path: " + contextPath);
 		}
 		addDoSFilter(handler);
-		addCORSFilter(handler);
-
-		ClientIPSettingHandler clientIPSettingHandler = applyClientIPDiscoveryHandler(handler, endpointId);
+		Handler wrappedHandler = addCORSFilter(handler);
+		ClientIPSettingHandler clientIPSettingHandler = applyClientIPDiscoveryHandler(wrappedHandler, endpointId);
 		mainContextHandler.addHandler(clientIPSettingHandler);
 		if(theServer.isStarted())
 		{
@@ -572,53 +593,45 @@ public class JettyServer implements Lifecycle, NetworkServer
 		}
 	}
 
-	private void addCORSFilter(ServletContextHandler handler)
+	private Handler addCORSFilter(Handler handler)
 	{
 		boolean enable = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_CORS);
 		if (!enable)
-			return;
+			return handler;
 
 		log.info("Enabling CORS");
-		CrossOriginFilter cors = new CrossOriginFilter();
-		jakarta.servlet.FilterConfig config = new jakarta.servlet.FilterConfig()
-		{
 
-			@Override
-			public jakarta.servlet.ServletContext getServletContext()
-			{
-				throw new UnsupportedOperationException("Not implemented");
-			}
+		CrossOriginHandler cors = new CrossOriginHandler();
 
-			@Override
-			public Enumeration<String> getInitParameterNames()
-			{
-				throw new UnsupportedOperationException("Not implemented");
-			}
+		cors.setAllowedOriginPatterns(Set.of(serverSettings
+				.getValue(UnityHttpServerConfiguration.CORS_PFX + UnityHttpServerConfiguration.CORS_ALLOWED_ORIGINS)
+				.split("\\s*,\\s*")));
 
-			@Override
-			public String getInitParameter(String name)
-			{
-				return serverSettings.getValue(UnityHttpServerConfiguration.CORS_PFX + name);
-			}
+		cors.setAllowedMethods(Set.of(serverSettings
+				.getValue(UnityHttpServerConfiguration.CORS_PFX + UnityHttpServerConfiguration.CORS_ALLOWED_METHODS)
+				.split("\\s*,\\s*")));
 
-			@Override
-			public String getFilterName()
-			{
-				return "CORS";
-			}
-		};
-		try
-		{
-			cors.init(config);
-		} catch (ServletException e)
-		{
-			throw new ConfigurationException("Error setting up CORS", e);
-		}
-		org.eclipse.jetty.ee10.servlet.FilterHolder filterHolder = new org.eclipse.jetty.ee10.servlet.FilterHolder(cors);
-		handler.addFilter(filterHolder, "/*", EnumSet.of(jakarta.servlet.DispatcherType.REQUEST, jakarta.servlet.DispatcherType.FORWARD));
+		cors.setAllowedHeaders(Set.of(serverSettings
+				.getValue(UnityHttpServerConfiguration.CORS_PFX + UnityHttpServerConfiguration.CORS_ALLOWED_HEADERS)
+				.split("\\s*,\\s*")));
+
+		cors.setAllowCredentials(serverSettings.getBooleanValue(
+				UnityHttpServerConfiguration.CORS_PFX + UnityHttpServerConfiguration.CORS_ALLOW_CREDENTIALS));
+
+		cors.setExposedHeaders(Set.of(serverSettings
+				.getValue(UnityHttpServerConfiguration.CORS_PFX + UnityHttpServerConfiguration.CORS_EXPOSED_HEADERS)
+				.split("\\s*,\\s*")));
+
+		cors.setPreflightMaxAge(Duration.ofSeconds(serverSettings.getIntValue(
+				UnityHttpServerConfiguration.CORS_PFX + UnityHttpServerConfiguration.CORS_PREFLIGHT_MAX_AGE)));
+
+		cors.setDeliverPreflightRequests(serverSettings.getBooleanValue(
+				UnityHttpServerConfiguration.CORS_PFX + UnityHttpServerConfiguration.CORS_CHAIN_PREFLIGHT));
+
+		cors.setHandler(handler);
+		return cors;
 	}
-
-
+	
 	private ClientIPSettingHandler applyClientIPDiscoveryHandler(Handler baseHandler, String endpointId)
 	{
 		ClientIPDiscovery ipDiscovery = new ClientIPDiscovery(serverSettings.getIntValue(PROXY_COUNT),
