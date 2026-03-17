@@ -24,7 +24,6 @@ import java.util.Set;
 
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.jetty.HttpServerProperties;
 import eu.unicore.util.jetty.SecuredServerConnector;
 import jakarta.servlet.ServletException;
 import org.apache.logging.log4j.Logger;

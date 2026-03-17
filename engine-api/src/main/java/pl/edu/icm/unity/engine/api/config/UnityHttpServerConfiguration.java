@@ -52,7 +52,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 
 	public enum SessionStorageMethod
 	{
-		IN_MEMORY, RDBMS;
+		IN_MEMORY, RDBMS
 	}
 	
 	@DocumentationReferencePrefix
