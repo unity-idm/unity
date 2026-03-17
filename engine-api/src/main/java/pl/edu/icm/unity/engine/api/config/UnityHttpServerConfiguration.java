@@ -49,6 +49,11 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 			return httpValue;
 		}
 	}
+
+	public enum SessionStorageMethod
+	{
+		IN_MEMORY, RDBMS;
+	}
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = UnityServerConfiguration.P+HttpServerProperties.DEFAULT_PREFIX;
@@ -66,6 +71,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	public static final String MIN_THREADS = "minThreads";
 	public static final String MAX_THREADS = "maxThreads";
 	public static final String MAX_CONNECTIONS = "maxConnections";
+	public static final String SESSION_STORAGE = "sessionStorageMethod";
 	public static final String WANT_CLIENT_AUTHN = "wantClientAuthn";
 	public static final String REQUIRE_CLIENT_AUTHN = "requireClientAuthn";
 	public static final String DISABLED_CIPHER_SUITES = "disabledCipherSuites";
@@ -167,6 +173,11 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 						+ "threads to handle connectors."));
 		defaults.put(MAX_CONNECTIONS, new PropertyMD("256").setCategory(advancedCat).
 				setDescription("Maximum number of concurrent connections the server accepts."));
+		defaults.put(SESSION_STORAGE, new PropertyMD(SessionStorageMethod.IN_MEMORY).setCategory(advancedCat).
+				setDescription("Allows for selecting a backend used for session storage. In case of using RDBMS, "
+						+ "the session data is stored in the main Unity database "
+						+ "and it can be then shared in cluster environment and will survive restarts. "
+						+ "In case of using IN_MEMORY, the session data is stored in memory only."));
 		defaults.put(FAST_RANDOM, new PropertyMD("false").setCategory(advancedCat).
 				setDescription("Use insecure, but fast pseudo random generator to generate session ids "
 						+ "instead of secure generator for TLS sockets."));

@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ExecutorType;
@@ -33,7 +35,7 @@ import org.springframework.stereotype.Component;
 import eu.unicore.util.db.DBPropertiesHelper;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.store.StorageConfiguration;
-
+import pl.edu.icm.unity.store.api.DataSourceProvider;
 
 /**
  * Provides initial MyBatis initialization and support for obtaining MyBatis SqlSessions.
@@ -41,7 +43,7 @@ import pl.edu.icm.unity.store.StorageConfiguration;
  * @author K. Benedyczak
  */
 @Component
-public class DBSessionManager
+public class DBSessionManager implements DataSourceProvider
 {
 	public static final String DEF_MAPCONFIG_LOCATION = "pl/edu/icm/unity/store/rdbms/mapper/mapconfig.xml";
 
@@ -96,5 +98,11 @@ public class DBSessionManager
 	public SqlSession getSqlSession(ExecutorType executor, boolean transactional)
 	{
 		return sqlMapFactory.openSession(executor, !transactional);
+	}
+
+	@Override
+	public DataSource getDataSource()
+	{
+		return getMyBatisConfiguration().getEnvironment().getDataSource();
 	}
 }

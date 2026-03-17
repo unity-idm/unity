@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -36,6 +37,7 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.URLFactory;
+import pl.edu.icm.unity.store.api.DataSourceProvider;
 
 public class JettyServerFeaturesTest 
 {
@@ -93,7 +95,7 @@ public class JettyServerFeaturesTest
 		UnityHttpServerConfiguration httpConfig = prepareHttpServerConfig();
 		IAuthnAndTrustConfiguration securityConfiguration = prepareSSLCredential();
 		httpServer = new JettyServer(httpConfig, "webContents", null, securityConfiguration, 
-				new URL[] { URLFactory.of("https://0.0.0.0:0")});
+				new URL[] { URLFactory.of("https://0.0.0.0:0")}, mock(DataSourceProvider.class));
 	}
 
 	private IAuthnAndTrustConfiguration prepareSSLCredential() throws IOException
