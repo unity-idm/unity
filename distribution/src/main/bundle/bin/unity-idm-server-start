@@ -6,8 +6,11 @@ BASE_DIR=`pwd`
 popd > /dev/null
 BASE_DIR=`dirname "$BASE_DIR"` 
 
+if [ -z "${STARTUP_PROPERTIES+x}" ]; then
+  STARTUP_PROPERTIES="${BASE_DIR}/conf/startup.properties"
+fi
 
-. "${BASE_DIR}"/conf/startup.properties
+. "${STARTUP_PROPERTIES}"
 
 FOREGROUND=false
 if [ "$1" = "-f" ]
