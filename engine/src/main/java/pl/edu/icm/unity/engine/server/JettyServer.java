@@ -6,10 +6,7 @@ package pl.edu.icm.unity.engine.server;
 
 import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOWED_IMMEDIATE_CLIENTS;
 import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOW_NOT_PROXIED_TRAFFIC;
-import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.HTTP_HOST;
-import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.HTTP_PORT;
 import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.PROXY_COUNT;
-import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.SESSION_STORAGE;
 import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.SNI_HOSTNAME_CHECK;
 
 import java.net.MalformedURLException;
@@ -31,7 +28,6 @@ import org.eclipse.jetty.compression.gzip.GzipCompression;
 import org.eclipse.jetty.compression.server.CompressionHandler;
 import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.SessionHandler;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http.UriCompliance.Violation;
@@ -47,13 +43,8 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.server.handler.CrossOriginHandler;
-import org.eclipse.jetty.session.DatabaseAdaptor;
-import org.eclipse.jetty.session.DefaultSessionCache;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
-import org.eclipse.jetty.session.JDBCSessionDataStore;
-import org.eclipse.jetty.session.JDBCSessionDataStoreFactory;
 import org.eclipse.jetty.session.ManagedSession;
-import org.eclipse.jetty.session.SessionCache;
 import org.eclipse.jetty.session.SessionIdManager;
 import org.eclipse.jetty.util.component.Container;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -67,13 +58,11 @@ import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration;
-import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.SessionStorageMethod;
 import pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.XFrameOptions;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.URLFactory;
-import pl.edu.icm.unity.store.api.DataSourceProvider;
 
 /**
  * Manages HTTP server. Mostly responsible for creating proper hierarchy of HTTP handlers for deployed
@@ -99,34 +88,30 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 	private final URL[] listenUrls;
 	private final IAuthnAndTrustConfiguration securityConfiguration;
 	private final UnityHttpServerConfiguration serverSettings;
-	private final DataSourceProvider dataSourceProvider;
 
 	private Server theServer;
 
 	@Autowired
 	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement,
-			ListeningUrlsProvider listenUrlsProvider, DataSourceProvider dataSourceProvider)
+			ListeningUrlsProvider listenUrlsProvider)
 	{
 		this(cfg.getJettyProperties(), 
 				cfg.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH), 
 				cfg.getValue(UnityServerConfiguration.DEFAULT_WEB_PATH),
 				pkiManagement.getMainAuthnAndTrust(), 
-				listenUrlsProvider.getListenUrls(),
-				dataSourceProvider);
+				listenUrlsProvider.getListenUrls());
 	}
 
 	JettyServer(UnityHttpServerConfiguration serverSettings,
 			String defaultWebContentsPath, 
 			String defaultWebPath,
 			IAuthnAndTrustConfiguration securityConfiguration,
-			URL[] listenUrls,
-			DataSourceProvider dataSourceProvider)
+			URL[] listenUrls)
 	{
 		this.securityConfiguration = securityConfiguration;
 		this.listenUrls = listenUrls;
 		this.serverSettings = serverSettings;
 		this.defaultWebContentsPath = defaultWebContentsPath;
-		this.dataSourceProvider = dataSourceProvider;
 		initServer();
 		dosFilter = createDoSFilterInstance();
 		addRedirectHandler(defaultWebPath);
@@ -220,7 +205,6 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 		}
 
 		theServer = createServer();
-		configureSessionIdManager();
 
 		if (serverSettings.getBooleanValue(UnityHttpServerConfiguration.FAST_RANDOM))
 			configureFastAndInsecureSessionIdGenerator();
@@ -243,15 +227,6 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 	private Server createServer()
 	{
 		return new Server(getThreadPool());
-	}
-
-	private void configureSessionIdManager()
-	{
-		DefaultSessionIdManager idManager = new DefaultSessionIdManager(theServer);
-		String nodeName = (serverSettings.getValue(HTTP_HOST) + ":" + serverSettings.getValue(HTTP_PORT))
-				.replaceAll("\\.", "-");
-		idManager.setWorkerName(nodeName);
-		theServer.addBean(idManager, true);
 	}
 
 	private QueuedThreadPool getThreadPool()
@@ -503,7 +478,6 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 		}
 		addDoSFilter(handler);
 		Handler wrappedHandler = addCORSFilter(handler);
-		configureSessionStorage(handler);
 		ClientIPSettingHandler clientIPSettingHandler = applyClientIPDiscoveryHandler(wrappedHandler, endpointId);
 		mainContextHandler.addHandler(clientIPSettingHandler);
 		if(theServer.isStarted())
@@ -597,43 +571,6 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 	public Set<String> getUsedContextPaths()
 	{
 		return usedContextPaths.keySet();
-	}
-
-	private void configureSessionStorage(ServletContextHandler handler)
-	{
-		SessionStorageMethod sessionStorageMethod = serverSettings.getEnumValue(SESSION_STORAGE, SessionStorageMethod.class);
-		switch (sessionStorageMethod)
-		{
-			case SessionStorageMethod.RDBMS: configureRDBMSSessionStorage(handler); break;
-			case SessionStorageMethod.IN_MEMORY: break;
-			default: throw new IllegalStateException("Unknown session storage method: " + sessionStorageMethod);
-		}
-	}
-
-	private void configureRDBMSSessionStorage(ServletContextHandler handler)
-	{
-		SessionHandler sessionHandler = handler.getSessionHandler();
-		if (sessionHandler == null)
-			return;
-		DefaultSessionCache cache = new DefaultSessionCache(sessionHandler);
-		cache.setEvictionPolicy(SessionCache.NEVER_EVICT);
-		cache.setFlushOnResponseCommit(true);
-		cache.setSaveOnCreate(true);
-		cache.setRemoveUnloadableSessions(true);
-
-		DatabaseAdaptor dbAdaptor = new DatabaseAdaptor();
-		dbAdaptor.setDatasource(dataSourceProvider.getDataSource());
-
-		JDBCSessionDataStoreFactory storeFactory = new JDBCSessionDataStoreFactory();
-		storeFactory.setDatabaseAdaptor(dbAdaptor);
-		storeFactory.setGracePeriodSec(3600);
-		storeFactory.setSavePeriodSec(0);
-
-		JDBCSessionDataStore store =
-				(JDBCSessionDataStore) storeFactory.getSessionDataStore(sessionHandler);
-
-		cache.setSessionDataStore(store);
-		sessionHandler.setSessionCache(cache);
 	}
 
 	private org.eclipse.jetty.ee10.servlet.FilterHolder createDoSFilterInstance()
