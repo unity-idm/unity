@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,6 @@ import java.util.Set;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.jetty.SecuredServerConnector;
-import jakarta.servlet.ServletException;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.compression.gzip.GzipCompression;
 import org.eclipse.jetty.compression.server.CompressionHandler;
@@ -52,17 +52,16 @@ import org.eclipse.jetty.session.DefaultSessionCache;
 import org.eclipse.jetty.session.DefaultSessionIdManager;
 import org.eclipse.jetty.session.JDBCSessionDataStore;
 import org.eclipse.jetty.session.JDBCSessionDataStoreFactory;
+import org.eclipse.jetty.session.ManagedSession;
 import org.eclipse.jetty.session.SessionCache;
 import org.eclipse.jetty.session.SessionIdManager;
+import org.eclipse.jetty.util.component.Container;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.Lifecycle;
 import org.springframework.stereotype.Component;
 
-import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.jetty.SecuredServerConnector;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.utils.Log;
@@ -88,7 +87,7 @@ import pl.edu.icm.unity.store.api.DataSourceProvider;
  * @author K. Benedyczak
  */
 @Component
-public class JettyServer implements Lifecycle, NetworkServer
+public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, UnityApplication.class);
 	private List<WebAppEndpointInstance> deployedEndpoints;
@@ -614,7 +613,8 @@ public class JettyServer implements Lifecycle, NetworkServer
 	private void configureRDBMSSessionStorage(ServletContextHandler handler)
 	{
 		SessionHandler sessionHandler = handler.getSessionHandler();
-
+		if (sessionHandler == null)
+			return;
 		DefaultSessionCache cache = new DefaultSessionCache(sessionHandler);
 		cache.setEvictionPolicy(SessionCache.NEVER_EVICT);
 		cache.setFlushOnResponseCommit(true);
@@ -710,6 +710,77 @@ public class JettyServer implements Lifecycle, NetworkServer
 		handler.setServer(theServer);
 		handler.setHandler(baseHandler);
 		return handler;
+	}
+
+	@Override
+	public void invalidateSession(String sessionId)
+	{
+		SessionIdManager idManager = theServer.getBean(SessionIdManager.class);
+		if (idManager == null)
+			throw new IllegalStateException("No SessionIdManager configured on Server");
+
+		//TODO KB - needed?
+		String plainId = idManager.getId(sessionId);
+		log.info("Invalidating session id {} / plain id {}", sessionId, plainId);
+		idManager.invalidateAll(plainId);
+	}
+
+	@Override
+	public void removeAttribute(String sessionId, String attributeName)
+	{
+		//TODO KB - needed?
+		SessionIdManager idManager = theServer.getBean(SessionIdManager.class);
+		if (idManager == null)
+			throw new IllegalStateException("No SessionIdManager configured on Server");
+		String plainId = idManager.getId(sessionId);
+		log.info("Removing attribute from session id {} / plain id {}", sessionId, plainId);
+
+		for (ServletContextHandler context : findServletContexts())
+			removeAttribute(context, plainId, attributeName);
+	}
+
+	private List<ServletContextHandler> findServletContexts()
+	{
+		List<ServletContextHandler> result = new ArrayList<>();
+		recursiveWalkThroughHandlersTree(theServer.getHandler(), result);
+		return result;
+	}
+
+	private static void recursiveWalkThroughHandlersTree(Handler handler, List<ServletContextHandler> result)
+	{
+		if (handler == null)
+			return;
+
+		if (handler instanceof ServletContextHandler sch)
+			result.add(sch);
+
+		if (handler instanceof Container container)
+		{
+			Collection<Handler> children = container.getContainedBeans(Handler.class);
+			for (Handler child : children)
+			{
+				if (child != handler)
+					recursiveWalkThroughHandlersTree(child, result);
+			}
+		}
+	}
+
+	private static void removeAttribute(ServletContextHandler context, String sessionId, String attributeName)
+	{
+		if (context.getSessionHandler() == null || context.getSessionHandler().getSessionCache() == null)
+			return;
+
+		try
+		{
+			ManagedSession session = context.getSessionHandler().getSessionCache().get(sessionId);
+
+			if (session == null || !session.isValid())
+				return;
+			session.removeAttribute(attributeName);
+		} catch (Exception e)
+		{
+			log.error("Can't remove attribute " + attributeName + " from session " + sessionId, e);
+		}
 	}
 }
 
