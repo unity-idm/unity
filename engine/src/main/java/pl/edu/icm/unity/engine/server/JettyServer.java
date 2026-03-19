@@ -92,7 +92,7 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 	private Server theServer;
 
 	@Autowired
-	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement,
+	JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement,
 			ListeningUrlsProvider listenUrlsProvider)
 	{
 		this(cfg.getJettyProperties(), 
@@ -655,25 +655,16 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 		SessionIdManager idManager = theServer.getBean(SessionIdManager.class);
 		if (idManager == null)
 			throw new IllegalStateException("No SessionIdManager configured on Server");
-
-		//TODO KB - needed?
-		String plainId = idManager.getId(sessionId);
-		log.info("Invalidating session id {} / plain id {}", sessionId, plainId);
-		idManager.invalidateAll(plainId);
+		log.info("Invalidating session {}", sessionId);
+		idManager.invalidateAll(sessionId);
 	}
 
 	@Override
 	public void removeAttribute(String sessionId, String attributeName)
 	{
-		//TODO KB - needed?
-		SessionIdManager idManager = theServer.getBean(SessionIdManager.class);
-		if (idManager == null)
-			throw new IllegalStateException("No SessionIdManager configured on Server");
-		String plainId = idManager.getId(sessionId);
-		log.info("Removing attribute from session id {} / plain id {}", sessionId, plainId);
-
+		log.info("Removing attribute from session {}", sessionId);
 		for (ServletContextHandler context : findServletContexts())
-			removeAttribute(context, plainId, attributeName);
+			removeAttribute(context, sessionId, attributeName);
 	}
 
 	private List<ServletContextHandler> findServletContexts()
