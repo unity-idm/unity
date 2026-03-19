@@ -858,6 +858,17 @@ allowed to be called on self .
 Schedules an operation to be invoked at a given time on an entity. Must be called by privileged user. Allowed
 operations are: +REMOVE+ and +DISABLE+.
 
+
+=== Change entity status
+
++@Path("/entity/{entityId}/status/{status}")+ +
++@QueryParam("identityType")+ +
++@PUT+ +
+
+Changes the status of an entity. Change of the status can cancel a scheduled operation (like account removal)
+if one is present. Allowed statuses: +valid+, +authenticationDisabled+, and +disabled+.
+
+
 === Remove identity
 
 +@Path("/entity/identity/{type}/{value}")+ +
