@@ -421,6 +421,17 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(EntityState.disabled, entity.getState());
 	}
 	
+	@Test
+	public void shouldSetOnlyLoginPermitedStatus() throws Exception
+	{
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid);
+
+		idsMan.setEntityStatus(new EntityParam(id), EntityState.onlyLoginPermitted);
+
+		Entity entity = idsMan.getEntity(new EntityParam(id));
+		assertEquals(EntityState.onlyLoginPermitted, entity.getState());
+	}
 	
 	@Test
 	public void shouldFailToAddToSubgoupWhenNotInParent() throws Exception

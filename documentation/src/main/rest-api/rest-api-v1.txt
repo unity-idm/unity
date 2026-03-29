@@ -858,6 +858,14 @@ allowed to be called on self .
 Schedules an operation to be invoked at a given time on an entity. Must be called by privileged user. Allowed
 operations are: +REMOVE+ and +DISABLE+.
 
+=== Clear scheduled entity operations
+
++@Path("/entity/{entityId}/admin-schedule")+ +
++@QueryParam("identityType")+ +
++@DELETE+ +
+
+Deletes all scheduled operations. Additionally, if the entity is in the +onlyLoginPermitted+ state, it sets the new status to +valid+.
+
 
 === Change entity status
 
@@ -865,8 +873,7 @@ operations are: +REMOVE+ and +DISABLE+.
 +@QueryParam("identityType")+ +
 +@PUT+ +
 
-Changes the status of an entity. Change of the status can cancel a scheduled operation (like account removal)
-if one is present. Allowed statuses: +valid+, +authenticationDisabled+, and +disabled+.
+Changes the status of an entity. Allowed statuses: +valid+, +authenticationDisabled+, and +disabled+.
 
 
 === Remove identity
