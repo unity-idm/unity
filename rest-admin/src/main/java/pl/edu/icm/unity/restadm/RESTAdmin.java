@@ -276,6 +276,23 @@ public class RESTAdmin implements RESTAdminHandler
 		identitiesMan.scheduleEntityChange(getEP(entityId, idType), time, operation);
 	}
 	
+	@Path("/entity/{entityId}/admin-schedule")
+	@DELETE
+	public void clearScheduledOperation(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
+			throws EngineException
+	{
+		log.info("clear scheduleEntityChange of " + entityId );
+		
+		EntityParam ep = getEP(entityId, idType);
+		Entity entity = identitiesMan.getEntity(ep);
+		if (entity.getState().equals(EntityState.onlyLoginPermitted))
+		{
+			identitiesMan.clearScheduledRemovalStatus(ep);
+		}
+		
+		identitiesMan.scheduleEntityChange(ep, null, null);
+	}
+	
 	@Path("/entity/{entityId}/status/{status}")
 	@PUT
 	public void changeEntityStatus(@PathParam("entityId") String entityId, @PathParam("status") String status, 
