@@ -262,10 +262,10 @@ public class LoginInProgressService<AUTHZ_CTX>
 	public static class VaadinUIIdSignInContextKey implements SignInContextKey
 	{
 		public final String key;
-		
+
 		public VaadinUIIdSignInContextKey(int uiId, WrappedSession session)
 		{
-			this.key = uiId + "@" + session.getId();
+			this.key = String.valueOf(uiId);
 		}
 		
 		@Override
