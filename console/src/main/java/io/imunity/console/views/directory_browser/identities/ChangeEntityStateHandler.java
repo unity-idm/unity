@@ -15,6 +15,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 
@@ -57,7 +58,13 @@ class ChangeEntityStateHandler
 		try
 		{
 			EntityParam entity = new EntityParam(entityId);
-			identitiesMan.setEntityStatus(entity, newState.getState());
+			if (newState.getState().equals(EntityState.onlyLoginPermitted))
+			{
+				identitiesMan.scheduleRemovalByUser(entity, newState.getRemovalByUserTime());
+			}else {
+				identitiesMan.setEntityStatus(entity, newState.getState());
+			}
+			
 			identitiesMan.scheduleEntityChange(entity, newState.getScheduledOperationTime(), 
 						newState.getScheduledOperation());
 			refreshCallback.run();
