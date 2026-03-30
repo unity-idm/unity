@@ -10,6 +10,7 @@
 		<Root level="INFO">
 			<!-- Default appender specifies where to log by default (can be changed per logger) -->
 			<AppenderRef ref="CONSOLE"/>
+			<AppenderRef ref="FILE"/>
 		</Root>
 	
 		<!-- Everything produced by Unity (unless overwritten below) -->
@@ -83,6 +84,9 @@
 		<Console name="CONSOLE">
 			<PatternLayout pattern="%d{ISO8601} [%t] [%X{endpoint}] [%X{user}] [%X{entityId}] [%X{clientIP}] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
 		</Console>
+		<File name="FILE" fileName="target/unity-server.log">
+			<PatternLayout pattern="%d{ISO8601} [%t] [%X{endpoint}] [%X{user}] [%X{entityId}] [%X{clientIP}] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
+		</File>
 	</Appenders>
 	
 </Configuration>

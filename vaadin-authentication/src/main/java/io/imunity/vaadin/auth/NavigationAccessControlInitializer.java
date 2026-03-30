@@ -20,22 +20,24 @@ public class NavigationAccessControlInitializer implements VaadinServiceInitList
 {
 	private final NavigationAccessControl navigationAccessControl;
 	private final String afterSuccessLoginRedirect;
+	private final boolean isJsExpression;
 
 	static NavigationAccessControlInitializer defaultInitializer()
 	{
-		return new NavigationAccessControlInitializer("window.location.href");
+		return new NavigationAccessControlInitializer("window.location.href", true);
 	}
 
 	static NavigationAccessControlInitializer withAfterSuccessLoginRedirect(String afterSuccessLoginRedirect)
 	{
-		return new NavigationAccessControlInitializer("\"" + afterSuccessLoginRedirect + "\"");
+		return new NavigationAccessControlInitializer(afterSuccessLoginRedirect, false);
 	}
 
-	private NavigationAccessControlInitializer(String afterSuccessLoginRedirect)
+	private NavigationAccessControlInitializer(String afterSuccessLoginRedirect, boolean isJsExpression)
 	{
 		navigationAccessControl = new NavigationAccessControl();
 		navigationAccessControl.setLoginView(AuthenticationView.class);
 		this.afterSuccessLoginRedirect = afterSuccessLoginRedirect;
+		this.isJsExpression = isJsExpression;
 	}
 
 	@Override
@@ -47,18 +49,28 @@ public class NavigationAccessControlInitializer implements VaadinServiceInitList
 
 	private void saveOriginalUrlRequestInSessionStorageBeforeAllRedirects(ServiceInitEvent serviceInitEvent)
 	{
-		serviceInitEvent.addIndexHtmlRequestListener(response -> 
+		serviceInitEvent.addIndexHtmlRequestListener(response ->
 		{
 			String signInCtx = response.getVaadinRequest().getParameter(URL_PARAM_CONTEXT_KEY);
-			String redirect = afterSuccessLoginRedirect;
-			if (nonNull(signInCtx))
-			{
-				redirect = afterSuccessLoginRedirect + "?" + URL_PARAM_CONTEXT_KEY + "=" + signInCtx;
-			}
+			String jsValue = buildRedirectJsValue(signInCtx);
 			Document document = response.getDocument();
 			document.body().append("<script>window.sessionStorage.setItem("
-					+ "\"" + REDIRECT_URL_SESSION_STORAGE_KEY + "\", " + redirect + ");</script>");
+					+ "\"" + REDIRECT_URL_SESSION_STORAGE_KEY + "\", " + jsValue + ");</script>");
 		});
+	}
+
+	String buildRedirectJsValue(String signInCtx)
+	{
+		String queryParam = nonNull(signInCtx)
+				? "?" + URL_PARAM_CONTEXT_KEY + "=" + signInCtx
+				: "";
+		if (isJsExpression)
+		{
+			return queryParam.isEmpty()
+					? afterSuccessLoginRedirect
+					: afterSuccessLoginRedirect + " + \"" + queryParam + "\"";
+		}
+		return "\"" + afterSuccessLoginRedirect + queryParam + "\"";
 	}
 	
 	private void saveOrginalSelectedAuthn(ServiceInitEvent serviceInitEvent)

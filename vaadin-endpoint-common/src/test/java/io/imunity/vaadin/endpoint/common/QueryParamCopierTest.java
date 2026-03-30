@@ -32,4 +32,14 @@ public class QueryParamCopierTest
 				URLFactory.of("https://current.com?param1=val1"));
 		Assertions.assertEquals("https://destination.com?param1=val1", uriWithParams.toString());
 	}
+
+	@Test
+	void shouldNotDuplicateParamAlreadyPresentInDestination() throws MalformedURLException, URISyntaxException
+	{
+		URI uriWithParams = QueryParamCopier.copyParam(
+				"https://destination.com?signInId=abc-123",
+				URLFactory.of("https://current.com?signInId=abc-123&claims_in_tokens=id_token"));
+		Assertions.assertEquals("https://destination.com?signInId=abc-123&claims_in_tokens=id_token",
+				uriWithParams.toString());
+	}
 }
