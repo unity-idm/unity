@@ -19,29 +19,28 @@ import com.vaadin.flow.server.auth.NavigationAccessControl;
 public class NavigationAccessControlInitializer implements VaadinServiceInitListener
 {
 	private final NavigationAccessControl navigationAccessControl;
-	private final String afterSuccessLoginRedirect;
-	private final boolean isJsExpression;
+	private final AfterSuccessLoginRedirectProvider afterSuccessLoginRedirectProvider;
 
 	static NavigationAccessControlInitializer defaultInitializer()
 	{
-		return new NavigationAccessControlInitializer("window.location.href", true);
+		return new NavigationAccessControlInitializer(new JsExpressionAfterSuccessLoginRedirectProvider());
 	}
 
 	static NavigationAccessControlInitializer withAfterSuccessLoginRedirect(String afterSuccessLoginRedirect)
 	{
-		return new NavigationAccessControlInitializer(afterSuccessLoginRedirect, false);
+		return new NavigationAccessControlInitializer(new StringAfterSuccessLoginRedirectProvider(afterSuccessLoginRedirect));
 	}
 
-	private NavigationAccessControlInitializer(String afterSuccessLoginRedirect, boolean isJsExpression)
+	private NavigationAccessControlInitializer(AfterSuccessLoginRedirectProvider afterSuccessLoginRedirectProvider)
 	{
 		navigationAccessControl = new NavigationAccessControl();
 		navigationAccessControl.setLoginView(AuthenticationView.class);
-		this.afterSuccessLoginRedirect = afterSuccessLoginRedirect;
-		this.isJsExpression = isJsExpression;
+		this.afterSuccessLoginRedirectProvider = afterSuccessLoginRedirectProvider;
 	}
 
 	@Override
-	public void serviceInit(ServiceInitEvent serviceInitEvent) {
+	public void serviceInit(ServiceInitEvent serviceInitEvent)
+	{
 		serviceInitEvent.getSource().addUIInitListener(uiInitEvent -> uiInitEvent.getUI().addBeforeEnterListener(navigationAccessControl));
 		saveOriginalUrlRequestInSessionStorageBeforeAllRedirects(serviceInitEvent);
 		saveOrginalSelectedAuthn(serviceInitEvent);
@@ -52,27 +51,13 @@ public class NavigationAccessControlInitializer implements VaadinServiceInitList
 		serviceInitEvent.addIndexHtmlRequestListener(response ->
 		{
 			String signInCtx = response.getVaadinRequest().getParameter(URL_PARAM_CONTEXT_KEY);
-			String jsValue = buildRedirectJsValue(signInCtx);
+			String jsValue = afterSuccessLoginRedirectProvider.get(signInCtx);
 			Document document = response.getDocument();
 			document.body().append("<script>window.sessionStorage.setItem("
 					+ "\"" + REDIRECT_URL_SESSION_STORAGE_KEY + "\", " + jsValue + ");</script>");
 		});
 	}
 
-	String buildRedirectJsValue(String signInCtx)
-	{
-		String queryParam = nonNull(signInCtx)
-				? "?" + URL_PARAM_CONTEXT_KEY + "=" + signInCtx
-				: "";
-		if (isJsExpression)
-		{
-			return queryParam.isEmpty()
-					? afterSuccessLoginRedirect
-					: afterSuccessLoginRedirect + " + \"" + queryParam + "\"";
-		}
-		return "\"" + afterSuccessLoginRedirect + queryParam + "\"";
-	}
-	
 	private void saveOrginalSelectedAuthn(ServiceInitEvent serviceInitEvent)
 	{
 		serviceInitEvent.addIndexHtmlRequestListener(response ->
@@ -84,5 +69,50 @@ public class NavigationAccessControlInitializer implements VaadinServiceInitList
 					.append("<script>window.sessionStorage.setItem(" + "\"" + SELECTED_AUTHN_STORAGE_KEY + "\", \""
 							+ preferredIdp + "\");</script>");
 		});
+	}
+
+	interface AfterSuccessLoginRedirectProvider
+	{
+		default String signInParam(String signInCtxValue)
+		{
+			return nonNull(signInCtxValue)
+				? "?" + URL_PARAM_CONTEXT_KEY + "=" + signInCtxValue
+				: "";
+		}
+
+		String get(String signInCtx);
+	}
+
+	static class JsExpressionAfterSuccessLoginRedirectProvider implements AfterSuccessLoginRedirectProvider
+	{
+		private static final String JS_EXPRESSION = "window.location.href";
+
+		@Override
+		public String get(String signInCtx)
+		{
+			String queryParam = signInParam(signInCtx);
+
+			return queryParam.isEmpty()
+				? JS_EXPRESSION
+				: JS_EXPRESSION + " + \"" + queryParam + "\"";
+		}
+	}
+
+	static class StringAfterSuccessLoginRedirectProvider implements AfterSuccessLoginRedirectProvider
+	{
+		private final String redirectUrl;
+
+		StringAfterSuccessLoginRedirectProvider(String redirectUrl)
+		{
+			this.redirectUrl = redirectUrl;
+		}
+
+		@Override
+		public String get(String signInCtx)
+		{
+			String queryParam = signInParam(signInCtx);
+
+			return "\"" + redirectUrl + queryParam + "\"";
+		}
 	}
 }

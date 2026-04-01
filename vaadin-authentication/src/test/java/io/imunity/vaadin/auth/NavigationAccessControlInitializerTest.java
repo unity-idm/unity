@@ -8,17 +8,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import io.imunity.vaadin.auth.NavigationAccessControlInitializer.JsExpressionAfterSuccessLoginRedirectProvider;
+import io.imunity.vaadin.auth.NavigationAccessControlInitializer.StringAfterSuccessLoginRedirectProvider;
+
 class NavigationAccessControlInitializerTest
 {
 	@Test
 	void shouldGenerateValidJsForLiteralRedirectWithoutSignInCtx()
 	{
 		// given
-		NavigationAccessControlInitializer initializer =
-				NavigationAccessControlInitializer.withAfterSuccessLoginRedirect("/saml-idp/consent");
+		StringAfterSuccessLoginRedirectProvider provider = new StringAfterSuccessLoginRedirectProvider(
+			"/saml-idp/consent");
 
 		// when
-		String jsValue = initializer.buildRedirectJsValue(null);
+		String jsValue = provider.get(null);
 
 		// then
 		assertThat(jsValue).isEqualTo("\"/saml-idp/consent\"");
@@ -28,11 +31,11 @@ class NavigationAccessControlInitializerTest
 	void shouldGenerateValidJsForLiteralRedirectWithSignInCtx()
 	{
 		// given
-		NavigationAccessControlInitializer initializer =
-				NavigationAccessControlInitializer.withAfterSuccessLoginRedirect("/saml-idp/consent");
+		StringAfterSuccessLoginRedirectProvider provider = new StringAfterSuccessLoginRedirectProvider(
+			"/saml-idp/consent");
 
 		// when
-		String jsValue = initializer.buildRedirectJsValue("abc-123");
+		String jsValue = provider.get("abc-123");
 
 		// then
 		assertThat(jsValue).isEqualTo("\"/saml-idp/consent?signInId=abc-123\"");
@@ -42,11 +45,10 @@ class NavigationAccessControlInitializerTest
 	void shouldGenerateValidJsForDefaultInitializerWithoutSignInCtx()
 	{
 		// given
-		NavigationAccessControlInitializer initializer =
-				NavigationAccessControlInitializer.defaultInitializer();
+		JsExpressionAfterSuccessLoginRedirectProvider provider = new JsExpressionAfterSuccessLoginRedirectProvider();
 
 		// when
-		String jsValue = initializer.buildRedirectJsValue(null);
+		String jsValue = provider.get(null);
 
 		// then
 		assertThat(jsValue).isEqualTo("window.location.href");
@@ -56,11 +58,10 @@ class NavigationAccessControlInitializerTest
 	void shouldGenerateValidJsForDefaultInitializerWithSignInCtx()
 	{
 		// given
-		NavigationAccessControlInitializer initializer =
-				NavigationAccessControlInitializer.defaultInitializer();
+		JsExpressionAfterSuccessLoginRedirectProvider provider = new JsExpressionAfterSuccessLoginRedirectProvider();
 
 		// when
-		String jsValue = initializer.buildRedirectJsValue("abc-123");
+		String jsValue = provider.get("abc-123");
 
 		// then
 		assertThat(jsValue).isEqualTo("window.location.href + \"?signInId=abc-123\"");
