@@ -105,8 +105,3 @@ The restore operation restarts internal endpoints, so the REST endpoint may be d
 - **Auth credentials**: REST Admin API uses Basic auth, username `a`, password `a`.
 - **Working directory**: The script handles `cd` into `integration-tests/` internally since the server resolves config paths relative to that directory.
 - **Port conflicts**: If `start` fails with a port-in-use error but `status` shows no Unity process, something else is occupying port 2443. Let the user know so they can investigate.
-
-## Implementation reference
-
-- Endpoint class: `rest-admin/src/main/java/pl/edu/icm/unity/restadm/BackupRestoreRESTAdmin.java`
-- REST API docs: `documentation/src/main/rest-api/rest-api-v1.txt`
