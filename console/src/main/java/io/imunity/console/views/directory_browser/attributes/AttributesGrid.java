@@ -125,7 +125,7 @@ public class AttributesGrid extends VerticalLayout
 		sourceColumn.setVisible(false);
 		columnToggleMenu.addColumn(msg.getMessage("AttributesGrid.sourceCaption"), sourceColumn);
 
-		attributesGrid.setClassNameGenerator(a ->
+		attributesGrid.setPartNameGenerator(a ->
 		{
 			StringBuilder style = new StringBuilder();
 			if (checkAttributeImmutable(a) || !a.isDirect())
@@ -165,7 +165,7 @@ public class AttributesGrid extends VerticalLayout
 		effectiveAttrsFilter = AttributeExt::isDirect;
 		internalAttrsFilter = a -> !checkAttributeImmutable(a);
 
-		hamburgerMenu.add(new Hr());
+		hamburgerMenu.addComponent(new Hr());
 
 		MenuItem showEffective = hamburgerMenu.addItem(msg.getMessage("Attribute.showEffective"),
 				c -> updateAttributesFilter(!c.getSource().isChecked(), effectiveAttrsFilter));

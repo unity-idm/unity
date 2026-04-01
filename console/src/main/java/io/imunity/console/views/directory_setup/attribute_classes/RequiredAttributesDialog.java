@@ -47,6 +47,8 @@ public class RequiredAttributesDialog extends DialogWithActionFooter
 		this.callback = callback;
 		this.notificationPresenter = notificationPresenter;
 		setHeaderTitle(msg.getMessage("RequiredAttributesDialog.caption"));
+		setActionButton(msg.getMessage("ok"), this::onConfirm);
+		setCancelButton(msg.getMessage("cancel"), this::onCancel);
 		add(getContents());
 	}
 

@@ -129,7 +129,7 @@ public class GroupManagementHelper
 			ConfirmDialog confirm = new ConfirmDialog();
 			confirm.setConfirmButton(msg.getMessage("ok"), e -> doAddToGroup(toAdd));
 			confirm.setCancelable(true);
-			confirm.add(new Span(confirmationMessage));
+			confirm.setText(new Span(confirmationMessage));
 			confirm.open();
 		} else
 		{

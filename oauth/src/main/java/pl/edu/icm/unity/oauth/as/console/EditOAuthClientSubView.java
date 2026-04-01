@@ -105,7 +105,7 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 				back.setTooltipText(msg.getMessage("EditOAuthClientSubView.goBackTooltip"));
 
 				confirmDialog.setHeader(msg.getMessage("ConfirmDialog.confirm"));
-				confirmDialog.add(new Html("<div>" + msg.getMessage("EditOAuthClientSubView.confirmAddClient") + "</div>"));
+				confirmDialog.setText(new Html("<div>" + msg.getMessage("EditOAuthClientSubView.confirmAddClient") + "</div>"));
 				confirmDialog.setConfirmButton(confirmButton);
 				confirmDialog.setCancelable(true);
 				confirmDialog.setCancelButton(back);

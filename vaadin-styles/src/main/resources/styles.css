@@ -473,11 +473,11 @@ vaadin-button.u-text-left::part(label) {
     cursor: pointer;
 }
 
-.u-usual-row {
+vaadin-grid::part(u-usual-row) {
     background-color: inherit;
 }
 
-.u-error-row {
+vaadin-grid::part(u-error-row) {
     background-color: var(--unity-grid-error-row-color);
 }
 
@@ -708,11 +708,11 @@ vaadin-details.u-multi-tab-details {
     margin-bottom: 0.75em;
 }
 
-.u-immutableAttribute {
+vaadin-grid::part(u-immutableAttribute) {
 	color: var(--unity-immutable-attribute-color);
 }
 
-.u-bold {
+vaadin-grid::part(u-bold) {
 	font-weight: var(--unity-bold-font-weight);
 }
 

@@ -5,6 +5,7 @@
 
 package io.imunity.console.views.directory_setup.attribute_types;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,7 +26,7 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
+import com.vaadin.flow.server.streams.InMemoryUploadHandler;
 
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.GenericElementsTable;
@@ -58,7 +59,7 @@ class ImportAttributeTypeEditor extends VerticalLayout
 	private ComboBox<String> predefinedFiles;
 	private GenericElementsTable<AttributeType> selectionTable;
 	private Checkbox filterExisting;
-	private MemoryBuffer memoryBuffer;
+	private byte[] uploadedBytes;
 	private final Collection<AttributeType> existing;
 	private Upload upload;
 
@@ -114,11 +115,13 @@ class ImportAttributeTypeEditor extends VerticalLayout
 		ProgressBar progress = new ProgressBar();
 		progress.setVisible(false);
 
-		memoryBuffer = new MemoryBuffer();
-		upload = new Upload(memoryBuffer);
+		upload = new Upload(new InMemoryUploadHandler((metadata, bytes) ->
+		{
+			uploadedBytes = bytes;
+			reloadTableFromFile();
+		}));
 		upload.setMaxFileSize(MAX_FILE_SIZE_IN_BYTES);
 		upload.setAcceptedFileTypes("application/json");
-		upload.addFinishedListener(e -> reloadTableFromFile());
 		upload.getElement()
 				.addEventListener("file-remove", e -> clear());
 		upload.addFileRejectedListener(
@@ -207,7 +210,7 @@ class ImportAttributeTypeEditor extends VerticalLayout
 	private void reloadTableFromFile()
 	{
 		filterExisting.setValue(false);
-		loadAttributeTypesFromResource(new InputStreamResource(memoryBuffer.getInputStream()));
+		loadAttributeTypesFromResource(new InputStreamResource(new ByteArrayInputStream(uploadedBytes)));
 		setSelectionTableVisiable(!selectionTable.getElements()
 				.isEmpty());
 	}
@@ -250,5 +253,6 @@ class ImportAttributeTypeEditor extends VerticalLayout
 		selectionTable.clear();
 		upload.clearFileList();
 		selectionTable.setVisible(false);
+		uploadedBytes = null;
 	}
 }

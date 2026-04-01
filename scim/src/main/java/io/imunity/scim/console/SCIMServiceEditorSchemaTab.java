@@ -18,9 +18,8 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.receivers.FileBuffer;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.streams.TemporaryFileUploadHandler;
 import io.imunity.scim.config.SchemaType;
 import io.imunity.scim.console.EditSchemaSubView.EditSchemaSubViewFactory;
 import io.imunity.scim.console.mapping.SchemaWithMappingBean;
@@ -29,6 +28,7 @@ import io.imunity.vaadin.auth.services.ServiceEditorBase.EditorTab;
 import io.imunity.vaadin.auth.services.ServiceEditorComponent;
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
@@ -131,7 +131,7 @@ class SCIMServiceEditorSchemaTab extends VerticalLayout implements EditorTab
 		}
 		private GridWithActionColumn<SchemaWithMappingBean> schemasGrid;
 		private VerticalLayout main;
-		private FileBuffer fileBuffer;
+		private File uploadedFile;
 		private Upload upload;
 		public SchemasComponent()
 		{
@@ -184,12 +184,12 @@ class SCIMServiceEditorSchemaTab extends VerticalLayout implements EditorTab
 			addButton.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
 			Button importButton = new Button(msg.getMessage("SCIMServiceEditorSchemaTab.import"));
 			importButton.setIcon(VaadinIcon.DOWNLOAD.create());
-			fileBuffer = new FileBuffer();
-			upload = new Upload(fileBuffer);
+			upload = new Upload(new TemporaryFileUploadHandler((metadata, file) ->
+			{
+				uploadedFile = file;
+				importUserSchema();
+			}));
 			upload.setAcceptedFileTypes("application/json");
-			upload.addFinishedListener(e -> importUserSchema());
-			upload.getElement()
-					.addEventListener("file-remove", e -> clear());
 			upload.addFileRejectedListener(
 					e -> notificationPresenter.showError(msg.getMessage("error"), e.getErrorMessage()));
 			upload.setDropAllowed(false);
@@ -215,7 +215,7 @@ class SCIMServiceEditorSchemaTab extends VerticalLayout implements EditorTab
 				try
 				{
 					schema = configurationVaadinBeanMapper.mapFromConfigurationSchema(
-							SchemaResourceDeserialaizer.deserializeUserSchemaFromFile(fileBuffer.getFileData().getFile()));
+							SchemaResourceDeserialaizer.deserializeUserSchemaFromFile(uploadedFile));
 				} catch (EngineException | RuntimeEngineException e)
 				{
 					notificationPresenter.showError("", e.getMessage());
@@ -269,40 +269,23 @@ class SCIMServiceEditorSchemaTab extends VerticalLayout implements EditorTab
 		
 		private void export(SchemaWithMappingBean mapping)
 		{
-			Anchor download = new Anchor(getStreamResource(mapping), "");
-			download.getElement()
-					.setAttribute("download", true);
+			Anchor download = new Anchor(DownloadHandlers.forJson(() ->
+			{
+				try
+				{
+					return Constants.MAPPER.writerWithDefaultPrettyPrinter()
+							.writeValueAsBytes(configurationVaadinBeanMapper.mapToConfigurationSchema(mapping));
+				} catch (Exception e)
+				{
+					throw new RuntimeException(e);
+				}
+			}, getNewFilename(mapping)), "");
+			download.getElement().setAttribute("download", true);
 			add(download);
 			download.getElement()
 					.executeJs("return new Promise(resolve =>{this.click(); setTimeout(() => resolve(true), 150)})",
 							download.getElement())
 					.then(j -> remove(download));
-		}
-
-		private StreamResource getStreamResource(SchemaWithMappingBean mapping)
-		{
-			return new StreamResource(getNewFilename(mapping), () ->
-			{
-
-				try
-				{
-					byte[] content = Constants.MAPPER.writerWithDefaultPrettyPrinter()
-							.writeValueAsBytes(configurationVaadinBeanMapper.mapToConfigurationSchema(mapping));
-					return new ByteArrayInputStream(content);
-				} catch (Exception e)
-				{
-					throw new RuntimeException(e);
-				}
-			})
-			{
-				@Override
-				public Map<String, String> getHeaders()
-				{
-					Map<String, String> headers = new HashMap<>(super.getHeaders());
-					headers.put("Content-Disposition", "attachment; filename=\"" + getNewFilename(mapping) + "\"");
-					return headers;
-				}
-			};
 		}
 
 		private String getNewFilename(SchemaWithMappingBean mapping)

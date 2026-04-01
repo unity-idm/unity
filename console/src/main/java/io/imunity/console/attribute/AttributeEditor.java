@@ -127,7 +127,8 @@ public class AttributeEditor extends VerticalLayout
 				.withCustomMaxWidthUnit(Unit.EM)		
 				.build();
 
-		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext,  null, null);
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext,
+				new LabelContext(attributeType.getDisplayedName().getValue(msg) + ":"), null);
 		valuesPanel.placeOnLayout(attrValuesContainer);
 		typeFixed = true;
 		initCommon();

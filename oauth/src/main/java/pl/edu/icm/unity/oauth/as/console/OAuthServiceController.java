@@ -6,7 +6,8 @@
 package pl.edu.icm.unity.oauth.as.console;
 
 import com.nimbusds.oauth2.sdk.client.ClientType;
-import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.server.streams.DownloadHandler;
+
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
@@ -16,6 +17,7 @@ import io.imunity.vaadin.auth.services.ServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceEditor;
 import io.imunity.vaadin.auth.services.idp.IdpServiceController;
 import io.imunity.vaadin.auth.services.idp.IdpUsersHelper;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
@@ -66,7 +68,6 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 import javax.imageio.ImageIO;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -671,17 +672,15 @@ class OAuthServiceController implements IdpServiceController
 			ImageAttributeSyntax syntax = (ImageAttributeSyntax) attrTypeSupport.getSyntax(logo);
 			UnityImage image = syntax.convertFromString(logo.getValues().get(0));
 
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			try
+			try (ByteArrayOutputStream baos = new ByteArrayOutputStream())
 			{
 				ImageIO.write(image.getBufferedImage(), image.getType().toExt(), baos);
 				byte[] byteArray = baos.toByteArray();
-				LocalOrRemoteResource lrLogo = new LocalOrRemoteResource(new StreamResource("logo",
-						() -> new ByteArrayInputStream(byteArray)),
-						"", byteArray);
-				baos.close();
+				DownloadHandler downloadHandler = DownloadHandlers.forBytes(byteArray, "logo", image.getType().getMimeType());
+				LocalOrRemoteResource lrLogo = new LocalOrRemoteResource(downloadHandler, "", byteArray);
 				c.setLogo(lrLogo);
-			} catch (IOException e)
+			}
+			catch (IOException e)
 			{
 				throw new EngineException(e);
 			}

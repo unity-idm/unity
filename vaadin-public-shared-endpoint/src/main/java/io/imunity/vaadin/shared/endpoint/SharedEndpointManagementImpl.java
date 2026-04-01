@@ -82,6 +82,7 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		ServletHolder servletHolder = context.addServlet(SimpleVaadin2XServlet.class, "/*");
 		servletHolder.setAsyncSupported(true);
 		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");
+		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_PRODUCTION_MODE, "true");
 		servletHolder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(SESSION_TIMEOUT_VALUE.getSeconds()));
 
 		httpServer.deployHandler(context, ENDPOINT_ID);

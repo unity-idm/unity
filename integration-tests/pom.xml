@@ -12,6 +12,7 @@
 	<description>Unity tests sets</description>
 	<properties>
 		<m.name>integration-tests</m.name>
+        <vaadin.productionMode>true</vaadin.productionMode>
 	</properties>
 
 	<scm>

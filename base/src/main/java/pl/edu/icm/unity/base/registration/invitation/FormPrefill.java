@@ -250,7 +250,7 @@ public class FormPrefill
 	public static class Builder
 	{
 
-		private FormPrefill instance;
+		private final FormPrefill instance;
 		
 		public Builder()
 		{

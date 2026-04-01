@@ -307,7 +307,7 @@ public class FormsView extends ConsoleViewComponent
 				msg.getMessage("cancel"),
 				e -> {}
 		);
-		confirmDialog.add(dropRequests);
+		confirmDialog.setText(dropRequests);
 		confirmDialog.open();
 	}
 
@@ -323,7 +323,7 @@ public class FormsView extends ConsoleViewComponent
 				msg.getMessage("cancel"),
 				e -> {}
 		);
-		confirmDialog.add(dropRequests);
+		confirmDialog.setText(dropRequests);
 		confirmDialog.open();
 	}
 }

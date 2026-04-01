@@ -142,7 +142,7 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 		confirmDialog.setHeader(msg.getMessage("ConfirmDialog.confirm"));
 		confirmDialog.setConfirmButton(msg.getMessage("ok"), e -> remove(item, replacementCR.getValue()));
 		confirmDialog.setCancelButton(msg.getMessage("cancel"), e -> {});
-		confirmDialog.add(layout);
+		confirmDialog.setText(layout);
 		confirmDialog.open();
 	}
 

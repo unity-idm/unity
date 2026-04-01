@@ -20,7 +20,7 @@ import java.util.Properties;
 public class Vaadin2XWebAppContext extends WebAppContext
 {
 	public final Properties properties;
-	public final VaadinEndpointProperties vaadin23Properties;
+	public final VaadinEndpointProperties vaadinProperties;
 	public final MessageSource messageSource;
 	public final ResolvedEndpoint description;
 	public final CancelHandler cancelHandler;
@@ -51,7 +51,7 @@ public class Vaadin2XWebAppContext extends WebAppContext
 	                             CancelHandler cancelHandler, SandboxAuthnRouter sandboxRouter)
 	{
 		this.properties = properties;
-		this.vaadin23Properties = vaadinEndpointProperties;
+		this.vaadinProperties = vaadinEndpointProperties;
 		this.messageSource = messageSource;
 		this.description = description;
 		this.authenticationFlows = authenticationFlows;
@@ -71,7 +71,7 @@ public class Vaadin2XWebAppContext extends WebAppContext
 	{
 		return Optional.ofNullable(getCurrentWebAppContext())
 				.map(context -> (Vaadin2XWebAppContext) context)
-				.map(context -> context.vaadin23Properties)
+				.map(context -> context.vaadinProperties)
 				.orElse(null);
 	}
 
