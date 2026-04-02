@@ -61,7 +61,7 @@ public class BackupRestoreRESTAdmin implements RESTAdminHandler
 	}
 
 	@GET
-	@Path("/export")
+	@Path("/db-dump")
 	public Response export(
 			@QueryParam("systemConfig") @DefaultValue("true") boolean systemConfig,
 			@QueryParam("directorySchema") @DefaultValue("true") boolean directorySchema,
@@ -108,7 +108,7 @@ public class BackupRestoreRESTAdmin implements RESTAdminHandler
 	}
 
 	@POST
-	@Path("/import")
+	@Path("/db-dump")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public Response importBackup(InputStream inputStream,
 			@HeaderParam("Content-Length") long contentLength) throws EngineException

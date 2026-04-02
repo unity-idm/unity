@@ -28,7 +28,7 @@ public class TestBackupRestore extends RESTAdminTestBase
 	public void shouldReturnExportDumpWithDefaultCategories() throws Exception
 	{
 		// given
-		HttpGet export = new HttpGet("/restadm/v1/export");
+		HttpGet export = new HttpGet("/restadm/v1/db-dump");
 
 		// when
 		try (ClassicHttpResponse response = client.executeOpen(host, export, getClientContext(host)))
@@ -51,7 +51,7 @@ public class TestBackupRestore extends RESTAdminTestBase
 	{
 		// given
 		HttpGet export = new HttpGet(
-			"/restadm/v1/export?directorySchema=false&users=false"
+			"/restadm/v1/db-dump?directorySchema=false&users=false"
 				+ "&auditLogs=false&signupRequests=false&idpStatistics=false");
 
 		// when
@@ -69,7 +69,7 @@ public class TestBackupRestore extends RESTAdminTestBase
 	{
 		// given
 		HttpGet export = new HttpGet(
-			"/restadm/v1/export?systemConfig=true&directorySchema=true&users=true"
+			"/restadm/v1/db-dump?systemConfig=true&directorySchema=true&users=true"
 				+ "&auditLogs=true&signupRequests=true&idpStatistics=true");
 
 		// when
@@ -86,7 +86,7 @@ public class TestBackupRestore extends RESTAdminTestBase
 	public void shouldImportDatabaseFromExportedDump() throws Exception
 	{
 		// given -- first export to get a valid dump
-		HttpGet export = new HttpGet("/restadm/v1/export");
+		HttpGet export = new HttpGet("/restadm/v1/db-dump");
 		String dumpContent;
 		try (ClassicHttpResponse exportResponse = client.executeOpen(host, export, getClientContext(host)))
 		{
@@ -96,7 +96,7 @@ public class TestBackupRestore extends RESTAdminTestBase
 		}
 
 		// when -- import the exported dump back
-		HttpPost importRequest = new HttpPost("/restadm/v1/import");
+		HttpPost importRequest = new HttpPost("/restadm/v1/db-dump");
 		importRequest.setEntity(new StringEntity(dumpContent, ContentType.APPLICATION_JSON));
 		try (ClassicHttpResponse importResponse = client.executeOpen(host, importRequest, getClientContext(host)))
 		{
@@ -118,7 +118,7 @@ public class TestBackupRestore extends RESTAdminTestBase
 	{
 		// given
 		HttpClientContext unprivilegedContext = createNonPrivilegedUserContext();
-		HttpGet export = new HttpGet("/restadm/v1/export");
+		HttpGet export = new HttpGet("/restadm/v1/db-dump");
 
 		// when
 		try (ClassicHttpResponse response = client.executeOpen(host, export, unprivilegedContext))
@@ -133,7 +133,7 @@ public class TestBackupRestore extends RESTAdminTestBase
 	{
 		// given
 		HttpClientContext unprivilegedContext = createNonPrivilegedUserContext();
-		HttpPost importRequest = new HttpPost("/restadm/v1/import");
+		HttpPost importRequest = new HttpPost("/restadm/v1/db-dump");
 		importRequest.setEntity(new StringEntity("{}", ContentType.APPLICATION_JSON));
 
 		// when
