@@ -104,7 +104,7 @@ cmd_verify() {
 	fi
 
 	echo "Verifying server health..."
-	if curl -sk -o /dev/null -w "%{http_code}" -u "$AUTH" "$REST_ADMIN_URL/export?systemConfig=false&directorySchema=false&users=false&auditLogs=false&signupRequests=false&idpStatistics=false" | grep -q "200"; then
+	if curl -sk -o /dev/null -w "%{http_code}" -u "$AUTH" "$REST_ADMIN_URL/db-dump?systemConfig=false&directorySchema=false&users=false&auditLogs=false&signupRequests=false&idpStatistics=false" | grep -q "200"; then
 		echo "Server is healthy and responding at $SERVER_URL"
 	else
 		echo "Server is running but REST Admin API is not responding yet"
@@ -119,7 +119,7 @@ cmd_backup() {
 	local params="$*"
 
 	echo "Exporting backup to $output..."
-	local url="$REST_ADMIN_URL/export"
+	local url="$REST_ADMIN_URL/db-dump"
 	if [ -n "$params" ]; then
 		url="$url?$params"
 	fi
@@ -142,7 +142,7 @@ cmd_restore() {
 
 	echo "Restoring from $input..."
 	# Import may cause connection reset as server restarts endpoints — treat both as success
-	curl -sk -u "$AUTH" -X POST "$REST_ADMIN_URL/import" \
+	curl -sk -u "$AUTH" -X POST "$REST_ADMIN_URL/db-dump" \
 		-H "Content-Type: application/json" \
 		-d @"$input" || true
 	echo "Restore request sent. Server endpoints may restart."

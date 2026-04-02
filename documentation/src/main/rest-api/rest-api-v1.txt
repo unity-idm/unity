@@ -1670,7 +1670,7 @@ Example input:
 
 === Export database backup
 
-+@Path("/export")+ +
++@Path("/db-dump")+ +
 +@QueryParam("systemConfig")+ +
 +@QueryParam("directorySchema")+ +
 +@QueryParam("users")+ +
@@ -1690,8 +1690,6 @@ Parameters:
 - +signupRequests+ (boolean, default: true) -- include pending registration requests
 - +idpStatistics+ (boolean, default: true) -- include IdP usage statistics
 
-Requires +maintenance+ authorization capability (System Manager role).
-
 Example response headers:
 
 ----
@@ -1702,12 +1700,10 @@ Content-Type: application/json
 
 === Import database backup
 
-+@Path("/import")+ +
++@Path("/db-dump")+ +
 +@POST+ +
 
 Imports (restores) the database from a JSON dump provided as the raw request body. The request body must be a valid Unity database dump in JSON format (as produced by the export endpoint). Older dump formats are automatically migrated during import.
-
-Requires +maintenance+ authorization capability (System Manager role).
 
 CAUTION: The import operation restarts internal server endpoints. The calling REST endpoint may be destroyed before the HTTP response is sent, causing the client to receive a connection reset instead of an HTTP 200. Clients should treat both a 200 response and a connection reset as a successful import.
 
@@ -1716,7 +1712,7 @@ NOTE: Uploads exceeding the server's configured file size limit are rejected wit
 Example request:
 
 ----
-POST /rest-admin/v1/import HTTP/1.1
+POST /rest-admin/v1/db-dump HTTP/1.1
 Content-Type: application/json
 
 {...database dump JSON content...}
