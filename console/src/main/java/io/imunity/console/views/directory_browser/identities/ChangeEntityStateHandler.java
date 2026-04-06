@@ -13,6 +13,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.entity.EntityState;
@@ -25,13 +26,15 @@ class ChangeEntityStateHandler
 	private final EntityManagement identitiesMan;
 	private final MessageSource msg;
 	private final NotificationPresenter notificationPresenter;
-
+	private final HtmlTooltipFactory htmlTooltipFactory;
+	
 	ChangeEntityStateHandler(EntityManagement identitiesMan, MessageSource msg,
-			NotificationPresenter notificationPresenter)
+			NotificationPresenter notificationPresenter, HtmlTooltipFactory htmlTooltipFactory)
 	{
 		this.identitiesMan = identitiesMan;
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 	}
 
 	SingleActionHandler<IdentityEntry> getAction(Runnable refreshCallback)
@@ -47,7 +50,7 @@ class ChangeEntityStateHandler
 	private void showDialog(Set<IdentityEntry> selection, Runnable refreshCallback)
 	{       
 		EntityWithLabel entity = selection.iterator().next().getSourceEntity();
-		new ChangeEntityStateDialog(msg, entity, newState -> 
+		new ChangeEntityStateDialog(msg, htmlTooltipFactory, entity, newState -> 
 			setEntityStatus(entity.getEntity().getId(), newState, refreshCallback)
 		).open();
 	}

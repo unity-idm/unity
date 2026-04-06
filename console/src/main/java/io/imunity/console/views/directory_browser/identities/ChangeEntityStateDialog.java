@@ -4,6 +4,8 @@
  */
 package io.imunity.console.views.directory_browser.identities;
 
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -11,13 +13,16 @@ import java.util.Date;
 import java.util.Locale;
 
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.datetimepicker.DateTimePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.select.Select;
 
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.vaadin.elements.DialogWithActionFooter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.entity.EntityScheduledOperation;
 import pl.edu.icm.unity.base.entity.EntityState;
@@ -28,6 +33,7 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 {
 	private static final Locale EUROPEAN_TIME_FORMAT = Locale.forLanguageTag("DE");
 
+	private final HtmlTooltipFactory htmlTooltipFactory;
 	private final MessageSource msg;
 	private final EntityWithLabel entity;
 	private final Callback callback;
@@ -37,14 +43,16 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 	private Select<EntityScheduledOperation> entityScheduledChange;
 	private DateTimePicker changeTime;
 	private DateTimePicker removalTime;
-	private FormLayout.FormItem changeTimeFormItem;
+	private FormItem changeTimeFormItem;
 
 	private FormItem removalFormItem;
 
-	ChangeEntityStateDialog(MessageSource msg, EntityWithLabel entity, Callback callback)
+	ChangeEntityStateDialog(MessageSource msg, HtmlTooltipFactory htmlTooltipFactory, EntityWithLabel entity,
+			Callback callback)
 	{
 		super(msg::getMessage);
 		this.msg = msg;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 		this.entity = entity;
 		this.callback = callback;
 		setHeaderTitle(msg.getMessage("ChangeEntityStateDialog.caption"));
@@ -113,18 +121,16 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 		});
 
 		FormLayout main = new FormLayout();
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		FormLayout embedded = new FormLayout();
-		embedded.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		embedded.addFormItem(entityScheduledChange, msg.getMessage("ChangeEntityStateDialog.scheduledOperation"));
-		changeTimeFormItem = embedded.addFormItem(changeTime,
-				msg.getMessage("ChangeEntityStateDialog.scheduledChangeTime"));
-		
 		main.addFormItem(entityState, msg.getMessage("ChangeEntityStateDialog.newState"));
-		removalFormItem = main.addFormItem(removalTime, msg.getMessage("ChangeEntityStateDialog.removalTime"));
+		removalFormItem = main.addFormItem(removalTime, msg.getMessage("ChangeEntityStateDialog.removalGracePeriodEnd"));
+		removalFormItem.add(htmlTooltipFactory.get(msg.getMessage("ChangeEntityStateDialog.removalGracePeriodEndDescription")));
 		removalFormItem.setVisible(false);
-		main.addFormItem(scheduleEnable, "");
-		main.addFormItem(embedded, "");
+		main.addFormItem(scheduleEnable, "");		
+		main.addFormItem(entityScheduledChange, msg.getMessage("ChangeEntityStateDialog.scheduledOperation"));
+		changeTimeFormItem = main.addFormItem(changeTime,
+				msg.getMessage("ChangeEntityStateDialog.scheduledChangeTime"));		
 		main.setSizeFull();
 		
 		
@@ -184,8 +190,23 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 			newInfo.setScheduledOperationTime(zonedDate);
 		}
 		
-		if (callback.onChanged(newInfo))
-			close();		
+		if (newInfo.getScheduledOperation() != null && newInfo.getRemovalByUserTime() != null)
+		{
+			ConfirmDialog confirm = new ConfirmDialog();
+			confirm.setConfirmButton(msg.getMessage("ok"), e ->
+			{
+				if (callback.onChanged(newInfo))
+					close();
+			});
+			confirm.setCancelable(true);
+			confirm.add(new Span(msg.getMessage("ChangeEntityStateDialog.warningScheduledChangeAndRemoval")));
+			confirm.open();
+
+		} else
+		{
+			if (callback.onChanged(newInfo))
+				close();
+		}
 	}
 	
 	interface Callback 
