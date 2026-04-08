@@ -632,6 +632,10 @@ public class EntityManagementImpl implements EntityManagement
 			throws EngineException
 	{
 		toChange.validateInitialization();
+		if (status == EntityState.onlyLoginPermitted)
+			throw new IllegalArgumentException("The new entity status 'only login permitted' "
+					+ "can be only set as a side effect of scheduling an account "
+					+ "removal with a grace period.");
 		long entityId = idResolver.getEntityId(toChange);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 		EntityInformation current = entityDAO.getByKey(entityId);
