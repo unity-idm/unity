@@ -23,7 +23,7 @@
 		<vaadin.version>24.9.13</vaadin.version>
 		<cxf.version>4.1.3</cxf.version>
 		<apacheds.version>2.0.0-M26</apacheds.version>
-		<bc.version>1.82</bc.version>
+		<bc.version>1.84</bc.version>
 		<selenium.version>4.36.0</selenium.version>
 		<junit5.version>5.9.3</junit5.version>
 		<jackson.version>2.20.0</jackson.version>
