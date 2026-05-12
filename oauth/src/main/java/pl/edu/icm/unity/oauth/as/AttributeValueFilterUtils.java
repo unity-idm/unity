@@ -45,6 +45,8 @@ public class AttributeValueFilterUtils
 		if (scopes == null)
 			return Collections.emptyList();
 		
+		
+		
 		List<String> filters = scopes.stream()
 				.map(scope -> scope.getValue())
 				.filter(scope -> scope.startsWith(FILTER_FROM_SCOPE_PREFIX))
