@@ -276,10 +276,13 @@ class OAuthWebRequestValidator
 			AuthorizationRequest authzRequest) throws OAuthValidationException
 	{
 		
-		Scope requestedURLDecodedScopes =  Scope.parse(authzRequest.getScope().stream()
-				.map(scope ->   URLDecoder.decode(scope.getValue(), StandardCharsets.UTF_8 ))	
-				.toList());
-					
+		Scope requestedURLDecodedScopes = Optional.ofNullable(authzRequest.getScope())
+				.map(scopes -> scopes.stream()
+						.map(scope -> URLDecoder.decode(scope.getValue(), StandardCharsets.UTF_8))
+						.toList())
+				.map(Scope::parse)
+				.orElse(null);
+				
 		context.setClaimValueFilters(AttributeValueFilterUtils.getFiltersFromScopes(requestedURLDecodedScopes));
 		Scope requestedScopes = AttributeValueFilterUtils.getScopesWithoutFilterClaims(requestedURLDecodedScopes);
 	
