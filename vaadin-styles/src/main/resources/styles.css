@@ -881,7 +881,15 @@ vaadin-accordion-heading[opened]::part(toggle) {
 
 .u-directory-browser-members-grid::part(last-header-row-cell){
 	padding: 0;
-}	
+}
+
+.u-directory-browser-members-grid vaadin-grid-tree-toggle:hover::part(toggle) {
+	color: var(--lumo-contrast-50pct);
+}
+
+.u-directory-browser-members-grid vaadin-grid-tree-toggle::part(toggle):hover {
+	color: var(--lumo-contrast-80pct);
+}
 
 .u-grid-with-action-padding::part(last-column-cell){
 	padding-right: 1em;

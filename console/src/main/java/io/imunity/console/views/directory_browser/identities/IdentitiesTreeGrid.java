@@ -228,7 +228,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		{
 			Div div = new Div(new Span(ie.getBaseValue(BaseColumn.entity)));
 			div.getElement().setAttribute("onclick", "event.stopPropagation();");
-			div.addSingleClickListener(event -> select(ie));
+			div.addSingleClickListener(event -> GridSelectionSupport.replaceSelection(this, ie));
 			return div;
 		})
 				.setHeader(msg.getMessage(BaseColumn.entity.captionKey))
