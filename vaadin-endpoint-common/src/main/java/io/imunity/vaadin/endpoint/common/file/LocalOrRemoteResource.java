@@ -29,7 +29,6 @@ public class LocalOrRemoteResource extends Image
 	public LocalOrRemoteResource(DownloadHandler src, String alt, byte[] local)
 	{
 		super(src, alt);
-		addClassName(LOGO_IMAGE.getName());
 		this.local = local;
 	}
 
