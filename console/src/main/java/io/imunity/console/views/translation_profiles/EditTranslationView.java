@@ -11,7 +11,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
 
 import io.imunity.console.tprofile.TranslationProfileEditor;
 import io.imunity.console.views.ConsoleViewComponent;
@@ -43,7 +43,7 @@ public abstract class EditTranslationView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String profileName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String profileName)
 	{
 		getContent().removeAll();
 

@@ -13,7 +13,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.tprofile.ActionEditor;
@@ -48,12 +49,12 @@ public class AutomationRunView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String ruleId)
+	public void setParameter(BeforeEvent event, @WildcardParameter String ruleId)
 	{
 		getContent().removeAll();
 
 		TranslationRule translationRule;
-		if(ruleId == null)
+		if(!StringUtils.hasLength(ruleId))
 		{
 			translationRule = new TranslationRule("status == 'disabled'", null);
 		}

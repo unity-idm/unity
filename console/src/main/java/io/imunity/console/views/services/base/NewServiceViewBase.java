@@ -9,7 +9,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
 import io.imunity.console.components.InfoBanner;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.EditViewActionLayoutFactory;
@@ -56,7 +56,7 @@ public abstract class NewServiceViewBase extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String param)
+	public void setParameter(BeforeEvent event, @WildcardParameter String param)
 	{
 		breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 		getContent().removeAll();

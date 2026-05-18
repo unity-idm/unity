@@ -15,7 +15,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
 import com.vaadin.flow.router.Route;
 
 import io.imunity.console.ConsoleMenu;
@@ -54,7 +54,7 @@ public class NewInvitationView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String param)
+	public void setParameter(BeforeEvent event, @WildcardParameter String param)
 	{
 
 		Location location = event.getLocation();

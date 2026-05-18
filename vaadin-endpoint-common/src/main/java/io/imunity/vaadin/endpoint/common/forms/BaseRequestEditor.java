@@ -35,6 +35,8 @@ import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorRegist
 import io.imunity.vaadin.endpoint.common.safe_html.HtmlConfigurableLabel;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
+import org.springframework.util.StringUtils;
+
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
@@ -958,7 +960,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	
 	protected boolean isEmpty(String str)
 	{
-		return str == null || str.equals("");
+		return !StringUtils.hasLength(str);
 	}
 	
 	protected static class FormErrorStatus

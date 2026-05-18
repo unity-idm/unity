@@ -25,7 +25,7 @@ public abstract class UpmanViewComponent extends UnityViewComponent implements H
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String parameter)
+	public void setParameter(BeforeEvent event, @WildcardParameter String parameter)
 	{
 	}
 

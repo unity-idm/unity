@@ -13,7 +13,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
@@ -95,7 +95,7 @@ class EmailConfirmationView extends UnityViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String parameter)
+	public void setParameter(BeforeEvent event, @WildcardParameter String parameter)
 	{
 		String token = event.getLocation().getQueryParameters()
 				.getParameters()

@@ -17,7 +17,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.components.LocalizedRichTextEditorDetails;
@@ -62,12 +63,12 @@ public class PolicyDocumentEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String policyDocumentId)
+	public void setParameter(BeforeEvent event, @WildcardParameter String policyDocumentId)
 	{
 		getContent().removeAll();
 		contentItem = null;
 		PolicyDocumentEntry policyDocumentEntry;
-		if (policyDocumentId == null)
+		if (!StringUtils.hasLength(policyDocumentId))
 		{
 			policyDocumentEntry = new PolicyDocumentEntry();
 			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
