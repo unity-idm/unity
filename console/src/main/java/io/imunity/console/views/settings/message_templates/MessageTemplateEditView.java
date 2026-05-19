@@ -20,7 +20,8 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
@@ -92,12 +93,12 @@ public class MessageTemplateEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String messageTemplateName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String messageTemplateName)
 	{
 		getContent().removeAll();
 
 		MessageTemplate messageTemplate;
-		if (messageTemplateName == null)
+		if (!StringUtils.hasLength(messageTemplateName))
 		{
 			messageTemplate = new MessageTemplate();
 			messageTemplate.setMessage(new I18nMessage(new I18nString(), new I18nString()));

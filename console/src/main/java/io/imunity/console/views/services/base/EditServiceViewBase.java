@@ -12,7 +12,7 @@ import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
 
 import io.imunity.console.ConsoleEndpointFactory;
 import io.imunity.console.components.InfoBanner;
@@ -62,7 +62,7 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String serviceName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String serviceName)
 	{
 		breadCrumbParameter = new BreadCrumbParameter(serviceName, serviceName);
 		Location location = event.getLocation();

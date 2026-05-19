@@ -17,7 +17,8 @@ import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.server.streams.InMemoryUploadHandler;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import io.imunity.console.ConsoleMenu;
@@ -65,12 +66,12 @@ public class PKIEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String certName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String certName)
 	{
 		getContent().removeAll();
 
 		CertificateEntry certificateEntry;
-		if(certName == null)
+		if(!StringUtils.hasLength(certName))
 		{
 			certificateEntry = new CertificateEntry();
 			breadCrumbParameter = new BreadCrumbParameter(

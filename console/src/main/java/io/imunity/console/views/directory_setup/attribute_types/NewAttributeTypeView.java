@@ -8,7 +8,8 @@ package io.imunity.console.views.directory_setup.attribute_types;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
@@ -59,13 +60,13 @@ class NewAttributeTypeView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String attributeTypeName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String attributeTypeName)
 	{
 		getContent().removeAll();
 
 		AttributeType at = null;
 		breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
-		if (attributeTypeName != null)
+		if (StringUtils.hasLength(attributeTypeName))
 		{
 			try
 			{

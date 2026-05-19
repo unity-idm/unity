@@ -27,7 +27,8 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 
 import io.imunity.console.ConsoleMenu;
@@ -61,12 +62,12 @@ public class AuthenticationFlowEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String flowName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String flowName)
 	{
 		getContent().removeAll();
 
 		AuthenticationFlowEntry definition;
-		if (flowName == null)
+		if (!StringUtils.hasLength(flowName))
 		{
 			AuthenticationFlowDefinitionForBinder flow = new AuthenticationFlowDefinitionForBinder(
 					msg.getMessage("AuthenticationFlow.defaultName"), AuthenticationFlowDefinition.Policy.REQUIRE,

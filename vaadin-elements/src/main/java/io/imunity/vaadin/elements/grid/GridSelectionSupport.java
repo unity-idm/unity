@@ -14,17 +14,19 @@ public class GridSelectionSupport
 	{
 		grid.addItemClickListener(e -> onMouseClick(grid, e));
 	}
-	
+
+	public static <T> void replaceSelection(Grid<T> grid, T item)
+	{
+		if (grid.getSelectedItems().contains(item))
+			return;
+		grid.deselectAll();
+		grid.select(item);
+	}
+
 	private static <T> void onMouseClick(Grid<T> grid, ItemClickEvent<T> event)
 	{
 		if (event.getClickCount() == 2)
 			return;
-		T item = event.getItem();
-		boolean alreadySelected = grid.getSelectedItems().contains(item);
-		if (!alreadySelected)
-		{
-			grid.deselectAll();
-			grid.select(item);
-		}
+		replaceSelection(grid, event.getItem());
 	}
 }

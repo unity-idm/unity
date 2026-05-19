@@ -13,7 +13,8 @@ import java.util.Optional;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 
 import io.imunity.console.ConsoleMenu;
@@ -48,9 +49,9 @@ public class RegistrationView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event,  @OptionalParameter String registrationName)
+	public void setParameter(BeforeEvent event,  @WildcardParameter String registrationName)
 	{
-		String decodedregistrationName = registrationName == null ? null : NameToURLEncoder.decode(registrationName);
+		String decodedregistrationName = !StringUtils.hasLength(registrationName) ? null : NameToURLEncoder.decode(registrationName);
 
 		getContent().removeAll();
 

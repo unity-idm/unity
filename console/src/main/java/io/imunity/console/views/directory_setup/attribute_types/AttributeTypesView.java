@@ -6,6 +6,7 @@
 package io.imunity.console.views.directory_setup.attribute_types;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.NativeLabel;
+import io.imunity.vaadin.endpoint.common.safe_html.HtmlConfigurableLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -304,15 +306,16 @@ public class AttributeTypesView extends ConsoleViewComponent
 		return new HorizontalLayout(label);
 	}
 
-	private FormLayout getDetailsComponent(AttributeTypeEntry i)
+	private FormLayout getDetailsComponent(AttributeTypeEntry typeEntry)
 	{
+		String raw = typeEntry.getDescription();
+		String safe = raw == null ? "" : HtmlConfigurableLabel.conditionallyEscape(raw);
+		Html description = new Html("<span>" + safe + "</span>");
 		FormLayout wrapper = new FormLayout();
-		wrapper.setWidthFull();
-		NativeLabel label = new NativeLabel(i.getDescription());
-		label.setWidthFull();
-		FormItem addFormItem = wrapper.addFormItem(label, msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
-		addFormItem.addClassName(CssClassNames.WIDTH_FULL.getName());
-
+		FormItem formItem = wrapper.addFormItem(description,
+				msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
+		formItem.addClassName(CssClassNames.GRID_DETAILS_FORM_ITEM.getName());
+		wrapper.addClassName(CssClassNames.GRID_DETAILS_FORM.getName());
 		return wrapper;
 	}
 }

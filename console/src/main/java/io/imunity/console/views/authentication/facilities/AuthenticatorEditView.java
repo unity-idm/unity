@@ -13,7 +13,8 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.components.InfoBanner;
@@ -74,12 +75,12 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String id)
+	public void setParameter(BeforeEvent event, @WildcardParameter String id)
 	{
 		getContent().removeAll();
 
 		AuthenticatorEntry entry;
-		if(id == null || id.equals("new"))
+		if(!StringUtils.hasLength(id) || id.equals("new"))
 		{
 			entry = new AuthenticatorEntry(new AuthenticatorDefinition("", "", "", ""), List.of());
 			breadCrumbParameter = new BreadCrumbParameter("new", msg.getMessage("new"));

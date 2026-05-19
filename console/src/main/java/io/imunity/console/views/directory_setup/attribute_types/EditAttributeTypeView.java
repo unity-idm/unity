@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
 import com.vaadin.flow.router.Route;
 
 import io.imunity.console.ConsoleMenu;
@@ -54,7 +54,7 @@ class EditAttributeTypeView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String attributeTypeName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String attributeTypeName)
 	{
 		getContent().removeAll();
 

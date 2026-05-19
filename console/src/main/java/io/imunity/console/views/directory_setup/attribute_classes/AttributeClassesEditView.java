@@ -13,7 +13,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
@@ -54,12 +55,12 @@ public class AttributeClassesEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String attributeClassName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String attributeClassName)
 	{
 		getContent().removeAll();
 
 		AttributesClass attributesClass;
-		if (attributeClassName == null)
+		if (!StringUtils.hasLength(attributeClassName))
 		{
 			attributesClass = new AttributesClass();
 			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));

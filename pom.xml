@@ -167,10 +167,10 @@
 						<release>${java.source.version}</release>
 						<maxmem>256M</maxmem>
 						<encoding>UTF-8</encoding>
-                        <compilerArgs>
-                            <arg>-Xlint:unchecked</arg>
-                            <arg>-Xlint:-options</arg>
-                        </compilerArgs>
+						<compilerArgs>
+							<arg>-Xlint:unchecked</arg>
+							<arg>-Xlint:-options</arg>
+						</compilerArgs>
 						<parameters>true</parameters>
 					</configuration>
 				</plugin>
@@ -503,7 +503,7 @@
 				<version>${jackson.version}</version>
 			</dependency>
 			<dependency>
-    			<groupId>com.fasterxml.jackson.datatype</groupId>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
   				<artifactId>jackson-datatype-jsr310</artifactId>
    				<version>${jackson.version}</version>
 			</dependency>
