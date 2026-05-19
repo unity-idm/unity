@@ -712,6 +712,10 @@ vaadin-grid::part(u-immutableAttribute) {
 	color: var(--unity-immutable-attribute-color);
 }
 
+.u-bold {
+	font-weight: var(--unity-bold-font-weight);
+}
+
 vaadin-grid::part(u-bold) {
 	font-weight: var(--unity-bold-font-weight);
 }
