@@ -5,9 +5,25 @@
 
 package pl.edu.icm.unity.oauth.client.console;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_GRID_IMAGE;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
+
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
+
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
@@ -18,6 +34,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
@@ -28,6 +45,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.describedObject.DescribedObjectROImpl;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -41,18 +59,6 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.oauth.client.ResponseConsumerServlet;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
-
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.*;
 
 class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
@@ -120,13 +126,12 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		
 		configBinder.forField(accountAssociation).bind("defAccountAssociation");
 
-		providersComponent = new ProvidersComponent();
-		configBinder.forField(providersComponent).bind("providers");
-		header.addFormItem(providersComponent, msg.getMessage("OAuthAuthenticatorEditor.providers"));
-
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setPadding(false);
 		mainView.add(header);
+
+		mainView.add(buildIndividualProvidersSection());
+		mainView.add(buildFederationSection());
 
 		OAuthConfiguration config = new OAuthConfiguration();
 		if (editMode)
@@ -135,6 +140,100 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		configBinder.setBean(config);
 
 		return mainView;
+	}
+	
+	private AccordionPanel buildIndividualProvidersSection()
+	{
+		FormLayout providersLayout = new FormLayout();
+		providersLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		providersLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		
+		providersComponent = new ProvidersComponent();
+		configBinder.forField(providersComponent).bind("providers");
+		providersLayout.addFormItem(providersComponent, "");
+		
+		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("OAuthAuthenticatorEditor.providers"),
+				providersLayout);
+		accordionPanel.setWidthFull();
+		accordionPanel.setOpened(true);
+		return accordionPanel;
+	}
+	
+	private AccordionPanel buildFederationSection()
+	{
+		FormLayout federationLayout = new FormLayout();
+		federationLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		federationLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
+		
+		Checkbox federationMembership = new Checkbox(
+				msg.getMessage("OAuthAuthenticatorEditor.openIDFederationMembership"));
+		federationLayout.addFormItem(federationMembership, "");
+		
+		
+		configBinder.forField(federationMembership)
+				.bind("federationMembershipEnabled");
+		
+		
+		
+		Set<String> credentialNames = getCredentialNames();
+
+		ComboBox<String> federationCredential = new ComboBox<>();
+		federationCredential.setItems(credentialNames);
+		federationLayout.addFormItem(federationCredential,
+				msg.getMessage("OAuthAuthenticatorEditor.federationCredential"));
+		configBinder.forField(federationCredential)
+				.bind("federationCredential");
+
+		ComboBox<String> authenticationCredential = new ComboBox<>();
+		authenticationCredential.setItems(credentialNames);
+		federationLayout.addFormItem(authenticationCredential, msg.getMessage("OAuthAuthenticatorEditor.authenticationCredential"));
+		configBinder.forField(authenticationCredential)
+				.bind("authenticationCredential");
+
+		TextField superiorEntityId = new TextField();
+		superiorEntityId.setWidth(TEXT_FIELD_BIG.value());
+		federationLayout.addFormItem(superiorEntityId, msg.getMessage("OAuthAuthenticatorEditor.superiorEntityId"));
+		configBinder.forField(superiorEntityId)
+				.bind("federationSuperiorEntityId");
+
+		TextField trustAnchorId = new TextField();
+		trustAnchorId.setWidth(TEXT_FIELD_BIG.value());
+		federationLayout.addFormItem(trustAnchorId, msg.getMessage("OAuthAuthenticatorEditor.federationTrustAnchorId"));
+		configBinder.forField(trustAnchorId)
+				.bind("federationTrustAnchorId");
+
+		com.vaadin.flow.component.textfield.TextArea jwks = new com.vaadin.flow.component.textfield.TextArea();
+		jwks.setWidth(TEXT_FIELD_BIG.value());
+		jwks.setHeight("8em");
+		federationLayout.addFormItem(jwks, msg.getMessage("OAuthAuthenticatorEditor.federationJwks"));
+		configBinder.forField(jwks)
+				.bind("federationJwks");
+
+		federationMembership.addValueChangeListener(e -> {
+			boolean enabled = e.getValue();
+			federationCredential.setEnabled(enabled);
+			authenticationCredential.setEnabled(enabled);
+			superiorEntityId.setEnabled(enabled);
+			trustAnchorId.setEnabled(enabled);
+			jwks.setEnabled(enabled);
+		});
+
+		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("OAuthAuthenticatorEditor.openIDFederationMembership"),
+				federationLayout);
+		accordionPanel.setWidthFull();
+		return accordionPanel;
+	}
+	
+	private Set<String> getCredentialNames()
+	{
+		try
+		{
+			return pkiMan.getCredentialNames();
+		} catch (EngineException e)
+		{
+			notificationPresenter.showError("Can not init OAuth  editor", e.getMessage());
+		}
+		return Set.of();
 	}
 
 	private String buildReturnURL()

@@ -22,11 +22,19 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+
+
 public class OAuthConfiguration
 {
 	private boolean defAccountAssociation;
 	private List<OAuthProviderConfiguration> providers;
-
+	private boolean federationMembershipEnabled;
+	private String federationCredential;
+	private String federationSuperiorEntityId;
+	private String authenticationCredential;
+	private String federationTrustAnchorId;
+	private String federationJwks;
+	
 	public OAuthConfiguration()
 	{
 		providers = new ArrayList<>();
@@ -47,7 +55,14 @@ public class OAuthConfiguration
 
 		OAuthClientProperties oauthProp = new OAuthClientProperties(raw, pkiMan);
 		defAccountAssociation = oauthProp.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
-
+		
+		federationMembershipEnabled = oauthProp.getBooleanValue(OAuthClientProperties.FEDERATION_MEMBERSHIP_ENABLED);
+		federationCredential = oauthProp.getValue(OAuthClientProperties.FEDERATION_CREDENTIAL);
+		federationSuperiorEntityId = oauthProp.getValue(OAuthClientProperties.FEDERATION_SUPERIOR_ENTITY_ID);
+		authenticationCredential = oauthProp.getValue(OAuthClientProperties.PROTOCOL_CREDENTIAL);
+		federationTrustAnchorId = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID);
+		federationJwks = oauthProp.getValue(OAuthClientProperties.FEDERATION_JWKS);
+		
 		providers.clear();
 		Set<String> keys = oauthProp.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
 		for (String key : keys)
@@ -69,6 +84,36 @@ public class OAuthConfiguration
 		raw.put(OAuthClientProperties.P + CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION,
 				String.valueOf(defAccountAssociation));
 
+		
+		
+		raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_MEMBERSHIP_ENABLED, String.valueOf(federationMembershipEnabled));
+		
+		if(federationMembershipEnabled)
+		{
+			if (federationCredential != null && !federationCredential.isEmpty())
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_CREDENTIAL, federationCredential);
+			}
+
+			if (federationSuperiorEntityId != null && !federationSuperiorEntityId.isEmpty())
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_SUPERIOR_ENTITY_ID,
+						federationSuperiorEntityId);
+			}
+			if (authenticationCredential != null && !authenticationCredential.isEmpty())
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.PROTOCOL_CREDENTIAL, authenticationCredential);
+			}
+			if (federationTrustAnchorId != null && !federationTrustAnchorId.isEmpty())
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID, federationTrustAnchorId);
+			}
+			if (federationJwks != null && !federationJwks.isEmpty())
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_JWKS, federationJwks);
+			}
+		}
+		
 		for (OAuthProviderConfiguration provider : providers)
 		{
 			provider.toProperties(raw, msg, fileStorageService, authName);
@@ -97,5 +142,65 @@ public class OAuthConfiguration
 	public void setDefAccountAssociation(boolean accountAssociation)
 	{
 		this.defAccountAssociation = accountAssociation;
+	}
+	
+	public boolean isFederationMembershipEnabled()
+	{
+		return federationMembershipEnabled;
+	}
+
+	public void setFederationMembershipEnabled(boolean federationMembershipEnabled)
+	{
+		this.federationMembershipEnabled = federationMembershipEnabled;
+	}
+
+	public String getFederationCredential()
+	{
+		return federationCredential;
+	}
+
+	public void setFederationCredential(String federationCredential)
+	{
+		this.federationCredential = federationCredential;
+	}
+
+	public String getFederationSuperiorEntityId()
+	{
+		return federationSuperiorEntityId;
+	}
+
+	public void setFederationSuperiorEntityId(String federationSuperiorEntityId)
+	{
+		this.federationSuperiorEntityId = federationSuperiorEntityId;
+	}
+
+	public String getAuthenticationCredential()
+	{
+		return authenticationCredential;
+	}
+
+	public void setAuthenticationCredential(String authenticationCredential)
+	{
+		this.authenticationCredential = authenticationCredential;
+	}
+
+	public String getFederationTrustAnchorId()
+	{
+		return federationTrustAnchorId;
+	}
+
+	public void setFederationTrustAnchorId(String federationTrustAnchorId)
+	{
+		this.federationTrustAnchorId = federationTrustAnchorId;
+	}
+
+	public String getFederationJwks()
+	{
+		return federationJwks;
+	}
+
+	public void setFederationJwks(String federationJwks)
+	{
+		this.federationJwks = federationJwks;
 	}
 }

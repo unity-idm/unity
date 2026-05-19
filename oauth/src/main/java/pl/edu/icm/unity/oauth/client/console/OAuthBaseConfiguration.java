@@ -9,6 +9,7 @@ package pl.edu.icm.unity.oauth.client.console;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 
@@ -21,6 +22,8 @@ public class OAuthBaseConfiguration
 {
 	private String clientId;
 	private String clientSecret;
+	private ClientAuthnMethod clientAuthenticationMethod;
+	private String clientCredential;
 	private ClientAuthnMode clientAuthenticationMode;
 	private ClientAuthnMode clientAuthenticationModeForProfile;
 	private ClientHttpMethod clientHttpMethodForProfileAccess;
@@ -34,6 +37,7 @@ public class OAuthBaseConfiguration
 		translationProfile = TranslationProfileGenerator.generateEmbeddedEmptyInputProfile();
 		setClientHostnameChecking(ServerHostnameCheckingMode.FAIL);
 		setClientHttpMethodForProfileAccess(ClientHttpMethod.get);
+		setClientAuthenticationMethod(ClientAuthnMethod.client_secret);
 		setClientAuthenticationMode(ClientAuthnMode.secretBasic);
 		setClientAuthenticationModeForProfile(ClientAuthnMode.secretBasic);
 	}
@@ -56,6 +60,26 @@ public class OAuthBaseConfiguration
 	public void setClientSecret(String clientSecret)
 	{
 		this.clientSecret = clientSecret;
+	}
+
+	public ClientAuthnMethod getClientAuthenticationMethod()
+	{
+		return clientAuthenticationMethod;
+	}
+
+	public void setClientAuthenticationMethod(ClientAuthnMethod clientAuthenticationMethod)
+	{
+		this.clientAuthenticationMethod = clientAuthenticationMethod;
+	}
+
+	public String getClientCredential()
+	{
+		return clientCredential;
+	}
+
+	public void setClientCredential(String clientCredential)
+	{
+		this.clientCredential = clientCredential;
 	}
 
 	public ClientAuthnMode getClientAuthenticationMode()

@@ -45,6 +45,7 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 	public enum AccessTokenFormat {standard, httpParams};
 	public enum ClientAuthnMode {secretPost, secretBasic};
 	public enum ClientHttpMethod {post, get};
+	public enum ClientAuthnMethod {client_secret, private_key_jwt};
 	
 	@DocumentationReferencePrefix
 	public static final String P = OAuthClientProperties.P + OAuthClientProperties.PROVIDERS + "CLIENT_ID.";
@@ -62,6 +63,8 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 	public static final String REQUEST_ACRS_MODE = "requestACRs";
 	public static final String REQUESTED_ACRS = "requestedACRs.";
 	public static final String REQUESTED_ACRS_ARE_ESSENTIAL = "requestedACRsAreEssential";
+	public static final String CLIENT_AUTHN_METHOD = "clientAuthenticationMethod";
+	public static final String CLIENT_CREDENTIAL = "clientCredential";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -98,9 +101,13 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 		META.put(CLIENT_ID, new PropertyMD().setMandatory().
 				setDescription("Client identifier, obtained during Unity's "
 				+ "registration at the provider"));
-		META.put(CLIENT_SECRET, new PropertyMD().setSecret().setMandatory().
+		META.put(CLIENT_SECRET, new PropertyMD().setSecret().
 				setDescription("Client secret, obtained during Unity's "
-				+ "registration at the provider"));
+				+ "registration at the provider. Required when clientAuthenticationMethod is client_secret."));
+		META.put(CLIENT_AUTHN_METHOD, new PropertyMD(ClientAuthnMethod.client_secret).
+				setDescription("Defines the client authentication method: client_secret (default) or private_key_jwt."));
+		META.put(CLIENT_CREDENTIAL, new PropertyMD().
+				setDescription("Name of the credential (private key) used for private_key_jwt client authentication."));
 		META.put(CLIENT_AUTHN_MODE, new PropertyMD(ClientAuthnMode.secretBasic).
 				setDescription("Defines how the client secret and id should be passed to the provider."));
 		META.put(CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, new PropertyMD().setEnum(ClientAuthnMode.secretBasic).setDescription(

@@ -34,6 +34,14 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 
 	public static final String PROVIDERS = "providers.";
 
+	public static final String FEDERATION_MEMBERSHIP_ENABLED = "federationMembershipEnabled";
+	public static final String FEDERATION_CREDENTIAL = "federationCredential";
+	public static final String FEDERATION_SUPERIOR_ENTITY_ID = "superiorEntityId";
+	public static final String FEDERATION_TRUST_ANCHOR_ID = "federationTrustAnchorId";
+	public static final String FEDERATION_JWKS = "federationJwks";
+
+	public static final String PROTOCOL_CREDENTIAL = "protocolCredential";
+	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 
@@ -47,6 +55,19 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 				+ "Used for those providers, for which the setting is not set explicitly."));
 		META.put(CustomProviderProperties.PROVIDER_TYPE, new PropertyMD(Providers.custom).setHidden().
 				setStructuredListEntry(PROVIDERS));
+		META.put(FEDERATION_MEMBERSHIP_ENABLED, new PropertyMD("false").setDescription(
+				"Enables participation in an OpenID Federation as a federation member entity"));
+		META.put(FEDERATION_CREDENTIAL, new PropertyMD()
+				.setDescription("Credential used as the federation entity credential (federation signing key)"));
+		META.put(PROTOCOL_CREDENTIAL, new PropertyMD()
+				.setDescription("Credential used for protocol operations (e.g. OIDC/OAuth protocol signing)"));
+		META.put(FEDERATION_SUPERIOR_ENTITY_ID, new PropertyMD().setDescription(
+				"Entity ID (URL) of the superior federation entity Entity ID (URL) of the superior federation entity"));
+		META.put(FEDERATION_TRUST_ANCHOR_ID, new PropertyMD().setDescription(
+				"Entity ID (URL) of the trusted federation's trust anchor"));
+		META.put(FEDERATION_JWKS, new PropertyMD().setDescription(
+				"JWKS (JSON Web Key Set) of the trusted OpenID federation"));
+
 	}
 
 	private final Map<String, CustomProviderProperties> providers = new HashMap<>();

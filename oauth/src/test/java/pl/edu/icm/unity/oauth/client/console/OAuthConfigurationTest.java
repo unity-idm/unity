@@ -100,6 +100,8 @@ public class OAuthConfigurationTest
 				.update("embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("extraAuthzParams.1", "foo=bar")
 				.update("requestACRs", "FIXED")
+				.update("clientCredential", "bar")
+				.update("clientAuthenticationMethod", "private_key_jwt")
 				.get();
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META).get();
 		sourceCfg.putAll(sourceProviderCfg);
@@ -113,6 +115,9 @@ public class OAuthConfigurationTest
 		
 		createComparator(P, META)
 			.ignoringMissing("providers.1.translationProfile")
+			.ignoringMissing("providers.1.clientSecret")
+			.ignoringMissing("providers.1.clientAuthenticationMode")
+			.ignoringMissing("providers.1.clientAuthenticationModeForProfileAccess")
 			.checkMatching(result, sourceCfg);
 	}
 }

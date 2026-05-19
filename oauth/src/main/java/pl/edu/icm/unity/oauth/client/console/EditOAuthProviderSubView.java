@@ -25,6 +25,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
@@ -53,8 +54,10 @@ import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.client.config.DropboxProviderProperties;
@@ -78,14 +81,16 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 
 	private final MessageSource msg;
 	private final PKIManagement pkiMan;
+	private final NotificationPresenter notificationPresenter;
 	private final UnityServerConfiguration serverConfig;
 	private Map<String, CustomProviderProperties> templates;
 
 	private final Binder<OAuthProviderConfiguration> configBinder;
 	private Select<String> templateCombo;
+	private Select<ClientAuthnMethod> clientAuthMethod;
 
 	private boolean editMode;
-	
+
 	private Checkbox openIdConnect;
 
 	EditOAuthProviderSubView(MessageSource msg, PKIManagement pkiMan, NotificationPresenter notificationPresenter,
@@ -98,6 +103,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
+		this.notificationPresenter = notificationPresenter;
 		this.serverConfig = serverConfig;
 		editMode = toEdit != null;
 
@@ -197,11 +203,38 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 				.bind(OAuthProviderConfiguration::getClientId, OAuthProviderConfiguration::setClientId);
 		header.addFormItem(clientId, msg.getMessage("EditOAuthProviderSubView.clientId"));
 
+		clientAuthMethod = new Select<>();
+		clientAuthMethod.setItems(ClientAuthnMethod.values());
+		clientAuthMethod.setItemLabelGenerator(item -> msg.getMessage("OAuthClientAuthnMethod." + item));
+		configBinder.forField(clientAuthMethod)
+				.bind(OAuthBaseConfiguration::getClientAuthenticationMethod, OAuthBaseConfiguration::setClientAuthenticationMethod);
+		header.addFormItem(clientAuthMethod, msg.getMessage("EditOAuthProviderSubView.clientAuthenticationMethod"));
+
 		TextField clientSecret = new TextField();
 		clientSecret.setWidth(TEXT_FIELD_BIG.value());
-		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired"))
-				.bind(OAuthProviderConfiguration::getClientSecret, OAuthProviderConfiguration::setClientSecret);
-		header.addFormItem(clientSecret, msg.getMessage("EditOAuthProviderSubView.clientSecret"));
+		configBinder.forField(clientSecret)
+				.asRequired((v, c) -> {
+					if (ClientAuthnMethod.client_secret.equals(clientAuthMethod.getValue()) && (v == null || v.isEmpty()))
+						return ValidationResult.error(msg.getMessage("fieldRequired"));
+					return ValidationResult.ok();
+				})
+				.bind(OAuthBaseConfiguration::getClientSecret, OAuthBaseConfiguration::setClientSecret);
+		FormItem clientSecretItem = header.addFormItem(clientSecret, msg.getMessage("EditOAuthProviderSubView.clientSecret"));
+
+		Select<String> clientCredential = new Select<>();
+		clientCredential.setWidth(TEXT_FIELD_MEDIUM.value());
+		clientCredential.setItems(getCredentialNames());
+		clientCredential.setEmptySelectionAllowed(true);
+		configBinder.forField(clientCredential)
+				.bind(OAuthBaseConfiguration::getClientCredential, OAuthBaseConfiguration::setClientCredential);
+		FormItem clientCredentialItem = header.addFormItem(clientCredential, msg.getMessage("EditOAuthProviderSubView.clientCredential"));
+		clientCredentialItem.setVisible(false);
+
+		clientAuthMethod.addValueChangeListener(e -> {
+			boolean isPrivateKeyJwt = ClientAuthnMethod.private_key_jwt.equals(e.getValue());
+			clientSecretItem.setVisible(!isPrivateKeyJwt);
+			clientCredentialItem.setVisible(isPrivateKeyJwt);
+		});
 
 		MultiSelectComboBox<String> requestedScopes = new CustomValuesMultiSelectComboBox();
 		requestedScopes.setWidth(TEXT_FIELD_BIG.value());
@@ -285,13 +318,19 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		clientAuthenticationMode.setItems(ClientAuthnMode.values());
 		configBinder.forField(clientAuthenticationMode)
 				.bind(OAuthProviderConfiguration::getClientAuthenticationMode, OAuthProviderConfiguration::setClientAuthenticationMode);
-		advanced.addFormItem(clientAuthenticationMode, msg.getMessage("EditOAuthProviderSubView.clientAuthenticationMode"));
+		FormItem clientAuthModeItem = advanced.addFormItem(clientAuthenticationMode, msg.getMessage("EditOAuthProviderSubView.clientAuthenticationMode"));
 
 		Select<ClientAuthnMode> clientAuthenticationModeForProfile = new Select<>();
 		clientAuthenticationModeForProfile.setItems(ClientAuthnMode.values());
 		configBinder.forField(clientAuthenticationModeForProfile)
 				.bind(OAuthProviderConfiguration::getClientAuthenticationModeForProfile, OAuthProviderConfiguration::setClientAuthenticationModeForProfile);
-		advanced.addFormItem(clientAuthenticationModeForProfile, msg.getMessage("EditOAuthProviderSubView.clientAuthenticationModeForProfile"));
+		FormItem clientAuthModeForProfileItem = advanced.addFormItem(clientAuthenticationModeForProfile, msg.getMessage("EditOAuthProviderSubView.clientAuthenticationModeForProfile"));
+
+		clientAuthMethod.addValueChangeListener(e -> {
+			boolean isClientSecret = ClientAuthnMethod.client_secret.equals(e.getValue());
+			clientAuthModeItem.setVisible(isClientSecret);
+			clientAuthModeForProfileItem.setVisible(isClientSecret);
+		});
 
 		Select<ToggleWithDefault> accountAssociation = new Select<>();
 		accountAssociation.setItemLabelGenerator(item -> msg.getMessage("EnableDisableCombo." + item));
@@ -380,6 +419,18 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		});
 
 		return new AccordionPanel(msg.getMessage("EditOAuthProviderSubView.advanced"), advanced);
+	}
+
+	private Set<String> getCredentialNames()
+	{
+		try
+		{
+			return pkiMan.getCredentialNames();
+		} catch (EngineException e)
+		{
+			notificationPresenter.showError("Can not load credentials", e.getMessage());
+			return new HashSet<>();
+		}
 	}
 
 	private Properties addEmptyProviderConfig(Properties raw, String key)
