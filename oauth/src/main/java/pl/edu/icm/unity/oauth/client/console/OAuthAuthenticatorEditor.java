@@ -5,11 +5,13 @@
 
 package pl.edu.icm.unity.oauth.client.console;
 
+import static io.imunity.vaadin.elements.CSSVars.RICH_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CssClassNames.LOGO_GRID_IMAGE;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
@@ -32,8 +34,10 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
@@ -59,6 +63,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.oauth.client.ResponseConsumerServlet;
+import pl.edu.icm.unity.oauth.client.federation.OAuthFederationEntityStatementServlet;
 
 class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
@@ -172,9 +177,33 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		
 		configBinder.forField(federationMembership)
 				.bind("federationMembershipEnabled");
-		
-		
-		
+
+		TextField federationEntityId = new TextField();
+		federationEntityId.setWidth(TEXT_FIELD_BIG.value());
+		federationEntityId.setReadOnly(true);
+		federationEntityId.setValue(buildFederationEntityId(name.getValue()));
+		name.addValueChangeListener(e -> federationEntityId.setValue(buildFederationEntityId(e.getValue())));
+		CopyToClipboardButton copyEntityId = new CopyToClipboardButton(msg::getMessage, federationEntityId);
+		HorizontalLayout entityIdField = new HorizontalLayout(federationEntityId, copyEntityId);
+		entityIdField.setAlignItems(FlexComponent.Alignment.CENTER);
+		entityIdField.addClassName(SMALL_GAP.getName());
+		FormLayout.FormItem entityIdFormItem = federationLayout.addFormItem(entityIdField,
+				msg.getMessage("OAuthAuthenticatorEditor.federationEntityId"));
+		entityIdFormItem.setVisible(false);
+
+		TextField federationMetadataUrl = new TextField();
+		federationMetadataUrl.setWidth(RICH_FIELD_BIG.value());
+		federationMetadataUrl.setReadOnly(true);
+		federationMetadataUrl.setValue(buildFederationEntityUrl(name.getValue()));
+		name.addValueChangeListener(e -> federationMetadataUrl.setValue(buildFederationEntityUrl(e.getValue())));
+		CopyToClipboardButton copyMetadataUrl = new CopyToClipboardButton(msg::getMessage, federationMetadataUrl);
+		HorizontalLayout metadataUrlField = new HorizontalLayout(federationMetadataUrl, copyMetadataUrl);
+		metadataUrlField.setAlignItems(FlexComponent.Alignment.CENTER);
+		metadataUrlField.addClassName(SMALL_GAP.getName());
+		FormLayout.FormItem metadataUrlFormItem = federationLayout.addFormItem(metadataUrlField,
+				msg.getMessage("OAuthAuthenticatorEditor.federationEntityUrl"));
+		metadataUrlFormItem.setVisible(false);
+
 		Set<String> credentialNames = getCredentialNames();
 
 		ComboBox<String> federationCredential = new ComboBox<>();
@@ -182,24 +211,34 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		federationLayout.addFormItem(federationCredential,
 				msg.getMessage("OAuthAuthenticatorEditor.federationCredential"));
 		configBinder.forField(federationCredential)
+				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isEmpty()),
+						msg.getMessage("selectionRequired"))
 				.bind("federationCredential");
 
 		ComboBox<String> authenticationCredential = new ComboBox<>();
 		authenticationCredential.setItems(credentialNames);
 		federationLayout.addFormItem(authenticationCredential, msg.getMessage("OAuthAuthenticatorEditor.authenticationCredential"));
 		configBinder.forField(authenticationCredential)
+				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isEmpty()),
+						msg.getMessage("selectionRequired"))
 				.bind("authenticationCredential");
 
 		TextField superiorEntityId = new TextField();
 		superiorEntityId.setWidth(TEXT_FIELD_BIG.value());
 		federationLayout.addFormItem(superiorEntityId, msg.getMessage("OAuthAuthenticatorEditor.superiorEntityId"));
 		configBinder.forField(superiorEntityId)
+				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isEmpty()),
+						msg.getMessage("fieldRequired"))
+				.withValidator(this::validateEntityId, msg.getMessage("OAuthAuthenticatorEditor.invalidEntityId"))
 				.bind("federationSuperiorEntityId");
 
 		TextField trustAnchorId = new TextField();
 		trustAnchorId.setWidth(TEXT_FIELD_BIG.value());
 		federationLayout.addFormItem(trustAnchorId, msg.getMessage("OAuthAuthenticatorEditor.federationTrustAnchorId"));
 		configBinder.forField(trustAnchorId)
+				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isEmpty()),
+						msg.getMessage("fieldRequired"))
+				.withValidator(this::validateEntityId, msg.getMessage("OAuthAuthenticatorEditor.invalidEntityId"))
 				.bind("federationTrustAnchorId");
 
 		com.vaadin.flow.component.textfield.TextArea jwks = new com.vaadin.flow.component.textfield.TextArea();
@@ -207,15 +246,48 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		jwks.setHeight("8em");
 		federationLayout.addFormItem(jwks, msg.getMessage("OAuthAuthenticatorEditor.federationJwks"));
 		configBinder.forField(jwks)
+				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isEmpty()),
+						msg.getMessage("fieldRequired"))
+				.withValidator(v -> {
+					if (v == null || v.isEmpty())
+						return true;
+					try
+					{
+						com.nimbusds.jose.jwk.JWKSet.parse(v);
+						return true;
+					} catch (java.text.ParseException e)
+					{
+						return false;
+					}
+				}, msg.getMessage("OAuthAuthenticatorEditor.federationJwksInvalid"))
 				.bind("federationJwks");
+
+		IntegerField metadataValidity = new IntegerField();
+		metadataValidity.setStepButtonsVisible(true);
+		federationLayout.addFormItem(metadataValidity,
+				msg.getMessage("OAuthAuthenticatorEditor.federationMetadataValidity"));
+		configBinder.forField(metadataValidity)
+				.asRequired(msg.getMessage("notAPositiveNumber"))
+				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null))
+				.bind("federationMetadataValidity");
+
+		federationCredential.setEnabled(false);
+		authenticationCredential.setEnabled(false);
+		superiorEntityId.setEnabled(false);
+		trustAnchorId.setEnabled(false);
+		jwks.setEnabled(false);
+		metadataValidity.setEnabled(false);
 
 		federationMembership.addValueChangeListener(e -> {
 			boolean enabled = e.getValue();
+			entityIdFormItem.setVisible(enabled);
+			metadataUrlFormItem.setVisible(enabled);
 			federationCredential.setEnabled(enabled);
 			authenticationCredential.setEnabled(enabled);
 			superiorEntityId.setEnabled(enabled);
 			trustAnchorId.setEnabled(enabled);
 			jwks.setEnabled(enabled);
+			metadataValidity.setEnabled(enabled);
 		});
 
 		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("OAuthAuthenticatorEditor.openIDFederationMembership"),
@@ -236,10 +308,36 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		return Set.of();
 	}
 
+	private boolean validateEntityId(String value)
+	{
+		if (value == null || value.isEmpty())
+			return true;
+		try
+		{
+			URI uri = new URI(value);
+			return "https".equals(uri.getScheme()) && uri.getHost() != null;
+		} catch (java.net.URISyntaxException e)
+		{
+			return false;
+		}
+	}
+
 	private String buildReturnURL()
 	{
 		URL serverURL = advertisedAddrProvider.get();
 		return serverURL.toExternalForm() + SharedEndpointManagement.CONTEXT_PATH + ResponseConsumerServlet.PATH;
+	}
+
+	private String buildFederationEntityId(String authenticatorName)
+	{
+		URL serverURL = advertisedAddrProvider.get();
+		return serverURL.toExternalForm() + SharedEndpointManagement.CONTEXT_PATH
+				+ OAuthFederationEntityStatementServlet.PATH + "/" + authenticatorName;
+	}
+
+	private String buildFederationEntityUrl(String authenticatorName)
+	{
+		return buildFederationEntityId(authenticatorName) + OAuthFederationEntityStatementServlet.WELL_KNOWN_SUFFIX;
 	}
 	
 	@Override

@@ -96,6 +96,9 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.oauth.client.federation.OAuthFederationEntityStatementConfig;
+import pl.edu.icm.unity.oauth.client.federation.OAuthFederationEntityStatementServlet;
+import pl.edu.icm.unity.oauth.client.federation.OAuthFederationMetadataManager;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
 
@@ -118,30 +121,37 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 	private OAuthClientProperties config;
 	private final String responseConsumerAddress;
+	private final String federationEntityBaseUrl;
 	private final OAuthContextsManagement contextManagement;
 	private final PKIManagement pkiManagement;
 	private final MessageSource msg;
 	private final OAuthDiscoveryMetadataCache metadataManager;
 	private final OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler;
-	
+	private final OAuthFederationMetadataManager federationManager;
+
 	@Autowired
 	public OAuth2Verificator(MessageSource msg, AdvertisedAddressProvider advertisedAddrProvider,
 			SharedEndpointManagement sharedEndpointManagement,
 			OAuthContextsManagement contextManagement,
 			PKIManagement pkiManagement,
 			RemoteAuthnResultTranslator processor,
-			OAuthDiscoveryMetadataCache metadataManager, OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler)
+			OAuthDiscoveryMetadataCache metadataManager,
+			OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler,
+			OAuthFederationMetadataManager federationManager)
 	{
 		super(NAME, DESC, OAuthExchange.ID, processor);
 		URL baseAddress = advertisedAddrProvider.get();
 		String baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.responseConsumerAddress = baseAddress + baseContext + ResponseConsumerServlet.PATH;
+		this.federationEntityBaseUrl = baseAddress + baseContext + OAuthFederationEntityStatementServlet.PATH;
 		this.contextManagement = contextManagement;
 		this.pkiManagement = pkiManagement;
 		this.msg = msg;
 		this.metadataManager = metadataManager;
 		this.remoteAuthenticationInputAssembler = remoteAuthenticationInputAssembler;
+		this.federationManager = federationManager;
 	}
+
 
 	@Override
 	public String getSerializedConfiguration()
@@ -164,13 +174,62 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
-			config = new OAuthClientProperties(properties, pkiManagement);			
+			config = new OAuthClientProperties(properties, pkiManagement);
+			updateFederationConfiguration();
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the OAuth2 verificator", e);
 		} catch (IOException e)
 		{
 			throw new InternalException("Invalid configuration of the OAuth2 verificator(?)", e);
+		}
+	}
+
+	@Override
+	public void destroy()
+	{
+		federationManager.updateConfiguration(instanceName, null);
+	}
+
+	private void updateFederationConfiguration()
+	{
+		if (instanceName == null)
+			return;
+		if (!config.getBooleanValue(OAuthClientProperties.FEDERATION_MEMBERSHIP_ENABLED))
+		{
+			federationManager.updateConfiguration(instanceName, null);
+			return;
+		}
+
+		String federationCredName = config.getValue(OAuthClientProperties.FEDERATION_CREDENTIAL);
+		String authCredName = config.getValue(OAuthClientProperties.AUTHENTICATION_CREDENTIAL);
+
+		if (Strings.isNullOrEmpty(federationCredName))
+		{
+			log.warn("Federation membership enabled but no federation credential configured for authenticator: {}",
+					instanceName);
+			federationManager.updateConfiguration(instanceName, null);
+			return;
+		}
+
+		try
+		{
+			eu.emi.security.authn.x509.X509Credential federationCred =
+					pkiManagement.getCredential(federationCredName);
+			eu.emi.security.authn.x509.X509Credential authCred =
+					Strings.isNullOrEmpty(authCredName) ? null : pkiManagement.getCredential(authCredName);
+
+			String entityId = federationEntityBaseUrl + "/" + instanceName;
+			String superiorEntityId = config.getValue(OAuthClientProperties.FEDERATION_SUPERIOR_ENTITY_ID);
+			long metadataValidity = config.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY);
+
+			OAuthFederationEntityStatementConfig federationConfig = new OAuthFederationEntityStatementConfig(
+					entityId, federationCred, authCred, responseConsumerAddress, superiorEntityId, metadataValidity);
+			federationManager.updateConfiguration(instanceName, federationConfig);
+		} catch (EngineException e)
+		{
+			log.error("Failed to configure federation for authenticator: {}", instanceName, e);
+			federationManager.updateConfiguration(instanceName, null);
 		}
 	}
 
@@ -650,17 +709,23 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	public static class Factory extends AbstractCredentialVerificatorFactory
 	{
 		@Autowired
-		public Factory(ObjectFactory<OAuth2Verificator> factory, 
+		public Factory(ObjectFactory<OAuth2Verificator> factory,
 				SharedEndpointManagement sharedEndpointManagement,
 				OAuthContextsManagement contextManagement,
-				SharedRemoteAuthenticationContextStore remoteAuthnContextStore) throws EngineException
+				SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
+				OAuthFederationMetadataManager federationManager) throws EngineException
 		{
 			super(NAME, DESC, factory);
-			
-			ServletHolder servlet = new ServletHolder(new ResponseConsumerServlet(contextManagement, 
-					remoteAuthnContextStore));
+
+			ServletHolder responseConsumerServlet = new ServletHolder(
+					new ResponseConsumerServlet(contextManagement, remoteAuthnContextStore));
 			sharedEndpointManagement.deployInternalEndpointServlet(
-					ResponseConsumerServlet.PATH, servlet, false);
+					ResponseConsumerServlet.PATH, responseConsumerServlet, false);
+
+			ServletHolder federationServlet = new ServletHolder(
+					new OAuthFederationEntityStatementServlet(federationManager));
+			sharedEndpointManagement.deployInternalEndpointServlet(
+					OAuthFederationEntityStatementServlet.PATH, federationServlet, false);
 		}
 	}	
 }

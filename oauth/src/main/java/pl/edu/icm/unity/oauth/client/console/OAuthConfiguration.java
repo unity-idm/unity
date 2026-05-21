@@ -34,11 +34,13 @@ public class OAuthConfiguration
 	private String authenticationCredential;
 	private String federationTrustAnchorId;
 	private String federationJwks;
+	private int federationMetadataValidity;
 	
 	public OAuthConfiguration()
 	{
 		providers = new ArrayList<>();
 		defAccountAssociation = true;
+		federationMetadataValidity = OAuthClientProperties.DEFAULT_FEDERATION_METADATA_VALIDITY;
 	}
 
 	public void fromProperties(String properties, MessageSource msg, PKIManagement pkiMan,
@@ -59,9 +61,10 @@ public class OAuthConfiguration
 		federationMembershipEnabled = oauthProp.getBooleanValue(OAuthClientProperties.FEDERATION_MEMBERSHIP_ENABLED);
 		federationCredential = oauthProp.getValue(OAuthClientProperties.FEDERATION_CREDENTIAL);
 		federationSuperiorEntityId = oauthProp.getValue(OAuthClientProperties.FEDERATION_SUPERIOR_ENTITY_ID);
-		authenticationCredential = oauthProp.getValue(OAuthClientProperties.PROTOCOL_CREDENTIAL);
+		authenticationCredential = oauthProp.getValue(OAuthClientProperties.AUTHENTICATION_CREDENTIAL);
 		federationTrustAnchorId = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID);
 		federationJwks = oauthProp.getValue(OAuthClientProperties.FEDERATION_JWKS);
+		federationMetadataValidity = oauthProp.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY);
 		
 		providers.clear();
 		Set<String> keys = oauthProp.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
@@ -102,7 +105,7 @@ public class OAuthConfiguration
 			}
 			if (authenticationCredential != null && !authenticationCredential.isEmpty())
 			{
-				raw.put(OAuthClientProperties.P + OAuthClientProperties.PROTOCOL_CREDENTIAL, authenticationCredential);
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.AUTHENTICATION_CREDENTIAL, authenticationCredential);
 			}
 			if (federationTrustAnchorId != null && !federationTrustAnchorId.isEmpty())
 			{
@@ -112,6 +115,8 @@ public class OAuthConfiguration
 			{
 				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_JWKS, federationJwks);
 			}
+			raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_METADATA_VALIDITY,
+					String.valueOf(federationMetadataValidity));
 		}
 		
 		for (OAuthProviderConfiguration provider : providers)
@@ -202,5 +207,15 @@ public class OAuthConfiguration
 	public void setFederationJwks(String federationJwks)
 	{
 		this.federationJwks = federationJwks;
+	}
+
+	public int getFederationMetadataValidity()
+	{
+		return federationMetadataValidity;
+	}
+
+	public void setFederationMetadataValidity(int federationMetadataValidity)
+	{
+		this.federationMetadataValidity = federationMetadataValidity;
 	}
 }

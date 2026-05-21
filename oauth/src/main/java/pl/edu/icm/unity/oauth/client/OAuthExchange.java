@@ -28,10 +28,12 @@ public interface OAuthExchange extends CredentialExchange
 	
 	OAuthClientProperties getSettings();
 	
-	OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			AuthenticationStepContext authnStepContext, 
-			LoginMachineDetails initialLoginMachine, 
+	OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity,
+			AuthenticationStepContext authnStepContext,
+			LoginMachineDetails initialLoginMachine,
 			String ultimateReturnURL,
-			AuthenticationTriggeringContext authnTriggeringContext) 
+			AuthenticationTriggeringContext authnTriggeringContext)
 			throws URISyntaxException, SerializeException, ParseException, IOException;
+
+	void destroy();
 }

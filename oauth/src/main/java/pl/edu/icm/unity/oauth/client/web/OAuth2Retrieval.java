@@ -72,6 +72,12 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 		super.setCredentialExchange(e, id);
 		oAuthProxyAuthnHandler = new OAuthProxyAuthnHandler((OAuthExchange) e, id);
 	}
+
+	@Override
+	public void destroy()
+	{
+		credentialExchange.destroy();
+	}
 	
 	@Override
 	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext)
