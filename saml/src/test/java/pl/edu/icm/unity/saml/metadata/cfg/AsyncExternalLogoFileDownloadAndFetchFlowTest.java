@@ -77,29 +77,22 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 	}
 
 	@Test
-	public void shouldReplaceCachedLogoWhenExtensionChanges()
+	public void shouldReplaceCachedLogoWhenExtensionChanges() throws IOException
 	{
 		EntitiesDescriptorDocument oldMetadata = loadMetadata("src/test/resources/metadata-of-signed-response.xml");
 		EntitiesDescriptorDocument newMetadata = loadMetadataWithLogoMimeType("image/jpeg");
 		TrustedIdPKey trustedIdPKey = TrustedIdPKey.metadataEntity("http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php", 1);
 		String baseName = LogoFilenameUtils.getLogoFileBasename(trustedIdPKey, "en");
 
-		fileDownloader.downloadLogoFilesAsync(oldMetadata, null);
-		Awaitility.await()
-				.atMost(Durations.TEN_SECONDS)
-				.untilAsserted(() -> assertThat(getLogoFile(oldMetadata, baseName, "png")).isFile());
+		fileDownloader.downloadLogoFilesAsync(oldMetadata, null).join();
+		assertThat(getLogoFile(oldMetadata, baseName, "png")).isFile();
 
-		fileDownloader.downloadLogoFilesAsync(newMetadata, null);
+		fileDownloader.downloadLogoFilesAsync(newMetadata, null).join();
 
-		Awaitility.await()
-				.atMost(Durations.TEN_SECONDS)
-				.untilAsserted(() ->
-				{
-					assertThat(getLogoFile(newMetadata, baseName, "jpeg")).isFile();
-					assertThat(getLogoFile(newMetadata, baseName, "png")).doesNotExist();
-					assertThat(Files.readString(getLogoPointer(newMetadata, baseName).toPath())).isEqualTo("jpeg");
-					checkIfStagingCleaned(newMetadata.getEntitiesDescriptor().getID());
-				});
+		assertThat(getLogoFile(newMetadata, baseName, "jpeg")).isFile();
+		assertThat(getLogoFile(newMetadata, baseName, "png")).doesNotExist();
+		assertThat(Files.readString(getLogoPointer(newMetadata, baseName).toPath())).isEqualTo("jpeg");
+		checkIfStagingCleaned(newMetadata.getEntitiesDescriptor().getID());
 	}
 
 	private static void createOldFiles(String oldFileName, String oldFileExtension, EntitiesDescriptorDocument metadata)

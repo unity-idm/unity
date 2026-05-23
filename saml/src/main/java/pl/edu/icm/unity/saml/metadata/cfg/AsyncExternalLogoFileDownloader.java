@@ -70,13 +70,13 @@ public class AsyncExternalLogoFileDownloader
 	}
 
 	@SuppressWarnings("unchecked")
-	public void downloadLogoFilesAsync(EntitiesDescriptorDocument entitiesDescriptorDocument, String httpsTruststore)
+	public CompletableFuture<Void> downloadLogoFilesAsync(EntitiesDescriptorDocument entitiesDescriptorDocument, String httpsTruststore)
 	{
 		String federationId = entitiesDescriptorDocument.getEntitiesDescriptor().getID();
 		if (!currentlyDownloadingFederation.add(federationId))
 		{
 			log.info("Logos of federation {} are being downloaded, won't start a new downloading process", federationId);
-			return;
+			return CompletableFuture.completedFuture(null);
 		}
 		CompletableFuture<Set<String>>[] savedFilesNamesFutures;
 		try
@@ -97,9 +97,9 @@ public class AsyncExternalLogoFileDownloader
 		{
 			currentlyDownloadingFederation.remove(federationId);
 			log.error("This exception occurred when metadata has been converted to TrustedIdPs", e);
-			return;
+			return CompletableFuture.completedFuture(null);
 		}
-		CompletableFuture.allOf(savedFilesNamesFutures)
+		return CompletableFuture.allOf(savedFilesNamesFutures)
 			.thenRunAsync(
 				() -> cleanUp(entitiesDescriptorDocument, savedFilesNamesFutures),
 				executorService)
@@ -152,7 +152,7 @@ public class AsyncExternalLogoFileDownloader
 		{
 			paths.filter(Files::isRegularFile)
 					.filter(path -> savedFilesBasedNames.stream().noneMatch(name -> path.getFileName().toString().startsWith(name)))
-					.forEach(path -> path.toFile().delete());
+					.forEach(AsyncExternalLogoFileDownloader::deleteCachedLogoFileIfExists);
 		}
 	}
 
@@ -251,7 +251,18 @@ public class AsyncExternalLogoFileDownloader
 			paths.filter(Files::isRegularFile)
 					.filter(path -> path.getFileName().toString().startsWith(name + "."))
 					.filter(path -> !path.getFileName().toString().equals(currentFileName))
-					.forEach(path -> path.toFile().delete());
+					.forEach(AsyncExternalLogoFileDownloader::deleteCachedLogoFileIfExists);
+		}
+	}
+
+	private static void deleteCachedLogoFileIfExists(Path path)
+	{
+		try
+		{
+			Files.deleteIfExists(path);
+		} catch (IOException e)
+		{
+			log.warn("Failed to delete cached logo file {}", path, e);
 		}
 	}
 
