@@ -5,8 +5,6 @@
 
 package pl.edu.icm.unity.saml.metadata.cfg;
 
-import org.apache.commons.io.FileExistsException;
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -225,15 +224,34 @@ public class AsyncExternalLogoFileDownloader
 		Files.write(imageFile.toPath(), decoded);
 		File pointerFile = createFile(catalog, name);
 		Files.write(pointerFile.toPath(), extension.getBytes(StandardCharsets.UTF_8));
+		Path finalImagePath = Path.of(workspaceDir, catalog, name + "." + extension);
+		Path finalPointerPath = Path.of(workspaceDir, catalog, name);
 		try
 		{
-			FileUtils.moveFile(imageFile, new File(Path.of(workspaceDir, catalog, name + "." + extension).toUri()));
-			FileUtils.moveFile(pointerFile, new File(Path.of(workspaceDir, catalog, name).toUri()));
+			Files.createDirectories(finalImagePath.getParent());
+			Files.move(imageFile.toPath(), finalImagePath, StandardCopyOption.REPLACE_EXISTING);
+			Files.move(pointerFile.toPath(), finalPointerPath, StandardCopyOption.REPLACE_EXISTING);
+			removeObsoleteLogoFiles(catalog, name, extension);
 		}
-		catch (FileExistsException e)
+		finally
 		{
 			imageFile.delete();
 			pointerFile.delete();
+		}
+	}
+
+	private void removeObsoleteLogoFiles(String catalog, String name, String currentExtension) throws IOException
+	{
+		Path finalDir = Path.of(workspaceDir, catalog);
+		if(!Files.exists(finalDir))
+			return;
+		String currentFileName = name + "." + currentExtension;
+		try (Stream<Path> paths = Files.list(finalDir))
+		{
+			paths.filter(Files::isRegularFile)
+					.filter(path -> path.getFileName().toString().startsWith(name + "."))
+					.filter(path -> !path.getFileName().toString().equals(currentFileName))
+					.forEach(path -> path.toFile().delete());
 		}
 	}
 
