@@ -8,6 +8,7 @@ package pl.edu.icm.unity.engine.project;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -269,6 +270,7 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 		assertThat(form.getLayout().getElements()).containsExactly(
 				new FormParameterElement(FormLayoutElement.GROUP, 0),
 				new FormParameterElement(FormLayoutElement.POLICY_AGREEMENT, 0));
+		verify(mockEnqFormDB).update(form);
 	}
 
 	@Test
