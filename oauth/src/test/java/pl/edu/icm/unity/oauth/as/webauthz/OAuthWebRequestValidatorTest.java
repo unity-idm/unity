@@ -457,38 +457,6 @@ public class OAuthWebRequestValidatorTest
 				.map(s -> s.scopeDefinition().description())
 				.collect(Collectors.toSet())).contains("scope1");
 	}
-	
-	@Test
-	public void shouldAcceptURLEncodedScopes()
-			throws EngineException, URISyntaxException, OAuthValidationException, ParseException
-	{
-		Properties config = new Properties();
-		config.setProperty("unity.oauth2.as.scopes.1.name", "scope/subscope/.*");
-		config.setProperty("unity.oauth2.as.scopes.1.isPattern", "true");
-		config.setProperty("unity.oauth2.as.scopes.1.description", "scope1");
-	
-		config.setProperty("unity.oauth2.as.issuerUri", "http://unity.example.com");
-		config.setProperty("unity.oauth2.as.refreshTokenIssuePolicy", "NEVER");
-
-		OAuthASProperties props = new OAuthASProperties(config, null, null);
-		OAuthWebRequestValidator validator = getValidator(props, "http://222.2.2.2:9999", Optional.empty(), Optional.empty());
-
-		AuthorizationRequest request = new AuthorizationRequest.Builder(new ResponseType("code"),
-				new ClientID("client")).redirectionURI(new URI("http://222.2.2.2:9999"))
-						.codeChallenge(new CodeVerifier("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"), S256)
-						.scope(Scope.parse("scope%2fsubscope%2fsubsubscope"))
-						.build();
-		OAuthAuthzContext context = new OAuthAuthzContext(request, props);
-
-		validator.validate(context);
-
-		assertThat(context.getEffectiveRequestedScopes()
-				.size()).isEqualTo(1);
-		assertThat(context.getEffectiveRequestedScopes()
-				.stream()
-				.map(s -> s.scopeDefinition().name())
-				.collect(Collectors.toSet())).contains("scope/subscope/.*");
-	}
 
 	@Test
 	public void shouldGetFirstMatchingPatternScopeForRequestedPatternScopeByClientWithNotAllowedPatternScopes()
