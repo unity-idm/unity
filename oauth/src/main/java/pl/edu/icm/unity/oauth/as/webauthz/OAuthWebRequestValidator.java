@@ -6,8 +6,6 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -275,16 +273,8 @@ class OAuthWebRequestValidator
 	private void validateAndRecordScopesAndClaimFilters(Map<String, AttributeExt> clientAttributes, OAuthAuthzContext context,
 			AuthorizationRequest authzRequest) throws OAuthValidationException
 	{
-		
-		Scope requestedURLDecodedScopes = Optional.ofNullable(authzRequest.getScope())
-				.map(scopes -> scopes.stream()
-						.map(scope -> URLDecoder.decode(scope.getValue(), StandardCharsets.UTF_8))
-						.toList())
-				.map(Scope::parse)
-				.orElse(null);
-				
-		context.setClaimValueFilters(AttributeValueFilterUtils.getFiltersFromScopes(requestedURLDecodedScopes));
-		Scope requestedScopes = AttributeValueFilterUtils.getScopesWithoutFilterClaims(requestedURLDecodedScopes);
+		context.setClaimValueFilters(AttributeValueFilterUtils.getFiltersFromScopes(authzRequest.getScope()));
+		Scope requestedScopes = AttributeValueFilterUtils.getScopesWithoutFilterClaims(authzRequest.getScope());
 	
 		if (requestedScopes != null)
 		{			
