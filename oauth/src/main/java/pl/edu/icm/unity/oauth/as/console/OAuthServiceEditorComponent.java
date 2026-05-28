@@ -55,6 +55,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 
 	OAuthServiceEditorComponent(MessageSource msg, PKIManagement pkiMan, OAuthEditorGeneralTab generalTab, OAuthEditorClientsTab clientsTab,
 			IdpEditorUsersTab usersTab, WebServiceAuthenticationTab webAuthTab, PolicyAgreementsTab policyAgreementTab,
+			OAuthEditorFederationTab federationTab,
 			FileStorageService fileStorageService, VaadinLogoImageLoader imageAccessService,
 			OAuthScopesService scopeService, ServiceDefinition toEdit,
 			List<Group> allGroups, Function<String, List<OAuthClient>> systemClientsSupplier)
@@ -89,6 +90,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		generalTab.initUI(oauthServiceWebAuthzBinder, oauthServiceTokenBinder, oauthConfigBinder);
 		clientsTab.initUI(groupsWithAutoGen, oauthServiceTokenBinder, oauthConfigBinder, clientsBinder);
 		usersTab.initUI(oauthConfigBinder);
+		federationTab.initUI(oauthConfigBinder);
 
 		generalTab.addNameValueChangeListener(value -> {
 			String displayedName = (value != null && !value.isEmpty()) ? value
@@ -105,6 +107,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		registerTab(usersTab);
 		registerTab(webAuthTab);
 		registerTab(policyAgreementTab);
+		registerTab(federationTab);
 
 		OAuthServiceDefinition oauthServiceToEdit;
 		OAuthServiceConfiguration oauthConfig = new OAuthServiceConfiguration(msg, allGroups, scopeService);

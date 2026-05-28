@@ -95,6 +95,13 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_TRUSTSTORE = "httpClientTruststore";
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_HOSTNAME_CHECKING = "httpClientHostnameChecking";
 	
+	public static final String FEDERATION_TRUST_ANCHOR_ID = "federationTrustAnchorId";
+	public static final String FEDERATION_TRUST_ANCHOR_JWKS = "federationTrustAnchorJwks";
+	public static final String FEDERATION_CREDENTIAL = "federationCredential";
+	public static final String FEDERATION_SUPERIOR_ENTITY_ID = "federationSuperiorEntityId";
+	public static final String FEDERATION_METADATA_VALIDITY = "federationMetadataValidity";
+	public static final int DEFAULT_FEDERATION_METADATA_VALIDITY = 86400;
+
 	public static final String SIGNING_ALGORITHM = "signingAlgorithm";
 	public static final String SIGNING_SECRET = "signingSecret";
 
@@ -189,6 +196,18 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("Script triggering scope - pattern"));
 		
 		
+		defaults.put(FEDERATION_TRUST_ANCHOR_ID, new PropertyMD()
+				.setDescription("Entity ID of the trusted OpenID federation trust anchor."));
+		defaults.put(FEDERATION_TRUST_ANCHOR_JWKS, new PropertyMD()
+				.setDescription("JWKS of the trusted OpenID federation trust anchor."));
+		defaults.put(FEDERATION_CREDENTIAL, new PropertyMD()
+				.setDescription("Credential used to sign the OpenID federation entity statement."));
+		defaults.put(FEDERATION_SUPERIOR_ENTITY_ID, new PropertyMD()
+				.setDescription("Entity ID of the superior federation entity (used in authority_hints)."));
+		defaults.put(FEDERATION_METADATA_VALIDITY,
+				new PropertyMD(String.valueOf(DEFAULT_FEDERATION_METADATA_VALIDITY)).setInt().setPositive()
+						.setDescription("Validity period in seconds of the generated federation entity statement."));
+
 		defaults.put(SIGNING_ALGORITHM, new PropertyMD(SigningAlgorithms.RS256)
 				.setDescription("An algorithm used for JWT access token and id token (OIDC mode) signing."));
 		defaults.put(SIGNING_SECRET,

@@ -34,6 +34,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
+import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationEntityStatementResource;
 import pl.edu.icm.unity.oauth.as.token.access.AccessTokenResourceFactory;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
@@ -104,7 +105,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 				getServletUrl(PATH));
 		coordinator.registerTokenEndpoint(config.getValue(OAuthASProperties.ISSUER_URI), 
 				getServletUrl(""));
-		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH);
+		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", "/.well-known/openid-federation",
+				TOKEN_INFO_PATH, USER_INFO_PATH);
 		addOptionallyAuthenticatedPaths(TOKEN_REVOCATION_PATH, TOKEN_PATH);
 	}
 	
@@ -124,6 +126,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(accessTokenResourceFactory.getHandler(config, description));
 			ret.add(new DiscoveryResource(config, coordinator, scopeService));
+			ret.add(new OAuthASFederationEntityStatementResource(config, coordinator, scopeService, pkiManagement));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(accessTokenRepository));
 			ret.add(tokenIntrospectionResourceFactory.getTokenIntrospection(config));

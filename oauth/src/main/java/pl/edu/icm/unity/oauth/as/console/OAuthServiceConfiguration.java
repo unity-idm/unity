@@ -76,6 +76,11 @@ public class OAuthServiceConfiguration
 	private List<TrustedUpstreamASBean> trustedUpstreamAS;
 	private List<AuthorizationScriptBean> authorizationScripts;
 	private boolean tokenExchangeSupport;
+	private String federationTrustAnchorId;
+	private String federationTrustAnchorJwks;
+	private String federationCredential;
+	private String federationSuperiorEntityId;
+	private int federationMetadataValidity;
 	
 	public OAuthServiceConfiguration()
 	{
@@ -120,6 +125,7 @@ public class OAuthServiceConfiguration
 		setRefreshTokenRotationForPublicClients(false);
 		trustedUpstreamAS = new ArrayList<>();
 		authorizationScripts = new ArrayList<>();
+		federationMetadataValidity = OAuthASProperties.DEFAULT_FEDERATION_METADATA_VALIDITY;
 	}
 
 	public String toProperties(MessageSource msg, PKIManagement pkiForValidation)
@@ -305,6 +311,17 @@ public class OAuthServiceConfiguration
 			throw new InternalException("Can't serialize oauth idp translation profile to JSON", e);
 		}
 
+		if (!Strings.isNullOrEmpty(federationTrustAnchorId))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_TRUST_ANCHOR_ID, federationTrustAnchorId);
+		if (!Strings.isNullOrEmpty(federationTrustAnchorJwks))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_TRUST_ANCHOR_JWKS, federationTrustAnchorJwks);
+		if (!Strings.isNullOrEmpty(federationCredential))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_CREDENTIAL, federationCredential);
+		if (!Strings.isNullOrEmpty(federationSuperiorEntityId))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_SUPERIOR_ENTITY_ID, federationSuperiorEntityId);
+		raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_METADATA_VALIDITY,
+				String.valueOf(federationMetadataValidity));
+
 		raw.put(OAuthASProperties.P + OAuthASProperties.CLIENTS_GROUP, clientGroup.group().toString());
 		raw.put(OAuthASProperties.P + OAuthASProperties.USERS_GROUP, usersGroup.group().toString());
 
@@ -409,6 +426,12 @@ public class OAuthServiceConfiguration
 					.getValue(trustedUpstreamKey + OAuthASProperties.TRUSTED_UPSTREAM_AS_CLIENT_TRUSTSTORE));
 			trustedUpstreamAS.add(trustedUpstreamASBean);
 		}
+
+		federationTrustAnchorId = oauthProperties.getValue(OAuthASProperties.FEDERATION_TRUST_ANCHOR_ID);
+		federationTrustAnchorJwks = oauthProperties.getValue(OAuthASProperties.FEDERATION_TRUST_ANCHOR_JWKS);
+		federationCredential = oauthProperties.getValue(OAuthASProperties.FEDERATION_CREDENTIAL);
+		federationSuperiorEntityId = oauthProperties.getValue(OAuthASProperties.FEDERATION_SUPERIOR_ENTITY_ID);
+		federationMetadataValidity = oauthProperties.getIntValue(OAuthASProperties.FEDERATION_METADATA_VALIDITY);
 
 		openIDConnect = isScopeEnabled(OIDCScopeValue.OPENID.getValue());
 		tokenExchangeSupport = isScopeEnabled(OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
@@ -781,5 +804,55 @@ public class OAuthServiceConfiguration
 	public void setTokenExchangeSupport(boolean exchangeToken)
 	{
 		this.tokenExchangeSupport = exchangeToken;
+	}
+
+	public String getFederationTrustAnchorId()
+	{
+		return federationTrustAnchorId;
+	}
+
+	public void setFederationTrustAnchorId(String federationTrustAnchorId)
+	{
+		this.federationTrustAnchorId = federationTrustAnchorId;
+	}
+
+	public String getFederationTrustAnchorJwks()
+	{
+		return federationTrustAnchorJwks;
+	}
+
+	public void setFederationTrustAnchorJwks(String federationTrustAnchorJwks)
+	{
+		this.federationTrustAnchorJwks = federationTrustAnchorJwks;
+	}
+
+	public String getFederationCredential()
+	{
+		return federationCredential;
+	}
+
+	public void setFederationCredential(String federationCredential)
+	{
+		this.federationCredential = federationCredential;
+	}
+
+	public String getFederationSuperiorEntityId()
+	{
+		return federationSuperiorEntityId;
+	}
+
+	public void setFederationSuperiorEntityId(String federationSuperiorEntityId)
+	{
+		this.federationSuperiorEntityId = federationSuperiorEntityId;
+	}
+
+	public int getFederationMetadataValidity()
+	{
+		return federationMetadataValidity;
+	}
+
+	public void setFederationMetadataValidity(int federationMetadataValidity)
+	{
+		this.federationMetadataValidity = federationMetadataValidity;
 	}
 }

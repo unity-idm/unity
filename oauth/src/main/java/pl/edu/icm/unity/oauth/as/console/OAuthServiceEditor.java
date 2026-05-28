@@ -144,9 +144,10 @@ class OAuthServiceEditor implements ServiceEditor
 				allAttributes);
 		
 		PolicyAgreementsTab policyAgreementTab = new PolicyAgreementsTab(msg, policyDocuments);
-		
+		OAuthEditorFederationTab federationTab = new OAuthEditorFederationTab(msg, credentials);
+
 		editor = new OAuthServiceEditorComponent(msg, pkiManagement, generalTab, clientsTab, usersTab, webAuthTab, policyAgreementTab,
-				fileStorageService, imageService, scopeService, endpoint, allGroups, systemClientsSupplier);
+				federationTab, fileStorageService, imageService, scopeService, endpoint, allGroups, systemClientsSupplier);
 		return editor;
 	}
 
