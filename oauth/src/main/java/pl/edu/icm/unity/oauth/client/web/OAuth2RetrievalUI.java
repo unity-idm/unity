@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.client.web;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -37,8 +36,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
 
 /**
  * UI part of OAuth retrieval. Shows a single provider, redirects to it if requested.
@@ -52,7 +51,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	private final MessageSource msg;
 	private final VaadinLogoImageLoader imageAccessService;
 	private final OAuthExchange credentialExchange;
-	private final String configKey;
+	private final OAuthProviderKey providerKey;
 	private final String idpKey;
 	private final VaadinAuthentication.Context context;
 	private final AuthenticationStepContext authenticationStepContext;
@@ -68,16 +67,18 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	private ExpectedIdentity expectedIdentity;
 
 
-	public OAuth2RetrievalUI(MessageSource msg, VaadinLogoImageLoader imageAccessService, OAuthExchange credentialExchange,
-	                         String configKey, VaadinAuthentication.Context context,
+	public OAuth2RetrievalUI(MessageSource msg, VaadinLogoImageLoader imageAccessService,
+	                         OAuthExchange credentialExchange,
+	                         OAuthProviderKey providerKey,
+	                         VaadinAuthentication.Context context,
 	                         AuthenticationStepContext authenticationStepContext,
 	                         NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
 		this.imageAccessService = imageAccessService;
 		this.credentialExchange = credentialExchange;
-		this.idpKey = authenticationStepContext.authnOptionId.getOptionKey();;
-		this.configKey = configKey;
+		this.providerKey = providerKey;
+		this.idpKey = authenticationStepContext.authnOptionId.getOptionKey();
 		this.context = context;
 		this.authenticationStepContext = authenticationStepContext;
 		this.notificationPresenter = notificationPresenter;
@@ -89,33 +90,29 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	{
 		return main;
 	}
-	
+
 	@Override
 	public Component getGridCompatibleComponent()
 	{
-		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
-		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
+		OAuthProviderConfiguration provider = credentialExchange.getSettings().providers().get(providerKey);
+		String name = provider.name.getValue(msg);
 		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), name);
 		idpComponent.addButtonClickListener(event -> startLogin());
 		idpComponent.setWidthFull();
 		return idpComponent;
 	}
-	
+
 	private void initUI()
 	{
 		redirectParam = installRequestHandler();
 
-		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-
-		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
-		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
-		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
+		OAuthProviderConfiguration provider = credentialExchange.getSettings().providers().get(providerKey);
+		String name = provider.name.getValue(msg);
+		String logoURI = provider.iconUrl != null ? provider.iconUrl.getValue(msg) : null;
 
 		Image logo = imageAccessService.loadImageFromUri(logoURI)
 				.orElse(new LocalOrRemoteResource());
 		logo.setClassName("u-logo-idp-image");
-
 
 		String signInLabel;
 		if (context == VaadinAuthentication.Context.LOGIN)
@@ -134,7 +131,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	{
 		return authenticationStepContext.authnOptionId.getAuthenticatorKey() + "." + idpKey;
 	}
-	
+
 	@Override
 	public void setAuthenticationCallback(VaadinAuthentication.AuthenticationCallback callback)
 	{
@@ -144,17 +141,15 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	@Override
 	public String getLabel()
 	{
-		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
-		return providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
+		OAuthProviderConfiguration provider = credentialExchange.getSettings().providers().get(providerKey);
+		return provider.name.getValue(msg);
 	}
 
 	@Override
 	public Image getImage()
 	{
-		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
-		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
+		OAuthProviderConfiguration provider = credentialExchange.getSettings().providers().get(providerKey);
+		String logoURI = provider.iconUrl != null ? provider.iconUrl.getValue(msg) : null;
 		return imageAccessService.loadImageFromUri(logoURI).orElse(null);
 	}
 
@@ -163,24 +158,21 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	{
 		idpComponent.setEnabled(true);
 	}
-	
+
 	private BasicNameValuePair installRequestHandler()
 	{
 		VaadinSession session = VaadinSession.getCurrent();
-		Collection<RequestHandler> requestHandlers = session.getRequestHandlers();
-		for (RequestHandler rh: requestHandlers)
+		for (RequestHandler rh: session.getRequestHandlers())
 		{
 			if (rh instanceof RedirectRequestHandler)
-			{
-				return ((RedirectRequestHandler)rh).getTriggeringParam();
-			}
+				return ((RedirectRequestHandler) rh).getTriggeringParam();
 		}
-	
-		RedirectRequestHandler rh = new RedirectRequestHandler(); 
+
+		RedirectRequestHandler rh = new RedirectRequestHandler();
 		session.addRequestHandler(rh);
 		return rh.getTriggeringParam();
 	}
-	
+
 	void startLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
@@ -195,7 +187,8 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 			try
 			{
 				LoginMachineDetails loginMachineDetails = LoginMachineDetailsExtractor.getLoginMachineDetailsFromCurrentRequest();
-				OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity),
+				OAuthContext context = credentialExchange.createRequest(providerKey,
+						Optional.ofNullable(expectedIdentity),
 						authenticationStepContext, loginMachineDetails,
 						ultimateReturnURL, callback.getTriggeringContext());
 				idpComponent.setEnabled(false);
@@ -210,8 +203,9 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 				clear();
 				return;
 			}
-			UI.getCurrent().getPage().open(currentRelativeURLProvider.getPathWithQueryParamsIncluding(redirectParam),
-				SELF_WINDOW_NAME);
+			UI.getCurrent().getPage().open(
+					currentRelativeURLProvider.getPathWithQueryParamsIncluding(redirectParam),
+					SELF_WINDOW_NAME);
 		});
 	}
 
@@ -225,7 +219,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	public void presetEntity(Entity authenticatedEntity)
 	{
 	}
-	
+
 	@Override
 	public void setExpectedIdentity(ExpectedIdentity expectedIdentity)
 	{

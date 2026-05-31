@@ -27,60 +27,59 @@ import pl.edu.icm.unity.engine.api.authn.remote.AuthenticationTriggeringContext;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
 
 /**
  * Support for automatic proxy authentication. Automatically redirects to external AS.
- * 
+ *
  * @author K. Benedyczak
  */
 public class OAuthProxyAuthnHandler
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH,
-			OAuthProxyAuthnHandler.class);
-	
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthProxyAuthnHandler.class);
+
 	private final OAuthExchange credentialExchange;
 	private final String authenticatorId;
-	
+
 	public OAuthProxyAuthnHandler(OAuthExchange credentialExchange, String authenticatorId)
 	{
 		this.credentialExchange = credentialExchange;
 		this.authenticatorId = authenticatorId;
 	}
 
-	private String getIdpConfigKey(HttpServletRequest httpRequest)
+	private OAuthProviderKey getProviderKey(HttpServletRequest httpRequest)
 	{
 		String requestedIdP = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
-		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		Set<String> keys = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
-		
+		Set<OAuthProviderKey> keys = credentialExchange.getSettings().providers().getKeys();
+
 		if (requestedIdP == null)
 		{
 			if (keys.size() > 1)
-				throw new IllegalStateException("OAuth authentication option was not requested with " 
+				throw new IllegalStateException("OAuth authentication option was not requested with "
 					+ PreferredAuthenticationHelper.IDP_SELECT_PARAM
 					+ " and there are multiple options installed: "
 					+ "can not perform automatic authentication.");
 			return keys.iterator().next();
 		}
-		
-		String authnOption = OAuthClientProperties.PROVIDERS + 
-				AuthenticationOptionKeyUtils.decodeOption(requestedIdP) + ".";
-		if (!keys.contains(authnOption))
-			throw new IllegalStateException("Client requested authN option " + authnOption 
-					+", which is not available in "
+
+		String optionId = AuthenticationOptionKeyUtils.decodeOption(requestedIdP);
+		OAuthProviderKey requestedKey = OAuthProviderKey.fromConfig(OAuthClientProperties.PROVIDERS + optionId + ".");
+		if (!credentialExchange.getSettings().providers().contains(requestedKey))
+			throw new IllegalStateException("Client requested authN option " + requestedKey
+					+ ", which is not available in "
 					+ "the authenticator selected for automated proxy authN. "
 					+ "Ignoring the request.");
-		return authnOption;
+		return requestedKey;
 	}
 
 	public boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext context) throws IOException
 	{
-		String idpKey = getIdpConfigKey(httpRequest);
-		return startLogin(idpKey, httpRequest, httpResponse, endpointPath, context);
+		OAuthProviderKey providerKey = getProviderKey(httpRequest);
+		return startLogin(providerKey, httpRequest, httpResponse, endpointPath, context);
 	}
-	
-	private boolean startLogin(String idpConfigKey, HttpServletRequest httpRequest,
+
+	private boolean startLogin(OAuthProviderKey providerKey, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse, String endpointPath, AuthenticatorStepContext authnContext) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
@@ -89,8 +88,9 @@ public class OAuthProxyAuthnHandler
 		OAuthContext context;
 		try
 		{
-			context = credentialExchange.createRequest(idpConfigKey, Optional.empty(), 
-					new AuthenticationStepContext(authnContext, getAuthnOptionId(idpConfigKey), SigInInProgressContextService.getContext(httpRequest)),
+			context = credentialExchange.createRequest(providerKey, Optional.empty(),
+					new AuthenticationStepContext(authnContext, getAuthnOptionId(providerKey),
+							SigInInProgressContextService.getContext(httpRequest)),
 					loginMachineDetails,
 					currentURI,
 					AuthenticationTriggeringContext.authenticationTriggeredFirstFactor());
@@ -103,26 +103,25 @@ public class OAuthProxyAuthnHandler
 		handleRequestInternal(context, httpRequest, httpResponse);
 		return true;
 	}
-	
+
 	private void handleRequestInternal(OAuthContext context,
 			HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
 		setCommonHeaders(response);
 		String redirectURL = context.getRequestURI().toString();
-		log.info("Starting OAuth redirection to OAuth provider: {}, returnURL is {}", 
+		log.info("Starting OAuth redirection to OAuth provider: {}, returnURL is {}",
 					redirectURL, context.getReturnUrl());
 		response.sendRedirect(redirectURL);
 	}
-	
+
 	private void setCommonHeaders(HttpServletResponse response)
 	{
 		response.setHeader("Cache-Control","no-cache,no-store");
 		response.setHeader("Pragma","no-cache");
 	}
-	
-	private AuthenticationOptionKey getAuthnOptionId(String idpConfigKey)
+
+	private AuthenticationOptionKey getAuthnOptionId(OAuthProviderKey providerKey)
 	{
-		String optionId = idpConfigKey.substring(OAuthClientProperties.PROVIDERS.length(), idpConfigKey.length()-1);
-		return new AuthenticationOptionKey(authenticatorId, optionId);
+		return new AuthenticationOptionKey(authenticatorId, providerKey.asString());
 	}
 }

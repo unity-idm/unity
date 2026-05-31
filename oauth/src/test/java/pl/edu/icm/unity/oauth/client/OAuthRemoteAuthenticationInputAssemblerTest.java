@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 
+import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata.Protocol;
@@ -28,6 +29,8 @@ import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.GoogleProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientConfigurationParser;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,6 +40,8 @@ public class OAuthRemoteAuthenticationInputAssemblerTest
 	private OAuthDiscoveryMetadataCache metadataManager;
 	@Mock
 	private PKIManagement pki;
+	@Mock
+	private MessageSource msg;
 
 	@Test
 	public void shouldSetRemoteAuthnMetadataInAuthnResult()
@@ -59,8 +64,11 @@ public class OAuthRemoteAuthenticationInputAssemblerTest
 
 		CustomProviderProperties customProviderProperties = new GoogleProviderProperties(properties, "prefix.", pki);
 
-		RemotelyAuthenticatedInput convertInput = assembler.convertInput(customProviderProperties, oAuthContext,
-				attributes, true);
+		OAuthClientConfigurationParser parser = new OAuthClientConfigurationParser(pki, msg);
+		
+		RemotelyAuthenticatedInput convertInput = assembler.convertInput(
+				parser.parseSingleProvider(OAuthProviderKey.of("prefix"), customProviderProperties, false),
+				oAuthContext,				attributes, true);
 
 		assertThat(convertInput.getRemoteAuthnMetadata()
 				.protocol()).isEqualTo(Protocol.OIDC);
@@ -96,8 +104,12 @@ public class OAuthRemoteAuthenticationInputAssemblerTest
 
 		CustomProviderProperties customProviderProperties = new GoogleProviderProperties(properties, "prefix.", pki);
 
-		RemotelyAuthenticatedInput convertInput = assembler.convertInput(customProviderProperties, oAuthContext,
-				attributes, true);
+		OAuthClientConfigurationParser parser = new OAuthClientConfigurationParser(pki, msg);
+		
+		
+		RemotelyAuthenticatedInput convertInput = assembler.convertInput(
+				parser.parseSingleProvider(OAuthProviderKey.of("prefix"), customProviderProperties, false),
+				oAuthContext, attributes, true);
 		
 		assertThat(convertInput.getAuthenticationTime()
 				).isEqualTo(DateUtils.fromSecondsSinceEpoch(DateUtils.toSecondsSinceEpoch(now)).toInstant());	

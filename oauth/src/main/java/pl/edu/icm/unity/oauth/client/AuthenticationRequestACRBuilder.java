@@ -17,37 +17,33 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest.Entry;
 
 import pl.edu.icm.unity.engine.api.authn.RequestedAuthenticationContextClassReference;
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
 
 class AuthenticationRequestACRBuilder
 {
 	private Builder builder;
-	
+
 	public AuthenticationRequestACRBuilder(Builder builder)
 	{
 		this.builder = builder;
 	}
 
-	void addACR(CustomProviderProperties providerCfg,
+	void addACR(OAuthProviderConfiguration providerCfg,
 			RequestedAuthenticationContextClassReference requestedAuthenticationContextClassReference)
 	{
 		addIDTokenClaimSetRequestIfNeeded(providerCfg, requestedAuthenticationContextClassReference);
 		addRequestedVoluntaryACRsIfNeeded(providerCfg, requestedAuthenticationContextClassReference);
 	}
 
-	private void addRequestedVoluntaryACRsIfNeeded(CustomProviderProperties providerCfg,
+	private void addRequestedVoluntaryACRsIfNeeded(OAuthProviderConfiguration providerCfg,
 			RequestedAuthenticationContextClassReference requestedAuthenticationContextClassReference)
 	{
-		if (providerCfg.getRequestACRMode()
-				.equals(RequestACRsMode.NONE)
-				|| providerCfg.getRequestACRMode()
-						.equals(RequestACRsMode.FIXED))
-		{
+		if (providerCfg.requestACRsMode.equals(RequestACRsMode.NONE)
+				|| providerCfg.requestACRsMode.equals(RequestACRsMode.FIXED))
 			return;
-		}
-		
-		if (!requestedAuthenticationContextClassReference.essentialACRs().isEmpty() && 
+
+		if (!requestedAuthenticationContextClassReference.essentialACRs().isEmpty() &&
 				!requestedAuthenticationContextClassReference.voluntaryACRs().isEmpty())
 		{
 			builder.acrValues(requestedAuthenticationContextClassReference.voluntaryACRs()
@@ -57,37 +53,31 @@ class AuthenticationRequestACRBuilder
 		}
 	}
 
-	private void addIDTokenClaimSetRequestIfNeeded(CustomProviderProperties providerCfg,
+	private void addIDTokenClaimSetRequestIfNeeded(OAuthProviderConfiguration providerCfg,
 			RequestedAuthenticationContextClassReference requestedAuthenticationContextClassReference)
 	{
-		if (providerCfg.getRequestACRMode()
-				.equals(RequestACRsMode.NONE))
-		{
+		if (providerCfg.requestACRsMode.equals(RequestACRsMode.NONE))
 			return;
-		}
 
 		List<Entry> id = new ArrayList<>();
-		if (providerCfg.getRequestACRMode()
-				.equals(RequestACRsMode.FIXED))
+		if (providerCfg.requestACRsMode.equals(RequestACRsMode.FIXED))
 		{
 			id.add(new Entry(IDTokenClaimsSet.ACR_CLAIM_NAME)
-					.withClaimRequirement(
-							providerCfg.getBooleanValue(CustomProviderProperties.REQUESTED_ACRS_ARE_ESSENTIAL)
-									? ClaimRequirement.ESSENTIAL
-									: ClaimRequirement.VOLUNTARY)
-					.withValues(providerCfg.getListOfValues(CustomProviderProperties.REQUESTED_ACRS)));
-		} else if (providerCfg.getRequestACRMode()
-				.equals(RequestACRsMode.FORWARD))
+					.withClaimRequirement(providerCfg.requestedACRsAreEssential
+							? ClaimRequirement.ESSENTIAL
+							: ClaimRequirement.VOLUNTARY)
+					.withValues(providerCfg.requestedACRs));
+		} else if (providerCfg.requestACRsMode.equals(RequestACRsMode.FORWARD))
 		{
-			if (!requestedAuthenticationContextClassReference.essentialACRs()
-					.isEmpty())
+			if (!requestedAuthenticationContextClassReference.essentialACRs().isEmpty())
 			{
-				id.add(new Entry(IDTokenClaimsSet.ACR_CLAIM_NAME).withClaimRequirement(ClaimRequirement.ESSENTIAL)
+				id.add(new Entry(IDTokenClaimsSet.ACR_CLAIM_NAME)
+						.withClaimRequirement(ClaimRequirement.ESSENTIAL)
 						.withValues(requestedAuthenticationContextClassReference.essentialACRs()));
-			} else if (!requestedAuthenticationContextClassReference.voluntaryACRs()
-					.isEmpty())
+			} else if (!requestedAuthenticationContextClassReference.voluntaryACRs().isEmpty())
 			{
-				id.add(new Entry(IDTokenClaimsSet.ACR_CLAIM_NAME).withClaimRequirement(ClaimRequirement.VOLUNTARY)
+				id.add(new Entry(IDTokenClaimsSet.ACR_CLAIM_NAME)
+						.withClaimRequirement(ClaimRequirement.VOLUNTARY)
 						.withValues(requestedAuthenticationContextClassReference.voluntaryACRs()));
 			}
 		}

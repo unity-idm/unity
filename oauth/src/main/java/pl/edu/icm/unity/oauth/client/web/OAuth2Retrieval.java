@@ -19,7 +19,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,11 +27,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * OAuth2 authn retrieval. It is responsible for browser redirection to the OAuth provider with an authorization
- * request provided by verificator. 
+ * request provided by verificator.
  * @author K. Benedyczak
  */
 @PrototypeComponent
@@ -65,7 +64,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	public void setSerializedConfiguration(String json) throws InternalException
 	{
 	}
-	
+
 	@Override
 	public void setCredentialExchange(CredentialExchange e, String id)
 	{
@@ -78,27 +77,24 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	{
 		credentialExchange.destroy();
 	}
-	
+
 	@Override
 	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext)
 	{
 		List<VaadinAuthenticationUI> ret = new ArrayList<>();
-		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		Set<String> keys = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
-		for (String key: keys)
+		for (OAuthProviderConfiguration provider : credentialExchange.getSettings().providers().getAll())
 		{
-			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), 
-					key.length()-1);
-			AuthenticationOptionKey authenticationOptionKey = 
-					new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
+			String idpKey = provider.key.asString();
+			AuthenticationOptionKey authenticationOptionKey = new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
 			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange,
-					key, context,
-					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey, SigInInProgressContextService.getVaadinContext()),
+					provider.key, context,
+					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey,
+							SigInInProgressContextService.getVaadinContext()),
 					notificationPresenter));
 		}
 		return ret;
 	}
-	
+
 	@Component
 	public static class Factory extends AbstractCredentialRetrievalFactory<OAuth2Retrieval>
 	{

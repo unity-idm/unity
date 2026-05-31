@@ -22,8 +22,9 @@ import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata.Protocol;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
+import pl.edu.icm.unity.oauth.oidc.metadata.OIDCMetadataRequest;
 
 @Component
 class OAuthRemoteAuthenticationInputAssembler
@@ -40,18 +41,17 @@ class OAuthRemoteAuthenticationInputAssembler
 		this.metadataManager = metadataManager;
 	}
 
-	RemotelyAuthenticatedInput convertInput(CustomProviderProperties provCfg, OAuthContext context,
+	RemotelyAuthenticatedInput convertInput(OAuthProviderConfiguration provCfg, OAuthContext context,
 			AttributeFetchResult attributes, boolean openIdConnectMode)
 	{
-		String tokenEndpoint = provCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
-		String discoveryEndpoint = provCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
-		if (tokenEndpoint == null && discoveryEndpoint != null)
+		String tokenEndpoint = provCfg.accessTokenEndpoint;
+		if (tokenEndpoint == null && provCfg.openIdDiscoveryEndpoint != null)
 		{
 			try
 			{
-				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(provCfg.generateMetadataRequest());
-				tokenEndpoint = providerMeta.getTokenEndpointURI()
-						.toString();
+				OIDCMetadataRequest metadataRequest = buildMetadataRequest(provCfg);
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(metadataRequest);
+				tokenEndpoint = providerMeta.getTokenEndpointURI().toString();
 			} catch (Exception e)
 			{
 				log.warn("Can't obtain OIDC metadata", e);
@@ -61,61 +61,58 @@ class OAuthRemoteAuthenticationInputAssembler
 			tokenEndpoint = "unknown";
 
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(tokenEndpoint);
-		for (Map.Entry<String, List<String>> attr : attributes.getAttributes()
-				.entrySet())
+		for (Map.Entry<String, List<String>> attr : attributes.getAttributes().entrySet())
 		{
-			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue()
-					.toArray()));
-			if (attr.getKey()
-					.equals("sub")
-					&& !attr.getValue()
-							.isEmpty())
-				input.addIdentity(new RemoteIdentity(attr.getValue()
-						.get(0), "sub"));
+			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue().toArray()));
+			if (attr.getKey().equals("sub") && !attr.getValue().isEmpty())
+				input.addIdentity(new RemoteIdentity(attr.getValue().get(0), "sub"));
 		}
 		input.setRawAttributes(attributes.getRawAttributes());
 		input.setRemoteAuthnMetadata(getAuthnMeta(attributes, openIdConnectMode));
 		input.setAuthenticationTime(getAuthenticationTimeFallBackToDefault(attributes));
-		
+
 		return input;
+	}
+
+	private OIDCMetadataRequest buildMetadataRequest(OAuthProviderConfiguration provCfg)
+	{
+		return OIDCMetadataRequest.builder()
+				.withUrl(provCfg.openIdDiscoveryEndpoint)
+				.withValidator(provCfg.validator)
+				.withValidatorName(provCfg.truststoreName)
+				.withHostnameChecking(provCfg.hostNameCheckingMode)
+				.build();
 	}
 
 	private Instant getAuthenticationTimeFallBackToDefault(AttributeFetchResult attributes)
 	{
-		if (attributes.getAttributes()
-				.containsKey(IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME))
+		if (attributes.getAttributes().containsKey(IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME))
 		{
 			try
 			{
 				return DateUtils.fromSecondsSinceEpoch(Long.valueOf(attributes.getAttributes()
-						.get(IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME)
-						.get(0))).toInstant();
+						.get(IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME).get(0))).toInstant();
 			} catch (Exception e)
 			{
 				log.debug("Can't parse " + IDTokenClaimsSet.AUTH_TIME_CLAIM_NAME + " from oauth response", e);
 				return Instant.now();
 			}
 		}
-
 		return Instant.now();
 	}
 
 	private RemoteAuthnMetadata getAuthnMeta(AttributeFetchResult attributes, boolean openIdConnectMode)
 	{
 		return new RemoteAuthnMetadata(openIdConnectMode ? Protocol.OIDC : Protocol.OTHER,
-				openIdConnectMode ? attributes.getAttributes()
-						.get(ISSUER)
-						.get(0) : RemoteAuthnMetadata.UNDEFINED_IDP,
+				openIdConnectMode ? attributes.getAttributes().get(ISSUER).get(0)
+						: RemoteAuthnMetadata.UNDEFINED_IDP,
 				getAcr(attributes));
 	}
 
 	private List<String> getAcr(AttributeFetchResult attributes)
 	{
-		return attributes.getAttributes()
-				.get(ACR_CLAIM) != null ? List.of(
-						attributes.getAttributes()
-								.get(ACR_CLAIM)
-								.get(0))
-						: List.of();
+		return attributes.getAttributes().get(ACR_CLAIM) != null
+				? List.of(attributes.getAttributes().get(ACR_CLAIM).get(0))
+				: List.of();
 	}
 }
