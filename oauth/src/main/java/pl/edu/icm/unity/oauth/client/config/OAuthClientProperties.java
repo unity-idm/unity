@@ -8,6 +8,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
@@ -41,9 +42,14 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 	public static final String FEDERATION_JWKS = "federationJwks";
 	public static final String FEDERATION_METADATA_VALIDITY = "federationMetadataValidity";
 	public static final int DEFAULT_FEDERATION_METADATA_VALIDITY = 86400;
+	public static final String FEDERATION_TRUSTSTORE = "federationHttpClientTruststore";
+	public static final String FEDERATION_HOSTNAME_CHECKING = "federationHttpClientHostnameChecking";
 
 	public static final String AUTHENTICATION_CREDENTIAL = "authenticationCredential";
-	
+	public static final String FEDERATION_TRANSLATION_PROFILE = "federationTranslationProfile";
+	public static final String FEDERATION_EMBEDDED_TRANSLATION_PROFILE = "federationEmbeddedTranslationProfile";
+	public static final String FEDERATION_REGISTRATION_FORM = "federationRegistrationForm";
+
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 
@@ -72,7 +78,18 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 		META.put(FEDERATION_METADATA_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_FEDERATION_METADATA_VALIDITY))
 				.setInt().setDescription(
 				"Validity period in seconds of the generated federation entity statement metadata"));
-
+		META.put(FEDERATION_TRUSTSTORE, new PropertyMD().setDescription(
+				"Truststore used for TLS connections to federation endpoints. "
+				+ "If not set, the JVM default truststore is used."));
+		META.put(FEDERATION_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL)
+				.setDescription("Controls hostname verification for TLS connections to federation endpoints."));
+		META.put(FEDERATION_TRANSLATION_PROFILE, new PropertyMD().setDescription(
+				"Translation profile applied to all providers discovered from the federation. "
+				+ "If not set, the default OIDC profile is used."));
+		META.put(FEDERATION_EMBEDDED_TRANSLATION_PROFILE, new PropertyMD().setHidden().setDescription(
+				"Translation profile (embedded JSON) applied to all providers discovered from the federation."));
+		META.put(FEDERATION_REGISTRATION_FORM, new PropertyMD().setDescription(
+				"Registration form applied to all providers discovered from the federation."));
 	}
 
 	private final Map<String, CustomProviderProperties> providers = new HashMap<>();

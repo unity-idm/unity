@@ -30,6 +30,8 @@ public class OAuthProviderConfiguration
 	public final I18nString name;
 	public final I18nString iconUrl;
 	public final boolean openIdConnect;
+	public final String federationId;
+	public final String federationName;
 
 	public final String authorizationEndpoint;
 	public final String accessTokenEndpoint;
@@ -68,6 +70,8 @@ public class OAuthProviderConfiguration
 		this.name = builder.name;
 		this.iconUrl = builder.iconUrl;
 		this.openIdConnect = builder.openIdConnect;
+		this.federationId = builder.federationId;
+		this.federationName = builder.federationName;
 		this.authorizationEndpoint = builder.authorizationEndpoint;
 		this.accessTokenEndpoint = builder.accessTokenEndpoint;
 		this.userInfoEndpoints = builder.userInfoEndpoints == null
@@ -115,10 +119,10 @@ public class OAuthProviderConfiguration
 	{
 		return Objects.hash(accessTokenEndpoint, accessTokenFormat, additionalAuthzParams, authorizationEndpoint,
 				clientAuthnMethod, clientAuthnMode, clientAuthnModeForProfileAccess, clientCredential,
-				clientHttpMethodForProfileAccess, clientId, clientSecret, enableAssociation, hostNameCheckingMode,
-				iconUrl, key, name, openIdConnect, openIdDiscoveryEndpoint, providerType, registrationForm,
-				requestACRsMode, requestedACRs, requestedACRsAreEssential, scopes, translationProfile,
-				truststoreName, userInfoEndpoints, validator);
+				clientHttpMethodForProfileAccess, clientId, clientSecret, enableAssociation, federationId,
+				federationName, hostNameCheckingMode, iconUrl, key, name, openIdConnect, openIdDiscoveryEndpoint,
+				providerType, registrationForm, requestACRsMode, requestedACRs, requestedACRsAreEssential, scopes,
+				translationProfile, truststoreName, userInfoEndpoints, validator);
 	}
 
 	@Override
@@ -143,6 +147,8 @@ public class OAuthProviderConfiguration
 				&& Objects.equals(clientId, other.clientId)
 				&& Objects.equals(clientSecret, other.clientSecret)
 				&& enableAssociation == other.enableAssociation
+				&& Objects.equals(federationId, other.federationId)
+				&& Objects.equals(federationName, other.federationName)
 				&& hostNameCheckingMode == other.hostNameCheckingMode
 				&& Objects.equals(iconUrl, other.iconUrl)
 				&& Objects.equals(key, other.key)
@@ -168,6 +174,8 @@ public class OAuthProviderConfiguration
 		private I18nString name;
 		private I18nString iconUrl;
 		private boolean openIdConnect;
+		private String federationId;
+		private String federationName;
 		private String authorizationEndpoint;
 		private String accessTokenEndpoint;
 		private List<String> userInfoEndpoints;
@@ -216,6 +224,18 @@ public class OAuthProviderConfiguration
 		public Builder withIconUrl(I18nString iconUrl)
 		{
 			this.iconUrl = iconUrl;
+			return this;
+		}
+
+		public Builder withFederationId(String federationId)
+		{
+			this.federationId = federationId;
+			return this;
+		}
+
+		public Builder withFederationName(String federationName)
+		{
+			this.federationName = federationName;
 			return this;
 		}
 

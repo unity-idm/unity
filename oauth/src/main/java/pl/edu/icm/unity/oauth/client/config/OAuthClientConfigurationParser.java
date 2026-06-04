@@ -14,8 +14,11 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
@@ -63,6 +66,10 @@ public class OAuthClientConfigurationParser
 	private OAuthClientConfiguration fromProperties(OAuthClientProperties props, Properties raw)
 	{
 		boolean defaultEnableAssociation = props.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
+		String federationTruststore = props.getValue(OAuthClientProperties.FEDERATION_TRUSTSTORE);
+		X509CertChainValidator federationValidator = resolveFederationValidator(federationTruststore);
+		ServerHostnameCheckingMode federationHostnameChecking = props.getEnumValue(
+				OAuthClientProperties.FEDERATION_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
 		return OAuthClientConfiguration.builder()
 				.withDefaultEnableAssociation(defaultEnableAssociation)
 				.withFederationMembershipEnabled(
@@ -75,6 +82,11 @@ public class OAuthClientConfigurationParser
 				.withFederationJwks(props.getValue(OAuthClientProperties.FEDERATION_JWKS))
 				.withFederationMetadataValidity(
 						props.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY))
+				.withFederationTruststore(federationTruststore)
+				.withFederationValidator(federationValidator)
+				.withFederationHostnameCheckingMode(federationHostnameChecking)
+				.withFederationTranslationProfile(parseFederationTranslationProfile(props))
+				.withFederationRegistrationForm(props.getValue(OAuthClientProperties.FEDERATION_REGISTRATION_FORM))
 				.withProviders(parseProviders(props, defaultEnableAssociation))
 				.withRawProperties(raw)
 				.build();
@@ -142,6 +154,21 @@ public class OAuthClientConfigurationParser
 				.build();
 	}
 
+	private X509CertChainValidator resolveFederationValidator(String truststoreName)
+	{
+		if (truststoreName == null)
+			return null;
+		try
+		{
+			if (!pkiManagement.getValidatorNames().contains(truststoreName))
+				throw new InternalException("Federation truststore " + truststoreName + " does not exist");
+			return pkiManagement.getValidator(truststoreName);
+		} catch (EngineException e)
+		{
+			throw new InternalException("Cannot resolve federation truststore " + truststoreName, e);
+		}
+	}
+
 	private TranslationProfile parseTranslationProfile(CustomProviderProperties p)
 	{
 		if (p.isSet(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE))
@@ -149,5 +176,16 @@ public class OAuthClientConfigurationParser
 					p.getValue(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE));
 		return TranslationProfileGenerator.generateIncludeInputProfile(
 				p.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE));
+	}
+
+	private TranslationProfile parseFederationTranslationProfile(OAuthClientProperties props)
+	{
+		if (props.isSet(OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE))
+			return TranslationProfileGenerator.getProfileFromString(
+					props.getValue(OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE));
+		if (props.isSet(OAuthClientProperties.FEDERATION_TRANSLATION_PROFILE))
+			return TranslationProfileGenerator.generateIncludeInputProfile(
+					props.getValue(OAuthClientProperties.FEDERATION_TRANSLATION_PROFILE));
+		return TranslationProfileGenerator.generateIncludeInputProfile("sys:oidc");
 	}
 }

@@ -103,21 +103,24 @@ public class OAuthConfigurationTest
 				.update("clientCredential", "bar")
 				.update("clientAuthenticationMethod", "private_key_jwt")
 				.get();
-		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META).get();
+		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META)
+				.update("federationEmbeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
+				.get();
 		sourceCfg.putAll(sourceProviderCfg);
-		
+
 		OAuthConfiguration processor = new OAuthConfiguration();
-		
+
 		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, pkiMan, imageAccessService);
 		String converted = processor.toProperties(msg, pkiMan, fileStorageSrv, "authName");
-		
+
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
-		
+
 		createComparator(P, META)
 			.ignoringMissing("providers.1.translationProfile")
 			.ignoringMissing("providers.1.clientSecret")
 			.ignoringMissing("providers.1.clientAuthenticationMode")
 			.ignoringMissing("providers.1.clientAuthenticationModeForProfileAccess")
+			.ignoringMissing("federationTranslationProfile")
 			.checkMatching(result, sourceCfg);
 	}
 }

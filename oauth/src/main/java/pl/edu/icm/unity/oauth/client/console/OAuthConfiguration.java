@@ -5,13 +5,17 @@
 
 package pl.edu.icm.unity.oauth.client.console;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 
@@ -35,12 +39,17 @@ public class OAuthConfiguration
 	private String federationTrustAnchorId;
 	private String federationJwks;
 	private int federationMetadataValidity;
-	
+	private String federationTruststore;
+	private String federationHostnameCheckingMode;
+	private TranslationProfile federationTranslationProfile;
+	private String federationRegistrationForm;
+
 	public OAuthConfiguration()
 	{
 		providers = new ArrayList<>();
 		defAccountAssociation = true;
 		federationMetadataValidity = OAuthClientProperties.DEFAULT_FEDERATION_METADATA_VALIDITY;
+		federationHostnameCheckingMode = ServerHostnameCheckingMode.FAIL.name();
 	}
 
 	public void fromProperties(String properties, MessageSource msg, PKIManagement pkiMan,
@@ -65,7 +74,19 @@ public class OAuthConfiguration
 		federationTrustAnchorId = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID);
 		federationJwks = oauthProp.getValue(OAuthClientProperties.FEDERATION_JWKS);
 		federationMetadataValidity = oauthProp.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY);
-		
+		federationTruststore = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUSTSTORE);
+		ServerHostnameCheckingMode checkingMode = oauthProp.getEnumValue(
+				OAuthClientProperties.FEDERATION_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
+		federationHostnameCheckingMode = checkingMode != null ? checkingMode.name()
+				: ServerHostnameCheckingMode.FAIL.name();
+		if (oauthProp.isSet(OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE))
+			federationTranslationProfile = TranslationProfileGenerator.getProfileFromString(
+					oauthProp.getValue(OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE));
+		else if (oauthProp.isSet(OAuthClientProperties.FEDERATION_TRANSLATION_PROFILE))
+			federationTranslationProfile = TranslationProfileGenerator.generateIncludeInputProfile(
+					oauthProp.getValue(OAuthClientProperties.FEDERATION_TRANSLATION_PROFILE));
+		federationRegistrationForm = oauthProp.getValue(OAuthClientProperties.FEDERATION_REGISTRATION_FORM);
+
 		providers.clear();
 		Set<String> keys = oauthProp.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
 		for (String key : keys)
@@ -117,8 +138,28 @@ public class OAuthConfiguration
 			}
 			raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_METADATA_VALIDITY,
 					String.valueOf(federationMetadataValidity));
+			if (federationTruststore != null && !federationTruststore.isEmpty())
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_TRUSTSTORE,
+						federationTruststore);
+			if (federationHostnameCheckingMode != null && !federationHostnameCheckingMode.isEmpty())
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_HOSTNAME_CHECKING,
+						federationHostnameCheckingMode);
+			if (federationTranslationProfile != null)
+			{
+				try
+				{
+					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE,
+							new ObjectMapper().writeValueAsString(federationTranslationProfile.toJsonObject()));
+				} catch (Exception e)
+				{
+					throw new InternalException("Can't serialize federation translation profile to JSON", e);
+				}
+			}
+			if (federationRegistrationForm != null && !federationRegistrationForm.isEmpty())
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REGISTRATION_FORM,
+						federationRegistrationForm);
 		}
-		
+
 		for (OAuthProviderConfiguration provider : providers)
 		{
 			provider.toProperties(raw, msg, fileStorageService, authName);
@@ -217,5 +258,45 @@ public class OAuthConfiguration
 	public void setFederationMetadataValidity(int federationMetadataValidity)
 	{
 		this.federationMetadataValidity = federationMetadataValidity;
+	}
+
+	public String getFederationTruststore()
+	{
+		return federationTruststore;
+	}
+
+	public void setFederationTruststore(String federationTruststore)
+	{
+		this.federationTruststore = federationTruststore;
+	}
+
+	public String getFederationHostnameCheckingMode()
+	{
+		return federationHostnameCheckingMode;
+	}
+
+	public void setFederationHostnameCheckingMode(String federationHostnameCheckingMode)
+	{
+		this.federationHostnameCheckingMode = federationHostnameCheckingMode;
+	}
+
+	public TranslationProfile getFederationTranslationProfile()
+	{
+		return federationTranslationProfile;
+	}
+
+	public void setFederationTranslationProfile(TranslationProfile federationTranslationProfile)
+	{
+		this.federationTranslationProfile = federationTranslationProfile;
+	}
+
+	public String getFederationRegistrationForm()
+	{
+		return federationRegistrationForm;
+	}
+
+	public void setFederationRegistrationForm(String federationRegistrationForm)
+	{
+		this.federationRegistrationForm = federationRegistrationForm;
 	}
 }

@@ -271,12 +271,47 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null))
 				.bind("federationMetadataValidity");
 
+		Set<String> validatorNames = getValidatorNames();
+		ComboBox<String> federationTruststore = new ComboBox<>();
+		federationTruststore.setItems(validatorNames);
+		federationTruststore.setClearButtonVisible(true);
+		federationLayout.addFormItem(federationTruststore,
+				msg.getMessage("OAuthAuthenticatorEditor.federationTruststore"));
+		configBinder.forField(federationTruststore)
+				.bind("federationTruststore");
+
+		ComboBox<String> federationHostnameChecking = new ComboBox<>();
+		federationHostnameChecking.setItems(
+				eu.unicore.util.httpclient.ServerHostnameCheckingMode.FAIL.name(),
+				eu.unicore.util.httpclient.ServerHostnameCheckingMode.WARN.name(),
+				eu.unicore.util.httpclient.ServerHostnameCheckingMode.NONE.name());
+		federationLayout.addFormItem(federationHostnameChecking,
+				msg.getMessage("OAuthAuthenticatorEditor.federationHostnameChecking"));
+		configBinder.forField(federationHostnameChecking)
+				.bind("federationHostnameCheckingMode");
+
+		ComboBox<String> federationRegistrationForm = new ComboBox<>();
+		federationRegistrationForm.setItems(getRegistrationFormNames());
+		federationRegistrationForm.setClearButtonVisible(true);
+		federationLayout.addFormItem(federationRegistrationForm,
+				msg.getMessage("OAuthAuthenticatorEditor.federationRegistrationForm"));
+		configBinder.forField(federationRegistrationForm)
+				.bind("federationRegistrationForm");
+
+		AccordionPanel federationTranslationProfilePanel = profileFieldFactory.getWrappedFieldInstance(
+				subViewSwitcher, configBinder, "federationTranslationProfile");
+		federationLayout.add(federationTranslationProfilePanel);
+
 		federationCredential.setEnabled(false);
 		authenticationCredential.setEnabled(false);
 		superiorEntityId.setEnabled(false);
 		trustAnchorId.setEnabled(false);
 		jwks.setEnabled(false);
 		metadataValidity.setEnabled(false);
+		federationTruststore.setEnabled(false);
+		federationHostnameChecking.setEnabled(false);
+		federationRegistrationForm.setEnabled(false);
+		federationTranslationProfilePanel.setEnabled(false);
 
 		federationMembership.addValueChangeListener(e -> {
 			boolean enabled = e.getValue();
@@ -288,6 +323,10 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			trustAnchorId.setEnabled(enabled);
 			jwks.setEnabled(enabled);
 			metadataValidity.setEnabled(enabled);
+			federationTruststore.setEnabled(enabled);
+			federationHostnameChecking.setEnabled(enabled);
+			federationRegistrationForm.setEnabled(enabled);
+			federationTranslationProfilePanel.setEnabled(enabled);
 		});
 
 		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("OAuthAuthenticatorEditor.openIDFederationMembership"),
@@ -304,6 +343,32 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		} catch (EngineException e)
 		{
 			notificationPresenter.showError("Can not init OAuth  editor", e.getMessage());
+		}
+		return Set.of();
+	}
+
+	private Set<String> getRegistrationFormNames()
+	{
+		try
+		{
+			return registrationMan.getForms().stream()
+					.map(DescribedObjectROImpl::getName)
+					.collect(Collectors.toSet());
+		} catch (EngineException e)
+		{
+			notificationPresenter.showError("Can not init OAuth editor", e.getMessage());
+		}
+		return Set.of();
+	}
+
+	private Set<String> getValidatorNames()
+	{
+		try
+		{
+			return pkiMan.getValidatorNames();
+		} catch (EngineException e)
+		{
+			notificationPresenter.showError("Can not init OAuth editor", e.getMessage());
 		}
 		return Set.of();
 	}

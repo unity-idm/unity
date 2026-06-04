@@ -94,7 +94,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	@Override
 	public Component getGridCompatibleComponent()
 	{
-		OAuthProviderConfiguration provider = credentialExchange.getSettings().providers().get(providerKey);
+		OAuthProviderConfiguration provider = credentialExchange.getCombinedProviders().get(providerKey);
 		String name = provider.name.getValue(msg);
 		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), name);
 		idpComponent.addButtonClickListener(event -> startLogin());
@@ -106,7 +106,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	{
 		redirectParam = installRequestHandler();
 
-		OAuthProviderConfiguration provider = credentialExchange.getSettings().providers().get(providerKey);
+		OAuthProviderConfiguration provider = credentialExchange.getCombinedProviders().get(providerKey);
 		String name = provider.name.getValue(msg);
 		String logoURI = provider.iconUrl != null ? provider.iconUrl.getValue(msg) : null;
 
@@ -141,14 +141,14 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	@Override
 	public String getLabel()
 	{
-		OAuthProviderConfiguration provider = credentialExchange.getSettings().providers().get(providerKey);
+		OAuthProviderConfiguration provider = credentialExchange.getCombinedProviders().get(providerKey);
 		return provider.name.getValue(msg);
 	}
 
 	@Override
 	public Image getImage()
 	{
-		OAuthProviderConfiguration provider = credentialExchange.getSettings().providers().get(providerKey);
+		OAuthProviderConfiguration provider = credentialExchange.getCombinedProviders().get(providerKey);
 		String logoURI = provider.iconUrl != null ? provider.iconUrl.getValue(msg) : null;
 		return imageAccessService.loadImageFromUri(logoURI).orElse(null);
 	}

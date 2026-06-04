@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.Objects;
 
 public class OAuthProviderKey
@@ -29,6 +33,29 @@ public class OAuthProviderKey
 	public static OAuthProviderKey of(String key)
 	{
 		return new OAuthProviderKey(key);
+	}
+
+	public static OAuthProviderKey fromFederationEntity(String entityId)
+	{
+		return new OAuthProviderKey("_fed_" + md5(entityId));
+	}
+
+	public boolean isFromFederation()
+	{
+		return key.startsWith("_fed_");
+	}
+
+	private static String md5(String input)
+	{
+		try
+		{
+			byte[] digest = MessageDigest.getInstance("MD5")
+					.digest(input.getBytes(StandardCharsets.UTF_8));
+			return HexFormat.of().formatHex(digest);
+		} catch (NoSuchAlgorithmException e)
+		{
+			throw new IllegalStateException(e);
+		}
 	}
 	
 	public String asString()

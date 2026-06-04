@@ -186,6 +186,44 @@ public class OAuthClientConfigurationParserTest
 	}
 
 	@Test
+	public void shouldParseFederationTranslationProfileByReference()
+	{
+		Properties p = minimalProviderProps(GOOGLE);
+		p.setProperty(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_TRANSLATION_PROFILE, "myFedProfile");
+
+		OAuthClientConfiguration config = parser.parse(p);
+
+		assertThat(config.federationTranslationProfile).isNotNull();
+		assertThat(config.federationTranslationProfile.getRules()).hasSize(1);
+		assertThat(config.federationTranslationProfile.getRules().get(0).getAction().getParameters())
+				.contains("myFedProfile");
+	}
+
+	@Test
+	public void shouldParseFederationTranslationProfileDefaultsToOidc()
+	{
+		Properties p = minimalProviderProps(GOOGLE);
+
+		OAuthClientConfiguration config = parser.parse(p);
+
+		assertThat(config.federationTranslationProfile).isNotNull();
+		assertThat(config.federationTranslationProfile.getRules()).hasSize(1);
+		assertThat(config.federationTranslationProfile.getRules().get(0).getAction().getParameters())
+				.contains("sys:oidc");
+	}
+
+	@Test
+	public void shouldParseFederationRegistrationForm()
+	{
+		Properties p = minimalProviderProps(GOOGLE);
+		p.setProperty(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REGISTRATION_FORM, "myFedForm");
+
+		OAuthClientConfiguration config = parser.parse(p);
+
+		assertThat(config.federationRegistrationForm).isEqualTo("myFedForm");
+	}
+
+	@Test
 	public void shouldParseClientCredential()
 	{
 		Properties p = minimalProviderProps(GOOGLE);

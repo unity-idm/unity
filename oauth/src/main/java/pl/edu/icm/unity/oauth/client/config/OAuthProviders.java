@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -42,6 +44,27 @@ public class OAuthProviders
 	public Set<OAuthProviderKey> getKeys()
 	{
 		return Collections.unmodifiableSet(providers.keySet());
+	}
+
+	public OAuthProviders replaceFederation(List<OAuthProviderConfiguration> federationProviders)
+	{
+		List<OAuthProviderConfiguration> merged = new ArrayList<>();
+		providers.values().stream()
+				.filter(p -> !p.key.isFromFederation())
+				.forEach(merged::add);
+		merged.addAll(federationProviders);
+		return new OAuthProviders(merged);
+	}
+
+	public OAuthProviders overrideWithStatic(OAuthProviders staticProviders)
+	{
+		List<OAuthProviderConfiguration> merged = new ArrayList<>(providers.values());
+		for (OAuthProviderConfiguration staticProvider : staticProviders.getAll())
+		{
+			merged.removeIf(p -> p.key.equals(staticProvider.key));
+			merged.add(staticProvider);
+		}
+		return new OAuthProviders(merged);
 	}
 
 	public Set<Map.Entry<OAuthProviderKey, OAuthProviderConfiguration>> getEntrySet()

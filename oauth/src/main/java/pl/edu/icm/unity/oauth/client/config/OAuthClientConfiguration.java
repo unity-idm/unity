@@ -7,6 +7,10 @@ package pl.edu.icm.unity.oauth.client.config;
 import java.util.Objects;
 import java.util.Properties;
 
+import eu.emi.security.authn.x509.X509CertChainValidator;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+
 public class OAuthClientConfiguration
 {
 	public final boolean defaultEnableAssociation;
@@ -18,6 +22,11 @@ public class OAuthClientConfiguration
 	public final String federationJwks;
 	public final long federationMetadataValidity;
 	public final OAuthProviders providers;
+	public final String federationTruststore;
+	public final X509CertChainValidator federationValidator;
+	public final ServerHostnameCheckingMode federationHostnameCheckingMode;
+	public final TranslationProfile federationTranslationProfile;
+	public final String federationRegistrationForm;
 	private final Properties rawProperties;
 
 	private OAuthClientConfiguration(Builder builder)
@@ -31,6 +40,11 @@ public class OAuthClientConfiguration
 		this.federationJwks = builder.federationJwks;
 		this.federationMetadataValidity = builder.federationMetadataValidity;
 		this.providers = builder.providers;
+		this.federationTruststore = builder.federationTruststore;
+		this.federationValidator = builder.federationValidator;
+		this.federationHostnameCheckingMode = builder.federationHostnameCheckingMode;
+		this.federationTranslationProfile = builder.federationTranslationProfile;
+		this.federationRegistrationForm = builder.federationRegistrationForm;
 		this.rawProperties = builder.rawProperties;
 	}
 
@@ -89,6 +103,11 @@ public class OAuthClientConfiguration
 		private String federationJwks;
 		private long federationMetadataValidity;
 		private OAuthProviders providers;
+		private String federationTruststore;
+		private X509CertChainValidator federationValidator;
+		private ServerHostnameCheckingMode federationHostnameCheckingMode;
+		private TranslationProfile federationTranslationProfile;
+		private String federationRegistrationForm;
 		private Properties rawProperties;
 
 		private Builder() {}
@@ -144,6 +163,36 @@ public class OAuthClientConfiguration
 		public Builder withProviders(OAuthProviders providers)
 		{
 			this.providers = providers;
+			return this;
+		}
+
+		public Builder withFederationTruststore(String federationTruststore)
+		{
+			this.federationTruststore = federationTruststore;
+			return this;
+		}
+
+		public Builder withFederationValidator(X509CertChainValidator federationValidator)
+		{
+			this.federationValidator = federationValidator;
+			return this;
+		}
+
+		public Builder withFederationHostnameCheckingMode(ServerHostnameCheckingMode federationHostnameCheckingMode)
+		{
+			this.federationHostnameCheckingMode = federationHostnameCheckingMode;
+			return this;
+		}
+
+		public Builder withFederationTranslationProfile(TranslationProfile federationTranslationProfile)
+		{
+			this.federationTranslationProfile = federationTranslationProfile;
+			return this;
+		}
+
+		public Builder withFederationRegistrationForm(String federationRegistrationForm)
+		{
+			this.federationRegistrationForm = federationRegistrationForm;
 			return this;
 		}
 

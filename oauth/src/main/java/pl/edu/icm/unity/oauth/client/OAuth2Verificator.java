@@ -73,6 +73,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.IdPInfo;
+import pl.edu.icm.unity.engine.api.authn.IdPInfo.IdpGroup;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
@@ -92,9 +93,11 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientConfigurationParser;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviders;
 import pl.edu.icm.unity.oauth.client.federation.OAuthFederationEntityStatementConfig;
 import pl.edu.icm.unity.oauth.client.federation.OAuthFederationEntityStatementServlet;
 import pl.edu.icm.unity.oauth.client.federation.OAuthFederationMetadataManager;
+import pl.edu.icm.unity.oauth.client.federation.OAuthFederationProvidersManager;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherConfig;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
@@ -125,6 +128,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private final OAuthDiscoveryMetadataCache metadataManager;
 	private final OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler;
 	private final OAuthFederationMetadataManager federationManager;
+	private final OAuthFederationProvidersManager federationProvidersManager;
 	private final OAuthClientConfigurationParser configurationParser;
 
 	@Autowired
@@ -136,6 +140,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			OAuthDiscoveryMetadataCache metadataManager,
 			OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler,
 			OAuthFederationMetadataManager federationManager,
+			OAuthFederationProvidersManager federationProvidersManager,
 			OAuthClientConfigurationParser configurationParser)
 	{
 		super(NAME, DESC, OAuthExchange.ID, processor);
@@ -148,6 +153,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		this.metadataManager = metadataManager;
 		this.remoteAuthenticationInputAssembler = remoteAuthenticationInputAssembler;
 		this.federationManager = federationManager;
+		this.federationProvidersManager = federationProvidersManager;
 		this.configurationParser = configurationParser;
 	}
 
@@ -171,12 +177,25 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	{
 		config = configurationParser.parse(source);
 		updateFederationConfiguration();
+		if (instanceName != null)
+			federationProvidersManager.setConfiguration(instanceName,
+					federationEntityBaseUrl + "/" + instanceName, config);
+	}
+
+	@Override
+	public OAuthProviders getCombinedProviders()
+	{
+		if (instanceName != null)
+			return federationProvidersManager.getCombinedProviders(instanceName);
+		return config.providers();
 	}
 
 	@Override
 	public void destroy()
 	{
 		federationManager.updateConfiguration(instanceName, null);
+		if (instanceName != null)
+			federationProvidersManager.removeConfiguration(instanceName);
 	}
 
 	private void updateFederationConfiguration()
@@ -235,7 +254,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			AuthenticationTriggeringContext authnTriggeringContext)
 			throws URISyntaxException, ParseException, IOException
 	{
-		OAuthProviderConfiguration providerCfg = config.providers().get(providerKey);
+		OAuthProviderConfiguration providerCfg = getCombinedProviders().get(providerKey);
 		String clientId = providerCfg.clientId;
 		String authzEndpoint = providerCfg.authorizationEndpoint;
 		String scopes = providerCfg.scopes;
@@ -621,7 +640,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	public List<IdPInfo> getIdPs()
 	{
 		List<IdPInfo> providers = new ArrayList<>();
-		for (OAuthProviderConfiguration provider : config.providers().getAll())
+		for (OAuthProviderConfiguration provider : getCombinedProviders().getAll())
 		{
 			String idpKey = provider.key.asString();
 			if (provider.openIdConnect)
@@ -633,11 +652,19 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 						.withId(provider.accessTokenEndpoint)
 						.withConfigId(idpKey)
 						.withDisplayedName(provider.name)
+						.withGroup(buildFederationGroup(provider))
 						.build();
 				providers.add(providerInfo);
 			}
 		}
 		return providers;
+	}
+
+	private IdpGroup buildFederationGroup(OAuthProviderConfiguration provider)
+	{
+		if (provider.federationId == null)
+			return null;
+		return new IdpGroup(provider.federationId, Optional.ofNullable(provider.federationName));
 	}
 
 	private Optional<IdPInfo> extractIdPInfoFromOIDCProvider(String idpKey, OAuthProviderConfiguration provider)
@@ -656,6 +683,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				.withId(metadata.getTokenEndpointURI().toString())
 				.withConfigId(idpKey)
 				.withDisplayedName(provider.name)
+				.withGroup(buildFederationGroup(provider))
 				.build());
 	}
 
