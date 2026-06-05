@@ -37,12 +37,10 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
-import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
-import com.nimbusds.oauth2.sdk.auth.ClientSecretPost;
-import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -88,6 +86,7 @@ import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientConfigurationParser;
@@ -125,6 +124,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private final String federationEntityBaseUrl;
 	private final OAuthContextsManagement contextManagement;
 	private final PKIManagement pkiManagement;
+	private final ClientAuthenticationFactory clientAuthnFactory;
 	private final OAuthDiscoveryMetadataCache metadataManager;
 	private final OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler;
 	private final OAuthFederationMetadataManager federationManager;
@@ -150,6 +150,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		this.federationEntityBaseUrl = baseAddress + baseContext + OAuthFederationEntityStatementServlet.PATH;
 		this.contextManagement = contextManagement;
 		this.pkiManagement = pkiManagement;
+		this.clientAuthnFactory = new ClientAuthenticationFactory(pkiManagement);
 		this.metadataManager = metadataManager;
 		this.remoteAuthenticationInputAssembler = remoteAuthenticationInputAssembler;
 		this.federationManager = federationManager;
@@ -406,14 +407,15 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 	private HTTPResponse retrieveAccessTokenGeneric(OAuthContext context, OAuthProviderConfiguration providerCfg,
 			String tokenEndpoint, ClientAuthnMode mode)
-			throws IOException, URISyntaxException
+			throws IOException, URISyntaxException, EngineException, JOSEException
 	{
-		ClientAuthentication clientAuthn = getClientAuthentication(providerCfg.clientId, providerCfg.clientSecret, mode);
+		URI tokenEndpointURI = new URI(tokenEndpoint);
+		ClientAuthentication clientAuthn = clientAuthnFactory.build(providerCfg, tokenEndpointURI, mode);
 		AuthorizationCodeGrant authzCodeGrant = new AuthorizationCodeGrant(
 				new AuthorizationCode(context.getAuthzCode()),
 				new URI(responseConsumerAddress));
 		TokenRequest request = new TokenRequest(
-				new URI(tokenEndpoint),
+				tokenEndpointURI,
 				clientAuthn,
 				authzCodeGrant, null);
 
@@ -435,19 +437,6 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 					.map(r -> r.trim())
 					.orElse(null));
 		return response;
-	}
-
-	private ClientAuthentication getClientAuthentication(String clientId, String clientSecret,
-			ClientAuthnMode mode)
-	{
-		switch (mode)
-		{
-		case secretPost:
-			return new ClientSecretPost(new ClientID(clientId), new Secret(clientSecret));
-		case secretBasic:
-		default:
-			return new ClientSecretBasic(new ClientID(clientId), new Secret(clientSecret));
-		}
 	}
 
 	private AttributeFetchResult getAccessTokenAndProfileOpenIdConnect(OAuthContext context,
@@ -487,6 +476,24 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	private ClientAuthnMode establishOpenIDAuthnMode(OIDCProviderMetadata providerMeta,
 			OAuthProviderConfiguration providerCfg) throws AuthenticationException
 	{
+		if (ClientAuthnMethod.private_key_jwt == providerCfg.clientAuthnMethod)
+			return establishOpenIDAuthnModeForPrivateKeyJwt(providerMeta);
+		return establishOpenIDAuthnModeForSecret(providerMeta, providerCfg);
+	}
+
+	ClientAuthnMode establishOpenIDAuthnModeForPrivateKeyJwt(OIDCProviderMetadata providerMeta)
+			throws AuthenticationException
+	{
+		List<ClientAuthenticationMethod> supportedMethods = providerMeta.getTokenEndpointAuthMethods();
+		if (supportedMethods != null && !supportedMethods.contains(ClientAuthenticationMethod.PRIVATE_KEY_JWT))
+			throw new AuthenticationException("Provider does not support private_key_jwt authentication. "
+					+ "Supported methods: " + supportedMethods);
+		return ClientAuthnMode.secretBasic; // unused — private_key_jwt path ignores ClientAuthnMode
+	}
+
+	ClientAuthnMode establishOpenIDAuthnModeForSecret(OIDCProviderMetadata providerMeta,
+			OAuthProviderConfiguration providerCfg) throws AuthenticationException
+	{
 		if (providerCfg.clientAuthnMode.isPresent())
 			return providerCfg.clientAuthnMode.get();
 
@@ -495,7 +502,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		if (supportedMethods != null)
 		{
 			selectedMethod = null;
-			for (ClientAuthenticationMethod sm: supportedMethods)
+			for (ClientAuthenticationMethod sm : supportedMethods)
 			{
 				if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(sm))
 				{
