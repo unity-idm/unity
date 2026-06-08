@@ -18,10 +18,11 @@ import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
-import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
+import pl.edu.icm.unity.oauth.client.config.FederationConfig;
+import pl.edu.icm.unity.oauth.client.config.FederationProviderDefaults;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
@@ -35,19 +36,20 @@ public class FederationEntityToProviderConverter
 
 	record FederationProvider(OAuthProviderConfiguration config, Instant expiresAt) {}
 
-	public List<FederationProvider> convert(List<TrustChain> chains, String clientId, String clientCredential,
-			TranslationProfile translationProfile, String registrationForm, boolean enableAssociation)
+	public List<FederationProvider> convert(List<TrustChain> chains, String clientId,
+			String clientCredential, boolean enableAssociation, FederationProviderDefaults providerDefaults,
+			FederationConfig federationConfig)
 	{
 		return chains.stream()
-				.map(chain -> convertOne(chain, clientId, clientCredential, translationProfile,
-						registrationForm, enableAssociation))
+				.map(chain -> convertOne(chain, clientId, clientCredential, enableAssociation, providerDefaults,
+						federationConfig))
 				.filter(Optional::isPresent)
 				.map(Optional::get)
 				.toList();
 	}
 
 	private Optional<FederationProvider> convertOne(TrustChain chain, String clientId, String clientCredential,
-			TranslationProfile translationProfile, String registrationForm, boolean enableAssociation)
+			boolean enableAssociation, FederationProviderDefaults providerDefaults, FederationConfig federationConfig)
 	{
 		try
 		{
@@ -97,10 +99,13 @@ public class FederationEntityToProviderConverter
 					.withRequestACRsMode(RequestACRsMode.NONE)
 					.withRequestedACRs(List.of())
 					.withRequestedACRsAreEssential(false)
-					.withRegistrationForm(registrationForm)
+					.withRegistrationForm(providerDefaults.registrationForm)
 					.withEnableAssociation(enableAssociation)
-					.withTranslationProfile(translationProfile)
+					.withTranslationProfile(providerDefaults.translationProfile)
 					.withUserAttributesResolver(new OpenIdProfileFetcher())
+					.withTruststoreName(federationConfig.truststore)
+					.withValidator(federationConfig.validator)
+					.withHostNameCheckingMode(federationConfig.hostnameCheckingMode)
 					.build();
 			return Optional.of(new FederationProvider(providerConfig, expiresAt));
 		} catch (Exception e)

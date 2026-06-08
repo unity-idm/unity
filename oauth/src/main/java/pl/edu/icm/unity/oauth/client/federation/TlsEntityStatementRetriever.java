@@ -21,13 +21,13 @@ import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 
-class TlsEntityStatementRetriever implements EntityStatementRetriever
+public class TlsEntityStatementRetriever implements EntityStatementRetriever
 {
 	private final X509CertChainValidator validator;
 	private final ServerHostnameCheckingMode hostnameCheckingMode;
 	private final HttpRequestConfigurer configurer = new HttpRequestConfigurer();
 
-	TlsEntityStatementRetriever(X509CertChainValidator validator,
+	public TlsEntityStatementRetriever(X509CertChainValidator validator,
 			ServerHostnameCheckingMode hostnameCheckingMode)
 	{
 		this.validator = validator;

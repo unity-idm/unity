@@ -13,6 +13,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
@@ -153,7 +154,7 @@ class OAuthFederationSourceHandlerTest
 	}
 
 	@Test
-	void shouldDeliverToAllConsumersOnRefresh()
+	void shouldDeliverToAllConsumersOnRefresh() throws Exception
 	{
 		setupScheduler();
 		when(loader.loadAll(CONFIG)).thenReturn(List.of());
@@ -167,7 +168,7 @@ class OAuthFederationSourceHandlerTest
 	}
 
 	@Test
-	void shouldSkipRefreshWhenIntervalNotElapsedAndNoCacheExpiry()
+	void shouldSkipRefreshWhenIntervalNotElapsedAndNoCacheExpiry() throws Exception
 	{
 		setupScheduler();
 		when(loader.hasExpiredEntries()).thenReturn(false);
@@ -183,7 +184,7 @@ class OAuthFederationSourceHandlerTest
 	}
 
 	@Test
-	void shouldRefreshWhenCacheHasExpiredEntries()
+	void shouldRefreshWhenCacheHasExpiredEntries() throws Exception
 	{
 		setupScheduler();
 		when(loader.hasExpiredEntries()).thenReturn(false)
@@ -200,7 +201,7 @@ class OAuthFederationSourceHandlerTest
 	}
 
 	@Test
-	void shouldContinueWithOtherConsumersWhenOneThrows()
+	void shouldContinueWithOtherConsumersWhenOneThrows() throws Exception
 	{
 		setupScheduler();
 		when(loader.loadAll(CONFIG)).thenReturn(List.of());
@@ -224,6 +225,24 @@ class OAuthFederationSourceHandlerTest
 
 		assertThat(id1).isNotEqualTo(id2);
 		assertThat(id1).isNotBlank();
+	}
+
+	@Test
+	void shouldRetryOnNextRunAfterLoadFailure() throws Exception
+	{
+		setupScheduler();
+		when(loader.hasExpiredEntries()).thenReturn(false);
+		when(loader.loadAll(CONFIG))
+				.thenThrow(new IOException("network error"))
+				.thenReturn(List.of());
+		List<String> receivedIds = new ArrayList<>();
+		handler.addConsumer("c1", SHORT_INTERVAL, CONFIG, (c, id) -> receivedIds.add(id));
+
+		capturedRefreshTask.run(); // first run — load fails, lastRefresh not updated
+		capturedRefreshTask.run(); // second run — interval still elapsed (lastRefresh = EPOCH), retries
+
+		verify(loader, times(2)).loadAll(any());
+		assertThat(receivedIds).containsExactly("c1");
 	}
 
 	// --- helper ---

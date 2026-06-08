@@ -95,6 +95,7 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_TRUSTSTORE = "httpClientTruststore";
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_HOSTNAME_CHECKING = "httpClientHostnameChecking";
 	
+	public static final String FEDERATION_MEMBERSHIP_ENABLED = "federationMembershipEnabled";
 	public static final String FEDERATION_TRUST_ANCHOR_ID = "federationTrustAnchorId";
 	public static final String FEDERATION_TRUST_ANCHOR_JWKS = "federationTrustAnchorJwks";
 	public static final String FEDERATION_CREDENTIAL = "federationCredential";
@@ -196,6 +197,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("Script triggering scope - pattern"));
 		
 		
+		defaults.put(FEDERATION_MEMBERSHIP_ENABLED, new PropertyMD("false")
+				.setDescription("Whether this server participates in an OpenID federation."));
 		defaults.put(FEDERATION_TRUST_ANCHOR_ID, new PropertyMD()
 				.setDescription("Entity ID of the trusted OpenID federation trust anchor."));
 		defaults.put(FEDERATION_TRUST_ANCHOR_JWKS, new PropertyMD()

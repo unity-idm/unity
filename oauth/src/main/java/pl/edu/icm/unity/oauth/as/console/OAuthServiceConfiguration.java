@@ -76,6 +76,7 @@ public class OAuthServiceConfiguration
 	private List<TrustedUpstreamASBean> trustedUpstreamAS;
 	private List<AuthorizationScriptBean> authorizationScripts;
 	private boolean tokenExchangeSupport;
+	private boolean federationMembershipEnabled;
 	private String federationTrustAnchorId;
 	private String federationTrustAnchorJwks;
 	private String federationCredential;
@@ -311,6 +312,8 @@ public class OAuthServiceConfiguration
 			throw new InternalException("Can't serialize oauth idp translation profile to JSON", e);
 		}
 
+		raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_MEMBERSHIP_ENABLED,
+				String.valueOf(federationMembershipEnabled));
 		if (!Strings.isNullOrEmpty(federationTrustAnchorId))
 			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_TRUST_ANCHOR_ID, federationTrustAnchorId);
 		if (!Strings.isNullOrEmpty(federationTrustAnchorJwks))
@@ -427,6 +430,7 @@ public class OAuthServiceConfiguration
 			trustedUpstreamAS.add(trustedUpstreamASBean);
 		}
 
+		federationMembershipEnabled = oauthProperties.getBooleanValue(OAuthASProperties.FEDERATION_MEMBERSHIP_ENABLED);
 		federationTrustAnchorId = oauthProperties.getValue(OAuthASProperties.FEDERATION_TRUST_ANCHOR_ID);
 		federationTrustAnchorJwks = oauthProperties.getValue(OAuthASProperties.FEDERATION_TRUST_ANCHOR_JWKS);
 		federationCredential = oauthProperties.getValue(OAuthASProperties.FEDERATION_CREDENTIAL);
@@ -804,6 +808,16 @@ public class OAuthServiceConfiguration
 	public void setTokenExchangeSupport(boolean exchangeToken)
 	{
 		this.tokenExchangeSupport = exchangeToken;
+	}
+
+	public boolean isFederationMembershipEnabled()
+	{
+		return federationMembershipEnabled;
+	}
+
+	public void setFederationMembershipEnabled(boolean federationMembershipEnabled)
+	{
+		this.federationMembershipEnabled = federationMembershipEnabled;
 	}
 
 	public String getFederationTrustAnchorId()

@@ -39,7 +39,7 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 	public static final String FEDERATION_CREDENTIAL = "federationCredential";
 	public static final String FEDERATION_SUPERIOR_ENTITY_ID = "superiorEntityId";
 	public static final String FEDERATION_TRUST_ANCHOR_ID = "federationTrustAnchorId";
-	public static final String FEDERATION_JWKS = "federationJwks";
+	public static final String FEDERATION_TRUST_ANCHOR_JWKS = "federationTrustAnchorJwks";
 	public static final String FEDERATION_METADATA_VALIDITY = "federationMetadataValidity";
 	public static final int DEFAULT_FEDERATION_METADATA_VALIDITY = 86400;
 	public static final String FEDERATION_TRUSTSTORE = "federationHttpClientTruststore";
@@ -73,16 +73,16 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 				"Entity ID (URL) of the superior federation entity"));
 		META.put(FEDERATION_TRUST_ANCHOR_ID, new PropertyMD().setDescription(
 				"Entity ID (URL) of the trusted federation's trust anchor"));
-		META.put(FEDERATION_JWKS, new PropertyMD().setDescription(
+		META.put(FEDERATION_TRUST_ANCHOR_JWKS, new PropertyMD().setDescription(
 				"JWKS (JSON Web Key Set) of the trusted OpenID federation"));
 		META.put(FEDERATION_METADATA_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_FEDERATION_METADATA_VALIDITY))
 				.setInt().setDescription(
 				"Validity period in seconds of the generated federation entity statement metadata"));
 		META.put(FEDERATION_TRUSTSTORE, new PropertyMD().setDescription(
-				"Truststore used for TLS connections to federation endpoints. "
-				+ "If not set, the JVM default truststore is used."));
+				"Truststore used for TLS connections to federation infrastructure endpoints (entity listing, "
+				+ "trust chain resolution). If not set, the JVM default truststore is used."));
 		META.put(FEDERATION_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL)
-				.setDescription("Controls hostname verification for TLS connections to federation endpoints."));
+				.setDescription("Controls hostname verification for TLS connections to federation infrastructure endpoints."));
 		META.put(FEDERATION_TRANSLATION_PROFILE, new PropertyMD().setDescription(
 				"Translation profile applied to all providers discovered from the federation. "
 				+ "If not set, the default OIDC profile is used."));

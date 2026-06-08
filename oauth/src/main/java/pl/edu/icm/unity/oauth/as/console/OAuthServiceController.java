@@ -5,24 +5,42 @@
 
 package pl.edu.icm.unity.oauth.as.console;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import javax.imageio.ImageIO;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.vaadin.flow.server.streams.DownloadHandler;
 
 import io.imunity.console.utils.tprofile.OutputTranslationProfileFieldFactory;
-import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
-import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceDefinition;
 import io.imunity.vaadin.auth.services.ServiceEditor;
 import io.imunity.vaadin.auth.services.idp.IdpServiceController;
 import io.imunity.vaadin.auth.services.idp.IdpUsersHelper;
+import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
+import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
+import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.image.ImageType;
@@ -40,7 +58,17 @@ import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.*;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.EndpointManagement;
+import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
@@ -65,15 +93,6 @@ import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
-
-import javax.imageio.ImageIO;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Controller for Auth service. Responsible for creating and updating full oauth
@@ -88,6 +107,7 @@ class OAuthServiceController implements IdpServiceController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, OAuthServiceController.class);
 	public static final String DEFAULT_CREDENTIAL = "sys:password";
+	public static final String JWKS_CREDENTIAL = "sys:oauth-private-key-jwt";
 	public static final String IDP_CLIENT_MAIN_GROUP = "/IdPs";
 	public static final String OAUTH_CLIENTS_SUBGROUP = "oauth-clients";
 
@@ -537,17 +557,21 @@ class OAuthServiceController implements IdpServiceController
 			attrMan.setAttribute(entity, name);
 		}
 
-		if (!client.getType().equals(ClientType.PUBLIC.toString()))
-		{
-			if (client.getSecret() != null && !client.getSecret().isEmpty())
-			{
-				entityCredentialManagement.setEntityCredential(entity, DEFAULT_CREDENTIAL,
-						new PasswordToken(client.getSecret()).toJson());
-			}
-		} else
+		if (ClientType.PUBLIC.toString().equals(client.getType()))
 		{
 			entityCredentialManagement.setEntityCredentialStatus(entity, DEFAULT_CREDENTIAL,
 					LocalCredentialState.notSet);
+		} else if ("private_key_jwt".equals(client.getClientAuthnMethod()))
+		{
+			if (client.getJwks() != null && !client.getJwks().isBlank())
+				entityCredentialManagement.setEntityCredential(entity, JWKS_CREDENTIAL, client.getJwks());
+			entityCredentialManagement.setEntityCredentialStatus(entity, DEFAULT_CREDENTIAL,
+					LocalCredentialState.notSet);
+		} else
+		{
+			if (client.getSecret() != null && !client.getSecret().isEmpty())
+				entityCredentialManagement.setEntityCredential(entity, DEFAULT_CREDENTIAL,
+						new PasswordToken(client.getSecret()).toJson());
 		}
 	}
 

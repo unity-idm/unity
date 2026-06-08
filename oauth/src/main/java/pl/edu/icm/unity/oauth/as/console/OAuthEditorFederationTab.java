@@ -30,7 +30,6 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 {
 	private final MessageSource msg;
 	private final Set<String> credentials;
-	private Binder<OAuthServiceConfiguration> configBinder;
 
 	OAuthEditorFederationTab(MessageSource msg, Set<String> credentials)
 	{
@@ -40,18 +39,29 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 
 	void initUI(Binder<OAuthServiceConfiguration> configBinder)
 	{
-		this.configBinder = configBinder;
 		setPadding(false);
 
 		FormLayout federationLayout = new FormLayout();
 		federationLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		federationLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
+		Checkbox federationMembership = new Checkbox(
+				msg.getMessage("OAuthEditorFederationTab.federationMembershipEnabled"));
+		federationLayout.addFormItem(federationMembership, "");
+		configBinder.forField(federationMembership)
+				.bind("federationMembershipEnabled");
+
 		TextField trustAnchorId = new TextField();
 		trustAnchorId.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(trustAnchorId)
 				.bind("federationTrustAnchorId");
 		federationLayout.addFormItem(trustAnchorId, msg.getMessage("OAuthEditorGeneralTab.federationTrustAnchorId"));
+
+		TextField superiorEntityId = new TextField();
+		superiorEntityId.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(superiorEntityId)
+				.bind("federationSuperiorEntityId");
+		federationLayout.addFormItem(superiorEntityId, msg.getMessage("OAuthEditorGeneralTab.federationSuperiorEntityId"));
 
 		TextArea jwks = new TextArea();
 		jwks.setWidth(TEXT_FIELD_BIG.value());
@@ -79,12 +89,6 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 				.bind("federationCredential");
 		federationLayout.addFormItem(federationCredential, msg.getMessage("OAuthEditorGeneralTab.federationCredential"));
 
-		TextField superiorEntityId = new TextField();
-		superiorEntityId.setWidth(TEXT_FIELD_BIG.value());
-		configBinder.forField(superiorEntityId)
-				.bind("federationSuperiorEntityId");
-		federationLayout.addFormItem(superiorEntityId, msg.getMessage("OAuthEditorGeneralTab.federationSuperiorEntityId"));
-
 		IntegerField metadataValidity = new IntegerField();
 		metadataValidity.setStepButtonsVisible(true);
 		configBinder.forField(metadataValidity)
@@ -92,6 +96,21 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null))
 				.bind("federationMetadataValidity");
 		federationLayout.addFormItem(metadataValidity, msg.getMessage("OAuthEditorGeneralTab.federationMetadataValidity"));
+
+		trustAnchorId.setEnabled(false);
+		superiorEntityId.setEnabled(false);
+		jwks.setEnabled(false);
+		federationCredential.setEnabled(false);
+		metadataValidity.setEnabled(false);
+
+		federationMembership.addValueChangeListener(e -> {
+			boolean enabled = e.getValue();
+			trustAnchorId.setEnabled(enabled);
+			superiorEntityId.setEnabled(enabled);
+			jwks.setEnabled(enabled);
+			federationCredential.setEnabled(enabled);
+			metadataValidity.setEnabled(enabled);
+		});
 
 		add(federationLayout);
 	}

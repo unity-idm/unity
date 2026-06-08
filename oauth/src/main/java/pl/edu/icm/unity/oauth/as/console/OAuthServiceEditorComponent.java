@@ -170,7 +170,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		do
 		{
 			genPath = OAuthServiceController.IDP_CLIENT_MAIN_GROUP + "/"
-					+ RandomStringUtils.randomAlphabetic(6).toLowerCase();
+					+ RandomStringUtils.secure().nextAlphabetic(6).toLowerCase();
 		} while (checkIfGroupExists(allGroups, genPath));
 
 		return new Group(genPath);

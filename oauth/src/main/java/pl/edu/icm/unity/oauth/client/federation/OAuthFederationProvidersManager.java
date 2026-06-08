@@ -46,13 +46,13 @@ public class OAuthFederationProvidersManager
 			if (existing != null && existing.consumerId != null)
 				federationService.unregisterConsumer(existing.consumerId);
 
-			if (!config.federationMembershipEnabled || config.federationTrustAnchorId == null)
+			if (!config.federation.enabled || config.federation.trustAnchorId == null)
 				return new InstanceState(null, config.providers());
 
 			try
 			{
-				OAuthFederationConfig fedConfig = OAuthFederationConfig.from(config);
-				String consumerId = federationService.preregisterConsumer(config.federationTrustAnchorId);
+				OAuthFederationConfig fedConfig = OAuthFederationConfig.from(config.federation);
+				String consumerId = federationService.preregisterConsumer(config.federation.trustAnchorId);
 				federationService.registerConsumer(consumerId, fedConfig.refreshInterval(), fedConfig,
 						(chains, cid) -> onUpdatedFederation(authenticatorId, clientId, chains, config));
 				return new InstanceState(consumerId, config.providers());
@@ -87,8 +87,8 @@ public class OAuthFederationProvidersManager
 			List<TrustChain> chains, OAuthClientConfiguration config)
 	{
 		List<FederationProvider> fromFederation = converter.convert(chains, clientId,
-				config.authenticationCredential, config.federationTranslationProfile,
-				config.federationRegistrationForm, config.defaultEnableAssociation);
+				config.authenticationCredential, config.defaultEnableAssociation,
+				config.federationProviderDefaults, config.federation);
 		log.debug("Updated {} federation providers for authenticator {}", fromFederation.size(), authenticatorId);
 
 		InstanceState state = stateByAuthenticator.get(authenticatorId);

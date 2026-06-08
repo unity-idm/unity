@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.GrantType;
@@ -65,10 +64,10 @@ public class OAuthASFederationEntityStatementResource extends BaseOAuthResource
 	@Produces(ENTITY_STATEMENT_MEDIA_TYPE)
 	public Response getEntityStatement()
 	{
-		String credentialName = config.getValue(OAuthASProperties.FEDERATION_CREDENTIAL);
-		if (Strings.isNullOrEmpty(credentialName))
+		if (!config.getBooleanValue(OAuthASProperties.FEDERATION_MEMBERSHIP_ENABLED))
 			return Response.status(Response.Status.NOT_FOUND).build();
 
+		String credentialName = config.getValue(OAuthASProperties.FEDERATION_CREDENTIAL);
 		String issuerUri = config.getValue(OAuthASProperties.ISSUER_URI);
 		String superiorEntityId = config.getValue(OAuthASProperties.FEDERATION_SUPERIOR_ENTITY_ID);
 		long validity = config.getIntValue(OAuthASProperties.FEDERATION_METADATA_VALIDITY);

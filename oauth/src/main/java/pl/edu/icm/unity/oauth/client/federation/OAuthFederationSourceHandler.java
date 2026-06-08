@@ -79,12 +79,13 @@ class OAuthFederationSourceHandler
 			{
 				List<TrustChain> chains = loader.loadAll(entry.config);
 				entry.consumer.accept(chains, entry.id);
+				lastRefresh = Instant.now();
 			} catch (Exception e)
 			{
-				log.error("Error refreshing federation providers for consumer {}", entry.id, e);
+				log.error("Error refreshing federation providers for consumer {}, will retry in {}s",
+						entry.id, RERUN_INTERVAL.toSeconds(), e);
 			}
 		}
-		lastRefresh = Instant.now();
 	}
 
 	static String generateConsumerId()

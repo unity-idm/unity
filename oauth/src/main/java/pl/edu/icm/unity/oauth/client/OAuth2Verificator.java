@@ -203,13 +203,13 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	{
 		if (instanceName == null)
 			return;
-		if (!config.federationMembershipEnabled)
+		if (!config.federation.enabled)
 		{
 			federationManager.updateConfiguration(instanceName, null);
 			return;
 		}
 
-		String federationCredName = config.federationCredential;
+		String federationCredName = config.federation.credential;
 		String authCredName = config.authenticationCredential;
 
 		if (Strings.isNullOrEmpty(federationCredName))
@@ -228,8 +228,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 					Strings.isNullOrEmpty(authCredName) ? null : pkiManagement.getCredential(authCredName);
 
 			String entityId = federationEntityBaseUrl + "/" + instanceName;
-			String superiorEntityId = config.federationSuperiorEntityId;
-			long metadataValidity = config.federationMetadataValidity;
+			String superiorEntityId = config.federation.superiorEntityId;
+			long metadataValidity = config.federation.metadataValidity;
 
 			OAuthFederationEntityStatementConfig federationConfig = new OAuthFederationEntityStatementConfig(
 					entityId, federationCred, authCred, responseConsumerAddress, superiorEntityId, metadataValidity);
@@ -336,7 +336,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
 			verifyExpectedIdentity(input, context.getExpectedIdentity());
-			OAuthProviderConfiguration providerCfg = config.providers().get(context.getProviderConfigKey());
+			OAuthProviderConfiguration providerCfg = getCombinedProviders().get(context.getProviderConfigKey());
 			TranslationProfile profile = providerCfg.translationProfile;
 			String regFormForUnknown = providerCfg.registrationForm;
 			boolean enableAssociation = providerCfg.enableAssociation;
@@ -389,7 +389,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 							" " + context.getErrorDescription() : ""));
 		}
 
-		OAuthProviderConfiguration providerCfg = config.providers().get(context.getProviderConfigKey());
+		OAuthProviderConfiguration providerCfg = getCombinedProviders().get(context.getProviderConfigKey());
 		boolean openIdConnectMode = providerCfg.openIdConnect;
 
 		AttributeFetchResult attributes;

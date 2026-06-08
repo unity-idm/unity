@@ -179,10 +179,10 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthClientConfiguration config = parser.parse(p);
 
-		assertThat(config.federationMembershipEnabled).isTrue();
-		assertThat(config.federationSuperiorEntityId).isEqualTo("https://federation.example.com");
-		assertThat(config.federationTrustAnchorId).isEqualTo("https://anchor.example.com");
-		assertThat(config.federationCredential).isEqualTo("myCred");
+		assertThat(config.federation.enabled).isTrue();
+		assertThat(config.federation.superiorEntityId).isEqualTo("https://federation.example.com");
+		assertThat(config.federation.trustAnchorId).isEqualTo("https://anchor.example.com");
+		assertThat(config.federation.credential).isEqualTo("myCred");
 	}
 
 	@Test
@@ -193,9 +193,9 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthClientConfiguration config = parser.parse(p);
 
-		assertThat(config.federationTranslationProfile).isNotNull();
-		assertThat(config.federationTranslationProfile.getRules()).hasSize(1);
-		assertThat(config.federationTranslationProfile.getRules().get(0).getAction().getParameters())
+		assertThat(config.federationProviderDefaults.translationProfile).isNotNull();
+		assertThat(config.federationProviderDefaults.translationProfile.getRules()).hasSize(1);
+		assertThat(config.federationProviderDefaults.translationProfile.getRules().get(0).getAction().getParameters())
 				.contains("myFedProfile");
 	}
 
@@ -206,9 +206,9 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthClientConfiguration config = parser.parse(p);
 
-		assertThat(config.federationTranslationProfile).isNotNull();
-		assertThat(config.federationTranslationProfile.getRules()).hasSize(1);
-		assertThat(config.federationTranslationProfile.getRules().get(0).getAction().getParameters())
+		assertThat(config.federationProviderDefaults.translationProfile).isNotNull();
+		assertThat(config.federationProviderDefaults.translationProfile.getRules()).hasSize(1);
+		assertThat(config.federationProviderDefaults.translationProfile.getRules().get(0).getAction().getParameters())
 				.contains("sys:oidc");
 	}
 
@@ -220,7 +220,7 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthClientConfiguration config = parser.parse(p);
 
-		assertThat(config.federationRegistrationForm).isEqualTo("myFedForm");
+		assertThat(config.federationProviderDefaults.registrationForm).isEqualTo("myFedForm");
 	}
 
 	@Test

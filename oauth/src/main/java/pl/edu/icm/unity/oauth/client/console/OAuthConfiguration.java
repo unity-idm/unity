@@ -37,12 +37,12 @@ public class OAuthConfiguration
 	private String federationSuperiorEntityId;
 	private String authenticationCredential;
 	private String federationTrustAnchorId;
-	private String federationJwks;
+	private String federationTrustAnchorJwks;
 	private int federationMetadataValidity;
 	private String federationTruststore;
 	private String federationHostnameCheckingMode;
-	private TranslationProfile federationTranslationProfile;
-	private String federationRegistrationForm;
+	private TranslationProfile federationProviderTranslationProfile;
+	private String federationProviderRegistrationForm;
 
 	public OAuthConfiguration()
 	{
@@ -72,7 +72,7 @@ public class OAuthConfiguration
 		federationSuperiorEntityId = oauthProp.getValue(OAuthClientProperties.FEDERATION_SUPERIOR_ENTITY_ID);
 		authenticationCredential = oauthProp.getValue(OAuthClientProperties.AUTHENTICATION_CREDENTIAL);
 		federationTrustAnchorId = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID);
-		federationJwks = oauthProp.getValue(OAuthClientProperties.FEDERATION_JWKS);
+		federationTrustAnchorJwks = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_JWKS);
 		federationMetadataValidity = oauthProp.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY);
 		federationTruststore = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUSTSTORE);
 		ServerHostnameCheckingMode checkingMode = oauthProp.getEnumValue(
@@ -80,12 +80,12 @@ public class OAuthConfiguration
 		federationHostnameCheckingMode = checkingMode != null ? checkingMode.name()
 				: ServerHostnameCheckingMode.FAIL.name();
 		if (oauthProp.isSet(OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE))
-			federationTranslationProfile = TranslationProfileGenerator.getProfileFromString(
+			federationProviderTranslationProfile = TranslationProfileGenerator.getProfileFromString(
 					oauthProp.getValue(OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE));
 		else if (oauthProp.isSet(OAuthClientProperties.FEDERATION_TRANSLATION_PROFILE))
-			federationTranslationProfile = TranslationProfileGenerator.generateIncludeInputProfile(
+			federationProviderTranslationProfile = TranslationProfileGenerator.generateIncludeInputProfile(
 					oauthProp.getValue(OAuthClientProperties.FEDERATION_TRANSLATION_PROFILE));
-		federationRegistrationForm = oauthProp.getValue(OAuthClientProperties.FEDERATION_REGISTRATION_FORM);
+		federationProviderRegistrationForm = oauthProp.getValue(OAuthClientProperties.FEDERATION_REGISTRATION_FORM);
 
 		providers.clear();
 		Set<String> keys = oauthProp.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
@@ -132,9 +132,9 @@ public class OAuthConfiguration
 			{
 				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID, federationTrustAnchorId);
 			}
-			if (federationJwks != null && !federationJwks.isEmpty())
+			if (federationTrustAnchorJwks != null && !federationTrustAnchorJwks.isEmpty())
 			{
-				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_JWKS, federationJwks);
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_TRUST_ANCHOR_JWKS, federationTrustAnchorJwks);
 			}
 			raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_METADATA_VALIDITY,
 					String.valueOf(federationMetadataValidity));
@@ -144,20 +144,20 @@ public class OAuthConfiguration
 			if (federationHostnameCheckingMode != null && !federationHostnameCheckingMode.isEmpty())
 				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_HOSTNAME_CHECKING,
 						federationHostnameCheckingMode);
-			if (federationTranslationProfile != null)
+			if (federationProviderTranslationProfile != null)
 			{
 				try
 				{
 					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE,
-							new ObjectMapper().writeValueAsString(federationTranslationProfile.toJsonObject()));
+							new ObjectMapper().writeValueAsString(federationProviderTranslationProfile.toJsonObject()));
 				} catch (Exception e)
 				{
 					throw new InternalException("Can't serialize federation translation profile to JSON", e);
 				}
 			}
-			if (federationRegistrationForm != null && !federationRegistrationForm.isEmpty())
+			if (federationProviderRegistrationForm != null && !federationProviderRegistrationForm.isEmpty())
 				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REGISTRATION_FORM,
-						federationRegistrationForm);
+						federationProviderRegistrationForm);
 		}
 
 		for (OAuthProviderConfiguration provider : providers)
@@ -240,14 +240,14 @@ public class OAuthConfiguration
 		this.federationTrustAnchorId = federationTrustAnchorId;
 	}
 
-	public String getFederationJwks()
+	public String getFederationTrustAnchorJwks()
 	{
-		return federationJwks;
+		return federationTrustAnchorJwks;
 	}
 
-	public void setFederationJwks(String federationJwks)
+	public void setFederationTrustAnchorJwks(String federationTrustAnchorJwks)
 	{
-		this.federationJwks = federationJwks;
+		this.federationTrustAnchorJwks = federationTrustAnchorJwks;
 	}
 
 	public int getFederationMetadataValidity()
@@ -280,23 +280,23 @@ public class OAuthConfiguration
 		this.federationHostnameCheckingMode = federationHostnameCheckingMode;
 	}
 
-	public TranslationProfile getFederationTranslationProfile()
+	public TranslationProfile getFederationProviderTranslationProfile()
 	{
-		return federationTranslationProfile;
+		return federationProviderTranslationProfile;
 	}
 
-	public void setFederationTranslationProfile(TranslationProfile federationTranslationProfile)
+	public void setFederationProviderTranslationProfile(TranslationProfile federationProviderTranslationProfile)
 	{
-		this.federationTranslationProfile = federationTranslationProfile;
+		this.federationProviderTranslationProfile = federationProviderTranslationProfile;
 	}
 
-	public String getFederationRegistrationForm()
+	public String getFederationProviderRegistrationForm()
 	{
-		return federationRegistrationForm;
+		return federationProviderRegistrationForm;
 	}
 
-	public void setFederationRegistrationForm(String federationRegistrationForm)
+	public void setFederationProviderRegistrationForm(String federationProviderRegistrationForm)
 	{
-		this.federationRegistrationForm = federationRegistrationForm;
+		this.federationProviderRegistrationForm = federationProviderRegistrationForm;
 	}
 }

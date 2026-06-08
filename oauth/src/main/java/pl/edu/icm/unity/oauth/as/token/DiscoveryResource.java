@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.Response;
 import com.google.common.collect.Lists;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.GrantType;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.ResponseMode;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
@@ -96,7 +97,11 @@ public class DiscoveryResource extends BaseOAuthResource
 		meta.setResponseModes(Lists.newArrayList(ResponseMode.QUERY, ResponseMode.FRAGMENT));
 		meta.setGrantTypes(Lists.newArrayList(GrantType.AUTHORIZATION_CODE, GrantType.IMPLICIT));
 		meta.setIDTokenJWSAlgs(Lists.newArrayList(JWSAlgorithm.RS256, JWSAlgorithm.ES256));
-		
+		meta.setTokenEndpointAuthMethods(Lists.newArrayList(
+				ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
+				ClientAuthenticationMethod.CLIENT_SECRET_POST,
+				ClientAuthenticationMethod.PRIVATE_KEY_JWT));
+
 		return toResponse(Response.ok(meta.toJSONObject().toJSONString()));
 	}
 }

@@ -38,6 +38,8 @@ public class OAuthClient
 	private String group;
 	private boolean toRemove;
 	private boolean updated;
+	private String clientAuthnMethod = "client_secret";
+	private String jwks;
 
 	public OAuthClient()
 	{
@@ -240,7 +242,29 @@ public class OAuthClient
 		clone.setUpdated(this.isUpdated());
 		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);
 		clone.setCanReceivePatternScopes(this.isCanReceivePatternScopes());
+		clone.setClientAuthnMethod(this.getClientAuthnMethod());
+		clone.setJwks(this.getJwks());
 		return clone;
+	}
+
+	public String getClientAuthnMethod()
+	{
+		return clientAuthnMethod;
+	}
+
+	public void setClientAuthnMethod(String clientAuthnMethod)
+	{
+		this.clientAuthnMethod = clientAuthnMethod;
+	}
+
+	public String getJwks()
+	{
+		return jwks;
+	}
+
+	public void setJwks(String jwks)
+	{
+		this.jwks = jwks;
 	}
 
 	public static class OAuthClientsBean

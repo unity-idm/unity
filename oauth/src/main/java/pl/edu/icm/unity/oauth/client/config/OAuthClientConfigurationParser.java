@@ -66,29 +66,39 @@ public class OAuthClientConfigurationParser
 	private OAuthClientConfiguration fromProperties(OAuthClientProperties props, Properties raw)
 	{
 		boolean defaultEnableAssociation = props.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
-		String federationTruststore = props.getValue(OAuthClientProperties.FEDERATION_TRUSTSTORE);
-		X509CertChainValidator federationValidator = resolveFederationValidator(federationTruststore);
-		ServerHostnameCheckingMode federationHostnameChecking = props.getEnumValue(
-				OAuthClientProperties.FEDERATION_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
 		return OAuthClientConfiguration.builder()
 				.withDefaultEnableAssociation(defaultEnableAssociation)
-				.withFederationMembershipEnabled(
-						props.getBooleanValue(OAuthClientProperties.FEDERATION_MEMBERSHIP_ENABLED))
-				.withFederationCredential(props.getValue(OAuthClientProperties.FEDERATION_CREDENTIAL))
 				.withAuthenticationCredential(props.getValue(OAuthClientProperties.AUTHENTICATION_CREDENTIAL))
-				.withFederationSuperiorEntityId(
-						props.getValue(OAuthClientProperties.FEDERATION_SUPERIOR_ENTITY_ID))
-				.withFederationTrustAnchorId(props.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID))
-				.withFederationJwks(props.getValue(OAuthClientProperties.FEDERATION_JWKS))
-				.withFederationMetadataValidity(
-						props.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY))
-				.withFederationTruststore(federationTruststore)
-				.withFederationValidator(federationValidator)
-				.withFederationHostnameCheckingMode(federationHostnameChecking)
-				.withFederationTranslationProfile(parseFederationTranslationProfile(props))
-				.withFederationRegistrationForm(props.getValue(OAuthClientProperties.FEDERATION_REGISTRATION_FORM))
+				.withFederation(parseFederationConfig(props))
+				.withFederationProviderDefaults(parseFederationProviderDefaults(props))
 				.withProviders(parseProviders(props, defaultEnableAssociation))
 				.withRawProperties(raw)
+				.build();
+	}
+
+	private FederationConfig parseFederationConfig(OAuthClientProperties props)
+	{
+		String truststore = props.getValue(OAuthClientProperties.FEDERATION_TRUSTSTORE);
+		ServerHostnameCheckingMode hostnameChecking = props.getEnumValue(
+				OAuthClientProperties.FEDERATION_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
+		return FederationConfig.builder()
+				.withEnabled(props.getBooleanValue(OAuthClientProperties.FEDERATION_MEMBERSHIP_ENABLED))
+				.withCredential(props.getValue(OAuthClientProperties.FEDERATION_CREDENTIAL))
+				.withSuperiorEntityId(props.getValue(OAuthClientProperties.FEDERATION_SUPERIOR_ENTITY_ID))
+				.withTrustAnchorId(props.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID))
+				.withJwks(props.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_JWKS))
+				.withMetadataValidity(props.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY))
+				.withTruststore(truststore)
+				.withValidator(resolveFederationValidator(truststore))
+				.withHostnameCheckingMode(hostnameChecking)
+				.build();
+	}
+
+	private FederationProviderDefaults parseFederationProviderDefaults(OAuthClientProperties props)
+	{
+		return FederationProviderDefaults.builder()
+				.withTranslationProfile(parseFederationTranslationProfile(props))
+				.withRegistrationForm(props.getValue(OAuthClientProperties.FEDERATION_REGISTRATION_FORM))
 				.build();
 	}
 

@@ -12,7 +12,7 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientConfiguration;
+import pl.edu.icm.unity.oauth.client.config.FederationConfig;
 
 record OAuthFederationConfig(
 		EntityID trustAnchorEntityId,
@@ -22,22 +22,22 @@ record OAuthFederationConfig(
 		X509CertChainValidator validator,
 		ServerHostnameCheckingMode hostnameCheckingMode)
 {
-	static OAuthFederationConfig from(OAuthClientConfiguration cfg) throws java.text.ParseException
+	static OAuthFederationConfig from(FederationConfig cfg) throws java.text.ParseException
 	{
-		EntityID trustAnchorId = new EntityID(cfg.federationTrustAnchorId);
-		URI listEndpoint = URI.create(cfg.federationTrustAnchorId + "/list");
-		JWKSet jwks = cfg.federationJwks != null
-				? JWKSet.parse(cfg.federationJwks)
+		EntityID trustAnchorId = new EntityID(cfg.trustAnchorId);
+		URI listEndpoint = URI.create(cfg.trustAnchorId + "/list");
+		JWKSet jwks = cfg.jwks != null
+				? JWKSet.parse(cfg.jwks)
 				: new JWKSet();
-		Duration refresh = Duration.ofSeconds(cfg.federationMetadataValidity);
+		Duration refresh = Duration.ofSeconds(cfg.metadataValidity);
 		return new OAuthFederationConfig(
 				trustAnchorId,
 				listEndpoint,
 				jwks,
 				refresh,
-				cfg.federationValidator,
-				cfg.federationHostnameCheckingMode != null
-						? cfg.federationHostnameCheckingMode
+				cfg.validator,
+				cfg.hostnameCheckingMode != null
+						? cfg.hostnameCheckingMode
 						: ServerHostnameCheckingMode.FAIL);
 	}
 }

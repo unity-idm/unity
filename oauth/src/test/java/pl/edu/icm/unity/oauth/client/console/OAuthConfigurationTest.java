@@ -120,7 +120,7 @@ public class OAuthConfigurationTest
 			.ignoringMissing("providers.1.clientSecret")
 			.ignoringMissing("providers.1.clientAuthenticationMode")
 			.ignoringMissing("providers.1.clientAuthenticationModeForProfileAccess")
-			.ignoringMissing("federationTranslationProfile")
+			.ignoringMissing("federationProviderTranslationProfile")
 			.checkMatching(result, sourceCfg);
 	}
 }

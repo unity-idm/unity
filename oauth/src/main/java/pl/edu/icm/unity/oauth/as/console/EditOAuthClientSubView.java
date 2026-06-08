@@ -24,6 +24,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
@@ -163,20 +164,28 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		}).bind("id");
 		header.addFormItem(id, msg.getMessage("EditOAuthClientSubView.id"));
 		
+		Select<String> authnMethod = new Select<>();
+		authnMethod.setWidth(TEXT_FIELD_MEDIUM.value());
+		authnMethod.setItems("client_secret", "private_key_jwt");
+		binder.forField(authnMethod).bind("clientAuthnMethod");
+		header.addFormItem(authnMethod, msg.getMessage("EditOAuthClientSubView.authnMethod"));
+
 		CustomField<String> secret;
+		FormLayout.FormItem secretFormItem;
 		if (!editMode)
 		{
 			secret = new TextFieldWithGenerator();
 			secret.setWidth(30, Unit.EM);
 			binder.forField(secret).withValidator((v, c) -> {
-				if ((v == null || v.isEmpty()) && ClientType.CONFIDENTIAL.toString().equals(type.getValue()))
+				if ((v == null || v.isEmpty())
+						&& ClientType.CONFIDENTIAL.toString().equals(type.getValue())
+						&& "client_secret".equals(authnMethod.getValue()))
 				{
 					return ValidationResult.error(msg.getMessage("fieldRequired"));
 				}
 				return ValidationResult.ok();
-
 			}).bind("secret");
-			header.addFormItem(secret, msg.getMessage("EditOAuthClientSubView.secret"));
+			secretFormItem = header.addFormItem(secret, msg.getMessage("EditOAuthClientSubView.secret"));
 		} else
 		{
 			TextFieldWithChangeConfirmation<TextFieldWithGenerator> secretWithChangeConfirmation =
@@ -187,18 +196,61 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 				{
 					return ValidationResult.error(msg.getMessage("fieldRequired"));
 				}
-
 				return ValidationResult.ok();
 			}).bind("secret");
-			header.addFormItem(secretWithChangeConfirmation, msg.getMessage("EditOAuthClientSubView.secret"));
+			secretFormItem = header.addFormItem(secretWithChangeConfirmation, msg.getMessage("EditOAuthClientSubView.secret"));
 			secret = secretWithChangeConfirmation;
 		}
 
+		TextArea jwks = new TextArea();
+		jwks.setWidth(TEXT_FIELD_BIG.value());
+		jwks.setHeight("8em");
+		binder.forField(jwks).withValidator((v, c) -> {
+			if (v != null && !v.isBlank())
+			{
+				try
+				{
+					com.nimbusds.jose.jwk.JWKSet.parse(v);
+				} catch (Exception e)
+				{
+					return ValidationResult.error(msg.getMessage("EditOAuthClientSubView.invalidJwks"));
+				}
+			}
+			return ValidationResult.ok();
+		}).bind("jwks");
+		FormLayout.FormItem jwksFormItem = header.addFormItem(jwks, msg.getMessage("EditOAuthClientSubView.jwks"));
+
+		boolean isPrivateKeyJwt = "private_key_jwt".equals(authnMethod.getValue());
+		boolean isConfidential = ClientType.CONFIDENTIAL.toString().equals(type.getValue());
+		secretFormItem.setVisible(!isPrivateKeyJwt);
+		jwksFormItem.setVisible(isPrivateKeyJwt);
+		secret.setEnabled(!isPrivateKeyJwt && isConfidential);
+		jwks.setEnabled(isPrivateKeyJwt && isConfidential);
+
+		authnMethod.addValueChangeListener(e -> {
+			boolean pkjwt = "private_key_jwt".equals(e.getValue());
+			boolean confidential = ClientType.CONFIDENTIAL.toString().equals(type.getValue());
+			secretFormItem.setVisible(!pkjwt);
+			jwksFormItem.setVisible(pkjwt);
+			secret.setEnabled(!pkjwt && confidential);
+			jwks.setEnabled(pkjwt && confidential);
+			if (pkjwt)
+				secret.setValue("");
+			else
+				jwks.setValue("");
+		});
+
 		type.addValueChangeListener(e ->
 		{
-			secret.setEnabled(ClientType.CONFIDENTIAL.toString().equals(e.getValue()));
-			if (!secret.isEnabled())
+			boolean confidential = ClientType.CONFIDENTIAL.toString().equals(e.getValue());
+			authnMethod.setEnabled(confidential);
+			secret.setEnabled(confidential && "client_secret".equals(authnMethod.getValue()));
+			jwks.setEnabled(confidential && "private_key_jwt".equals(authnMethod.getValue()));
+			if (!confidential)
+			{
 				secret.setValue("");
+				jwks.setValue("");
+			}
 		});
 		
 		MultiSelectComboBox<String> allowedFlows = new MultiSelectComboBox<>();

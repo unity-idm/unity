@@ -29,6 +29,8 @@ import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.oauth.client.config.FederationConfig;
+import pl.edu.icm.unity.oauth.client.config.FederationProviderDefaults;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
@@ -70,7 +72,7 @@ class OAuthFederationProvidersManagerTest
 	{
 		OAuthProviderConfiguration staticProvider = buildStaticProvider("static1");
 		OAuthClientConfiguration config = configBuilder()
-				.withFederationMembershipEnabled(false)
+				.withFederation(disabledFederation())
 				.withProviders(new OAuthProviders(List.of(staticProvider)))
 				.build();
 
@@ -84,7 +86,7 @@ class OAuthFederationProvidersManagerTest
 	void shouldNotRegisterConsumerWhenFederationDisabled()
 	{
 		OAuthClientConfiguration config = configBuilder()
-				.withFederationMembershipEnabled(false)
+				.withFederation(disabledFederation())
 				.withProviders(new OAuthProviders(List.of()))
 				.build();
 
@@ -98,8 +100,8 @@ class OAuthFederationProvidersManagerTest
 	void shouldNotRegisterConsumerWhenTrustAnchorIdIsNull()
 	{
 		OAuthClientConfiguration config = configBuilder()
-				.withFederationMembershipEnabled(true)
-				.withFederationTrustAnchorId(null)
+				.withFederation(FederationConfig.builder().withEnabled(true).withTrustAnchorId(null)
+						.withMetadataValidity(3600).build())
 				.withProviders(new OAuthProviders(List.of()))
 				.build();
 
@@ -127,14 +129,12 @@ class OAuthFederationProvidersManagerTest
 		OAuthProviderConfiguration staticProvider = buildStaticProvider("static1");
 		OAuthProviderConfiguration fedProvider = buildFederationProvider("fed1");
 		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
-		when(converter.convert(any(), any(), any(), any(), any(), anyBoolean()))
+		when(converter.convert(any(), any(), any(), anyBoolean(), any()))
 				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
 		OAuthClientConfiguration config = configBuilder()
-				.withFederationMembershipEnabled(true)
-				.withFederationTrustAnchorId(TRUST_ANCHOR)
-				.withFederationMetadataValidity(3600)
-				.withFederationTranslationProfile(PROFILE)
+				.withFederation(enabledFederation())
+				.withFederationProviderDefaults(FederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
 				.withProviders(new OAuthProviders(List.of(staticProvider)))
 				.build();
 
@@ -153,7 +153,7 @@ class OAuthFederationProvidersManagerTest
 	{
 		OAuthProviderConfiguration expiredFedProvider = buildFederationProvider("fed-expired");
 		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
-		when(converter.convert(any(), any(), any(), any(), any(), anyBoolean()))
+		when(converter.convert(any(), any(), any(), anyBoolean(), any()))
 				.thenReturn(List.of(new FederationProvider(expiredFedProvider,
 						Instant.now().minusSeconds(1))));
 
@@ -174,14 +174,12 @@ class OAuthFederationProvidersManagerTest
 		OAuthProviderConfiguration staticProvider = buildProviderWithKey(sharedKey, "static");
 		OAuthProviderConfiguration fedProvider = buildProviderWithKey(sharedKey, "federation");
 		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
-		when(converter.convert(any(), any(), any(), any(), any(), anyBoolean()))
+		when(converter.convert(any(), any(), any(), anyBoolean(), any()))
 				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
 		OAuthClientConfiguration config = configBuilder()
-				.withFederationMembershipEnabled(true)
-				.withFederationTrustAnchorId(TRUST_ANCHOR)
-				.withFederationMetadataValidity(3600)
-				.withFederationTranslationProfile(PROFILE)
+				.withFederation(enabledFederation())
+				.withFederationProviderDefaults(FederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
 				.withProviders(new OAuthProviders(List.of(staticProvider)))
 				.build();
 
@@ -237,7 +235,7 @@ class OAuthFederationProvidersManagerTest
 	{
 		OAuthProviderConfiguration fedProvider = buildFederationProvider("fed1");
 		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
-		when(converter.convert(any(), any(), any(), any(), any(), anyBoolean()))
+		when(converter.convert(any(), any(), any(), anyBoolean(), any()))
 				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
 		OAuthClientConfiguration config = federationEnabledConfig();
@@ -263,10 +261,8 @@ class OAuthFederationProvidersManagerTest
 	private OAuthClientConfiguration federationEnabledConfig()
 	{
 		return configBuilder()
-				.withFederationMembershipEnabled(true)
-				.withFederationTrustAnchorId(TRUST_ANCHOR)
-				.withFederationMetadataValidity(3600)
-				.withFederationTranslationProfile(PROFILE)
+				.withFederation(enabledFederation())
+				.withFederationProviderDefaults(FederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
 				.withProviders(new OAuthProviders(List.of()))
 				.build();
 	}
@@ -275,10 +271,20 @@ class OAuthFederationProvidersManagerTest
 	{
 		return OAuthClientConfiguration.builder()
 				.withDefaultEnableAssociation(true)
-				.withFederationMembershipEnabled(false)
-				.withFederationMetadataValidity(3600)
-				.withFederationTranslationProfile(PROFILE)
+				.withFederation(disabledFederation())
+				.withFederationProviderDefaults(FederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
 				.withProviders(new OAuthProviders(List.of()));
+	}
+
+	private FederationConfig disabledFederation()
+	{
+		return FederationConfig.builder().withEnabled(false).withMetadataValidity(3600).build();
+	}
+
+	private FederationConfig enabledFederation()
+	{
+		return FederationConfig.builder().withEnabled(true).withTrustAnchorId(TRUST_ANCHOR)
+				.withMetadataValidity(3600).build();
 	}
 
 	private OAuthProviderConfiguration buildStaticProvider(String name)

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.client.federation;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,32 +48,31 @@ class OAuthFederationLoader
 		this.cache = cache;
 	}
 
-	List<TrustChain> loadAll(OAuthFederationConfig config)
+	List<TrustChain> loadAll(OAuthFederationConfig config) throws IOException, ParseException
 	{
 		List<EntityID> entityIds = fetchEntityListing(config);
+		cache.keySet().retainAll(new HashSet<>(entityIds));
+		if (entityIds.isEmpty())
+			return List.of();
 		TrustChainResolver resolver = buildResolver(config);
 		List<TrustChain> result = new ArrayList<>();
 		for (EntityID entityId : entityIds)
 		{
 			resolveWithCache(entityId, resolver, config).ifPresent(result::add);
 		}
+		if (result.isEmpty())
+			throw new IOException("Failed to resolve any of " + entityIds.size()
+					+ " listed federation entities");
 		return result;
 	}
 
-	private List<EntityID> fetchEntityListing(OAuthFederationConfig config)
+	private List<EntityID> fetchEntityListing(OAuthFederationConfig config) throws IOException, ParseException
 	{
-		try
-		{
-			HTTPRequest httpRequest = new EntityListingRequest(
-					config.trustAnchorListEndpoint(), EntityType.OPENID_PROVIDER).toHTTPRequest();
-			configurer.secureRequest(httpRequest, config.validator(), config.hostnameCheckingMode());
-			HTTPResponse response = httpRequest.send();
-			return EntityListingSuccessResponse.parse(response).getEntityListing();
-		} catch (ParseException | IOException e)
-		{
-			log.error("Failed to fetch entity listing from {}", config.trustAnchorListEndpoint(), e);
-			return List.of();
-		}
+		HTTPRequest httpRequest = new EntityListingRequest(
+				config.trustAnchorListEndpoint(), EntityType.OPENID_PROVIDER).toHTTPRequest();
+		configurer.secureRequest(httpRequest, config.validator(), config.hostnameCheckingMode());
+		HTTPResponse response = httpRequest.send();
+		return EntityListingSuccessResponse.parse(response).getEntityListing();
 	}
 
 	private Optional<TrustChain> resolveWithCache(EntityID entityId, TrustChainResolver resolver,

@@ -29,6 +29,7 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.oauth.client.config.FederationProviderDefaults;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.client.federation.FederationEntityToProviderConverter.FederationProvider;
 
@@ -59,7 +60,7 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				TRANSLATION_PROFILE, null, true);
+				true, defaultProviderDefaults());
 
 		assertThat(result).hasSize(1);
 		OAuthProviderConfiguration provider = result.get(0).config();
@@ -74,7 +75,7 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, null, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				TRANSLATION_PROFILE, null, true);
+				true, defaultProviderDefaults());
 
 		assertThat(result).isEmpty();
 	}
@@ -215,7 +216,7 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				profile, null, true);
+				true, FederationProviderDefaults.builder().withTranslationProfile(profile).build());
 
 		assertThat(result.get(0).config().translationProfile).isSameAs(profile);
 	}
@@ -228,7 +229,8 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				TRANSLATION_PROFILE, "myRegistrationForm", true);
+				true, FederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
+						.withRegistrationForm("myRegistrationForm").build());
 
 		assertThat(result.get(0).config().registrationForm).isEqualTo("myRegistrationForm");
 	}
@@ -241,9 +243,9 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> enabled = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				TRANSLATION_PROFILE, null, true);
+				true, defaultProviderDefaults());
 		List<FederationProvider> disabled = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				TRANSLATION_PROFILE, null, false);
+				false, defaultProviderDefaults());
 
 		assertThat(enabled.get(0).config().enableAssociation).isTrue();
 		assertThat(disabled.get(0).config().enableAssociation).isFalse();
@@ -271,7 +273,7 @@ public class FederationEntityToProviderConverterTest
 		TrustChain nullMetaChain = buildChain(new EntityID("https://other.example.com"), null, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(validChain, nullMetaChain),
-				CLIENT_ID, CLIENT_CREDENTIAL, TRANSLATION_PROFILE, null, true);
+				CLIENT_ID, CLIENT_CREDENTIAL, true, defaultProviderDefaults());
 
 		assertThat(result).hasSize(1);
 		assertThat(result.get(0).config().name.getDefaultValue()).isEqualTo("https://idp.example.com");
@@ -294,9 +296,14 @@ public class FederationEntityToProviderConverterTest
 	private OAuthProviderConfiguration singleProvider(TrustChain chain) throws Exception
 	{
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				TRANSLATION_PROFILE, null, true);
+				true, defaultProviderDefaults());
 		assertThat(result).hasSize(1);
 		return result.get(0).config();
+	}
+
+	private FederationProviderDefaults defaultProviderDefaults()
+	{
+		return FederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE).build();
 	}
 
 	private TrustChain buildChain(EntityID leafId, OIDCProviderMetadata opMeta,
