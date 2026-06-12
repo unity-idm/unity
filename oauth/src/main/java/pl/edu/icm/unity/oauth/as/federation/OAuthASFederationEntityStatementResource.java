@@ -57,6 +57,26 @@ public class OAuthASFederationEntityStatementResource extends BaseOAuthResource
 		this.coordinator = coordinator;
 		this.scopeService = scopeService;
 		this.pkiManagement = pkiManagement;
+		if (config.getBooleanValue(OAuthASProperties.FEDERATION_MEMBERSHIP_ENABLED))
+			validateEntityIdMatchesBaseAddress();
+	}
+
+	private void validateEntityIdMatchesBaseAddress()
+	{
+		String issuerUri = stripTrailingSlash(config.getValue(OAuthASProperties.ISSUER_URI));
+		String baseAddress = stripTrailingSlash(config.getBaseAddress());
+		if (!issuerUri.equals(baseAddress))
+			log.warn("Federation entity statement is served at {}/.well-known/openid-federation "
+					+ "but the configured issuer URI is {}. "
+					+ "OpenID Federation resolvers fetch {{issuerUri}}/.well-known/openid-federation "
+					+ "and will not find this entity statement. "
+					+ "Set issuerUri to match the token-endpoint base URL ({}).",
+					baseAddress, issuerUri, baseAddress);
+	}
+
+	private static String stripTrailingSlash(String uri)
+	{
+		return uri != null && uri.endsWith("/") ? uri.substring(0, uri.length() - 1) : uri;
 	}
 
 	@Path("/openid-federation")
