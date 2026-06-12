@@ -136,5 +136,21 @@
 	<update id="updateSchema-022-00">
         UPDATE UVOS_FLAG SET VAL = '22'
     </update>
-	
+
+	<update id="updateSchema-023-01">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-varObjectsTypeIdx0"/>
+	</update>
+
+	<update id="updateSchema-023-02">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-varObjectsTypeIdx1"/>
+	</update>
+
+	<update id="updateSchema-023-03">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-varObjectsTypeIdx2"/>
+	</update>
+
+	<update id="updateSchema-023-04">
+		UPDATE UVOS_FLAG SET VAL = '23'
+	</update>
+
 </mapper>

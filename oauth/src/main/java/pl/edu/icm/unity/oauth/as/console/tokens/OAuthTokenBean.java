@@ -34,6 +34,14 @@ class OAuthTokenBean implements FilterableEntry
 		this.owner = owner;
 	}
 
+	OAuthTokenBean(Token token, OAuthToken oauthToken, MessageSource msg, String owner)
+	{
+		this.token = token;
+		this.msg = msg;
+		this.oauthToken = oauthToken;
+		this.owner = owner;
+	}
+
 	public String getType()
 	{
 		try
