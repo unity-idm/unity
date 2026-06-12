@@ -71,6 +71,21 @@ public class ClientAuthenticationFactoryTest
 	}
 
 	@Test
+	void privateKeyJwtShouldIncludeIatClaim() throws Exception
+	{
+		PKIManagement pki = pkiManWith(rsaCredential());
+		ClientAuthenticationFactory factory = new ClientAuthenticationFactory(pki);
+
+		var result = (PrivateKeyJWT) factory.build(providerCfgWithPrivateKeyJwt("clientId", "myCred"),
+				TOKEN_ENDPOINT, ClientAuthnMode.secretBasic);
+
+		assertThat(result.getJWTAuthenticationClaimsSet().getIssueTime()).isNotNull();
+		long lifetimeMs = result.getJWTAuthenticationClaimsSet().getExpirationTime().getTime()
+				- result.getJWTAuthenticationClaimsSet().getIssueTime().getTime();
+		assertThat(lifetimeMs).isEqualTo(ClientAuthenticationFactory.ASSERTION_LIFETIME_MS);
+	}
+
+	@Test
 	void shouldBuildClientSecretBasicForSecretBasicMode() throws Exception
 	{
 		ClientAuthenticationFactory factory = new ClientAuthenticationFactory(mock(PKIManagement.class));
