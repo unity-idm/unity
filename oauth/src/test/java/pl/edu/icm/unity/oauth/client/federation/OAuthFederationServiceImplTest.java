@@ -51,6 +51,7 @@ class OAuthFederationServiceImplTest
 		service = new OAuthFederationServiceImpl(executorsService);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void setupScheduler()
 	{
 		when(executorsService.getScheduledService()).thenReturn(scheduler);
