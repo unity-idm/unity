@@ -17,10 +17,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
+import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChainResolver;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChainSet;
 import com.nimbusds.openid.connect.sdk.federation.trust.constraints.TrustChainConstraints;
+import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
+
+import net.minidev.json.JSONObject;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
@@ -58,6 +63,7 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 	private X509CertChainValidator federationValidator;
 	private ServerHostnameCheckingMode federationHostnameCheckingMode;
 	private final PKIManagement pkiManagement;
+	private final JwtClientAssertionVerifier jwtVerifier = new JwtClientAssertionVerifier();
 
 	@Autowired
 	public FederatedPrivateKeyJwtVerificator(PKIManagement pkiManagement)
@@ -193,7 +199,7 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 
 		try
 		{
-			JwtClientAssertionVerifier.verifyJwt(jwt, jwkSet, tokenEndpointUri, clientId);
+			jwtVerifier.verifyJwt(jwt, jwkSet, tokenEndpointUri, clientId);
 		} catch (AuthenticationException e)
 		{
 			log.info("JWT assertion verification failed for client {}: {}", clientId, e.getMessage());
@@ -215,10 +221,22 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 								: ServerHostnameCheckingMode.FAIL));
 
 		TrustChainSet chains = resolver.resolveTrustChains(new EntityID(clientId));
-		TrustChain shortest = chains.getShortest();
-		JWKSet jwkSet = shortest.getLeafConfiguration().getClaimsSet().getJWKSet();
+		return extractRpJwksFromChain(chains.getShortest(), clientId);
+	}
+
+	static JWKSet extractRpJwksFromChain(TrustChain chain, String clientId) throws Exception
+	{
+		JSONObject rawRpJson = chain.getLeafConfiguration().getClaimsSet()
+				.getMetadata(EntityType.OPENID_RELYING_PARTY);
+		if (rawRpJson == null)
+			throw new AuthenticationException(
+					"No openid_relying_party metadata in federation leaf entity for " + clientId);
+		MetadataPolicy policy = chain.resolveCombinedMetadataPolicy(EntityType.OPENID_RELYING_PARTY);
+		OIDCClientMetadata rpMeta = OIDCClientMetadata.parse(policy.apply(rawRpJson));
+		JWKSet jwkSet = rpMeta.getJWKSet();
 		if (jwkSet == null || jwkSet.getKeys().isEmpty())
-			throw new AuthenticationException("Empty JWKS in federation leaf entity for " + clientId);
+			throw new AuthenticationException(
+					"Empty JWKS in openid_relying_party metadata in federation leaf entity for " + clientId);
 		return jwkSet;
 	}
 

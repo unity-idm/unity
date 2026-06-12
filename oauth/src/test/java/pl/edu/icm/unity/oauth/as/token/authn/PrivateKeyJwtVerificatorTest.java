@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -99,10 +100,13 @@ class PrivateKeyJwtVerificatorTest
 	void shouldFailWhenSubjectClaimMissing() throws Exception
 	{
 		var rsaKey = new RSAKeyGenerator(2048).keyID("k1").generate();
+		Date now = new Date();
 		JWTClaimsSet claims = new JWTClaimsSet.Builder()
 				.issuer(CLIENT_ID)
 				.audience(TOKEN_URI.toString())
-				.expirationTime(new Date(System.currentTimeMillis() + 60_000))
+				.issueTime(now)
+				.expirationTime(new Date(now.getTime() + 60_000))
+				.jwtID(UUID.randomUUID().toString())
 				.build();
 		SignedJWT jwt = new SignedJWT(
 				new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("k1").build(), claims);
@@ -124,7 +128,9 @@ class PrivateKeyJwtVerificatorTest
 				.subject(CLIENT_ID)
 				.issuer(CLIENT_ID)
 				.audience(TOKEN_URI.toString())
+				.issueTime(new Date(System.currentTimeMillis() - 2000))
 				.expirationTime(new Date(System.currentTimeMillis() - 1000))
+				.jwtID(UUID.randomUUID().toString())
 				.build();
 		SignedJWT jwt = new SignedJWT(
 				new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("k1").build(), claims);
@@ -142,11 +148,14 @@ class PrivateKeyJwtVerificatorTest
 		var jwkSet = new JWKSet(rsaKey.toPublicJWK());
 		stubIdentityResolver(jwkSet.toString());
 
+		Date now = new Date();
 		JWTClaimsSet claims = new JWTClaimsSet.Builder()
 				.subject(CLIENT_ID)
 				.issuer(CLIENT_ID)
 				.audience("https://other.example.com/token")
-				.expirationTime(new Date(System.currentTimeMillis() + 60_000))
+				.issueTime(now)
+				.expirationTime(new Date(now.getTime() + 60_000))
+				.jwtID(UUID.randomUUID().toString())
 				.build();
 		SignedJWT jwt = new SignedJWT(
 				new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("k1").build(), claims);
@@ -164,11 +173,14 @@ class PrivateKeyJwtVerificatorTest
 		var jwkSet = new JWKSet(rsaKey.toPublicJWK());
 		stubIdentityResolver(jwkSet.toString());
 
+		Date now = new Date();
 		JWTClaimsSet claims = new JWTClaimsSet.Builder()
 				.subject(CLIENT_ID)
 				.issuer("other-client")
 				.audience(TOKEN_URI.toString())
-				.expirationTime(new Date(System.currentTimeMillis() + 60_000))
+				.issueTime(now)
+				.expirationTime(new Date(now.getTime() + 60_000))
+				.jwtID(UUID.randomUUID().toString())
 				.build();
 		SignedJWT jwt = new SignedJWT(
 				new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("k1").build(), claims);
@@ -303,11 +315,14 @@ class PrivateKeyJwtVerificatorTest
 	private String buildAndSignJwt(String clientId, URI audience, com.nimbusds.jose.JWSSigner signer,
 			JWSHeader header) throws Exception
 	{
+		Date now = new Date();
 		JWTClaimsSet claims = new JWTClaimsSet.Builder()
 				.subject(clientId)
 				.issuer(clientId)
 				.audience(audience.toString())
-				.expirationTime(new Date(System.currentTimeMillis() + 60_000))
+				.issueTime(now)
+				.expirationTime(new Date(now.getTime() + 60_000))
+				.jwtID(UUID.randomUUID().toString())
 				.build();
 		SignedJWT jwt = new SignedJWT(header, claims);
 		jwt.sign(signer);

@@ -50,6 +50,7 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator implements Cli
 	private ClientPublicKeysCredential credential = new ClientPublicKeysCredential();
 	private String credentialName;
 	private final CredentialHelper credentialHelper;
+	private final JwtClientAssertionVerifier jwtVerifier = new JwtClientAssertionVerifier();
 
 	@Autowired
 	public PrivateKeyJwtVerificator(CredentialHelper credentialHelper)
@@ -146,7 +147,7 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator implements Cli
 
 		try
 		{
-			JwtClientAssertionVerifier.verifyJwt(jwt, jwkSet, tokenEndpointUri, clientId);
+			jwtVerifier.verifyJwt(jwt, jwkSet, tokenEndpointUri, clientId);
 		} catch (AuthenticationException e)
 		{
 			log.info("JWT assertion verification failed for client {}: {}", clientId, e.getMessage());

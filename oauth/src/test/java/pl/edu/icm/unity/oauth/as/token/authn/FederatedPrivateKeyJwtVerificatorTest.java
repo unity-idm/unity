@@ -12,7 +12,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,9 +25,17 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaimsSet;
+import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
+import com.nimbusds.openid.connect.sdk.rp.OIDCClientInformation;
+import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.json.JsonUtil;
@@ -198,14 +209,79 @@ class FederatedPrivateKeyJwtVerificatorTest
 				.hasMessageContaining("Invalid federation trust anchor JWKS");
 	}
 
+	@Test
+	void shouldExtractRpJwksFromChainRpMetadataNotTopLevelJwks() throws Exception
+	{
+		RSAKey federationKey = new RSAKeyGenerator(2048).keyID("fed-key").generate();
+		RSAKey authKey = new RSAKeyGenerator(2048).keyID("auth-key").generate();
+
+		TrustChain chain = buildChainWithRpJwks(CLIENT_ID, federationKey, authKey);
+
+		JWKSet result = FederatedPrivateKeyJwtVerificator.extractRpJwksFromChain(chain, CLIENT_ID);
+
+		assertThat(result.getKeyByKeyId("auth-key")).isNotNull();
+		assertThat(result.getKeyByKeyId("fed-key")).isNull();
+	}
+
+	@Test
+	void shouldThrowWhenChainHasNoRpMetadata() throws Exception
+	{
+		RSAKey federationKey = new RSAKeyGenerator(2048).keyID("fed-key").generate();
+		TrustChain chain = buildChainWithoutRpMetadata(CLIENT_ID, federationKey);
+
+		assertThatThrownBy(() -> FederatedPrivateKeyJwtVerificator.extractRpJwksFromChain(chain, CLIENT_ID))
+				.hasMessageContaining("No openid_relying_party metadata");
+	}
+
+	private TrustChain buildChainWithRpJwks(String clientId, RSAKey federationKey, RSAKey authKey)
+			throws Exception
+	{
+		EntityID leafId = new EntityID(clientId);
+		EntityID anchorId = new EntityID(TRUST_ANCHOR_ID);
+		Date now = new Date();
+		Date exp = Date.from(Instant.now().plusSeconds(3600));
+		JWKSet federationJwks = new JWKSet(federationKey.toPublicJWK());
+
+		EntityStatementClaimsSet leafClaims = new EntityStatementClaimsSet(leafId, leafId, now, exp, federationJwks);
+		OIDCClientMetadata rpMeta = new OIDCClientMetadata();
+		rpMeta.setJWKSet(new JWKSet(authKey.toPublicJWK()));
+		leafClaims.setRPInformation(new OIDCClientInformation(new ClientID(clientId), rpMeta));
+		EntityStatement leafStatement = EntityStatement.sign(leafClaims, federationKey);
+
+		EntityStatementClaimsSet anchorClaims = new EntityStatementClaimsSet(anchorId, leafId, now, exp, federationJwks);
+		EntityStatement anchorStatement = EntityStatement.sign(anchorClaims, federationKey);
+
+		return new TrustChain(leafStatement, List.of(anchorStatement));
+	}
+
+	private TrustChain buildChainWithoutRpMetadata(String clientId, RSAKey federationKey) throws Exception
+	{
+		EntityID leafId = new EntityID(clientId);
+		EntityID anchorId = new EntityID(TRUST_ANCHOR_ID);
+		Date now = new Date();
+		Date exp = Date.from(Instant.now().plusSeconds(3600));
+		JWKSet federationJwks = new JWKSet(federationKey.toPublicJWK());
+
+		EntityStatementClaimsSet leafClaims = new EntityStatementClaimsSet(leafId, leafId, now, exp, federationJwks);
+		EntityStatement leafStatement = EntityStatement.sign(leafClaims, federationKey);
+
+		EntityStatementClaimsSet anchorClaims = new EntityStatementClaimsSet(anchorId, leafId, now, exp, federationJwks);
+		EntityStatement anchorStatement = EntityStatement.sign(anchorClaims, federationKey);
+
+		return new TrustChain(leafStatement, List.of(anchorStatement));
+	}
+
 	private String buildAndSignJwt(String clientId, URI audience, com.nimbusds.jose.JWSSigner signer,
 			JWSHeader header) throws Exception
 	{
+		Date now = new Date();
 		JWTClaimsSet claims = new JWTClaimsSet.Builder()
 				.subject(clientId)
 				.issuer(clientId)
 				.audience(audience.toString())
-				.expirationTime(new Date(System.currentTimeMillis() + 60_000))
+				.issueTime(now)
+				.expirationTime(new Date(now.getTime() + 60_000))
+				.jwtID(UUID.randomUUID().toString())
 				.build();
 		SignedJWT jwt = new SignedJWT(header, claims);
 		jwt.sign(signer);
