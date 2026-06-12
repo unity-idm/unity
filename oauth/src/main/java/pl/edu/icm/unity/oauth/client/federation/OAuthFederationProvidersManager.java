@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.oauth.client.InstanceId;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviders;
@@ -39,7 +40,8 @@ public class OAuthFederationProvidersManager
 		this.converter = converter;
 	}
 
-	public void setConfiguration(String authenticatorId, String clientId, OAuthClientConfiguration config)
+	public void setConfiguration(String authenticatorId, String clientId, OAuthClientConfiguration config,
+			InstanceId instanceId)
 	{
 		stateByAuthenticator.compute(authenticatorId, (id, existing) ->
 		{
@@ -47,29 +49,31 @@ public class OAuthFederationProvidersManager
 				federationService.unregisterConsumer(existing.consumerId);
 
 			if (!config.federation.enabled || config.federation.trustAnchorId == null)
-				return new InstanceState(null, config.providers());
+				return new InstanceState(instanceId, null, config.providers());
 
 			try
 			{
 				OAuthFederationConfig fedConfig = OAuthFederationConfig.from(config.federation);
-				String consumerId = federationService.preregisterConsumer(config.federation.trustAnchorId);
+				String consumerId = federationService.preregisterConsumer();
 				federationService.registerConsumer(consumerId, fedConfig.refreshInterval(), fedConfig,
-						(chains, cid) -> onUpdatedFederation(authenticatorId, clientId, chains, config));
-				return new InstanceState(consumerId, config.providers());
+						(chains, cid) -> onUpdatedFederation(authenticatorId, clientId, cid, chains, config));
+				return new InstanceState(instanceId, consumerId, config.providers());
 			} catch (ParseException e)
 			{
 				log.error("Failed to parse federation config for authenticator {}: {}",
 						authenticatorId, e.getMessage());
-				return new InstanceState(null, config.providers());
+				return new InstanceState(instanceId, null, config.providers());
 			}
 		});
 	}
 
-	public void removeConfiguration(String authenticatorId)
+	public void removeConfiguration(String authenticatorId, InstanceId instanceId)
 	{
 		stateByAuthenticator.compute(authenticatorId, (id, existing) ->
 		{
-			if (existing != null && existing.consumerId != null)
+			if (existing == null || existing.instanceId != instanceId)
+				return existing;
+			if (existing.consumerId != null)
 				federationService.unregisterConsumer(existing.consumerId);
 			return null;
 		});
@@ -83,36 +87,37 @@ public class OAuthFederationProvidersManager
 		return state.effectiveProviders();
 	}
 
-	private synchronized void onUpdatedFederation(String authenticatorId, String clientId,
-			List<TrustChain> chains, OAuthClientConfiguration config)
+	private void onUpdatedFederation(String authenticatorId, String clientId,
+			String consumerId, List<TrustChain> chains, OAuthClientConfiguration config)
 	{
 		List<FederationProvider> fromFederation = converter.convert(chains, clientId,
 				config.authenticationCredential, config.defaultEnableAssociation,
 				config.federationProviderDefaults, config.federation);
 		log.debug("Updated {} federation providers for authenticator {}", fromFederation.size(), authenticatorId);
 
-		InstanceState state = stateByAuthenticator.get(authenticatorId);
-		if (state == null)
-			return;
-
 		Map<OAuthProviderKey, Instant> expiryMap = new ConcurrentHashMap<>();
 		fromFederation.forEach(fp -> expiryMap.put(fp.config().key, fp.expiresAt()));
-
 		OAuthProviders combined = config.providers()
 				.replaceFederation(fromFederation.stream().map(FederationProvider::config).toList())
 				.overrideWithStatic(config.providers());
-		stateByAuthenticator.put(authenticatorId,
-				new InstanceState(state.consumerId, combined, expiryMap));
+
+		stateByAuthenticator.computeIfPresent(authenticatorId, (id, state) ->
+		{
+			if (!consumerId.equals(state.consumerId))
+				return state;
+			return new InstanceState(state.instanceId, state.consumerId, combined, expiryMap);
+		});
 	}
 
 	private record InstanceState(
+			InstanceId instanceId,
 			String consumerId,
 			OAuthProviders combinedProviders,
 			Map<OAuthProviderKey, Instant> federationExpiry)
 	{
-		InstanceState(String consumerId, OAuthProviders combinedProviders)
+		InstanceState(InstanceId instanceId, String consumerId, OAuthProviders combinedProviders)
 		{
-			this(consumerId, combinedProviders, Collections.emptyMap());
+			this(instanceId, consumerId, combinedProviders, Collections.emptyMap());
 		}
 
 		OAuthProviders effectiveProviders()

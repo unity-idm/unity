@@ -8,22 +8,28 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.oauth.client.InstanceId;
+
 @Component
 public class OAuthFederationMetadataManager
 {
-	private final ConcurrentHashMap<String, OAuthFederationEntityStatementConfig> configurations =
-			new ConcurrentHashMap<>();
+	private record ConfigEntry(OAuthFederationEntityStatementConfig config, InstanceId instanceId) {}
 
-	public void updateConfiguration(String authenticatorName, OAuthFederationEntityStatementConfig config)
+	private final ConcurrentHashMap<String, ConfigEntry> configurations = new ConcurrentHashMap<>();
+
+	public void updateConfiguration(String authenticatorName, OAuthFederationEntityStatementConfig config,
+			InstanceId instanceId)
 	{
 		if (config == null)
-			configurations.remove(authenticatorName);
+			configurations.compute(authenticatorName,
+					(name, existing) -> existing != null && existing.instanceId == instanceId ? null : existing);
 		else
-			configurations.put(authenticatorName, config);
+			configurations.put(authenticatorName, new ConfigEntry(config, instanceId));
 	}
 
 	public OAuthFederationEntityStatementConfig getConfiguration(String authenticatorName)
 	{
-		return configurations.get(authenticatorName);
+		ConfigEntry entry = configurations.get(authenticatorName);
+		return entry == null ? null : entry.config();
 	}
 }

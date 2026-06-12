@@ -12,7 +12,7 @@ import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 
 interface OAuthFederationService
 {
-	String preregisterConsumer(String trustAnchorUrl);
+	String preregisterConsumer();
 
 	void registerConsumer(String key, Duration refreshInterval, OAuthFederationConfig config,
 			BiConsumer<List<TrustChain>, String> consumer);

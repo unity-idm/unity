@@ -29,6 +29,7 @@ import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.oauth.client.InstanceId;
 import pl.edu.icm.unity.oauth.client.config.FederationConfig;
 import pl.edu.icm.unity.oauth.client.config.FederationProviderDefaults;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientConfiguration;
@@ -43,6 +44,7 @@ class OAuthFederationProvidersManagerTest
 	private static final String AUTHENTICATOR_ID = "myAuthenticator";
 	private static final String CLIENT_ID = "https://rp.example.com";
 	private static final String TRUST_ANCHOR = "https://anchor.example.com";
+	private static final InstanceId INSTANCE_ID = new InstanceId();
 	private static final TranslationProfile PROFILE =
 			TranslationProfileGenerator.generateIncludeInputProfile("sys:oidc");
 
@@ -76,7 +78,7 @@ class OAuthFederationProvidersManagerTest
 				.withProviders(new OAuthProviders(List.of(staticProvider)))
 				.build();
 
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 
 		OAuthProviders result = manager.getCombinedProviders(AUTHENTICATOR_ID);
 		assertThat(result.getAll()).containsExactly(staticProvider);
@@ -90,9 +92,9 @@ class OAuthFederationProvidersManagerTest
 				.withProviders(new OAuthProviders(List.of()))
 				.build();
 
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 
-		verify(federationService, never()).preregisterConsumer(anyString());
+		verify(federationService, never()).preregisterConsumer();
 		verify(federationService, never()).registerConsumer(anyString(), any(), any(), any());
 	}
 
@@ -105,9 +107,9 @@ class OAuthFederationProvidersManagerTest
 				.withProviders(new OAuthProviders(List.of()))
 				.build();
 
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 
-		verify(federationService, never()).preregisterConsumer(anyString());
+		verify(federationService, never()).preregisterConsumer();
 	}
 
 	@Test
@@ -119,20 +121,20 @@ class OAuthFederationProvidersManagerTest
 				.withProviders(new OAuthProviders(List.of()))
 				.build();
 
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 
-		verify(federationService, never()).preregisterConsumer(anyString());
+		verify(federationService, never()).preregisterConsumer();
 	}
 
 	@Test
 	void shouldRegisterConsumerWhenFederationEnabled()
 	{
-		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
+		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
 		OAuthClientConfiguration config = federationEnabledConfig();
 
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 
-		verify(federationService).preregisterConsumer(TRUST_ANCHOR);
+		verify(federationService).preregisterConsumer();
 		verify(federationService).registerConsumer(eq("consumer-1"), any(Duration.class),
 				any(OAuthFederationConfig.class), any());
 	}
@@ -142,7 +144,7 @@ class OAuthFederationProvidersManagerTest
 	{
 		OAuthProviderConfiguration staticProvider = buildStaticProvider("static1");
 		OAuthProviderConfiguration fedProvider = buildFederationProvider("fed1");
-		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
+		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
 		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
 				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
@@ -152,7 +154,7 @@ class OAuthFederationProvidersManagerTest
 				.withProviders(new OAuthProviders(List.of(staticProvider)))
 				.build();
 
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 
 		BiConsumer<List<TrustChain>, String> callback = captureCallback();
 		callback.accept(List.of(), "consumer-1");
@@ -166,13 +168,13 @@ class OAuthFederationProvidersManagerTest
 	void shouldFilterExpiredFederationProviders()
 	{
 		OAuthProviderConfiguration expiredFedProvider = buildFederationProvider("fed-expired");
-		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
+		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
 		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
 				.thenReturn(List.of(new FederationProvider(expiredFedProvider,
 						Instant.now().minusSeconds(1))));
 
 		OAuthClientConfiguration config = federationEnabledConfig();
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 
 		BiConsumer<List<TrustChain>, String> callback = captureCallback();
 		callback.accept(List.of(), "consumer-1");
@@ -187,7 +189,7 @@ class OAuthFederationProvidersManagerTest
 		OAuthProviderKey sharedKey = OAuthProviderKey.fromFederationEntity("https://idp.example.com");
 		OAuthProviderConfiguration staticProvider = buildProviderWithKey(sharedKey, "static");
 		OAuthProviderConfiguration fedProvider = buildProviderWithKey(sharedKey, "federation");
-		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
+		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
 		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
 				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
@@ -197,7 +199,7 @@ class OAuthFederationProvidersManagerTest
 				.withProviders(new OAuthProviders(List.of(staticProvider)))
 				.build();
 
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 		BiConsumer<List<TrustChain>, String> callback = captureCallback();
 		callback.accept(List.of(), "consumer-1");
 
@@ -209,13 +211,13 @@ class OAuthFederationProvidersManagerTest
 	@Test
 	void shouldUnregisterOldConsumerOnReconfiguration()
 	{
-		when(federationService.preregisterConsumer(TRUST_ANCHOR))
+		when(federationService.preregisterConsumer())
 				.thenReturn("consumer-1")
 				.thenReturn("consumer-2");
 		OAuthClientConfiguration config = federationEnabledConfig();
 
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 
 		verify(federationService).unregisterConsumer("consumer-1");
 	}
@@ -223,11 +225,11 @@ class OAuthFederationProvidersManagerTest
 	@Test
 	void shouldUnregisterConsumerOnRemoveConfiguration()
 	{
-		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
+		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
 		OAuthClientConfiguration config = federationEnabledConfig();
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 
-		manager.removeConfiguration(AUTHENTICATOR_ID);
+		manager.removeConfiguration(AUTHENTICATOR_ID, INSTANCE_ID);
 
 		verify(federationService).unregisterConsumer("consumer-1");
 	}
@@ -235,9 +237,9 @@ class OAuthFederationProvidersManagerTest
 	@Test
 	void shouldReturnEmptyAfterRemoveConfiguration()
 	{
-		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, federationEnabledConfig());
-		manager.removeConfiguration(AUTHENTICATOR_ID);
+		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, federationEnabledConfig(), INSTANCE_ID);
+		manager.removeConfiguration(AUTHENTICATOR_ID, INSTANCE_ID);
 
 		OAuthProviders result = manager.getCombinedProviders(AUTHENTICATOR_ID);
 
@@ -248,16 +250,60 @@ class OAuthFederationProvidersManagerTest
 	void shouldIgnoreUpdateForRemovedAuthenticator()
 	{
 		OAuthProviderConfiguration fedProvider = buildFederationProvider("fed1");
-		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
+		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
 		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
 				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
 		OAuthClientConfiguration config = federationEnabledConfig();
-		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
 		BiConsumer<List<TrustChain>, String> callback = captureCallback();
-		manager.removeConfiguration(AUTHENTICATOR_ID);
+		manager.removeConfiguration(AUTHENTICATOR_ID, INSTANCE_ID);
 
 		callback.accept(List.of(), "consumer-1");
+
+		assertThat(manager.getCombinedProviders(AUTHENTICATOR_ID).getAll()).isEmpty();
+	}
+
+	@Test
+	void destroyOfOldInstanceShouldNotWipeStateSetByNewInstance()
+	{
+		InstanceId oldInstanceId = new InstanceId();
+		InstanceId newInstanceId = new InstanceId();
+		when(federationService.preregisterConsumer())
+				.thenReturn("consumer-old")
+				.thenReturn("consumer-new");
+		OAuthClientConfiguration config = federationEnabledConfig();
+
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, oldInstanceId);
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, newInstanceId);
+		manager.removeConfiguration(AUTHENTICATOR_ID, oldInstanceId);
+
+		OAuthProviders result = manager.getCombinedProviders(AUTHENTICATOR_ID);
+		assertThat(result).isNotNull();
+		verify(federationService, never()).unregisterConsumer("consumer-new");
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void shouldIgnoreStaleCallbackAfterConsumerReplaced()
+	{
+		OAuthProviderConfiguration fedProvider = buildFederationProvider("fed1");
+		when(federationService.preregisterConsumer())
+				.thenReturn("consumer-1")
+				.thenReturn("consumer-2");
+		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
+				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
+
+		OAuthClientConfiguration config = federationEnabledConfig();
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, new InstanceId());
+
+		ArgumentCaptor<BiConsumer<List<TrustChain>, String>> captor = ArgumentCaptor.forClass(BiConsumer.class);
+		verify(federationService).registerConsumer(anyString(), any(), any(), captor.capture());
+		BiConsumer<List<TrustChain>, String> staleCallback = captor.getValue();
+
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, new InstanceId());
+
+		staleCallback.accept(List.of(), "consumer-1");
 
 		assertThat(manager.getCombinedProviders(AUTHENTICATOR_ID).getAll()).isEmpty();
 	}

@@ -58,6 +58,15 @@ class OAuthFederationSourceHandler
 		return consumers.isEmpty();
 	}
 
+	synchronized void cancel()
+	{
+		if (scheduledTask != null)
+		{
+			scheduledTask.cancel(false);
+			scheduledTask = null;
+		}
+	}
+
 	private void refresh()
 	{
 		List<ConsumerEntry> toRefresh;
@@ -79,7 +88,10 @@ class OAuthFederationSourceHandler
 			{
 				List<TrustChain> chains = loader.loadAll(entry.config);
 				entry.consumer.accept(chains, entry.id);
-				lastRefresh = Instant.now();
+				synchronized (this)
+				{
+					lastRefresh = Instant.now();
+				}
 			} catch (Exception e)
 			{
 				log.error("Error refreshing federation providers for consumer {}, will retry in {}s",

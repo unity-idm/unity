@@ -18,7 +18,8 @@ record OAuthFederationConfig(
 		JWKSet trustAnchorJwks,
 		Duration refreshInterval,
 		X509CertChainValidator validator,
-		ServerHostnameCheckingMode hostnameCheckingMode)
+		ServerHostnameCheckingMode hostnameCheckingMode,
+		String truststore)
 {
 	static OAuthFederationConfig from(FederationConfig cfg) throws java.text.ParseException
 	{
@@ -35,6 +36,7 @@ record OAuthFederationConfig(
 				cfg.validator,
 				cfg.hostnameCheckingMode != null
 						? cfg.hostnameCheckingMode
-						: ServerHostnameCheckingMode.FAIL);
+						: ServerHostnameCheckingMode.FAIL,
+				cfg.truststore);
 	}
 }

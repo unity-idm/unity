@@ -47,7 +47,7 @@ class OAuthFederationSourceHandlerTest
 	private static final Duration SHORT_INTERVAL = Duration.ofSeconds(60);
 	private static final OAuthFederationConfig CONFIG = new OAuthFederationConfig(
 			new EntityID("https://anchor.example.com"), new JWKSet(),
-			SHORT_INTERVAL, null, ServerHostnameCheckingMode.FAIL);
+			SHORT_INTERVAL, null, ServerHostnameCheckingMode.FAIL, null);
 
 	@Mock
 	ExecutorsService executorsService;
@@ -214,6 +214,22 @@ class OAuthFederationSourceHandlerTest
 		capturedRefreshTask.run();
 
 		assertThat(receivedIds).containsExactly("c2");
+	}
+
+	@Test
+	void shouldCancelScheduledTaskWhenCancelled()
+	{
+		ScheduledFuture<?> future = mock(ScheduledFuture.class);
+		when(scheduler.scheduleWithFixedDelay(any(Runnable.class), anyLong(), anyLong(), any(TimeUnit.class)))
+				.thenAnswer(inv -> {
+					capturedRefreshTask = inv.getArgument(0);
+					return future;
+				});
+		handler.addConsumer("c1", SHORT_INTERVAL, CONFIG, (chains, id) -> {});
+
+		handler.cancel();
+
+		verify(future).cancel(false);
 	}
 
 	@Test

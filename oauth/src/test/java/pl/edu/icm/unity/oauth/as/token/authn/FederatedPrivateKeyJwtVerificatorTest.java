@@ -271,6 +271,102 @@ class FederatedPrivateKeyJwtVerificatorTest
 		return new TrustChain(leafStatement, List.of(anchorStatement));
 	}
 
+	@Test
+	void shouldReturnCachedChainWithoutCallingResolveAgain() throws Exception
+	{
+		RSAKey federationKey = new RSAKeyGenerator(2048).keyID("fed-key").generate();
+		RSAKey authKey = new RSAKeyGenerator(2048).keyID("auth-key").generate();
+		TrustChain chain = buildChainWithRpJwks(CLIENT_ID, federationKey, authKey);
+		int[] resolveCount = {0};
+
+		var verificator = new FederatedPrivateKeyJwtVerificator(pkiManagement)
+		{
+			@Override
+			TrustChain resolveChain(String clientId) throws Exception
+			{
+				resolveCount[0]++;
+				return chain;
+			}
+		};
+		verificator.setSerializedConfiguration(
+				buildConfig(TRUST_ANCHOR_ID, new JWKSet(federationKey.toPublicJWK()).toString()));
+
+		verificator.resolveJwksFromFederation(CLIENT_ID);
+		verificator.resolveJwksFromFederation(CLIENT_ID);
+
+		assertThat(resolveCount[0]).isEqualTo(1);
+	}
+
+	@Test
+	void shouldResolveAgainWhenCacheEntryExpired() throws Exception
+	{
+		RSAKey federationKey = new RSAKeyGenerator(2048).keyID("fed-key").generate();
+		RSAKey authKey = new RSAKeyGenerator(2048).keyID("auth-key").generate();
+		TrustChain chain = buildChainWithRpJwks(CLIENT_ID, federationKey, authKey);
+		int[] resolveCount = {0};
+
+		var verificator = new FederatedPrivateKeyJwtVerificator(pkiManagement)
+		{
+			@Override
+			TrustChain resolveChain(String clientId) throws Exception
+			{
+				resolveCount[0]++;
+				return chain;
+			}
+		};
+		verificator.setSerializedConfiguration(
+				buildConfig(TRUST_ANCHOR_ID, new JWKSet(federationKey.toPublicJWK()).toString()));
+		verificator.chainCache.put(CLIENT_ID,
+				new FederatedPrivateKeyJwtVerificator.CachedChain(chain, Instant.now().minusSeconds(1)));
+
+		verificator.resolveJwksFromFederation(CLIENT_ID);
+
+		assertThat(resolveCount[0]).isEqualTo(1);
+	}
+
+	@Test
+	void shouldEvictExpiredEntriesOnNextResolve() throws Exception
+	{
+		RSAKey federationKey = new RSAKeyGenerator(2048).keyID("fed-key").generate();
+		RSAKey authKey = new RSAKeyGenerator(2048).keyID("auth-key").generate();
+		TrustChain chain = buildChainWithRpJwks(CLIENT_ID, federationKey, authKey);
+
+		var verificator = new FederatedPrivateKeyJwtVerificator(pkiManagement)
+		{
+			@Override
+			TrustChain resolveChain(String clientId) { return chain; }
+		};
+		verificator.setSerializedConfiguration(
+				buildConfig(TRUST_ANCHOR_ID, new JWKSet(federationKey.toPublicJWK()).toString()));
+		verificator.chainCache.put("stale-client-1",
+				new FederatedPrivateKeyJwtVerificator.CachedChain(chain, Instant.now().minusSeconds(1)));
+		verificator.chainCache.put("stale-client-2",
+				new FederatedPrivateKeyJwtVerificator.CachedChain(chain, Instant.now().minusSeconds(1)));
+
+		verificator.resolveJwksFromFederation(CLIENT_ID);
+
+		assertThat(verificator.chainCache).doesNotContainKey("stale-client-1");
+		assertThat(verificator.chainCache).doesNotContainKey("stale-client-2");
+	}
+
+	@Test
+	void shouldClearCacheOnReconfiguration() throws Exception
+	{
+		RSAKey federationKey = new RSAKeyGenerator(2048).keyID("fed-key").generate();
+		RSAKey authKey = new RSAKeyGenerator(2048).keyID("auth-key").generate();
+		TrustChain chain = buildChainWithRpJwks(CLIENT_ID, federationKey, authKey);
+
+		var verificator = new FederatedPrivateKeyJwtVerificator(pkiManagement);
+		String config = buildConfig(TRUST_ANCHOR_ID, new JWKSet(federationKey.toPublicJWK()).toString());
+		verificator.setSerializedConfiguration(config);
+		verificator.chainCache.put(CLIENT_ID,
+				new FederatedPrivateKeyJwtVerificator.CachedChain(chain, Instant.now().plusSeconds(3600)));
+
+		verificator.setSerializedConfiguration(config);
+
+		assertThat(verificator.chainCache).isEmpty();
+	}
+
 	private String buildAndSignJwt(String clientId, URI audience, com.nimbusds.jose.JWSSigner signer,
 			JWSHeader header) throws Exception
 	{

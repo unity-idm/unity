@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Strings;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -37,7 +38,6 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
-import com.nimbusds.jose.JOSEException;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
@@ -118,7 +118,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			+ "Queries about additional user information.";
 	public static final String DEFAULT_TOKEN_EXPIRATION = "3600";
 
-
+	private final InstanceId instanceId = new InstanceId();
 	private OAuthClientConfiguration config;
 	private final String responseConsumerAddress;
 	private final String federationEntityBaseUrl;
@@ -180,7 +180,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		updateFederationConfiguration();
 		if (instanceName != null)
 			federationProvidersManager.setConfiguration(instanceName,
-					federationEntityBaseUrl + "/" + instanceName, config);
+					federationEntityBaseUrl + "/" + instanceName, config, instanceId);
 	}
 
 	@Override
@@ -194,9 +194,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	@Override
 	public void destroy()
 	{
-		federationManager.updateConfiguration(instanceName, null);
 		if (instanceName != null)
-			federationProvidersManager.removeConfiguration(instanceName);
+		{
+			federationManager.updateConfiguration(instanceName, null, instanceId);
+			federationProvidersManager.removeConfiguration(instanceName, instanceId);
+		}
 	}
 
 	private void updateFederationConfiguration()
@@ -205,7 +207,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			return;
 		if (!config.federation.enabled)
 		{
-			federationManager.updateConfiguration(instanceName, null);
+			federationManager.updateConfiguration(instanceName, null, instanceId);
 			return;
 		}
 
@@ -216,7 +218,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			log.warn("Federation membership enabled but no federation credential configured for authenticator: {}",
 					instanceName);
-			federationManager.updateConfiguration(instanceName, null);
+			federationManager.updateConfiguration(instanceName, null, instanceId);
 			return;
 		}
 
@@ -233,11 +235,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 			OAuthFederationEntityStatementConfig federationConfig = new OAuthFederationEntityStatementConfig(
 					entityId, federationCred, authCred, responseConsumerAddress, superiorEntityId, metadataValidity);
-			federationManager.updateConfiguration(instanceName, federationConfig);
+			federationManager.updateConfiguration(instanceName, federationConfig, instanceId);
 		} catch (EngineException e)
 		{
 			log.error("Failed to configure federation for authenticator: {}", instanceName, e);
-			federationManager.updateConfiguration(instanceName, null);
+			federationManager.updateConfiguration(instanceName, null, instanceId);
 		}
 	}
 

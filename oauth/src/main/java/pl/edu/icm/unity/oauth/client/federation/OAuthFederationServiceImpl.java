@@ -15,14 +15,15 @@ import org.springframework.stereotype.Component;
 
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 
 @Component
 class OAuthFederationServiceImpl implements OAuthFederationService
 {
 	private final ExecutorsService executorsService;
-	private final Map<String, OAuthFederationSourceHandler> handlersByTrustAnchor = new ConcurrentHashMap<>();
-	private final Map<String, String> consumerToTrustAnchor = new ConcurrentHashMap<>();
+	private final Map<HandlerKey, OAuthFederationSourceHandler> handlersByKey = new ConcurrentHashMap<>();
+	private final Map<String, HandlerKey> consumerToHandlerKey = new ConcurrentHashMap<>();
 
 	OAuthFederationServiceImpl(ExecutorsService executorsService)
 	{
@@ -30,22 +31,20 @@ class OAuthFederationServiceImpl implements OAuthFederationService
 	}
 
 	@Override
-	public String preregisterConsumer(String trustAnchorUrl)
+	public String preregisterConsumer()
 	{
-		String id = UUID.randomUUID().toString();
-		consumerToTrustAnchor.put(id, trustAnchorUrl);
-		return id;
+		return UUID.randomUUID().toString();
 	}
 
 	@Override
 	public void registerConsumer(String key, Duration refreshInterval, OAuthFederationConfig config,
 			BiConsumer<List<TrustChain>, String> consumer)
 	{
-		String trustAnchorUrl = config.trustAnchorEntityId().getValue();
-		OAuthFederationSourceHandler handler = handlersByTrustAnchor.computeIfAbsent(
-				trustAnchorUrl,
-				url -> new OAuthFederationSourceHandler(executorsService, new OAuthFederationLoader()));
-		consumerToTrustAnchor.put(key, trustAnchorUrl);
+		HandlerKey handlerKey = HandlerKey.from(config);
+		OAuthFederationSourceHandler handler = handlersByKey.computeIfAbsent(
+				handlerKey,
+				k -> new OAuthFederationSourceHandler(executorsService, new OAuthFederationLoader()));
+		consumerToHandlerKey.put(key, handlerKey);
 		handler.addConsumer(key, refreshInterval, config, consumer);
 	}
 
@@ -54,12 +53,29 @@ class OAuthFederationServiceImpl implements OAuthFederationService
 	{
 		if (id == null)
 			return;
-		String trustAnchorUrl = consumerToTrustAnchor.remove(id);
-		if (trustAnchorUrl == null)
+		HandlerKey handlerKey = consumerToHandlerKey.remove(id);
+		if (handlerKey == null)
 			return;
-		OAuthFederationSourceHandler handler = handlersByTrustAnchor.get(trustAnchorUrl);
-		if (handler == null)
-			return;
-		handler.removeConsumer(id);
+		handlersByKey.compute(handlerKey, (k, handler) ->
+		{
+			if (handler == null)
+				return null;
+			boolean empty = handler.removeConsumer(id);
+			if (empty)
+			{
+				handler.cancel();
+				return null;
+			}
+			return handler;
+		});
+	}
+
+	private record HandlerKey(String trustAnchorUrl, String truststore, ServerHostnameCheckingMode hostnameCheckingMode)
+	{
+		static HandlerKey from(OAuthFederationConfig config)
+		{
+			return new HandlerKey(config.trustAnchorEntityId().getValue(),
+					config.truststore(), config.hostnameCheckingMode());
+		}
 	}
 }

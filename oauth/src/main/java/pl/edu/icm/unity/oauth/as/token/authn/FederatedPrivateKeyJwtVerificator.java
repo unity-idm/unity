@@ -6,7 +6,9 @@ package pl.edu.icm.unity.oauth.as.token.authn;
 
 import java.net.URI;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -64,6 +66,7 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 	private ServerHostnameCheckingMode federationHostnameCheckingMode;
 	private final PKIManagement pkiManagement;
 	private final JwtClientAssertionVerifier jwtVerifier = new JwtClientAssertionVerifier();
+	final Map<String, CachedChain> chainCache = new ConcurrentHashMap<>();
 
 	@Autowired
 	public FederatedPrivateKeyJwtVerificator(PKIManagement pkiManagement)
@@ -126,6 +129,7 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 				throw new InternalException("Invalid federationHostnameChecking value in verificator config");
 			}
 		}
+		chainCache.clear();
 	}
 
 	private X509CertChainValidator resolveValidator(String truststoreName) throws InternalException
@@ -212,6 +216,18 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 
 	JWKSet resolveJwksFromFederation(String clientId) throws Exception
 	{
+		chainCache.entrySet().removeIf(e -> e.getValue().isExpired());
+		CachedChain cached = chainCache.get(clientId);
+		if (cached != null && !cached.isExpired())
+			return extractRpJwksFromChain(cached.chain(), clientId);
+
+		TrustChain chain = resolveChain(clientId);
+		chainCache.put(clientId, new CachedChain(chain, chain.resolveExpirationTime().toInstant()));
+		return extractRpJwksFromChain(chain, clientId);
+	}
+
+	TrustChain resolveChain(String clientId) throws Exception
+	{
 		TrustChainResolver resolver = new TrustChainResolver(
 				Map.of(new EntityID(federationTrustAnchorId), federationTrustAnchorJwks),
 				TrustChainConstraints.NO_CONSTRAINTS,
@@ -219,9 +235,16 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 						federationHostnameCheckingMode != null
 								? federationHostnameCheckingMode
 								: ServerHostnameCheckingMode.FAIL));
-
 		TrustChainSet chains = resolver.resolveTrustChains(new EntityID(clientId));
-		return extractRpJwksFromChain(chains.getShortest(), clientId);
+		return chains.getShortest();
+	}
+
+	record CachedChain(TrustChain chain, Instant expiresAt)
+	{
+		boolean isExpired()
+		{
+			return Instant.now().isAfter(expiresAt);
+		}
 	}
 
 	static JWKSet extractRpJwksFromChain(TrustChain chain, String clientId) throws Exception
