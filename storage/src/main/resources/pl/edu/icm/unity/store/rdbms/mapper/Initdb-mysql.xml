@@ -77,11 +77,11 @@
 	</sql>
 
 	<sql id="sql-initTokenTableIdx0">
-		<include refid="sql-createIndexHelperDrop"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-createIndexHelperDrop"/>
 	</sql>
 
 	<sql id="sql-initTokenTableIdx1">
-		<include refid="sql-createIndexHelperCreate"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-createIndexHelperCreate"/>
 	</sql>
 
 	<sql id="sql-initTokenTableIdx2">
@@ -93,11 +93,11 @@
 	</sql>
 
 	<sql id="sql-varObjectsTypeIdx0">
-		<include refid="sql-createIndexHelperDrop"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-createIndexHelperDrop"/>
 	</sql>
 
 	<sql id="sql-varObjectsTypeIdx1">
-		<include refid="sql-createIndexHelperCreate"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-createIndexHelperCreate"/>
 	</sql>
 
 	<sql id="sql-varObjectsTypeIdx2">
