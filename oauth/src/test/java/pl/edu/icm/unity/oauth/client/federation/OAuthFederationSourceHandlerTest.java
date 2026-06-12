@@ -14,7 +14,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ class OAuthFederationSourceHandlerTest
 {
 	private static final Duration SHORT_INTERVAL = Duration.ofSeconds(60);
 	private static final OAuthFederationConfig CONFIG = new OAuthFederationConfig(
-			new EntityID("https://anchor.example.com"), URI.create("https://anchor.example.com/list"), new JWKSet(),
+			new EntityID("https://anchor.example.com"), new JWKSet(),
 			SHORT_INTERVAL, null, ServerHostnameCheckingMode.FAIL);
 
 	@Mock

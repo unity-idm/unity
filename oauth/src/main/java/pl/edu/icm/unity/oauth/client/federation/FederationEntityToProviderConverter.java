@@ -13,9 +13,13 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 import com.nimbusds.openid.connect.sdk.federation.entities.FederationEntityMetadata;
+import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
+
+import net.minidev.json.JSONObject;
 
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.utils.Log;
@@ -53,11 +57,12 @@ public class FederationEntityToProviderConverter
 	{
 		try
 		{
-			OIDCProviderMetadata opMeta = chain.getLeafConfiguration()
-					.getClaimsSet()
-					.getOPMetadata();
-			if (opMeta == null)
+			JSONObject rawOpJson = chain.getLeafConfiguration().getClaimsSet()
+					.getMetadata(EntityType.OPENID_PROVIDER);
+			if (rawOpJson == null)
 				return Optional.empty();
+			MetadataPolicy policy = chain.resolveCombinedMetadataPolicy(EntityType.OPENID_PROVIDER);
+			OIDCProviderMetadata opMeta = OIDCProviderMetadata.parse(policy.apply(rawOpJson));
 
 			
 			String entityId = chain.getLeafConfiguration().getClaimsSet().getSubjectEntityID().getValue();

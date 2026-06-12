@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.client.federation;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -21,7 +22,9 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.federation.api.EntityListingRequest;
 import com.nimbusds.openid.connect.sdk.federation.api.EntityListingSuccessResponse;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
+import com.nimbusds.openid.connect.sdk.federation.entities.FederationEntityMetadata;
 import com.nimbusds.openid.connect.sdk.federation.trust.ResolveException;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChainResolver;
@@ -68,11 +71,31 @@ class OAuthFederationLoader
 
 	private List<EntityID> fetchEntityListing(OAuthFederationConfig config) throws IOException, ParseException
 	{
-		HTTPRequest httpRequest = new EntityListingRequest(
-				config.trustAnchorListEndpoint(), EntityType.OPENID_PROVIDER).toHTTPRequest();
+		URI listEndpoint = discoverListEndpoint(config);
+		HTTPRequest httpRequest = new EntityListingRequest(listEndpoint, EntityType.OPENID_PROVIDER).toHTTPRequest();
 		configurer.secureRequest(httpRequest, config.validator(), config.hostnameCheckingMode());
 		HTTPResponse response = httpRequest.send();
 		return EntityListingSuccessResponse.parse(response).getEntityListing();
+	}
+
+	private URI discoverListEndpoint(OAuthFederationConfig config) throws IOException
+	{
+		TlsEntityStatementRetriever retriever = new TlsEntityStatementRetriever(
+				config.validator(), config.hostnameCheckingMode());
+		EntityStatement entityConfig;
+		try
+		{
+			entityConfig = retriever.fetchEntityConfiguration(config.trustAnchorEntityId());
+		} catch (ResolveException e)
+		{
+			throw new IOException("Failed to fetch entity configuration for trust anchor "
+					+ config.trustAnchorEntityId(), e);
+		}
+		FederationEntityMetadata fedMeta = entityConfig.getClaimsSet().getFederationEntityMetadata();
+		if (fedMeta == null || fedMeta.getFederationListEndpointURI() == null)
+			throw new IOException("Trust anchor " + config.trustAnchorEntityId()
+					+ " does not advertise federation_list_endpoint in its entity configuration");
+		return fedMeta.getFederationListEndpointURI();
 	}
 
 	private Optional<TrustChain> resolveWithCache(EntityID entityId, TrustChainResolver resolver,

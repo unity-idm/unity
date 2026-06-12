@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.client.federation;
 
-import java.net.URI;
 import java.time.Duration;
 
 import com.nimbusds.jose.jwk.JWKSet;
@@ -16,7 +15,6 @@ import pl.edu.icm.unity.oauth.client.config.FederationConfig;
 
 record OAuthFederationConfig(
 		EntityID trustAnchorEntityId,
-		URI trustAnchorListEndpoint,
 		JWKSet trustAnchorJwks,
 		Duration refreshInterval,
 		X509CertChainValidator validator,
@@ -24,15 +22,14 @@ record OAuthFederationConfig(
 {
 	static OAuthFederationConfig from(FederationConfig cfg) throws java.text.ParseException
 	{
+		if (cfg.jwks == null)
+			throw new java.text.ParseException(
+					"Trust anchor JWKS must be configured for federation with " + cfg.trustAnchorId, 0);
 		EntityID trustAnchorId = new EntityID(cfg.trustAnchorId);
-		URI listEndpoint = URI.create(cfg.trustAnchorId + "/list");
-		JWKSet jwks = cfg.jwks != null
-				? JWKSet.parse(cfg.jwks)
-				: new JWKSet();
+		JWKSet jwks = JWKSet.parse(cfg.jwks);
 		Duration refresh = Duration.ofSeconds(cfg.metadataValidity);
 		return new OAuthFederationConfig(
 				trustAnchorId,
-				listEndpoint,
 				jwks,
 				refresh,
 				cfg.validator,

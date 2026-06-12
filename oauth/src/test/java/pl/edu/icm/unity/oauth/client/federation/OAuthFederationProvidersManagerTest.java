@@ -111,6 +111,20 @@ class OAuthFederationProvidersManagerTest
 	}
 
 	@Test
+	void shouldNotRegisterConsumerWhenTrustAnchorJwksIsNull()
+	{
+		OAuthClientConfiguration config = configBuilder()
+				.withFederation(FederationConfig.builder().withEnabled(true).withTrustAnchorId(TRUST_ANCHOR)
+						.withMetadataValidity(3600).build())
+				.withProviders(new OAuthProviders(List.of()))
+				.build();
+
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config);
+
+		verify(federationService, never()).preregisterConsumer(anyString());
+	}
+
+	@Test
 	void shouldRegisterConsumerWhenFederationEnabled()
 	{
 		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
@@ -129,7 +143,7 @@ class OAuthFederationProvidersManagerTest
 		OAuthProviderConfiguration staticProvider = buildStaticProvider("static1");
 		OAuthProviderConfiguration fedProvider = buildFederationProvider("fed1");
 		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
-		when(converter.convert(any(), any(), any(), anyBoolean(), any()))
+		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
 				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
 		OAuthClientConfiguration config = configBuilder()
@@ -153,7 +167,7 @@ class OAuthFederationProvidersManagerTest
 	{
 		OAuthProviderConfiguration expiredFedProvider = buildFederationProvider("fed-expired");
 		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
-		when(converter.convert(any(), any(), any(), anyBoolean(), any()))
+		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
 				.thenReturn(List.of(new FederationProvider(expiredFedProvider,
 						Instant.now().minusSeconds(1))));
 
@@ -174,7 +188,7 @@ class OAuthFederationProvidersManagerTest
 		OAuthProviderConfiguration staticProvider = buildProviderWithKey(sharedKey, "static");
 		OAuthProviderConfiguration fedProvider = buildProviderWithKey(sharedKey, "federation");
 		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
-		when(converter.convert(any(), any(), any(), anyBoolean(), any()))
+		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
 				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
 		OAuthClientConfiguration config = configBuilder()
@@ -235,7 +249,7 @@ class OAuthFederationProvidersManagerTest
 	{
 		OAuthProviderConfiguration fedProvider = buildFederationProvider("fed1");
 		when(federationService.preregisterConsumer(TRUST_ANCHOR)).thenReturn("consumer-1");
-		when(converter.convert(any(), any(), any(), anyBoolean(), any()))
+		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
 				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
 		OAuthClientConfiguration config = federationEnabledConfig();
@@ -284,7 +298,7 @@ class OAuthFederationProvidersManagerTest
 	private FederationConfig enabledFederation()
 	{
 		return FederationConfig.builder().withEnabled(true).withTrustAnchorId(TRUST_ANCHOR)
-				.withMetadataValidity(3600).build();
+				.withJwks("{\"keys\":[]}").withMetadataValidity(3600).build();
 	}
 
 	private OAuthProviderConfiguration buildStaticProvider(String name)

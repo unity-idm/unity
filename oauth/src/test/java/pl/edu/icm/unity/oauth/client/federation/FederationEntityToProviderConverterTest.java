@@ -23,12 +23,15 @@ import com.nimbusds.openid.connect.sdk.SubjectType;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaimsSet;
+import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 import com.nimbusds.openid.connect.sdk.federation.entities.FederationEntityMetadata;
+import com.nimbusds.openid.connect.sdk.federation.policy.MetadataPolicy;
 import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.oauth.client.config.FederationConfig;
 import pl.edu.icm.unity.oauth.client.config.FederationProviderDefaults;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.client.federation.FederationEntityToProviderConverter.FederationProvider;
@@ -41,6 +44,8 @@ public class FederationEntityToProviderConverterTest
 	private static final String CLIENT_CREDENTIAL = "myCred";
 	private static final TranslationProfile TRANSLATION_PROFILE =
 			TranslationProfileGenerator.generateIncludeInputProfile("sys:oidc");
+
+	private static final FederationConfig FEDERATION_CONFIG = FederationConfig.builder().build();
 
 	private ECKey testKey;
 	private FederationEntityToProviderConverter converter;
@@ -60,7 +65,7 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				true, defaultProviderDefaults());
+				true, defaultProviderDefaults(), FEDERATION_CONFIG);
 
 		assertThat(result).hasSize(1);
 		OAuthProviderConfiguration provider = result.get(0).config();
@@ -75,7 +80,7 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, null, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				true, defaultProviderDefaults());
+				true, defaultProviderDefaults(), FEDERATION_CONFIG);
 
 		assertThat(result).isEmpty();
 	}
@@ -216,7 +221,7 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				true, FederationProviderDefaults.builder().withTranslationProfile(profile).build());
+				true, FederationProviderDefaults.builder().withTranslationProfile(profile).build(), FEDERATION_CONFIG);
 
 		assertThat(result.get(0).config().translationProfile).isSameAs(profile);
 	}
@@ -230,7 +235,7 @@ public class FederationEntityToProviderConverterTest
 
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
 				true, FederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
-						.withRegistrationForm("myRegistrationForm").build());
+						.withRegistrationForm("myRegistrationForm").build(), FEDERATION_CONFIG);
 
 		assertThat(result.get(0).config().registrationForm).isEqualTo("myRegistrationForm");
 	}
@@ -243,9 +248,9 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> enabled = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				true, defaultProviderDefaults());
+				true, defaultProviderDefaults(), FEDERATION_CONFIG);
 		List<FederationProvider> disabled = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				false, defaultProviderDefaults());
+				false, defaultProviderDefaults(), FEDERATION_CONFIG);
 
 		assertThat(enabled.get(0).config().enableAssociation).isTrue();
 		assertThat(disabled.get(0).config().enableAssociation).isFalse();
@@ -273,7 +278,7 @@ public class FederationEntityToProviderConverterTest
 		TrustChain nullMetaChain = buildChain(new EntityID("https://other.example.com"), null, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(validChain, nullMetaChain),
-				CLIENT_ID, CLIENT_CREDENTIAL, true, defaultProviderDefaults());
+				CLIENT_ID, CLIENT_CREDENTIAL, true, defaultProviderDefaults(), FEDERATION_CONFIG);
 
 		assertThat(result).hasSize(1);
 		assertThat(result.get(0).config().name.getDefaultValue()).isEqualTo("https://idp.example.com");
@@ -291,12 +296,29 @@ public class FederationEntityToProviderConverterTest
 		assertThat(provider.key.isFromFederation()).isTrue();
 	}
 
+	@Test
+	void shouldApplyMetadataPolicyFromSuperiorStatement() throws Exception
+	{
+		OIDCProviderMetadata opMeta = buildOpMeta("https://idp.example.com",
+				"https://auth.example.com", "https://token.example.com", null);
+		opMeta.setScopes(Scope.parse("openid profile email phone"));
+		TrustChain chain = buildChainWithPolicy(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID,
+				MetadataPolicy.parse("{\"scopes_supported\":{\"subset_of\":[\"openid\",\"email\"]}}"));
+
+		OAuthProviderConfiguration provider = singleProvider(chain);
+
+		assertThat(provider.scopes).contains("openid");
+		assertThat(provider.scopes).contains("email");
+		assertThat(provider.scopes).doesNotContain("profile");
+		assertThat(provider.scopes).doesNotContain("phone");
+	}
+
 	// --- helpers ---
 
 	private OAuthProviderConfiguration singleProvider(TrustChain chain) throws Exception
 	{
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				true, defaultProviderDefaults());
+				true, defaultProviderDefaults(), FEDERATION_CONFIG);
 		assertThat(result).hasSize(1);
 		return result.get(0).config();
 	}
@@ -309,23 +331,38 @@ public class FederationEntityToProviderConverterTest
 	private TrustChain buildChain(EntityID leafId, OIDCProviderMetadata opMeta,
 			EntityID trustAnchorId, FederationEntityMetadata trustAnchorFedMeta) throws Exception
 	{
+		return buildChainWithPolicy(leafId, opMeta, trustAnchorId, trustAnchorFedMeta, null);
+	}
+
+	private TrustChain buildChainWithPolicy(EntityID leafId, OIDCProviderMetadata opMeta,
+			EntityID trustAnchorId, MetadataPolicy policy) throws Exception
+	{
+		return buildChainWithPolicy(leafId, opMeta, trustAnchorId, null, policy);
+	}
+
+	private TrustChain buildChainWithPolicy(EntityID leafId, OIDCProviderMetadata opMeta,
+			EntityID trustAnchorId, FederationEntityMetadata trustAnchorFedMeta, MetadataPolicy policy)
+			throws Exception
+	{
 		Date now = new Date();
 		Date exp = Date.from(Instant.now().plusSeconds(3600));
 		JWKSet jwkSet = new JWKSet(testKey.toPublicJWK());
 
-		// Leaf self-statement: issuer=leaf, subject=leaf
-		EntityStatementClaimsSet leafClaims = new EntityStatementClaimsSet(
-				leafId, leafId, now, exp, jwkSet);
+		EntityStatementClaimsSet leafClaims = new EntityStatementClaimsSet(leafId, leafId, now, exp, jwkSet);
 		if (opMeta != null)
 			leafClaims.setOPMetadata(opMeta);
 		EntityStatement leafStatement = EntityStatement.sign(leafClaims, testKey);
 
-		// Trust anchor's statement about the leaf: issuer=trustAnchor, subject=leaf
-		// This is what TrustChain requires: superior's subject must match leaf's issuer
 		EntityStatementClaimsSet anchorAboutLeafClaims = new EntityStatementClaimsSet(
 				trustAnchorId, leafId, now, exp, jwkSet);
 		if (trustAnchorFedMeta != null)
 			anchorAboutLeafClaims.setFederationEntityMetadata(trustAnchorFedMeta);
+		if (policy != null)
+		{
+			net.minidev.json.JSONObject policyJson = new net.minidev.json.JSONObject();
+			policyJson.put(EntityType.OPENID_PROVIDER.getValue(), policy.toJSONObject());
+			anchorAboutLeafClaims.setMetadataPolicyJSONObject(policyJson);
+		}
 		EntityStatement anchorAboutLeafStatement = EntityStatement.sign(anchorAboutLeafClaims, testKey);
 
 		return new TrustChain(leafStatement, List.of(anchorAboutLeafStatement));
