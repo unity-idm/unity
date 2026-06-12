@@ -7,21 +7,27 @@ package pl.edu.icm.unity.oauth.as.console.tokens;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
-import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
+import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
 import java.io.IOException;
@@ -35,25 +41,28 @@ class OAuthTokenController
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, OAuthTokenController.class);
 
 	private SecuredTokensManagement tokenMan;
-	private EntityManagement entityManagement;
 	private EndpointManagement endpointMan;
 	private MessageSource msg;
 
 	private final OAuthAccessTokenRepository accessTokenRepository;
 	private final OAuthRefreshTokenRepository refreshTokenRepository;
-
+	private final BulkGroupQueryService bulkService;
+	private final AttributeSupport attributeSupport;
 
 	@Autowired
 	OAuthTokenController(MessageSource msg, OAuthAccessTokenRepository oauthTokenRepository,
 			OAuthRefreshTokenRepository refreshTokenRepository,
 			SecuredTokensManagement tokensManagement,
-			EntityManagement entityManagement, EndpointManagement endpointMan)
+			@Qualifier("insecure") BulkGroupQueryService bulkService,
+			AttributeSupport attributeSupport,
+			EndpointManagement endpointMan)
 	{
 		this.msg = msg;
 		this.accessTokenRepository = oauthTokenRepository;
 		this.refreshTokenRepository = refreshTokenRepository;
 		this.tokenMan = tokensManagement;
-		this.entityManagement = entityManagement;
+		this.bulkService = bulkService;
+		this.attributeSupport = attributeSupport;
 		this.endpointMan = endpointMan;
 	}
 
@@ -97,9 +106,17 @@ class OAuthTokenController
 
 		try
 		{
-			List<Token> tokens = getTokens();
-			return tokens.stream().map(t -> new OAuthTokenBean(t, msg, establishOwner(t)))
-					.filter(t -> t.getServerId().equals(getIssuerUri(endpoint.get())))
+			String issuerUri = getIssuerUri(endpoint.get());
+			record TokenPair(Token raw, OAuthToken oauth) {}
+			List<TokenPair> filtered = getTokens().stream()
+					.map(t -> new TokenPair(t, OAuthToken.getInstanceFromJson(t.getContents())))
+					.filter(p -> issuerUri.equals(p.oauth().getIssuerUri()))
+					.collect(Collectors.toList());
+			Map<Long, String> ownerLabels = buildOwnerLabels(
+					filtered.stream().map(TokenPair::raw).collect(Collectors.toList()));
+			return filtered.stream()
+					.map(p -> new OAuthTokenBean(p.raw(), p.oauth(), msg,
+							ownerLabels.getOrDefault(p.raw().getOwner(), "[" + p.raw().getOwner() + "]")))
 					.collect(Collectors.toList());
 		} catch (Exception e)
 		{
@@ -108,24 +125,48 @@ class OAuthTokenController
 
 	}
 
-	private String establishOwner(Token token)
+	private Map<Long, String> buildOwnerLabels(List<Token> tokens) throws EngineException
 	{
-		long ownerId = token.getOwner();
-		String idLabel = "[" + ownerId + "]";
-		String attrNameValue = getDisplayedName(ownerId);
-		return attrNameValue != null ? idLabel + " " + attrNameValue : idLabel;
+		Set<Long> ownerIds = tokens.stream()
+				.map(Token::getOwner)
+				.filter(Objects::nonNull)
+				.collect(Collectors.toSet());
+		if (ownerIds.isEmpty())
+			return Collections.emptyMap();
+
+		String nameAttr = getEntityNameAttribute();
+		GroupMembershipData membershipData = bulkService.getBulkMembershipData("/", ownerIds);
+		Map<Long, EntityInGroupData> entitiesData = bulkService.getMembershipInfo(membershipData);
+
+		Map<Long, String> labels = new HashMap<>();
+		for (Long ownerId : ownerIds)
+		{
+			String idLabel = "[" + ownerId + "]";
+			EntityInGroupData data = entitiesData.get(ownerId);
+			String name = null;
+			if (data != null && nameAttr != null && data.rootAttributesByName.containsKey(nameAttr))
+			{
+				List<?> values = data.rootAttributesByName.get(nameAttr).getValues();
+				if (!values.isEmpty())
+					name = values.get(0).toString();
+			}
+			labels.put(ownerId, name != null ? idLabel + " " + name : idLabel);
+		}
+		return labels;
 	}
 
-	private String getDisplayedName(long owner)
+	private String getEntityNameAttribute()
 	{
 		try
 		{
-			return entityManagement.getEntityLabel(new EntityParam(owner));
+			List<AttributeType> nameAttrs = attributeSupport
+					.getAttributeTypeWithMetadata(EntityNameMetadataProvider.NAME);
+			return nameAttrs.isEmpty() ? null : nameAttrs.get(0).getName();
 		} catch (Exception e)
 		{
-			log.debug("Can't get user's displayed name attribute for " + owner, e);
+			log.debug("Can't determine entity name attribute type", e);
+			return null;
 		}
-		return null;
 	}
 
 	private List<Token> getTokens() throws EngineException
