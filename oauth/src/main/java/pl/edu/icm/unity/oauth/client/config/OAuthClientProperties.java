@@ -49,6 +49,7 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 	public static final String FEDERATION_TRANSLATION_PROFILE = "federationTranslationProfile";
 	public static final String FEDERATION_EMBEDDED_TRANSLATION_PROFILE = "federationEmbeddedTranslationProfile";
 	public static final String FEDERATION_REGISTRATION_FORM = "federationRegistrationForm";
+	public static final String FEDERATION_JWT_SIGNING_ALG = "federationJwtSigningAlg";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -90,6 +91,9 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 				"Translation profile (embedded JSON) applied to all providers discovered from the federation."));
 		META.put(FEDERATION_REGISTRATION_FORM, new PropertyMD().setDescription(
 				"Registration form applied to all providers discovered from the federation."));
+		META.put(FEDERATION_JWT_SIGNING_ALG, new PropertyMD().setDescription(
+				"JWS algorithm used for private_key_jwt assertions when authenticating to federation providers "
+				+ "(e.g. RS256, ES256, PS256). If not set, derived from the credential key type."));
 	}
 
 	private final Map<String, CustomProviderProperties> providers = new HashMap<>();

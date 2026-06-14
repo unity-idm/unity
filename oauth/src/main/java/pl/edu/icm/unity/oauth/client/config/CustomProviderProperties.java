@@ -65,6 +65,12 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 	public static final String REQUESTED_ACRS_ARE_ESSENTIAL = "requestedACRsAreEssential";
 	public static final String CLIENT_AUTHN_METHOD = "clientAuthenticationMethod";
 	public static final String CLIENT_CREDENTIAL = "clientCredential";
+	public static final String CLIENT_JWT_SIGNING_ALG = "clientJwtSigningAlg";
+
+	public enum SigningAlgorithms
+	{
+		RS256, RS384, RS512, PS256, PS384, PS512, ES256, ES384, ES512;
+	}
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -108,6 +114,9 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 				setDescription("Defines the client authentication method: client_secret (default) or private_key_jwt."));
 		META.put(CLIENT_CREDENTIAL, new PropertyMD().
 				setDescription("Name of the credential (private key) used for private_key_jwt client authentication."));
+		META.put(CLIENT_JWT_SIGNING_ALG, new PropertyMD().
+				setDescription("JWS algorithm for private_key_jwt client assertions (e.g. RS256, ES256, PS256). "
+						+ "If not set, derived from the credential key type (RSA → RS256, EC → ES256)."));
 		META.put(CLIENT_AUTHN_MODE, new PropertyMD(ClientAuthnMode.secretBasic).
 				setDescription("Defines how the client secret and id should be passed to the provider."));
 		META.put(CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, new PropertyMD().setEnum(ClientAuthnMode.secretBasic).setDescription(

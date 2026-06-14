@@ -8,6 +8,7 @@ package pl.edu.icm.unity.oauth.as.console;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +39,7 @@ public class OAuthClient
 	private String group;
 	private boolean toRemove;
 	private boolean updated;
-	private String clientAuthnMethod = "client_secret";
+	private String clientAuthnMethod;
 	private String jwks;
 
 	public OAuthClient()
@@ -48,6 +49,7 @@ public class OAuthClient
 		this.flows = new ArrayList<>();
 		this.scopes = new ArrayList<>();
 		this.redirectURIs = new ArrayList<>();
+		this.clientAuthnMethod = ClientAuthnMethod.client_secret.toString();
 	}
 
 	public OAuthClient(String id, String secret)

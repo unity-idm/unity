@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import org.apache.hc.core5.http.NameValuePair;
 
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
@@ -42,6 +43,7 @@ public class OAuthProviderConfiguration
 	public final String clientSecret;
 	public final ClientAuthnMethod clientAuthnMethod;
 	public final String clientCredential;
+	public final Optional<JWSAlgorithm> jwtSigningAlgorithm;
 	public final Optional<ClientAuthnMode> clientAuthnMode;
 	public final AccessTokenFormat accessTokenFormat;
 
@@ -82,6 +84,7 @@ public class OAuthProviderConfiguration
 		this.clientSecret = builder.clientSecret;
 		this.clientAuthnMethod = builder.clientAuthnMethod;
 		this.clientCredential = builder.clientCredential;
+		this.jwtSigningAlgorithm = builder.jwtSigningAlgorithm;
 		this.clientAuthnMode = builder.clientAuthnMode;
 		this.accessTokenFormat = builder.accessTokenFormat;
 		this.truststoreName = builder.truststoreName;
@@ -184,6 +187,7 @@ public class OAuthProviderConfiguration
 		private String clientSecret;
 		private ClientAuthnMethod clientAuthnMethod;
 		private String clientCredential;
+		private Optional<JWSAlgorithm> jwtSigningAlgorithm = Optional.empty();
 		private Optional<ClientAuthnMode> clientAuthnMode = Optional.empty();
 		private AccessTokenFormat accessTokenFormat;
 		private String truststoreName;
@@ -290,6 +294,12 @@ public class OAuthProviderConfiguration
 		public Builder withClientCredential(String clientCredential)
 		{
 			this.clientCredential = clientCredential;
+			return this;
+		}
+
+		public Builder withJwtSigningAlgorithm(Optional<JWSAlgorithm> jwtSigningAlgorithm)
+		{
+			this.jwtSigningAlgorithm = jwtSigningAlgorithm;
 			return this;
 		}
 

@@ -86,6 +86,7 @@ import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.stdext.attr.BooleanAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.ImageAttribute;
@@ -557,11 +558,20 @@ class OAuthServiceController implements IdpServiceController
 			attrMan.setAttribute(entity, name);
 		}
 
+		if (client.getClientAuthnMethod() != null)
+		{
+			Attribute authnMethod = EnumAttribute.of(OAuthSystemAttributesProvider.CLIENT_AUTHN_METHOD,
+					group, client.getClientAuthnMethod());
+			attrMan.setAttribute(entity, authnMethod);
+		}
+
 		if (ClientType.PUBLIC.toString().equals(client.getType()))
 		{
 			entityCredentialManagement.setEntityCredentialStatus(entity, DEFAULT_CREDENTIAL,
 					LocalCredentialState.notSet);
-		} else if ("private_key_jwt".equals(client.getClientAuthnMethod()))
+			entityCredentialManagement.setEntityCredentialStatus(entity, JWKS_CREDENTIAL,
+					LocalCredentialState.notSet);
+		} else if (ClientAuthnMethod.private_key_jwt.toString().equals(client.getClientAuthnMethod()))
 		{
 			if (client.getJwks() != null && !client.getJwks().isBlank())
 				entityCredentialManagement.setEntityCredential(entity, JWKS_CREDENTIAL, client.getJwks());
@@ -572,6 +582,8 @@ class OAuthServiceController implements IdpServiceController
 			if (client.getSecret() != null && !client.getSecret().isEmpty())
 				entityCredentialManagement.setEntityCredential(entity, DEFAULT_CREDENTIAL,
 						new PasswordToken(client.getSecret()).toJson());
+			entityCredentialManagement.setEntityCredentialStatus(entity, JWKS_CREDENTIAL,
+					LocalCredentialState.notSet);
 		}
 	}
 
@@ -720,6 +732,16 @@ class OAuthServiceController implements IdpServiceController
 		{
 			c.setCanReceivePatternScopes(false);
 		}
+
+		if (attrs.containsKey(OAuthSystemAttributesProvider.CLIENT_AUTHN_METHOD))
+		{
+			c.setClientAuthnMethod(
+					attrs.get(OAuthSystemAttributesProvider.CLIENT_AUTHN_METHOD).getValues().get(0));
+		} else
+		{
+			c.setClientAuthnMethod(ClientAuthnMethod.client_secret.toString());
+		}
+
 		
 		return c;
 	}

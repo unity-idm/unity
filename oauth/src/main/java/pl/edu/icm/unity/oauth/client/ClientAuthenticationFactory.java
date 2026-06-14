@@ -54,7 +54,7 @@ class ClientAuthenticationFactory
 	{
 		X509Credential cred = pkiManagement.getCredential(providerCfg.clientCredential);
 		PrivateKey privateKey = cred.getKey();
-		JWSAlgorithm alg = deriveJWSAlgorithm(privateKey);
+		JWSAlgorithm alg = providerCfg.jwtSigningAlgorithm.orElseGet(() -> deriveJWSAlgorithm(privateKey));
 		Date now = new Date();
 		Date exp = new Date(now.getTime() + ASSERTION_LIFETIME_MS);
 		JWTAuthenticationClaimsSet claimsSet = new JWTAuthenticationClaimsSet(

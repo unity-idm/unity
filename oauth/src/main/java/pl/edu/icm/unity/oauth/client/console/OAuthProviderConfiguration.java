@@ -25,6 +25,7 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessToken
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
@@ -104,6 +105,8 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		else
 			setClientAuthenticationMethod(ClientAuthnMethod.client_secret);
 		setClientCredential(source.getValue(CustomProviderProperties.CLIENT_CREDENTIAL));
+		if (source.isSet(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG))
+			setClientJwtSigningAlg(SigningAlgorithms.valueOf(source.getValue(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG)));
 		setClientAuthenticationMode(
 				source.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, ClientAuthnMode.class));
 		setClientAuthenticationModeForProfile(source.getEnumValue(
@@ -206,6 +209,8 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		{
 			if (!Strings.isNullOrEmpty(getClientCredential()))
 				raw.put(prefix + CustomProviderProperties.CLIENT_CREDENTIAL, getClientCredential());
+			if (getClientJwtSigningAlg() != null)
+				raw.put(prefix + CustomProviderProperties.CLIENT_JWT_SIGNING_ALG, getClientJwtSigningAlg().name());
 		} else
 		{
 			if (!Strings.isNullOrEmpty(getClientSecret()))
@@ -438,6 +443,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		clone.setClientSecret(this.getClientSecret() != null ? new String(this.getClientSecret()) : null);
 		clone.setClientAuthenticationMethod(this.getClientAuthenticationMethod());
 		clone.setClientCredential(this.getClientCredential() != null ? new String(this.getClientCredential()) : null);
+		clone.setClientJwtSigningAlg(this.getClientJwtSigningAlg());
 		clone.setClientAuthenticationMode(this.getClientAuthenticationMode() != null
 				? ClientAuthnMode.valueOf(this.getClientAuthenticationMode().toString())
 				: null);

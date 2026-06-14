@@ -14,6 +14,8 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
+import com.nimbusds.jose.JWSAlgorithm;
+
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
@@ -91,6 +93,9 @@ public class OAuthClientConfigurationParser
 				.withTruststore(truststore)
 				.withValidator(resolveFederationValidator(truststore))
 				.withHostnameCheckingMode(hostnameChecking)
+				.withJwtSigningAlgorithm(props.isSet(OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG)
+						? Optional.of(JWSAlgorithm.parse(props.getValue(OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG)))
+						: Optional.empty())
 				.build();
 	}
 
@@ -144,6 +149,9 @@ public class OAuthClientConfigurationParser
 				.withClientAuthnMethod(p.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_METHOD,
 						CustomProviderProperties.ClientAuthnMethod.class))
 				.withClientCredential(p.getValue(CustomProviderProperties.CLIENT_CREDENTIAL))
+				.withJwtSigningAlgorithm(p.isSet(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG)
+						? Optional.of(JWSAlgorithm.parse(p.getValue(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG)))
+						: Optional.empty())
 				.withClientAuthnMode(clientAuthnMode)
 				.withAccessTokenFormat(p.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT,
 						CustomProviderProperties.AccessTokenFormat.class))

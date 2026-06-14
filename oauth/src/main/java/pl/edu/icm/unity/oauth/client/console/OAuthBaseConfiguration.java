@@ -12,6 +12,7 @@ import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
 
 /**
  * Base OAuth configuration bean
@@ -24,6 +25,7 @@ public class OAuthBaseConfiguration
 	private String clientSecret;
 	private ClientAuthnMethod clientAuthenticationMethod;
 	private String clientCredential;
+	private SigningAlgorithms clientJwtSigningAlg;
 	private ClientAuthnMode clientAuthenticationMode;
 	private ClientAuthnMode clientAuthenticationModeForProfile;
 	private ClientHttpMethod clientHttpMethodForProfileAccess;
@@ -80,6 +82,16 @@ public class OAuthBaseConfiguration
 	public void setClientCredential(String clientCredential)
 	{
 		this.clientCredential = clientCredential;
+	}
+
+	public SigningAlgorithms getClientJwtSigningAlg()
+	{
+		return clientJwtSigningAlg;
+	}
+
+	public void setClientJwtSigningAlg(SigningAlgorithms clientJwtSigningAlg)
+	{
+		this.clientJwtSigningAlg = clientJwtSigningAlg;
 	}
 
 	public ClientAuthnMode getClientAuthenticationMode()

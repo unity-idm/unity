@@ -111,6 +111,7 @@ public class FederationEntityToProviderConverter
 					.withTruststoreName(federationConfig.truststore)
 					.withValidator(federationConfig.validator)
 					.withHostNameCheckingMode(federationConfig.hostnameCheckingMode)
+					.withJwtSigningAlgorithm(federationConfig.jwtSigningAlgorithm)
 					.build();
 			return Optional.of(new FederationProvider(providerConfig, expiresAt));
 		} catch (Exception e)

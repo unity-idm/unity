@@ -7,8 +7,8 @@ package pl.edu.icm.unity.oauth.client.console;
 
 import static io.imunity.vaadin.elements.CSSVars.RICH_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
-import static io.imunity.vaadin.elements.CssClassNames.LOGO_GRID_IMAGE;
 import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_GRID_IMAGE;
 import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 import java.net.URI;
@@ -19,7 +19,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
@@ -64,6 +63,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.oauth.client.ResponseConsumerServlet;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.client.federation.OAuthFederationEntityStatementServlet;
 
 class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
@@ -246,6 +246,14 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 						msg.getMessage("selectionRequired"))
 				.bind("authenticationCredential");
 
+		ComboBox<SigningAlgorithms> federationJwtSigningAlg = new ComboBox<>();
+		federationJwtSigningAlg.setItems(SigningAlgorithms.values());
+		federationJwtSigningAlg.setClearButtonVisible(true);
+		federationLayout.addFormItem(federationJwtSigningAlg,
+				msg.getMessage("OAuthAuthenticatorEditor.federationJwtSigningAlg"));
+		configBinder.forField(federationJwtSigningAlg)
+				.bind("federationJwtSigningAlgorithm");
+
 		com.vaadin.flow.component.textfield.TextArea jwks = new com.vaadin.flow.component.textfield.TextArea();
 		jwks.setWidth(TEXT_FIELD_BIG.value());
 		jwks.setHeight("8em");
@@ -301,6 +309,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		metadataValidity.setEnabled(false);
 		federationTruststore.setEnabled(false);
 		federationHostnameChecking.setEnabled(false);
+		federationJwtSigningAlg.setEnabled(false);
 
 		federationMembership.addValueChangeListener(e -> {
 			boolean enabled = e.getValue();
@@ -314,6 +323,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			metadataValidity.setEnabled(enabled);
 			federationTruststore.setEnabled(enabled);
 			federationHostnameChecking.setEnabled(enabled);
+			federationJwtSigningAlg.setEnabled(enabled);
 			providerDefaultsPanel.setVisible(enabled);
 		});
 

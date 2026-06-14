@@ -60,6 +60,7 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessToken
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.client.config.DropboxProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.FacebookProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.GitHubProviderProperties;
@@ -230,10 +231,21 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		FormItem clientCredentialItem = header.addFormItem(clientCredential, msg.getMessage("EditOAuthProviderSubView.clientCredential"));
 		clientCredentialItem.setVisible(false);
 
+		Select<SigningAlgorithms> clientJwtSigningAlg = new Select<>();
+		clientJwtSigningAlg.setWidth(TEXT_FIELD_MEDIUM.value());
+		clientJwtSigningAlg.setItems(SigningAlgorithms.values());
+		clientJwtSigningAlg.setEmptySelectionAllowed(true);
+		configBinder.forField(clientJwtSigningAlg)
+				.bind(OAuthBaseConfiguration::getClientJwtSigningAlg, OAuthBaseConfiguration::setClientJwtSigningAlg);
+		FormItem clientJwtSigningAlgItem = header.addFormItem(clientJwtSigningAlg,
+				msg.getMessage("EditOAuthProviderSubView.clientJwtSigningAlg"));
+		clientJwtSigningAlgItem.setVisible(false);
+
 		clientAuthMethod.addValueChangeListener(e -> {
 			boolean isPrivateKeyJwt = ClientAuthnMethod.private_key_jwt.equals(e.getValue());
 			clientSecretItem.setVisible(!isPrivateKeyJwt);
 			clientCredentialItem.setVisible(isPrivateKeyJwt);
+			clientJwtSigningAlgItem.setVisible(isPrivateKeyJwt);
 		});
 
 		MultiSelectComboBox<String> requestedScopes = new CustomValuesMultiSelectComboBox();

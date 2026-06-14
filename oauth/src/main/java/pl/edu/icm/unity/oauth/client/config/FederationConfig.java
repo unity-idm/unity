@@ -5,6 +5,9 @@
 package pl.edu.icm.unity.oauth.client.config;
 
 import java.util.Objects;
+import java.util.Optional;
+
+import com.nimbusds.jose.JWSAlgorithm;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
@@ -20,6 +23,7 @@ public class FederationConfig
 	public final String truststore;
 	public final X509CertChainValidator validator;
 	public final ServerHostnameCheckingMode hostnameCheckingMode;
+	public final Optional<JWSAlgorithm> jwtSigningAlgorithm;
 
 	private FederationConfig(Builder builder)
 	{
@@ -32,6 +36,7 @@ public class FederationConfig
 		this.truststore = builder.truststore;
 		this.validator = builder.validator;
 		this.hostnameCheckingMode = builder.hostnameCheckingMode;
+		this.jwtSigningAlgorithm = builder.jwtSigningAlgorithm;
 	}
 
 	public static Builder builder()
@@ -75,6 +80,7 @@ public class FederationConfig
 		private String truststore;
 		private X509CertChainValidator validator;
 		private ServerHostnameCheckingMode hostnameCheckingMode;
+		private Optional<JWSAlgorithm> jwtSigningAlgorithm = Optional.empty();
 
 		private Builder() {}
 
@@ -129,6 +135,12 @@ public class FederationConfig
 		public Builder withHostnameCheckingMode(ServerHostnameCheckingMode hostnameCheckingMode)
 		{
 			this.hostnameCheckingMode = hostnameCheckingMode;
+			return this;
+		}
+
+		public Builder withJwtSigningAlgorithm(Optional<JWSAlgorithm> jwtSigningAlgorithm)
+		{
+			this.jwtSigningAlgorithm = jwtSigningAlgorithm;
 			return this;
 		}
 

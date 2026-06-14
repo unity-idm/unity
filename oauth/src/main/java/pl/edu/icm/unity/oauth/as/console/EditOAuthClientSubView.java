@@ -202,30 +202,63 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 			secret = secretWithChangeConfirmation;
 		}
 
-		TextArea jwks = new TextArea();
-		jwks.setWidth(TEXT_FIELD_BIG.value());
-		jwks.setHeight("8em");
-		binder.forField(jwks).withValidator((v, c) -> {
-			if (v != null && !v.isBlank())
-			{
-				try
+		TextArea jwksArea = new TextArea();
+		jwksArea.setWidth(TEXT_FIELD_BIG.value());
+		jwksArea.setHeight("8em");
+
+		Consumer<Boolean> setJwksEnabled;
+		Runnable clearJwks;
+		FormLayout.FormItem jwksFormItem;
+
+		if (!editMode)
+		{
+			binder.forField(jwksArea).withValidator((v, c) -> {
+				if (v != null && !v.isBlank())
 				{
-					com.nimbusds.jose.jwk.JWKSet.parse(v);
-				} catch (Exception e)
-				{
-					return ValidationResult.error(msg.getMessage("EditOAuthClientSubView.invalidJwks"));
+					try
+					{
+						com.nimbusds.jose.jwk.JWKSet.parse(v);
+					} catch (Exception e)
+					{
+						return ValidationResult.error(msg.getMessage("EditOAuthClientSubView.invalidJwks"));
+					}
 				}
-			}
-			return ValidationResult.ok();
-		}).bind("jwks");
-		FormLayout.FormItem jwksFormItem = header.addFormItem(jwks, msg.getMessage("EditOAuthClientSubView.jwks"));
+				return ValidationResult.ok();
+			}).bind("jwks");
+			jwksFormItem = header.addFormItem(jwksArea, msg.getMessage("EditOAuthClientSubView.jwks"));
+			setJwksEnabled = jwksArea::setEnabled;
+			clearJwks = () -> jwksArea.setValue("");
+		}
+		else
+		{
+			TextFieldWithChangeConfirmation<TextArea> jwksWithChangeConfirmation =
+					new TextFieldWithChangeConfirmation<>(msg, jwksArea);
+			binder.forField(jwksWithChangeConfirmation).withValidator((v, c) -> {
+				if (jwksWithChangeConfirmation.isEditMode())
+					return ValidationResult.error(msg.getMessage("fieldRequired"));
+				if (v != null && !v.isBlank())
+				{
+					try
+					{
+						com.nimbusds.jose.jwk.JWKSet.parse(v);
+					} catch (Exception e)
+					{
+						return ValidationResult.error(msg.getMessage("EditOAuthClientSubView.invalidJwks"));
+					}
+				}
+				return ValidationResult.ok();
+			}).bind("jwks");
+			jwksFormItem = header.addFormItem(jwksWithChangeConfirmation, msg.getMessage("EditOAuthClientSubView.jwks"));
+			setJwksEnabled = jwksWithChangeConfirmation::setEnabled;
+			clearJwks = () -> jwksWithChangeConfirmation.setValue(null);
+		}
 
 		boolean isPrivateKeyJwt = "private_key_jwt".equals(authnMethod.getValue());
 		boolean isConfidential = ClientType.CONFIDENTIAL.toString().equals(type.getValue());
 		secretFormItem.setVisible(!isPrivateKeyJwt);
 		jwksFormItem.setVisible(isPrivateKeyJwt);
 		secret.setEnabled(!isPrivateKeyJwt && isConfidential);
-		jwks.setEnabled(isPrivateKeyJwt && isConfidential);
+		setJwksEnabled.accept(isPrivateKeyJwt && isConfidential);
 
 		authnMethod.addValueChangeListener(e -> {
 			boolean pkjwt = "private_key_jwt".equals(e.getValue());
@@ -233,11 +266,11 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 			secretFormItem.setVisible(!pkjwt);
 			jwksFormItem.setVisible(pkjwt);
 			secret.setEnabled(!pkjwt && confidential);
-			jwks.setEnabled(pkjwt && confidential);
+			setJwksEnabled.accept(pkjwt && confidential);
 			if (pkjwt)
 				secret.setValue("");
 			else
-				jwks.setValue("");
+				clearJwks.run();
 		});
 
 		type.addValueChangeListener(e ->
@@ -245,11 +278,11 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 			boolean confidential = ClientType.CONFIDENTIAL.toString().equals(e.getValue());
 			authnMethod.setEnabled(confidential);
 			secret.setEnabled(confidential && "client_secret".equals(authnMethod.getValue()));
-			jwks.setEnabled(confidential && "private_key_jwt".equals(authnMethod.getValue()));
+			setJwksEnabled.accept(confidential && "private_key_jwt".equals(authnMethod.getValue()));
 			if (!confidential)
 			{
 				secret.setValue("");
-				jwks.setValue("");
+				clearJwks.run();
 			}
 		});
 		

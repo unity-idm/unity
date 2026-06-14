@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 
 import java.io.IOException;
@@ -41,6 +42,7 @@ public class OAuthConfiguration
 	private int federationMetadataValidity;
 	private String federationTruststore;
 	private String federationHostnameCheckingMode;
+	private SigningAlgorithms federationJwtSigningAlgorithm;
 	private TranslationProfile federationProviderTranslationProfile;
 	private String federationProviderRegistrationForm;
 
@@ -73,6 +75,9 @@ public class OAuthConfiguration
 		authenticationCredential = oauthProp.getValue(OAuthClientProperties.AUTHENTICATION_CREDENTIAL);
 		federationTrustAnchorId = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID);
 		federationTrustAnchorJwks = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_JWKS);
+		String federationJwtSigningAlgStr = oauthProp.getValue(OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG);
+		federationJwtSigningAlgorithm = federationJwtSigningAlgStr != null && !federationJwtSigningAlgStr.isEmpty()
+				? SigningAlgorithms.valueOf(federationJwtSigningAlgStr) : null;
 		federationMetadataValidity = oauthProp.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY);
 		federationTruststore = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUSTSTORE);
 		ServerHostnameCheckingMode checkingMode = oauthProp.getEnumValue(
@@ -135,6 +140,10 @@ public class OAuthConfiguration
 			if (federationTrustAnchorJwks != null && !federationTrustAnchorJwks.isEmpty())
 			{
 				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_TRUST_ANCHOR_JWKS, federationTrustAnchorJwks);
+			}
+			if (federationJwtSigningAlgorithm != null)
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG, federationJwtSigningAlgorithm.name());
 			}
 			raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_METADATA_VALIDITY,
 					String.valueOf(federationMetadataValidity));
@@ -278,6 +287,16 @@ public class OAuthConfiguration
 	public void setFederationHostnameCheckingMode(String federationHostnameCheckingMode)
 	{
 		this.federationHostnameCheckingMode = federationHostnameCheckingMode;
+	}
+
+	public SigningAlgorithms getFederationJwtSigningAlgorithm()
+	{
+		return federationJwtSigningAlgorithm;
+	}
+
+	public void setFederationJwtSigningAlgorithm(SigningAlgorithms federationJwtSigningAlgorithm)
+	{
+		this.federationJwtSigningAlgorithm = federationJwtSigningAlgorithm;
 	}
 
 	public TranslationProfile getFederationProviderTranslationProfile()
