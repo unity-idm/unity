@@ -102,6 +102,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String FEDERATION_SUPERIOR_ENTITY_ID = "federationSuperiorEntityId";
 	public static final String FEDERATION_METADATA_VALIDITY = "federationMetadataValidity";
 	public static final int DEFAULT_FEDERATION_METADATA_VALIDITY = 86400;
+	public static final String FEDERATION_TRUSTSTORE = "federationTruststore";
+	public static final String FEDERATION_HOSTNAME_CHECKING = "federationHostnameChecking";
 
 	public static final String SIGNING_ALGORITHM = "signingAlgorithm";
 	public static final String SIGNING_SECRET = "signingSecret";
@@ -210,6 +212,10 @@ public class OAuthASProperties extends UnityPropertiesHelper
 		defaults.put(FEDERATION_METADATA_VALIDITY,
 				new PropertyMD(String.valueOf(DEFAULT_FEDERATION_METADATA_VALIDITY)).setInt().setPositive()
 						.setDescription("Validity period in seconds of the generated federation entity statement."));
+		defaults.put(FEDERATION_TRUSTSTORE, new PropertyMD()
+				.setDescription("Truststore for TLS validation when fetching OpenID federation entity statements."));
+		defaults.put(FEDERATION_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL)
+				.setDescription("TLS hostname checking mode when fetching OpenID federation entity statements."));
 
 		defaults.put(SIGNING_ALGORITHM, new PropertyMD(SigningAlgorithms.RS256)
 				.setDescription("An algorithm used for JWT access token and id token (OIDC mode) signing."));

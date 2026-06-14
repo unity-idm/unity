@@ -8,12 +8,14 @@ package pl.edu.icm.unity.oauth.as.console;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -22,6 +24,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.services.ServiceEditorBase;
 import io.imunity.vaadin.auth.services.ServiceEditorComponent;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -30,11 +33,13 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 {
 	private final MessageSource msg;
 	private final Set<String> credentials;
+	private final Set<String> validators;
 
-	OAuthEditorFederationTab(MessageSource msg, Set<String> credentials)
+	OAuthEditorFederationTab(MessageSource msg, Set<String> credentials, Set<String> validators)
 	{
 		this.msg = msg;
 		this.credentials = credentials;
+		this.validators = validators;
 	}
 
 	void initUI(Binder<OAuthServiceConfiguration> configBinder)
@@ -97,11 +102,30 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 				.bind("federationMetadataValidity");
 		federationLayout.addFormItem(metadataValidity, msg.getMessage("OAuthEditorGeneralTab.federationMetadataValidity"));
 
+		Select<String> federationTruststore = new Select<>();
+		federationTruststore.setItems(validators);
+		federationTruststore.setWidth(TEXT_FIELD_BIG.value());
+		federationTruststore.setEmptySelectionAllowed(true);
+		federationTruststore.setEmptySelectionCaption(msg.getMessage("TrustStore.default"));
+		configBinder.forField(federationTruststore)
+				.bind("federationTruststore");
+		federationLayout.addFormItem(federationTruststore, msg.getMessage("OAuthEditorFederationTab.federationTruststore"));
+
+		ComboBox<String> federationHostnameChecking = new ComboBox<>();
+		federationHostnameChecking.setItems(Arrays.stream(ServerHostnameCheckingMode.values())
+				.map(eu.unicore.util.httpclient.ServerHostnameCheckingMode::name).toList());
+		federationHostnameChecking.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(federationHostnameChecking)
+				.bind("federationHostnameChecking");
+		federationLayout.addFormItem(federationHostnameChecking, msg.getMessage("OAuthEditorFederationTab.federationHostnameChecking"));
+
 		trustAnchorId.setEnabled(false);
 		superiorEntityId.setEnabled(false);
 		jwks.setEnabled(false);
 		federationCredential.setEnabled(false);
 		metadataValidity.setEnabled(false);
+		federationTruststore.setEnabled(false);
+		federationHostnameChecking.setEnabled(false);
 
 		federationMembership.addValueChangeListener(e -> {
 			boolean enabled = e.getValue();
@@ -110,6 +134,8 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 			jwks.setEnabled(enabled);
 			federationCredential.setEnabled(enabled);
 			metadataValidity.setEnabled(enabled);
+			federationTruststore.setEnabled(enabled);
+			federationHostnameChecking.setEnabled(enabled);
 		});
 
 		add(federationLayout);

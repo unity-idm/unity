@@ -20,12 +20,14 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.nimbusds.jose.jwk.JWKSet;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.customfield.CustomField;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.html.Image;
@@ -34,6 +36,7 @@ import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
@@ -254,7 +257,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		configBinder.forField(federationJwtSigningAlg)
 				.bind("federationJwtSigningAlgorithm");
 
-		com.vaadin.flow.component.textfield.TextArea jwks = new com.vaadin.flow.component.textfield.TextArea();
+		TextArea jwks = new TextArea();
 		jwks.setWidth(TEXT_FIELD_BIG.value());
 		jwks.setHeight("8em");
 		federationLayout.addFormItem(jwks, msg.getMessage("OAuthAuthenticatorEditor.federationTrustAnchorJwks"));
@@ -266,7 +269,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 						return true;
 					try
 					{
-						com.nimbusds.jose.jwk.JWKSet.parse(v);
+						JWKSet.parse(v);
 						return true;
 					} catch (java.text.ParseException e)
 					{
@@ -285,9 +288,11 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 				.bind("federationMetadataValidity");
 
 		Set<String> validatorNames = getValidatorNames();
-		ComboBox<String> federationTruststore = new ComboBox<>();
+		Select<String> federationTruststore = new Select<>();
 		federationTruststore.setItems(validatorNames);
-		federationTruststore.setClearButtonVisible(true);
+		federationTruststore.setWidth(TEXT_FIELD_BIG.value());
+		federationTruststore.setEmptySelectionAllowed(true);
+		federationTruststore.setEmptySelectionCaption(msg.getMessage("TrustStore.default"));
 		federationLayout.addFormItem(federationTruststore,
 				msg.getMessage("OAuthAuthenticatorEditor.federationTruststore"));
 		configBinder.forField(federationTruststore)

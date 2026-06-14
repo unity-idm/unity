@@ -5,17 +5,20 @@
 package pl.edu.icm.unity.oauth.as.token.authn;
 
 import java.net.URI;
+import java.util.Collection;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.SignedJWT;
 
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -23,6 +26,7 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -35,6 +39,10 @@ import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalCredentialVerificato
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.oauth.as.OAuthASFederationConfig;
+import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
@@ -50,13 +58,18 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator implements Cli
 	private ClientPublicKeysCredential credential = new ClientPublicKeysCredential();
 	private String credentialName;
 	private final CredentialHelper credentialHelper;
+	private final OAuthEndpointsCoordinator coordinator;
+	private final AttributesManagement attributesManagement;
 	private final JwtClientAssertionVerifier jwtVerifier = new JwtClientAssertionVerifier();
 
 	@Autowired
-	public PrivateKeyJwtVerificator(CredentialHelper credentialHelper)
+	public PrivateKeyJwtVerificator(CredentialHelper credentialHelper, OAuthEndpointsCoordinator coordinator,
+			@Qualifier("insecure") AttributesManagement attributesManagement)
 	{
 		super(NAME, DESC, ClientAssertionExchange.ID);
 		this.credentialHelper = credentialHelper;
+		this.coordinator = coordinator;
+		this.attributesManagement = attributesManagement;
 	}
 
 	@Override
@@ -129,6 +142,29 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator implements Cli
 		} catch (Exception e)
 		{
 			log.info("Client entity not found for client_id: {}", clientId);
+			return LocalAuthenticationResult.failed(GENERIC_ERROR);
+		}
+
+		Optional<OAuthASFederationConfig> federationConfig = coordinator.getFederationConfig(tokenEndpointUri.toString());
+		if (federationConfig.isEmpty())
+		{
+			log.warn("No AS config registered for token endpoint {}", tokenEndpointUri);
+			return LocalAuthenticationResult.failed(GENERIC_ERROR);
+		}
+		try
+		{
+			Collection<AttributeExt> authnMethodAttrs = attributesManagement.getAttributes(
+					new EntityParam(resolved.getEntityId()), federationConfig.get().clientsGroup(),
+					OAuthSystemAttributesProvider.CLIENT_AUTHN_METHOD);
+			if (authnMethodAttrs.isEmpty() || !ClientAuthnMethod.private_key_jwt.toString()
+					.equals(authnMethodAttrs.iterator().next().getValues().get(0)))
+			{
+				log.info("Client {} does not have private_key_jwt authentication method configured", clientId);
+				return LocalAuthenticationResult.failed(GENERIC_ERROR);
+			}
+		} catch (Exception e)
+		{
+			log.warn("Cannot read authentication method attribute for client {}: {}", clientId, e.getMessage());
 			return LocalAuthenticationResult.failed(GENERIC_ERROR);
 		}
 

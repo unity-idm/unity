@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class OAuthEndpointsCoordinator
 {
-	private HashMap<String, EndpointsPair> pairs = new HashMap<>(); 
+	private HashMap<String, EndpointsPair> pairs = new HashMap<>();
+	private HashMap<String, OAuthASFederationConfig> federationConfigs = new HashMap<>();
 	
 	public synchronized void registerAuthzEndpoint(String issuer, String path)
 	{
@@ -45,6 +47,16 @@ public class OAuthEndpointsCoordinator
 		pair.setTokenPath(path);
 	}
 	
+	public synchronized void registerFederationConfig(String tokenEndpointUrl, OAuthASFederationConfig config)
+	{
+		federationConfigs.put(tokenEndpointUrl, config);
+	}
+
+	public synchronized Optional<OAuthASFederationConfig> getFederationConfig(String tokenEndpointUrl)
+	{
+		return Optional.ofNullable(federationConfigs.get(tokenEndpointUrl));
+	}
+
 	public synchronized String getAuthzEndpoint(String issuer)
 	{
 		EndpointsPair pair = pairs.get(issuer);

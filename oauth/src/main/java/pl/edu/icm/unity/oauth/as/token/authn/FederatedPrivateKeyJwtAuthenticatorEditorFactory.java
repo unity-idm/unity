@@ -10,19 +10,16 @@ import org.springframework.stereotype.Component;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditorFactory;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.PKIManagement;
 
 @Component
 class FederatedPrivateKeyJwtAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private final MessageSource msg;
-	private final PKIManagement pkiMan;
 
 	@Autowired
-	FederatedPrivateKeyJwtAuthenticatorEditorFactory(MessageSource msg, PKIManagement pkiMan)
+	FederatedPrivateKeyJwtAuthenticatorEditorFactory(MessageSource msg)
 	{
 		this.msg = msg;
-		this.pkiMan = pkiMan;
 	}
 
 	@Override
@@ -34,6 +31,6 @@ class FederatedPrivateKeyJwtAuthenticatorEditorFactory implements AuthenticatorE
 	@Override
 	public AuthenticatorEditor createInstance()
 	{
-		return new FederatedPrivateKeyJwtAuthenticatorEditor(msg, pkiMan);
+		return new FederatedPrivateKeyJwtAuthenticatorEditor(msg);
 	}
 }

@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,22 +31,30 @@ import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
+import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
+import pl.edu.icm.unity.oauth.as.OAuthASFederationConfig;
+import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 
 class PrivateKeyJwtVerificatorTest
 {
 	private static final String CLIENT_ID = "my-client";
 	private static final String CREDENTIAL_NAME = "test-credential";
+	private static final String CLIENTS_GROUP = "/oauth-clients";
 	private static final URI TOKEN_URI = URI.create("https://example.com/token");
 
 	private IdentityResolver identityResolver;
 	private CredentialHelper credentialHelper;
+	private OAuthEndpointsCoordinator coordinator;
+	private AttributesManagement attributesManagement;
 	private PrivateKeyJwtVerificator verificator;
 
 	@BeforeEach
@@ -53,9 +62,21 @@ class PrivateKeyJwtVerificatorTest
 	{
 		identityResolver = mock(IdentityResolver.class);
 		credentialHelper = mock(CredentialHelper.class);
-		verificator = new PrivateKeyJwtVerificator(credentialHelper);
+		coordinator = mock(OAuthEndpointsCoordinator.class);
+		attributesManagement = mock(AttributesManagement.class);
+		OAuthASFederationConfig federationConfig = new OAuthASFederationConfig(
+				false, null, null, null, null, CLIENTS_GROUP);
+		when(coordinator.getFederationConfig(TOKEN_URI.toString())).thenReturn(Optional.of(federationConfig));
+		verificator = new PrivateKeyJwtVerificator(credentialHelper, coordinator, attributesManagement);
 		verificator.setIdentityResolver(identityResolver);
 		verificator.setCredentialName(CREDENTIAL_NAME);
+	}
+
+	private AttributeExt authnMethodAttr(String value)
+	{
+		return new AttributeExt(
+				new Attribute("sys:oauth:clientAuthnMethod", "enumeration", CLIENTS_GROUP, List.of(value)),
+				true);
 	}
 
 	@Test
@@ -207,6 +228,24 @@ class PrivateKeyJwtVerificatorTest
 	}
 
 	@Test
+	void shouldFailWhenClientAuthnMethodIsNotPrivateKeyJwt() throws Exception
+	{
+		var rsaKey = new RSAKeyGenerator(2048).keyID("rsa-1").generate();
+		var jwkSet = new JWKSet(rsaKey.toPublicJWK());
+		EntityWithCredential entity = new EntityWithCredential(CREDENTIAL_NAME, jwkSet.toString(), 42L);
+		when(identityResolver.resolveIdentity(eq(CLIENT_ID), any(), eq(CREDENTIAL_NAME))).thenReturn(entity);
+		when(attributesManagement.getAttributes(any(), eq(CLIENTS_GROUP), any()))
+				.thenReturn(List.of(authnMethodAttr("client_secret")));
+
+		String jwt = buildAndSignJwt(CLIENT_ID, TOKEN_URI, new RSASSASigner(rsaKey),
+				new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("rsa-1").build());
+
+		AuthenticationResult result = verificator.verifyClientAssertion(jwt, TOKEN_URI);
+
+		assertThat(result.getStatus()).isEqualTo(Status.deny);
+	}
+
+	@Test
 	void shouldFailWhenNoJwksStored() throws Exception
 	{
 		var rsaKey = new RSAKeyGenerator(2048).keyID("k1").generate();
@@ -310,6 +349,8 @@ class PrivateKeyJwtVerificatorTest
 		EntityWithCredential entity = new EntityWithCredential(CREDENTIAL_NAME, credentialValue, 42L);
 		when(identityResolver.resolveIdentity(eq(CLIENT_ID), any(), eq(CREDENTIAL_NAME)))
 				.thenReturn(entity);
+		when(attributesManagement.getAttributes(any(), eq(CLIENTS_GROUP), any()))
+				.thenReturn(List.of(authnMethodAttr("private_key_jwt")));
 	}
 
 	private String buildAndSignJwt(String clientId, URI audience, com.nimbusds.jose.JWSSigner signer,

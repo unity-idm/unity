@@ -82,6 +82,8 @@ public class OAuthServiceConfiguration
 	private String federationCredential;
 	private String federationSuperiorEntityId;
 	private int federationMetadataValidity;
+	private String federationTruststore;
+	private String federationHostnameChecking;
 	
 	public OAuthServiceConfiguration()
 	{
@@ -324,6 +326,10 @@ public class OAuthServiceConfiguration
 			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_SUPERIOR_ENTITY_ID, federationSuperiorEntityId);
 		raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_METADATA_VALIDITY,
 				String.valueOf(federationMetadataValidity));
+		if (!Strings.isNullOrEmpty(federationTruststore))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_TRUSTSTORE, federationTruststore);
+		if (!Strings.isNullOrEmpty(federationHostnameChecking))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_HOSTNAME_CHECKING, federationHostnameChecking);
 
 		raw.put(OAuthASProperties.P + OAuthASProperties.CLIENTS_GROUP, clientGroup.group().toString());
 		raw.put(OAuthASProperties.P + OAuthASProperties.USERS_GROUP, usersGroup.group().toString());
@@ -436,6 +442,8 @@ public class OAuthServiceConfiguration
 		federationCredential = oauthProperties.getValue(OAuthASProperties.FEDERATION_CREDENTIAL);
 		federationSuperiorEntityId = oauthProperties.getValue(OAuthASProperties.FEDERATION_SUPERIOR_ENTITY_ID);
 		federationMetadataValidity = oauthProperties.getIntValue(OAuthASProperties.FEDERATION_METADATA_VALIDITY);
+		federationTruststore = oauthProperties.getValue(OAuthASProperties.FEDERATION_TRUSTSTORE);
+		federationHostnameChecking = oauthProperties.getValue(OAuthASProperties.FEDERATION_HOSTNAME_CHECKING);
 
 		openIDConnect = isScopeEnabled(OIDCScopeValue.OPENID.getValue());
 		tokenExchangeSupport = isScopeEnabled(OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
@@ -868,5 +876,25 @@ public class OAuthServiceConfiguration
 	public void setFederationMetadataValidity(int federationMetadataValidity)
 	{
 		this.federationMetadataValidity = federationMetadataValidity;
+	}
+
+	public String getFederationTruststore()
+	{
+		return federationTruststore;
+	}
+
+	public void setFederationTruststore(String federationTruststore)
+	{
+		this.federationTruststore = federationTruststore;
+	}
+
+	public String getFederationHostnameChecking()
+	{
+		return federationHostnameChecking;
+	}
+
+	public void setFederationHostnameChecking(String federationHostnameChecking)
+	{
+		this.federationHostnameChecking = federationHostnameChecking;
 	}
 }

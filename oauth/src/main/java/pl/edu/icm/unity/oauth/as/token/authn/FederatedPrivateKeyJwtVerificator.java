@@ -5,17 +5,17 @@
 package pl.edu.icm.unity.oauth.as.token.authn;
 
 import java.net.URI;
-import java.text.ParseException;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
@@ -29,14 +29,14 @@ import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
 import net.minidev.json.JSONObject;
 
-import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
+import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.InternalException;
-import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -46,6 +46,10 @@ import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.oauth.as.OAuthASFederationConfig;
+import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.oauth.client.federation.TlsEntityStatementRetriever;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
@@ -59,20 +63,18 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 			new ResolvableError("FederatedPrivateKeyJwtVerificator.invalidAssertion");
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, FederatedPrivateKeyJwtVerificator.class);
 
-	private String federationTrustAnchorId;
-	private JWKSet federationTrustAnchorJwks;
-	private String federationTruststore;
-	private X509CertChainValidator federationValidator;
-	private ServerHostnameCheckingMode federationHostnameCheckingMode;
-	private final PKIManagement pkiManagement;
+	private final OAuthEndpointsCoordinator coordinator;
+	private final AttributesManagement attributesManagement;
 	private final JwtClientAssertionVerifier jwtVerifier = new JwtClientAssertionVerifier();
 	final Map<String, CachedChain> chainCache = new ConcurrentHashMap<>();
 
 	@Autowired
-	public FederatedPrivateKeyJwtVerificator(PKIManagement pkiManagement)
+	public FederatedPrivateKeyJwtVerificator(OAuthEndpointsCoordinator coordinator,
+			@Qualifier("insecure") AttributesManagement attributesManagement)
 	{
 		super(NAME, DESC, ClientAssertionExchange.ID);
-		this.pkiManagement = pkiManagement;
+		this.coordinator = coordinator;
+		this.attributesManagement = attributesManagement;
 	}
 
 	@Override
@@ -84,75 +86,28 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 	@Override
 	public String getSerializedConfiguration()
 	{
-		ObjectNode root = JsonUtil.parse("{}");
-		if (federationTrustAnchorId != null)
-			root.put("federationTrustAnchorId", federationTrustAnchorId);
-		if (federationTrustAnchorJwks != null)
-			root.put("federationTrustAnchorJwks", federationTrustAnchorJwks.toString());
-		if (federationTruststore != null)
-			root.put("federationTruststore", federationTruststore);
-		if (federationHostnameCheckingMode != null)
-			root.put("federationHostnameChecking", federationHostnameCheckingMode.name());
-		return JsonUtil.serialize(root);
+		return "{}";
 	}
 
 	@Override
 	public void setSerializedConfiguration(String json) throws InternalException
 	{
-		ObjectNode root = JsonUtil.parse(json);
-		if (root.has("federationTrustAnchorId"))
-			federationTrustAnchorId = root.get("federationTrustAnchorId").asText(null);
-		if (root.has("federationTrustAnchorJwks"))
-		{
-			try
-			{
-				federationTrustAnchorJwks = JWKSet.parse(root.get("federationTrustAnchorJwks").asText());
-			} catch (ParseException e)
-			{
-				throw new InternalException(
-						"Invalid federation trust anchor JWKS in verificator config: " + e.getMessage());
-			}
-		}
-		if (root.has("federationTruststore"))
-		{
-			federationTruststore = root.get("federationTruststore").asText(null);
-			federationValidator = resolveValidator(federationTruststore);
-		}
-		if (root.has("federationHostnameChecking"))
-		{
-			try
-			{
-				federationHostnameCheckingMode = ServerHostnameCheckingMode.valueOf(
-						root.get("federationHostnameChecking").asText());
-			} catch (IllegalArgumentException e)
-			{
-				throw new InternalException("Invalid federationHostnameChecking value in verificator config");
-			}
-		}
 		chainCache.clear();
-	}
-
-	private X509CertChainValidator resolveValidator(String truststoreName) throws InternalException
-	{
-		if (truststoreName == null || truststoreName.isBlank())
-			return null;
-		try
-		{
-			if (!pkiManagement.getValidatorNames().contains(truststoreName))
-				return null;
-			return pkiManagement.getValidator(truststoreName);
-		} catch (Exception e)
-		{
-			throw new InternalException("Cannot resolve truststore '" + truststoreName + "': " + e.getMessage());
-		}
 	}
 
 	@Override
 	public AuthenticationResult verifyClientAssertion(String clientAssertion, URI tokenEndpointUri)
 	{
-		if (federationTrustAnchorId == null || federationTrustAnchorJwks == null)
+		OAuthASFederationConfig federationConfig = coordinator.getFederationConfig(tokenEndpointUri.toString())
+				.orElse(null);
+		if (federationConfig == null || !federationConfig.membershipEnabled())
 		{
-			log.warn("Federation trust anchor not configured");
+			log.debug("Federation membership not enabled for token endpoint {}", tokenEndpointUri);
+			return LocalAuthenticationResult.failed(GENERIC_ERROR);
+		}
+		if (federationConfig.trustAnchorId() == null || federationConfig.trustAnchorJwks() == null)
+		{
+			log.warn("Federation trust anchor not configured for token endpoint {}", tokenEndpointUri);
 			return LocalAuthenticationResult.failed(GENERIC_ERROR);
 		}
 
@@ -191,10 +146,27 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 			return LocalAuthenticationResult.failed(GENERIC_ERROR);
 		}
 
+		try
+		{
+			Collection<AttributeExt> authnMethodAttrs = attributesManagement.getAttributes(
+					new EntityParam(resolved.getEntityId()), federationConfig.clientsGroup(),
+					OAuthSystemAttributesProvider.CLIENT_AUTHN_METHOD);
+			if (authnMethodAttrs.isEmpty() || !ClientAuthnMethod.private_key_jwt.toString()
+					.equals(authnMethodAttrs.iterator().next().getValues().get(0)))
+			{
+				log.info("Client {} does not have private_key_jwt authentication method configured", clientId);
+				return LocalAuthenticationResult.failed(GENERIC_ERROR);
+			}
+		} catch (Exception e)
+		{
+			log.warn("Cannot read authentication method attribute for client {}: {}", clientId, e.getMessage());
+			return LocalAuthenticationResult.failed(GENERIC_ERROR);
+		}
+
 		JWKSet jwkSet;
 		try
 		{
-			jwkSet = resolveJwksFromFederation(clientId);
+			jwkSet = resolveJwksFromFederation(clientId, federationConfig);
 		} catch (Exception e)
 		{
 			log.info("Failed to resolve JWKS from federation for client {}: {}", clientId, e.getMessage());
@@ -214,26 +186,26 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 		return LocalAuthenticationResult.successful(ae, getAuthenticationMethod());
 	}
 
-	JWKSet resolveJwksFromFederation(String clientId) throws Exception
+	JWKSet resolveJwksFromFederation(String clientId, OAuthASFederationConfig config) throws Exception
 	{
 		chainCache.entrySet().removeIf(e -> e.getValue().isExpired());
 		CachedChain cached = chainCache.get(clientId);
 		if (cached != null && !cached.isExpired())
 			return extractRpJwksFromChain(cached.chain(), clientId);
 
-		TrustChain chain = resolveChain(clientId);
+		TrustChain chain = resolveChain(clientId, config);
 		chainCache.put(clientId, new CachedChain(chain, chain.resolveExpirationTime().toInstant()));
 		return extractRpJwksFromChain(chain, clientId);
 	}
 
-	TrustChain resolveChain(String clientId) throws Exception
+	TrustChain resolveChain(String clientId, OAuthASFederationConfig config) throws Exception
 	{
 		TrustChainResolver resolver = new TrustChainResolver(
-				Map.of(new EntityID(federationTrustAnchorId), federationTrustAnchorJwks),
+				Map.of(new EntityID(config.trustAnchorId()), config.trustAnchorJwks()),
 				TrustChainConstraints.NO_CONSTRAINTS,
-				new TlsEntityStatementRetriever(federationValidator,
-						federationHostnameCheckingMode != null
-								? federationHostnameCheckingMode
+				new TlsEntityStatementRetriever(config.validator(),
+						config.hostnameCheckingMode() != null
+								? config.hostnameCheckingMode()
 								: ServerHostnameCheckingMode.FAIL));
 		TrustChainSet chains = resolver.resolveTrustChains(new EntityID(clientId));
 		return chains.getShortest();
