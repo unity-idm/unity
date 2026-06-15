@@ -271,18 +271,6 @@ CREATE TABLE IDP_STATISTICS (
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initTokenTableIdx3"/>
 	</update>
 
-	<update id="initdb-26-00">
-		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-varObjectsTypeIdx0"/>
-	</update>
-
-	<update id="initdb-26-01">
-		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-varObjectsTypeIdx1"/>
-	</update>
-
-	<update id="initdb-26-02">
-		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-varObjectsTypeIdx2"/>
-	</update>
-
 	<update id="initdb-99">
 CREATE TABLE UVOS_FLAG(
 		VAL VARCHAR(128)

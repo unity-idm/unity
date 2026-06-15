@@ -60,19 +60,9 @@
 	</sql>
 
 	<sql id="sql-initTokenTableIdx3">
-		CREATE INDEX IF NOT EXISTS TYPE_IDX ON TOKENS(TYPE);
+		CREATE INDEX IF NOT EXISTS TYPE_IDX ON TOKENS(TYPE);	
 	</sql>
-
-	<sql id="sql-varObjectsTypeIdx0">
-	</sql>
-
-	<sql id="sql-varObjectsTypeIdx1">
-	</sql>
-
-	<sql id="sql-varObjectsTypeIdx2">
-		CREATE INDEX IF NOT EXISTS IDX_VAR_OBJECTS_TYPE ON VAR_OBJECTS (TYPE)
-	</sql>
-
+	
 	<update id="resetIndex-00">
 		ALTER TABLE TOKENS ALTER COLUMN ID RESTART WITH 1;
 	</update>
