@@ -136,14 +136,12 @@ public class TestMigrationFrom2_6
 		List<RegistrationForm> forms = regFormDB.getAll();
 		assertThat(forms).hasSize(2);
 		
-		RegistrationForm fbform = forms.get(0);
-		assertThat(fbform.getName()).isEqualTo("fb-form");
+		RegistrationForm fbform = forms.stream().filter(f -> f.getName().equals("fb-form")).findFirst().get();
 		assertThat(fbform.getFormLayouts().getPrimaryLayout()).isNull();
 		assertThat(fbform.getFormLayouts().getSecondaryLayout()).isNull();
 		assertThat(fbform.getLayoutSettings()).isNotNull();
 		
-		RegistrationForm formWithCustomLayout = forms.get(1);
-		assertThat(formWithCustomLayout.getName()).isEqualTo("registration with layout");
+		RegistrationForm formWithCustomLayout = forms.stream().filter(f -> f.getName().equals("registration with layout")).findFirst().get();
 		assertThat(formWithCustomLayout.getFormLayouts().getPrimaryLayout()).isNotNull();
 		assertThat(formWithCustomLayout.getFormLayouts().getSecondaryLayout()).isNull();
 		assertThat(fbform.getLayoutSettings()).isNotNull();
