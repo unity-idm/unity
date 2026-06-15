@@ -98,9 +98,12 @@ class OAuthTokenController
 
 	public Collection<OAuthTokenBean> getOAuthTokens(String serviceName) throws ControllerException
 	{
+		log.trace("getOAuthTokens start [service={}]", serviceName);
+
 		Optional<Endpoint> endpoint = getEndpoint(serviceName);
 		if (!endpoint.isPresent())
 		{
+			log.trace("getOAuthTokens: endpoint not found [service={}]", serviceName);
 			return Collections.emptyList();
 		}
 
@@ -108,21 +111,32 @@ class OAuthTokenController
 		{
 			String issuerUri = getIssuerUri(endpoint.get());
 			record TokenPair(Token raw, OAuthToken oauth) {}
-			List<TokenPair> filtered = getTokens().stream()
+
+			List<Token> allTokens = getTokens();
+			log.trace("getOAuthTokens: loaded all tokens [count={}]", allTokens.size());
+
+			List<TokenPair> filtered = allTokens.stream()
 					.map(t -> new TokenPair(t, OAuthToken.getInstanceFromJson(t.getContents())))
 					.filter(p -> issuerUri.equals(p.oauth().getIssuerUri()))
 					.collect(Collectors.toList());
+			log.trace("getOAuthTokens: filtered by issuerUri [matched={}, issuerUri={}]",
+					filtered.size(), issuerUri);
+
 			Map<Long, String> ownerLabels = buildOwnerLabels(
 					filtered.stream().map(TokenPair::raw).collect(Collectors.toList()));
-			return filtered.stream()
+			log.trace("getOAuthTokens: built owner labels [owners={}]", ownerLabels.size());
+
+			Collection<OAuthTokenBean> result = filtered.stream()
 					.map(p -> new OAuthTokenBean(p.raw(), p.oauth(), msg,
 							ownerLabels.getOrDefault(p.raw().getOwner(), "[" + p.raw().getOwner() + "]")))
 					.collect(Collectors.toList());
+
+			log.trace("getOAuthTokens done [service={}, result={}]", serviceName, result.size());
+			return result;
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("OAuthTokenController.getTokensError", serviceName), e);
 		}
-
 	}
 
 	private Map<Long, String> buildOwnerLabels(List<Token> tokens) throws EngineException
@@ -134,9 +148,12 @@ class OAuthTokenController
 		if (ownerIds.isEmpty())
 			return Collections.emptyMap();
 
+		log.trace("buildOwnerLabels: fetching membership data [owners={}]", ownerIds.size());
 		String nameAttr = getEntityNameAttribute();
 		GroupMembershipData membershipData = bulkService.getBulkMembershipData("/", ownerIds);
+		log.trace("buildOwnerLabels: got bulk membership data, resolving entity info");
 		Map<Long, EntityInGroupData> entitiesData = bulkService.getMembershipInfo(membershipData);
+		log.trace("buildOwnerLabels: resolved entity info [entities={}]", entitiesData.size());
 
 		Map<Long, String> labels = new HashMap<>();
 		for (Long ownerId : ownerIds)
