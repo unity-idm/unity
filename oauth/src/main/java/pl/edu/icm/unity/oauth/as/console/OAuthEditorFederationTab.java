@@ -8,9 +8,11 @@ package pl.edu.icm.unity.oauth.as.console;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Set;
 
+import com.nimbusds.jose.jwk.JWKSet;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -27,6 +29,8 @@ import com.vaadin.flow.data.validator.IntegerRangeValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.services.ServiceEditorBase;
 import io.imunity.vaadin.auth.services.ServiceEditorComponent;
+import java.util.function.Consumer;
+
 import pl.edu.icm.unity.base.message.MessageSource;
 
 class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBase.EditorTab
@@ -34,6 +38,7 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 	private final MessageSource msg;
 	private final Set<String> credentials;
 	private final Set<String> validators;
+	private Checkbox federationMembership;
 
 	OAuthEditorFederationTab(MessageSource msg, Set<String> credentials, Set<String> validators)
 	{
@@ -50,7 +55,7 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 		federationLayout.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		federationLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
-		Checkbox federationMembership = new Checkbox(
+		federationMembership = new Checkbox(
 				msg.getMessage("OAuthEditorFederationTab.federationMembershipEnabled"));
 		federationLayout.addFormItem(federationMembership, "");
 		configBinder.forField(federationMembership)
@@ -59,6 +64,8 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 		TextField trustAnchorId = new TextField();
 		trustAnchorId.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(trustAnchorId)
+				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isBlank()),
+						msg.getMessage("fieldRequired"))
 				.bind("federationTrustAnchorId");
 		federationLayout.addFormItem(trustAnchorId, msg.getMessage("OAuthEditorGeneralTab.federationTrustAnchorId"));
 
@@ -72,14 +79,16 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 		jwks.setWidth(TEXT_FIELD_BIG.value());
 		jwks.setHeight("8em");
 		configBinder.forField(jwks)
+				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isBlank()),
+						msg.getMessage("fieldRequired"))
 				.withValidator(v -> {
 					if (v == null || v.isEmpty())
 						return true;
 					try
 					{
-						com.nimbusds.jose.jwk.JWKSet.parse(v);
+						JWKSet.parse(v);
 						return true;
-					} catch (java.text.ParseException e)
+					} catch (ParseException e)
 					{
 						return false;
 					}
@@ -91,6 +100,8 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 		federationCredential.setItems(credentials);
 		federationCredential.setWidth(TEXT_FIELD_BIG.value());
 		configBinder.forField(federationCredential)
+				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isBlank()),
+						msg.getMessage("fieldRequired"))
 				.bind("federationCredential");
 		federationLayout.addFormItem(federationCredential, msg.getMessage("OAuthEditorGeneralTab.federationCredential"));
 
@@ -130,15 +141,23 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 		federationMembership.addValueChangeListener(e -> {
 			boolean enabled = e.getValue();
 			trustAnchorId.setEnabled(enabled);
+			trustAnchorId.setRequiredIndicatorVisible(enabled);
 			superiorEntityId.setEnabled(enabled);
 			jwks.setEnabled(enabled);
+			jwks.setRequiredIndicatorVisible(enabled);
 			federationCredential.setEnabled(enabled);
+			federationCredential.setRequiredIndicatorVisible(enabled);
 			metadataValidity.setEnabled(enabled);
 			federationTruststore.setEnabled(enabled);
 			federationHostnameChecking.setEnabled(enabled);
 		});
 
 		add(federationLayout);
+	}
+
+	void addFederationMembershipChangeListener(Consumer<Boolean> listener)
+	{
+		federationMembership.addValueChangeListener(e -> listener.accept(e.getValue()));
 	}
 
 	@Override

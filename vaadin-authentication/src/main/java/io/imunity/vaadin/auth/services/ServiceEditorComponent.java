@@ -21,6 +21,11 @@ public interface ServiceEditorComponent
 	}
 
 	public abstract void setActiveTab(String tab);
-	
+
 	public Component getComponent();
+
+	default void confirmPreSave(Runnable onProceed)
+	{
+		onProceed.run();
+	}
 }

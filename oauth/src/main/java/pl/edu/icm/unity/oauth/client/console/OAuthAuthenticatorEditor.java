@@ -321,10 +321,15 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			entityIdFormItem.setVisible(enabled);
 			metadataUrlFormItem.setVisible(enabled);
 			federationCredential.setEnabled(enabled);
+			federationCredential.setRequiredIndicatorVisible(enabled);
 			authenticationCredential.setEnabled(enabled);
+			authenticationCredential.setRequiredIndicatorVisible(enabled);
 			superiorEntityId.setEnabled(enabled);
+			superiorEntityId.setRequiredIndicatorVisible(enabled);
 			trustAnchorId.setEnabled(enabled);
+			trustAnchorId.setRequiredIndicatorVisible(enabled);
 			jwks.setEnabled(enabled);
+			jwks.setRequiredIndicatorVisible(enabled);
 			metadataValidity.setEnabled(enabled);
 			federationTruststore.setEnabled(enabled);
 			federationHostnameChecking.setEnabled(enabled);

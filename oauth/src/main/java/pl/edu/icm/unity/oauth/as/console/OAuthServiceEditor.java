@@ -24,6 +24,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
+import pl.edu.icm.unity.oauth.as.token.authn.FederatedPrivateKeyJwtVerificator;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentWithRevision;
@@ -36,6 +37,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 class OAuthServiceEditor implements ServiceEditor
 {
@@ -146,8 +148,14 @@ class OAuthServiceEditor implements ServiceEditor
 		PolicyAgreementsTab policyAgreementTab = new PolicyAgreementsTab(msg, policyDocuments);
 		OAuthEditorFederationTab federationTab = new OAuthEditorFederationTab(msg, credentials, validators);
 
+		List<String> federatedAuthenticatorIds = authenticators.stream()
+				.filter(a -> FederatedPrivateKeyJwtVerificator.NAME.equals(
+						a.getTypeDescription().getVerificationMethod()))
+				.map(AuthenticatorInfo::getId)
+				.collect(Collectors.toList());
 		editor = new OAuthServiceEditorComponent(msg, pkiManagement, generalTab, clientsTab, usersTab, webAuthTab, policyAgreementTab,
-				federationTab, fileStorageService, imageService, scopeService, endpoint, allGroups, systemClientsSupplier);
+				federationTab, fileStorageService, imageService, scopeService, endpoint, allGroups, systemClientsSupplier,
+				federatedAuthenticatorIds);
 		return editor;
 	}
 

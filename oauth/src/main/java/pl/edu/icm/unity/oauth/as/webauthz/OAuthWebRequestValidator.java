@@ -45,6 +45,9 @@ import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.federation.FederatedOAuthClientService;
+import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
+import pl.edu.icm.unity.oauth.as.federation.FederatedOAuthClientService.FederatedClientResolution;
 import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
@@ -64,13 +67,24 @@ class OAuthWebRequestValidator
 	private OAuthASProperties oauthConfig;
 	private EntityManagement identitiesMan;
 	private OAuthRequestValidator baseRequestValidator;
+	private FederatedOAuthClientService federationClientService;
+	private OAuthASFederationConfig federationConfig;
 
 	public OAuthWebRequestValidator(OAuthASProperties oauthConfig, EntityManagement identitiesMan,
 			AttributesManagement attributesMan, OAuthScopesService scopeService)
 	{
+		this(oauthConfig, identitiesMan, attributesMan, scopeService, null, null);
+	}
+
+	public OAuthWebRequestValidator(OAuthASProperties oauthConfig, EntityManagement identitiesMan,
+			AttributesManagement attributesMan, OAuthScopesService scopeService,
+			FederatedOAuthClientService federationClientService, OAuthASFederationConfig federationConfig)
+	{
 		this.oauthConfig = oauthConfig;
 		this.identitiesMan = identitiesMan;
 		this.baseRequestValidator = new OAuthRequestValidator(oauthConfig, identitiesMan, attributesMan, scopeService);
+		this.federationClientService = federationClientService;
+		this.federationConfig = federationConfig;
 	}
 
 	/**
@@ -89,9 +103,11 @@ class OAuthWebRequestValidator
 		{
 			Entity clientResolvedEntity = identitiesMan.getEntity(clientEntity);
 			context.setClientEntityId(clientResolvedEntity.getId());
+			tryRefreshFederationClient(client, context);
 		} catch (IllegalArgumentException e)
 		{
-			throw new OAuthValidationException("The client '" + client + "' is unknown");
+			long entityId = tryAutoRegisterFederationClient(client);
+			context.setClientEntityId(entityId);
 		} catch (Exception e)
 		{
 			log.error("Problem retrieving identity of the OAuth client", e);
@@ -176,6 +192,39 @@ class OAuthWebRequestValidator
 		if (context.getClientType() == ClientType.PUBLIC)
 			validatePKCEIsUsedForCodeFlow(authzRequest, client);
 		
+	}
+
+	private void tryRefreshFederationClient(String clientId, OAuthAuthzContext context)
+	{
+		if (federationClientService == null || federationConfig == null || !federationConfig.membershipEnabled())
+			return;
+		if (!federationClientService.isKnownFederationClient(clientId))
+			return;
+		try
+		{
+			federationClientService.resolveAndRegister(clientId, federationConfig);
+		} catch (Exception e)
+		{
+			log.debug("Failed to refresh federation client {}: {}", clientId, e.getMessage());
+		}
+	}
+
+	private long tryAutoRegisterFederationClient(String clientId) throws OAuthValidationException
+	{
+		if (federationClientService == null || federationConfig == null || !federationConfig.membershipEnabled())
+			throw new OAuthValidationException("The client '" + clientId + "' is unknown");
+		if (federationConfig.trustAnchorId() == null || federationConfig.trustAnchorJwks() == null)
+			throw new OAuthValidationException("The client '" + clientId + "' is unknown");
+		try
+		{
+			FederatedClientResolution resolution =
+					federationClientService.resolveAndRegister(clientId, federationConfig);
+			return resolution.entityId();
+		} catch (Exception e)
+		{
+			log.info("Failed to auto-register federation client {}: {}", clientId, e.getMessage());
+			throw new OAuthValidationException("The client '" + clientId + "' is unknown");
+		}
 	}
 
 	private void recordACR(OAuthAuthzContext context, AuthorizationRequest authzRequest)

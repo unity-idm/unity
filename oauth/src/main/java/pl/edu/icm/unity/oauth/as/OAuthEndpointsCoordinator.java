@@ -9,6 +9,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
+
 /**
  * Singleton, coordinating pairs of co-working OAuth Unity endpoints. Each web authorization endpoint should have
  * a single matching token (rest) endpoint. This class allows for discovering authz endpoint path by the token 

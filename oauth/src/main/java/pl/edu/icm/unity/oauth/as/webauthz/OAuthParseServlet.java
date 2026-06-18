@@ -51,6 +51,8 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.Prompt;
+import pl.edu.icm.unity.oauth.as.federation.FederatedOAuthClientService;
+import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.RequestedACRMapper;
@@ -83,10 +85,20 @@ public class OAuthParseServlet extends HttpServlet
 			EntityManagement identitiesMan, AttributesManagement attributesMan, OAuthScopesService scopeService,
 			UnityServerConfiguration serverConfig)
 	{
+		this(oauthConfig, oauthUiServletPath, errorHandler, identitiesMan, attributesMan, scopeService,
+				serverConfig, null, null);
+	}
+
+	public OAuthParseServlet(OAuthASProperties oauthConfig, String oauthUiServletPath, ErrorHandler errorHandler,
+			EntityManagement identitiesMan, AttributesManagement attributesMan, OAuthScopesService scopeService,
+			UnityServerConfiguration serverConfig, FederatedOAuthClientService federationClientService,
+			OAuthASFederationConfig federationConfig)
+	{
 		this.oauthConfig = oauthConfig;
 		this.oauthUiServletPath = oauthUiServletPath.endsWith("/") ? oauthUiServletPath : oauthUiServletPath + "/";
 		this.errorHandler = errorHandler;
-		this.validator = new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan, scopeService);
+		this.validator = new OAuthWebRequestValidator(oauthConfig, identitiesMan, attributesMan, scopeService,
+				federationClientService, federationConfig);
 		this.serverConfig = serverConfig;
 	}
 

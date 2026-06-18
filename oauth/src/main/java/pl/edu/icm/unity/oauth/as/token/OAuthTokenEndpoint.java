@@ -17,10 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.nimbusds.jose.jwk.JWKSet;
-
-import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -35,10 +31,10 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.oauth.as.OAuthASFederationConfig;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
+import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
 import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationEntityStatementResource;
 import pl.edu.icm.unity.oauth.as.token.access.AccessTokenResourceFactory;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
@@ -118,41 +114,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 
 	private OAuthASFederationConfig buildFederationConfig(OAuthASProperties props)
 	{
-		String trustAnchorId = props.getValue(OAuthASProperties.FEDERATION_TRUST_ANCHOR_ID);
-		String jwksStr = props.getValue(OAuthASProperties.FEDERATION_TRUST_ANCHOR_JWKS);
-		JWKSet trustAnchorJwks = null;
-		if (jwksStr != null && !jwksStr.isBlank())
-		{
-			try
-			{
-				trustAnchorJwks = JWKSet.parse(jwksStr);
-			} catch (java.text.ParseException e)
-			{
-				throw new pl.edu.icm.unity.base.exceptions.InternalException(
-						"Invalid federation trust anchor JWKS in AS config: " + e.getMessage());
-			}
-		}
-		String truststoreName = props.getValue(OAuthASProperties.FEDERATION_TRUSTSTORE);
-		X509CertChainValidator validator = null;
-		if (truststoreName != null && !truststoreName.isBlank())
-		{
-			try
-			{
-				if (pkiManagement.getValidatorNames().contains(truststoreName))
-					validator = pkiManagement.getValidator(truststoreName);
-			} catch (Exception e)
-			{
-				throw new pl.edu.icm.unity.base.exceptions.InternalException(
-						"Cannot resolve federation truststore '" + truststoreName + "': " + e.getMessage());
-			}
-		}
-		ServerHostnameCheckingMode hostnameChecking = props.getEnumValue(
-				OAuthASProperties.FEDERATION_HOSTNAME_CHECKING,
-				eu.unicore.util.httpclient.ServerHostnameCheckingMode.class);
-		boolean membershipEnabled = props.getBooleanValue(OAuthASProperties.FEDERATION_MEMBERSHIP_ENABLED);
-		String clientsGroup = props.getValue(OAuthASProperties.CLIENTS_GROUP);
-		return new OAuthASFederationConfig(membershipEnabled, trustAnchorId, trustAnchorJwks, validator, hostnameChecking,
-				clientsGroup);
+		return OAuthASFederationConfig.from(props, pkiManagement);
 	}
 	
 	@Override
