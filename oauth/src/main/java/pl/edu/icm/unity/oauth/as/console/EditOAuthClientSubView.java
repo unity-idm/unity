@@ -206,52 +206,22 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		jwksArea.setWidth(TEXT_FIELD_BIG.value());
 		jwksArea.setHeight("8em");
 
-		Consumer<Boolean> setJwksEnabled;
-		Runnable clearJwks;
-		FormLayout.FormItem jwksFormItem;
-
-		if (!editMode)
-		{
-			binder.forField(jwksArea).withValidator((v, c) -> {
-				if (v != null && !v.isBlank())
+		binder.forField(jwksArea).withValidator((v, c) -> {
+			if (v != null && !v.isBlank())
+			{
+				try
 				{
-					try
-					{
-						com.nimbusds.jose.jwk.JWKSet.parse(v);
-					} catch (Exception e)
-					{
-						return ValidationResult.error(msg.getMessage("EditOAuthClientSubView.invalidJwks"));
-					}
-				}
-				return ValidationResult.ok();
-			}).bind("jwks");
-			jwksFormItem = header.addFormItem(jwksArea, msg.getMessage("EditOAuthClientSubView.jwks"));
-			setJwksEnabled = jwksArea::setEnabled;
-			clearJwks = () -> jwksArea.setValue("");
-		}
-		else
-		{
-			TextFieldWithChangeConfirmation<TextArea> jwksWithChangeConfirmation =
-					new TextFieldWithChangeConfirmation<>(msg, jwksArea);
-			binder.forField(jwksWithChangeConfirmation).withValidator((v, c) -> {
-				if (jwksWithChangeConfirmation.isEditMode())
-					return ValidationResult.error(msg.getMessage("fieldRequired"));
-				if (v != null && !v.isBlank())
+					com.nimbusds.jose.jwk.JWKSet.parse(v);
+				} catch (Exception e)
 				{
-					try
-					{
-						com.nimbusds.jose.jwk.JWKSet.parse(v);
-					} catch (Exception e)
-					{
-						return ValidationResult.error(msg.getMessage("EditOAuthClientSubView.invalidJwks"));
-					}
+					return ValidationResult.error(msg.getMessage("EditOAuthClientSubView.invalidJwks"));
 				}
-				return ValidationResult.ok();
-			}).bind("jwks");
-			jwksFormItem = header.addFormItem(jwksWithChangeConfirmation, msg.getMessage("EditOAuthClientSubView.jwks"));
-			setJwksEnabled = jwksWithChangeConfirmation::setEnabled;
-			clearJwks = () -> jwksWithChangeConfirmation.setValue(null);
-		}
+			}
+			return ValidationResult.ok();
+		}).bind("jwks");
+		FormLayout.FormItem jwksFormItem = header.addFormItem(jwksArea, msg.getMessage("EditOAuthClientSubView.jwks"));
+		Consumer<Boolean> setJwksEnabled = jwksArea::setEnabled;
+		Runnable clearJwks = () -> jwksArea.setValue("");
 
 		boolean isPrivateKeyJwt = "private_key_jwt".equals(authnMethod.getValue());
 		boolean isConfidential = ClientType.CONFIDENTIAL.toString().equals(type.getValue());

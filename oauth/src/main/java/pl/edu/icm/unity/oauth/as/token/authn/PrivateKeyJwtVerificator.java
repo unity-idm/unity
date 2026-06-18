@@ -244,7 +244,7 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator implements Cli
 			return new pl.edu.icm.unity.base.authn.CredentialPublicInformation(
 					LocalCredentialState.notSet, "");
 		return new pl.edu.icm.unity.base.authn.CredentialPublicInformation(
-				LocalCredentialState.correct, "");
+				LocalCredentialState.correct, new PrivateKeyJwtExtraInfo(currentCredential).toJson());
 	}
 
 	@Override

@@ -45,6 +45,7 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.image.ImageType;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
+import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
@@ -85,6 +86,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
+import pl.edu.icm.unity.oauth.as.token.authn.PrivateKeyJwtExtraInfo;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.stdext.attr.BooleanAttribute;
@@ -742,7 +744,16 @@ class OAuthServiceController implements IdpServiceController
 			c.setClientAuthnMethod(ClientAuthnMethod.client_secret.toString());
 		}
 
-		
+		CredentialPublicInformation jwksCredInfo = info.entity.getCredentialInfo()
+				.getCredentialsState().get(JWKS_CREDENTIAL);
+		if (jwksCredInfo != null && jwksCredInfo.getExtraInformation() != null
+				&& !jwksCredInfo.getExtraInformation().isBlank())
+		{
+			String jwks = PrivateKeyJwtExtraInfo.fromJson(jwksCredInfo.getExtraInformation()).getJwks();
+			if (jwks != null)
+				c.setJwks(jwks);
+		}
+
 		return c;
 	}
 
