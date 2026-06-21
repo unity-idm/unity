@@ -36,6 +36,7 @@ import io.imunity.vaadin.endpoint.common.file.FileField;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.*;
@@ -166,7 +167,7 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		
 		Select<String> authnMethod = new Select<>();
 		authnMethod.setWidth(TEXT_FIELD_MEDIUM.value());
-		authnMethod.setItems("client_secret", "private_key_jwt");
+		authnMethod.setItems(Stream.of(ClientAuthnMethod.values()).map(ClientAuthnMethod::toString).toList());
 		binder.forField(authnMethod).bind("clientAuthnMethod");
 		header.addFormItem(authnMethod, msg.getMessage("EditOAuthClientSubView.authnMethod"));
 
@@ -179,7 +180,7 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 			binder.forField(secret).withValidator((v, c) -> {
 				if ((v == null || v.isEmpty())
 						&& ClientType.CONFIDENTIAL.toString().equals(type.getValue())
-						&& "client_secret".equals(authnMethod.getValue()))
+						&& ClientAuthnMethod.client_secret.toString().equals(authnMethod.getValue()))
 				{
 					return ValidationResult.error(msg.getMessage("fieldRequired"));
 				}
@@ -223,7 +224,7 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		Consumer<Boolean> setJwksEnabled = jwksArea::setEnabled;
 		Runnable clearJwks = () -> jwksArea.setValue("");
 
-		boolean isPrivateKeyJwt = "private_key_jwt".equals(authnMethod.getValue());
+		boolean isPrivateKeyJwt = ClientAuthnMethod.private_key_jwt.toString().equals(authnMethod.getValue());
 		boolean isConfidential = ClientType.CONFIDENTIAL.toString().equals(type.getValue());
 		secretFormItem.setVisible(!isPrivateKeyJwt);
 		jwksFormItem.setVisible(isPrivateKeyJwt);
@@ -231,7 +232,7 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		setJwksEnabled.accept(isPrivateKeyJwt && isConfidential);
 
 		authnMethod.addValueChangeListener(e -> {
-			boolean pkjwt = "private_key_jwt".equals(e.getValue());
+			boolean pkjwt = ClientAuthnMethod.private_key_jwt.toString().equals(e.getValue());
 			boolean confidential = ClientType.CONFIDENTIAL.toString().equals(type.getValue());
 			secretFormItem.setVisible(!pkjwt);
 			jwksFormItem.setVisible(pkjwt);
@@ -247,8 +248,8 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		{
 			boolean confidential = ClientType.CONFIDENTIAL.toString().equals(e.getValue());
 			authnMethod.setEnabled(confidential);
-			secret.setEnabled(confidential && "client_secret".equals(authnMethod.getValue()));
-			setJwksEnabled.accept(confidential && "private_key_jwt".equals(authnMethod.getValue()));
+			secret.setEnabled(confidential && ClientAuthnMethod.client_secret.toString().equals(authnMethod.getValue()));
+			setJwksEnabled.accept(confidential && ClientAuthnMethod.private_key_jwt.toString().equals(authnMethod.getValue()));
 			if (!confidential)
 			{
 				secret.setValue("");

@@ -26,10 +26,13 @@ import java.util.Set;
  */
 public class OAuthClientProperties extends UnityPropertiesHelper
 {
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthClientProperties.class);
 
 	public enum Providers {custom, google, facebook, dropbox, github, microsoft, microsoftAzureV2, orcid, linkedin, unity, intuit};
 
+	public static final String DEFAULT_TRANSLATION_PROFILE_FOR_FEDERATION_CLIENT = "sys:oidc";
+	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.client.";
 

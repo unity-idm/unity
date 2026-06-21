@@ -117,15 +117,18 @@ public class OAuthProviderConfiguration
 		return new Builder();
 	}
 
+	
+
 	@Override
 	public int hashCode()
 	{
 		return Objects.hash(accessTokenEndpoint, accessTokenFormat, additionalAuthzParams, authorizationEndpoint,
 				clientAuthnMethod, clientAuthnMode, clientAuthnModeForProfileAccess, clientCredential,
 				clientHttpMethodForProfileAccess, clientId, clientSecret, enableAssociation, federationId,
-				federationName, hostNameCheckingMode, iconUrl, key, name, openIdConnect, openIdDiscoveryEndpoint,
-				providerType, registrationForm, requestACRsMode, requestedACRs, requestedACRsAreEssential, scopes,
-				translationProfile, truststoreName, userInfoEndpoints, validator);
+				federationName, hostNameCheckingMode, iconUrl, jwtSigningAlgorithm, key, name, openIdConnect,
+				openIdDiscoveryEndpoint, providerType, registrationForm, requestACRsMode, requestedACRs,
+				requestedACRsAreEssential, scopes, translationProfile, truststoreName, userAttributesResolver,
+				userInfoEndpoints, validator);
 	}
 
 	@Override
@@ -146,26 +149,20 @@ public class OAuthProviderConfiguration
 				&& Objects.equals(clientAuthnMode, other.clientAuthnMode)
 				&& clientAuthnModeForProfileAccess == other.clientAuthnModeForProfileAccess
 				&& Objects.equals(clientCredential, other.clientCredential)
-				&& Objects.equals(clientHttpMethodForProfileAccess, other.clientHttpMethodForProfileAccess)
-				&& Objects.equals(clientId, other.clientId)
-				&& Objects.equals(clientSecret, other.clientSecret)
-				&& enableAssociation == other.enableAssociation
-				&& Objects.equals(federationId, other.federationId)
+				&& clientHttpMethodForProfileAccess == other.clientHttpMethodForProfileAccess
+				&& Objects.equals(clientId, other.clientId) && Objects.equals(clientSecret, other.clientSecret)
+				&& enableAssociation == other.enableAssociation && Objects.equals(federationId, other.federationId)
 				&& Objects.equals(federationName, other.federationName)
-				&& hostNameCheckingMode == other.hostNameCheckingMode
-				&& Objects.equals(iconUrl, other.iconUrl)
-				&& Objects.equals(key, other.key)
-				&& Objects.equals(name, other.name)
-				&& openIdConnect == other.openIdConnect
+				&& hostNameCheckingMode == other.hostNameCheckingMode && Objects.equals(iconUrl, other.iconUrl)
+				&& Objects.equals(jwtSigningAlgorithm, other.jwtSigningAlgorithm) && Objects.equals(key, other.key)
+				&& Objects.equals(name, other.name) && openIdConnect == other.openIdConnect
 				&& Objects.equals(openIdDiscoveryEndpoint, other.openIdDiscoveryEndpoint)
-				&& providerType == other.providerType
-				&& Objects.equals(registrationForm, other.registrationForm)
-				&& requestACRsMode == other.requestACRsMode
-				&& Objects.equals(requestedACRs, other.requestedACRs)
-				&& requestedACRsAreEssential == other.requestedACRsAreEssential
-				&& Objects.equals(scopes, other.scopes)
+				&& providerType == other.providerType && Objects.equals(registrationForm, other.registrationForm)
+				&& requestACRsMode == other.requestACRsMode && Objects.equals(requestedACRs, other.requestedACRs)
+				&& requestedACRsAreEssential == other.requestedACRsAreEssential && Objects.equals(scopes, other.scopes)
 				&& Objects.equals(translationProfile, other.translationProfile)
 				&& Objects.equals(truststoreName, other.truststoreName)
+				&& Objects.equals(userAttributesResolver, other.userAttributesResolver)
 				&& Objects.equals(userInfoEndpoints, other.userInfoEndpoints)
 				&& Objects.equals(validator, other.validator);
 	}

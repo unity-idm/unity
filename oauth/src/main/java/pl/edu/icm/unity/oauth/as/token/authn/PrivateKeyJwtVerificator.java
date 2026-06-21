@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.JWKSet;
-import com.nimbusds.jwt.SignedJWT;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
@@ -27,7 +26,6 @@ import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
@@ -47,7 +45,8 @@ import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
 @PrototypeComponent
-public class PrivateKeyJwtVerificator extends AbstractVerificator implements ClientAssertionExchange, LocalCredentialVerificator
+public class PrivateKeyJwtVerificator extends AbstractVerificator
+		implements ClientAssertionExchange, LocalCredentialVerificator
 {
 	public static final String NAME = "private-key-jwt";
 	public static final String DESC = "Verifies OAuth2 client JWT assertions using JWKS";
@@ -60,7 +59,7 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator implements Cli
 	private final CredentialHelper credentialHelper;
 	private final OAuthEndpointsCoordinator coordinator;
 	private final AttributesManagement attributesManagement;
-	private final JwtClientAssertionVerifier jwtVerifier = new JwtClientAssertionVerifier();
+	private final ClientAssertionVerificationFlow verificationFlow = new ClientAssertionVerificationFlow();
 
 	@Autowired
 	public PrivateKeyJwtVerificator(CredentialHelper credentialHelper, OAuthEndpointsCoordinator coordinator,
@@ -110,31 +109,22 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator implements Cli
 	@Override
 	public AuthenticationResult verifyClientAssertion(String clientAssertion, URI tokenEndpointUri)
 	{
-		SignedJWT jwt;
-		try
+		Optional<OAuthEndpointsCoordinator.FederationConfigEntry> configEntry =
+				coordinator.findFederationConfigByPath(tokenEndpointUri.getPath());
+		if (configEntry.isEmpty())
 		{
-			jwt = SignedJWT.parse(clientAssertion);
-		} catch (Exception e)
-		{
-			log.debug("Failed to parse client_assertion JWT", e);
+			log.warn("No AS config registered for token endpoint {}", tokenEndpointUri);
 			return LocalAuthenticationResult.failed(GENERIC_ERROR);
 		}
+		OAuthASFederationConfig federationConfig = configEntry.get().config();
+		URI canonicalUri = URI.create(configEntry.get().canonicalUrl());
+		return verificationFlow.verify(clientAssertion, canonicalUri, GENERIC_ERROR,
+				clientId -> resolveLocalJwks(clientId, federationConfig));
+	}
 
-		String clientId;
-		try
-		{
-			clientId = jwt.getJWTClaimsSet().getSubject();
-			if (clientId == null)
-			{
-				log.debug("client_assertion JWT has no sub claim");
-				return LocalAuthenticationResult.failed(GENERIC_ERROR);
-			}
-		} catch (Exception e)
-		{
-			log.debug("Failed to read claims from client_assertion JWT", e);
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
-		}
-
+	private ClientAssertionVerificationFlow.JwksResolution resolveLocalJwks(String clientId,
+			OAuthASFederationConfig federationConfig) throws Exception
+	{
 		EntityWithCredential resolved;
 		try
 		{
@@ -142,56 +132,40 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator implements Cli
 		} catch (Exception e)
 		{
 			log.info("Client entity not found for client_id: {}", clientId);
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
+			throw e;
 		}
-
-		Optional<OAuthASFederationConfig> federationConfig = coordinator.getFederationConfig(tokenEndpointUri.toString());
-		if (federationConfig.isEmpty())
-		{
-			log.warn("No AS config registered for token endpoint {}", tokenEndpointUri);
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
-		}
+		Collection<AttributeExt> authnMethodAttrs;
 		try
 		{
-			Collection<AttributeExt> authnMethodAttrs = attributesManagement.getAttributes(
-					new EntityParam(resolved.getEntityId()), federationConfig.get().clientsGroup(),
+			authnMethodAttrs = attributesManagement.getAttributes(
+					new EntityParam(resolved.getEntityId()), federationConfig.clientsGroup(),
 					OAuthSystemAttributesProvider.CLIENT_AUTHN_METHOD);
-			if (authnMethodAttrs.isEmpty() || !ClientAuthnMethod.private_key_jwt.toString()
-					.equals(authnMethodAttrs.iterator().next().getValues().get(0)))
-			{
-				log.info("Client {} does not have private_key_jwt authentication method configured", clientId);
-				return LocalAuthenticationResult.failed(GENERIC_ERROR);
-			}
 		} catch (Exception e)
 		{
 			log.warn("Cannot read authentication method attribute for client {}: {}", clientId, e.getMessage());
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
+			throw e;
 		}
-
-		JWKSet jwkSet;
+		if (authnMethodAttrs.isEmpty() || !ClientAuthnMethod.private_key_jwt.toString()
+				.equals(authnMethodAttrs.iterator().next().getValues().get(0)))
+		{
+			log.info("Client {} does not have private_key_jwt authentication method configured", clientId);
+			throw new AuthenticationException("Wrong authn method for client " + clientId);
+		}
+		String storedJwks = resolved.getCredentialValue();
+		if (storedJwks == null || storedJwks.isBlank())
+		{
+			log.info("Failed to resolve JWKS for client {}: no JWKS stored", clientId);
+			throw new AuthenticationException("No JWKS for client " + clientId);
+		}
 		try
 		{
-			String storedJwks = resolved.getCredentialValue();
-			if (storedJwks == null || storedJwks.isBlank())
-				throw new AuthenticationException("No JWKS configured for client " + clientId);
-			jwkSet = JWKSet.parse(storedJwks);
+			return new ClientAssertionVerificationFlow.JwksResolution(
+					resolved.getEntityId(), JWKSet.parse(storedJwks));
 		} catch (Exception e)
 		{
 			log.info("Failed to resolve JWKS for client {}: {}", clientId, e.getMessage());
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
+			throw e;
 		}
-
-		try
-		{
-			jwtVerifier.verifyJwt(jwt, jwkSet, tokenEndpointUri, clientId);
-		} catch (AuthenticationException e)
-		{
-			log.info("JWT assertion verification failed for client {}: {}", clientId, e.getMessage());
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
-		}
-
-		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), clientId, null);
-		return LocalAuthenticationResult.successful(ae, getAuthenticationMethod());
 	}
 
 	@Override

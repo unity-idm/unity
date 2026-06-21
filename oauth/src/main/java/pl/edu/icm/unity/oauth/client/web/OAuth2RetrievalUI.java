@@ -64,6 +64,9 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 
 	private IdPAuthNComponent idpComponent;
 
+	private String cachedLabel;
+	private Image cachedImage;
+
 	private ExpectedIdentity expectedIdentity;
 
 
@@ -110,6 +113,9 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 		String name = provider.name.getValue(msg);
 		String logoURI = provider.iconUrl != null ? provider.iconUrl.getValue(msg) : null;
 
+		cachedLabel = name;
+		cachedImage = imageAccessService.loadImageFromUri(logoURI).orElse(null);
+
 		Image logo = imageAccessService.loadImageFromUri(logoURI)
 				.orElse(new LocalOrRemoteResource());
 		logo.setClassName("u-logo-idp-image");
@@ -141,16 +147,13 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	@Override
 	public String getLabel()
 	{
-		OAuthProviderConfiguration provider = credentialExchange.getCombinedProviders().get(providerKey);
-		return provider.name.getValue(msg);
+		return cachedLabel;
 	}
 
 	@Override
 	public Image getImage()
 	{
-		OAuthProviderConfiguration provider = credentialExchange.getCombinedProviders().get(providerKey);
-		String logoURI = provider.iconUrl != null ? provider.iconUrl.getValue(msg) : null;
-		return imageAccessService.loadImageFromUri(logoURI).orElse(null);
+		return cachedImage;
 	}
 
 	@Override

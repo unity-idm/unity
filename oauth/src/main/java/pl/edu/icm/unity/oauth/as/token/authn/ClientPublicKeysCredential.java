@@ -4,13 +4,11 @@
  */
 package pl.edu.icm.unity.oauth.as.token.authn;
 
-import java.text.ParseException;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.nimbusds.jose.jwk.JWKSet;
 
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.oauth.as.token.JwksParseUtils;
 
 public class ClientPublicKeysCredential
 {
@@ -27,13 +25,7 @@ public class ClientPublicKeysCredential
 	{
 		if (rawJwks == null || rawJwks.isBlank())
 			return "";
-		try
-		{
-			JWKSet.parse(rawJwks);
-		} catch (ParseException e)
-		{
-			throw new InternalException("Invalid JWK Set: " + e.getMessage());
-		}
+		JwksParseUtils.parseRequired(rawJwks, "Invalid JWK Set");
 		return rawJwks;
 	}
 }

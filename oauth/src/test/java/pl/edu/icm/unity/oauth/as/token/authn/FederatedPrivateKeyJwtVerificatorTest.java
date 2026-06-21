@@ -56,6 +56,12 @@ class FederatedPrivateKeyJwtVerificatorTest
 		return new OAuthASFederationConfig(true, TRUST_ANCHOR_ID, anchorJwks, null, null, CLIENTS_GROUP);
 	}
 
+	private void stubFederationConfig(OAuthASFederationConfig config)
+	{
+		when(coordinator.findFederationConfigByPath(TOKEN_URI.getPath())).thenReturn(Optional.of(
+				new OAuthEndpointsCoordinator.FederationConfigEntry(TOKEN_URI.toString(), config)));
+	}
+
 	private FederatedPrivateKeyJwtVerificator verificator()
 	{
 		return new FederatedPrivateKeyJwtVerificator(coordinator, federationClientService);
@@ -64,7 +70,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 	@Test
 	void shouldFailWhenNoConfigRegistered()
 	{
-		when(coordinator.getFederationConfig(TOKEN_URI.toString())).thenReturn(Optional.empty());
+		when(coordinator.findFederationConfigByPath(TOKEN_URI.getPath())).thenReturn(Optional.empty());
 
 		AuthenticationResult result = verificator().verifyClientAssertion("any-jwt", TOKEN_URI);
 
@@ -77,7 +83,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 		var anchorKey = new RSAKeyGenerator(2048).keyID("anchor").generate();
 		OAuthASFederationConfig config = new OAuthASFederationConfig(
 				false, TRUST_ANCHOR_ID, new JWKSet(anchorKey.toPublicJWK()), null, null, CLIENTS_GROUP);
-		when(coordinator.getFederationConfig(TOKEN_URI.toString())).thenReturn(Optional.of(config));
+		stubFederationConfig(config);
 
 		AuthenticationResult result = verificator().verifyClientAssertion("any-jwt", TOKEN_URI);
 
@@ -88,8 +94,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 	void shouldFailForMalformedJwt() throws Exception
 	{
 		var anchorKey = new RSAKeyGenerator(2048).keyID("anchor").generate();
-		when(coordinator.getFederationConfig(TOKEN_URI.toString()))
-				.thenReturn(Optional.of(configWithAnchor(new JWKSet(anchorKey.toPublicJWK()))));
+		stubFederationConfig(configWithAnchor(new JWKSet(anchorKey.toPublicJWK())));
 
 		AuthenticationResult result = verificator().verifyClientAssertion("not-a-jwt", TOKEN_URI);
 
@@ -102,7 +107,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 		var anchorKey = new RSAKeyGenerator(2048).keyID("anchor").generate();
 		var clientKey = new RSAKeyGenerator(2048).keyID("client-key").generate();
 		OAuthASFederationConfig config = configWithAnchor(new JWKSet(anchorKey.toPublicJWK()));
-		when(coordinator.getFederationConfig(TOKEN_URI.toString())).thenReturn(Optional.of(config));
+		stubFederationConfig(config);
 		when(federationClientService.resolveAndRegister(eq(CLIENT_ID), any()))
 				.thenThrow(new Exception("Trust chain resolution failed"));
 
@@ -120,7 +125,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 		var anchorKey = new RSAKeyGenerator(2048).keyID("anchor").generate();
 		var clientKey = new RSAKeyGenerator(2048).keyID("client-key").generate();
 		OAuthASFederationConfig config = configWithAnchor(new JWKSet(anchorKey.toPublicJWK()));
-		when(coordinator.getFederationConfig(TOKEN_URI.toString())).thenReturn(Optional.of(config));
+		stubFederationConfig(config);
 		when(federationClientService.resolveAndRegister(eq(CLIENT_ID), any()))
 				.thenThrow(new Exception("DB error"));
 
@@ -138,7 +143,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 		var clientKey = new RSAKeyGenerator(2048).keyID("client-key").generate();
 		var anchorKey = new RSAKeyGenerator(2048).keyID("anchor").generate();
 		OAuthASFederationConfig config = configWithAnchor(new JWKSet(anchorKey.toPublicJWK()));
-		when(coordinator.getFederationConfig(TOKEN_URI.toString())).thenReturn(Optional.of(config));
+		stubFederationConfig(config);
 		when(federationClientService.resolveAndRegister(eq(CLIENT_ID), any()))
 				.thenReturn(new FederatedClientResolution(42L, new JWKSet(clientKey.toPublicJWK())));
 
@@ -157,7 +162,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 		var wrongKey = new RSAKeyGenerator(2048).keyID("wrong").generate();
 		var anchorKey = new RSAKeyGenerator(2048).keyID("anchor").generate();
 		OAuthASFederationConfig config = configWithAnchor(new JWKSet(anchorKey.toPublicJWK()));
-		when(coordinator.getFederationConfig(TOKEN_URI.toString())).thenReturn(Optional.of(config));
+		stubFederationConfig(config);
 		when(federationClientService.resolveAndRegister(eq(CLIENT_ID), any()))
 				.thenReturn(new FederatedClientResolution(42L, new JWKSet(clientKey.toPublicJWK())));
 

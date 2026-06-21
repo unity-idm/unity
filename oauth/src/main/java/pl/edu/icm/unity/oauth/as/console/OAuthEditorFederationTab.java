@@ -8,11 +8,10 @@ package pl.edu.icm.unity.oauth.as.console;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
-import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Set;
 
-import com.nimbusds.jose.jwk.JWKSet;
+import pl.edu.icm.unity.oauth.as.token.JwksParseUtils;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -81,18 +80,8 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 		configBinder.forField(jwks)
 				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isBlank()),
 						msg.getMessage("fieldRequired"))
-				.withValidator(v -> {
-					if (v == null || v.isEmpty())
-						return true;
-					try
-					{
-						JWKSet.parse(v);
-						return true;
-					} catch (ParseException e)
-					{
-						return false;
-					}
-				}, msg.getMessage("OAuthEditorGeneralTab.federationJwksInvalid"))
+				.withValidator(v -> v == null || v.isEmpty() || JwksParseUtils.isValidJwks(v),
+						msg.getMessage("OAuthEditorGeneralTab.federationJwksInvalid"))
 				.bind("federationTrustAnchorJwks");
 		federationLayout.addFormItem(jwks, msg.getMessage("OAuthEditorGeneralTab.federationJwks"));
 

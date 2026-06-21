@@ -44,10 +44,13 @@ public class FederationConfig
 		return new Builder();
 	}
 
+	
+
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(credential, enabled, jwks, metadataValidity, superiorEntityId, trustAnchorId, truststore);
+		return Objects.hash(credential, enabled, hostnameCheckingMode, jwks, jwtSigningAlgorithm, metadataValidity,
+				superiorEntityId, trustAnchorId, truststore, validator);
 	}
 
 	@Override
@@ -60,13 +63,13 @@ public class FederationConfig
 		if (getClass() != obj.getClass())
 			return false;
 		FederationConfig other = (FederationConfig) obj;
-		return Objects.equals(credential, other.credential)
-				&& enabled == other.enabled
-				&& Objects.equals(jwks, other.jwks)
+		return Objects.equals(credential, other.credential) && enabled == other.enabled
+				&& hostnameCheckingMode == other.hostnameCheckingMode && Objects.equals(jwks, other.jwks)
+				&& Objects.equals(jwtSigningAlgorithm, other.jwtSigningAlgorithm)
 				&& metadataValidity == other.metadataValidity
 				&& Objects.equals(superiorEntityId, other.superiorEntityId)
-				&& Objects.equals(trustAnchorId, other.trustAnchorId)
-				&& Objects.equals(truststore, other.truststore);
+				&& Objects.equals(trustAnchorId, other.trustAnchorId) && Objects.equals(truststore, other.truststore)
+				&& Objects.equals(validator, other.validator);
 	}
 
 	public static final class Builder

@@ -5,21 +5,18 @@
 package pl.edu.icm.unity.oauth.as.token.authn;
 
 import java.net.URI;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.nimbusds.jwt.SignedJWT;
-
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
@@ -40,7 +37,7 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 
 	private final OAuthEndpointsCoordinator coordinator;
 	private final FederatedOAuthClientService federationClientService;
-	private final JwtClientAssertionVerifier jwtVerifier = new JwtClientAssertionVerifier();
+	private final ClientAssertionVerificationFlow verificationFlow = new ClientAssertionVerificationFlow();
 
 	@Autowired
 	public FederatedPrivateKeyJwtVerificator(OAuthEndpointsCoordinator coordinator,
@@ -72,65 +69,36 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 	@Override
 	public AuthenticationResult verifyClientAssertion(String clientAssertion, URI tokenEndpointUri)
 	{
-		OAuthASFederationConfig federationConfig = coordinator.getFederationConfig(tokenEndpointUri.toString())
-				.orElse(null);
-		if (federationConfig == null || !federationConfig.membershipEnabled())
+		Optional<OAuthEndpointsCoordinator.FederationConfigEntry> configEntry =
+				coordinator.findFederationConfigByPath(tokenEndpointUri.getPath());
+		if (configEntry.isEmpty() || !configEntry.get().config().membershipEnabled())
 		{
 			log.debug("Federation membership not enabled for token endpoint {}", tokenEndpointUri);
 			return LocalAuthenticationResult.failed(GENERIC_ERROR);
 		}
+		OAuthASFederationConfig federationConfig = configEntry.get().config();
+		URI canonicalUri = URI.create(configEntry.get().canonicalUrl());
 		if (federationConfig.trustAnchorId() == null || federationConfig.trustAnchorJwks() == null)
 		{
 			log.warn("Federation trust anchor not configured for token endpoint {}", tokenEndpointUri);
 			return LocalAuthenticationResult.failed(GENERIC_ERROR);
 		}
+		return verificationFlow.verify(clientAssertion, canonicalUri, GENERIC_ERROR,
+				clientId -> resolveFederatedClient(clientId, federationConfig));
+	}
 
-		SignedJWT jwt;
+	private ClientAssertionVerificationFlow.JwksResolution resolveFederatedClient(String clientId,
+			OAuthASFederationConfig federationConfig) throws Exception
+	{
 		try
 		{
-			jwt = SignedJWT.parse(clientAssertion);
-		} catch (Exception e)
-		{
-			log.debug("Failed to parse client_assertion JWT", e);
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
-		}
-
-		String clientId;
-		try
-		{
-			clientId = jwt.getJWTClaimsSet().getSubject();
-			if (clientId == null)
-			{
-				log.debug("client_assertion JWT has no sub claim");
-				return LocalAuthenticationResult.failed(GENERIC_ERROR);
-			}
-		} catch (Exception e)
-		{
-			log.debug("Failed to read claims from client_assertion JWT", e);
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
-		}
-
-		FederatedClientResolution resolution;
-		try
-		{
-			resolution = federationClientService.resolveAndRegister(clientId, federationConfig);
+			FederatedClientResolution resolution = federationClientService.resolveAndRegister(clientId, federationConfig);
+			return new ClientAssertionVerificationFlow.JwksResolution(resolution.entityId(), resolution.jwks());
 		} catch (Exception e)
 		{
 			log.info("Failed to resolve/register federation client {}: {}", clientId, e.getMessage());
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
+			throw e;
 		}
-
-		try
-		{
-			jwtVerifier.verifyJwt(jwt, resolution.jwks(), tokenEndpointUri, clientId);
-		} catch (AuthenticationException e)
-		{
-			log.info("JWT assertion verification failed for client {}: {}", clientId, e.getMessage());
-			return LocalAuthenticationResult.failed(GENERIC_ERROR);
-		}
-
-		AuthenticatedEntity ae = new AuthenticatedEntity(resolution.entityId(), clientId, null);
-		return LocalAuthenticationResult.successful(ae, getAuthenticationMethod());
 	}
 
 	@Override

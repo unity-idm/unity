@@ -101,7 +101,8 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		setClientId(source.getValue(CustomProviderProperties.CLIENT_ID));
 		setClientSecret(source.getValue(CustomProviderProperties.CLIENT_SECRET));
 		if (source.isSet(CustomProviderProperties.CLIENT_AUTHN_METHOD))
-			setClientAuthenticationMethod(source.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_METHOD, ClientAuthnMethod.class));
+			setClientAuthenticationMethod(source.getEnumValue(
+					CustomProviderProperties.CLIENT_AUTHN_METHOD, ClientAuthnMethod.class));
 		else
 			setClientAuthenticationMethod(ClientAuthnMethod.client_secret);
 		setClientCredential(source.getValue(CustomProviderProperties.CLIENT_CREDENTIAL));
@@ -217,9 +218,10 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 				raw.put(prefix + CustomProviderProperties.CLIENT_SECRET, getClientSecret());
 			if (getClientAuthenticationMode() != null)
 				raw.put(prefix + CustomProviderProperties.CLIENT_AUTHN_MODE, getClientAuthenticationMode().toString());
-			if (getClientAuthenticationModeForProfile() != null)
-				raw.put(prefix + CustomProviderProperties.CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, getClientAuthenticationModeForProfile().toString());
 		}
+		if (getClientAuthenticationModeForProfile() != null)
+			raw.put(prefix + CustomProviderProperties.CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS,
+					getClientAuthenticationModeForProfile().toString());
 
 		if (getClientHttpMethodForProfileAccess() != null)
 		{

@@ -20,7 +20,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import com.nimbusds.jose.jwk.JWKSet;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
@@ -67,6 +66,7 @@ import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.oauth.client.ResponseConsumerServlet;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
+import pl.edu.icm.unity.oauth.as.token.JwksParseUtils;
 import pl.edu.icm.unity.oauth.client.federation.OAuthFederationEntityStatementServlet;
 
 class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
@@ -185,19 +185,6 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		configBinder.forField(federationMembership)
 				.bind("federationMembershipEnabled");
 
-		TextField federationEntityId = new TextField();
-		federationEntityId.setWidth(TEXT_FIELD_BIG.value());
-		federationEntityId.setReadOnly(true);
-		federationEntityId.setValue(buildFederationEntityId(name.getValue()));
-		name.addValueChangeListener(e -> federationEntityId.setValue(buildFederationEntityId(e.getValue())));
-		CopyToClipboardButton copyEntityId = new CopyToClipboardButton(msg::getMessage, federationEntityId);
-		HorizontalLayout entityIdField = new HorizontalLayout(federationEntityId, copyEntityId);
-		entityIdField.setAlignItems(FlexComponent.Alignment.CENTER);
-		entityIdField.addClassName(SMALL_GAP.getName());
-		FormLayout.FormItem entityIdFormItem = federationLayout.addFormItem(entityIdField,
-				msg.getMessage("OAuthAuthenticatorEditor.federationEntityId"));
-		entityIdFormItem.setVisible(false);
-
 		TextField federationMetadataUrl = new TextField();
 		federationMetadataUrl.setWidth(RICH_FIELD_BIG.value());
 		federationMetadataUrl.setReadOnly(true);
@@ -243,7 +230,8 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 		ComboBox<String> authenticationCredential = new ComboBox<>();
 		authenticationCredential.setItems(credentialNames);
-		federationLayout.addFormItem(authenticationCredential, msg.getMessage("OAuthAuthenticatorEditor.authenticationCredential"));
+		federationLayout.addFormItem(authenticationCredential,
+				msg.getMessage("OAuthAuthenticatorEditor.authenticationCredential"));
 		configBinder.forField(authenticationCredential)
 				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isEmpty()),
 						msg.getMessage("selectionRequired"))
@@ -264,18 +252,8 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		configBinder.forField(jwks)
 				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isEmpty()),
 						msg.getMessage("fieldRequired"))
-				.withValidator(v -> {
-					if (v == null || v.isEmpty())
-						return true;
-					try
-					{
-						JWKSet.parse(v);
-						return true;
-					} catch (java.text.ParseException e)
-					{
-						return false;
-					}
-				}, msg.getMessage("OAuthAuthenticatorEditor.federationTrustAnchorJwksInvalid"))
+				.withValidator(v -> v == null || v.isEmpty() || JwksParseUtils.isValidJwks(v),
+						msg.getMessage("OAuthAuthenticatorEditor.federationTrustAnchorJwksInvalid"))
 				.bind("federationTrustAnchorJwks");
 
 		IntegerField metadataValidity = new IntegerField();
@@ -318,7 +296,6 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 		federationMembership.addValueChangeListener(e -> {
 			boolean enabled = e.getValue();
-			entityIdFormItem.setVisible(enabled);
 			metadataUrlFormItem.setVisible(enabled);
 			federationCredential.setEnabled(enabled);
 			federationCredential.setRequiredIndicatorVisible(enabled);
@@ -337,7 +314,8 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			providerDefaultsPanel.setVisible(enabled);
 		});
 
-		AccordionPanel accordionPanel = new AccordionPanel(msg.getMessage("OAuthAuthenticatorEditor.openIDFederationMembership"),
+		AccordionPanel accordionPanel = new AccordionPanel(
+				msg.getMessage("OAuthAuthenticatorEditor.openIDFederationMembership"),
 				federationLayout);
 		accordionPanel.setWidthFull();
 		return accordionPanel;
@@ -359,7 +337,8 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 		AccordionPanel federationTranslationProfilePanel = profileFieldFactory.getWrappedFieldInstance(
 				subViewSwitcher, configBinder, "federationProviderTranslationProfile");
-		federationTranslationProfilePanel.setSummaryText(msg.getMessage("OAuthAuthenticatorEditor.federationProviderTranslationProfile"));
+		federationTranslationProfilePanel.setSummaryText(
+				msg.getMessage("OAuthAuthenticatorEditor.federationProviderTranslationProfile"));
 		providerDefaultsForm.add(federationTranslationProfilePanel);
 
 		AccordionPanel panel = new AccordionPanel(

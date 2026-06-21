@@ -70,6 +70,9 @@ class ClientAuthenticationFactory
 	private static ClientAuthentication buildClientSecretAuthentication(OAuthProviderConfiguration providerCfg,
 			ClientAuthnMode mode)
 	{
+		if (providerCfg.clientSecret == null || providerCfg.clientSecret.isBlank())
+			throw new InternalException("Client secret is not configured for OAuth provider '"
+					+ providerCfg.clientId + "' using client_secret authentication");
 		return switch (mode)
 		{
 			case secretPost -> new ClientSecretPost(new ClientID(providerCfg.clientId),

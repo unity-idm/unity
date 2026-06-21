@@ -54,6 +54,9 @@ public class OAuthProxyAuthnHandler
 
 		if (requestedIdP == null)
 		{
+			if (keys.isEmpty())
+				throw new IllegalStateException("OAuth authenticator " + authenticatorId
+						+ " has no providers available yet (federation providers may still be loading).");
 			if (keys.size() > 1)
 				throw new IllegalStateException("OAuth authentication option was not requested with "
 					+ PreferredAuthenticationHelper.IDP_SELECT_PARAM

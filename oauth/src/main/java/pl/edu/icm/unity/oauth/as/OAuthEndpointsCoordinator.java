@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -24,8 +25,11 @@ import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
 @Component
 public class OAuthEndpointsCoordinator
 {
+	public record FederationConfigEntry(String canonicalUrl, OAuthASFederationConfig config) {}
+
 	private HashMap<String, EndpointsPair> pairs = new HashMap<>();
 	private HashMap<String, OAuthASFederationConfig> federationConfigs = new HashMap<>();
+	private HashMap<String, String> pathToCanonicalUrl = new HashMap<>();
 	
 	public synchronized void registerAuthzEndpoint(String issuer, String path)
 	{
@@ -52,11 +56,23 @@ public class OAuthEndpointsCoordinator
 	public synchronized void registerFederationConfig(String tokenEndpointUrl, OAuthASFederationConfig config)
 	{
 		federationConfigs.put(tokenEndpointUrl, config);
+		pathToCanonicalUrl.put(URI.create(tokenEndpointUrl).getPath(), tokenEndpointUrl);
 	}
 
 	public synchronized Optional<OAuthASFederationConfig> getFederationConfig(String tokenEndpointUrl)
 	{
 		return Optional.ofNullable(federationConfigs.get(tokenEndpointUrl));
+	}
+
+	public synchronized Optional<FederationConfigEntry> findFederationConfigByPath(String path)
+	{
+		String canonicalUrl = pathToCanonicalUrl.get(path);
+		if (canonicalUrl == null)
+			return Optional.empty();
+		OAuthASFederationConfig config = federationConfigs.get(canonicalUrl);
+		if (config == null)
+			return Optional.empty();
+		return Optional.of(new FederationConfigEntry(canonicalUrl, config));
 	}
 
 	public synchronized String getAuthzEndpoint(String issuer)

@@ -228,7 +228,8 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		clientCredential.setEmptySelectionAllowed(true);
 		configBinder.forField(clientCredential)
 				.bind(OAuthBaseConfiguration::getClientCredential, OAuthBaseConfiguration::setClientCredential);
-		FormItem clientCredentialItem = header.addFormItem(clientCredential, msg.getMessage("EditOAuthProviderSubView.clientCredential"));
+		FormItem clientCredentialItem = header.addFormItem(clientCredential,
+				msg.getMessage("EditOAuthProviderSubView.clientCredential"));
 		clientCredentialItem.setVisible(false);
 
 		Select<SigningAlgorithms> clientJwtSigningAlg = new Select<>();
@@ -330,13 +331,16 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		clientAuthenticationMode.setItems(ClientAuthnMode.values());
 		configBinder.forField(clientAuthenticationMode)
 				.bind(OAuthProviderConfiguration::getClientAuthenticationMode, OAuthProviderConfiguration::setClientAuthenticationMode);
-		FormItem clientAuthModeItem = advanced.addFormItem(clientAuthenticationMode, msg.getMessage("EditOAuthProviderSubView.clientAuthenticationMode"));
+		FormItem clientAuthModeItem = advanced.addFormItem(clientAuthenticationMode,
+				msg.getMessage("EditOAuthProviderSubView.clientAuthenticationMode"));
 
 		Select<ClientAuthnMode> clientAuthenticationModeForProfile = new Select<>();
 		clientAuthenticationModeForProfile.setItems(ClientAuthnMode.values());
 		configBinder.forField(clientAuthenticationModeForProfile)
 				.bind(OAuthProviderConfiguration::getClientAuthenticationModeForProfile, OAuthProviderConfiguration::setClientAuthenticationModeForProfile);
-		FormItem clientAuthModeForProfileItem = advanced.addFormItem(clientAuthenticationModeForProfile, msg.getMessage("EditOAuthProviderSubView.clientAuthenticationModeForProfile"));
+		FormItem clientAuthModeForProfileItem = advanced.addFormItem(
+				clientAuthenticationModeForProfile,
+				msg.getMessage("EditOAuthProviderSubView.clientAuthenticationModeForProfile"));
 
 		clientAuthMethod.addValueChangeListener(e -> {
 			boolean isClientSecret = ClientAuthnMethod.client_secret.equals(e.getValue());

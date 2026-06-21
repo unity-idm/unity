@@ -52,6 +52,9 @@ public class OAuthConfiguration
 		defAccountAssociation = true;
 		federationMetadataValidity = OAuthClientProperties.DEFAULT_FEDERATION_METADATA_VALIDITY;
 		federationHostnameCheckingMode = ServerHostnameCheckingMode.FAIL.name();
+		federationProviderTranslationProfile = TranslationProfileGenerator
+				.generateIncludeInputProfile(OAuthClientProperties.DEFAULT_TRANSLATION_PROFILE_FOR_FEDERATION_CLIENT);
+
 	}
 
 	public void fromProperties(String properties, MessageSource msg, PKIManagement pkiMan,
@@ -115,7 +118,8 @@ public class OAuthConfiguration
 
 		
 		
-		raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_MEMBERSHIP_ENABLED, String.valueOf(federationMembershipEnabled));
+		raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_MEMBERSHIP_ENABLED,
+				String.valueOf(federationMembershipEnabled));
 		
 		if(federationMembershipEnabled)
 		{
@@ -143,7 +147,8 @@ public class OAuthConfiguration
 			}
 			if (federationJwtSigningAlgorithm != null)
 			{
-				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG, federationJwtSigningAlgorithm.name());
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG,
+						federationJwtSigningAlgorithm.name());
 			}
 			raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_METADATA_VALIDITY,
 					String.valueOf(federationMetadataValidity));
