@@ -53,7 +53,7 @@ public class OAuthFederationProvidersManager
 
 			try
 			{
-				OAuthFederationConfig fedConfig = OAuthFederationConfig.from(config.federation);
+				OAuthFederationTrustConfig fedConfig = OAuthFederationTrustConfig.from(config.federation);
 				String consumerId = federationService.preregisterConsumer();
 				federationService.registerConsumer(consumerId, fedConfig.refreshInterval(), fedConfig,
 						(chains, cid) -> onUpdatedFederation(authenticatorId, clientId, cid, chains, config));
@@ -62,7 +62,7 @@ public class OAuthFederationProvidersManager
 			} catch (ParseException e)
 			{
 				log.error("Failed to parse federation config for authenticator {}: {}",
-						authenticatorId, e.getMessage());
+						authenticatorId, e.getMessage(), e);
 				return new InstanceState(instanceId, null, config.providers());
 			}
 		});

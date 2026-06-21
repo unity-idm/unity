@@ -184,7 +184,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 
 	@Override
-	public OAuthProviders getCombinedProviders()
+	public OAuthProviders getProviders()
 	{
 		if (instanceName != null)
 			return federationProvidersManager.getCombinedProviders(instanceName);
@@ -257,7 +257,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			AuthenticationTriggeringContext authnTriggeringContext)
 			throws URISyntaxException, ParseException, IOException
 	{
-		OAuthProviderConfiguration providerCfg = getCombinedProviders().get(providerKey);
+		OAuthProviderConfiguration providerCfg = getProviders().get(providerKey);
 		String clientId = providerCfg.clientId;
 		String authzEndpoint = providerCfg.authorizationEndpoint;
 		String scopes = providerCfg.scopes;
@@ -338,7 +338,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
 			verifyExpectedIdentity(input, context.getExpectedIdentity());
-			OAuthProviderConfiguration providerCfg = getCombinedProviders().get(context.getProviderConfigKey());
+			OAuthProviderConfiguration providerCfg = getProviders().get(context.getProviderConfigKey());
 			TranslationProfile profile = providerCfg.translationProfile;
 			String regFormForUnknown = providerCfg.registrationForm;
 			boolean enableAssociation = providerCfg.enableAssociation;
@@ -391,7 +391,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 							" " + context.getErrorDescription() : ""));
 		}
 
-		OAuthProviderConfiguration providerCfg = getCombinedProviders().get(context.getProviderConfigKey());
+		OAuthProviderConfiguration providerCfg = getProviders().get(context.getProviderConfigKey());
 		boolean openIdConnectMode = providerCfg.openIdConnect;
 
 		AttributeFetchResult attributes;
@@ -649,7 +649,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	public List<IdPInfo> getIdPs()
 	{
 		List<IdPInfo> providers = new ArrayList<>();
-		for (OAuthProviderConfiguration provider : getCombinedProviders().getAll())
+		for (OAuthProviderConfiguration provider : getProviders().getAll())
 		{
 			String idpKey = provider.key.asString();
 			if (provider.openIdConnect)

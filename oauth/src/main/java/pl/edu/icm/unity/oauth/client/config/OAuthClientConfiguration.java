@@ -11,8 +11,8 @@ public class OAuthClientConfiguration
 {
 	public final boolean defaultEnableAssociation;
 	public final String authenticationCredential;
-	public final FederationConfig federation;
-	public final FederationProviderDefaults federationProviderDefaults;
+	public final OAuthFederationConfig federation;
+	public final OAuthFederationProviderDefaults federationProviderDefaults;
 	public final OAuthProviders providers;
 	private final Properties rawProperties;
 
@@ -69,8 +69,8 @@ public class OAuthClientConfiguration
 	{
 		private boolean defaultEnableAssociation;
 		private String authenticationCredential;
-		private FederationConfig federation;
-		private FederationProviderDefaults federationProviderDefaults;
+		private OAuthFederationConfig federation;
+		private OAuthFederationProviderDefaults federationProviderDefaults;
 		private OAuthProviders providers;
 		private Properties rawProperties;
 
@@ -88,13 +88,13 @@ public class OAuthClientConfiguration
 			return this;
 		}
 
-		public Builder withFederation(FederationConfig federation)
+		public Builder withFederation(OAuthFederationConfig federation)
 		{
 			this.federation = federation;
 			return this;
 		}
 
-		public Builder withFederationProviderDefaults(FederationProviderDefaults federationProviderDefaults)
+		public Builder withFederationProviderDefaults(OAuthFederationProviderDefaults federationProviderDefaults)
 		{
 			this.federationProviderDefaults = federationProviderDefaults;
 			return this;

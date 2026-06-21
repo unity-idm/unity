@@ -14,7 +14,7 @@ interface OAuthFederationService
 {
 	String preregisterConsumer();
 
-	void registerConsumer(String key, Duration refreshInterval, OAuthFederationConfig config,
+	void registerConsumer(String key, Duration refreshInterval, OAuthFederationTrustConfig config,
 			BiConsumer<List<TrustChain>, String> consumer);
 
 	void unregisterConsumer(String id);

@@ -37,7 +37,7 @@ class OAuthFederationServiceImpl implements OAuthFederationService
 	}
 
 	@Override
-	public void registerConsumer(String key, Duration refreshInterval, OAuthFederationConfig config,
+	public void registerConsumer(String key, Duration refreshInterval, OAuthFederationTrustConfig config,
 			BiConsumer<List<TrustChain>, String> consumer)
 	{
 		HandlerKey handlerKey = HandlerKey.from(config);
@@ -72,7 +72,7 @@ class OAuthFederationServiceImpl implements OAuthFederationService
 
 	private record HandlerKey(String trustAnchorUrl, String truststore, ServerHostnameCheckingMode hostnameCheckingMode)
 	{
-		static HandlerKey from(OAuthFederationConfig config)
+		static HandlerKey from(OAuthFederationTrustConfig config)
 		{
 			return new HandlerKey(config.trustAnchorEntityId().getValue(),
 					config.truststore(), config.hostnameCheckingMode());

@@ -12,6 +12,8 @@ import java.util.Objects;
 
 public class OAuthProviderKey
 {
+	static final String FEDERATION_PREFIX = "_fed_";
+
 	private final String key;
 
 	private OAuthProviderKey(String key)
@@ -37,12 +39,12 @@ public class OAuthProviderKey
 
 	public static OAuthProviderKey fromFederationEntity(String entityId)
 	{
-		return new OAuthProviderKey("_fed_" + md5(entityId));
+		return new OAuthProviderKey(FEDERATION_PREFIX + md5(entityId));
 	}
 
 	public boolean isFromFederation()
 	{
-		return key.startsWith("_fed_");
+		return key.startsWith(FEDERATION_PREFIX);
 	}
 
 	private static String md5(String input)

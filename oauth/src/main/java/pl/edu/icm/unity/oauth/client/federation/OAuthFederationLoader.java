@@ -51,7 +51,7 @@ class OAuthFederationLoader
 		this.cache = cache;
 	}
 
-	List<TrustChain> loadAll(OAuthFederationConfig config) throws IOException, ParseException
+	List<TrustChain> loadAll(OAuthFederationTrustConfig config) throws IOException, ParseException
 	{
 		List<EntityID> entityIds = fetchEntityListing(config);
 		cache.keySet().retainAll(new HashSet<>(entityIds));
@@ -69,7 +69,7 @@ class OAuthFederationLoader
 		return result;
 	}
 
-	private List<EntityID> fetchEntityListing(OAuthFederationConfig config) throws IOException, ParseException
+	private List<EntityID> fetchEntityListing(OAuthFederationTrustConfig config) throws IOException, ParseException
 	{
 		URI listEndpoint = discoverListEndpoint(config);
 		HTTPRequest httpRequest = new EntityListingRequest(listEndpoint, EntityType.OPENID_PROVIDER).toHTTPRequest();
@@ -78,7 +78,7 @@ class OAuthFederationLoader
 		return EntityListingSuccessResponse.parse(response).getEntityListing();
 	}
 
-	private URI discoverListEndpoint(OAuthFederationConfig config) throws IOException
+	private URI discoverListEndpoint(OAuthFederationTrustConfig config) throws IOException
 	{
 		TlsEntityStatementRetriever retriever = new TlsEntityStatementRetriever(
 				config.validator(), config.hostnameCheckingMode());
@@ -99,7 +99,7 @@ class OAuthFederationLoader
 	}
 
 	private Optional<TrustChain> resolveWithCache(EntityID entityId, TrustChainResolver resolver,
-			OAuthFederationConfig config)
+			OAuthFederationTrustConfig config)
 	{
 		CachedTrustChain cached = cache.get(entityId);
 		if (cached != null && !cached.isExpired())
@@ -108,7 +108,7 @@ class OAuthFederationLoader
 	}
 
 	private Optional<TrustChain> resolveFresh(EntityID entityId, TrustChainResolver resolver,
-			OAuthFederationConfig config)
+			OAuthFederationTrustConfig config)
 	{
 		try
 		{
@@ -126,7 +126,7 @@ class OAuthFederationLoader
 		}
 	}
 
-	private TrustChainResolver buildResolver(OAuthFederationConfig config)
+	private TrustChainResolver buildResolver(OAuthFederationTrustConfig config)
 	{
 		TlsEntityStatementRetriever retriever = new TlsEntityStatementRetriever(
 				config.validator(), config.hostnameCheckingMode());

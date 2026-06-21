@@ -31,7 +31,7 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 class OAuthFederationServiceImplTest
 {
 	private static final String TRUST_ANCHOR = "https://anchor.example.com";
-	private static final OAuthFederationConfig CONFIG = new OAuthFederationConfig(
+	private static final OAuthFederationTrustConfig CONFIG = new OAuthFederationTrustConfig(
 			new EntityID(TRUST_ANCHOR), new JWKSet(),
 			Duration.ofSeconds(60), null, ServerHostnameCheckingMode.FAIL, null);
 
@@ -101,10 +101,10 @@ class OAuthFederationServiceImplTest
 	void shouldUseSeparateHandlerForDifferentTruststore()
 	{
 		setupScheduler();
-		OAuthFederationConfig configA = new OAuthFederationConfig(
+		OAuthFederationTrustConfig configA = new OAuthFederationTrustConfig(
 				new EntityID(TRUST_ANCHOR), new JWKSet(),
 				Duration.ofSeconds(60), null, ServerHostnameCheckingMode.FAIL, "truststoreA");
-		OAuthFederationConfig configB = new OAuthFederationConfig(
+		OAuthFederationTrustConfig configB = new OAuthFederationTrustConfig(
 				new EntityID(TRUST_ANCHOR), new JWKSet(),
 				Duration.ofSeconds(60), null, ServerHostnameCheckingMode.FAIL, "truststoreB");
 

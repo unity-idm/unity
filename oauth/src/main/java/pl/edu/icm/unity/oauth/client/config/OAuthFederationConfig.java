@@ -12,7 +12,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
-public class FederationConfig
+public class OAuthFederationConfig
 {
 	public final boolean enabled;
 	public final String credential;
@@ -25,7 +25,7 @@ public class FederationConfig
 	public final ServerHostnameCheckingMode hostnameCheckingMode;
 	public final Optional<JWSAlgorithm> jwtSigningAlgorithm;
 
-	private FederationConfig(Builder builder)
+	private OAuthFederationConfig(Builder builder)
 	{
 		this.enabled = builder.enabled;
 		this.credential = builder.credential;
@@ -62,7 +62,7 @@ public class FederationConfig
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		FederationConfig other = (FederationConfig) obj;
+		OAuthFederationConfig other = (OAuthFederationConfig) obj;
 		return Objects.equals(credential, other.credential) && enabled == other.enabled
 				&& hostnameCheckingMode == other.hostnameCheckingMode && Objects.equals(jwks, other.jwks)
 				&& Objects.equals(jwtSigningAlgorithm, other.jwtSigningAlgorithm)
@@ -147,9 +147,9 @@ public class FederationConfig
 			return this;
 		}
 
-		public FederationConfig build()
+		public OAuthFederationConfig build()
 		{
-			return new FederationConfig(this);
+			return new OAuthFederationConfig(this);
 		}
 	}
 }

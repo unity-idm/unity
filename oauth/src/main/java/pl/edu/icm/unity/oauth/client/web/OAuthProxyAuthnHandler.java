@@ -50,7 +50,7 @@ public class OAuthProxyAuthnHandler
 	private OAuthProviderKey getProviderKey(HttpServletRequest httpRequest)
 	{
 		String requestedIdP = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
-		Set<OAuthProviderKey> keys = credentialExchange.getCombinedProviders().getKeys();
+		Set<OAuthProviderKey> keys = credentialExchange.getProviders().getKeys();
 
 		if (requestedIdP == null)
 		{
@@ -67,7 +67,7 @@ public class OAuthProxyAuthnHandler
 
 		String optionId = AuthenticationOptionKeyUtils.decodeOption(requestedIdP);
 		OAuthProviderKey requestedKey = OAuthProviderKey.fromConfig(OAuthClientProperties.PROVIDERS + optionId + ".");
-		if (!credentialExchange.getCombinedProviders().contains(requestedKey))
+		if (!credentialExchange.getProviders().contains(requestedKey))
 			throw new IllegalStateException("Client requested authN option " + requestedKey
 					+ ", which is not available in "
 					+ "the authenticator selected for automated proxy authN. "

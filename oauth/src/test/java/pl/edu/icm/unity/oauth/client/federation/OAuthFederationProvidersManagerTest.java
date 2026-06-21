@@ -30,8 +30,8 @@ import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.client.InstanceId;
-import pl.edu.icm.unity.oauth.client.config.FederationConfig;
-import pl.edu.icm.unity.oauth.client.config.FederationProviderDefaults;
+import pl.edu.icm.unity.oauth.client.config.OAuthFederationConfig;
+import pl.edu.icm.unity.oauth.client.config.OAuthFederationProviderDefaults;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
@@ -102,7 +102,7 @@ class OAuthFederationProvidersManagerTest
 	void shouldNotRegisterConsumerWhenTrustAnchorIdIsNull()
 	{
 		OAuthClientConfiguration config = configBuilder()
-				.withFederation(FederationConfig.builder().withEnabled(true).withTrustAnchorId(null)
+				.withFederation(OAuthFederationConfig.builder().withEnabled(true).withTrustAnchorId(null)
 						.withMetadataValidity(3600).build())
 				.withProviders(new OAuthProviders(List.of()))
 				.build();
@@ -116,7 +116,7 @@ class OAuthFederationProvidersManagerTest
 	void shouldNotRegisterConsumerWhenTrustAnchorJwksIsNull()
 	{
 		OAuthClientConfiguration config = configBuilder()
-				.withFederation(FederationConfig.builder().withEnabled(true).withTrustAnchorId(TRUST_ANCHOR)
+				.withFederation(OAuthFederationConfig.builder().withEnabled(true).withTrustAnchorId(TRUST_ANCHOR)
 						.withMetadataValidity(3600).build())
 				.withProviders(new OAuthProviders(List.of()))
 				.build();
@@ -136,7 +136,7 @@ class OAuthFederationProvidersManagerTest
 
 		verify(federationService).preregisterConsumer();
 		verify(federationService).registerConsumer(eq("consumer-1"), any(Duration.class),
-				any(OAuthFederationConfig.class), any());
+				any(OAuthFederationTrustConfig.class), any());
 	}
 
 	@Test
@@ -150,7 +150,7 @@ class OAuthFederationProvidersManagerTest
 
 		OAuthClientConfiguration config = configBuilder()
 				.withFederation(enabledFederation())
-				.withFederationProviderDefaults(FederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
+				.withFederationProviderDefaults(OAuthFederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
 				.withProviders(new OAuthProviders(List.of(staticProvider)))
 				.build();
 
@@ -195,7 +195,7 @@ class OAuthFederationProvidersManagerTest
 
 		OAuthClientConfiguration config = configBuilder()
 				.withFederation(enabledFederation())
-				.withFederationProviderDefaults(FederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
+				.withFederationProviderDefaults(OAuthFederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
 				.withProviders(new OAuthProviders(List.of(staticProvider)))
 				.build();
 
@@ -322,7 +322,7 @@ class OAuthFederationProvidersManagerTest
 	{
 		return configBuilder()
 				.withFederation(enabledFederation())
-				.withFederationProviderDefaults(FederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
+				.withFederationProviderDefaults(OAuthFederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
 				.withProviders(new OAuthProviders(List.of()))
 				.build();
 	}
@@ -332,18 +332,18 @@ class OAuthFederationProvidersManagerTest
 		return OAuthClientConfiguration.builder()
 				.withDefaultEnableAssociation(true)
 				.withFederation(disabledFederation())
-				.withFederationProviderDefaults(FederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
+				.withFederationProviderDefaults(OAuthFederationProviderDefaults.builder().withTranslationProfile(PROFILE).build())
 				.withProviders(new OAuthProviders(List.of()));
 	}
 
-	private FederationConfig disabledFederation()
+	private OAuthFederationConfig disabledFederation()
 	{
-		return FederationConfig.builder().withEnabled(false).withMetadataValidity(3600).build();
+		return OAuthFederationConfig.builder().withEnabled(false).withMetadataValidity(3600).build();
 	}
 
-	private FederationConfig enabledFederation()
+	private OAuthFederationConfig enabledFederation()
 	{
-		return FederationConfig.builder().withEnabled(true).withTrustAnchorId(TRUST_ANCHOR)
+		return OAuthFederationConfig.builder().withEnabled(true).withTrustAnchorId(TRUST_ANCHOR)
 				.withJwks("{\"keys\":[]}").withMetadataValidity(3600).build();
 	}
 

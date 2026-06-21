@@ -6,12 +6,12 @@ package pl.edu.icm.unity.oauth.client.config;
 
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 
-public class FederationProviderDefaults
+public class OAuthFederationProviderDefaults
 {
 	public final TranslationProfile translationProfile;
 	public final String registrationForm;
 
-	private FederationProviderDefaults(Builder builder)
+	private OAuthFederationProviderDefaults(Builder builder)
 	{
 		this.translationProfile = builder.translationProfile;
 		this.registrationForm = builder.registrationForm;
@@ -41,9 +41,9 @@ public class FederationProviderDefaults
 			return this;
 		}
 
-		public FederationProviderDefaults build()
+		public OAuthFederationProviderDefaults build()
 		{
-			return new FederationProviderDefaults(this);
+			return new OAuthFederationProviderDefaults(this);
 		}
 	}
 }

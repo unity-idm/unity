@@ -25,8 +25,8 @@ import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
-import pl.edu.icm.unity.oauth.client.config.FederationConfig;
-import pl.edu.icm.unity.oauth.client.config.FederationProviderDefaults;
+import pl.edu.icm.unity.oauth.client.config.OAuthFederationConfig;
+import pl.edu.icm.unity.oauth.client.config.OAuthFederationProviderDefaults;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
@@ -41,8 +41,8 @@ public class FederationEntityToProviderConverter
 	record FederationProvider(OAuthProviderConfiguration config, Instant expiresAt) {}
 
 	public List<FederationProvider> convert(List<TrustChain> chains, String clientId,
-			String clientCredential, boolean enableAssociation, FederationProviderDefaults providerDefaults,
-			FederationConfig federationConfig)
+			String clientCredential, boolean enableAssociation, OAuthFederationProviderDefaults providerDefaults,
+			OAuthFederationConfig federationConfig)
 	{
 		return chains.stream()
 				.map(chain -> convertOne(chain, clientId, clientCredential, enableAssociation, providerDefaults,
@@ -53,7 +53,7 @@ public class FederationEntityToProviderConverter
 	}
 
 	private Optional<FederationProvider> convertOne(TrustChain chain, String clientId, String clientCredential,
-			boolean enableAssociation, FederationProviderDefaults providerDefaults, FederationConfig federationConfig)
+			boolean enableAssociation, OAuthFederationProviderDefaults providerDefaults, OAuthFederationConfig federationConfig)
 	{
 		try
 		{

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +39,7 @@ class OAuthFederationSourceHandler
 		this.scheduler = executorsService.getScheduledService();
 	}
 
-	synchronized void addConsumer(String id, Duration refreshInterval, OAuthFederationConfig config,
+	synchronized void addConsumer(String id, Duration refreshInterval, OAuthFederationTrustConfig config,
 			BiConsumer<List<TrustChain>, String> consumer)
 	{
 		boolean wasEmpty = consumers.isEmpty();
@@ -100,14 +99,9 @@ class OAuthFederationSourceHandler
 		}
 	}
 
-	static String generateConsumerId()
-	{
-		return UUID.randomUUID().toString();
-	}
-
 	private record ConsumerEntry(
 			String id,
 			Duration refreshInterval,
-			OAuthFederationConfig config,
+			OAuthFederationTrustConfig config,
 			BiConsumer<List<TrustChain>, String> consumer) {}
 }

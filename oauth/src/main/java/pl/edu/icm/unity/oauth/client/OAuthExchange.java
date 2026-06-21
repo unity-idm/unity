@@ -30,7 +30,7 @@ public interface OAuthExchange extends CredentialExchange
 
 	OAuthClientConfiguration getSettings();
 
-	OAuthProviders getCombinedProviders();
+	OAuthProviders getProviders();
 
 	OAuthContext createRequest(OAuthProviderKey providerKey, Optional<ExpectedIdentity> expectedIdentity,
 			AuthenticationStepContext authnStepContext,

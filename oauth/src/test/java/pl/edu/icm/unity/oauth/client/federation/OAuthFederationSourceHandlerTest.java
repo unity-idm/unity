@@ -45,7 +45,7 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 class OAuthFederationSourceHandlerTest
 {
 	private static final Duration SHORT_INTERVAL = Duration.ofSeconds(60);
-	private static final OAuthFederationConfig CONFIG = new OAuthFederationConfig(
+	private static final OAuthFederationTrustConfig CONFIG = new OAuthFederationTrustConfig(
 			new EntityID("https://anchor.example.com"), new JWKSet(),
 			SHORT_INTERVAL, null, ServerHostnameCheckingMode.FAIL, null);
 
@@ -230,16 +230,6 @@ class OAuthFederationSourceHandlerTest
 		handler.cancel();
 
 		verify(future).cancel(false);
-	}
-
-	@Test
-	void shouldGenerateUniqueConsumerIds()
-	{
-		String id1 = OAuthFederationSourceHandler.generateConsumerId();
-		String id2 = OAuthFederationSourceHandler.generateConsumerId();
-
-		assertThat(id1).isNotEqualTo(id2);
-		assertThat(id1).isNotBlank();
 	}
 
 	@Test

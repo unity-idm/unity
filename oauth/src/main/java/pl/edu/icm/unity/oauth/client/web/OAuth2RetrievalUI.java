@@ -97,7 +97,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	@Override
 	public Component getGridCompatibleComponent()
 	{
-		OAuthProviderConfiguration provider = credentialExchange.getCombinedProviders().get(providerKey);
+		OAuthProviderConfiguration provider = credentialExchange.getProviders().get(providerKey);
 		String name = provider.name.getValue(msg);
 		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), name);
 		idpComponent.addButtonClickListener(event -> startLogin());
@@ -109,7 +109,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	{
 		redirectParam = installRequestHandler();
 
-		OAuthProviderConfiguration provider = credentialExchange.getCombinedProviders().get(providerKey);
+		OAuthProviderConfiguration provider = credentialExchange.getProviders().get(providerKey);
 		String name = provider.name.getValue(msg);
 		String logoURI = provider.iconUrl != null ? provider.iconUrl.getValue(msg) : null;
 

@@ -11,9 +11,9 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityID;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import pl.edu.icm.unity.oauth.client.config.FederationConfig;
+import pl.edu.icm.unity.oauth.client.config.OAuthFederationConfig;
 
-record OAuthFederationConfig(
+record OAuthFederationTrustConfig(
 		EntityID trustAnchorEntityId,
 		JWKSet trustAnchorJwks,
 		Duration refreshInterval,
@@ -21,7 +21,7 @@ record OAuthFederationConfig(
 		ServerHostnameCheckingMode hostnameCheckingMode,
 		String truststore)
 {
-	static OAuthFederationConfig from(FederationConfig cfg) throws java.text.ParseException
+	static OAuthFederationTrustConfig from(OAuthFederationConfig cfg) throws java.text.ParseException
 	{
 		if (cfg.jwks == null)
 			throw new java.text.ParseException(
@@ -29,7 +29,7 @@ record OAuthFederationConfig(
 		EntityID trustAnchorId = new EntityID(cfg.trustAnchorId);
 		JWKSet jwks = JWKSet.parse(cfg.jwks);
 		Duration refresh = Duration.ofSeconds(cfg.metadataValidity);
-		return new OAuthFederationConfig(
+		return new OAuthFederationTrustConfig(
 				trustAnchorId,
 				jwks,
 				refresh,

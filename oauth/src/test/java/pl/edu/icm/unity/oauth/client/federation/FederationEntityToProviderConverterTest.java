@@ -31,8 +31,8 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
-import pl.edu.icm.unity.oauth.client.config.FederationConfig;
-import pl.edu.icm.unity.oauth.client.config.FederationProviderDefaults;
+import pl.edu.icm.unity.oauth.client.config.OAuthFederationConfig;
+import pl.edu.icm.unity.oauth.client.config.OAuthFederationProviderDefaults;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.client.federation.FederationEntityToProviderConverter.FederationProvider;
 
@@ -45,7 +45,7 @@ public class FederationEntityToProviderConverterTest
 	private static final TranslationProfile TRANSLATION_PROFILE =
 			TranslationProfileGenerator.generateIncludeInputProfile("sys:oidc");
 
-	private static final FederationConfig FEDERATION_CONFIG = FederationConfig.builder().build();
+	private static final OAuthFederationConfig FEDERATION_CONFIG = OAuthFederationConfig.builder().build();
 
 	private ECKey testKey;
 	private FederationEntityToProviderConverter converter;
@@ -221,7 +221,7 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				true, FederationProviderDefaults.builder().withTranslationProfile(profile).build(), FEDERATION_CONFIG);
+				true, OAuthFederationProviderDefaults.builder().withTranslationProfile(profile).build(), FEDERATION_CONFIG);
 
 		assertThat(result.get(0).config().translationProfile).isSameAs(profile);
 	}
@@ -234,7 +234,7 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
 
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
-				true, FederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
+				true, OAuthFederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
 						.withRegistrationForm("myRegistrationForm").build(), FEDERATION_CONFIG);
 
 		assertThat(result.get(0).config().registrationForm).isEqualTo("myRegistrationForm");
@@ -323,9 +323,9 @@ public class FederationEntityToProviderConverterTest
 		return result.get(0).config();
 	}
 
-	private FederationProviderDefaults defaultProviderDefaults()
+	private OAuthFederationProviderDefaults defaultProviderDefaults()
 	{
-		return FederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE).build();
+		return OAuthFederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE).build();
 	}
 
 	private TrustChain buildChain(EntityID leafId, OIDCProviderMetadata opMeta,
