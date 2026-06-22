@@ -257,6 +257,8 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 	{
 		if (!oauthConfigBinder.getBean().isFederationMembershipEnabled())
 			return false;
+		if (federatedAuthenticatorIds.isEmpty())
+			return false;
 		List<String> selectedOptions = oauthServiceTokenBinder.getBean().getAuthenticationOptions();
 		return selectedOptions == null || selectedOptions.stream().noneMatch(federatedAuthenticatorIds::contains);
 	}

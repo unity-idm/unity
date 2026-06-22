@@ -44,8 +44,8 @@ class OAuthFederationServiceImpl implements OAuthFederationService
 		OAuthFederationSourceHandler handler = handlersByKey.computeIfAbsent(
 				handlerKey,
 				k -> new OAuthFederationSourceHandler(executorsService, new OAuthFederationLoader()));
-		consumerToHandlerKey.put(key, handlerKey);
 		handler.addConsumer(key, refreshInterval, config, consumer);
+		consumerToHandlerKey.put(key, handlerKey);
 	}
 
 	@Override

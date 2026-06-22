@@ -81,20 +81,25 @@ class OAuthFederationSourceHandler
 				return;
 			toRefresh = new ArrayList<>(consumers.values());
 		}
+		boolean anySuccess = false;
 		for (ConsumerEntry entry : toRefresh)
 		{
 			try
 			{
 				List<TrustChain> chains = loader.loadAll(entry.config);
 				entry.consumer.accept(chains, entry.id);
-				synchronized (this)
-				{
-					lastRefresh = Instant.now();
-				}
+				anySuccess = true;
 			} catch (Exception e)
 			{
 				log.error("Error refreshing federation providers for consumer {}, will retry in {}s",
 						entry.id, RERUN_INTERVAL.toSeconds(), e);
+			}
+		}
+		if (anySuccess)
+		{
+			synchronized (this)
+			{
+				lastRefresh = Instant.now();
 			}
 		}
 	}

@@ -34,7 +34,7 @@ class OAuthFederationEntityStatementGenerator
 
 		EntityID entityID = new EntityID(config.entityId());
 		Date now = new Date();
-		Date exp = new Date(now.getTime() + config.validitySeconds() * 1000L);
+		Date exp = new Date(Math.addExact(now.getTime(), Math.multiplyExact(config.validitySeconds(), 1000L)));
 
 		EntityStatementClaimsSet claims = new EntityStatementClaimsSet(entityID, entityID, now, exp, federationJwkSet);
 

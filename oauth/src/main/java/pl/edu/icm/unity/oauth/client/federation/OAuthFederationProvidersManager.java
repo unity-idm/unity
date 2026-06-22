@@ -48,7 +48,7 @@ public class OAuthFederationProvidersManager
 			if (existing != null && existing.consumerId != null)
 				federationService.unregisterConsumer(existing.consumerId);
 
-			if (!config.federation.enabled || config.federation.trustAnchorId == null)
+			if (config.federation == null || !config.federation.enabled || config.federation.trustAnchorId == null)
 				return new InstanceState(instanceId, null, config.providers());
 
 			try

@@ -10,9 +10,11 @@ import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
@@ -32,6 +34,7 @@ import java.util.Set;
 
 public class OAuthConfiguration
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthConfiguration.class);
 	private boolean defAccountAssociation;
 	private List<OAuthProviderConfiguration> providers;
 	private boolean federationMembershipEnabled;
@@ -86,8 +89,17 @@ public class OAuthConfiguration
 		federationTrustAnchorId = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID);
 		federationTrustAnchorJwks = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_JWKS);
 		String federationJwtSigningAlgStr = oauthProp.getValue(OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG);
-		federationJwtSigningAlgorithm = federationJwtSigningAlgStr != null && !federationJwtSigningAlgStr.isEmpty()
-				? SigningAlgorithms.valueOf(federationJwtSigningAlgStr) : null;
+		federationJwtSigningAlgorithm = null;
+		if (federationJwtSigningAlgStr != null && !federationJwtSigningAlgStr.isEmpty())
+		{
+			try
+			{
+				federationJwtSigningAlgorithm = SigningAlgorithms.valueOf(federationJwtSigningAlgStr);
+			} catch (IllegalArgumentException e)
+			{
+				log.warn("Unknown federation JWT signing algorithm: {}", federationJwtSigningAlgStr);
+			}
+		}
 		federationMetadataValidity = oauthProp.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY);
 		federationTruststore = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUSTSTORE);
 		ServerHostnameCheckingMode checkingMode = oauthProp.getEnumValue(

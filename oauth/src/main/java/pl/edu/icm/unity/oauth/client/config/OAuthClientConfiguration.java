@@ -33,7 +33,9 @@ public class OAuthClientConfiguration
 
 	public Properties getRawProperties()
 	{
-		return rawProperties;
+		Properties copy = new Properties();
+		copy.putAll(rawProperties);
+		return copy;
 	}
 
 	public static Builder builder()

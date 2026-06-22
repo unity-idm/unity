@@ -60,7 +60,7 @@ class JwtClientAssertionVerifier
 		var claims = jwt.getJWTClaimsSet();
 
 		Date exp = claims.getExpirationTime();
-		if (exp == null || exp.before(new Date()))
+		if (exp == null || exp.before(Date.from(Instant.now().minus(CLOCK_SKEW))))
 			throw new AuthenticationException("JWT assertion is expired or has no expiry");
 
 		List<String> audience = claims.getAudience();

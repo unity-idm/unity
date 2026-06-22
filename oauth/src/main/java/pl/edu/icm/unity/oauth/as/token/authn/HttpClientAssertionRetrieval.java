@@ -104,7 +104,15 @@ public class HttpClientAssertionRetrieval
 			return LocalAuthenticationResult.failed(NOT_FOUND_ERROR, DenyReason.undefinedCredential);
 		}
 
-		URI tokenEndpointUri = URI.create(req.getRequestURL().toString());
+		URI tokenEndpointUri;
+		try
+		{
+			tokenEndpointUri = URI.create(req.getRequestURL().toString());
+		} catch (IllegalArgumentException e)
+		{
+			log.debug("Invalid token endpoint URI", e);
+			return LocalAuthenticationResult.failed(NOT_FOUND_ERROR, DenyReason.undefinedCredential);
+		}
 		log.trace("Found client_assertion, verifying");
 		return credentialExchange.verifyClientAssertion(assertion, tokenEndpointUri);
 	}

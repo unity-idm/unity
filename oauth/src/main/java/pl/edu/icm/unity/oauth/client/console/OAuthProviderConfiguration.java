@@ -29,6 +29,8 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgo
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
+import pl.edu.icm.unity.base.utils.Log;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,6 +40,7 @@ import java.util.stream.Collectors;
 
 public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthProviderConfiguration.class);
 	private String type;
 	private String id;
 	private I18nString name;
@@ -107,7 +110,15 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 			setClientAuthenticationMethod(ClientAuthnMethod.client_secret);
 		setClientCredential(source.getValue(CustomProviderProperties.CLIENT_CREDENTIAL));
 		if (source.isSet(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG))
-			setClientJwtSigningAlg(SigningAlgorithms.valueOf(source.getValue(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG)));
+		{
+			try
+			{
+				setClientJwtSigningAlg(SigningAlgorithms.valueOf(source.getValue(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG)));
+			} catch (IllegalArgumentException e)
+			{
+				log.warn("Unknown JWT signing algorithm: {}", source.getValue(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG));
+			}
+		}
 		setClientAuthenticationMode(
 				source.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, ClientAuthnMode.class));
 		setClientAuthenticationModeForProfile(source.getEnumValue(

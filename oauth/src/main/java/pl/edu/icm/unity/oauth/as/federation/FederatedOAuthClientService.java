@@ -185,7 +185,10 @@ public class FederatedOAuthClientService
 								? config.hostnameCheckingMode()
 								: ServerHostnameCheckingMode.FAIL));
 		TrustChainSet chains = resolver.resolveTrustChains(new EntityID(clientId));
-		return chains.getShortest();
+		TrustChain chain = chains.getShortest();
+		if (chain == null)
+			throw new AuthenticationException("No valid trust chain found for " + clientId);
+		return chain;
 	}
 
 	public boolean isKnownFederationClient(String clientId)
