@@ -119,6 +119,18 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 				.bind("federationHostnameChecking");
 		federationLayout.addFormItem(federationHostnameChecking, msg.getMessage("OAuthEditorFederationTab.federationHostnameChecking"));
 
+		TextField federationDisplayName = new TextField();
+		federationDisplayName.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(federationDisplayName)
+				.bind("federationDisplayName");
+		federationLayout.addFormItem(federationDisplayName, msg.getMessage("OAuthEditorFederationTab.federationDisplayName"));
+
+		TextField federationLogoUri = new TextField();
+		federationLogoUri.setWidth(TEXT_FIELD_BIG.value());
+		configBinder.forField(federationLogoUri)
+				.bind("federationLogoUri");
+		federationLayout.addFormItem(federationLogoUri, msg.getMessage("OAuthEditorFederationTab.federationLogoUri"));
+
 		trustAnchorId.setEnabled(false);
 		superiorEntityId.setEnabled(false);
 		jwks.setEnabled(false);
@@ -126,6 +138,8 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 		metadataValidity.setEnabled(false);
 		federationTruststore.setEnabled(false);
 		federationHostnameChecking.setEnabled(false);
+		federationDisplayName.setEnabled(false);
+		federationLogoUri.setEnabled(false);
 
 		federationMembership.addValueChangeListener(e -> {
 			boolean enabled = e.getValue();
@@ -139,6 +153,8 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 			metadataValidity.setEnabled(enabled);
 			federationTruststore.setEnabled(enabled);
 			federationHostnameChecking.setEnabled(enabled);
+			federationDisplayName.setEnabled(enabled);
+			federationLogoUri.setEnabled(enabled);
 		});
 
 		add(federationLayout);

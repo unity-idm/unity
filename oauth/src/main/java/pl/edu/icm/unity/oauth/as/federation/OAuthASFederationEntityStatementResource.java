@@ -116,6 +116,8 @@ public class OAuthASFederationEntityStatementResource extends BaseOAuthResource
 	private OIDCProviderMetadata buildProviderMetadata(String issuerUri) throws URISyntaxException
 	{
 		String baseUri = config.getBaseAddress();
+		String displayName = config.getValue(OAuthASProperties.FEDERATION_DISPLAY_NAME);
+		String logoUri = config.getValue(OAuthASProperties.FEDERATION_LOGO_URI);
 		URI jwkUri = new URI(baseUri + OAuthTokenEndpoint.JWK_PATH);
 		URI tokenEndpointUri = new URI(baseUri + OAuthTokenEndpoint.TOKEN_PATH);
 		URI userInfoEndpointUri = new URI(baseUri + OAuthTokenEndpoint.USER_INFO_PATH);
@@ -128,7 +130,6 @@ public class OAuthASFederationEntityStatementResource extends BaseOAuthResource
 		meta.setUserInfoEndpointURI(userInfoEndpointUri);
 		meta.setIntrospectionEndpointURI(new URI(baseUri + OAuthTokenEndpoint.TOKEN_INTROSPECTION_PATH));
 		meta.setRevocationEndpointURI(new URI(baseUri + OAuthTokenEndpoint.TOKEN_REVOCATION_PATH));
-
 		meta.setCodeChallengeMethods(Lists.newArrayList(CodeChallengeMethod.PLAIN, CodeChallengeMethod.S256));
 
 		List<String> scopes = scopeService.getActiveScopeNames(config);
@@ -153,6 +154,11 @@ public class OAuthASFederationEntityStatementResource extends BaseOAuthResource
 				ClientAuthenticationMethod.PRIVATE_KEY_JWT));
 
 		meta.setClientRegistrationTypes(List.of(ClientRegistrationType.AUTOMATIC));
+
+		if (displayName != null && !displayName.isBlank())
+			meta.setOrganizationName(displayName);
+		if (logoUri != null && !logoUri.isBlank())
+			meta.setCustomParameter("logo_uri", logoUri);
 
 		return meta;
 	}

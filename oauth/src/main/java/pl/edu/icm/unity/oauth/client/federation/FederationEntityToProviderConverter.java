@@ -75,7 +75,8 @@ public class FederationEntityToProviderConverter
 			String discoveryEndpoint = opMeta.getIssuer() != null
 					? opMeta.getIssuer().getValue() + "/.well-known/openid-configuration" : null;
 			String scopes = opMeta.getScopes() != null ? opMeta.getScopes().toString() : "openid";
-			String name = opMeta.getIssuer() != null ? opMeta.getIssuer().getValue() : entityId;
+			String name = opMeta.getOrganizationName() != null ? opMeta.getOrganizationName()
+					: opMeta.getIssuer() != null ? opMeta.getIssuer().getValue() : entityId;
 			URI logoUri = opMeta.getCustomURIParameter("logo_uri");
 
 			String federationId = chain.getTrustAnchorEntityID().getValue();

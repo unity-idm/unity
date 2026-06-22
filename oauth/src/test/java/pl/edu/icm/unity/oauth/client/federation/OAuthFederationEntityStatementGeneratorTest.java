@@ -38,7 +38,7 @@ class OAuthFederationEntityStatementGeneratorTest
 	void shouldSetEntityIdAsIssuerAndSubject() throws Exception
 	{
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, 3600);
+				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, 3600, null, null);
 
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);
 
@@ -51,7 +51,7 @@ class OAuthFederationEntityStatementGeneratorTest
 	void shouldSetCallbackUrlAsRpRedirectUri() throws Exception
 	{
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, 3600);
+				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, 3600, null, null);
 
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);
 
@@ -64,7 +64,7 @@ class OAuthFederationEntityStatementGeneratorTest
 	void shouldSetCodeResponseTypeAndAuthorizationCodeGrantType() throws Exception
 	{
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, 3600);
+				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, 3600, null, null);
 
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);
 
@@ -79,7 +79,7 @@ class OAuthFederationEntityStatementGeneratorTest
 	void shouldSetAutomaticClientRegistrationType() throws Exception
 	{
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, 3600);
+				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, 3600, null, null);
 
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);
 
@@ -92,7 +92,7 @@ class OAuthFederationEntityStatementGeneratorTest
 	void shouldSetAuthorityHintsWhenSuperiorEntityIdProvided() throws Exception
 	{
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, SUPERIOR_ENTITY_ID, 3600);
+				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, SUPERIOR_ENTITY_ID, 3600, null, null);
 
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);
 
@@ -106,7 +106,7 @@ class OAuthFederationEntityStatementGeneratorTest
 	void shouldNotSetAuthorityHintsWhenSuperiorEntityIdIsNull() throws Exception
 	{
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, 3600);
+				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, 3600, null, null);
 
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);
 
@@ -118,7 +118,7 @@ class OAuthFederationEntityStatementGeneratorTest
 	{
 		X509Credential fedCred = rsaCredential();
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, fedCred, null, CALLBACK_URL, null, 3600);
+				ENTITY_ID, fedCred, null, CALLBACK_URL, null, 3600, null, null);
 
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);
 
@@ -133,7 +133,7 @@ class OAuthFederationEntityStatementGeneratorTest
 	{
 		X509Credential fedCred = rsaCredential();
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, fedCred, fedCred, CALLBACK_URL, null, 3600);
+				ENTITY_ID, fedCred, fedCred, CALLBACK_URL, null, 3600, null, null);
 
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);
 
@@ -149,7 +149,7 @@ class OAuthFederationEntityStatementGeneratorTest
 		X509Credential fedCred = rsaCredential();
 		X509Credential authCred = ecCredential();
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, fedCred, authCred, CALLBACK_URL, null, 3600);
+				ENTITY_ID, fedCred, authCred, CALLBACK_URL, null, 3600, null, null);
 
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);
 
@@ -164,7 +164,7 @@ class OAuthFederationEntityStatementGeneratorTest
 	{
 		X509Credential fedCred = rsaCredential();
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, fedCred, null, CALLBACK_URL, null, 3600);
+				ENTITY_ID, fedCred, null, CALLBACK_URL, null, 3600, null, null);
 
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);
 
@@ -178,7 +178,7 @@ class OAuthFederationEntityStatementGeneratorTest
 	{
 		long validitySeconds = 7200L;
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, validitySeconds);
+				ENTITY_ID, rsaCredential(), null, CALLBACK_URL, null, validitySeconds, null, null);
 
 		long before = System.currentTimeMillis();
 		EntityStatement statement = OAuthFederationEntityStatementGenerator.generate(config);

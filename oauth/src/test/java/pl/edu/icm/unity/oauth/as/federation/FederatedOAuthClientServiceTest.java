@@ -52,6 +52,8 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.federation.FederatedOAuthClientService.FederatedClientResolution;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -68,6 +70,8 @@ class FederatedOAuthClientServiceTest
 	private AttributesManagement attributesMan;
 	private GroupsManagement groupsMan;
 	private AttributeSupport attributeSupport;
+	private AttributeTypeSupport attrTypeSupport;
+	private URIAccessService uriAccessService;
 	private FederatedOAuthClientService service;
 	private OAuthASFederationConfig federationConfig;
 	private ECKey signingKey;
@@ -79,9 +83,12 @@ class FederatedOAuthClientServiceTest
 		attributesMan = mock(AttributesManagement.class);
 		groupsMan = mock(GroupsManagement.class);
 		attributeSupport = mock(AttributeSupport.class);
+		attrTypeSupport = mock(AttributeTypeSupport.class);
+		uriAccessService = mock(URIAccessService.class);
 		signingKey = new ECKeyGenerator(Curve.P_256).keyID("test").generate();
 
-		service = spy(new FederatedOAuthClientService(identitiesMan, attributesMan, groupsMan, attributeSupport));
+		service = spy(new FederatedOAuthClientService(identitiesMan, attributesMan, groupsMan, attributeSupport,
+				attrTypeSupport, uriAccessService));
 
 		federationConfig = new OAuthASFederationConfig(true, TRUST_ANCHOR_ID,
 				new JWKSet(signingKey.toPublicJWK()), null, null, CLIENTS_GROUP);
@@ -161,7 +168,7 @@ class FederatedOAuthClientServiceTest
 				eq(new EntityParam(ENTITY_ID)),
 				argThat(a -> a.getName().equals(DISPLAYED_NAME_ATTR)
 						&& a.getGroupPath().equals("/")
-						&& a.getValues().get(0).equals("[Federation] My RP")));
+						&& a.getValues().get(0).equals("[Federated] My RP")));
 	}
 
 	@Test
@@ -185,7 +192,7 @@ class FederatedOAuthClientServiceTest
 		verify(attributesMan).setAttribute(
 				eq(new EntityParam(ENTITY_ID)),
 				argThat(a -> a.getName().equals(DISPLAYED_NAME_ATTR)
-						&& a.getValues().get(0).equals("[Federation] " + CLIENT_ID)));
+						&& a.getValues().get(0).equals("[Federated] " + CLIENT_ID)));
 	}
 
 	@Test
@@ -308,7 +315,7 @@ class FederatedOAuthClientServiceTest
 		verify(attributesMan).setAttribute(
 				eq(new EntityParam(ENTITY_ID)),
 				argThat((Attribute a) -> a.getName().equals(DISPLAYED_NAME_ATTR)
-						&& a.getValues().get(0).equals("[Federation] New Name")));
+						&& a.getValues().get(0).equals("[Federated] New Name")));
 	}
 
 	@Test

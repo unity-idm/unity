@@ -84,6 +84,8 @@ public class OAuthServiceConfiguration
 	private int federationMetadataValidity;
 	private String federationTruststore;
 	private String federationHostnameChecking;
+	private String federationDisplayName;
+	private String federationLogoUri;
 	
 	public OAuthServiceConfiguration()
 	{
@@ -330,6 +332,10 @@ public class OAuthServiceConfiguration
 			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_TRUSTSTORE, federationTruststore);
 		if (!Strings.isNullOrEmpty(federationHostnameChecking))
 			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_HOSTNAME_CHECKING, federationHostnameChecking);
+		if (!Strings.isNullOrEmpty(federationDisplayName))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_DISPLAY_NAME, federationDisplayName);
+		if (!Strings.isNullOrEmpty(federationLogoUri))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_LOGO_URI, federationLogoUri);
 
 		raw.put(OAuthASProperties.P + OAuthASProperties.CLIENTS_GROUP, clientGroup.group().toString());
 		raw.put(OAuthASProperties.P + OAuthASProperties.USERS_GROUP, usersGroup.group().toString());
@@ -444,6 +450,8 @@ public class OAuthServiceConfiguration
 		federationMetadataValidity = oauthProperties.getIntValue(OAuthASProperties.FEDERATION_METADATA_VALIDITY);
 		federationTruststore = oauthProperties.getValue(OAuthASProperties.FEDERATION_TRUSTSTORE);
 		federationHostnameChecking = oauthProperties.getValue(OAuthASProperties.FEDERATION_HOSTNAME_CHECKING);
+		federationDisplayName = oauthProperties.getValue(OAuthASProperties.FEDERATION_DISPLAY_NAME);
+		federationLogoUri = oauthProperties.getValue(OAuthASProperties.FEDERATION_LOGO_URI);
 
 		openIDConnect = isScopeEnabled(OIDCScopeValue.OPENID.getValue());
 		tokenExchangeSupport = isScopeEnabled(OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
@@ -896,5 +904,25 @@ public class OAuthServiceConfiguration
 	public void setFederationHostnameChecking(String federationHostnameChecking)
 	{
 		this.federationHostnameChecking = federationHostnameChecking;
+	}
+
+	public String getFederationDisplayName()
+	{
+		return federationDisplayName;
+	}
+
+	public void setFederationDisplayName(String federationDisplayName)
+	{
+		this.federationDisplayName = federationDisplayName;
+	}
+
+	public String getFederationLogoUri()
+	{
+		return federationLogoUri;
+	}
+
+	public void setFederationLogoUri(String federationLogoUri)
+	{
+		this.federationLogoUri = federationLogoUri;
 	}
 }

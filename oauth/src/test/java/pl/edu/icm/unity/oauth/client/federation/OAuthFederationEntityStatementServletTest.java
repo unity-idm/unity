@@ -98,7 +98,7 @@ class OAuthFederationEntityStatementServletTest
 		when(req.getPathInfo()).thenReturn(
 				"/" + AUTHENTICATOR_NAME + OAuthFederationEntityStatementServlet.WELL_KNOWN_SUFFIX);
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, null, null, CALLBACK_URL, null, 3600);
+				ENTITY_ID, null, null, CALLBACK_URL, null, 3600, null, null);
 		when(manager.getConfiguration(AUTHENTICATOR_NAME)).thenReturn(config);
 
 		servlet.doGet(req, resp);
@@ -111,7 +111,7 @@ class OAuthFederationEntityStatementServletTest
 	{
 		X509Credential credential = rsaCredential();
 		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
-				ENTITY_ID, credential, null, CALLBACK_URL, null, 3600);
+				ENTITY_ID, credential, null, CALLBACK_URL, null, 3600, null, null);
 		when(req.getPathInfo()).thenReturn(
 				"/" + AUTHENTICATOR_NAME + OAuthFederationEntityStatementServlet.WELL_KNOWN_SUFFIX);
 		when(manager.getConfiguration(AUTHENTICATOR_NAME)).thenReturn(config);

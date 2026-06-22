@@ -24,6 +24,8 @@ public class OAuthFederationConfig
 	public final X509CertChainValidator validator;
 	public final ServerHostnameCheckingMode hostnameCheckingMode;
 	public final Optional<JWSAlgorithm> jwtSigningAlgorithm;
+	public final String organizationName;
+	public final String logoUri;
 
 	private OAuthFederationConfig(Builder builder)
 	{
@@ -37,6 +39,8 @@ public class OAuthFederationConfig
 		this.validator = builder.validator;
 		this.hostnameCheckingMode = builder.hostnameCheckingMode;
 		this.jwtSigningAlgorithm = builder.jwtSigningAlgorithm;
+		this.organizationName = builder.organizationName;
+		this.logoUri = builder.logoUri;
 	}
 
 	public static Builder builder()
@@ -50,7 +54,7 @@ public class OAuthFederationConfig
 	public int hashCode()
 	{
 		return Objects.hash(credential, enabled, hostnameCheckingMode, jwks, jwtSigningAlgorithm, metadataValidity,
-				superiorEntityId, trustAnchorId, truststore, validator);
+				superiorEntityId, trustAnchorId, truststore, validator, organizationName, logoUri);
 	}
 
 	@Override
@@ -69,7 +73,9 @@ public class OAuthFederationConfig
 				&& metadataValidity == other.metadataValidity
 				&& Objects.equals(superiorEntityId, other.superiorEntityId)
 				&& Objects.equals(trustAnchorId, other.trustAnchorId) && Objects.equals(truststore, other.truststore)
-				&& Objects.equals(validator, other.validator);
+				&& Objects.equals(validator, other.validator)
+				&& Objects.equals(organizationName, other.organizationName)
+				&& Objects.equals(logoUri, other.logoUri);
 	}
 
 	public static final class Builder
@@ -84,6 +90,8 @@ public class OAuthFederationConfig
 		private X509CertChainValidator validator;
 		private ServerHostnameCheckingMode hostnameCheckingMode;
 		private Optional<JWSAlgorithm> jwtSigningAlgorithm = Optional.empty();
+		private String organizationName;
+		private String logoUri;
 
 		private Builder() {}
 
@@ -144,6 +152,18 @@ public class OAuthFederationConfig
 		public Builder withJwtSigningAlgorithm(Optional<JWSAlgorithm> jwtSigningAlgorithm)
 		{
 			this.jwtSigningAlgorithm = jwtSigningAlgorithm;
+			return this;
+		}
+
+		public Builder withOrganizationName(String organizationName)
+		{
+			this.organizationName = organizationName;
+			return this;
+		}
+
+		public Builder withLogoUri(String logoUri)
+		{
+			this.logoUri = logoUri;
 			return this;
 		}
 

@@ -12,6 +12,8 @@ public record OAuthFederationEntityStatementConfig(
 		X509Credential authenticationCredential,
 		String callbackUrl,
 		String superiorEntityId,
-		long validitySeconds)
+		long validitySeconds,
+		String organizationName,
+		String logoUri)
 {
 }

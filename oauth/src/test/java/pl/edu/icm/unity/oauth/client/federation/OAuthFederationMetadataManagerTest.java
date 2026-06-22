@@ -80,6 +80,6 @@ class OAuthFederationMetadataManagerTest
 
 	private static OAuthFederationEntityStatementConfig makeConfig(String entityId)
 	{
-		return new OAuthFederationEntityStatementConfig(entityId, null, null, "https://cb", null, 3600);
+		return new OAuthFederationEntityStatementConfig(entityId, null, null, "https://cb", null, 3600, null, null);
 	}
 }

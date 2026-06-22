@@ -47,6 +47,8 @@ public class OAuthConfiguration
 	private String federationTruststore;
 	private String federationHostnameCheckingMode;
 	private SigningAlgorithms federationJwtSigningAlgorithm;
+	private String federationOrganizationName;
+	private String federationLogoUri;
 	private TranslationProfile federationProviderTranslationProfile;
 	private String federationProviderRegistrationForm;
 	private RequestACRsMode federationProviderRequestACRsMode;
@@ -106,6 +108,8 @@ public class OAuthConfiguration
 				OAuthClientProperties.FEDERATION_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
 		federationHostnameCheckingMode = checkingMode != null ? checkingMode.name()
 				: ServerHostnameCheckingMode.FAIL.name();
+		federationOrganizationName = oauthProp.getValue(OAuthClientProperties.FEDERATION_ORGANIZATION_NAME);
+		federationLogoUri = oauthProp.getValue(OAuthClientProperties.FEDERATION_LOGO_URI);
 		if (oauthProp.isSet(OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE))
 			federationProviderTranslationProfile = TranslationProfileGenerator.getProfileFromString(
 					oauthProp.getValue(OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE));
@@ -182,6 +186,11 @@ public class OAuthConfiguration
 			if (federationHostnameCheckingMode != null && !federationHostnameCheckingMode.isEmpty())
 				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_HOSTNAME_CHECKING,
 						federationHostnameCheckingMode);
+			if (federationOrganizationName != null && !federationOrganizationName.isEmpty())
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_ORGANIZATION_NAME,
+						federationOrganizationName);
+			if (federationLogoUri != null && !federationLogoUri.isEmpty())
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_LOGO_URI, federationLogoUri);
 			if (federationProviderTranslationProfile != null)
 			{
 				try
@@ -385,5 +394,25 @@ public class OAuthConfiguration
 	public void setFederationProviderRequestedACRsAreEssential(boolean federationProviderRequestedACRsAreEssential)
 	{
 		this.federationProviderRequestedACRsAreEssential = federationProviderRequestedACRsAreEssential;
+	}
+
+	public String getFederationOrganizationName()
+	{
+		return federationOrganizationName;
+	}
+
+	public void setFederationOrganizationName(String federationOrganizationName)
+	{
+		this.federationOrganizationName = federationOrganizationName;
+	}
+
+	public String getFederationLogoUri()
+	{
+		return federationLogoUri;
+	}
+
+	public void setFederationLogoUri(String federationLogoUri)
+	{
+		this.federationLogoUri = federationLogoUri;
 	}
 }

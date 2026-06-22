@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.federation;
 
+import java.net.URI;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -29,19 +31,27 @@ import net.minidev.json.JSONObject;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.attribute.image.ImageType;
+import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.files.RemoteFileData;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.client.federation.TlsEntityStatementRetriever;
+import pl.edu.icm.unity.stdext.attr.ImageAttribute;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
@@ -50,6 +60,7 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 public class FederatedOAuthClientService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, FederatedOAuthClientService.class);
+	private static final Duration LOGO_FETCH_TIMEOUT = Duration.ofSeconds(10);
 
 	private final Map<String, CachedChain> chainCache = new ConcurrentHashMap<>();
 
@@ -57,17 +68,23 @@ public class FederatedOAuthClientService
 	private final AttributesManagement attributesMan;
 	private final GroupsManagement groupsMan;
 	private final AttributeSupport attributeSupport;
+	private final AttributeTypeSupport attrTypeSupport;
+	private final URIAccessService uriAccessService;
 
 	public FederatedOAuthClientService(
 			@Qualifier("insecure") EntityManagement identitiesMan,
 			@Qualifier("insecure") AttributesManagement attributesMan,
 			@Qualifier("insecure") GroupsManagement groupsMan,
-			AttributeSupport attributeSupport)
+			AttributeSupport attributeSupport,
+			AttributeTypeSupport attrTypeSupport,
+			URIAccessService uriAccessService)
 	{
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
 		this.groupsMan = groupsMan;
 		this.attributeSupport = attributeSupport;
+		this.attrTypeSupport = attrTypeSupport;
+		this.uriAccessService = uriAccessService;
 	}
 
 	public record FederatedClientResolution(long entityId, JWKSet jwks) {}
@@ -131,6 +148,7 @@ public class FederatedOAuthClientService
 		for (Attribute attr : FederationClientAttributesMapper.toOAuthAttributes(metadata, oauthGroup, clientId))
 			attributesMan.setAttribute(new EntityParam(entityId), attr);
 		setEntityDisplayedName(entityId, FederationClientAttributesMapper.toDisplayName(metadata, clientId));
+		updateLogoIfChanged(entityId, oauthGroup, metadata.getLogoURI(), null);
 		log.info("Federation client {} registered as entityId={}", clientId, entityId);
 		return entityId;
 	}
@@ -151,6 +169,10 @@ public class FederatedOAuthClientService
 					attributesMan.setAttribute(new EntityParam(entityId), attr);
 			}
 			setEntityDisplayedName(entityId, FederationClientAttributesMapper.toDisplayName(metadata, clientId));
+			AttributeExt existingLogo = existingMap.get(OAuthSystemAttributesProvider.CLIENT_LOGO);
+			String existingLogoValue = existingLogo != null && !existingLogo.getValues().isEmpty()
+					? existingLogo.getValues().get(0) : null;
+			updateLogoIfChanged(entityId, oauthGroup, metadata.getLogoURI(), existingLogoValue);
 		} catch (Exception e)
 		{
 			log.warn("Failed to refresh attributes for federation client entityId={}: {}", entityId, e.getMessage());
@@ -172,6 +194,32 @@ public class FederatedOAuthClientService
 		} catch (Exception e)
 		{
 			log.warn("Failed to set displayedName for federation client entityId={}: {}", entityId, e.getMessage());
+		}
+	}
+
+	private void updateLogoIfChanged(long entityId, String oauthGroup, URI logoUri, String existingLogoValue)
+	{
+		if (logoUri == null)
+			return;
+		try
+		{
+			RemoteFileData fileData = uriAccessService.readURL(logoUri, null,
+					LOGO_FETCH_TIMEOUT, LOGO_FETCH_TIMEOUT, 0);
+			ImageType imageType = ImageType.fromMimeType(fileData.mimeType);
+			UnityImage image = new UnityImage(fileData.getContents(), imageType);
+			ImageAttributeSyntax syntax = (ImageAttributeSyntax) attrTypeSupport
+					.getSyntax(attrTypeSupport.getType(OAuthSystemAttributesProvider.CLIENT_LOGO));
+			image.scaleDown(syntax.getConfig().getMaxWidth(), syntax.getConfig().getMaxHeight());
+			String newLogoValue = image.serialize();
+			if (newLogoValue.equals(existingLogoValue))
+				return;
+			attributesMan.setAttribute(new EntityParam(entityId),
+					ImageAttribute.of(OAuthSystemAttributesProvider.CLIENT_LOGO, oauthGroup, image));
+			log.info("Logo updated for federation client entityId={}", entityId);
+		} catch (Exception e)
+		{
+			log.warn("Failed to fetch/update logo for federation client entityId={} from {}: {}", entityId, logoUri,
+					e.getMessage());
 		}
 	}
 

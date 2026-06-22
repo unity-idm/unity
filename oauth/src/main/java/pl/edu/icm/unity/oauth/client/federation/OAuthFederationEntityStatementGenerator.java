@@ -48,6 +48,10 @@ class OAuthFederationEntityStatementGenerator
 		rpMetadata.setGrantTypes(Set.of(GrantType.AUTHORIZATION_CODE));
 		rpMetadata.setClientRegistrationTypes(List.of(ClientRegistrationType.AUTOMATIC));
 		rpMetadata.setJWKSet(buildRpJwkSet(config));
+		if (config.organizationName() != null && !config.organizationName().isBlank())
+			rpMetadata.setOrganizationName(config.organizationName());
+		if (config.logoUri() != null && !config.logoUri().isBlank())
+			rpMetadata.setLogoURI(new URI(config.logoUri()));
 
 		OIDCClientInformation rpInfo = new OIDCClientInformation(new ClientID(config.entityId()), rpMetadata);
 		claims.setRPInformation(rpInfo);

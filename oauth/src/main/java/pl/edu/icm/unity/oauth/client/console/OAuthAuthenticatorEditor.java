@@ -289,6 +289,20 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		configBinder.forField(federationHostnameChecking)
 				.bind("federationHostnameCheckingMode");
 
+		TextField federationOrganizationName = new TextField();
+		federationOrganizationName.setWidth(TEXT_FIELD_BIG.value());
+		federationLayout.addFormItem(federationOrganizationName,
+				msg.getMessage("OAuthAuthenticatorEditor.federationOrganizationName"));
+		configBinder.forField(federationOrganizationName)
+				.bind("federationOrganizationName");
+
+		TextField federationLogoUri = new TextField();
+		federationLogoUri.setWidth(TEXT_FIELD_BIG.value());
+		federationLayout.addFormItem(federationLogoUri,
+				msg.getMessage("OAuthAuthenticatorEditor.federationLogoUri"));
+		configBinder.forField(federationLogoUri)
+				.bind("federationLogoUri");
+
 		federationCredential.setEnabled(false);
 		authenticationCredential.setEnabled(false);
 		superiorEntityId.setEnabled(false);
@@ -298,6 +312,8 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		federationTruststore.setEnabled(false);
 		federationHostnameChecking.setEnabled(false);
 		federationJwtSigningAlg.setEnabled(false);
+		federationOrganizationName.setEnabled(false);
+		federationLogoUri.setEnabled(false);
 
 		federationMembership.addValueChangeListener(e -> {
 			boolean enabled = e.getValue();
@@ -316,6 +332,8 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			federationTruststore.setEnabled(enabled);
 			federationHostnameChecking.setEnabled(enabled);
 			federationJwtSigningAlg.setEnabled(enabled);
+			federationOrganizationName.setEnabled(enabled);
+			federationLogoUri.setEnabled(enabled);
 			providerDefaultsPanel.setVisible(enabled);
 		});
 

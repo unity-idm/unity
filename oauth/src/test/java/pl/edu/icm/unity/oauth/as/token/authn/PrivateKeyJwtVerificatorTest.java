@@ -151,8 +151,8 @@ class PrivateKeyJwtVerificatorTest
 				.subject(CLIENT_ID)
 				.issuer(CLIENT_ID)
 				.audience(TOKEN_URI.toString())
-				.issueTime(new Date(System.currentTimeMillis() - 2000))
-				.expirationTime(new Date(System.currentTimeMillis() - 1000))
+				.issueTime(new Date(System.currentTimeMillis() - 120_000))
+				.expirationTime(new Date(System.currentTimeMillis() - 60_000))
 				.jwtID(UUID.randomUUID().toString())
 				.build();
 		SignedJWT jwt = new SignedJWT(

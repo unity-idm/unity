@@ -234,7 +234,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			long metadataValidity = config.federation.metadataValidity;
 
 			OAuthFederationEntityStatementConfig federationConfig = new OAuthFederationEntityStatementConfig(
-					entityId, federationCred, authCred, responseConsumerAddress, superiorEntityId, metadataValidity);
+					entityId, federationCred, authCred, responseConsumerAddress, superiorEntityId, metadataValidity,
+					config.federation.organizationName, config.federation.logoUri);
 			federationManager.updateConfiguration(instanceName, federationConfig, instanceId);
 		} catch (EngineException e)
 		{

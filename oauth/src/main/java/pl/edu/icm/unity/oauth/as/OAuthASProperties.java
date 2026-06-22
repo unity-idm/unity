@@ -104,6 +104,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final int DEFAULT_FEDERATION_METADATA_VALIDITY = 86400;
 	public static final String FEDERATION_TRUSTSTORE = "federationTruststore";
 	public static final String FEDERATION_HOSTNAME_CHECKING = "federationHostnameChecking";
+	public static final String FEDERATION_DISPLAY_NAME = "federationDisplayName";
+	public static final String FEDERATION_LOGO_URI = "federationLogoUri";
 
 	public static final String SIGNING_ALGORITHM = "signingAlgorithm";
 	public static final String SIGNING_SECRET = "signingSecret";
@@ -216,6 +218,10 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("Truststore for TLS validation when fetching OpenID federation entity statements."));
 		defaults.put(FEDERATION_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL)
 				.setDescription("TLS hostname checking mode when fetching OpenID federation entity statements."));
+		defaults.put(FEDERATION_DISPLAY_NAME, new PropertyMD()
+				.setDescription("Display name of this IdP presented in the federation entity statement."));
+		defaults.put(FEDERATION_LOGO_URI, new PropertyMD()
+				.setDescription("Logo URI of this IdP presented in the federation entity statement."));
 
 		defaults.put(SIGNING_ALGORITHM, new PropertyMD(SigningAlgorithms.RS256)
 				.setDescription("An algorithm used for JWT access token and id token (OIDC mode) signing."));

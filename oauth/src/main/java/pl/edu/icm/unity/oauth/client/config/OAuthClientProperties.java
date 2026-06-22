@@ -54,6 +54,8 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 	public static final String FEDERATION_EMBEDDED_TRANSLATION_PROFILE = "federationEmbeddedTranslationProfile";
 	public static final String FEDERATION_REGISTRATION_FORM = "federationRegistrationForm";
 	public static final String FEDERATION_JWT_SIGNING_ALG = "federationJwtSigningAlg";
+	public static final String FEDERATION_ORGANIZATION_NAME = "federationOrganizationName";
+	public static final String FEDERATION_LOGO_URI = "federationLogoUri";
 	public static final String FEDERATION_REQUEST_ACRS_MODE = "federationRequestACRs";
 	public static final String FEDERATION_REQUESTED_ACRS = "federationRequestedACRs.";
 	public static final String FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL = "federationRequestedACRsAreEssential";
@@ -101,6 +103,10 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 		META.put(FEDERATION_JWT_SIGNING_ALG, new PropertyMD().setDescription(
 				"JWS algorithm used for private_key_jwt assertions when authenticating to federation providers "
 				+ "(e.g. RS256, ES256, PS256). If not set, derived from the credential key type."));
+		META.put(FEDERATION_ORGANIZATION_NAME, new PropertyMD().setDescription(
+				"Organization name presented in the federation entity statement RP metadata."));
+		META.put(FEDERATION_LOGO_URI, new PropertyMD().setDescription(
+				"Logo URI presented in the federation entity statement RP metadata."));
 		META.put(FEDERATION_REQUEST_ACRS_MODE, new PropertyMD(RequestACRsMode.NONE).setDescription(
 				"Controls how ACR (Authentication Context Class Reference) values are requested from "
 				+ "federation IdPs. NONE: no ACR requested; FIXED: always request the configured ACRs; "

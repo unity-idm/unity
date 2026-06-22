@@ -96,6 +96,8 @@ public class OAuthClientConfigurationParser
 				.withJwtSigningAlgorithm(props.isSet(OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG)
 						? Optional.of(JWSAlgorithm.parse(props.getValue(OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG)))
 						: Optional.empty())
+				.withOrganizationName(props.getValue(OAuthClientProperties.FEDERATION_ORGANIZATION_NAME))
+				.withLogoUri(props.getValue(OAuthClientProperties.FEDERATION_LOGO_URI))
 				.build();
 	}
 
