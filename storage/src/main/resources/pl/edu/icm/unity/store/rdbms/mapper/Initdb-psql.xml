@@ -95,7 +95,19 @@
 	</sql>
 
 	<sql id="sql-initTokenTableIdx3">
-		CREATE INDEX IF NOT EXISTS TYPE_IDX ON TOKENS USING HASH (TYPE);	
+		CREATE INDEX IF NOT EXISTS TYPE_IDX ON TOKENS USING HASH (TYPE);
+	</sql>
+
+	<sql id="sql-varObjectsTypeIdx0">
+		select 1
+	</sql>
+
+	<sql id="sql-varObjectsTypeIdx1">
+		select 1
+	</sql>
+
+	<sql id="sql-varObjectsTypeIdx2">
+		CREATE INDEX IF NOT EXISTS IDX_VAR_OBJECTS_TYPE ON VAR_OBJECTS USING HASH (TYPE)
 	</sql>
 
 	<update id="resetIndex-00">
