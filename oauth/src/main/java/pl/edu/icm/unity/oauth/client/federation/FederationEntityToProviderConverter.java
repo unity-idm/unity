@@ -20,17 +20,15 @@ import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import net.minidev.json.JSONObject;
-
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.config.OAuthFederationConfig;
 import pl.edu.icm.unity.oauth.client.config.OAuthFederationProviderDefaults;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
-import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
 import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
 
 @Component
@@ -101,9 +99,9 @@ public class FederationEntityToProviderConverter
 					.withClientId(clientId)
 					.withClientAuthnMethod(ClientAuthnMethod.private_key_jwt)
 					.withClientCredential(clientCredential)
-					.withRequestACRsMode(RequestACRsMode.NONE)
-					.withRequestedACRs(List.of())
-					.withRequestedACRsAreEssential(false)
+					.withRequestACRsMode(providerDefaults.requestACRsMode)
+					.withRequestedACRs(providerDefaults.requestedACRs)
+					.withRequestedACRsAreEssential(providerDefaults.requestedACRsAreEssential)
 					.withRegistrationForm(providerDefaults.registrationForm)
 					.withEnableAssociation(enableAssociation)
 					.withTranslationProfile(providerDefaults.translationProfile)

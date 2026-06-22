@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -45,6 +46,9 @@ public class OAuthConfiguration
 	private SigningAlgorithms federationJwtSigningAlgorithm;
 	private TranslationProfile federationProviderTranslationProfile;
 	private String federationProviderRegistrationForm;
+	private RequestACRsMode federationProviderRequestACRsMode;
+	private List<String> federationProviderRequestedACRs;
+	private boolean federationProviderRequestedACRsAreEssential;
 
 	public OAuthConfiguration()
 	{
@@ -54,6 +58,9 @@ public class OAuthConfiguration
 		federationHostnameCheckingMode = ServerHostnameCheckingMode.FAIL.name();
 		federationProviderTranslationProfile = TranslationProfileGenerator
 				.generateIncludeInputProfile(OAuthClientProperties.DEFAULT_TRANSLATION_PROFILE_FOR_FEDERATION_CLIENT);
+		federationProviderRequestACRsMode = RequestACRsMode.NONE;
+		federationProviderRequestedACRs = new ArrayList<>();
+		federationProviderRequestedACRsAreEssential = false;
 
 	}
 
@@ -94,6 +101,11 @@ public class OAuthConfiguration
 			federationProviderTranslationProfile = TranslationProfileGenerator.generateIncludeInputProfile(
 					oauthProp.getValue(OAuthClientProperties.FEDERATION_TRANSLATION_PROFILE));
 		federationProviderRegistrationForm = oauthProp.getValue(OAuthClientProperties.FEDERATION_REGISTRATION_FORM);
+		federationProviderRequestACRsMode = oauthProp.getEnumValue(
+				OAuthClientProperties.FEDERATION_REQUEST_ACRS_MODE, RequestACRsMode.class);
+		federationProviderRequestedACRs = oauthProp.getListOfValues(OAuthClientProperties.FEDERATION_REQUESTED_ACRS);
+		federationProviderRequestedACRsAreEssential = oauthProp.getBooleanValue(
+				OAuthClientProperties.FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL);
 
 		providers.clear();
 		Set<String> keys = oauthProp.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
@@ -172,6 +184,15 @@ public class OAuthConfiguration
 			if (federationProviderRegistrationForm != null && !federationProviderRegistrationForm.isEmpty())
 				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REGISTRATION_FORM,
 						federationProviderRegistrationForm);
+			if (federationProviderRequestACRsMode != null)
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REQUEST_ACRS_MODE,
+						federationProviderRequestACRsMode.name());
+			if (federationProviderRequestedACRs != null)
+				for (int i = 0; i < federationProviderRequestedACRs.size(); i++)
+					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REQUESTED_ACRS + i,
+							federationProviderRequestedACRs.get(i));
+			raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL,
+					String.valueOf(federationProviderRequestedACRsAreEssential));
 		}
 
 		for (OAuthProviderConfiguration provider : providers)
@@ -322,5 +343,35 @@ public class OAuthConfiguration
 	public void setFederationProviderRegistrationForm(String federationProviderRegistrationForm)
 	{
 		this.federationProviderRegistrationForm = federationProviderRegistrationForm;
+	}
+
+	public RequestACRsMode getFederationProviderRequestACRsMode()
+	{
+		return federationProviderRequestACRsMode;
+	}
+
+	public void setFederationProviderRequestACRsMode(RequestACRsMode federationProviderRequestACRsMode)
+	{
+		this.federationProviderRequestACRsMode = federationProviderRequestACRsMode;
+	}
+
+	public List<String> getFederationProviderRequestedACRs()
+	{
+		return federationProviderRequestedACRs;
+	}
+
+	public void setFederationProviderRequestedACRs(List<String> federationProviderRequestedACRs)
+	{
+		this.federationProviderRequestedACRs = federationProviderRequestedACRs;
+	}
+
+	public boolean isFederationProviderRequestedACRsAreEssential()
+	{
+		return federationProviderRequestedACRsAreEssential;
+	}
+
+	public void setFederationProviderRequestedACRsAreEssential(boolean federationProviderRequestedACRsAreEssential)
+	{
+		this.federationProviderRequestedACRsAreEssential = federationProviderRequestedACRsAreEssential;
 	}
 }

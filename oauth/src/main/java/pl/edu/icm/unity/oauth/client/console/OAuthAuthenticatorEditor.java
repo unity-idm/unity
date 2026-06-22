@@ -14,6 +14,7 @@ import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -45,11 +46,15 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.vaadin.auth.authenticators.AuthenticatorEditor;
 import io.imunity.vaadin.auth.authenticators.BaseAuthenticatorEditor;
+import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import io.imunity.vaadin.elements.CopyToClipboardButton;
+import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
+import io.imunity.vaadin.elements.EnumComboBox;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
@@ -334,6 +339,42 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 				msg.getMessage("OAuthAuthenticatorEditor.federationProviderRegistrationForm"));
 		configBinder.forField(federationRegistrationForm)
 				.bind("federationProviderRegistrationForm");
+
+		EnumComboBox<RequestACRsMode> requestACRsMode = new EnumComboBox<>(
+				msg::getMessage, "OAuthRequestACRs.",
+				RequestACRsMode.class,
+				RequestACRsMode.NONE);
+		configBinder.forField(requestACRsMode)
+				.bind(OAuthConfiguration::getFederationProviderRequestACRsMode,
+						OAuthConfiguration::setFederationProviderRequestACRsMode);
+		providerDefaultsForm.addFormItem(requestACRsMode,
+				msg.getMessage("OAuthAuthenticatorEditor.federationProviderRequestACRsMode"));
+
+		MultiSelectComboBox<String> requestedACRs = new CustomValuesMultiSelectComboBox();
+		requestedACRs.setWidth(TEXT_FIELD_BIG.value());
+		requestedACRs.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		requestedACRs.setEnabled(false);
+		configBinder.forField(requestedACRs)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(OAuthConfiguration::getFederationProviderRequestedACRs,
+						OAuthConfiguration::setFederationProviderRequestedACRs);
+		providerDefaultsForm.addFormItem(requestedACRs,
+				msg.getMessage("OAuthAuthenticatorEditor.federationProviderRequestedACRs"));
+
+		Checkbox essentialACRs = new Checkbox();
+		essentialACRs.setLabel(msg.getMessage("OAuthAuthenticatorEditor.federationProviderRequestedACRsAreEssential"));
+		essentialACRs.setEnabled(false);
+		configBinder.forField(essentialACRs)
+				.bind(OAuthConfiguration::isFederationProviderRequestedACRsAreEssential,
+						OAuthConfiguration::setFederationProviderRequestedACRsAreEssential);
+		providerDefaultsForm.addFormItem(essentialACRs, "");
+
+		requestACRsMode.addValueChangeListener(v ->
+		{
+			boolean isFixed = RequestACRsMode.FIXED.equals(v.getValue());
+			requestedACRs.setEnabled(isFixed);
+			essentialACRs.setEnabled(isFixed);
+		});
 
 		AccordionPanel federationTranslationProfilePanel = profileFieldFactory.getWrappedFieldInstance(
 				subViewSwitcher, configBinder, "federationProviderTranslationProfile");

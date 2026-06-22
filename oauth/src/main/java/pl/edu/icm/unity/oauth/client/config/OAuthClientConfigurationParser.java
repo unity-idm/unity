@@ -104,6 +104,11 @@ public class OAuthClientConfigurationParser
 		return OAuthFederationProviderDefaults.builder()
 				.withTranslationProfile(parseFederationTranslationProfile(props))
 				.withRegistrationForm(props.getValue(OAuthClientProperties.FEDERATION_REGISTRATION_FORM))
+				.withRequestACRsMode(props.getEnumValue(OAuthClientProperties.FEDERATION_REQUEST_ACRS_MODE,
+						RequestACRsMode.class))
+				.withRequestedACRs(props.getListOfValues(OAuthClientProperties.FEDERATION_REQUESTED_ACRS))
+				.withRequestedACRsAreEssential(props.getBooleanValue(
+						OAuthClientProperties.FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL))
 				.build();
 	}
 

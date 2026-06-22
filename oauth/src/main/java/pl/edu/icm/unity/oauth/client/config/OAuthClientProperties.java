@@ -4,21 +4,22 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
+
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
-import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * Configuration of OAuth client.
@@ -53,6 +54,9 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 	public static final String FEDERATION_EMBEDDED_TRANSLATION_PROFILE = "federationEmbeddedTranslationProfile";
 	public static final String FEDERATION_REGISTRATION_FORM = "federationRegistrationForm";
 	public static final String FEDERATION_JWT_SIGNING_ALG = "federationJwtSigningAlg";
+	public static final String FEDERATION_REQUEST_ACRS_MODE = "federationRequestACRs";
+	public static final String FEDERATION_REQUESTED_ACRS = "federationRequestedACRs.";
+	public static final String FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL = "federationRequestedACRsAreEssential";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -97,6 +101,16 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 		META.put(FEDERATION_JWT_SIGNING_ALG, new PropertyMD().setDescription(
 				"JWS algorithm used for private_key_jwt assertions when authenticating to federation providers "
 				+ "(e.g. RS256, ES256, PS256). If not set, derived from the credential key type."));
+		META.put(FEDERATION_REQUEST_ACRS_MODE, new PropertyMD(RequestACRsMode.NONE).setDescription(
+				"Controls how ACR (Authentication Context Class Reference) values are requested from "
+				+ "federation IdPs. NONE: no ACR requested; FIXED: always request the configured ACRs; "
+				+ "FORWARD: forward the ACR requested by the downstream client."));
+		META.put(FEDERATION_REQUESTED_ACRS, new PropertyMD().setList(true).setDescription(
+				"List of ACR values to request from federation IdPs. Used only when "
+				+ FEDERATION_REQUEST_ACRS_MODE + " is set to FIXED."));
+		META.put(FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL, new PropertyMD("false").setDescription(
+				"Whether the requested ACR values are essential (true) or voluntary (false). "
+				+ "Used only when " + FEDERATION_REQUEST_ACRS_MODE + " is set to FIXED."));
 	}
 
 	private final Map<String, CustomProviderProperties> providers = new HashMap<>();
