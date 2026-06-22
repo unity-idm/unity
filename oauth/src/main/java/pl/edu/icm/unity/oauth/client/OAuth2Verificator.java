@@ -652,7 +652,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		for (OAuthProviderConfiguration provider : getProviders().getAll())
 		{
 			String idpKey = provider.key.asString();
-			if (provider.openIdConnect)
+			if (provider.openIdConnect && provider.federationId == null)
 			{
 				extractIdPInfoFromOIDCProvider(idpKey, provider).ifPresent(providers::add);
 			} else

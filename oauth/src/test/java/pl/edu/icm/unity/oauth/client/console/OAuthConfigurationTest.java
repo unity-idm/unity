@@ -102,9 +102,13 @@ public class OAuthConfigurationTest
 				.update("requestACRs", "FIXED")
 				.update("clientCredential", "bar")
 				.update("clientAuthenticationMethod", "private_key_jwt")
+				.update("clientJwtSigningAlg", "RS256")
 				.get();
 		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META)
 				.update("federationEmbeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
+				.update("federationJwtSigningAlg", "RS256")
+				.update("federationRequestACRs", "FIXED")
+				.update("federationRequestedACRsAreEssential", "true")
 				.get();
 		sourceCfg.putAll(sourceProviderCfg);
 
@@ -120,7 +124,7 @@ public class OAuthConfigurationTest
 			.ignoringMissing("providers.1.clientSecret")
 			.ignoringMissing("providers.1.clientAuthenticationMode")
 			.ignoringMissing("providers.1.clientAuthenticationModeForProfileAccess")
-			.ignoringMissing("federationProviderTranslationProfile")
+			.ignoringMissing("federationTranslationProfile")
 			.checkMatching(result, sourceCfg);
 	}
 }

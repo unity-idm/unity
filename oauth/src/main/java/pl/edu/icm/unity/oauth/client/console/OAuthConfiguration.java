@@ -189,7 +189,7 @@ public class OAuthConfiguration
 						federationProviderRequestACRsMode.name());
 			if (federationProviderRequestedACRs != null)
 				for (int i = 0; i < federationProviderRequestedACRs.size(); i++)
-					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REQUESTED_ACRS + i,
+					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REQUESTED_ACRS + (i + 1),
 							federationProviderRequestedACRs.get(i));
 			raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL,
 					String.valueOf(federationProviderRequestedACRsAreEssential));
