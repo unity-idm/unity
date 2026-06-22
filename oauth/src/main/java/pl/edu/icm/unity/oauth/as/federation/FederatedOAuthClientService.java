@@ -63,6 +63,7 @@ public class FederatedOAuthClientService
 	private static final Duration LOGO_FETCH_TIMEOUT = Duration.ofSeconds(10);
 
 	private final Map<String, CachedChain> chainCache = new ConcurrentHashMap<>();
+	private final Map<String, URI> lastFetchedLogoUri = new ConcurrentHashMap<>();
 
 	private final EntityManagement identitiesMan;
 	private final AttributesManagement attributesMan;
@@ -148,7 +149,7 @@ public class FederatedOAuthClientService
 		for (Attribute attr : FederationClientAttributesMapper.toOAuthAttributes(metadata, oauthGroup, clientId))
 			attributesMan.setAttribute(new EntityParam(entityId), attr);
 		setEntityDisplayedName(entityId, FederationClientAttributesMapper.toDisplayName(metadata, clientId));
-		updateLogoIfChanged(entityId, oauthGroup, metadata.getLogoURI(), null);
+		updateLogoIfChanged(clientId, entityId, oauthGroup, metadata.getLogoURI());
 		log.info("Federation client {} registered as entityId={}", clientId, entityId);
 		return entityId;
 	}
@@ -169,10 +170,7 @@ public class FederatedOAuthClientService
 					attributesMan.setAttribute(new EntityParam(entityId), attr);
 			}
 			setEntityDisplayedName(entityId, FederationClientAttributesMapper.toDisplayName(metadata, clientId));
-			AttributeExt existingLogo = existingMap.get(OAuthSystemAttributesProvider.CLIENT_LOGO);
-			String existingLogoValue = existingLogo != null && !existingLogo.getValues().isEmpty()
-					? existingLogo.getValues().get(0) : null;
-			updateLogoIfChanged(entityId, oauthGroup, metadata.getLogoURI(), existingLogoValue);
+			updateLogoIfChanged(clientId, entityId, oauthGroup, metadata.getLogoURI());
 		} catch (Exception e)
 		{
 			log.warn("Failed to refresh attributes for federation client entityId={}: {}", entityId, e.getMessage());
@@ -197,9 +195,11 @@ public class FederatedOAuthClientService
 		}
 	}
 
-	private void updateLogoIfChanged(long entityId, String oauthGroup, URI logoUri, String existingLogoValue)
+	private void updateLogoIfChanged(String clientId, long entityId, String oauthGroup, URI logoUri)
 	{
 		if (logoUri == null)
+			return;
+		if (logoUri.equals(lastFetchedLogoUri.get(clientId)))
 			return;
 		try
 		{
@@ -210,11 +210,9 @@ public class FederatedOAuthClientService
 			ImageAttributeSyntax syntax = (ImageAttributeSyntax) attrTypeSupport
 					.getSyntax(attrTypeSupport.getType(OAuthSystemAttributesProvider.CLIENT_LOGO));
 			image.scaleDown(syntax.getConfig().getMaxWidth(), syntax.getConfig().getMaxHeight());
-			String newLogoValue = image.serialize();
-			if (newLogoValue.equals(existingLogoValue))
-				return;
 			attributesMan.setAttribute(new EntityParam(entityId),
 					ImageAttribute.of(OAuthSystemAttributesProvider.CLIENT_LOGO, oauthGroup, image));
+			lastFetchedLogoUri.put(clientId, logoUri);
 			log.info("Logo updated for federation client entityId={}", entityId);
 		} catch (Exception e)
 		{
@@ -248,6 +246,7 @@ public class FederatedOAuthClientService
 	public void invalidateChainCache()
 	{
 		chainCache.clear();
+		lastFetchedLogoUri.clear();
 	}
 
 	public record CachedChain(TrustChain chain, Instant expiresAt)
