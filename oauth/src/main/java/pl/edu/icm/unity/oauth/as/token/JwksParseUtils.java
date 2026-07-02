@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as.token;
 
 import java.text.ParseException;
+import java.util.Optional;
 
 import com.nimbusds.jose.jwk.JWKSet;
 
@@ -23,17 +24,18 @@ public class JwksParseUtils
 		}
 	}
 
-	public static boolean isValidJwks(String jwks)
+	/**
+	 * @return empty if the JWKS is valid, or the underlying parser's error detail otherwise
+	 */
+	public static Optional<String> validationError(String jwks)
 	{
-		if (jwks == null || jwks.isBlank())
-			return false;
 		try
 		{
 			JWKSet.parse(jwks);
-			return true;
+			return Optional.empty();
 		} catch (ParseException e)
 		{
-			return false;
+			return Optional.of(e.getMessage());
 		}
 	}
 }

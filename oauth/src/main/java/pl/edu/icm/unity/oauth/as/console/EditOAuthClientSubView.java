@@ -29,6 +29,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import io.imunity.vaadin.elements.CopyToClipboardButton;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.UnitySubView;
@@ -36,6 +37,7 @@ import io.imunity.vaadin.endpoint.common.file.FileField;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.token.JwksParseUtils;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
@@ -205,17 +207,18 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 
 		TextArea jwksArea = new TextArea();
 		jwksArea.setWidth(TEXT_FIELD_BIG.value());
-		jwksArea.setHeight("8em");
+		jwksArea.setHeight("14em");
+		jwksArea.addClassName(CssClassNames.MONOSPACE.getName());
+		jwksArea.addClassName(CssClassNames.SMALL_FONT_FIELD.getName());
 
 		binder.forField(jwksArea).withValidator((v, c) -> {
 			if (v != null && !v.isBlank())
 			{
-				try
+				Optional<String> error = JwksParseUtils.validationError(v);
+				if (error.isPresent())
 				{
-					com.nimbusds.jose.jwk.JWKSet.parse(v);
-				} catch (Exception e)
-				{
-					return ValidationResult.error(msg.getMessage("EditOAuthClientSubView.invalidJwks"));
+					return ValidationResult.error(
+							msg.getMessage("EditOAuthClientSubView.invalidJwks") + ": " + error.get());
 				}
 			}
 			return ValidationResult.ok();

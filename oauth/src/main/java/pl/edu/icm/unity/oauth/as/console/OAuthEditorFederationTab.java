@@ -7,8 +7,11 @@ package pl.edu.icm.unity.oauth.as.console;
 
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
+import static io.imunity.vaadin.elements.CssClassNames.MONOSPACE;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_FONT_FIELD;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Set;
 
 import pl.edu.icm.unity.oauth.as.token.JwksParseUtils;
@@ -23,6 +26,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
@@ -76,12 +80,20 @@ class OAuthEditorFederationTab extends VerticalLayout implements ServiceEditorBa
 
 		TextArea jwks = new TextArea();
 		jwks.setWidth(TEXT_FIELD_BIG.value());
-		jwks.setHeight("8em");
+		jwks.setHeight("14em");
+		jwks.addClassName(MONOSPACE.getName());
+		jwks.addClassName(SMALL_FONT_FIELD.getName());
 		configBinder.forField(jwks)
 				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isBlank()),
 						msg.getMessage("fieldRequired"))
-				.withValidator(v -> v == null || v.isEmpty() || JwksParseUtils.isValidJwks(v),
-						msg.getMessage("OAuthEditorGeneralTab.federationJwksInvalid"))
+				.withValidator((v, c) -> {
+					if (v == null || v.isEmpty())
+						return ValidationResult.ok();
+					Optional<String> error = JwksParseUtils.validationError(v);
+					return error.map(e -> ValidationResult.error(
+							msg.getMessage("OAuthEditorGeneralTab.federationJwksInvalid") + ": " + e))
+							.orElseGet(ValidationResult::ok);
+				})
 				.bind("federationTrustAnchorJwks");
 		federationLayout.addFormItem(jwks, msg.getMessage("OAuthEditorGeneralTab.federationJwks"));
 

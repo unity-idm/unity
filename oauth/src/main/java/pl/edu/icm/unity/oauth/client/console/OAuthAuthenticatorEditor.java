@@ -9,6 +9,8 @@ import static io.imunity.vaadin.elements.CSSVars.RICH_FIELD_BIG;
 import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
 import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 import static io.imunity.vaadin.elements.CssClassNames.LOGO_GRID_IMAGE;
+import static io.imunity.vaadin.elements.CssClassNames.MONOSPACE;
+import static io.imunity.vaadin.elements.CssClassNames.SMALL_FONT_FIELD;
 import static io.imunity.vaadin.elements.CssClassNames.SMALL_GAP;
 
 import java.net.URI;
@@ -17,6 +19,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -39,6 +42,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -252,13 +256,21 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 		TextArea jwks = new TextArea();
 		jwks.setWidth(TEXT_FIELD_BIG.value());
-		jwks.setHeight("8em");
+		jwks.setHeight("14em");
+		jwks.addClassName(MONOSPACE.getName());
+		jwks.addClassName(SMALL_FONT_FIELD.getName());
 		federationLayout.addFormItem(jwks, msg.getMessage("OAuthAuthenticatorEditor.federationTrustAnchorJwks"));
 		configBinder.forField(jwks)
 				.withValidator(v -> !federationMembership.getValue() || (v != null && !v.isEmpty()),
 						msg.getMessage("fieldRequired"))
-				.withValidator(v -> v == null || v.isEmpty() || JwksParseUtils.isValidJwks(v),
-						msg.getMessage("OAuthAuthenticatorEditor.federationTrustAnchorJwksInvalid"))
+				.withValidator((v, c) -> {
+					if (v == null || v.isEmpty())
+						return ValidationResult.ok();
+					Optional<String> error = JwksParseUtils.validationError(v);
+					return error.map(e -> ValidationResult.error(
+							msg.getMessage("OAuthAuthenticatorEditor.federationTrustAnchorJwksInvalid") + ": " + e))
+							.orElseGet(ValidationResult::ok);
+				})
 				.bind("federationTrustAnchorJwks");
 
 		IntegerField metadataValidity = new IntegerField();

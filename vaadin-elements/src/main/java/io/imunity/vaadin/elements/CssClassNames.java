@@ -58,7 +58,8 @@ public enum CssClassNames
 	AUTHN_SCREEN("u-authn-screen"),
 	MAIN_LAYOUT_CONTAINER("u-main-layout-container"),
 	TOKEN_VALUE("u-token-value"),
-	SIGNIN_BUTTON("u-signin-button");
+	SIGNIN_BUTTON("u-signin-button"),
+	SMALL_FONT_FIELD("u-small-font-field");
 	
 	private final String name;
 

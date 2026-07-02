@@ -11,6 +11,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.TextArea;
 
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
@@ -33,7 +34,9 @@ class ClientPublicKeysCredentialEditor implements CredentialEditor
 	{
 		jwksField = new TextArea();
 		jwksField.setWidthFull();
-		jwksField.setHeight("8em");
+		jwksField.setHeight("14em");
+		jwksField.addClassName(CssClassNames.MONOSPACE.getName());
+		jwksField.addClassName(CssClassNames.SMALL_FONT_FIELD.getName());
 		jwksField.setPlaceholder(msg.getMessage("ClientPublicKeysCredentialEditor.placeholder"));
 		return new ComponentsContainer(jwksField);
 	}
@@ -59,7 +62,8 @@ class ClientPublicKeysCredentialEditor implements CredentialEditor
 			com.nimbusds.jose.jwk.JWKSet.parse(value);
 		} catch (ParseException e)
 		{
-			throw new IllegalCredentialException(msg.getMessage("ClientPublicKeysCredentialEditor.invalidJwks"));
+			throw new IllegalCredentialException(
+					msg.getMessage("ClientPublicKeysCredentialEditor.invalidJwks") + ": " + e.getMessage());
 		}
 		return value;
 	}
