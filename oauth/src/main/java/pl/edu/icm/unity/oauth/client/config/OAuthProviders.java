@@ -9,18 +9,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class OAuthProviders
+public record OAuthProviders(Map<OAuthProviderKey, OAuthProviderConfiguration> providers)
 {
-	private final Map<OAuthProviderKey, OAuthProviderConfiguration> providers;
-
 	public OAuthProviders(Collection<OAuthProviderConfiguration> providers)
 	{
-		this.providers = providers.stream()
-				.collect(Collectors.toUnmodifiableMap(p -> p.key, p -> p));
+		this(providers.stream().collect(Collectors.toUnmodifiableMap(OAuthProviderConfiguration::key, p -> p)));
 	}
 
 	public OAuthProviderConfiguration get(OAuthProviderKey key)
@@ -50,7 +46,7 @@ public class OAuthProviders
 	{
 		List<OAuthProviderConfiguration> merged = new ArrayList<>();
 		providers.values().stream()
-				.filter(p -> !p.key.isFromFederation())
+				.filter(p -> !p.key().isFromFederation())
 				.forEach(merged::add);
 		merged.addAll(federationProviders);
 		return new OAuthProviders(merged);
@@ -61,7 +57,7 @@ public class OAuthProviders
 		List<OAuthProviderConfiguration> merged = new ArrayList<>(providers.values());
 		for (OAuthProviderConfiguration staticProvider : staticProviders.getAll())
 		{
-			merged.removeIf(p -> p.key.equals(staticProvider.key));
+			merged.removeIf(p -> p.key().equals(staticProvider.key()));
 			merged.add(staticProvider);
 		}
 		return new OAuthProviders(merged);
@@ -70,24 +66,5 @@ public class OAuthProviders
 	public Set<Map.Entry<OAuthProviderKey, OAuthProviderConfiguration>> getEntrySet()
 	{
 		return Collections.unmodifiableSet(providers.entrySet());
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(providers);
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		OAuthProviders other = (OAuthProviders) obj;
-		return Objects.equals(providers, other.providers);
 	}
 }

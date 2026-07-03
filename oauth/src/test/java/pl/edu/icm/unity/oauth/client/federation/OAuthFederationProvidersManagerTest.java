@@ -161,7 +161,7 @@ class OAuthFederationProvidersManagerTest
 
 		OAuthProviders result = manager.getCombinedProviders(AUTHENTICATOR_ID);
 		assertThat(result.getKeys()).containsExactlyInAnyOrder(
-				staticProvider.key, fedProvider.key);
+				staticProvider.key(), fedProvider.key());
 	}
 
 	@Test
@@ -205,7 +205,7 @@ class OAuthFederationProvidersManagerTest
 
 		OAuthProviders result = manager.getCombinedProviders(AUTHENTICATOR_ID);
 		assertThat(result.getAll()).hasSize(1);
-		assertThat(result.get(sharedKey).name.getDefaultValue()).isEqualTo("static");
+		assertThat(result.get(sharedKey).name().getDefaultValue()).isEqualTo("static");
 	}
 
 	@Test

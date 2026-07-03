@@ -69,9 +69,9 @@ public class FederationEntityToProviderConverterTest
 
 		assertThat(result).hasSize(1);
 		OAuthProviderConfiguration provider = result.get(0).config();
-		assertThat(provider.authorizationEndpoint).isEqualTo("https://auth.example.com");
-		assertThat(provider.accessTokenEndpoint).isEqualTo("https://token.example.com");
-		assertThat(provider.userInfoEndpoints).containsExactly("https://userinfo.example.com");
+		assertThat(provider.authorizationEndpoint()).isEqualTo("https://auth.example.com");
+		assertThat(provider.accessTokenEndpoint()).isEqualTo("https://token.example.com");
+		assertThat(provider.userInfoEndpoints()).containsExactly("https://userinfo.example.com");
 	}
 
 	@Test
@@ -94,7 +94,7 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.name.getDefaultValue()).isEqualTo("https://my-idp.example.com");
+		assertThat(provider.name().getDefaultValue()).isEqualTo("https://my-idp.example.com");
 	}
 
 	@Test
@@ -107,9 +107,9 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.scopes).contains("openid");
-		assertThat(provider.scopes).contains("email");
-		assertThat(provider.scopes).contains("profile");
+		assertThat(provider.scopes()).contains("openid");
+		assertThat(provider.scopes()).contains("email");
+		assertThat(provider.scopes()).contains("profile");
 	}
 
 	@Test
@@ -121,7 +121,7 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.scopes).isEqualTo("openid");
+		assertThat(provider.scopes()).isEqualTo("openid");
 	}
 
 	@Test
@@ -134,8 +134,8 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.iconUrl).isNotNull();
-		assertThat(provider.iconUrl.getDefaultValue()).isEqualTo("https://idp.example.com/logo.png");
+		assertThat(provider.iconUrl()).isNotNull();
+		assertThat(provider.iconUrl().getDefaultValue()).isEqualTo("https://idp.example.com/logo.png");
 	}
 
 	@Test
@@ -147,7 +147,7 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.iconUrl).isNull();
+		assertThat(provider.iconUrl()).isNull();
 	}
 
 	@Test
@@ -159,7 +159,7 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.federationId).isEqualTo(TRUST_ANCHOR_ID.getValue());
+		assertThat(provider.federationId()).isEqualTo(TRUST_ANCHOR_ID.getValue());
 	}
 
 	@Test
@@ -173,7 +173,7 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.federationName).isEqualTo("My Federation");
+		assertThat(provider.federationName()).isEqualTo("My Federation");
 	}
 
 	@Test
@@ -185,7 +185,7 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.federationName).isEqualTo(TRUST_ANCHOR_ID.getValue());
+		assertThat(provider.federationName()).isEqualTo(TRUST_ANCHOR_ID.getValue());
 	}
 
 	@Test
@@ -197,7 +197,7 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.clientId).isEqualTo(CLIENT_ID);
+		assertThat(provider.clientId()).isEqualTo(CLIENT_ID);
 	}
 
 	@Test
@@ -209,7 +209,7 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.clientCredential).isEqualTo(CLIENT_CREDENTIAL);
+		assertThat(provider.clientCredential()).isEqualTo(CLIENT_CREDENTIAL);
 	}
 
 	@Test
@@ -223,7 +223,7 @@ public class FederationEntityToProviderConverterTest
 		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
 				true, OAuthFederationProviderDefaults.builder().withTranslationProfile(profile).build(), FEDERATION_CONFIG);
 
-		assertThat(result.get(0).config().translationProfile).isSameAs(profile);
+		assertThat(result.get(0).config().translationProfile()).isSameAs(profile);
 	}
 
 	@Test
@@ -237,7 +237,7 @@ public class FederationEntityToProviderConverterTest
 				true, OAuthFederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
 						.withRegistrationForm("myRegistrationForm").build(), FEDERATION_CONFIG);
 
-		assertThat(result.get(0).config().registrationForm).isEqualTo("myRegistrationForm");
+		assertThat(result.get(0).config().registrationForm()).isEqualTo("myRegistrationForm");
 	}
 
 	@Test
@@ -252,8 +252,8 @@ public class FederationEntityToProviderConverterTest
 		List<FederationProvider> disabled = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
 				false, defaultProviderDefaults(), FEDERATION_CONFIG);
 
-		assertThat(enabled.get(0).config().enableAssociation).isTrue();
-		assertThat(disabled.get(0).config().enableAssociation).isFalse();
+		assertThat(enabled.get(0).config().enableAssociation()).isTrue();
+		assertThat(disabled.get(0).config().enableAssociation()).isFalse();
 	}
 
 	@Test
@@ -265,7 +265,7 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.openIdDiscoveryEndpoint)
+		assertThat(provider.openIdDiscoveryEndpoint())
 				.isEqualTo("https://idp.example.com/.well-known/openid-configuration");
 	}
 
@@ -281,7 +281,7 @@ public class FederationEntityToProviderConverterTest
 				CLIENT_ID, CLIENT_CREDENTIAL, true, defaultProviderDefaults(), FEDERATION_CONFIG);
 
 		assertThat(result).hasSize(1);
-		assertThat(result.get(0).config().name.getDefaultValue()).isEqualTo("https://idp.example.com");
+		assertThat(result.get(0).config().name().getDefaultValue()).isEqualTo("https://idp.example.com");
 	}
 
 	@Test
@@ -293,7 +293,7 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.key.isFromFederation()).isTrue();
+		assertThat(provider.key().isFromFederation()).isTrue();
 	}
 
 	@Test
@@ -307,10 +307,10 @@ public class FederationEntityToProviderConverterTest
 
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
-		assertThat(provider.scopes).contains("openid");
-		assertThat(provider.scopes).contains("email");
-		assertThat(provider.scopes).doesNotContain("profile");
-		assertThat(provider.scopes).doesNotContain("phone");
+		assertThat(provider.scopes()).contains("openid");
+		assertThat(provider.scopes()).contains("email");
+		assertThat(provider.scopes()).doesNotContain("profile");
+		assertThat(provider.scopes()).doesNotContain("phone");
 	}
 
 	// --- helpers ---

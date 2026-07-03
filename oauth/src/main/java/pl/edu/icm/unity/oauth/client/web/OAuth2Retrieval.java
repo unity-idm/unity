@@ -84,10 +84,10 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 		List<VaadinAuthenticationUI> ret = new ArrayList<>();
 		for (OAuthProviderConfiguration provider : credentialExchange.getProviders().getAll())
 		{
-			String idpKey = provider.key.asString();
+			String idpKey = provider.key().asString();
 			AuthenticationOptionKey authenticationOptionKey = new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
 			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange,
-					provider.key, context,
+					provider.key(), context,
 					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey,
 							SigInInProgressContextService.getVaadinContext()),
 					notificationPresenter));

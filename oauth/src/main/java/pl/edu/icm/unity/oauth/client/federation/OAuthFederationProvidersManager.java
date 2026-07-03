@@ -48,12 +48,12 @@ public class OAuthFederationProvidersManager
 			if (existing != null && existing.consumerId != null)
 				federationService.unregisterConsumer(existing.consumerId);
 
-			if (config.federation == null || !config.federation.enabled || config.federation.trustAnchorId == null)
+			if (config.federation() == null || !config.federation().enabled() || config.federation().trustAnchorId() == null)
 				return new InstanceState(instanceId, null, config.providers());
 
 			try
 			{
-				OAuthFederationTrustConfig fedConfig = OAuthFederationTrustConfig.from(config.federation);
+				OAuthFederationTrustConfig fedConfig = OAuthFederationTrustConfig.from(config.federation());
 				String consumerId = federationService.preregisterConsumer();
 				federationService.registerConsumer(consumerId, fedConfig.refreshInterval(), fedConfig,
 						(chains, cid) -> onUpdatedFederation(authenticatorId, clientId, cid, chains, config));
@@ -92,12 +92,12 @@ public class OAuthFederationProvidersManager
 			String consumerId, List<TrustChain> chains, OAuthClientConfiguration config)
 	{
 		List<FederationProvider> fromFederation = converter.convert(chains, clientId,
-				config.authenticationCredential, config.defaultEnableAssociation,
-				config.federationProviderDefaults, config.federation);
+				config.authenticationCredential(), config.defaultEnableAssociation(),
+				config.federationProviderDefaults(), config.federation());
 		log.debug("Updated {} federation providers for authenticator {}", fromFederation.size(), authenticatorId);
 
 		Map<OAuthProviderKey, Instant> expiryMap = new ConcurrentHashMap<>();
-		fromFederation.forEach(fp -> expiryMap.put(fp.config().key, fp.expiresAt()));
+		fromFederation.forEach(fp -> expiryMap.put(fp.config().key(), fp.expiresAt()));
 		OAuthProviders combined = config.providers()
 				.replaceFederation(fromFederation.stream().map(FederationProvider::config).toList())
 				.overrideWithStatic(config.providers());
@@ -126,9 +126,9 @@ public class OAuthFederationProvidersManager
 			Instant now = Instant.now();
 			List<pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration> nonExpired =
 					combinedProviders.getAll().stream()
-							.filter(p -> !p.key.isFromFederation()
-									|| !federationExpiry.containsKey(p.key)
-									|| now.isBefore(federationExpiry.get(p.key)))
+							.filter(p -> !p.key().isFromFederation()
+									|| !federationExpiry.containsKey(p.key())
+									|| now.isBefore(federationExpiry.get(p.key())))
 							.toList();
 			return new OAuthProviders(nonExpired);
 		}

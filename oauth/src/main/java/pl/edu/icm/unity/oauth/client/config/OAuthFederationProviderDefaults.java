@@ -8,21 +8,17 @@ import java.util.List;
 
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 
-public class OAuthFederationProviderDefaults
+public record OAuthFederationProviderDefaults(
+		TranslationProfile translationProfile,
+		String registrationForm,
+		RequestACRsMode requestACRsMode,
+		List<String> requestedACRs,
+		boolean requestedACRsAreEssential)
 {
-	public final TranslationProfile translationProfile;
-	public final String registrationForm;
-	public final RequestACRsMode requestACRsMode;
-	public final List<String> requestedACRs;
-	public final boolean requestedACRsAreEssential;
-
-	private OAuthFederationProviderDefaults(Builder builder)
+	public OAuthFederationProviderDefaults
 	{
-		this.translationProfile = builder.translationProfile;
-		this.registrationForm = builder.registrationForm;
-		this.requestACRsMode = builder.requestACRsMode != null ? builder.requestACRsMode : RequestACRsMode.NONE;
-		this.requestedACRs = builder.requestedACRs != null ? List.copyOf(builder.requestedACRs) : List.of();
-		this.requestedACRsAreEssential = builder.requestedACRsAreEssential;
+		requestACRsMode = requestACRsMode != null ? requestACRsMode : RequestACRsMode.NONE;
+		requestedACRs = requestedACRs != null ? List.copyOf(requestedACRs) : List.of();
 	}
 
 	public static Builder builder()
@@ -72,7 +68,8 @@ public class OAuthFederationProviderDefaults
 
 		public OAuthFederationProviderDefaults build()
 		{
-			return new OAuthFederationProviderDefaults(this);
+			return new OAuthFederationProviderDefaults(translationProfile, registrationForm, requestACRsMode,
+					requestedACRs, requestedACRsAreEssential);
 		}
 	}
 }

@@ -42,7 +42,7 @@ class ClientAuthenticationFactory
 	ClientAuthentication build(OAuthProviderConfiguration providerCfg, URI tokenEndpointURI, ClientAuthnMode mode)
 			throws EngineException, JOSEException
 	{
-		return switch (providerCfg.clientAuthnMethod)
+		return switch (providerCfg.clientAuthnMethod())
 		{
 			case private_key_jwt -> buildPrivateKeyJwtAuthentication(providerCfg, tokenEndpointURI);
 			case client_secret -> buildClientSecretAuthentication(providerCfg, mode);
@@ -52,13 +52,13 @@ class ClientAuthenticationFactory
 	private ClientAuthentication buildPrivateKeyJwtAuthentication(OAuthProviderConfiguration providerCfg,
 			URI tokenEndpointURI) throws EngineException, JOSEException
 	{
-		X509Credential cred = pkiManagement.getCredential(providerCfg.clientCredential);
+		X509Credential cred = pkiManagement.getCredential(providerCfg.clientCredential());
 		PrivateKey privateKey = cred.getKey();
-		JWSAlgorithm alg = providerCfg.jwtSigningAlgorithm.orElseGet(() -> deriveJWSAlgorithm(privateKey));
+		JWSAlgorithm alg = providerCfg.jwtSigningAlgorithm().orElseGet(() -> deriveJWSAlgorithm(privateKey));
 		Date now = new Date();
 		Date exp = new Date(now.getTime() + ASSERTION_LIFETIME_MS);
 		JWTAuthenticationClaimsSet claimsSet = new JWTAuthenticationClaimsSet(
-				new ClientID(providerCfg.clientId),
+				new ClientID(providerCfg.clientId()),
 				List.of(new Audience(tokenEndpointURI.toString())),
 				exp,
 				null,
@@ -70,15 +70,15 @@ class ClientAuthenticationFactory
 	private static ClientAuthentication buildClientSecretAuthentication(OAuthProviderConfiguration providerCfg,
 			ClientAuthnMode mode)
 	{
-		if (providerCfg.clientSecret == null || providerCfg.clientSecret.isBlank())
+		if (providerCfg.clientSecret() == null || providerCfg.clientSecret().isBlank())
 			throw new InternalException("Client secret is not configured for OAuth provider '"
-					+ providerCfg.clientId + "' using client_secret authentication");
+					+ providerCfg.clientId() + "' using client_secret authentication");
 		return switch (mode)
 		{
-			case secretPost -> new ClientSecretPost(new ClientID(providerCfg.clientId),
-					new Secret(providerCfg.clientSecret));
-			case secretBasic -> new ClientSecretBasic(new ClientID(providerCfg.clientId),
-					new Secret(providerCfg.clientSecret));
+			case secretPost -> new ClientSecretPost(new ClientID(providerCfg.clientId()),
+					new Secret(providerCfg.clientSecret()));
+			case secretBasic -> new ClientSecretBasic(new ClientID(providerCfg.clientId()),
+					new Secret(providerCfg.clientSecret()));
 		};
 	}
 

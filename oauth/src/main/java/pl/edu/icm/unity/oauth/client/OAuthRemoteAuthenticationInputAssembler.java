@@ -44,8 +44,8 @@ class OAuthRemoteAuthenticationInputAssembler
 	RemotelyAuthenticatedInput convertInput(OAuthProviderConfiguration provCfg, OAuthContext context,
 			AttributeFetchResult attributes, boolean openIdConnectMode)
 	{
-		String tokenEndpoint = provCfg.accessTokenEndpoint;
-		if (tokenEndpoint == null && provCfg.openIdDiscoveryEndpoint != null)
+		String tokenEndpoint = provCfg.accessTokenEndpoint();
+		if (tokenEndpoint == null && provCfg.openIdDiscoveryEndpoint() != null)
 		{
 			try
 			{
@@ -77,10 +77,10 @@ class OAuthRemoteAuthenticationInputAssembler
 	private OIDCMetadataRequest buildMetadataRequest(OAuthProviderConfiguration provCfg)
 	{
 		return OIDCMetadataRequest.builder()
-				.withUrl(provCfg.openIdDiscoveryEndpoint)
-				.withValidator(provCfg.validator)
-				.withValidatorName(provCfg.truststoreName)
-				.withHostnameChecking(provCfg.hostNameCheckingMode)
+				.withUrl(provCfg.openIdDiscoveryEndpoint())
+				.withValidator(provCfg.validator())
+				.withValidatorName(provCfg.truststoreName())
+				.withHostnameChecking(provCfg.hostNameCheckingMode())
 				.build();
 	}
 

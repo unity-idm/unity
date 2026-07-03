@@ -24,13 +24,13 @@ public record ProfileFetcherConfig(
 	public static ProfileFetcherConfig from(OAuthProviderConfiguration providerCfg)
 	{
 		return new ProfileFetcherConfig(
-				providerCfg.truststoreName,
-				providerCfg.validator,
-				providerCfg.hostNameCheckingMode,
-				providerCfg.clientAuthnModeForProfileAccess,
-				providerCfg.clientHttpMethodForProfileAccess,
-				providerCfg.clientId,
-				providerCfg.clientSecret,
-				providerCfg.accessTokenEndpoint);
+				providerCfg.truststoreName(),
+				providerCfg.validator(),
+				providerCfg.hostNameCheckingMode(),
+				providerCfg.clientAuthnModeForProfileAccess(),
+				providerCfg.clientHttpMethodForProfileAccess(),
+				providerCfg.clientId(),
+				providerCfg.clientSecret(),
+				providerCfg.accessTokenEndpoint());
 	}
 }

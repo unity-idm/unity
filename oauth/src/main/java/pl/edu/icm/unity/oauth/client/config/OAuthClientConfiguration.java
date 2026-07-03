@@ -7,31 +7,15 @@ package pl.edu.icm.unity.oauth.client.config;
 import java.util.Objects;
 import java.util.Properties;
 
-public class OAuthClientConfiguration
+public record OAuthClientConfiguration(
+		boolean defaultEnableAssociation,
+		String authenticationCredential,
+		OAuthFederationConfig federation,
+		OAuthFederationProviderDefaults federationProviderDefaults,
+		OAuthProviders providers,
+		Properties rawProperties)
 {
-	public final boolean defaultEnableAssociation;
-	public final String authenticationCredential;
-	public final OAuthFederationConfig federation;
-	public final OAuthFederationProviderDefaults federationProviderDefaults;
-	public final OAuthProviders providers;
-	private final Properties rawProperties;
-
-	private OAuthClientConfiguration(Builder builder)
-	{
-		this.defaultEnableAssociation = builder.defaultEnableAssociation;
-		this.authenticationCredential = builder.authenticationCredential;
-		this.federation = builder.federation;
-		this.federationProviderDefaults = builder.federationProviderDefaults;
-		this.providers = builder.providers;
-		this.rawProperties = builder.rawProperties;
-	}
-
-	public OAuthProviders providers()
-	{
-		return providers;
-	}
-
-	public Properties getRawProperties()
+	public Properties rawProperties()
 	{
 		Properties copy = new Properties();
 		copy.putAll(rawProperties);
@@ -116,7 +100,8 @@ public class OAuthClientConfiguration
 
 		public OAuthClientConfiguration build()
 		{
-			return new OAuthClientConfiguration(this);
+			return new OAuthClientConfiguration(defaultEnableAssociation, authenticationCredential, federation,
+					federationProviderDefaults, providers, rawProperties);
 		}
 	}
 }

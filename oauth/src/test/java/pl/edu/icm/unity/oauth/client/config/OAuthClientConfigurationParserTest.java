@@ -38,7 +38,7 @@ public class OAuthClientConfigurationParserTest
 		OAuthClientConfiguration config = parser.parse(minimalProviderProps(GOOGLE));
 
 		assertThat(config.providers().getKeys()).hasSize(1);
-		assertThat(config.providers().getAll().iterator().next().key.asString()).isEqualTo("google");
+		assertThat(config.providers().getAll().iterator().next().key().asString()).isEqualTo("google");
 	}
 
 	@Test
@@ -47,8 +47,8 @@ public class OAuthClientConfigurationParserTest
 		OAuthClientConfiguration config = parser.parse(minimalProviderProps(GOOGLE));
 
 		OAuthProviderConfiguration provider = singleProvider(config);
-		assertThat(provider.clientId).isEqualTo("testClientId");
-		assertThat(provider.clientSecret).isEqualTo("testSecret");
+		assertThat(provider.clientId()).isEqualTo("testClientId");
+		assertThat(provider.clientSecret()).isEqualTo("testSecret");
 	}
 
 	@Test
@@ -57,8 +57,8 @@ public class OAuthClientConfigurationParserTest
 		OAuthClientConfiguration config = parser.parse(minimalProviderProps(GOOGLE));
 
 		OAuthProviderConfiguration provider = singleProvider(config);
-		assertThat(provider.authorizationEndpoint).isEqualTo("https://auth.example.com");
-		assertThat(provider.accessTokenEndpoint).isEqualTo("https://token.example.com");
+		assertThat(provider.authorizationEndpoint()).isEqualTo("https://auth.example.com");
+		assertThat(provider.accessTokenEndpoint()).isEqualTo("https://token.example.com");
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthProviderConfiguration provider = singleProvider(parser.parse(p));
 
-		assertThat(provider.scopes).isEqualTo("openid profile email");
+		assertThat(provider.scopes()).isEqualTo("openid profile email");
 	}
 
 	@Test
@@ -86,8 +86,8 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthProviderConfiguration provider = singleProvider(parser.parse(p));
 
-		assertThat(provider.openIdConnect).isTrue();
-		assertThat(provider.openIdDiscoveryEndpoint)
+		assertThat(provider.openIdConnect()).isTrue();
+		assertThat(provider.openIdDiscoveryEndpoint())
 				.isEqualTo("https://accounts.google.com/.well-known/openid-configuration");
 	}
 
@@ -102,10 +102,10 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthProviderConfiguration provider = singleProvider(parser.parse(p));
 
-		assertThat(provider.requestACRsMode).isEqualTo(RequestACRsMode.FIXED);
-		assertThat(provider.requestedACRs).containsExactlyInAnyOrder(
+		assertThat(provider.requestACRsMode()).isEqualTo(RequestACRsMode.FIXED);
+		assertThat(provider.requestedACRs()).containsExactlyInAnyOrder(
 				"urn:mace:incommon:iap:silver", "urn:mace:incommon:iap:bronze");
-		assertThat(provider.requestedACRsAreEssential).isTrue();
+		assertThat(provider.requestedACRsAreEssential()).isTrue();
 	}
 
 	@Test
@@ -117,13 +117,13 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthProviderConfiguration provider = singleProvider(parser.parse(p));
 
-		assertThat(provider.additionalAuthzParams).hasSize(2);
-		assertThat(provider.additionalAuthzParams).anySatisfy(nvp ->
+		assertThat(provider.additionalAuthzParams()).hasSize(2);
+		assertThat(provider.additionalAuthzParams()).anySatisfy(nvp ->
 		{
 			assertThat(nvp.getName()).isEqualTo("prompt");
 			assertThat(nvp.getValue()).isEqualTo("consent");
 		});
-		assertThat(provider.additionalAuthzParams).anySatisfy(nvp ->
+		assertThat(provider.additionalAuthzParams()).anySatisfy(nvp ->
 		{
 			assertThat(nvp.getName()).isEqualTo("hd");
 			assertThat(nvp.getValue()).isEqualTo("example.com");
@@ -151,7 +151,7 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthProviderConfiguration provider = singleProvider(parser.parse(p));
 
-		assertThat(provider.enableAssociation).isFalse();
+		assertThat(provider.enableAssociation()).isFalse();
 	}
 
 	@Test
@@ -162,8 +162,8 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthClientConfiguration config = parser.parse(p);
 
-		assertThat(config.defaultEnableAssociation).isFalse();
-		assertThat(singleProvider(config).enableAssociation).isFalse();
+		assertThat(config.defaultEnableAssociation()).isFalse();
+		assertThat(singleProvider(config).enableAssociation()).isFalse();
 	}
 
 	@Test
@@ -179,10 +179,10 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthClientConfiguration config = parser.parse(p);
 
-		assertThat(config.federation.enabled).isTrue();
-		assertThat(config.federation.superiorEntityId).isEqualTo("https://federation.example.com");
-		assertThat(config.federation.trustAnchorId).isEqualTo("https://anchor.example.com");
-		assertThat(config.federation.credential).isEqualTo("myCred");
+		assertThat(config.federation().enabled()).isTrue();
+		assertThat(config.federation().superiorEntityId()).isEqualTo("https://federation.example.com");
+		assertThat(config.federation().trustAnchorId()).isEqualTo("https://anchor.example.com");
+		assertThat(config.federation().credential()).isEqualTo("myCred");
 	}
 
 	@Test
@@ -193,9 +193,9 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthClientConfiguration config = parser.parse(p);
 
-		assertThat(config.federationProviderDefaults.translationProfile).isNotNull();
-		assertThat(config.federationProviderDefaults.translationProfile.getRules()).hasSize(1);
-		assertThat(config.federationProviderDefaults.translationProfile.getRules().get(0).getAction().getParameters())
+		assertThat(config.federationProviderDefaults().translationProfile()).isNotNull();
+		assertThat(config.federationProviderDefaults().translationProfile().getRules()).hasSize(1);
+		assertThat(config.federationProviderDefaults().translationProfile().getRules().get(0).getAction().getParameters())
 				.contains("myFedProfile");
 	}
 
@@ -206,9 +206,9 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthClientConfiguration config = parser.parse(p);
 
-		assertThat(config.federationProviderDefaults.translationProfile).isNotNull();
-		assertThat(config.federationProviderDefaults.translationProfile.getRules()).hasSize(1);
-		assertThat(config.federationProviderDefaults.translationProfile.getRules().get(0).getAction().getParameters())
+		assertThat(config.federationProviderDefaults().translationProfile()).isNotNull();
+		assertThat(config.federationProviderDefaults().translationProfile().getRules()).hasSize(1);
+		assertThat(config.federationProviderDefaults().translationProfile().getRules().get(0).getAction().getParameters())
 				.contains("sys:oidc");
 	}
 
@@ -220,7 +220,7 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthClientConfiguration config = parser.parse(p);
 
-		assertThat(config.federationProviderDefaults.registrationForm).isEqualTo("myFedForm");
+		assertThat(config.federationProviderDefaults().registrationForm()).isEqualTo("myFedForm");
 	}
 
 	@Test
@@ -232,8 +232,8 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthProviderConfiguration provider = singleProvider(parser.parse(p));
 
-		assertThat(provider.clientAuthnMethod).isEqualTo(CustomProviderProperties.ClientAuthnMethod.private_key_jwt);
-		assertThat(provider.clientCredential).isEqualTo("myCred");
+		assertThat(provider.clientAuthnMethod()).isEqualTo(CustomProviderProperties.ClientAuthnMethod.private_key_jwt);
+		assertThat(provider.clientCredential()).isEqualTo("myCred");
 	}
 
 	@Test
@@ -269,33 +269,33 @@ public class OAuthClientConfigurationParserTest
 
 		OAuthProviderConfiguration provider = singleProvider(parser.parse(p));
 
-		assertThat(provider.key.asString()).isEqualTo("google");
-		assertThat(provider.providerType).isEqualTo(OAuthClientProperties.Providers.google);
-		assertThat(provider.clientId).isEqualTo("myClientId");
-		assertThat(provider.clientSecret).isEqualTo("mySecret");
-		assertThat(provider.authorizationEndpoint).isEqualTo("https://auth.example.com");
-		assertThat(provider.accessTokenEndpoint).isEqualTo("https://token.example.com");
-		assertThat(provider.userInfoEndpoints).containsExactly("https://userinfo.example.com");
-		assertThat(provider.name.getDefaultValue()).isEqualTo("My Provider");
-		assertThat(provider.iconUrl.getDefaultValue()).isEqualTo("https://icon.example.com/icon.png");
-		assertThat(provider.openIdConnect).isTrue(); // google provider type forces OpenID Connect mode
-		assertThat(provider.scopes).isEqualTo("openid email profile");
-		assertThat(provider.accessTokenFormat).isEqualTo(CustomProviderProperties.AccessTokenFormat.httpParams);
-		assertThat(provider.clientAuthnMethod).isEqualTo(CustomProviderProperties.ClientAuthnMethod.private_key_jwt);
-		assertThat(provider.clientCredential).isEqualTo("myCred");
-		assertThat(provider.clientAuthnMode).isEqualTo(Optional.of(CustomProviderProperties.ClientAuthnMode.secretPost));
-		assertThat(provider.clientAuthnModeForProfileAccess).isEqualTo(CustomProviderProperties.ClientAuthnMode.secretPost);
-		assertThat(provider.clientHttpMethodForProfileAccess).isEqualTo(Method.POST);
-		assertThat(provider.truststoreName).isEqualTo("myTruststore");
-		assertThat(provider.hostNameCheckingMode).isEqualTo(ServerHostnameCheckingMode.WARN);
-		assertThat(provider.requestACRsMode).isEqualTo(RequestACRsMode.FIXED);
-		assertThat(provider.requestedACRs).containsExactly("acr1");
-		assertThat(provider.requestedACRsAreEssential).isTrue();
-		assertThat(provider.additionalAuthzParams).hasSize(1);
-		assertThat(provider.translationProfile).isNotNull();
-		assertThat(provider.registrationForm).isEqualTo("myForm");
-		assertThat(provider.enableAssociation).isFalse();
-		assertThat(provider.userAttributesResolver).isInstanceOf(OpenIdProfileFetcher.class);
+		assertThat(provider.key().asString()).isEqualTo("google");
+		assertThat(provider.providerType()).isEqualTo(OAuthClientProperties.Providers.google);
+		assertThat(provider.clientId()).isEqualTo("myClientId");
+		assertThat(provider.clientSecret()).isEqualTo("mySecret");
+		assertThat(provider.authorizationEndpoint()).isEqualTo("https://auth.example.com");
+		assertThat(provider.accessTokenEndpoint()).isEqualTo("https://token.example.com");
+		assertThat(provider.userInfoEndpoints()).containsExactly("https://userinfo.example.com");
+		assertThat(provider.name().getDefaultValue()).isEqualTo("My Provider");
+		assertThat(provider.iconUrl().getDefaultValue()).isEqualTo("https://icon.example.com/icon.png");
+		assertThat(provider.openIdConnect()).isTrue(); // google provider type forces OpenID Connect mode
+		assertThat(provider.scopes()).isEqualTo("openid email profile");
+		assertThat(provider.accessTokenFormat()).isEqualTo(CustomProviderProperties.AccessTokenFormat.httpParams);
+		assertThat(provider.clientAuthnMethod()).isEqualTo(CustomProviderProperties.ClientAuthnMethod.private_key_jwt);
+		assertThat(provider.clientCredential()).isEqualTo("myCred");
+		assertThat(provider.clientAuthnMode()).isEqualTo(Optional.of(CustomProviderProperties.ClientAuthnMode.secretPost));
+		assertThat(provider.clientAuthnModeForProfileAccess()).isEqualTo(CustomProviderProperties.ClientAuthnMode.secretPost);
+		assertThat(provider.clientHttpMethodForProfileAccess()).isEqualTo(Method.POST);
+		assertThat(provider.truststoreName()).isEqualTo("myTruststore");
+		assertThat(provider.hostNameCheckingMode()).isEqualTo(ServerHostnameCheckingMode.WARN);
+		assertThat(provider.requestACRsMode()).isEqualTo(RequestACRsMode.FIXED);
+		assertThat(provider.requestedACRs()).containsExactly("acr1");
+		assertThat(provider.requestedACRsAreEssential()).isTrue();
+		assertThat(provider.additionalAuthzParams()).hasSize(1);
+		assertThat(provider.translationProfile()).isNotNull();
+		assertThat(provider.registrationForm()).isEqualTo("myForm");
+		assertThat(provider.enableAssociation()).isFalse();
+		assertThat(provider.userAttributesResolver()).isInstanceOf(OpenIdProfileFetcher.class);
 	}
 
 	private Properties minimalProviderProps(String providerPrefix)

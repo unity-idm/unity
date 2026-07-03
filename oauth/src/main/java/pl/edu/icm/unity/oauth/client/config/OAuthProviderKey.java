@@ -8,18 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
-import java.util.Objects;
 
-public class OAuthProviderKey
+public record OAuthProviderKey(String key)
 {
 	static final String FEDERATION_PREFIX = "_fed_";
-
-	private final String key;
-
-	private OAuthProviderKey(String key)
-	{
-		this.key = key;
-	}
 
 	public static OAuthProviderKey fromConfig(String configurationEntryPrefix)
 	{
@@ -59,7 +51,7 @@ public class OAuthProviderKey
 			throw new IllegalStateException(e);
 		}
 	}
-	
+
 	public String asString()
 	{
 		return key;
@@ -69,24 +61,5 @@ public class OAuthProviderKey
 	public String toString()
 	{
 		return String.format("OAuthProviderKey [key=%s]", key);
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(key);
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		OAuthProviderKey other = (OAuthProviderKey) obj;
-		return Objects.equals(key, other.key);
 	}
 }

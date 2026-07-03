@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import org.apache.hc.core5.http.NameValuePair;
@@ -24,147 +22,55 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthn
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 
-public class OAuthProviderConfiguration
+public record OAuthProviderConfiguration(
+		OAuthProviderKey key,
+		Providers providerType,
+		I18nString name,
+		I18nString iconUrl,
+		boolean openIdConnect,
+		String federationId,
+		String federationName,
+		String authorizationEndpoint,
+		String accessTokenEndpoint,
+		List<String> userInfoEndpoints,
+		String openIdDiscoveryEndpoint,
+		String clientId,
+		String clientSecret,
+		ClientAuthnMethod clientAuthnMethod,
+		String clientCredential,
+		Optional<JWSAlgorithm> jwtSigningAlgorithm,
+		Optional<ClientAuthnMode> clientAuthnMode,
+		AccessTokenFormat accessTokenFormat,
+		String truststoreName,
+		X509CertChainValidator validator,
+		ServerHostnameCheckingMode hostNameCheckingMode,
+		ClientAuthnMode clientAuthnModeForProfileAccess,
+		Method clientHttpMethodForProfileAccess,
+		String scopes,
+		List<NameValuePair> additionalAuthzParams,
+		RequestACRsMode requestACRsMode,
+		List<String> requestedACRs,
+		boolean requestedACRsAreEssential,
+		TranslationProfile translationProfile,
+		String registrationForm,
+		boolean enableAssociation,
+		UserProfileFetcher userAttributesResolver)
 {
-	public final OAuthProviderKey key;
-	public final Providers providerType;
-	public final I18nString name;
-	public final I18nString iconUrl;
-	public final boolean openIdConnect;
-	public final String federationId;
-	public final String federationName;
-
-	public final String authorizationEndpoint;
-	public final String accessTokenEndpoint;
-	public final List<String> userInfoEndpoints;
-	public final String openIdDiscoveryEndpoint;
-
-	public final String clientId;
-	public final String clientSecret;
-	public final ClientAuthnMethod clientAuthnMethod;
-	public final String clientCredential;
-	public final Optional<JWSAlgorithm> jwtSigningAlgorithm;
-	public final Optional<ClientAuthnMode> clientAuthnMode;
-	public final AccessTokenFormat accessTokenFormat;
-
-	public final String truststoreName;
-	public final X509CertChainValidator validator;
-	public final ServerHostnameCheckingMode hostNameCheckingMode;
-	public final ClientAuthnMode clientAuthnModeForProfileAccess;
-	public final Method clientHttpMethodForProfileAccess;
-
-	public final String scopes;
-	public final List<NameValuePair> additionalAuthzParams;
-
-	public final RequestACRsMode requestACRsMode;
-	public final List<String> requestedACRs;
-	public final boolean requestedACRsAreEssential;
-
-	public final TranslationProfile translationProfile;
-	public final String registrationForm;
-	public final boolean enableAssociation;
-	public final UserProfileFetcher userAttributesResolver;
-
-	private OAuthProviderConfiguration(Builder builder)
+	public OAuthProviderConfiguration
 	{
-		this.key = builder.key;
-		this.providerType = builder.providerType;
-		this.name = builder.name;
-		this.iconUrl = builder.iconUrl;
-		this.openIdConnect = builder.openIdConnect;
-		this.federationId = builder.federationId;
-		this.federationName = builder.federationName;
-		this.authorizationEndpoint = builder.authorizationEndpoint;
-		this.accessTokenEndpoint = builder.accessTokenEndpoint;
-		this.userInfoEndpoints = builder.userInfoEndpoints == null
-				? Collections.emptyList()
-				: List.copyOf(builder.userInfoEndpoints);
-		this.openIdDiscoveryEndpoint = builder.openIdDiscoveryEndpoint;
-		this.clientId = builder.clientId;
-		this.clientSecret = builder.clientSecret;
-		this.clientAuthnMethod = builder.clientAuthnMethod;
-		this.clientCredential = builder.clientCredential;
-		this.jwtSigningAlgorithm = builder.jwtSigningAlgorithm;
-		this.clientAuthnMode = builder.clientAuthnMode;
-		this.accessTokenFormat = builder.accessTokenFormat;
-		this.truststoreName = builder.truststoreName;
-		this.validator = builder.validator;
-		this.hostNameCheckingMode = builder.hostNameCheckingMode;
-		this.clientAuthnModeForProfileAccess = builder.clientAuthnModeForProfileAccess;
-		this.clientHttpMethodForProfileAccess = builder.clientHttpMethodForProfileAccess;
-		this.scopes = builder.scopes;
-		this.additionalAuthzParams = builder.additionalAuthzParams == null
-				? Collections.emptyList()
-				: List.copyOf(builder.additionalAuthzParams);
-		this.requestACRsMode = builder.requestACRsMode;
-		this.requestedACRs = builder.requestedACRs == null
-				? Collections.emptyList()
-				: List.copyOf(builder.requestedACRs);
-		this.requestedACRsAreEssential = builder.requestedACRsAreEssential;
-		this.translationProfile = builder.translationProfile;
-		this.registrationForm = builder.registrationForm;
-		this.enableAssociation = builder.enableAssociation;
-		this.userAttributesResolver = builder.userAttributesResolver;
+		userInfoEndpoints = userInfoEndpoints == null ? List.of() : List.copyOf(userInfoEndpoints);
+		additionalAuthzParams = additionalAuthzParams == null ? List.of() : List.copyOf(additionalAuthzParams);
+		requestedACRs = requestedACRs == null ? List.of() : List.copyOf(requestedACRs);
 	}
 
 	public ClientAuthnMode getClientAuthModeFallbackToDefault()
 	{
 		return clientAuthnMode.orElse(ClientAuthnMode.secretBasic);
 	}
-	
+
 	public static Builder builder()
 	{
 		return new Builder();
-	}
-
-	
-
-	@Override
-	public int hashCode()
-	{
-		return Objects.hash(accessTokenEndpoint, accessTokenFormat, additionalAuthzParams, authorizationEndpoint,
-				clientAuthnMethod, clientAuthnMode, clientAuthnModeForProfileAccess, clientCredential,
-				clientHttpMethodForProfileAccess, clientId, clientSecret, enableAssociation, federationId,
-				federationName, hostNameCheckingMode, iconUrl, jwtSigningAlgorithm, key, name, openIdConnect,
-				openIdDiscoveryEndpoint, providerType, registrationForm, requestACRsMode, requestedACRs,
-				requestedACRsAreEssential, scopes, translationProfile, truststoreName, userAttributesResolver,
-				userInfoEndpoints, validator);
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		OAuthProviderConfiguration other = (OAuthProviderConfiguration) obj;
-		return Objects.equals(accessTokenEndpoint, other.accessTokenEndpoint)
-				&& accessTokenFormat == other.accessTokenFormat
-				&& Objects.equals(additionalAuthzParams, other.additionalAuthzParams)
-				&& Objects.equals(authorizationEndpoint, other.authorizationEndpoint)
-				&& clientAuthnMethod == other.clientAuthnMethod
-				&& Objects.equals(clientAuthnMode, other.clientAuthnMode)
-				&& clientAuthnModeForProfileAccess == other.clientAuthnModeForProfileAccess
-				&& Objects.equals(clientCredential, other.clientCredential)
-				&& clientHttpMethodForProfileAccess == other.clientHttpMethodForProfileAccess
-				&& Objects.equals(clientId, other.clientId) && Objects.equals(clientSecret, other.clientSecret)
-				&& enableAssociation == other.enableAssociation && Objects.equals(federationId, other.federationId)
-				&& Objects.equals(federationName, other.federationName)
-				&& hostNameCheckingMode == other.hostNameCheckingMode && Objects.equals(iconUrl, other.iconUrl)
-				&& Objects.equals(jwtSigningAlgorithm, other.jwtSigningAlgorithm) && Objects.equals(key, other.key)
-				&& Objects.equals(name, other.name) && openIdConnect == other.openIdConnect
-				&& Objects.equals(openIdDiscoveryEndpoint, other.openIdDiscoveryEndpoint)
-				&& providerType == other.providerType && Objects.equals(registrationForm, other.registrationForm)
-				&& requestACRsMode == other.requestACRsMode && Objects.equals(requestedACRs, other.requestedACRs)
-				&& requestedACRsAreEssential == other.requestedACRsAreEssential && Objects.equals(scopes, other.scopes)
-				&& Objects.equals(translationProfile, other.translationProfile)
-				&& Objects.equals(truststoreName, other.truststoreName)
-				&& Objects.equals(userAttributesResolver, other.userAttributesResolver)
-				&& Objects.equals(userInfoEndpoints, other.userInfoEndpoints)
-				&& Objects.equals(validator, other.validator);
 	}
 
 	public static final class Builder
@@ -398,7 +304,13 @@ public class OAuthProviderConfiguration
 
 		public OAuthProviderConfiguration build()
 		{
-			return new OAuthProviderConfiguration(this);
+			return new OAuthProviderConfiguration(key, providerType, name, iconUrl, openIdConnect, federationId,
+					federationName, authorizationEndpoint, accessTokenEndpoint, userInfoEndpoints,
+					openIdDiscoveryEndpoint, clientId, clientSecret, clientAuthnMethod, clientCredential,
+					jwtSigningAlgorithm, clientAuthnMode, accessTokenFormat, truststoreName, validator,
+					hostNameCheckingMode, clientAuthnModeForProfileAccess, clientHttpMethodForProfileAccess, scopes,
+					additionalAuthzParams, requestACRsMode, requestedACRs, requestedACRsAreEssential,
+					translationProfile, registrationForm, enableAssociation, userAttributesResolver);
 		}
 	}
 }

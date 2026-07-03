@@ -39,8 +39,8 @@ class AuthenticationRequestACRBuilder
 	private void addRequestedVoluntaryACRsIfNeeded(OAuthProviderConfiguration providerCfg,
 			RequestedAuthenticationContextClassReference requestedAuthenticationContextClassReference)
 	{
-		if (providerCfg.requestACRsMode.equals(RequestACRsMode.NONE)
-				|| providerCfg.requestACRsMode.equals(RequestACRsMode.FIXED))
+		if (providerCfg.requestACRsMode().equals(RequestACRsMode.NONE)
+				|| providerCfg.requestACRsMode().equals(RequestACRsMode.FIXED))
 			return;
 
 		if (!requestedAuthenticationContextClassReference.essentialACRs().isEmpty() &&
@@ -56,18 +56,18 @@ class AuthenticationRequestACRBuilder
 	private void addIDTokenClaimSetRequestIfNeeded(OAuthProviderConfiguration providerCfg,
 			RequestedAuthenticationContextClassReference requestedAuthenticationContextClassReference)
 	{
-		if (providerCfg.requestACRsMode.equals(RequestACRsMode.NONE))
+		if (providerCfg.requestACRsMode().equals(RequestACRsMode.NONE))
 			return;
 
 		List<Entry> id = new ArrayList<>();
-		if (providerCfg.requestACRsMode.equals(RequestACRsMode.FIXED))
+		if (providerCfg.requestACRsMode().equals(RequestACRsMode.FIXED))
 		{
 			id.add(new Entry(IDTokenClaimsSet.ACR_CLAIM_NAME)
-					.withClaimRequirement(providerCfg.requestedACRsAreEssential
+					.withClaimRequirement(providerCfg.requestedACRsAreEssential()
 							? ClaimRequirement.ESSENTIAL
 							: ClaimRequirement.VOLUNTARY)
-					.withValues(providerCfg.requestedACRs));
-		} else if (providerCfg.requestACRsMode.equals(RequestACRsMode.FORWARD))
+					.withValues(providerCfg.requestedACRs()));
+		} else if (providerCfg.requestACRsMode().equals(RequestACRsMode.FORWARD))
 		{
 			if (!requestedAuthenticationContextClassReference.essentialACRs().isEmpty())
 			{

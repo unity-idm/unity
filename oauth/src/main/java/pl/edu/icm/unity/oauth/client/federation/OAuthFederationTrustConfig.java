@@ -23,20 +23,20 @@ record OAuthFederationTrustConfig(
 {
 	static OAuthFederationTrustConfig from(OAuthFederationConfig cfg) throws java.text.ParseException
 	{
-		if (cfg.jwks == null)
+		if (cfg.jwks() == null)
 			throw new java.text.ParseException(
-					"Trust anchor JWKS must be configured for federation with " + cfg.trustAnchorId, 0);
-		EntityID trustAnchorId = new EntityID(cfg.trustAnchorId);
-		JWKSet jwks = JWKSet.parse(cfg.jwks);
-		Duration refresh = Duration.ofSeconds(cfg.metadataValidity);
+					"Trust anchor JWKS must be configured for federation with " + cfg.trustAnchorId(), 0);
+		EntityID trustAnchorId = new EntityID(cfg.trustAnchorId());
+		JWKSet jwks = JWKSet.parse(cfg.jwks());
+		Duration refresh = Duration.ofSeconds(cfg.metadataValidity());
 		return new OAuthFederationTrustConfig(
 				trustAnchorId,
 				jwks,
 				refresh,
-				cfg.validator,
-				cfg.hostnameCheckingMode != null
-						? cfg.hostnameCheckingMode
+				cfg.validator(),
+				cfg.hostnameCheckingMode() != null
+						? cfg.hostnameCheckingMode()
 						: ServerHostnameCheckingMode.FAIL,
-				cfg.truststore);
+				cfg.truststore());
 	}
 }

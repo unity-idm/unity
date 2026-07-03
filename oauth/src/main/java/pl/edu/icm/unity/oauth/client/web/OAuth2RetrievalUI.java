@@ -100,7 +100,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 		OAuthProviderConfiguration provider = credentialExchange.getProviders().get(providerKey);
 		if (provider == null)
 			throw new IllegalStateException("OAuth provider " + providerKey + " is not available");
-		String name = provider.name.getValue(msg);
+		String name = provider.name().getValue(msg);
 		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), name);
 		idpComponent.addButtonClickListener(event -> startLogin());
 		idpComponent.setWidthFull();
@@ -114,8 +114,8 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 		OAuthProviderConfiguration provider = credentialExchange.getProviders().get(providerKey);
 		if (provider == null)
 			throw new IllegalStateException("OAuth provider " + providerKey + " is not available");
-		String name = provider.name.getValue(msg);
-		String logoURI = provider.iconUrl != null ? provider.iconUrl.getValue(msg) : null;
+		String name = provider.name().getValue(msg);
+		String logoURI = provider.iconUrl() != null ? provider.iconUrl().getValue(msg) : null;
 
 		cachedLabel = name;
 		cachedImage = imageAccessService.loadImageFromUri(logoURI).orElse(null);
