@@ -116,6 +116,41 @@ class JwtClientAssertionVerifierTest
 	}
 
 	@Test
+	void shouldRejectNbfInFuture() throws Exception
+	{
+		Date now = new Date();
+		JWTClaimsSet claims = new JWTClaimsSet.Builder()
+				.subject(CLIENT_ID).issuer(CLIENT_ID).audience(TOKEN_URI.toString())
+				.issueTime(now)
+				.notBeforeTime(new Date(now.getTime() + 120_000))
+				.expirationTime(new Date(now.getTime() + 180_000))
+				.jwtID(UUID.randomUUID().toString())
+				.build();
+		SignedJWT jwt = sign(claims);
+
+		assertThatThrownBy(() -> verifier.verifyJwt(jwt, jwkSet, TOKEN_URI, CLIENT_ID))
+				.isInstanceOf(AuthenticationException.class)
+				.hasMessageContaining("nbf is in the future");
+	}
+
+	@Test
+	void shouldAcceptNbfInPast() throws Exception
+	{
+		Date now = new Date();
+		JWTClaimsSet claims = new JWTClaimsSet.Builder()
+				.subject(CLIENT_ID).issuer(CLIENT_ID).audience(TOKEN_URI.toString())
+				.issueTime(now)
+				.notBeforeTime(now)
+				.expirationTime(new Date(now.getTime() + 60_000))
+				.jwtID(UUID.randomUUID().toString())
+				.build();
+		SignedJWT jwt = sign(claims);
+
+		assertThatCode(() -> verifier.verifyJwt(jwt, jwkSet, TOKEN_URI, CLIENT_ID))
+				.doesNotThrowAnyException();
+	}
+
+	@Test
 	void shouldRejectAssertionLifetimeExceedingCap() throws Exception
 	{
 		Date now = new Date();

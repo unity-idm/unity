@@ -81,6 +81,10 @@ class JwtClientAssertionVerifier
 		if (iat.toInstant().isAfter(Instant.now().plus(CLOCK_SKEW)))
 			throw new AuthenticationException("JWT assertion iat is in the future");
 
+		Date nbf = claims.getNotBeforeTime();
+		if (nbf != null && nbf.toInstant().isAfter(Instant.now().plus(CLOCK_SKEW)))
+			throw new AuthenticationException("JWT assertion is not yet valid (nbf is in the future)");
+
 		Duration lifetime = Duration.between(iat.toInstant(), exp.toInstant());
 		if (lifetime.compareTo(MAX_ASSERTION_LIFETIME) > 0)
 			throw new AuthenticationException(
