@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.button.Button;
@@ -376,14 +377,14 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 				msg.getMessage("OAuthAuthenticatorEditor.federationProviderScopes"));
 		federationScopes.addValueChangeListener(e ->
 		{
-			if (!e.getValue().contains("openid"))
+			if (!e.getValue().contains(OIDCScopeValue.OPENID.getValue()))
 			{
 				Set<String> withOpenId = new LinkedHashSet<>(e.getValue());
-				withOpenId.add("openid");
+				withOpenId.add(OIDCScopeValue.OPENID.getValue());
 				federationScopes.setValue(withOpenId);
 			}
 		});
-
+		
 		ComboBox<String> federationRegistrationForm = new ComboBox<>();
 		federationRegistrationForm.setItems(getRegistrationFormNames());
 		federationRegistrationForm.setClearButtonVisible(true);

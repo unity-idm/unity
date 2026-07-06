@@ -6,6 +6,8 @@
 package pl.edu.icm.unity.oauth.client.console;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
@@ -71,7 +73,7 @@ public class OAuthConfiguration
 		federationProviderRequestACRsMode = RequestACRsMode.NONE;
 		federationProviderRequestedACRs = new ArrayList<>();
 		federationProviderRequestedACRsAreEssential = false;
-		federationProviderScopes = new ArrayList<>(List.of("openid"));
+		federationProviderScopes = new ArrayList<>(List.of(OIDCScopeValue.OPENID.getValue()));
 		federationProviderAccessTokenFormat = AccessTokenFormat.standard;
 		federationProviderAdditionalAuthzParams = new ArrayList<>();
 
@@ -130,7 +132,10 @@ public class OAuthConfiguration
 		federationProviderRequestedACRs = oauthProp.getListOfValues(OAuthClientProperties.FEDERATION_REQUESTED_ACRS);
 		federationProviderRequestedACRsAreEssential = oauthProp.getBooleanValue(
 				OAuthClientProperties.FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL);
-		federationProviderScopes = oauthProp.getListOfValues(OAuthClientProperties.FEDERATION_SCOPES);
+		List<String> parsedFederationProviderScopes = oauthProp.getListOfValues(OAuthClientProperties.FEDERATION_SCOPES);
+		federationProviderScopes = parsedFederationProviderScopes.isEmpty()
+				? new ArrayList<>(List.of(OIDCScopeValue.OPENID.getValue()))
+				: parsedFederationProviderScopes;
 		federationProviderAccessTokenFormat = oauthProp.getEnumValue(
 				OAuthClientProperties.FEDERATION_ACCESS_TOKEN_FORMAT, AccessTokenFormat.class);
 		federationProviderAdditionalAuthzParams = parseAdditionalAuthzParams(
