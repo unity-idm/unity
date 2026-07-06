@@ -234,7 +234,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		clientCredential.setWidth(TEXT_FIELD_MEDIUM.value());
 		clientCredential.setItems(getCredentialNames());
 		clientCredential.setEmptySelectionAllowed(true);
-		configBinder.forField(clientCredential)
+		Binder.Binding<OAuthProviderConfiguration, String> clientCredentialBinding = configBinder.forField(clientCredential)
 				.withValidator((v, c) -> validateClientCredential(v, clientJwtSigningAlg.getValue()))
 				.bind(OAuthBaseConfiguration::getClientCredential, OAuthBaseConfiguration::setClientCredential);
 		FormItem clientCredentialItem = header.addFormItem(clientCredential,
@@ -249,6 +249,7 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 		FormItem clientJwtSigningAlgItem = header.addFormItem(clientJwtSigningAlg,
 				msg.getMessage("EditOAuthProviderSubView.clientJwtSigningAlg"));
 		clientJwtSigningAlgItem.setVisible(false);
+		clientJwtSigningAlg.addValueChangeListener(e -> clientCredentialBinding.validate());
 
 		clientAuthMethod.addValueChangeListener(e -> {
 			boolean isPrivateKeyJwt = ClientAuthnMethod.private_key_jwt.equals(e.getValue());

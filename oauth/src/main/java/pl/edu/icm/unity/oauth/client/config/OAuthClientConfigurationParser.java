@@ -12,6 +12,9 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.jose.JWSAlgorithm;
@@ -24,13 +27,17 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 
 @Component
 public class OAuthClientConfigurationParser
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthClientConfigurationParser.class);
+
 	private final PKIManagement pkiManagement;
 	private final MessageSource msg;
 
@@ -111,7 +118,35 @@ public class OAuthClientConfigurationParser
 				.withRequestedACRs(props.getListOfValues(OAuthClientProperties.FEDERATION_REQUESTED_ACRS))
 				.withRequestedACRsAreEssential(props.getBooleanValue(
 						OAuthClientProperties.FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL))
+				.withScopes(props.getListOfValues(OAuthClientProperties.FEDERATION_SCOPES))
+				.withAccessTokenFormat(props.getEnumValue(OAuthClientProperties.FEDERATION_ACCESS_TOKEN_FORMAT,
+						AccessTokenFormat.class))
+				.withAdditionalAuthzParams(parseAdditionalAuthzParams(
+						props.getListOfValues(OAuthClientProperties.FEDERATION_ADDITIONAL_AUTHZ_PARAMS)))
 				.build();
+	}
+
+	private static List<NameValuePair> parseAdditionalAuthzParams(List<String> raw)
+	{
+		List<NameValuePair> ret = new ArrayList<>(raw.size());
+		for (String rawParam : raw)
+		{
+			int splitAt = rawParam.indexOf('=');
+			if (splitAt == -1)
+			{
+				log.warn("Specification of extra authz query parameter is invalid, no '=': "
+						+ rawParam + " ignoring it");
+				continue;
+			}
+			if (splitAt == rawParam.length() - 1)
+			{
+				log.warn("Specification of extra authz query parameter is invalid, no value: "
+						+ rawParam + " ignoring it");
+				continue;
+			}
+			ret.add(new BasicNameValuePair(rawParam.substring(0, splitAt), rawParam.substring(splitAt + 1)));
+		}
+		return ret;
 	}
 
 	private OAuthProviders parseProviders(OAuthClientProperties props, boolean defaultEnableAssociation)

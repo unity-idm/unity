@@ -6,12 +6,17 @@ package pl.edu.icm.unity.oauth.client.federation;
 
 import java.net.URI;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 import com.nimbusds.openid.connect.sdk.federation.entities.FederationEntityMetadata;
@@ -22,7 +27,6 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.config.OAuthFederationConfig;
@@ -74,7 +78,24 @@ public class FederationEntityToProviderConverter
 					? opMeta.getUserInfoEndpointURI().toString() : null;
 			String discoveryEndpoint = opMeta.getIssuer() != null
 					? opMeta.getIssuer().getValue() + "/.well-known/openid-configuration" : null;
-			String scopes = opMeta.getScopes() != null ? opMeta.getScopes().toString() : "openid";
+			List<String> requestedScopes = ensureOpenIdScope(providerDefaults.scopes());
+			List<String> effectiveScopes = requestedScopes;
+			if (opMeta.getScopes() != null)
+			{
+				Set<String> supportedScopes = opMeta.getScopes().stream()
+						.map(Scope.Value::getValue)
+						.collect(Collectors.toSet());
+				List<String> unsupportedScopes = requestedScopes.stream()
+						.filter(s -> !supportedScopes.contains(s))
+						.toList();
+				if (!unsupportedScopes.isEmpty())
+					log.warn("Federation OP {} does not advertise support for requested scope(s) {} "
+							+ "(supported: {}), removing them from the request", entityId, unsupportedScopes,
+							supportedScopes);
+				effectiveScopes = requestedScopes.stream().filter(supportedScopes::contains).toList();
+			}
+			effectiveScopes = ensureOpenIdScope(effectiveScopes);
+			String scopes = String.join(" ", effectiveScopes);
 			String name = opMeta.getOrganizationName() != null ? opMeta.getOrganizationName()
 					: opMeta.getIssuer() != null ? opMeta.getIssuer().getValue() : entityId;
 			URI logoUri = opMeta.getCustomURIParameter("logo_uri");
@@ -96,7 +117,8 @@ public class FederationEntityToProviderConverter
 					.withUserInfoEndpoints(userInfoEndpoint != null ? List.of(userInfoEndpoint) : List.of())
 					.withOpenIdDiscoveryEndpoint(discoveryEndpoint)
 					.withScopes(scopes)
-					.withAccessTokenFormat(AccessTokenFormat.standard)
+					.withAccessTokenFormat(providerDefaults.accessTokenFormat())
+					.withAdditionalAuthzParams(providerDefaults.additionalAuthzParams())
 					.withClientId(clientId)
 					.withClientAuthnMethod(ClientAuthnMethod.private_key_jwt)
 					.withClientCredential(clientCredential)
@@ -118,6 +140,15 @@ public class FederationEntityToProviderConverter
 			log.warn("Failed to convert federation entity to provider config", e);
 			return Optional.empty();
 		}
+	}
+
+	private static List<String> ensureOpenIdScope(List<String> scopes)
+	{
+		if (scopes.contains(OIDCScopeValue.OPENID.getValue()))
+			return scopes;
+		List<String> withOpenId = new ArrayList<>(scopes);
+		withOpenId.add(0, OIDCScopeValue.OPENID.getValue());
+		return withOpenId;
 	}
 
 	private String resolveFederationName(TrustChain chain, String federationId)

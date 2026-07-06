@@ -109,6 +109,7 @@ public class OAuthConfigurationTest
 				.update("federationJwtSigningAlg", "RS256")
 				.update("federationRequestACRs", "FIXED")
 				.update("federationRequestedACRsAreEssential", "true")
+				.update("federationAdditionalAuthzParams.1", "foo=bar")
 				.get();
 		sourceCfg.putAll(sourceProviderCfg);
 

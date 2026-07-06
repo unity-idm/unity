@@ -11,6 +11,8 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,6 +33,7 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthFederationConfig;
 import pl.edu.icm.unity.oauth.client.config.OAuthFederationProviderDefaults;
 import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
@@ -98,18 +101,23 @@ public class FederationEntityToProviderConverterTest
 	}
 
 	@Test
-	void shouldExtractScopesFromOpMeta() throws Exception
+	void shouldFilterRequestedScopesToThoseAdvertisedByOp() throws Exception
 	{
 		OIDCProviderMetadata opMeta = buildOpMeta("https://idp.example.com",
 				"https://auth.example.com", "https://token.example.com", null);
 		opMeta.setScopes(Scope.parse("openid email profile"));
 		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
 
-		OAuthProviderConfiguration provider = singleProvider(chain);
+		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
+				true, OAuthFederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
+						.withScopes(List.of("email", "profile", "address")).build(),
+				FEDERATION_CONFIG);
 
-		assertThat(provider.scopes()).contains("openid");
-		assertThat(provider.scopes()).contains("email");
-		assertThat(provider.scopes()).contains("profile");
+		String scopes = result.get(0).config().scopes();
+		assertThat(scopes).contains("openid");
+		assertThat(scopes).contains("email");
+		assertThat(scopes).contains("profile");
+		assertThat(scopes).doesNotContain("address");
 	}
 
 	@Test
@@ -122,6 +130,71 @@ public class FederationEntityToProviderConverterTest
 		OAuthProviderConfiguration provider = singleProvider(chain);
 
 		assertThat(provider.scopes()).isEqualTo("openid");
+	}
+
+	@Test
+	void shouldNotFilterRequestedScopesWhenOpDoesNotAdvertiseScopesSupported() throws Exception
+	{
+		OIDCProviderMetadata opMeta = buildOpMeta("https://idp.example.com",
+				"https://auth.example.com", "https://token.example.com", null);
+		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
+
+		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
+				true, OAuthFederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
+						.withScopes(List.of("custom_scope")).build(),
+				FEDERATION_CONFIG);
+
+		assertThat(result.get(0).config().scopes()).contains("openid", "custom_scope");
+	}
+
+	@Test
+	void shouldForceOpenidScopeEvenWhenOpDoesNotAdvertiseSupportForIt() throws Exception
+	{
+		OIDCProviderMetadata opMeta = buildOpMeta("https://idp.example.com",
+				"https://auth.example.com", "https://token.example.com", null);
+		opMeta.setScopes(Scope.parse("email"));
+		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
+
+		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
+				true, OAuthFederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
+						.withScopes(List.of("email")).build(),
+				FEDERATION_CONFIG);
+
+		assertThat(result.get(0).config().scopes()).contains("openid", "email");
+	}
+
+	@Test
+	void shouldSetAccessTokenFormatFromProviderDefaults() throws Exception
+	{
+		OIDCProviderMetadata opMeta = buildOpMeta("https://idp.example.com",
+				"https://auth.example.com", "https://token.example.com", null);
+		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
+
+		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
+				true, OAuthFederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
+						.withAccessTokenFormat(CustomProviderProperties.AccessTokenFormat.httpParams).build(),
+				FEDERATION_CONFIG);
+
+		assertThat(result.get(0).config().accessTokenFormat())
+				.isEqualTo(CustomProviderProperties.AccessTokenFormat.httpParams);
+	}
+
+	@Test
+	void shouldSetAdditionalAuthzParamsFromProviderDefaults() throws Exception
+	{
+		OIDCProviderMetadata opMeta = buildOpMeta("https://idp.example.com",
+				"https://auth.example.com", "https://token.example.com", null);
+		TrustChain chain = buildChain(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID, null);
+		NameValuePair param = new BasicNameValuePair("prompt", "consent");
+
+		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
+				true, OAuthFederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
+						.withAdditionalAuthzParams(List.of(param)).build(),
+				FEDERATION_CONFIG);
+
+		assertThat(result.get(0).config().additionalAuthzParams()).hasSize(1);
+		assertThat(result.get(0).config().additionalAuthzParams().get(0).getName()).isEqualTo("prompt");
+		assertThat(result.get(0).config().additionalAuthzParams().get(0).getValue()).isEqualTo("consent");
 	}
 
 	@Test
@@ -305,12 +378,16 @@ public class FederationEntityToProviderConverterTest
 		TrustChain chain = buildChainWithPolicy(LEAF_ENTITY_ID, opMeta, TRUST_ANCHOR_ID,
 				MetadataPolicy.parse("{\"scopes_supported\":{\"subset_of\":[\"openid\",\"email\"]}}"));
 
-		OAuthProviderConfiguration provider = singleProvider(chain);
+		List<FederationProvider> result = converter.convert(List.of(chain), CLIENT_ID, CLIENT_CREDENTIAL,
+				true, OAuthFederationProviderDefaults.builder().withTranslationProfile(TRANSLATION_PROFILE)
+						.withScopes(List.of("email", "profile", "phone")).build(),
+				FEDERATION_CONFIG);
+		String scopes = result.get(0).config().scopes();
 
-		assertThat(provider.scopes()).contains("openid");
-		assertThat(provider.scopes()).contains("email");
-		assertThat(provider.scopes()).doesNotContain("profile");
-		assertThat(provider.scopes()).doesNotContain("phone");
+		assertThat(scopes).contains("openid");
+		assertThat(scopes).contains("email");
+		assertThat(scopes).doesNotContain("profile");
+		assertThat(scopes).doesNotContain("phone");
 	}
 
 	// --- helpers ---

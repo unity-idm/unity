@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 class OAuthFederationSourceHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthFederationSourceHandler.class);
-	private static final Duration RERUN_INTERVAL = Duration.ofSeconds(5);
+	private static final Duration RERUN_INTERVAL = Duration.ofSeconds(30);
 
 	private final OAuthFederationLoader loader;
 	private final Map<String, ConsumerEntry> consumers = new LinkedHashMap<>();

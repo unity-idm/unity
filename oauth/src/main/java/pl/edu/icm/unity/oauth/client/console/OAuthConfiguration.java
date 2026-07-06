@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import io.imunity.vaadin.auth.binding.NameValuePairBinding;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
@@ -54,6 +56,9 @@ public class OAuthConfiguration
 	private RequestACRsMode federationProviderRequestACRsMode;
 	private List<String> federationProviderRequestedACRs;
 	private boolean federationProviderRequestedACRsAreEssential;
+	private List<String> federationProviderScopes;
+	private AccessTokenFormat federationProviderAccessTokenFormat;
+	private List<NameValuePairBinding> federationProviderAdditionalAuthzParams;
 
 	public OAuthConfiguration()
 	{
@@ -66,6 +71,9 @@ public class OAuthConfiguration
 		federationProviderRequestACRsMode = RequestACRsMode.NONE;
 		federationProviderRequestedACRs = new ArrayList<>();
 		federationProviderRequestedACRsAreEssential = false;
+		federationProviderScopes = new ArrayList<>(List.of("openid"));
+		federationProviderAccessTokenFormat = AccessTokenFormat.standard;
+		federationProviderAdditionalAuthzParams = new ArrayList<>();
 
 	}
 
@@ -122,6 +130,11 @@ public class OAuthConfiguration
 		federationProviderRequestedACRs = oauthProp.getListOfValues(OAuthClientProperties.FEDERATION_REQUESTED_ACRS);
 		federationProviderRequestedACRsAreEssential = oauthProp.getBooleanValue(
 				OAuthClientProperties.FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL);
+		federationProviderScopes = oauthProp.getListOfValues(OAuthClientProperties.FEDERATION_SCOPES);
+		federationProviderAccessTokenFormat = oauthProp.getEnumValue(
+				OAuthClientProperties.FEDERATION_ACCESS_TOKEN_FORMAT, AccessTokenFormat.class);
+		federationProviderAdditionalAuthzParams = parseAdditionalAuthzParams(
+				oauthProp.getListOfValues(OAuthClientProperties.FEDERATION_ADDITIONAL_AUTHZ_PARAMS));
 
 		providers.clear();
 		Set<String> keys = oauthProp.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
@@ -136,7 +149,24 @@ public class OAuthConfiguration
 		}
 	}
 
-	public String toProperties(MessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService, 
+	private static List<NameValuePairBinding> parseAdditionalAuthzParams(List<String> raw)
+	{
+		List<NameValuePairBinding> ret = new ArrayList<>(raw.size());
+		for (String rawParam : raw)
+		{
+			int splitAt = rawParam.indexOf('=');
+			if (splitAt == -1 || splitAt == rawParam.length() - 1)
+			{
+				log.warn("Specification of extra federation authz query parameter is invalid: "
+						+ rawParam + " ignoring it");
+				continue;
+			}
+			ret.add(new NameValuePairBinding(rawParam.substring(0, splitAt), rawParam.substring(splitAt + 1)));
+		}
+		return ret;
+	}
+
+	public String toProperties(MessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService,
 			String authName) throws ConfigurationException
 	{
 		Properties raw = new Properties();
@@ -214,6 +244,20 @@ public class OAuthConfiguration
 							federationProviderRequestedACRs.get(i));
 			raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL,
 					String.valueOf(federationProviderRequestedACRsAreEssential));
+			if (federationProviderScopes != null)
+				for (int i = 0; i < federationProviderScopes.size(); i++)
+					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_SCOPES + (i + 1),
+							federationProviderScopes.get(i));
+			if (federationProviderAccessTokenFormat != null)
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_ACCESS_TOKEN_FORMAT,
+						federationProviderAccessTokenFormat.name());
+			if (federationProviderAdditionalAuthzParams != null)
+				for (int i = 0; i < federationProviderAdditionalAuthzParams.size(); i++)
+				{
+					NameValuePairBinding nvPair = federationProviderAdditionalAuthzParams.get(i);
+					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_ADDITIONAL_AUTHZ_PARAMS
+							+ (i + 1), nvPair.getName() + "=" + nvPair.getValue());
+				}
 		}
 
 		for (OAuthProviderConfiguration provider : providers)
@@ -414,5 +458,36 @@ public class OAuthConfiguration
 	public void setFederationLogoUri(String federationLogoUri)
 	{
 		this.federationLogoUri = federationLogoUri;
+	}
+
+	public List<String> getFederationProviderScopes()
+	{
+		return federationProviderScopes;
+	}
+
+	public void setFederationProviderScopes(List<String> federationProviderScopes)
+	{
+		this.federationProviderScopes = federationProviderScopes;
+	}
+
+	public AccessTokenFormat getFederationProviderAccessTokenFormat()
+	{
+		return federationProviderAccessTokenFormat;
+	}
+
+	public void setFederationProviderAccessTokenFormat(AccessTokenFormat federationProviderAccessTokenFormat)
+	{
+		this.federationProviderAccessTokenFormat = federationProviderAccessTokenFormat;
+	}
+
+	public List<NameValuePairBinding> getFederationProviderAdditionalAuthzParams()
+	{
+		return federationProviderAdditionalAuthzParams;
+	}
+
+	public void setFederationProviderAdditionalAuthzParams(
+			List<NameValuePairBinding> federationProviderAdditionalAuthzParams)
+	{
+		this.federationProviderAdditionalAuthzParams = federationProviderAdditionalAuthzParams;
 	}
 }

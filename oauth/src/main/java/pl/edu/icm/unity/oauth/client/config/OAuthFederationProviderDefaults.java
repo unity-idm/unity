@@ -6,19 +6,28 @@ package pl.edu.icm.unity.oauth.client.config;
 
 import java.util.List;
 
+import org.apache.hc.core5.http.NameValuePair;
+
 import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 
 public record OAuthFederationProviderDefaults(
 		TranslationProfile translationProfile,
 		String registrationForm,
 		RequestACRsMode requestACRsMode,
 		List<String> requestedACRs,
-		boolean requestedACRsAreEssential)
+		boolean requestedACRsAreEssential,
+		List<String> scopes,
+		AccessTokenFormat accessTokenFormat,
+		List<NameValuePair> additionalAuthzParams)
 {
 	public OAuthFederationProviderDefaults
 	{
 		requestACRsMode = requestACRsMode != null ? requestACRsMode : RequestACRsMode.NONE;
 		requestedACRs = requestedACRs != null ? List.copyOf(requestedACRs) : List.of();
+		scopes = scopes != null ? List.copyOf(scopes) : List.of();
+		accessTokenFormat = accessTokenFormat != null ? accessTokenFormat : AccessTokenFormat.standard;
+		additionalAuthzParams = additionalAuthzParams != null ? List.copyOf(additionalAuthzParams) : List.of();
 	}
 
 	public static Builder builder()
@@ -33,6 +42,9 @@ public record OAuthFederationProviderDefaults(
 		private RequestACRsMode requestACRsMode;
 		private List<String> requestedACRs;
 		private boolean requestedACRsAreEssential;
+		private List<String> scopes;
+		private AccessTokenFormat accessTokenFormat;
+		private List<NameValuePair> additionalAuthzParams;
 
 		private Builder() {}
 
@@ -66,10 +78,28 @@ public record OAuthFederationProviderDefaults(
 			return this;
 		}
 
+		public Builder withScopes(List<String> scopes)
+		{
+			this.scopes = scopes;
+			return this;
+		}
+
+		public Builder withAccessTokenFormat(AccessTokenFormat accessTokenFormat)
+		{
+			this.accessTokenFormat = accessTokenFormat;
+			return this;
+		}
+
+		public Builder withAdditionalAuthzParams(List<NameValuePair> additionalAuthzParams)
+		{
+			this.additionalAuthzParams = additionalAuthzParams;
+			return this;
+		}
+
 		public OAuthFederationProviderDefaults build()
 		{
 			return new OAuthFederationProviderDefaults(translationProfile, registrationForm, requestACRsMode,
-					requestedACRs, requestedACRsAreEssential);
+					requestedACRs, requestedACRsAreEssential, scopes, accessTokenFormat, additionalAuthzParams);
 		}
 	}
 }

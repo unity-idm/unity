@@ -11,6 +11,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -549,7 +550,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			MultiMap<String> map = new MultiMap<>();
 			UrlEncoded.decodeTo(Optional.ofNullable(response.getBody())
 					.map(r -> r.trim())
-					.orElse(""), map, java.nio.charset.StandardCharsets.UTF_8);
+					.orElse(""), map, StandardCharsets.UTF_8);
 			String accessTokenVal = map.getString("access_token");
 			if (accessTokenVal == null)
 				throw new AuthenticationException("Access token answer received doesn't contain "

@@ -59,6 +59,9 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 	public static final String FEDERATION_REQUEST_ACRS_MODE = "federationRequestACRs";
 	public static final String FEDERATION_REQUESTED_ACRS = "federationRequestedACRs.";
 	public static final String FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL = "federationRequestedACRsAreEssential";
+	public static final String FEDERATION_SCOPES = "federationScopes.";
+	public static final String FEDERATION_ACCESS_TOKEN_FORMAT = "federationAccessTokenFormat";
+	public static final String FEDERATION_ADDITIONAL_AUTHZ_PARAMS = "federationAdditionalAuthzParams.";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -117,6 +120,15 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 		META.put(FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL, new PropertyMD("false").setDescription(
 				"Whether the requested ACR values are essential (true) or voluntary (false). "
 				+ "Used only when " + FEDERATION_REQUEST_ACRS_MODE + " is set to FIXED."));
+		META.put(FEDERATION_SCOPES, new PropertyMD().setList(true).setDescription(
+				"Additional authorization scopes to request from providers discovered from the federation, "
+				+ "besides the always implied 'openid' scope."));
+		META.put(FEDERATION_ACCESS_TOKEN_FORMAT, new PropertyMD(CustomProviderProperties.AccessTokenFormat.standard)
+				.setDescription("Access token format to use for providers discovered from the federation."));
+		META.put(FEDERATION_ADDITIONAL_AUTHZ_PARAMS, new PropertyMD().setList(false).setDescription(
+				"Allows to specify non-standard, fixed parameters which shall be added to the query string "
+				+ "of the authorization redirect request, for providers discovered from the federation. "
+				+ "format must be: PARAM=VALUE"));
 	}
 
 	private final Map<String, CustomProviderProperties> providers = new HashMap<>();

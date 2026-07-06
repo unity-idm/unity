@@ -17,6 +17,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -56,8 +57,10 @@ import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.EnumComboBox;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.elements.grid.EditableGrid;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
+import io.imunity.vaadin.auth.binding.NameValuePairBinding;
 import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
 import io.imunity.vaadin.endpoint.common.api.SubViewSwitcher;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
@@ -74,6 +77,7 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.oauth.client.ResponseConsumerServlet;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.token.JwksParseUtils;
 import pl.edu.icm.unity.oauth.client.federation.OAuthFederationEntityStatementServlet;
@@ -362,6 +366,24 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		providerDefaultsForm.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		providerDefaultsForm.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
+		MultiSelectComboBox<String> federationScopes = new CustomValuesMultiSelectComboBox();
+		federationScopes.setWidth(TEXT_FIELD_BIG.value());
+		federationScopes.setPlaceholder(msg.getMessage("typeAndConfirm"));
+		configBinder.forField(federationScopes)
+				.withConverter(List::copyOf, HashSet::new)
+				.bind(OAuthConfiguration::getFederationProviderScopes, OAuthConfiguration::setFederationProviderScopes);
+		providerDefaultsForm.addFormItem(federationScopes,
+				msg.getMessage("OAuthAuthenticatorEditor.federationProviderScopes"));
+		federationScopes.addValueChangeListener(e ->
+		{
+			if (!e.getValue().contains("openid"))
+			{
+				Set<String> withOpenId = new LinkedHashSet<>(e.getValue());
+				withOpenId.add("openid");
+				federationScopes.setValue(withOpenId);
+			}
+		});
+
 		ComboBox<String> federationRegistrationForm = new ComboBox<>();
 		federationRegistrationForm.setItems(getRegistrationFormNames());
 		federationRegistrationForm.setClearButtonVisible(true);
@@ -405,6 +427,30 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			requestedACRs.setEnabled(isFixed);
 			essentialACRs.setEnabled(isFixed);
 		});
+
+		Select<AccessTokenFormat> federationAccessTokenFormat = new Select<>();
+		federationAccessTokenFormat.setItems(AccessTokenFormat.values());
+		configBinder.forField(federationAccessTokenFormat)
+				.bind(OAuthConfiguration::getFederationProviderAccessTokenFormat,
+						OAuthConfiguration::setFederationProviderAccessTokenFormat);
+		providerDefaultsForm.addFormItem(federationAccessTokenFormat,
+				msg.getMessage("OAuthAuthenticatorEditor.federationProviderAccessTokenFormat"));
+
+		EditableGrid<NameValuePairBinding> federationAdditionalAuthzParams =
+				new EditableGrid<>(msg::getMessage, NameValuePairBinding::new);
+		federationAdditionalAuthzParams.setWidth(TEXT_FIELD_BIG.value());
+		federationAdditionalAuthzParams.setHeight("20em");
+		providerDefaultsForm.addFormItem(federationAdditionalAuthzParams,
+				msg.getMessage("OAuthAuthenticatorEditor.federationProviderAdditionalAuthzParams"));
+		federationAdditionalAuthzParams.addColumn(NameValuePairBinding::getName, NameValuePairBinding::setName, true)
+				.setHeader(msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameter.name"))
+				.setAutoWidth(true);
+		federationAdditionalAuthzParams.addColumn(NameValuePairBinding::getValue, NameValuePairBinding::setValue, true)
+				.setHeader(msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameter.value"))
+				.setAutoWidth(true);
+		configBinder.forField(federationAdditionalAuthzParams)
+				.bind(OAuthConfiguration::getFederationProviderAdditionalAuthzParams,
+						OAuthConfiguration::setFederationProviderAdditionalAuthzParams);
 
 		AccordionPanel federationTranslationProfilePanel = profileFieldFactory.getWrappedFieldInstance(
 				subViewSwitcher, configBinder, "federationProviderTranslationProfile");

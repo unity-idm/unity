@@ -224,6 +224,58 @@ public class OAuthClientConfigurationParserTest
 	}
 
 	@Test
+	public void shouldParseFederationScopes()
+	{
+		Properties p = minimalProviderProps(GOOGLE);
+		p.setProperty(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_SCOPES + "1", "email");
+		p.setProperty(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_SCOPES + "2", "profile");
+
+		OAuthClientConfiguration config = parser.parse(p);
+
+		assertThat(config.federationProviderDefaults().scopes()).containsExactlyInAnyOrder("email", "profile");
+	}
+
+	@Test
+	public void shouldParseFederationAccessTokenFormat()
+	{
+		Properties p = minimalProviderProps(GOOGLE);
+		p.setProperty(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_ACCESS_TOKEN_FORMAT, "httpParams");
+
+		OAuthClientConfiguration config = parser.parse(p);
+
+		assertThat(config.federationProviderDefaults().accessTokenFormat())
+				.isEqualTo(CustomProviderProperties.AccessTokenFormat.httpParams);
+	}
+
+	@Test
+	public void shouldDefaultFederationAccessTokenFormatToStandard()
+	{
+		Properties p = minimalProviderProps(GOOGLE);
+
+		OAuthClientConfiguration config = parser.parse(p);
+
+		assertThat(config.federationProviderDefaults().accessTokenFormat())
+				.isEqualTo(CustomProviderProperties.AccessTokenFormat.standard);
+	}
+
+	@Test
+	public void shouldParseFederationAdditionalAuthzParams()
+	{
+		Properties p = minimalProviderProps(GOOGLE);
+		p.setProperty(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_ADDITIONAL_AUTHZ_PARAMS + "1",
+				"prompt=consent");
+
+		OAuthClientConfiguration config = parser.parse(p);
+
+		assertThat(config.federationProviderDefaults().additionalAuthzParams()).hasSize(1);
+		assertThat(config.federationProviderDefaults().additionalAuthzParams()).anySatisfy(nvp ->
+		{
+			assertThat(nvp.getName()).isEqualTo("prompt");
+			assertThat(nvp.getValue()).isEqualTo("consent");
+		});
+	}
+
+	@Test
 	public void shouldParseClientCredential()
 	{
 		Properties p = minimalProviderProps(GOOGLE);
