@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2024 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.

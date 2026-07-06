@@ -10,6 +10,9 @@ import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL;
 import static io.imunity.vaadin.elements.CssClassNames.EDIT_VIEW_ACTION_BUTTONS_LAYOUT;
 
+import java.security.PrivateKey;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,6 +36,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.Validator;
+
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSAlgorithm.Family;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.console.utils.tprofile.InputTranslationProfileFieldFactory;
@@ -222,17 +228,19 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 				.bind(OAuthBaseConfiguration::getClientSecret, OAuthBaseConfiguration::setClientSecret);
 		FormItem clientSecretItem = header.addFormItem(clientSecret, msg.getMessage("EditOAuthProviderSubView.clientSecret"));
 
+		Select<SigningAlgorithms> clientJwtSigningAlg = new Select<>();
+
 		Select<String> clientCredential = new Select<>();
 		clientCredential.setWidth(TEXT_FIELD_MEDIUM.value());
 		clientCredential.setItems(getCredentialNames());
 		clientCredential.setEmptySelectionAllowed(true);
 		configBinder.forField(clientCredential)
+				.withValidator((v, c) -> validateClientCredential(v, clientJwtSigningAlg.getValue()))
 				.bind(OAuthBaseConfiguration::getClientCredential, OAuthBaseConfiguration::setClientCredential);
 		FormItem clientCredentialItem = header.addFormItem(clientCredential,
 				msg.getMessage("EditOAuthProviderSubView.clientCredential"));
 		clientCredentialItem.setVisible(false);
 
-		Select<SigningAlgorithms> clientJwtSigningAlg = new Select<>();
 		clientJwtSigningAlg.setWidth(TEXT_FIELD_MEDIUM.value());
 		clientJwtSigningAlg.setItems(SigningAlgorithms.values());
 		clientJwtSigningAlg.setEmptySelectionAllowed(true);
@@ -447,6 +455,34 @@ class EditOAuthProviderSubView extends VerticalLayout implements UnitySubView
 			notificationPresenter.showError("Can not load credentials", e.getMessage());
 			return new HashSet<>();
 		}
+	}
+
+	private ValidationResult validateClientCredential(String credential, SigningAlgorithms signingAlg)
+	{
+		if (!ClientAuthnMethod.private_key_jwt.equals(clientAuthMethod.getValue()) || signingAlg == null)
+			return ValidationResult.ok();
+
+		if (credential == null || credential.isEmpty())
+			return ValidationResult.error(msg.getMessage("fieldRequired"));
+
+		PrivateKey pk;
+		try
+		{
+			pk = pkiMan.getCredential(credential).getKey();
+		} catch (EngineException e)
+		{
+			return ValidationResult.error(msg.getMessage("OAuthEditorGeneralTab.credentialError"));
+		}
+		if (pk == null)
+			return ValidationResult.error(msg.getMessage("OAuthEditorGeneralTab.credentialError"));
+
+		JWSAlgorithm alg = JWSAlgorithm.parse(signingAlg.toString());
+		if (!(pk instanceof RSAPrivateKey) && Family.RSA.contains(alg))
+			return ValidationResult.error(msg.getMessage("OAuthEditorGeneralTab.privateKeyError", "RSA", "RS"));
+		if (!(pk instanceof ECPrivateKey) && Family.EC.contains(alg))
+			return ValidationResult.error(msg.getMessage("OAuthEditorGeneralTab.privateKeyError", "EC", "ES"));
+
+		return ValidationResult.ok();
 	}
 
 	private Properties addEmptyProviderConfig(Properties raw, String key)

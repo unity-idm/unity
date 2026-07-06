@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as.token.authn;
 
-import java.text.ParseException;
 import java.util.Optional;
 
 import com.vaadin.flow.component.Component;
@@ -18,6 +17,7 @@ import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorCon
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
+import pl.edu.icm.unity.oauth.as.token.JwksParseUtils;
 
 class ClientPublicKeysCredentialEditor implements CredentialEditor
 {
@@ -57,14 +57,10 @@ class ClientPublicKeysCredentialEditor implements CredentialEditor
 		String value = jwksField.getValue();
 		if (value == null || value.isBlank())
 			return "";
-		try
-		{
-			com.nimbusds.jose.jwk.JWKSet.parse(value);
-		} catch (ParseException e)
-		{
+		Optional<String> error = JwksParseUtils.validationError(value);
+		if (error.isPresent())
 			throw new IllegalCredentialException(
-					msg.getMessage("ClientPublicKeysCredentialEditor.invalidJwks") + ": " + e.getMessage());
-		}
+					msg.getMessage("ClientPublicKeysCredentialEditor.invalidJwks") + ": " + error.get());
 		return value;
 	}
 
@@ -78,6 +74,6 @@ class ClientPublicKeysCredentialEditor implements CredentialEditor
 	@Override
 	public boolean isUserConfigurable()
 	{
-		return false;
+		return true;
 	}
 }

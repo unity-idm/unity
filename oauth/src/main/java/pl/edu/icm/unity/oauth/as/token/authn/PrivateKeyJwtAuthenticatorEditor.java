@@ -20,6 +20,7 @@ import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorDefinition;
 
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 class PrivateKeyJwtAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
@@ -40,6 +41,8 @@ class PrivateKeyJwtAuthenticatorEditor extends BaseLocalAuthenticatorEditor impl
 	{
 		boolean editMode = init(msg.getMessage("PrivateKeyJwtAuthenticatorEditor.defaultName"), toEdit,
 				forceNameEditable);
+
+		localCredential.setWidth(TEXT_FIELD_MEDIUM.value());
 
 		FormLayout header = new FormLayout();
 		header.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
