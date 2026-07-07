@@ -64,6 +64,44 @@ public class ClasspathResourceReader
 		return jsons;
 	}
 	
+	public Collection<NamedJson> readNamedJsons(String path) throws EngineException
+	{
+		ArrayList<NamedJson> jsons = new ArrayList<>();
+		Resource[] resources = getResources(path + "/*.json");
+
+		if (resources == null || resources.length == 0)
+		{
+			return jsons;
+		}
+
+		try
+		{
+			for (Resource r : resources)
+			{
+				String source = IOUtils.toString(r.getInputStream(), StandardCharsets.UTF_8);
+				jsons.add(new NamedJson(r.getFilename(), JsonUtil.parse(source)));
+			}
+
+		} catch (Exception e)
+		{
+			throw new InternalException("Can't load json files from classpath: " + path,
+					e);
+		}
+		return jsons;
+	}
+
+	public static class NamedJson
+	{
+		public final String filename;
+		public final ObjectNode json;
+
+		NamedJson(String filename, ObjectNode json)
+		{
+			this.filename = filename;
+			this.json = json;
+		}
+	}
+
 	public List<Resource> getResourcesFromClasspath(String path)
 	{
 		Resource[] resources = getResources(path + "/*.json");
@@ -79,7 +117,7 @@ public class ClasspathResourceReader
 		Resource[] resources = null;
 		try
 		{
-			resources = appContext.getResources("classpath:" + path);
+			resources = appContext.getResources("classpath*:" + path);
 		} catch (Exception e)
 		{
 			// empty path
