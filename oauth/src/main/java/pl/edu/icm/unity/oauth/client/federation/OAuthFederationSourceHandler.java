@@ -91,8 +91,8 @@ class OAuthFederationSourceHandler
 				anySuccess = true;
 			} catch (Exception e)
 			{
-				log.error("Error refreshing federation providers for consumer {}, will retry in {}s",
-						entry.id, RERUN_INTERVAL.toSeconds(), e);
+				log.error("Error refreshing federation providers for consumer {} using truststore {}, will retry in {}s",
+						entry.id, entry.config.truststore(), RERUN_INTERVAL.toSeconds(), e);
 			}
 		}
 		if (anySuccess)

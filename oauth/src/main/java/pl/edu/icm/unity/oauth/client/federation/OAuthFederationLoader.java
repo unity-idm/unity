@@ -89,7 +89,7 @@ class OAuthFederationLoader
 		} catch (ResolveException e)
 		{
 			throw new IOException("Failed to fetch entity configuration for trust anchor "
-					+ config.trustAnchorEntityId(), e);
+					+ config.trustAnchorEntityId() + " using truststore " + config.truststore(), e);
 		}
 		FederationEntityMetadata fedMeta = entityConfig.getClaimsSet().getFederationEntityMetadata();
 		if (fedMeta == null || fedMeta.getFederationListEndpointURI() == null)
@@ -121,7 +121,7 @@ class OAuthFederationLoader
 			return Optional.of(shortest);
 		} catch (ResolveException e)
 		{
-			log.warn("Failed to resolve trust chain for entity {}", entityId, e);
+			log.warn("Failed to resolve trust chain for entity {} using truststore {}", entityId, config.truststore(), e);
 			return Optional.empty();
 		}
 	}
