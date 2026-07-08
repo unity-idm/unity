@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -554,10 +555,16 @@ class OAuthServiceController implements IdpServiceController
 			attrMan.setAttribute(entity, uris);
 		}
 
-		if (client.getName() != null && clientNameAttr != null)
+		if (clientNameAttr != null)
 		{
-			Attribute name = StringAttribute.of(clientNameAttr, "/", client.getName());
-			attrMan.setAttribute(entity, name);
+			if (StringUtils.isNotBlank(client.getName()))
+			{
+				Attribute name = StringAttribute.of(clientNameAttr, "/", client.getName());
+				attrMan.setAttribute(entity, name);
+			} else
+			{
+				log.warn("Skipping empty name attribute update for OAuth client {}", client.getId());
+			}
 		}
 
 		if (client.getClientAuthnMethod() != null)

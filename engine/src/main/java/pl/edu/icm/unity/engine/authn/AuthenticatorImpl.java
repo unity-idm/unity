@@ -46,13 +46,16 @@ class AuthenticatorImpl implements AuthenticatorInstance
 	{
 		retrieval.setSerializedConfiguration(retrievalConfiguration);
 		verificator.setSerializedConfiguration(verificatorConfiguration);
-		if (!(verificator.getType().equals(VerificatorType.Local)))
-		{
-			instanceDescription.setConfiguration(verificatorConfiguration);
-		} else 
+		if (verificator.getType().equals(VerificatorType.Local))
 		{
 			instanceDescription.setConfiguration(null);
-			((LocalCredentialVerificator)verificator).setCredentialName(localCredential);
+		} else
+		{
+			instanceDescription.setConfiguration(verificatorConfiguration);
+		}
+		if (verificator instanceof LocalCredentialVerificator && localCredential != null)
+		{
+			((LocalCredentialVerificator) verificator).setCredentialName(localCredential);
 			instanceDescription.setLocalCredentialName(localCredential);
 		}
 	}

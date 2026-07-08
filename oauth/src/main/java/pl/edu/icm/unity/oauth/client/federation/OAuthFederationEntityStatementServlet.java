@@ -5,10 +5,11 @@
 package pl.edu.icm.unity.oauth.client.federation;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.logging.log4j.Logger;
 
-import com.nimbusds.oauth2.sdk.http.JakartaServletUtils;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.openid.connect.sdk.federation.api.FetchEntityStatementSuccessResponse;
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 
@@ -62,8 +63,12 @@ public class OAuthFederationEntityStatementServlet extends HttpServlet
 		try
 		{
 			EntityStatement entityStatement = OAuthFederationEntityStatementGenerator.generate(config);
-			JakartaServletUtils.applyHTTPResponse(
-					new FetchEntityStatementSuccessResponse(entityStatement).toHTTPResponse(), resp);
+			HTTPResponse httpResponse = new FetchEntityStatementSuccessResponse(entityStatement).toHTTPResponse();
+			resp.setStatus(httpResponse.getStatusCode());
+			if (httpResponse.getEntityContentType() != null)
+				resp.setContentType(httpResponse.getEntityContentType().toString());
+			if (httpResponse.getBody() != null)
+				resp.getOutputStream().write(httpResponse.getBody().getBytes(StandardCharsets.US_ASCII));
 		} catch (Exception e)
 		{
 			log.error("Failed to generate federation entity statement for authenticator: " + authenticatorName, e);

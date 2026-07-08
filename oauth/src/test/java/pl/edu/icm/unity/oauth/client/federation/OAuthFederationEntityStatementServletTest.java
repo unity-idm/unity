@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.client.federation;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -12,8 +13,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -115,17 +118,62 @@ class OAuthFederationEntityStatementServletTest
 		when(req.getPathInfo()).thenReturn(
 				"/" + AUTHENTICATOR_NAME + OAuthFederationEntityStatementServlet.WELL_KNOWN_SUFFIX);
 		when(manager.getConfiguration(AUTHENTICATOR_NAME)).thenReturn(config);
-		StringWriter sw = new StringWriter();
-		lenient().when(resp.getWriter()).thenReturn(new PrintWriter(sw));
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		lenient().when(resp.getOutputStream()).thenReturn(new StubServletOutputStream(baos));
 
 		servlet.doGet(req, resp);
 
 		verify(resp, never()).sendError(anyInt(), anyString());
+		assertThat(baos.toByteArray()).isNotEmpty();
+	}
+
+	@Test
+	void shouldSetContentTypeWithoutCharsetSuffix() throws Exception
+	{
+		X509Credential credential = rsaCredential();
+		OAuthFederationEntityStatementConfig config = new OAuthFederationEntityStatementConfig(
+				ENTITY_ID, credential, null, CALLBACK_URL, null, 3600, null, null);
+		when(req.getPathInfo()).thenReturn(
+				"/" + AUTHENTICATOR_NAME + OAuthFederationEntityStatementServlet.WELL_KNOWN_SUFFIX);
+		when(manager.getConfiguration(AUTHENTICATOR_NAME)).thenReturn(config);
+		lenient().when(resp.getOutputStream())
+				.thenReturn(new StubServletOutputStream(new ByteArrayOutputStream()));
+
+		servlet.doGet(req, resp);
+
+		verify(resp).setContentType("application/entity-statement+jwt");
 	}
 
 	private static X509Credential rsaCredential() throws Exception
 	{
 		return new KeystoreCredential(RSA_KEYSTORE,
 				RSA_KEYSTORE_PASS.toCharArray(), RSA_KEYSTORE_PASS.toCharArray(), null, "pkcs12");
+	}
+
+	private static class StubServletOutputStream extends ServletOutputStream
+	{
+		private final ByteArrayOutputStream delegate;
+
+		StubServletOutputStream(ByteArrayOutputStream delegate)
+		{
+			this.delegate = delegate;
+		}
+
+		@Override
+		public void write(int b) throws IOException
+		{
+			delegate.write(b);
+		}
+
+		@Override
+		public boolean isReady()
+		{
+			return true;
+		}
+
+		@Override
+		public void setWriteListener(WriteListener writeListener)
+		{
+		}
 	}
 }
