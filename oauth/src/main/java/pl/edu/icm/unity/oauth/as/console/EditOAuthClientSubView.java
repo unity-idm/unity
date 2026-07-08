@@ -138,8 +138,8 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		TextField name = new TextField();
-		binder.forField(name).withValidator((v, c) -> {
-			if (v != null && v.length() == 1)
+		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).withValidator((v, c) -> {
+			if (v != null && v.length() < 2)
 			{
 				return ValidationResult.error(msg.getMessage("toShortValue"));
 			}
