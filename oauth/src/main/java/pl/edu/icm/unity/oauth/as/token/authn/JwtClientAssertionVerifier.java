@@ -32,6 +32,7 @@ class JwtClientAssertionVerifier
 {
 	static final Duration MAX_ASSERTION_LIFETIME = Duration.ofMinutes(5);
 	private static final Duration CLOCK_SKEW = Duration.ofSeconds(30);
+	private static final int MAX_TRACKED_JTIS = 1000000;
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, JwtClientAssertionVerifier.class);
 
 	private final ConcurrentHashMap<String, Instant> seenJtis = new ConcurrentHashMap<>();
@@ -98,7 +99,10 @@ class JwtClientAssertionVerifier
 			throws AuthenticationException
 	{
 		evictExpiredJtis();
-		if (seenJtis.putIfAbsent(jti, expiry) != null)
+		if (seenJtis.size() >= MAX_TRACKED_JTIS)
+			throw new AuthenticationException(
+					"Too many concurrently tracked JWT assertions, try again later");
+		if (seenJtis.putIfAbsent(jti, expiry.plus(CLOCK_SKEW)) != null)
 			throw new AuthenticationException(
 					"JWT assertion jti has already been used (replay detected): " + jti);
 	}

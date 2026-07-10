@@ -109,7 +109,10 @@ public class OAuthConfiguration
 				federationJwtSigningAlgorithm = SigningAlgorithms.valueOf(federationJwtSigningAlgStr);
 			} catch (IllegalArgumentException e)
 			{
-				log.warn("Unknown federation JWT signing algorithm: {}", federationJwtSigningAlgStr);
+				log.warn("Unknown federation JWT signing algorithm '{}', ignoring it - "
+						+ "the algorithm will be derived from the key type instead, "
+						+ "and the invalid value will be dropped if this configuration is saved",
+						federationJwtSigningAlgStr);
 			}
 		}
 		federationMetadataValidity = oauthProp.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY);

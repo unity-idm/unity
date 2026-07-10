@@ -116,7 +116,10 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 				setClientJwtSigningAlg(SigningAlgorithms.valueOf(source.getValue(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG)));
 			} catch (IllegalArgumentException e)
 			{
-				log.warn("Unknown JWT signing algorithm: {}", source.getValue(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG));
+				log.warn("Unknown JWT signing algorithm '{}', ignoring it - "
+						+ "the algorithm will be derived from the key type instead, "
+						+ "and the invalid value will be dropped if this configuration is saved",
+						source.getValue(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG));
 			}
 		}
 		setClientAuthenticationMode(
