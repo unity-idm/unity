@@ -11,8 +11,6 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.translation.ProfileMode;
@@ -20,6 +18,7 @@ import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.utils.ClasspathResourceReader;
+import pl.edu.icm.unity.engine.utils.ClasspathResourceReader.NamedJson;
 
 /**
  * Base for all system translation profile providers
@@ -53,8 +52,8 @@ public abstract class SystemTranslationProfileProviderBase
 		try
 		{
 
-			Collection<ObjectNode> jsons = classPathReader
-					.readJsons(TRANSLATION_PROFILE_CLASSPATH + "/" + type);
+			Collection<NamedJson> jsons = classPathReader
+					.readNamedJsons(TRANSLATION_PROFILE_CLASSPATH + "/" + type);
 
 			if (jsons.isEmpty())
 			{
@@ -63,9 +62,9 @@ public abstract class SystemTranslationProfileProviderBase
 				return;
 			}
 
-			for (ObjectNode json : jsons)
+			for (NamedJson namedJson : jsons)
 			{
-				TranslationProfile tp = new TranslationProfile(json);
+				TranslationProfile tp = new TranslationProfile(namedJson.json);
 				tp.setProfileMode(ProfileMode.READ_ONLY);
 				checkProfile(tp);
 				LOG.debug("Add system {} translation profile '{}'", type, tp);

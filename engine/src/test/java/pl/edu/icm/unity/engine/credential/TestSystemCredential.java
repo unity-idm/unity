@@ -44,14 +44,14 @@ public class TestSystemCredential extends DBIntegrationTestBase
 	}
 		
 	@Test
-	public void systemCredentialShouldBeOverriddenByOverrideFile() throws EngineException
+	public void systemCredentialShouldBeOverriddenByTestFile() throws EngineException
 	{
 		CredentialDefinition password = credMan.getCredentialDefinitions().stream()
 				.filter(c -> c.getName().equals(EngineInitialization.DEFAULT_CREDENTIAL))
 				.findFirst()
 				.orElseThrow();
 
-		// engine/src/test/resources/credentials/password.override.json overrides
+		// engine/src/test/resources/credentials/password-test.json overrides
 		// engine/src/main/resources/credentials/password.json, replacing scrypt's
 		// workFactor 17 with 10 and dropping the minScore requirement
 		assertThat(password.getConfiguration()).contains("\"workFactor\":10");

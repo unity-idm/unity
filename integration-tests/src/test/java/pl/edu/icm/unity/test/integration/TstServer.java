@@ -7,14 +7,16 @@ package pl.edu.icm.unity.test.integration;
 import java.io.IOException;
 
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.server.UnityApplication;
 
 
 public class TstServer
 {
-	public static void main(String... args) throws IOException 
+	public static void main(String... args) throws IOException
 	{
-		UnityApplication theServer = new UnityApplication(MessageSource.PROFILE_FAIL_ON_MISSING);
+		UnityApplication theServer = new UnityApplication(MessageSource.PROFILE_FAIL_ON_MISSING,
+				UnityServerConfiguration.PROFILE_TEST);
 		theServer.run(new String[] {"src/test/resources/unityServer.conf"});
 	}
 }
