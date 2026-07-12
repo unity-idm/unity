@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.as.token.authn;
 
 import java.net.URI;
+import java.time.Duration;
 
 import org.apache.logging.log4j.Logger;
 
@@ -19,12 +20,12 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.LocalAuthenticationResult;
 
-class ClientAssertionVerificationFlow
+public class ClientAssertionVerificationFlow
 {
-	record JwksResolution(long entityId, JWKSet jwks) {}
+	public record JwksResolution(long entityId, JWKSet jwks) {}
 
 	@FunctionalInterface
-	interface JwksResolver
+	public interface JwksResolver
 	{
 		JwksResolution resolve(String clientId) throws Exception;
 	}
@@ -33,7 +34,12 @@ class ClientAssertionVerificationFlow
 
 	private final JwtClientAssertionVerifier jwtVerifier = new JwtClientAssertionVerifier();
 
-	AuthenticationResult verify(String assertion, URI canonicalTokenEndpointUri,
+	public void setClockSkew(Duration clockSkew)
+	{
+		jwtVerifier.setClockSkew(clockSkew);
+	}
+
+	public AuthenticationResult verify(String assertion, URI canonicalTokenEndpointUri,
 			ResolvableError error, JwksResolver resolver)
 	{
 		SignedJWT jwt;

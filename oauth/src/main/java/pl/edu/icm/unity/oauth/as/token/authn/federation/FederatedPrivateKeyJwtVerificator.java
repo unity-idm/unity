@@ -2,19 +2,25 @@
  * Copyright (c) 2024 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token.authn;
+package pl.edu.icm.unity.oauth.as.token.authn.federation;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
+import java.time.Duration;
 import java.util.Optional;
+import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -25,6 +31,9 @@ import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.federation.FederatedOAuthClientService;
 import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
 import pl.edu.icm.unity.oauth.as.federation.FederatedOAuthClientService.FederatedClientResolution;
+import pl.edu.icm.unity.oauth.as.token.authn.ClientAssertionExchange;
+import pl.edu.icm.unity.oauth.as.token.authn.ClientAssertionVerificationFlow;
+import pl.edu.icm.unity.oauth.as.token.authn.JwtClientAssertionVerifier;
 
 @PrototypeComponent
 public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator implements ClientAssertionExchange
@@ -38,6 +47,7 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 	private final OAuthEndpointsCoordinator coordinator;
 	private final FederatedOAuthClientService federationClientService;
 	private final ClientAssertionVerificationFlow verificationFlow = new ClientAssertionVerificationFlow();
+	private int clockSkewSeconds = (int) JwtClientAssertionVerifier.DEFAULT_CLOCK_SKEW.toSeconds();
 
 	@Autowired
 	public FederatedPrivateKeyJwtVerificator(OAuthEndpointsCoordinator coordinator,
@@ -57,12 +67,35 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 	@Override
 	public String getSerializedConfiguration()
 	{
-		return "{}";
+		Properties raw = new Properties();
+		raw.put(FederatedPrivateKeyJwtAuthenticatorProperties.PREFIX
+				+ FederatedPrivateKeyJwtAuthenticatorProperties.ALLOWED_CLOCK_SKEW,
+				String.valueOf(clockSkewSeconds));
+		StringWriter writer = new StringWriter();
+		try
+		{
+			raw.store(writer, "");
+		} catch (IOException e)
+		{
+			throw new InternalException("Can't serialize private-key-jwt-federated authenticator configuration", e);
+		}
+		return writer.toString();
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json) throws InternalException
+	public void setSerializedConfiguration(String source) throws InternalException
 	{
+		Properties raw = UnityPropertiesHelper.parse(source == null ? "" : source);
+		FederatedPrivateKeyJwtAuthenticatorProperties props;
+		try
+		{
+			props = new FederatedPrivateKeyJwtAuthenticatorProperties(raw);
+		} catch (ConfigurationException e)
+		{
+			throw new InternalException("Invalid configuration of the private-key-jwt-federated authenticator", e);
+		}
+		clockSkewSeconds = props.getIntValue(FederatedPrivateKeyJwtAuthenticatorProperties.ALLOWED_CLOCK_SKEW);
+		verificationFlow.setClockSkew(Duration.ofSeconds(clockSkewSeconds));
 		federationClientService.invalidateChainCache();
 	}
 

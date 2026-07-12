@@ -28,14 +28,22 @@ import com.nimbusds.jwt.SignedJWT;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 
-class JwtClientAssertionVerifier
+public class JwtClientAssertionVerifier
 {
-	static final Duration MAX_ASSERTION_LIFETIME = Duration.ofMinutes(5);
-	private static final Duration CLOCK_SKEW = Duration.ofSeconds(30);
+	public static final Duration MAX_ASSERTION_LIFETIME = Duration.ofMinutes(5);
+	public static final Duration DEFAULT_CLOCK_SKEW = Duration.ofSeconds(30);
 	private static final int MAX_TRACKED_JTIS = 1000000;
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, JwtClientAssertionVerifier.class);
 
 	private final ConcurrentHashMap<String, Instant> seenJtis = new ConcurrentHashMap<>();
+	private volatile Duration clockSkew = DEFAULT_CLOCK_SKEW;
+
+	void setClockSkew(Duration clockSkew)
+	{
+		if (clockSkew == null || clockSkew.isNegative())
+			throw new IllegalArgumentException("Clock skew must not be null or negative");
+		this.clockSkew = clockSkew;
+	}
 
 	void verifyJwt(SignedJWT jwt, JWKSet jwkSet, URI tokenEndpointUri, String clientId)
 			throws AuthenticationException
@@ -61,7 +69,7 @@ class JwtClientAssertionVerifier
 		var claims = jwt.getJWTClaimsSet();
 
 		Date exp = claims.getExpirationTime();
-		if (exp == null || exp.before(Date.from(Instant.now().minus(CLOCK_SKEW))))
+		if (exp == null || exp.before(Date.from(Instant.now().minus(clockSkew))))
 			throw new AuthenticationException("JWT assertion is expired or has no expiry");
 
 		List<String> audience = claims.getAudience();
@@ -79,11 +87,11 @@ class JwtClientAssertionVerifier
 		Date iat = claims.getIssueTime();
 		if (iat == null)
 			throw new AuthenticationException("JWT assertion must contain an iat claim");
-		if (iat.toInstant().isAfter(Instant.now().plus(CLOCK_SKEW)))
+		if (iat.toInstant().isAfter(Instant.now().plus(clockSkew)))
 			throw new AuthenticationException("JWT assertion iat is in the future");
 
 		Date nbf = claims.getNotBeforeTime();
-		if (nbf != null && nbf.toInstant().isAfter(Instant.now().plus(CLOCK_SKEW)))
+		if (nbf != null && nbf.toInstant().isAfter(Instant.now().plus(clockSkew)))
 			throw new AuthenticationException("JWT assertion is not yet valid (nbf is in the future)");
 
 		Duration lifetime = Duration.between(iat.toInstant(), exp.toInstant());
@@ -102,7 +110,7 @@ class JwtClientAssertionVerifier
 		if (seenJtis.size() >= MAX_TRACKED_JTIS)
 			throw new AuthenticationException(
 					"Too many concurrently tracked JWT assertions, try again later");
-		if (seenJtis.putIfAbsent(jti, expiry.plus(CLOCK_SKEW)) != null)
+		if (seenJtis.putIfAbsent(jti, expiry.plus(clockSkew)) != null)
 			throw new AuthenticationException(
 					"JWT assertion jti has already been used (replay detected): " + jti);
 	}

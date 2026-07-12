@@ -2,11 +2,15 @@
  * Copyright (c) 2024 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token.authn;
+package pl.edu.icm.unity.oauth.as.token.authn.local;
 
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -14,17 +18,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nimbusds.jose.jwk.JWKSet;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
+import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
-import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -40,6 +45,9 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
+import pl.edu.icm.unity.oauth.as.token.authn.ClientAssertionExchange;
+import pl.edu.icm.unity.oauth.as.token.authn.ClientAssertionVerificationFlow;
+import pl.edu.icm.unity.oauth.as.token.authn.JwtClientAssertionVerifier;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -56,6 +64,7 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator
 
 	private ClientPublicKeysCredential credential = new ClientPublicKeysCredential();
 	private String credentialName;
+	private int clockSkewSeconds = (int) JwtClientAssertionVerifier.DEFAULT_CLOCK_SKEW.toSeconds();
 	private final CredentialHelper credentialHelper;
 	private final OAuthEndpointsCoordinator coordinator;
 	private final AttributesManagement attributesManagement;
@@ -92,18 +101,39 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator
 	@Override
 	public String getSerializedConfiguration()
 	{
-		ObjectNode root = credential.getSerializedConfiguration();
+		Properties raw = new Properties();
 		if (credentialName != null)
-			root.put("credentialName", credentialName);
-		return JsonUtil.serialize(root);
+			raw.put(PrivateKeyJwtAuthenticatorProperties.PREFIX + PrivateKeyJwtAuthenticatorProperties.CREDENTIAL_NAME,
+					credentialName);
+		raw.put(PrivateKeyJwtAuthenticatorProperties.PREFIX + PrivateKeyJwtAuthenticatorProperties.ALLOWED_CLOCK_SKEW,
+				String.valueOf(clockSkewSeconds));
+		StringWriter writer = new StringWriter();
+		try
+		{
+			raw.store(writer, "");
+		} catch (IOException e)
+		{
+			throw new InternalException("Can't serialize private-key-jwt authenticator configuration", e);
+		}
+		return writer.toString();
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json) throws InternalException
+	public void setSerializedConfiguration(String source) throws InternalException
 	{
-		ObjectNode root = JsonUtil.parse(json);
-		if (root.has("credentialName"))
-			credentialName = root.get("credentialName").asText(null);
+		Properties raw = UnityPropertiesHelper.parse(source == null ? "" : source);
+		PrivateKeyJwtAuthenticatorProperties props;
+		try
+		{
+			props = new PrivateKeyJwtAuthenticatorProperties(raw);
+		} catch (ConfigurationException e)
+		{
+			throw new InternalException("Invalid configuration of the private-key-jwt authenticator", e);
+		}
+		if (props.isSet(PrivateKeyJwtAuthenticatorProperties.CREDENTIAL_NAME))
+			credentialName = props.getValue(PrivateKeyJwtAuthenticatorProperties.CREDENTIAL_NAME);
+		clockSkewSeconds = props.getIntValue(PrivateKeyJwtAuthenticatorProperties.ALLOWED_CLOCK_SKEW);
+		verificationFlow.setClockSkew(Duration.ofSeconds(clockSkewSeconds));
 	}
 
 	@Override
@@ -211,13 +241,13 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator
 	}
 
 	@Override
-	public pl.edu.icm.unity.base.authn.CredentialPublicInformation checkCredentialState(String currentCredential)
+	public CredentialPublicInformation checkCredentialState(String currentCredential)
 			throws InternalException
 	{
 		if (currentCredential == null || currentCredential.isBlank())
-			return new pl.edu.icm.unity.base.authn.CredentialPublicInformation(
+			return new CredentialPublicInformation(
 					LocalCredentialState.notSet, "");
-		return new pl.edu.icm.unity.base.authn.CredentialPublicInformation(
+		return new CredentialPublicInformation(
 				LocalCredentialState.correct, new PrivateKeyJwtExtraInfo(currentCredential).toJson());
 	}
 

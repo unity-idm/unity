@@ -2,7 +2,7 @@
  * Copyright (c) 2024 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token.authn;
+package pl.edu.icm.unity.oauth.as.token.authn.local;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

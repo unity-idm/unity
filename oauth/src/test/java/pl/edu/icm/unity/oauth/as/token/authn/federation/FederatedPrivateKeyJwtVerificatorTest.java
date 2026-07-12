@@ -2,7 +2,7 @@
  * Copyright (c) 2024 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token.authn;
+package pl.edu.icm.unity.oauth.as.token.authn.federation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -175,17 +175,59 @@ class FederatedPrivateKeyJwtVerificatorTest
 	}
 
 	@Test
-	void shouldReturnEmptySerializedConfiguration()
+	void shouldReturnDefaultClockSkewInSerializedConfiguration()
 	{
-		assertThat(verificator().getSerializedConfiguration()).isEqualTo("{}");
+		assertThat(verificator().getSerializedConfiguration())
+				.contains("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkewSeconds=30");
 	}
 
 	@Test
 	void shouldClearChainCacheOnReconfiguration()
 	{
-		verificator().setSerializedConfiguration("{}");
+		verificator().setSerializedConfiguration("");
 
 		verify(federationClientService).invalidateChainCache();
+	}
+
+	@Test
+	void shouldRoundTripCustomClockSkew()
+	{
+		FederatedPrivateKeyJwtVerificator verificator = verificator();
+		verificator.setSerializedConfiguration("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+
+		assertThat(verificator.getSerializedConfiguration())
+				.contains("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+	}
+
+	@Test
+	void shouldAcceptExpiredJwtWithinConfiguredClockSkew() throws Exception
+	{
+		var clientKey = new RSAKeyGenerator(2048).keyID("client-key").generate();
+		var anchorKey = new RSAKeyGenerator(2048).keyID("anchor").generate();
+		OAuthASFederationConfig config = configWithAnchor(new JWKSet(anchorKey.toPublicJWK()));
+		stubFederationConfig(config);
+		when(federationClientService.resolveAndRegister(eq(CLIENT_ID), any()))
+				.thenReturn(new FederatedClientResolution(42L, new JWKSet(clientKey.toPublicJWK())));
+
+		FederatedPrivateKeyJwtVerificator verificator = verificator();
+		verificator.setSerializedConfiguration("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+
+		Date now = new Date();
+		JWTClaimsSet claims = new JWTClaimsSet.Builder()
+				.subject(CLIENT_ID)
+				.issuer(CLIENT_ID)
+				.audience(TOKEN_URI.toString())
+				.issueTime(new Date(now.getTime() - 120_000))
+				.expirationTime(new Date(now.getTime() - 60_000))
+				.jwtID(UUID.randomUUID().toString())
+				.build();
+		SignedJWT jwt = new SignedJWT(
+				new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("client-key").build(), claims);
+		jwt.sign(new RSASSASigner(clientKey));
+
+		AuthenticationResult result = verificator.verifyClientAssertion(jwt.serialize(), TOKEN_URI);
+
+		assertThat(result.getStatus()).isEqualTo(Status.success);
 	}
 
 	private String buildAndSignJwt(String clientId, URI audience, com.nimbusds.jose.JWSSigner signer,

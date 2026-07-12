@@ -2,7 +2,7 @@
  * Copyright (c) 2024 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.oauth.as.token.authn;
+package pl.edu.icm.unity.oauth.as.token.authn.local;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -296,11 +296,49 @@ class PrivateKeyJwtVerificatorTest
 	@Test
 	void shouldRoundTripSerializedConfiguration() throws Exception
 	{
-		verificator.setSerializedConfiguration("{\"credentialName\":\"cred\"}");
+		verificator.setSerializedConfiguration("unity.privateKeyJwtAuthenticator.credentialName=cred");
 
 		String serialized = verificator.getSerializedConfiguration();
 
-		assertThat(serialized).contains("\"credentialName\":\"cred\"");
+		assertThat(serialized).contains("unity.privateKeyJwtAuthenticator.credentialName=cred");
+		assertThat(serialized).contains("unity.privateKeyJwtAuthenticator.allowedClockSkewSeconds=30");
+	}
+
+	@Test
+	void shouldRoundTripCustomClockSkew() throws Exception
+	{
+		verificator.setSerializedConfiguration("unity.privateKeyJwtAuthenticator.credentialName=cred\n"
+				+ "unity.privateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+
+		String serialized = verificator.getSerializedConfiguration();
+
+		assertThat(serialized).contains("unity.privateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+	}
+
+	@Test
+	void shouldAcceptExpiredJwtWithinConfiguredClockSkew() throws Exception
+	{
+		verificator.setSerializedConfiguration("unity.privateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+		var rsaKey = new RSAKeyGenerator(2048).keyID("k1").generate();
+		var jwkSet = new JWKSet(rsaKey.toPublicJWK());
+		stubIdentityResolver(jwkSet.toString());
+
+		Date now = new Date();
+		JWTClaimsSet claims = new JWTClaimsSet.Builder()
+				.subject(CLIENT_ID)
+				.issuer(CLIENT_ID)
+				.audience(TOKEN_URI.toString())
+				.issueTime(new Date(now.getTime() - 120_000))
+				.expirationTime(new Date(now.getTime() - 60_000))
+				.jwtID(UUID.randomUUID().toString())
+				.build();
+		SignedJWT jwt = new SignedJWT(
+				new JWSHeader.Builder(JWSAlgorithm.RS256).keyID("k1").build(), claims);
+		jwt.sign(new RSASSASigner(rsaKey));
+
+		AuthenticationResult result = verificator.verifyClientAssertion(jwt.serialize(), TOKEN_URI);
+
+		assertThat(result.getStatus()).isEqualTo(Status.success);
 	}
 
 	@Test

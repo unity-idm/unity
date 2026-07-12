@@ -8,6 +8,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Date;
 import java.util.UUID;
 
@@ -194,6 +195,49 @@ class JwtClientAssertionVerifierTest
 				.doesNotThrowAnyException();
 		assertThatCode(() -> verifier.verifyJwt(second, jwkSet, TOKEN_URI, CLIENT_ID))
 				.doesNotThrowAnyException();
+	}
+
+	@Test
+	void shouldRejectExpiredJwtBeyondDefaultClockSkew() throws Exception
+	{
+		Date now = new Date();
+		JWTClaimsSet claims = new JWTClaimsSet.Builder()
+				.subject(CLIENT_ID).issuer(CLIENT_ID).audience(TOKEN_URI.toString())
+				.issueTime(new Date(now.getTime() - 120_000))
+				.expirationTime(new Date(now.getTime() - 45_000))
+				.jwtID(UUID.randomUUID().toString())
+				.build();
+		SignedJWT jwt = sign(claims);
+
+		assertThatThrownBy(() -> verifier.verifyJwt(jwt, jwkSet, TOKEN_URI, CLIENT_ID))
+				.isInstanceOf(AuthenticationException.class)
+				.hasMessageContaining("expired");
+	}
+
+	@Test
+	void shouldAcceptExpiredJwtWithinIncreasedClockSkew() throws Exception
+	{
+		verifier.setClockSkew(Duration.ofSeconds(90));
+		Date now = new Date();
+		JWTClaimsSet claims = new JWTClaimsSet.Builder()
+				.subject(CLIENT_ID).issuer(CLIENT_ID).audience(TOKEN_URI.toString())
+				.issueTime(new Date(now.getTime() - 120_000))
+				.expirationTime(new Date(now.getTime() - 45_000))
+				.jwtID(UUID.randomUUID().toString())
+				.build();
+		SignedJWT jwt = sign(claims);
+
+		assertThatCode(() -> verifier.verifyJwt(jwt, jwkSet, TOKEN_URI, CLIENT_ID))
+				.doesNotThrowAnyException();
+	}
+
+	@Test
+	void shouldRejectNullOrNegativeClockSkew()
+	{
+		assertThatThrownBy(() -> verifier.setClockSkew(null))
+				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> verifier.setClockSkew(Duration.ofSeconds(-1)))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	private SignedJWT buildValidJwt(String jti) throws Exception
