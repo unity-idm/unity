@@ -25,16 +25,22 @@ class FederatedPrivateKeyJwtAuthenticatorProperties extends UnityPropertiesHelpe
 	@DocumentationReferencePrefix
 	static final String PREFIX = "unity.federatedPrivateKeyJwtAuthenticator.";
 
-	static final String ALLOWED_CLOCK_SKEW = "allowedClockSkewSeconds";
+	static final String ALLOWED_CLOCK_SKEW = "allowedClockSkew";
+	static final String MAX_ASSERTION_LIFETIME = "maxAssertionLifetime";
 
 	@DocumentationReferenceMeta
 	static final Map<String, PropertyMD> META = new HashMap<>();
 	static
 	{
 		META.put(ALLOWED_CLOCK_SKEW, new PropertyMD(String.valueOf(JwtClientAssertionVerifier.DEFAULT_CLOCK_SKEW.toSeconds()))
-				.setBounds(0, JwtClientAssertionVerifier.MAX_ASSERTION_LIFETIME.toSeconds())
+				.setMin(0)
 				.setDescription("Allowed clock skew (in seconds) when validating the exp, iat and nbf "
 						+ "claims of the client JWT assertion."));
+		META.put(MAX_ASSERTION_LIFETIME, new PropertyMD(
+				String.valueOf(JwtClientAssertionVerifier.DEFAULT_MAX_ASSERTION_LIFETIME.toSeconds()))
+				.setMin(0)
+				.setDescription("Maximum allowed lifetime (in seconds, exp - iat) of the client JWT "
+						+ "assertion (RFC 7523 §3)."));
 	}
 
 	FederatedPrivateKeyJwtAuthenticatorProperties(Properties properties) throws ConfigurationException

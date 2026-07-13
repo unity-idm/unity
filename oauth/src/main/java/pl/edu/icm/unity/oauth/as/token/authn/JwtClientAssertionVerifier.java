@@ -30,19 +30,27 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 
 public class JwtClientAssertionVerifier
 {
-	public static final Duration MAX_ASSERTION_LIFETIME = Duration.ofMinutes(5);
+	public static final Duration DEFAULT_MAX_ASSERTION_LIFETIME = Duration.ofMinutes(5);
 	public static final Duration DEFAULT_CLOCK_SKEW = Duration.ofSeconds(30);
 	private static final int MAX_TRACKED_JTIS = 1000000;
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, JwtClientAssertionVerifier.class);
 
 	private final ConcurrentHashMap<String, Instant> seenJtis = new ConcurrentHashMap<>();
 	private volatile Duration clockSkew = DEFAULT_CLOCK_SKEW;
+	private volatile Duration maxAssertionLifetime = DEFAULT_MAX_ASSERTION_LIFETIME;
 
 	void setClockSkew(Duration clockSkew)
 	{
 		if (clockSkew == null || clockSkew.isNegative())
 			throw new IllegalArgumentException("Clock skew must not be null or negative");
 		this.clockSkew = clockSkew;
+	}
+
+	void setMaxAssertionLifetime(Duration maxAssertionLifetime)
+	{
+		if (maxAssertionLifetime == null || maxAssertionLifetime.isNegative())
+			throw new IllegalArgumentException("Max assertion lifetime must not be null or negative");
+		this.maxAssertionLifetime = maxAssertionLifetime;
 	}
 
 	void verifyJwt(SignedJWT jwt, JWKSet jwkSet, URI tokenEndpointUri, String clientId)
@@ -95,10 +103,10 @@ public class JwtClientAssertionVerifier
 			throw new AuthenticationException("JWT assertion is not yet valid (nbf is in the future)");
 
 		Duration lifetime = Duration.between(iat.toInstant(), exp.toInstant());
-		if (lifetime.compareTo(MAX_ASSERTION_LIFETIME) > 0)
+		if (lifetime.compareTo(maxAssertionLifetime) > 0)
 			throw new AuthenticationException(
 					"JWT assertion lifetime " + lifetime.toSeconds() + "s exceeds maximum "
-							+ MAX_ASSERTION_LIFETIME.toSeconds() + "s (RFC 7523 §3)");
+							+ maxAssertionLifetime.toSeconds() + "s (RFC 7523 §3)");
 
 		return new ParsedClaims(jti, exp.toInstant());
 	}

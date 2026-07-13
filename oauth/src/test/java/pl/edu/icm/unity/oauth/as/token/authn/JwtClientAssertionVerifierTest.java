@@ -155,7 +155,7 @@ class JwtClientAssertionVerifierTest
 	void shouldRejectAssertionLifetimeExceedingCap() throws Exception
 	{
 		Date now = new Date();
-		long capSeconds = JwtClientAssertionVerifier.MAX_ASSERTION_LIFETIME.toSeconds();
+		long capSeconds = JwtClientAssertionVerifier.DEFAULT_MAX_ASSERTION_LIFETIME.toSeconds();
 		JWTClaimsSet claims = new JWTClaimsSet.Builder()
 				.subject(CLIENT_ID).issuer(CLIENT_ID).audience(TOKEN_URI.toString())
 				.issueTime(now)
@@ -238,6 +238,32 @@ class JwtClientAssertionVerifierTest
 				.isInstanceOf(IllegalArgumentException.class);
 		assertThatThrownBy(() -> verifier.setClockSkew(Duration.ofSeconds(-1)))
 				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	void shouldRejectNullOrNegativeMaxAssertionLifetime()
+	{
+		assertThatThrownBy(() -> verifier.setMaxAssertionLifetime(null))
+				.isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> verifier.setMaxAssertionLifetime(Duration.ofSeconds(-1)))
+				.isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	void shouldAcceptAssertionLifetimeWithinConfiguredCap() throws Exception
+	{
+		verifier.setMaxAssertionLifetime(Duration.ofMinutes(10));
+		Date now = new Date();
+		JWTClaimsSet claims = new JWTClaimsSet.Builder()
+				.subject(CLIENT_ID).issuer(CLIENT_ID).audience(TOKEN_URI.toString())
+				.issueTime(now)
+				.expirationTime(new Date(now.getTime() + Duration.ofMinutes(8).toMillis()))
+				.jwtID(UUID.randomUUID().toString())
+				.build();
+		SignedJWT jwt = sign(claims);
+
+		assertThatCode(() -> verifier.verifyJwt(jwt, jwkSet, TOKEN_URI, CLIENT_ID))
+				.doesNotThrowAnyException();
 	}
 
 	private SignedJWT buildValidJwt(String jti) throws Exception

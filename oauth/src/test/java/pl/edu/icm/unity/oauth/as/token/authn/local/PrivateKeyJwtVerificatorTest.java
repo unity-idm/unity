@@ -301,24 +301,24 @@ class PrivateKeyJwtVerificatorTest
 		String serialized = verificator.getSerializedConfiguration();
 
 		assertThat(serialized).contains("unity.privateKeyJwtAuthenticator.credentialName=cred");
-		assertThat(serialized).contains("unity.privateKeyJwtAuthenticator.allowedClockSkewSeconds=30");
+		assertThat(serialized).contains("unity.privateKeyJwtAuthenticator.allowedClockSkew=30");
 	}
 
 	@Test
 	void shouldRoundTripCustomClockSkew() throws Exception
 	{
 		verificator.setSerializedConfiguration("unity.privateKeyJwtAuthenticator.credentialName=cred\n"
-				+ "unity.privateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+				+ "unity.privateKeyJwtAuthenticator.allowedClockSkew=90");
 
 		String serialized = verificator.getSerializedConfiguration();
 
-		assertThat(serialized).contains("unity.privateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+		assertThat(serialized).contains("unity.privateKeyJwtAuthenticator.allowedClockSkew=90");
 	}
 
 	@Test
 	void shouldAcceptExpiredJwtWithinConfiguredClockSkew() throws Exception
 	{
-		verificator.setSerializedConfiguration("unity.privateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+		verificator.setSerializedConfiguration("unity.privateKeyJwtAuthenticator.allowedClockSkew=90");
 		var rsaKey = new RSAKeyGenerator(2048).keyID("k1").generate();
 		var jwkSet = new JWKSet(rsaKey.toPublicJWK());
 		stubIdentityResolver(jwkSet.toString());

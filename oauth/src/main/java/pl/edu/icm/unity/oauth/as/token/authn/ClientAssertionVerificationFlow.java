@@ -39,6 +39,11 @@ public class ClientAssertionVerificationFlow
 		jwtVerifier.setClockSkew(clockSkew);
 	}
 
+	public void setMaxAssertionLifetime(Duration maxAssertionLifetime)
+	{
+		jwtVerifier.setMaxAssertionLifetime(maxAssertionLifetime);
+	}
+
 	public AuthenticationResult verify(String assertion, URI canonicalTokenEndpointUri,
 			ResolvableError error, JwksResolver resolver)
 	{

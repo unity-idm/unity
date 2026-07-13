@@ -178,7 +178,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 	void shouldReturnDefaultClockSkewInSerializedConfiguration()
 	{
 		assertThat(verificator().getSerializedConfiguration())
-				.contains("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkewSeconds=30");
+				.contains("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkew=30");
 	}
 
 	@Test
@@ -193,10 +193,10 @@ class FederatedPrivateKeyJwtVerificatorTest
 	void shouldRoundTripCustomClockSkew()
 	{
 		FederatedPrivateKeyJwtVerificator verificator = verificator();
-		verificator.setSerializedConfiguration("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+		verificator.setSerializedConfiguration("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkew=90");
 
 		assertThat(verificator.getSerializedConfiguration())
-				.contains("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+				.contains("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkew=90");
 	}
 
 	@Test
@@ -210,7 +210,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 				.thenReturn(new FederatedClientResolution(42L, new JWKSet(clientKey.toPublicJWK())));
 
 		FederatedPrivateKeyJwtVerificator verificator = verificator();
-		verificator.setSerializedConfiguration("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkewSeconds=90");
+		verificator.setSerializedConfiguration("unity.federatedPrivateKeyJwtAuthenticator.allowedClockSkew=90");
 
 		Date now = new Date();
 		JWTClaimsSet claims = new JWTClaimsSet.Builder()

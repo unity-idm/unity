@@ -65,6 +65,7 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator
 	private ClientPublicKeysCredential credential = new ClientPublicKeysCredential();
 	private String credentialName;
 	private int clockSkewSeconds = (int) JwtClientAssertionVerifier.DEFAULT_CLOCK_SKEW.toSeconds();
+	private int maxAssertionLifetimeSeconds = (int) JwtClientAssertionVerifier.DEFAULT_MAX_ASSERTION_LIFETIME.toSeconds();
 	private final CredentialHelper credentialHelper;
 	private final OAuthEndpointsCoordinator coordinator;
 	private final AttributesManagement attributesManagement;
@@ -107,6 +108,8 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator
 					credentialName);
 		raw.put(PrivateKeyJwtAuthenticatorProperties.PREFIX + PrivateKeyJwtAuthenticatorProperties.ALLOWED_CLOCK_SKEW,
 				String.valueOf(clockSkewSeconds));
+		raw.put(PrivateKeyJwtAuthenticatorProperties.PREFIX + PrivateKeyJwtAuthenticatorProperties.MAX_ASSERTION_LIFETIME,
+				String.valueOf(maxAssertionLifetimeSeconds));
 		StringWriter writer = new StringWriter();
 		try
 		{
@@ -134,6 +137,8 @@ public class PrivateKeyJwtVerificator extends AbstractVerificator
 			credentialName = props.getValue(PrivateKeyJwtAuthenticatorProperties.CREDENTIAL_NAME);
 		clockSkewSeconds = props.getIntValue(PrivateKeyJwtAuthenticatorProperties.ALLOWED_CLOCK_SKEW);
 		verificationFlow.setClockSkew(Duration.ofSeconds(clockSkewSeconds));
+		maxAssertionLifetimeSeconds = props.getIntValue(PrivateKeyJwtAuthenticatorProperties.MAX_ASSERTION_LIFETIME);
+		verificationFlow.setMaxAssertionLifetime(Duration.ofSeconds(maxAssertionLifetimeSeconds));
 	}
 
 	@Override

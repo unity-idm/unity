@@ -28,6 +28,7 @@ class FederatedPrivateKeyJwtAuthenticatorEditor extends BaseAuthenticatorEditor 
 {
 	private final MessageSource msg;
 	private IntegerField clockSkew;
+	private IntegerField maxAssertionLifetime;
 
 	FederatedPrivateKeyJwtAuthenticatorEditor(MessageSource msg)
 	{
@@ -44,14 +45,20 @@ class FederatedPrivateKeyJwtAuthenticatorEditor extends BaseAuthenticatorEditor 
 		clockSkew.setStepButtonsVisible(true);
 		clockSkew.setWidth(TEXT_FIELD_MEDIUM.value());
 		clockSkew.setMin(0);
-		clockSkew.setMax((int) JwtClientAssertionVerifier.MAX_ASSERTION_LIFETIME.toSeconds());
 		clockSkew.setValue((int) JwtClientAssertionVerifier.DEFAULT_CLOCK_SKEW.toSeconds());
+
+		maxAssertionLifetime = new IntegerField();
+		maxAssertionLifetime.setStepButtonsVisible(true);
+		maxAssertionLifetime.setWidth(TEXT_FIELD_MEDIUM.value());
+		maxAssertionLifetime.setMin(1);
+		maxAssertionLifetime.setValue((int) JwtClientAssertionVerifier.DEFAULT_MAX_ASSERTION_LIFETIME.toSeconds());
 
 		FormLayout form = new FormLayout();
 		form.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		form.addFormItem(name, msg.getMessage("BaseAuthenticatorEditor.name"));
 		form.addFormItem(clockSkew, msg.getMessage("PrivateKeyJwtAuthenticatorEditor.clockSkew"));
+		form.addFormItem(maxAssertionLifetime, msg.getMessage("PrivateKeyJwtAuthenticatorEditor.maxAssertionLifetime"));
 
 		if (toEdit != null && toEdit.configuration != null && !toEdit.configuration.isBlank())
 		{
@@ -60,6 +67,8 @@ class FederatedPrivateKeyJwtAuthenticatorEditor extends BaseAuthenticatorEditor 
 				FederatedPrivateKeyJwtAuthenticatorProperties props = new FederatedPrivateKeyJwtAuthenticatorProperties(
 						UnityPropertiesHelper.parse(toEdit.configuration));
 				clockSkew.setValue(props.getIntValue(FederatedPrivateKeyJwtAuthenticatorProperties.ALLOWED_CLOCK_SKEW));
+				maxAssertionLifetime.setValue(
+						props.getIntValue(FederatedPrivateKeyJwtAuthenticatorProperties.MAX_ASSERTION_LIFETIME));
 			} catch (Exception ignored)
 			{
 			}
@@ -72,15 +81,21 @@ class FederatedPrivateKeyJwtAuthenticatorEditor extends BaseAuthenticatorEditor 
 	public AuthenticatorDefinition getAuthenticatorDefinition() throws FormValidationException
 	{
 		Integer clockSkewValue = clockSkew.getValue();
-		if (clockSkewValue == null || clockSkewValue < 0
-				|| clockSkewValue > JwtClientAssertionVerifier.MAX_ASSERTION_LIFETIME.toSeconds())
-			throw new FormValidationException(msg.getMessage("PrivateKeyJwtAuthenticatorEditor.invalidClockSkew",
-					JwtClientAssertionVerifier.MAX_ASSERTION_LIFETIME.toSeconds()));
+		if (clockSkewValue == null || clockSkewValue < 0)
+			throw new FormValidationException(msg.getMessage("PrivateKeyJwtAuthenticatorEditor.invalidClockSkew"));
+
+		Integer maxAssertionLifetimeValue = maxAssertionLifetime.getValue();
+		if (maxAssertionLifetimeValue == null || maxAssertionLifetimeValue < 1)
+			throw new FormValidationException(
+					msg.getMessage("PrivateKeyJwtAuthenticatorEditor.invalidMaxAssertionLifetime"));
 
 		Properties raw = new Properties();
 		raw.put(FederatedPrivateKeyJwtAuthenticatorProperties.PREFIX
 				+ FederatedPrivateKeyJwtAuthenticatorProperties.ALLOWED_CLOCK_SKEW,
 				String.valueOf(clockSkewValue));
+		raw.put(FederatedPrivateKeyJwtAuthenticatorProperties.PREFIX
+				+ FederatedPrivateKeyJwtAuthenticatorProperties.MAX_ASSERTION_LIFETIME,
+				String.valueOf(maxAssertionLifetimeValue));
 		StringWriter writer = new StringWriter();
 		try
 		{

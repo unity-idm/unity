@@ -48,6 +48,7 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 	private final FederatedOAuthClientService federationClientService;
 	private final ClientAssertionVerificationFlow verificationFlow = new ClientAssertionVerificationFlow();
 	private int clockSkewSeconds = (int) JwtClientAssertionVerifier.DEFAULT_CLOCK_SKEW.toSeconds();
+	private int maxAssertionLifetimeSeconds = (int) JwtClientAssertionVerifier.DEFAULT_MAX_ASSERTION_LIFETIME.toSeconds();
 
 	@Autowired
 	public FederatedPrivateKeyJwtVerificator(OAuthEndpointsCoordinator coordinator,
@@ -71,6 +72,9 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 		raw.put(FederatedPrivateKeyJwtAuthenticatorProperties.PREFIX
 				+ FederatedPrivateKeyJwtAuthenticatorProperties.ALLOWED_CLOCK_SKEW,
 				String.valueOf(clockSkewSeconds));
+		raw.put(FederatedPrivateKeyJwtAuthenticatorProperties.PREFIX
+				+ FederatedPrivateKeyJwtAuthenticatorProperties.MAX_ASSERTION_LIFETIME,
+				String.valueOf(maxAssertionLifetimeSeconds));
 		StringWriter writer = new StringWriter();
 		try
 		{
@@ -96,6 +100,8 @@ public class FederatedPrivateKeyJwtVerificator extends AbstractVerificator imple
 		}
 		clockSkewSeconds = props.getIntValue(FederatedPrivateKeyJwtAuthenticatorProperties.ALLOWED_CLOCK_SKEW);
 		verificationFlow.setClockSkew(Duration.ofSeconds(clockSkewSeconds));
+		maxAssertionLifetimeSeconds = props.getIntValue(FederatedPrivateKeyJwtAuthenticatorProperties.MAX_ASSERTION_LIFETIME);
+		verificationFlow.setMaxAssertionLifetime(Duration.ofSeconds(maxAssertionLifetimeSeconds));
 		federationClientService.invalidateChainCache();
 	}
 
