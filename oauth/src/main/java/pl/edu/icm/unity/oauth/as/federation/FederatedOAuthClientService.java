@@ -119,34 +119,36 @@ public class FederatedOAuthClientService
 			throw new AuthenticationException(
 					"Empty JWKS in openid_relying_party metadata in federation leaf entity for " + clientId);
 
-		long entityId = resolveOrRegister(clientId, rpMeta, config.clientsGroup(), config.trustAnchorId());
+		long entityId = resolveOrRegister(clientId, rpMeta, config.clientsGroup(), config.trustAnchorId(),
+				config.clientDefaults());
 		return new FederatedClientResolution(entityId, jwkSet);
 	}
 
-	private long resolveOrRegister(String clientId, OIDCClientMetadata metadata, String oauthGroup, String trustAnchorId) throws Exception
+	private long resolveOrRegister(String clientId, OIDCClientMetadata metadata, String oauthGroup, String trustAnchorId,
+			OAuthFederationClientDefaults clientDefaults) throws Exception
 	{
 		try
 		{
 			var entity = identitiesMan.getEntity(new EntityParam(new IdentityTaV(UsernameIdentity.ID, clientId)));
 			long entityId = entity.getId();
-			refreshAttributesIfChanged(entityId, clientId, metadata, oauthGroup);
+			refreshAttributesIfChanged(entityId, clientId, metadata, oauthGroup, clientDefaults);
 			log.info("Federation client {} found in DB, entityId={}", clientId, entityId);
 			return entityId;
 		} catch (IllegalArgumentException e)
 		{
-			return registerNewClient(clientId, metadata, oauthGroup, trustAnchorId);
+			return registerNewClient(clientId, metadata, oauthGroup, trustAnchorId, clientDefaults);
 		}
 	}
 
-	private long registerNewClient(String clientId, OIDCClientMetadata metadata, String oauthGroup, String trustAnchorId)
-			throws EngineException
+	private long registerNewClient(String clientId, OIDCClientMetadata metadata, String oauthGroup, String trustAnchorId,
+			OAuthFederationClientDefaults clientDefaults) throws EngineException
 	{
 		log.info("Auto-registering federation client {}", clientId);
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, clientId);
 		identity.setRemoteIdp(trustAnchorId);
 		long entityId = identitiesMan.addEntity(identity, EntityState.valid).getEntityId();
 		groupsMan.addMemberFromParent(oauthGroup, new EntityParam(entityId));
-		for (Attribute attr : FederationClientAttributesMapper.toOAuthAttributes(metadata, oauthGroup, clientId))
+		for (Attribute attr : FederationClientAttributesMapper.toOAuthAttributes(metadata, oauthGroup, clientId, clientDefaults))
 			attributesMan.setAttribute(new EntityParam(entityId), attr);
 		setEntityDisplayedName(entityId, FederationClientAttributesMapper.toDisplayName(metadata, clientId));
 		updateLogoIfChanged(clientId, entityId, oauthGroup, metadata.getLogoURI());
@@ -154,9 +156,10 @@ public class FederatedOAuthClientService
 		return entityId;
 	}
 
-	private void refreshAttributesIfChanged(long entityId, String clientId, OIDCClientMetadata metadata, String oauthGroup)
+	private void refreshAttributesIfChanged(long entityId, String clientId, OIDCClientMetadata metadata, String oauthGroup,
+			OAuthFederationClientDefaults clientDefaults)
 	{
-		List<Attribute> fresh = FederationClientAttributesMapper.toOAuthAttributes(metadata, oauthGroup, clientId);
+		List<Attribute> fresh = FederationClientAttributesMapper.toOAuthAttributes(metadata, oauthGroup, clientId, clientDefaults);
 		try
 		{
 			Collection<AttributeExt> existing = attributesMan.getAllAttributes(

@@ -43,6 +43,7 @@ import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
+import pl.edu.icm.unity.oauth.as.federation.OAuthFederationClientDefaults;
 
 class PrivateKeyJwtVerificatorTest
 {
@@ -65,7 +66,7 @@ class PrivateKeyJwtVerificatorTest
 		coordinator = mock(OAuthEndpointsCoordinator.class);
 		attributesManagement = mock(AttributesManagement.class);
 		OAuthASFederationConfig federationConfig = new OAuthASFederationConfig(
-				false, null, null, null, null, CLIENTS_GROUP);
+				false, null, null, null, null, CLIENTS_GROUP, new OAuthFederationClientDefaults(true, List.of()));
 		OAuthEndpointsCoordinator.FederationConfigEntry entry =
 				new OAuthEndpointsCoordinator.FederationConfigEntry(TOKEN_URI.toString(), federationConfig);
 		when(coordinator.findFederationConfigByPath(TOKEN_URI.getPath())).thenReturn(Optional.of(entry));

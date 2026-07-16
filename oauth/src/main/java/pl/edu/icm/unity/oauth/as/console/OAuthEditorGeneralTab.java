@@ -747,6 +747,11 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		name.addValueChangeListener(event ->  valueChangeListener.accept(event.getValue()));
 	}
 
+	void addScopesChangeListener(Runnable listener)
+	{
+		scopesGrid.addValueChangeListener(e -> listener.run());
+	}
+
 	@Override
 	public VaadinIcon getIcon()
 	{

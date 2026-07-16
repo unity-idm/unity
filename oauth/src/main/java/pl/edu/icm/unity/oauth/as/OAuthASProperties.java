@@ -106,6 +106,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String FEDERATION_HOSTNAME_CHECKING = "federationHostnameChecking";
 	public static final String FEDERATION_DISPLAY_NAME = "federationDisplayName";
 	public static final String FEDERATION_LOGO_URI = "federationLogoUri";
+	public static final String FEDERATION_ALLOW_ANY_SCOPES = "federationAllowAnyScopes";
+	public static final String FEDERATION_ALLOWED_SCOPES = "federationAllowedScopes.";
 
 	public static final String SIGNING_ALGORITHM = "signingAlgorithm";
 	public static final String SIGNING_SECRET = "signingSecret";
@@ -222,6 +224,14 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("Display name of this IdP presented in the federation entity statement."));
 		defaults.put(FEDERATION_LOGO_URI, new PropertyMD()
 				.setDescription("Logo URI of this IdP presented in the federation entity statement."));
+		defaults.put(FEDERATION_ALLOW_ANY_SCOPES, new PropertyMD("true")
+				.setDescription("Whether OpenID Federation clients are allowed to use any scope. "
+						+ "If false, " + FEDERATION_ALLOWED_SCOPES + " is used to restrict the allowed scopes."));
+		defaults.put(FEDERATION_ALLOWED_SCOPES, new PropertyMD().setList(true)
+				.setDescription("Default set of OAuth scopes allowed for OpenID Federation clients, "
+						+ "used only when " + FEDERATION_ALLOW_ANY_SCOPES + " is false. "
+						+ "Used as a fallback when a federation client's own metadata doesn't declare its scopes, "
+						+ "and as an upper bound (intersection) when it does."));
 
 		defaults.put(SIGNING_ALGORITHM, new PropertyMD(SigningAlgorithms.RS256)
 				.setDescription("An algorithm used for JWT access token and id token (OIDC mode) signing."));

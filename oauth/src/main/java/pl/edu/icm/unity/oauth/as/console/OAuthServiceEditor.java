@@ -146,7 +146,8 @@ class OAuthServiceEditor implements ServiceEditor
 				allAttributes);
 		
 		PolicyAgreementsTab policyAgreementTab = new PolicyAgreementsTab(msg, policyDocuments);
-		OAuthEditorFederationTab federationTab = new OAuthEditorFederationTab(msg, credentials, validators);
+		OAuthEditorFederationTab federationTab = new OAuthEditorFederationTab(msg, credentials, validators,
+				generalTab::getScopes);
 
 		List<String> federatedAuthenticatorIds = authenticators.stream()
 				.filter(a -> FederatedPrivateKeyJwtVerificator.NAME.equals(

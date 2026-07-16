@@ -25,12 +25,8 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 public class FederationClientAttributesMapper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, FederationClientAttributesMapper.class);
-	public static List<Attribute> toOAuthAttributes(OIDCClientMetadata meta, String oauthGroup)
-	{
-		return toOAuthAttributes(meta, oauthGroup, null);
-	}
-
-	public static List<Attribute> toOAuthAttributes(OIDCClientMetadata meta, String oauthGroup, String clientId)
+	public static List<Attribute> toOAuthAttributes(OIDCClientMetadata meta, String oauthGroup, String clientId,
+			OAuthFederationClientDefaults clientDefaults)
 	{
 		List<Attribute> attrs = new ArrayList<>();
 
@@ -40,9 +36,21 @@ public class FederationClientAttributesMapper
 		if (!redirectUris.isEmpty())
 			attrs.add(StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, oauthGroup, redirectUris));
 
-		if (meta.getScope() != null && !meta.getScope().isEmpty())
-			attrs.add(StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_SCOPES, oauthGroup,
-					meta.getScope().stream().map(Object::toString).toList()));
+		List<String> declaredScopes = meta.getScope() != null
+				? meta.getScope().stream().map(Object::toString).toList()
+				: List.of();
+		List<String> defaultAllowedScopes = clientDefaults.allowAnyScopes() ? List.of() : clientDefaults.allowedScopes();
+		if (!declaredScopes.isEmpty() || !defaultAllowedScopes.isEmpty())
+		{
+			List<String> effectiveScopes;
+			if (defaultAllowedScopes.isEmpty())
+				effectiveScopes = declaredScopes;
+			else if (declaredScopes.isEmpty())
+				effectiveScopes = defaultAllowedScopes;
+			else
+				effectiveScopes = declaredScopes.stream().filter(defaultAllowedScopes::contains).toList();
+			attrs.add(StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_SCOPES, oauthGroup, effectiveScopes));
+		}
 
 		List<String> flows = mapGrantTypes(meta);
 		if (!flows.isEmpty())

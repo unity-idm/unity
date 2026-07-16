@@ -19,7 +19,8 @@ public record OAuthASFederationConfig(
 		JWKSet trustAnchorJwks,
 		X509CertChainValidator validator,
 		ServerHostnameCheckingMode hostnameCheckingMode,
-		String clientsGroup)
+		String clientsGroup,
+		OAuthFederationClientDefaults clientDefaults)
 {
 	public static OAuthASFederationConfig from(OAuthASProperties props, PKIManagement pkiManagement)
 	{
@@ -46,7 +47,8 @@ public record OAuthASFederationConfig(
 				OAuthASProperties.FEDERATION_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
 		boolean membershipEnabled = props.getBooleanValue(OAuthASProperties.FEDERATION_MEMBERSHIP_ENABLED);
 		String clientsGroup = props.getValue(OAuthASProperties.CLIENTS_GROUP);
+		OAuthFederationClientDefaults clientDefaults = OAuthFederationClientDefaults.from(props);
 		return new OAuthASFederationConfig(membershipEnabled, trustAnchorId, trustAnchorJwks, validator,
-				hostnameChecking, clientsGroup);
+				hostnameChecking, clientsGroup, clientDefaults);
 	}
 }

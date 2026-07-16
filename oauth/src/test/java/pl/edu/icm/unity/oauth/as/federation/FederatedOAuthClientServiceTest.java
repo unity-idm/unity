@@ -91,7 +91,8 @@ class FederatedOAuthClientServiceTest
 				attrTypeSupport, uriAccessService));
 
 		federationConfig = new OAuthASFederationConfig(true, TRUST_ANCHOR_ID,
-				new JWKSet(signingKey.toPublicJWK()), null, null, CLIENTS_GROUP);
+				new JWKSet(signingKey.toPublicJWK()), null, null, CLIENTS_GROUP,
+				new OAuthFederationClientDefaults(true, List.of()));
 
 		AttributeType cnType = new AttributeType(DISPLAYED_NAME_ATTR,
 				pl.edu.icm.unity.stdext.attr.StringAttributeSyntax.ID);
