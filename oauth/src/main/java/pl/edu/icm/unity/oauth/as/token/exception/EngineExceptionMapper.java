@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.token.exception;
 
+import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
@@ -25,7 +26,10 @@ class EngineExceptionMapper implements ExceptionMapper<Exception>
 
 	public Response toResponse(Exception ex)
 	{
-		if (ex instanceof AuthorizationException || ex instanceof AuthenticationException)
+		if (ex instanceof ClientErrorException)
+		{
+			return ((ClientErrorException) ex).getResponse();
+		} else if (ex instanceof AuthorizationException || ex instanceof AuthenticationException)
 		{
 			log.warn("Access denied for rest client", ex);
 			return Response.status(Status.FORBIDDEN)
