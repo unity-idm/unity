@@ -12,6 +12,8 @@ import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
 
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
@@ -51,6 +53,14 @@ public class DiscoveryResourceTest
 		assertEquals(7, parsed.getResponseTypes().size());
 	}
 	
+	@Test
+	public void shouldProduceJWKSetAndJSON() throws NoSuchMethodException
+	{
+		Produces produces = KeysResource.class.getMethod("getKeys").getAnnotation(Produces.class);
+
+		assertThat(produces.value()).contains(JWKSet.MIME_TYPE, MediaType.APPLICATION_JSON);
+	}
+
 	@Test
 	public void testJWK() throws java.text.ParseException
 	{
