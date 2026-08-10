@@ -18,18 +18,18 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 import pl.edu.icm.unity.oauth.as.token.authn.JwtClientAssertionVerifier;
 
-class PrivateKeyJwtAuthenticatorProperties extends UnityPropertiesHelper
+public class PrivateKeyJwtAuthenticatorProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, PrivateKeyJwtAuthenticatorProperties.class);
 	@DocumentationReferencePrefix
-	static final String PREFIX = "unity.privateKeyJwtAuthenticator.";
+	public static final String PREFIX = "unity.privateKeyJwtAuthenticator.";
 
 	static final String CREDENTIAL_NAME = "credentialName";
 	static final String ALLOWED_CLOCK_SKEW = "allowedClockSkew";
 	static final String MAX_ASSERTION_LIFETIME = "maxAssertionLifetime";
 
 	@DocumentationReferenceMeta
-	static final Map<String, PropertyMD> META = new HashMap<>();
+	public static final Map<String, PropertyMD> META = new HashMap<>();
 	static
 	{
 		META.put(CREDENTIAL_NAME, new PropertyMD().setDescription(

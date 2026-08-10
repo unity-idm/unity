@@ -7,7 +7,7 @@ Exposed paths:: +/oauth2-authz+
 
 Endpoint 2 type:: +OAuth2Token+
 Binding:: RESTful (CXF)
-Exposed paths:: +/token+, +/userinfo+, +/jwk+, +/introspect+, +/tokeninfo+, +.well-known/openid-configuration+, +/revoke+
+Exposed paths:: +/token+, +/userinfo+, +/jwk+, +/introspect+, +/tokeninfo+, +.well-known/openid-configuration+, +/revoke+, +.well-known/openid-federation+
 
 
 The OAuth 2 endpoints expose a functionality of a generic Authorization Server with a support for the OpenID
@@ -22,8 +22,9 @@ The second Unity endpoint, +OAuth2Token+, supports all remaining OAuth endpoints
 _token endpoint_. The authentication settings of this endpoint should allow for authenticating OAuth clients accessing
 the +/token+ path as required by OAuth specification. Note however that some of the operations needs to 
 be authorized/authenticated by providing an OAuth access token only and this fact is handled internally - 
-nothing has to be configured. Also two of the paths require neither 
-authentication nor access token: +/jwk+ and +.well-known/openid-configuration+. This is also handled automatically. 
+nothing has to be configured. Also three of the paths require neither
+authentication nor access token: +/jwk+, +.well-known/openid-configuration+ and (when OpenID Federation membership
+is enabled, see below) +.well-known/openid-federation+. This is also handled automatically.
 
 ==== Configuration
 
@@ -88,10 +89,86 @@ other services will neither issue nor validate them, and can be considered less 
 Unity supports OpenID Connect (OIDC) protocol nearly out of the box. The only requirement to enable OIDC 
 is to define a scope with a special name +openid+. Typically the +openid+ scope has no attributes assigned. 
 
-Clients requesting the +openid+ scope trigger OpenID Connect compatibility mode. In this mode the OIDC _id token_ 
+Clients requesting the +openid+ scope trigger OpenID Connect compatibility mode. In this mode the OIDC _id token_
 is generated and returned in the implicit grant from the authorization endpoint or in the
-code grant from the token endpoint.  
-    
+code grant from the token endpoint.
+
+==== OAuth client authentication with private_key_jwt
+
+Besides the standard +client_secret_basic+/+client_secret_post+ client authentication, Unity supports the
++private_key_jwt+ client authentication method (https://datatracker.ietf.org/doc/html/rfc7523[RFC 7523]): instead
+of a shared secret, the client signs a JWT assertion with its own private key and Unity verifies it against the
+client's public keys (a JWKS). This is enabled with a dedicated +private-key-jwt+ authenticator:
+
+----
+unityServer.core.authenticators.x.authenticatorName=oauthPrivateKeyJwt
+unityServer.core.authenticators.x.authenticatorType=private-key-jwt
+unityServer.core.authenticators.x.localCredential=sys:oauth-private-key-jwt
+----
+
+Unlike most Unity authenticators, +private-key-jwt+ is backed by a local *credential* (of the
++Client public keys+ type) rather than a configuration file: the referenced local credential
+(+sys:oauth-private-key-jwt+ above, any name can be used) must be assigned to the client entity's credential
+requirement, and its value - the client's JWKS - set on the client entity (e.g. from the Console), exactly as
+a password or certificate credential would be. Once a client is configured this way, and its
++sys:oauth:clientAuthnMethod+ attribute is set to +private_key_jwt+, it can authenticate to the token endpoint
+by presenting a signed JWT assertion instead of its +clientSecret+.
+
+The authenticator's own options control assertion validation, not key storage:
+
+include::ref-privateKeyJwtAuthenticatorProperties.txt[]
+
+==== OpenID Federation membership
+
+Besides manually registered clients, the +/oauth2+ endpoint can act as an
+https://openid.net/specs/openid-federation-1_0.html[OpenID Federation] entity, accepting clients which are
+members of a single trusted federation without registering each of them by hand. Enabling this mode requires
++federationMembershipEnabled+ and a few more +federation*+ options from the reference table above:
+
+----
+unity.oauth2.as.federationMembershipEnabled=true
+unity.oauth2.as.federationCredential=MAIN
+unity.oauth2.as.federationSuperiorEntityId=https://federation.example.com
+unity.oauth2.as.federationTrustAnchorId=https://federation.example.com
+unity.oauth2.as.federationTrustAnchorJwks=classpath:federation-anchor-jwks.json
+unity.oauth2.as.federationDisplayName=My Organization
+unity.oauth2.as.federationLogoUri=https://example.com/logo.png
+----
+
+When enabled, this Unity instance itself becomes a federation entity: it signs and serves its own entity
+statement (using +federationCredential+) under +.well-known/openid-federation+, declaring +federationSuperiorEntityId+
+in its +authority_hints+. +federationTrustAnchorId+/+federationTrustAnchorJwks+ configure the trust anchor this
+server trusts when *accepting* clients - it does not need to be the same entity as the superior used when
+*advertising* itself; a typical federation uses the same trust anchor for both.
+
+Federation clients authenticate to the token endpoint using the +private-key-jwt-federated+ authenticator
+(a variant of the standard +private-key-jwt+ authenticator, but resolving the client's public keys and its
+metadata from the federation instead of from a locally configured attribute):
+
+----
+unityServer.core.authenticators.x.authenticatorName=oauthFederatedPrivateKeyJwt
+unityServer.core.authenticators.x.authenticatorType=private-key-jwt-federated
+unityServer.core.authenticators.x.configurationFile=conf/authenticators/federatedPrivateKeyJwt.properties
+----
+
+include::ref-federatedPrivateKeyJwtAuthenticatorProperties.txt[]
+
+On the very first successful client assertion from a federation member Unity auto-registers it as a regular
+entity in the configured +clientsGroup+, deriving its OAuth attributes (+sys:oauth:allowedReturnURI+,
++sys:oauth:allowedScopes+, +sys:oauth:allowedGrantFlows+, +sys:oauth:clientType+, +sys:oauth:clientAuthnMethod+)
+and displayed name (prefixed with +[Federated]+) from the client's federation metadata. Allowed scopes for
+federation clients can be further restricted with +federationAllowAnyScopes+/+federationAllowedScopes+. Client
+attributes and the trust chain are refreshed automatically whenever the cached trust chain expires (its validity
+follows the federation entity statement's own +exp+ claim); there is no need to re-register a client manually
+after e.g. it rotates its keys or changes its declared redirect URIs.
+
+[NOTE]
+The client's logo (if declared in its federation metadata) is fetched and stored as the usual
++sys:oauth:clientLogo+ attribute, using +federationTruststore+ for the download. On first registration the logo
+is fetched synchronously, so that it is already present for the very first consent screen shown to the user.
+On later refreshes (triggered by trust chain expiry) the logo is instead re-fetched in the background, so that
+a slow or unreachable logo URI of an already-known client never delays the +/authorize+ or token endpoint response.
+
 ==== Usage
 
 Unity as Authorization Server usage is mostly regulated with the OAuth or OIDC specifications. In short the client

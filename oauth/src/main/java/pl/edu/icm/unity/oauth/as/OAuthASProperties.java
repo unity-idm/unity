@@ -217,7 +217,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				new PropertyMD(String.valueOf(DEFAULT_FEDERATION_METADATA_VALIDITY)).setInt().setPositive()
 						.setDescription("Validity period in seconds of the generated federation entity statement."));
 		defaults.put(FEDERATION_TRUSTSTORE, new PropertyMD()
-				.setDescription("Truststore for TLS validation when fetching OpenID federation entity statements."));
+				.setDescription("Truststore for TLS validation when fetching OpenID federation entity statements "
+						+ "and when fetching logos of federation clients. If not set, the JVM default truststore is used."));
 		defaults.put(FEDERATION_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL)
 				.setDescription("TLS hostname checking mode when fetching OpenID federation entity statements."));
 		defaults.put(FEDERATION_DISPLAY_NAME, new PropertyMD()
