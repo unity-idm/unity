@@ -55,7 +55,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 
 	private OAuthASFederationConfig configWithAnchor(JWKSet anchorJwks)
 	{
-		return new OAuthASFederationConfig(true, TRUST_ANCHOR_ID, anchorJwks, null, null, CLIENTS_GROUP,
+		return new OAuthASFederationConfig(true, TRUST_ANCHOR_ID, anchorJwks, null, null, null, CLIENTS_GROUP,
 				new OAuthFederationClientDefaults(true, List.of()));
 	}
 
@@ -85,7 +85,7 @@ class FederatedPrivateKeyJwtVerificatorTest
 	{
 		var anchorKey = new RSAKeyGenerator(2048).keyID("anchor").generate();
 		OAuthASFederationConfig config = new OAuthASFederationConfig(
-				false, TRUST_ANCHOR_ID, new JWKSet(anchorKey.toPublicJWK()), null, null, CLIENTS_GROUP,
+				false, TRUST_ANCHOR_ID, new JWKSet(anchorKey.toPublicJWK()), null, null, null, CLIENTS_GROUP,
 				new OAuthFederationClientDefaults(true, List.of()));
 		stubFederationConfig(config);
 

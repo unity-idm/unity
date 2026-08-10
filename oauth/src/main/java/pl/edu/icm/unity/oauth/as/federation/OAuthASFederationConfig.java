@@ -18,6 +18,7 @@ public record OAuthASFederationConfig(
 		String trustAnchorId,
 		JWKSet trustAnchorJwks,
 		X509CertChainValidator validator,
+		String truststoreName,
 		ServerHostnameCheckingMode hostnameCheckingMode,
 		String clientsGroup,
 		OAuthFederationClientDefaults clientDefaults)
@@ -29,18 +30,22 @@ public record OAuthASFederationConfig(
 		JWKSet trustAnchorJwks = null;
 		if (jwksStr != null && !jwksStr.isBlank())
 			trustAnchorJwks = JwksParseUtils.parseRequired(jwksStr, "Invalid federation trust anchor JWKS in AS config");
-		String truststoreName = props.getValue(OAuthASProperties.FEDERATION_TRUSTSTORE);
+		String truststoreNameRaw = props.getValue(OAuthASProperties.FEDERATION_TRUSTSTORE);
 		X509CertChainValidator validator = null;
-		if (truststoreName != null && !truststoreName.isBlank())
+		String truststoreName = null;
+		if (truststoreNameRaw != null && !truststoreNameRaw.isBlank())
 		{
 			try
 			{
-				if (pkiManagement.getValidatorNames().contains(truststoreName))
-					validator = pkiManagement.getValidator(truststoreName);
+				if (pkiManagement.getValidatorNames().contains(truststoreNameRaw))
+				{
+					validator = pkiManagement.getValidator(truststoreNameRaw);
+					truststoreName = truststoreNameRaw;
+				}
 			} catch (Exception e)
 			{
 				throw new InternalException(
-						"Cannot resolve federation truststore '" + truststoreName + "': " + e.getMessage());
+						"Cannot resolve federation truststore '" + truststoreNameRaw + "': " + e.getMessage());
 			}
 		}
 		ServerHostnameCheckingMode hostnameChecking = props.getEnumValue(
@@ -48,7 +53,7 @@ public record OAuthASFederationConfig(
 		boolean membershipEnabled = props.getBooleanValue(OAuthASProperties.FEDERATION_MEMBERSHIP_ENABLED);
 		String clientsGroup = props.getValue(OAuthASProperties.CLIENTS_GROUP);
 		OAuthFederationClientDefaults clientDefaults = OAuthFederationClientDefaults.from(props);
-		return new OAuthASFederationConfig(membershipEnabled, trustAnchorId, trustAnchorJwks, validator,
+		return new OAuthASFederationConfig(membershipEnabled, trustAnchorId, trustAnchorJwks, validator, truststoreName,
 				hostnameChecking, clientsGroup, clientDefaults);
 	}
 }

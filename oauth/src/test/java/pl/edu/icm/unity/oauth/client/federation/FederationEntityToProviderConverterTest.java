@@ -209,6 +209,8 @@ public class FederationEntityToProviderConverterTest
 
 		assertThat(provider.iconUrl()).isNotNull();
 		assertThat(provider.iconUrl().getDefaultValue()).isEqualTo("https://idp.example.com/logo.png");
+		// getMap() (not getDefaultValue()) is what the logo cache downloader reads to know what to fetch
+		assertThat(provider.iconUrl().getMap()).containsEntry("", "https://idp.example.com/logo.png");
 	}
 
 	@Test

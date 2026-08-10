@@ -66,7 +66,7 @@ class PrivateKeyJwtVerificatorTest
 		coordinator = mock(OAuthEndpointsCoordinator.class);
 		attributesManagement = mock(AttributesManagement.class);
 		OAuthASFederationConfig federationConfig = new OAuthASFederationConfig(
-				false, null, null, null, null, CLIENTS_GROUP, new OAuthFederationClientDefaults(true, List.of()));
+				false, null, null, null, null, null, CLIENTS_GROUP, new OAuthFederationClientDefaults(true, List.of()));
 		OAuthEndpointsCoordinator.FederationConfigEntry entry =
 				new OAuthEndpointsCoordinator.FederationConfigEntry(TOKEN_URI.toString(), federationConfig);
 		when(coordinator.findFederationConfigByPath(TOKEN_URI.getPath())).thenReturn(Optional.of(entry));

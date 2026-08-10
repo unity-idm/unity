@@ -10,6 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.files.logo.CachedLogoFileLoader;
+import pl.edu.icm.unity.engine.api.files.logo.LogoFilenameUtils;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
@@ -26,16 +28,17 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 {
 	private static final String TINY_PNG_BASE64 =
 			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/AP4AAAAAElFTkSuQmCC";
+	private static final String LOGO_ROOT = "target/workspace/downloadedLogos/" + AsyncExternalLogoFileDownloader.CACHE_GROUP + "/";
 
 	@Autowired
-	private ExternalLogoFileLoader externalLogoFileLoader;
+	private CachedLogoFileLoader cachedLogoFileLoader;
 	@Autowired
 	private AsyncExternalLogoFileDownloader fileDownloader;
 
 	@AfterEach
 	public void tearDown() throws IOException
 	{
-		deleteDirectory(new File("target/workspace/downloadedIdPLogos"));
+		deleteDirectory(new File("target/workspace/downloadedLogos"));
 	}
 
 	@Test
@@ -113,10 +116,10 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 	{
 		try
 		{
-			File oldFile = new File("target/workspace/downloadedIdPLogos/" + LogoFilenameUtils.federationDirName(metadata.getEntitiesDescriptor().getID()) + "/" + oldFileName + "." + oldFileExtension);
+			File oldFile = new File(LOGO_ROOT + LogoFilenameUtils.namespaceDirName(metadata.getEntitiesDescriptor().getID()) + "/" + oldFileName + "." + oldFileExtension);
 			oldFile.getParentFile().mkdirs();
 			oldFile.createNewFile();
-			File oldFilePointer = new File("target/workspace/downloadedIdPLogos/" + LogoFilenameUtils.federationDirName(metadata.getEntitiesDescriptor().getID()) + "/" + oldFileName);
+			File oldFilePointer = new File(LOGO_ROOT + LogoFilenameUtils.namespaceDirName(metadata.getEntitiesDescriptor().getID()) + "/" + oldFileName);
 			oldFilePointer.getParentFile().mkdirs();
 			oldFilePointer.createNewFile();
 		} catch (IOException e)
@@ -128,7 +131,7 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 
 	private void checkIfFileSaved(String federationId, TrustedIdPKey trustedIdPKey)
 	{
-		Optional<File> file = externalLogoFileLoader.getFile(federationId, trustedIdPKey, null);
+		Optional<File> file = cachedLogoFileLoader.getFile(AsyncExternalLogoFileDownloader.CACHE_GROUP, federationId, trustedIdPKey, null);
 		if(file.isEmpty())
 			throw new IllegalArgumentException("Empty file");
 		if(!file.get().isFile())
@@ -137,29 +140,30 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 
 	private void checkIfOldFileCleaned(String federationId, String oldFileName, String extension)
 	{
-		if(new File("target/workspace/downloadedIdPLogos/" + LogoFilenameUtils.federationDirName(federationId) + "/" + oldFileName + "." + extension).isFile())
+		if(new File(LOGO_ROOT + LogoFilenameUtils.namespaceDirName(federationId) + "/" + oldFileName + "." + extension).isFile())
 			throw new IllegalStateException("File not clean");
-		if(new File("target/workspace/downloadedIdPLogos/" + LogoFilenameUtils.federationDirName(federationId) + "/" + oldFileName).isFile())
+		if(new File(LOGO_ROOT + LogoFilenameUtils.namespaceDirName(federationId) + "/" + oldFileName).isFile())
 			throw new IllegalStateException("File not clean");
 	}
 
 	private void checkIfStagingCleaned(String federationId)
 	{
-		File staging = new File("target/workspace/downloadedIdPLogos/staging/" + LogoFilenameUtils.federationDirName(federationId));
+		File staging = new File("target/workspace/downloadedLogos/staging/" + AsyncExternalLogoFileDownloader.CACHE_GROUP
+				+ "/" + LogoFilenameUtils.namespaceDirName(federationId));
 		if(Objects.requireNonNull(staging.listFiles()).length != 0)
 			throw new IllegalStateException("Staging catalog not clean");
 	}
 
 	private File getLogoFile(EntitiesDescriptorDocument metadata, String baseName, String extension)
 	{
-		return new File("target/workspace/downloadedIdPLogos/"
-				+ LogoFilenameUtils.federationDirName(metadata.getEntitiesDescriptor().getID()) + "/" + baseName + "." + extension);
+		return new File(LOGO_ROOT
+				+ LogoFilenameUtils.namespaceDirName(metadata.getEntitiesDescriptor().getID()) + "/" + baseName + "." + extension);
 	}
 
 	private File getLogoPointer(EntitiesDescriptorDocument metadata, String baseName)
 	{
-		return new File("target/workspace/downloadedIdPLogos/"
-				+ LogoFilenameUtils.federationDirName(metadata.getEntitiesDescriptor().getID()) + "/" + baseName);
+		return new File(LOGO_ROOT
+				+ LogoFilenameUtils.namespaceDirName(metadata.getEntitiesDescriptor().getID()) + "/" + baseName);
 	}
 
 	private EntitiesDescriptorDocument loadMetadata(String path)

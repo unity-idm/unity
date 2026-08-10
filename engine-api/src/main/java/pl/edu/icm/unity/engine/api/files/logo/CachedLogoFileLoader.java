@@ -1,9 +1,8 @@
 /*
- * Copyright (c) 2022 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * Copyright (c) 2022-2026 Bixbit - Krzysztof Benedyczak. All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-
-package pl.edu.icm.unity.saml.metadata.cfg;
+package pl.edu.icm.unity.engine.api.files.logo;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,36 +19,37 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 
-
+/**
+ * Reads logo files cached on disk by {@link RemoteLogoCacheDownloader}.
+ */
 @Component
-public class ExternalLogoFileLoader
+public class CachedLogoFileLoader
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, ExternalLogoFileLoader.class);
-	private final String workspaceDir;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, CachedLogoFileLoader.class);
+	private final String workspaceRoot;
 	private final String defaultLocale;
 
-	ExternalLogoFileLoader(UnityServerConfiguration conf, MessageSource msg)
+	public CachedLogoFileLoader(UnityServerConfiguration conf, MessageSource msg)
 	{
-		workspaceDir = LogoFilenameUtils.getLogosWorkspace(conf);
+		workspaceRoot = LogoFilenameUtils.getLogosWorkspaceRoot(conf);
 		defaultLocale = msg.getLocale().toString();
 	}
 
-	public Optional<File> getFile(String federationId, TrustedIdPKey trustedIdPKey, Locale locale)
+	public Optional<File> getFile(String cacheGroup, String namespaceId, LogoCacheKey key, Locale locale)
 	{
-		String catalogName = LogoFilenameUtils.federationDirName(federationId);
-		String fileNameForSpecificLocale = LogoFilenameUtils.getLogoFileBasename(trustedIdPKey, locale, defaultLocale);
-		String fileNameWithDefaultLocale = LogoFilenameUtils.getLogoFileBasename(trustedIdPKey, defaultLocale);
+		String catalogName = Path.of(cacheGroup, LogoFilenameUtils.namespaceDirName(namespaceId)).toString();
+		String fileNameForSpecificLocale = LogoFilenameUtils.getLogoFileBasename(key, locale, defaultLocale);
+		String fileNameWithDefaultLocale = LogoFilenameUtils.getLogoFileBasename(key, defaultLocale);
 
-		Path path = Path.of(workspaceDir, catalogName);
+		Path path = Path.of(workspaceRoot, catalogName);
 		if(!Files.exists(path))
 			return Optional.empty();
 
 		Optional<File> localizedImage = getFileFromPointer(path, fileNameForSpecificLocale);
 		return localizedImage.isPresent() ? localizedImage : getFileFromPointer(path, fileNameWithDefaultLocale);
 	}
-	
+
 	private Optional<File> getFileFromPointer(Path path, String basename)
 	{
 		Path pointerFilePath = path.resolve(basename);

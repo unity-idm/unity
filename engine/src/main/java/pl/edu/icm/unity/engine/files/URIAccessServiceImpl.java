@@ -100,6 +100,7 @@ public class URIAccessServiceImpl implements URIAccessService
 	{
 		try
 		{
+			URIHelper.validateURI(uri);
 			return readURL(uri.toURL(), customTruststore, connectionTimeout, socketReadTimeout, retriesNumber);
 		} catch (EngineException | IOException e)
 		{
