@@ -46,16 +46,18 @@ public class AccessTokenResource extends BaseOAuthResource
 	private final RefreshTokenHandler refreshTokenHandler;
 	private final ExchangeTokenHandler exchangeTokenHandler;
 	private final CredentialFlowHandler credentialFlowHandler;
+	private final DeviceCodeHandler deviceCodeHandler;
 	private final OAuthTokenStatisticPublisher statisticPublisher;
 
 	public AccessTokenResource(AuthzCodeHandler authzCodeHandler, RefreshTokenHandler refreshTokenHandler,
 			ExchangeTokenHandler exchangeTokenHandler, CredentialFlowHandler credentialFlowHandler,
-			OAuthTokenStatisticPublisher statisticPublisher)
+			DeviceCodeHandler deviceCodeHandler, OAuthTokenStatisticPublisher statisticPublisher)
 	{
 		this.authzCodeHandler = authzCodeHandler;
 		this.refreshTokenHandler = refreshTokenHandler;
 		this.exchangeTokenHandler = exchangeTokenHandler;
 		this.credentialFlowHandler = credentialFlowHandler;
+		this.deviceCodeHandler = deviceCodeHandler;
 		this.statisticPublisher = statisticPublisher;
 	}
 
@@ -70,6 +72,7 @@ public class AccessTokenResource extends BaseOAuthResource
 			@FormParam("actor_token") String actorToken,
 			@FormParam("actor_token_type") String actorTokenType,
 			@FormParam("resource") List<String> resource,
+			@FormParam("device_code") String deviceCode,
 			@HeaderParam("Accept") String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
@@ -108,6 +111,11 @@ public class AccessTokenResource extends BaseOAuthResource
 			if (refreshToken == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "refresh_token is required");
 			return refreshTokenHandler.handleRefreshTokenGrant(refreshToken, scope, acceptHeader);
+		} else if (grantType.equals(GrantType.DEVICE_CODE.getValue()))
+		{
+			if (deviceCode == null)
+				return makeError(OAuth2Error.INVALID_REQUEST, "device_code is required");
+			return deviceCodeHandler.handleDeviceCodeGrant(deviceCode, acceptHeader);
 		} else
 		{
 			return makeError(OAuth2Error.INVALID_GRANT, "wrong or not supported grant_type value");
@@ -116,13 +124,15 @@ public class AccessTokenResource extends BaseOAuthResource
 
 	/**
 	 * Authentication is optional for this REST path. However, this is only for the
-	 * code or refresh grant (where we allow unauthenticated public clients secured by PKCE).
-	 * So let's ensure for other cases that client's authn was performed.
+	 * code, refresh or device_code grant (where we allow unauthenticated public clients secured by
+	 * PKCE, or without a client secret). So let's ensure for other cases that client's authn was
+	 * performed.
 	 */
 	private boolean isRequiredClientAuthenticationMissing(String grantType)
 	{
 		if (grantType.equals(GrantType.AUTHORIZATION_CODE.getValue())
-				|| grantType.equals(GrantType.REFRESH_TOKEN.getValue()))
+				|| grantType.equals(GrantType.REFRESH_TOKEN.getValue())
+				|| grantType.equals(GrantType.DEVICE_CODE.getValue()))
 			return false;
 		return InvocationContext.getCurrent().getLoginSession() == null;
 	}

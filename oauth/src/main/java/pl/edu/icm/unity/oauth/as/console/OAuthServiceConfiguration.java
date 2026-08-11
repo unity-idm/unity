@@ -76,6 +76,9 @@ public class OAuthServiceConfiguration
 	private List<TrustedUpstreamASBean> trustedUpstreamAS;
 	private List<AuthorizationScriptBean> authorizationScripts;
 	private boolean tokenExchangeSupport;
+	private boolean deviceGrantEnabled;
+	private int deviceCodeValidity;
+	private int deviceCodeMinPollInterval;
 	private boolean federationMembershipEnabled;
 	private String federationTrustAnchorId;
 	private String federationTrustAnchorJwks;
@@ -135,6 +138,9 @@ public class OAuthServiceConfiguration
 		federationMetadataValidity = OAuthASProperties.DEFAULT_FEDERATION_METADATA_VALIDITY;
 		federationAllowAnyScopes = true;
 		federationDefaultAllowedScopes = new ArrayList<>();
+		deviceGrantEnabled = false;
+		deviceCodeValidity = OAuthASProperties.DEFAULT_DEVICE_CODE_VALIDITY;
+		deviceCodeMinPollInterval = OAuthASProperties.DEFAULT_DEVICE_CODE_MIN_POLL_INTERVAL;
 	}
 
 	public String toProperties(MessageSource msg, PKIManagement pkiForValidation)
@@ -150,6 +156,14 @@ public class OAuthServiceConfiguration
 				String.valueOf(allowForWildcardsInAllowedURI));
 		raw.put(OAuthASProperties.P + OAuthASProperties.ALLOW_UNAUTHENTICATED_REVOCATION,
 				String.valueOf(allowForUnauthenticatedRevocation));
+		raw.put(OAuthASProperties.P + OAuthASProperties.DEVICE_GRANT_ENABLED, String.valueOf(deviceGrantEnabled));
+		if (deviceGrantEnabled)
+		{
+			raw.put(OAuthASProperties.P + OAuthASProperties.DEVICE_CODE_VALIDITY,
+					String.valueOf(deviceCodeValidity));
+			raw.put(OAuthASProperties.P + OAuthASProperties.DEVICE_CODE_MIN_POLL_INTERVAL,
+					String.valueOf(deviceCodeMinPollInterval));
+		}
 		raw.put(OAuthASProperties.P + OAuthASProperties.ACCESS_TOKEN_FORMAT, accessTokenFormat.toString());
 		if (supportExtendTokenValidity)
 		{
@@ -389,6 +403,9 @@ public class OAuthServiceConfiguration
 				.getBooleanValue(OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI);
 		allowForUnauthenticatedRevocation = oauthProperties
 				.getBooleanValue(OAuthASProperties.ALLOW_UNAUTHENTICATED_REVOCATION);
+		deviceGrantEnabled = oauthProperties.isDeviceGrantEnabled();
+		deviceCodeValidity = oauthProperties.getDeviceCodeValidity();
+		deviceCodeMinPollInterval = oauthProperties.getDeviceCodeMinPollInterval();
 		accessTokenFormat = oauthProperties.getAccessTokenFormat();
 		if (oauthProperties.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY))
 		{
@@ -746,6 +763,36 @@ public class OAuthServiceConfiguration
 	public void setAllowForUnauthenticatedRevocation(boolean allowForUnauthenticatedRevocation)
 	{
 		this.allowForUnauthenticatedRevocation = allowForUnauthenticatedRevocation;
+	}
+
+	public boolean isDeviceGrantEnabled()
+	{
+		return deviceGrantEnabled;
+	}
+
+	public void setDeviceGrantEnabled(boolean deviceGrantEnabled)
+	{
+		this.deviceGrantEnabled = deviceGrantEnabled;
+	}
+
+	public int getDeviceCodeValidity()
+	{
+		return deviceCodeValidity;
+	}
+
+	public void setDeviceCodeValidity(int deviceCodeValidity)
+	{
+		this.deviceCodeValidity = deviceCodeValidity;
+	}
+
+	public int getDeviceCodeMinPollInterval()
+	{
+		return deviceCodeMinPollInterval;
+	}
+
+	public void setDeviceCodeMinPollInterval(int deviceCodeMinPollInterval)
+	{
+		this.deviceCodeMinPollInterval = deviceCodeMinPollInterval;
 	}
 
 	public int getMaxExtendAccessTokenValidity()

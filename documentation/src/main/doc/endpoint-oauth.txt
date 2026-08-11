@@ -7,24 +7,34 @@ Exposed paths:: +/oauth2-authz+
 
 Endpoint 2 type:: +OAuth2Token+
 Binding:: RESTful (CXF)
-Exposed paths:: +/token+, +/userinfo+, +/jwk+, +/introspect+, +/tokeninfo+, +.well-known/openid-configuration+, +/revoke+, +.well-known/openid-federation+
+Exposed paths:: +/token+, +/userinfo+, +/jwk+, +/introspect+, +/tokeninfo+, +.well-known/openid-configuration+, +/revoke+, +.well-known/openid-federation+, +/device_authorization+ (when the RFC 8628 device grant is enabled, see below)
+
+Endpoint 3 type:: +OAuth2DeviceSignIn+
+Binding:: Web
+Exposed paths:: +/device_signin+
 
 
 The OAuth 2 endpoints expose a functionality of a generic Authorization Server with a support for the OpenID
-Connect specification. The _code_, _implicit_, _client credentials_ and _hybrid_ flows are supported.    
+Connect specification. The _code_, _implicit_, _client credentials_, _hybrid_ and _device authorization_ (RFC 8628)
+flows are supported.
 
-The functionality is provided by two Unity endpoints, which shouldn't be mixed with endpoints in OAuth sense 
+The functionality is provided by two or three Unity endpoints, which shouldn't be mixed with endpoints in OAuth sense
 which are equivalent to particular paths exposed by Unity endpoints. The first Unity endpoint, +OAuth2Authz+,
-exposes the OAuth authorization endpoint functionality. It is a web endpoint. It is used by end-users and 
+exposes the OAuth authorization endpoint functionality. It is a web endpoint. It is used by end-users and
 the authentication of this endpoint should be configured so that OAuth users can authenticate themselves.
 
-The second Unity endpoint, +OAuth2Token+, supports all remaining OAuth endpoints, including the most important 
+The second Unity endpoint, +OAuth2Token+, supports all remaining OAuth endpoints, including the most important
 _token endpoint_. The authentication settings of this endpoint should allow for authenticating OAuth clients accessing
-the +/token+ path as required by OAuth specification. Note however that some of the operations needs to 
-be authorized/authenticated by providing an OAuth access token only and this fact is handled internally - 
+the +/token+ path as required by OAuth specification. Note however that some of the operations needs to
+be authorized/authenticated by providing an OAuth access token only and this fact is handled internally -
 nothing has to be configured. Also three of the paths require neither
 authentication nor access token: +/jwk+, +.well-known/openid-configuration+ and (when OpenID Federation membership
 is enabled, see below) +.well-known/openid-federation+. This is also handled automatically.
+
+The optional third Unity endpoint, +OAuth2DeviceSignIn+, is only needed when the RFC 8628 device authorization
+grant is used (see <<device-grant>> below). It is a standardly-authenticated web endpoint, used by end-users to
+confirm or deny a pairing request initiated by a browserless/input-constrained device (e.g. a smart TV or a CLI
+tool).
 
 ==== Configuration
 
@@ -378,6 +388,41 @@ Note that the path must still match exactly.
 
 See the aforementioned RFCs for details on how to use PKCE,
 and what forms of return redirections are available for native clients.
+
+
+[[device-grant]]
+==== Device Authorization Grant (RFC 8628)
+
+Unity supports the _OAuth 2.0 Device Authorization Grant_ (RFC 8628), intended for clients running on
+browserless or input-constrained devices (smart TVs, CLI tools, IoT devices) that cannot easily perform the
+standard redirect-based authorization flow.
+
+The feature is disabled by default and must be turned on with +deviceGrantEnabled+ (see the properties table
+below). When disabled, the +/device_authorization+ endpoint returns a +400 invalid_request+ error and the
+device grant is neither advertised in +.well-known/openid-configuration+ nor accepted on the +/token+ endpoint.
+
+Once enabled, an OAuth client must additionally be granted the +deviceCode+ value in its
++sys:oauth:allowedGrantFlows+ attribute, exactly as for the other grant flows.
+
+The flow proceeds as follows:
+
+* The device sends a +POST+ request to +/device_authorization+ (optionally authenticated, exactly like
++/token+ - confidential clients must authenticate, public clients don't). It receives a +device_code+, a
+short, human-typeable +user_code+, and a +verification_uri+/+verification_uri_complete+ pointing at the
++OAuth2DeviceSignIn+ endpoint's +/device_signin+ path.
+* The user opens +verification_uri+ (or +verification_uri_complete+, which pre-fills the +user_code+) in a
+regular browser, logs in if needed, and is shown the same kind of consent screen as on the regular
++/authorize+ endpoint (client name/logo, requested attribute release), where they approve or deny the
+device's request.
+* Meanwhile, the device polls the +/token+ endpoint with +grant_type=urn:ietf:params:oauth:device_code+ and
+its +device_code+. Until the user has made a decision, the server replies with the standard
++authorization_pending+ error (or +slow_down+ if the device polls faster than the configured minimum
+interval). Once the user approves, the next poll returns a regular access token response; if the user
+denies, it returns +access_denied+. A device code can only be redeemed once and expires after
++deviceCodeValidity+ seconds.
+
+The relevant configuration options are +deviceGrantEnabled+, +deviceCodeValidity+ and
++deviceCodeMinPollInterval+, documented in the properties table below.
 
 
 ==== Client-Requested Claim Value Filtering

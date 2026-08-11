@@ -47,7 +47,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final int MAXIMUM_ALLOWED_URIS = 512;
 	public static final int MAXIMUM_ALLOWED_SCOPES = 512;
 	
-	public enum GrantFlow {authorizationCode, implicit, openidHybrid, client};
+	public enum GrantFlow {authorizationCode, implicit, openidHybrid, client, deviceCode};
 	
 	private MessageSource msg;
 	
@@ -76,7 +76,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 				EnumAttributeSyntax.ID, msg);
 		allowedGrantsAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		allowedGrantsAt.setMinElements(1);
-		allowedGrantsAt.setMaxElements(5);
+		allowedGrantsAt.setMaxElements(8);
 		allowedGrantsAt.setUniqueValues(true);
 		allowedGrantsAt.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 		return allowedGrantsAt;

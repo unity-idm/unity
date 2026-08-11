@@ -72,6 +72,9 @@ public class DiscoveryResource extends BaseOAuthResource
 			meta.setUserInfoEndpointURI(userInfoEndpointUri);
 			meta.setIntrospectionEndpointURI(new URI(baseUri + OAuthTokenEndpoint.TOKEN_INTROSPECTION_PATH));
 			meta.setRevocationEndpointURI(new URI(baseUri + OAuthTokenEndpoint.TOKEN_REVOCATION_PATH));
+			if (config.isDeviceGrantEnabled())
+				meta.setDeviceAuthorizationEndpointURI(
+						new URI(baseUri + OAuthTokenEndpoint.DEVICE_AUTHORIZATION_PATH));
 		} catch (URISyntaxException e)
 		{
 			throw new InternalException("Can't encode URI", e);
@@ -95,7 +98,11 @@ public class DiscoveryResource extends BaseOAuthResource
 		meta.setResponseTypes(Lists.newArrayList(rt1, rt2, rt3, rt4, rt5, rt6, rt7));
 		
 		meta.setResponseModes(Lists.newArrayList(ResponseMode.QUERY, ResponseMode.FRAGMENT));
-		meta.setGrantTypes(Lists.newArrayList(GrantType.AUTHORIZATION_CODE, GrantType.IMPLICIT));
+		if (config.isDeviceGrantEnabled())
+			meta.setGrantTypes(
+					Lists.newArrayList(GrantType.AUTHORIZATION_CODE, GrantType.IMPLICIT, GrantType.DEVICE_CODE));
+		else
+			meta.setGrantTypes(Lists.newArrayList(GrantType.AUTHORIZATION_CODE, GrantType.IMPLICIT));
 		meta.setIDTokenJWSAlgs(Lists.newArrayList(JWSAlgorithm.RS256, JWSAlgorithm.ES256));
 		meta.setTokenEndpointAuthMethods(Lists.newArrayList(
 				ClientAuthenticationMethod.CLIENT_SECRET_BASIC,

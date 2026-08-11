@@ -29,10 +29,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm.Family;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.AccordionPanel;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
@@ -40,6 +37,7 @@ import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -225,21 +223,17 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		Span tokenEndpointPath = new Span();
 		infoLayoutWrapper.addFormItem(tokenEndpointPath, msg.getMessage("OAuthEditorGeneralTab.tokenEndpointPath"));
 
-		Button metaPath = new Button();
-		metaPath.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		Anchor metaPath = new Anchor();
+		metaPath.setTarget("_blank");
 
-		Button federationMetaPath = new Button();
-		federationMetaPath.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		Anchor federationMetaPath = new Anchor();
+		federationMetaPath.setTarget("_blank");
 
 		if (editMode)
 		{
 			infoLayoutWrapper.addFormItem(metaPath, msg.getMessage("OAuthEditorGeneralTab.metadataLink"));
-			metaPath.addClickListener(e -> UI.getCurrent().getPage()
-					.open(metaPath.getText(), "_blank"));
 			infoLayoutWrapper.addFormItem(federationMetaPath,
 					msg.getMessage("OAuthEditorGeneralTab.federationMetadataLink"));
-			federationMetaPath.addClickListener(e -> UI.getCurrent().getPage()
-					.open(federationMetaPath.getText(), "_blank"));
 		}
 
 		name = new TextField();
@@ -302,8 +296,12 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 					} else
 					{
 						tokenEndpointPath.setText(serverPrefix + v + OAuthTokenEndpoint.TOKEN_PATH);
-						metaPath.setText(serverPrefix + v + "/.well-known/openid-configuration");
-						federationMetaPath.setText(serverPrefix + v + "/.well-known/openid-federation");
+						String metaUrl = serverPrefix + v + "/.well-known/openid-configuration";
+						metaPath.setHref(metaUrl);
+						metaPath.setText(metaUrl);
+						String federationMetaUrl = serverPrefix + v + "/.well-known/openid-federation";
+						federationMetaPath.setHref(federationMetaUrl);
+						federationMetaPath.setText(federationMetaUrl);
 					}
 					return r;
 
@@ -476,8 +474,52 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		configBinder.forField(tokenExchangeSupport)
 				.bind("tokenExchangeSupport");
 		mainGeneralLayout.addFormItem(tokenExchangeSupport, "")
-				.add(htmlTooltipFactory.get(msg.getMessage("OAuthEditorGeneralTab.tokenExchangeSupportDescription")));		
-		
+				.add(htmlTooltipFactory.get(msg.getMessage("OAuthEditorGeneralTab.tokenExchangeSupportDescription")));
+
+		IntegerField deviceCodeValidity = new IntegerField();
+		deviceCodeValidity.setStepButtonsVisible(true);
+
+		IntegerField deviceCodeMinPollInterval = new IntegerField();
+		deviceCodeMinPollInterval.setStepButtonsVisible(true);
+
+		Checkbox deviceGrantEnabled = new Checkbox(msg.getMessage("OAuthEditorGeneralTab.deviceGrantEnabled"));
+		configBinder.forField(deviceGrantEnabled)
+				.bind("deviceGrantEnabled");
+		mainGeneralLayout.addFormItem(deviceGrantEnabled, "")
+				.add(htmlTooltipFactory.get(msg.getMessage("OAuthEditorGeneralTab.deviceGrantEnabledDescription")));
+		deviceGrantEnabled.addValueChangeListener(e ->
+		{
+			deviceCodeValidity.setEnabled(e.getValue());
+			deviceCodeMinPollInterval.setEnabled(e.getValue());
+		});
+
+		configBinder.forField(deviceCodeValidity)
+				.asRequired((v, c) ->
+				{
+					if (deviceGrantEnabled.getValue())
+					{
+						return new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null).apply(v, c);
+					}
+					return ValidationResult.ok();
+				})
+				.bind("deviceCodeValidity");
+		deviceCodeValidity.setEnabled(false);
+		mainGeneralLayout.addFormItem(deviceCodeValidity, msg.getMessage("OAuthEditorGeneralTab.deviceCodeValidity"));
+
+		configBinder.forField(deviceCodeMinPollInterval)
+				.asRequired((v, c) ->
+				{
+					if (deviceGrantEnabled.getValue())
+					{
+						return new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 1, null).apply(v, c);
+					}
+					return ValidationResult.ok();
+				})
+				.bind("deviceCodeMinPollInterval");
+		deviceCodeMinPollInterval.setEnabled(false);
+		mainGeneralLayout.addFormItem(deviceCodeMinPollInterval,
+				msg.getMessage("OAuthEditorGeneralTab.deviceCodeMinPollInterval"));
+
 		openIDConnect.addValueChangeListener(e ->
 		{
 			refreshSigningControls();

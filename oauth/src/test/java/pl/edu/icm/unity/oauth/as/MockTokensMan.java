@@ -83,6 +83,11 @@ public class MockTokensMan implements TokensManagement
 	public void addToken(String type, String value, byte[] contents, Date created, Date expires)
 			throws IllegalTypeException
 	{
+		Token t = new Token(type, value, null);
+		t.setContents(contents);
+		t.setExpires(expires);
+		t.setCreated(created);
+		tokens.put(type + value, t);
 	}
 
 	@Override

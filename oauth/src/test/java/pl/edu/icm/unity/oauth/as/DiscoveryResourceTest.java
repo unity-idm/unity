@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyType;
+import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ParseException;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
@@ -51,6 +52,40 @@ public class DiscoveryResourceTest
 		assertEquals(7, parsed.getResponseTypes().size());
 	}
 	
+	@Test
+	public void deviceAuthorizationEndpointAdvertisedWhenEnabled() throws ParseException
+	{
+		OAuthEndpointsCoordinator coordinator = new OAuthEndpointsCoordinator();
+		coordinator.registerAuthzEndpoint("https://localhost:233/foo/token", "https://localhost:233/as");
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
+		config.setProperty(OAuthASProperties.DEVICE_GRANT_ENABLED, "true");
+		DiscoveryResource tested = new DiscoveryResource(config, coordinator,
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
+
+		Response resp = tested.getMetadata();
+		OIDCProviderMetadata parsed = OIDCProviderMetadata.parse(resp.readEntity(String.class));
+
+		assertEquals("https://localhost:233/foo/device_authorization",
+				parsed.getDeviceAuthorizationEndpointURI().toString());
+		assertTrue(parsed.getGrantTypes().contains(GrantType.DEVICE_CODE));
+	}
+
+	@Test
+	public void deviceAuthorizationEndpointAbsentWhenDisabled() throws ParseException
+	{
+		OAuthEndpointsCoordinator coordinator = new OAuthEndpointsCoordinator();
+		coordinator.registerAuthzEndpoint("https://localhost:233/foo/token", "https://localhost:233/as");
+		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
+		DiscoveryResource tested = new DiscoveryResource(config, coordinator,
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
+
+		Response resp = tested.getMetadata();
+		OIDCProviderMetadata parsed = OIDCProviderMetadata.parse(resp.readEntity(String.class));
+
+		assertEquals(null, parsed.getDeviceAuthorizationEndpointURI());
+		assertTrue(!parsed.getGrantTypes().contains(GrantType.DEVICE_CODE));
+	}
+
 	@Test
 	public void testJWK() throws java.text.ParseException
 	{

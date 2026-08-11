@@ -851,7 +851,7 @@ vaadin-tab.u-tabsheet-full {
 }
 
 .u-idp-info-layout {
-	margin-left: -20em;
+	margin-left: 0;
 	min-width: 50em;
 }
 

@@ -116,6 +116,12 @@ public class OAuthASProperties extends UnityPropertiesHelper
 
 	public static final String ALLOW_UNAUTHENTICATED_REVOCATION = "allowUnauthenticatedRevocation";
 
+	public static final String DEVICE_GRANT_ENABLED = "deviceGrantEnabled";
+	public static final String DEVICE_CODE_VALIDITY = "deviceCodeValidity";
+	public static final int DEFAULT_DEVICE_CODE_VALIDITY = 1800;
+	public static final String DEVICE_CODE_MIN_POLL_INTERVAL = "deviceCodeMinPollInterval";
+	public static final int DEFAULT_DEVICE_CODE_MIN_POLL_INTERVAL = 5;
+
 	public static final int DEFAULT_CODE_TOKEN_VALIDITY = 600;
 	public static final int DEFAULT_ID_TOKEN_VALIDITY = 3600;
 	public static final int DEFAULT_ACCESS_TOKEN_VALIDITY = 3600;
@@ -248,6 +254,13 @@ public class OAuthASProperties extends UnityPropertiesHelper
 								+ "Setting this option to false makes the authentication required and "
 								+ "in line with the RFC 7009."));
 
+		defaults.put(DEVICE_GRANT_ENABLED, new PropertyMD("false")
+				.setDescription("Whether the RFC 8628 Device Authorization Grant flow is enabled."));
+		defaults.put(DEVICE_CODE_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_DEVICE_CODE_VALIDITY)).setPositive()
+				.setDescription("Controls the maximum validity period of a device code (in seconds)."));
+		defaults.put(DEVICE_CODE_MIN_POLL_INTERVAL, new PropertyMD(String.valueOf(DEFAULT_DEVICE_CODE_MIN_POLL_INTERVAL)).setPositive()
+				.setDescription("Minimum interval in seconds between client polls of the token endpoint for a device code."));
+
 		defaults.put(TRUSTED_UPSTREAM_AS, new PropertyMD().setStructuredList(false)
 				.setDescription(
 						"Under this prefix trusted ASes can be defined. Used for proxied OAuth token introspection"));
@@ -357,6 +370,21 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public int getRefreshTokenValidity()
 	{
 		return getIntValue(OAuthASProperties.REFRESH_TOKEN_VALIDITY);
+	}
+
+	public boolean isDeviceGrantEnabled()
+	{
+		return getBooleanValue(OAuthASProperties.DEVICE_GRANT_ENABLED);
+	}
+
+	public int getDeviceCodeValidity()
+	{
+		return getIntValue(OAuthASProperties.DEVICE_CODE_VALIDITY);
+	}
+
+	public int getDeviceCodeMinPollInterval()
+	{
+		return getIntValue(OAuthASProperties.DEVICE_CODE_MIN_POLL_INTERVAL);
 	}
 
 	public RefreshTokenIssuePolicy getRefreshTokenIssuePolicy()
