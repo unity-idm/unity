@@ -20,6 +20,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
@@ -129,7 +130,7 @@ class DeviceSignInView extends UnityViewComponent
 		if (userCode == null || userCode.isBlank())
 			showCodeEntryForm();
 		else
-			tryResolve(userCode);
+			tryResolve(userCode, true);
 	}
 
 	private void showCodeEntryForm()
@@ -139,22 +140,49 @@ class DeviceSignInView extends UnityViewComponent
 		H2 title = new H2(msg.getMessage("DeviceSignIn.connectDeviceTitle"));
 		Span description = new Span(msg.getMessage("DeviceSignIn.connectDeviceDescription"));
 
-		HorizontalLayout fieldRow = new HorizontalLayout();
-		fieldRow.setAlignItems(Alignment.CENTER);
+		VerticalLayout codeGroup = new VerticalLayout();
+		codeGroup.setAlignItems(Alignment.CENTER);
+		codeGroup.setPadding(false);
+		codeGroup.setSpacing(false);
 		Span codeLabel = new Span(msg.getMessage("DeviceSignIn.enterCode"));
 		TextField codeField = new TextField();
-		fieldRow.add(codeLabel, codeField);
+		codeGroup.add(codeLabel, codeField);
 
-		Button submit = new Button(msg.getMessage("DeviceSignIn.submit"), e -> tryResolve(codeField.getValue()));
+		Span codeHint = new Span(msg.getMessage("DeviceSignIn.codeHint"));
+
+		Button cancel = new Button(msg.getMessage("cancel"), e -> onCancel());
+		cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		Button submit = new Button(msg.getMessage("DeviceSignIn.submit"), e -> tryResolve(codeField.getValue(), false));
+		submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		submit.addClickShortcut(Key.ENTER);
+		HorizontalLayout buttons = new HorizontalLayout(cancel, submit);
 
-		layout.add(title, description, fieldRow, submit);
+		Span warning1 = new Span(msg.getMessage("DeviceSignIn.codeWarning1"));
+		Span warning2 = new Span(msg.getMessage("DeviceSignIn.codeWarning2"));
+
+		layout.add(title, description, codeGroup, codeHint, buttons, warning1, warning2);
 		getContent().removeAll();
 		getContent().add(layout);
 	}
 
-	private void tryResolve(String userCode)
+	private void onCancel()
 	{
+		if (parsedToken != null)
+		{
+			parsedToken.setDeviceCodeStatus(DeviceCodeStatus.DENIED);
+			if (!updateRecord())
+				return;
+		}
+		showError(msg.getMessage("DeviceSignIn.cancelled"));
+	}
+
+	private void tryResolve(String userCode, boolean confirmCodeStep)
+	{
+		if (userCode == null || userCode.isBlank())
+		{
+			showError(msg.getMessage("DeviceSignIn.invalidCode"));
+			return;
+		}
 		Optional<Token> tokenOpt = deviceCodeRepository.findByUserCode(userCode);
 		if (tokenOpt.isEmpty())
 		{
@@ -186,7 +214,33 @@ class DeviceSignInView extends UnityViewComponent
 		this.parsedToken = parsed;
 		this.config = configOpt.get();
 
-		showConsentScreen();
+		if (confirmCodeStep)
+			showConfirmCodeForm(parsed.getUserCode());
+		else
+			showConsentScreen();
+	}
+
+	private void showConfirmCodeForm(String userCode)
+	{
+		VerticalLayout layout = new VerticalLayout();
+		layout.setAlignItems(Alignment.CENTER);
+		H2 title = new H2(msg.getMessage("DeviceSignIn.confirmCodeTitle"));
+		Span description = new Span(msg.getMessage("DeviceSignIn.confirmCodeDescription"));
+
+		Span code = new Span(userCode);
+		code.getStyle().set("font-family", "monospace").set("font-size", "1.5em").set("font-weight", "bold");
+
+		Button cancel = new Button(msg.getMessage("cancel"), e -> onCancel());
+		cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+		Button confirm = new Button(msg.getMessage("DeviceSignIn.confirmCodeSubmit"), e -> showConsentScreen());
+		confirm.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		HorizontalLayout buttons = new HorizontalLayout(cancel, confirm);
+
+		Span warning = new Span(msg.getMessage("DeviceSignIn.confirmCodeWarning"));
+
+		layout.add(title, description, code, buttons, warning);
+		getContent().removeAll();
+		getContent().add(layout);
 	}
 
 	private void showConsentScreen()

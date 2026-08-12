@@ -39,12 +39,16 @@ import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.oauth.as.TestTxRunner;
+import pl.edu.icm.unity.oauth.as.RollbackOnThrowTxRunner;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 public class DeviceCodeHandlerTest
 {
-	private TransactionalRunner tx = new TestTxRunner();
+	// unlike a plain TestTxRunner, this rolls back token store writes made by code that
+	// throws instead of returning normally - matching the real SQLTransactionEngine, whose
+	// commit only runs on normal return. Without this, tests can't tell apart a handler that
+	// persists-then-throws (broken: production never commits) from one that persists-then-returns.
+	private TransactionalRunner tx;
 	private MockTokensMan tokensManagement;
 	private DeviceCodeRepository deviceCodeRepository;
 	private OAuthASProperties config;
@@ -54,6 +58,7 @@ public class DeviceCodeHandlerTest
 	void setUp()
 	{
 		tokensManagement = new MockTokensMan();
+		tx = new RollbackOnThrowTxRunner(tokensManagement);
 		config = OAuthTestUtils.getConfig();
 		config.setProperty(OAuthASProperties.DEVICE_GRANT_ENABLED, "true");
 

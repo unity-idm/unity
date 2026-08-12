@@ -90,8 +90,7 @@ class DeviceCodeHandler
 		{
 			deviceCodeRepository.remove(deviceCodeValue);
 			statisticsPublisher.reportFail(parsedToken.getClientUsername(), parsedToken.getClientName());
-			throw new OAuthErrorException(
-					BaseOAuthResource.makeError(DeviceAuthorizationGrantError.EXPIRED_TOKEN, null));
+			return BaseOAuthResource.makeError(DeviceAuthorizationGrantError.EXPIRED_TOKEN, null);
 		}
 
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
@@ -108,7 +107,7 @@ class DeviceCodeHandler
 		{
 			deviceCodeRepository.remove(deviceCodeValue);
 			statisticsPublisher.reportFail(parsedToken.getClientUsername(), parsedToken.getClientName());
-			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.ACCESS_DENIED, null));
+			return BaseOAuthResource.makeError(OAuth2Error.ACCESS_DENIED, null);
 		} else if (status == DeviceCodeStatus.APPROVED)
 		{
 			return handleApproved(deviceCodeValue, parsedToken, acceptHeader);
@@ -130,13 +129,14 @@ class DeviceCodeHandler
 			parsedToken.setCurrentPollInterval(interval + 5);
 			parsedToken.setLastPolledAt(now);
 			updateRecord(deviceCodeValue, parsedToken);
-			throw new OAuthErrorException(BaseOAuthResource.makeError(DeviceAuthorizationGrantError.SLOW_DOWN, null));
+			// returned, not thrown: the transaction only commits (persisting the bookkeeping
+			// above) if this method returns normally
+			return BaseOAuthResource.makeError(DeviceAuthorizationGrantError.SLOW_DOWN, null);
 		}
 
 		parsedToken.setLastPolledAt(now);
 		updateRecord(deviceCodeValue, parsedToken);
-		throw new OAuthErrorException(
-				BaseOAuthResource.makeError(DeviceAuthorizationGrantError.AUTHORIZATION_PENDING, null));
+		return BaseOAuthResource.makeError(DeviceAuthorizationGrantError.AUTHORIZATION_PENDING, null);
 	}
 
 	private void updateRecord(String deviceCodeValue, OAuthToken token) throws OAuthErrorException
