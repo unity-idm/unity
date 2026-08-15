@@ -58,6 +58,9 @@ class ImmediateEntityRemovalDialog extends DialogWithActionFooter
 	{
 		try
 		{
+			close();
+			authnProcessor.logoutImmediately("/");
+
 			EntityParam entityP = new EntityParam(entity);
 			switch (removalMode)
 			{
@@ -65,9 +68,6 @@ class ImmediateEntityRemovalDialog extends DialogWithActionFooter
 				case disable -> identitiesMan.setEntityStatus(entityP, EntityState.disabled);
 				case remove -> identitiesMan.removeEntity(entityP);
 			}
-			
-			close();
-			authnProcessor.logout();
 		} catch (EngineException e)
 		{
 			notificationPresenter.showError(msg.getMessage("RemoveEntityDialog.scheduleFailed"), e.getMessage());
