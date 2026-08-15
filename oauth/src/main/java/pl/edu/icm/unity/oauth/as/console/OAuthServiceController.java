@@ -120,6 +120,7 @@ class OAuthServiceController implements IdpServiceController
 	public static final String IDP_CLIENT_MAIN_GROUP = "/IdPs";
 	public static final String OAUTH_CLIENTS_SUBGROUP = "oauth-clients";
 	public static final String DEVICE_SIGNIN_ADDRESS_SUFFIX = "-device-signin";
+	public static final String DEVICE_SIGNIN_NAME_SUFFIX = " - device sign-in";
 
 	private MessageSource msg;
 	private EndpointManagement endpointMan;
@@ -347,6 +348,7 @@ class OAuthServiceController implements IdpServiceController
 				updateClients(def.getSelectedClients());
 		} catch (Exception e)
 		{
+			log.error("Can not deploy OAuth service {}", webAuthzService.getName(), e);
 			throw new ControllerException(msg.getMessage("ServicesController.deployError", webAuthzService.getName()),
 					e);
 		}
@@ -402,6 +404,12 @@ class OAuthServiceController implements IdpServiceController
 		String tag = UUID.randomUUID().toString();
 		try
 		{
+			String currentTag = endpointMan.getEndpoints().stream()
+					.filter(e -> e.getName().equals(webAuthzService.getName()))
+					.findFirst()
+					.map(e -> e.getConfiguration().getTag())
+					.orElse(null);
+
 			EndpointConfiguration wconfig = new EndpointConfiguration(webAuthzService.getDisplayedName(),
 					webAuthzService.getDescription(), webAuthzService.getAuthenticationOptions(),
 					webAuthzService.getConfiguration(), webAuthzService.getRealm(), tag);
@@ -414,7 +422,7 @@ class OAuthServiceController implements IdpServiceController
 				endpointMan.updateEndpoint(tokenService.getName(), rconfig);
 			}
 
-			DefaultServiceDefinition deviceSignInService = def.getDeviceSignInService();
+			DefaultServiceDefinition deviceSignInService = currentTag != null ? getDeviceSignInService(currentTag) : null;
 			if (isDeviceGrantEnabled(webAuthzService.getConfiguration()))
 			{
 				if (deviceSignInService == null)
@@ -440,6 +448,7 @@ class OAuthServiceController implements IdpServiceController
 			updateClients(def.getSelectedClients());
 		} catch (Exception e)
 		{
+			log.error("Can not update OAuth service {}", def.getName(), e);
 			throw new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e);
 		}
 
@@ -449,7 +458,7 @@ class OAuthServiceController implements IdpServiceController
 	{
 		DefaultServiceDefinition deviceSignInService = new DefaultServiceDefinition(
 				DeviceSignInWebEndpoint.TYPE.getName());
-		deviceSignInService.setName(webAuthzService.getName());
+		deviceSignInService.setName(webAuthzService.getName() + DEVICE_SIGNIN_NAME_SUFFIX);
 		deviceSignInService.setAddress(webAuthzService.getAddress() + DEVICE_SIGNIN_ADDRESS_SUFFIX);
 		deviceSignInService.setDisplayedName(webAuthzService.getDisplayedName());
 		deviceSignInService.setDescription(webAuthzService.getDescription());
