@@ -32,6 +32,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.WildcardParameter;
 
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
@@ -228,7 +229,7 @@ class DeviceSignInView extends UnityViewComponent
 		Span description = new Span(msg.getMessage("DeviceSignIn.confirmCodeDescription"));
 
 		Span code = new Span(userCode);
-		code.getStyle().set("font-family", "monospace").set("font-size", "1.5em").set("font-weight", "bold");
+		code.addClassName(CssClassNames.DEVICE_CODE.getName());
 
 		Button cancel = new Button(msg.getMessage("cancel"), e -> onCancel());
 		cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
