@@ -142,7 +142,7 @@ class UnityAppLayoutComponentsHolder
 
 	private HorizontalLayout createRightNavbarSite(List<Component> additionalIcons)
 	{
-		Icon logout = createLogoutIcon(authnProcessor::logout);
+		Icon logout = createLogoutIcon();
 
 		HorizontalLayout rightNavbarSite = new HorizontalLayout();
 		rightNavbarSite.setAlignItems(FlexComponent.Alignment.CENTER);
@@ -154,12 +154,17 @@ class UnityAppLayoutComponentsHolder
 		return rightNavbarSite;
 	}
 
-	private Icon createLogoutIcon(Runnable logout)
+	private Icon createLogoutIcon()
 	{
 		Icon logoutIcon = new Icon(VaadinIcon.SIGN_OUT);
 		logoutIcon.addClassName(POINTER.getName());
 		logoutIcon.addClickListener(
-				event -> logout.run()
+				// soft=true: only unbinds the login session from the HTTP session instead of
+				// invalidating it outright. The hard variant's HttpSession.invalidate() (triggered
+				// via soft=false) can prevent the queued client-side navigation from reaching the
+				// browser at all, since both happen in the same response - see the other logout()
+				// call sites in the codebase, which all use soft=true for the same reason
+				event -> authnProcessor.logout(true, "/")
 		);
 		return logoutIcon;
 	}
