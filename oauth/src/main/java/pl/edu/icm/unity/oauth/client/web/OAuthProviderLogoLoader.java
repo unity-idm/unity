@@ -25,11 +25,12 @@ import pl.edu.icm.unity.oauth.client.federation.OAuthFederationLogoDownloader;
 import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
 
 /**
- * Resolves the logo to show for an OAuth provider. For providers coming from a trusted federation
- * prefers the locally cached copy prefetched by {@link OAuthFederationLogoDownloader}, falling back
- * to fetching directly from the configured icon URI (as before) when the provider isn't federation
- * sourced, uses a local file, or the cache doesn't have the logo (yet). Mirrors SAML's
- * {@code LogoExposingService}.
+ * Resolves the logo to show for an OAuth provider. For providers coming from a federation, the
+ * {@code iconUrl} is a self-declared, untrusted value of the remote entity, so it is never fetched
+ * directly: only the locally cached copy prefetched out-of-band by {@link OAuthFederationLogoDownloader}
+ * is served, and no logo is shown on a cache miss. Providers that aren't federation sourced, or whose
+ * icon uses a {@code file:} URI, are admin-configured/trusted and are fetched directly as before.
+ * Mirrors SAML's {@code LogoExposingService}.
  */
 @Component
 public class OAuthProviderLogoLoader
