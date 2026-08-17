@@ -30,14 +30,16 @@ public class OAuthFederationProvidersManager
 
 	private final OAuthFederationService federationService;
 	private final FederationEntityToProviderConverter converter;
+	private final OAuthFederationLogoDownloader logoDownloader;
 
 	private final Map<String, InstanceState> stateByAuthenticator = new ConcurrentHashMap<>();
 
 	public OAuthFederationProvidersManager(OAuthFederationService federationService,
-			FederationEntityToProviderConverter converter)
+			FederationEntityToProviderConverter converter, OAuthFederationLogoDownloader logoDownloader)
 	{
 		this.federationService = federationService;
 		this.converter = converter;
+		this.logoDownloader = logoDownloader;
 	}
 
 	public void setConfiguration(String authenticatorId, String clientId, OAuthClientConfiguration config,
@@ -95,6 +97,7 @@ public class OAuthFederationProvidersManager
 				config.authenticationCredential(), config.defaultEnableAssociation(),
 				config.federationProviderDefaults(), config.federation());
 		log.debug("Updated {} federation providers for authenticator {}", fromFederation.size(), authenticatorId);
+		logoDownloader.downloadLogoFilesAsync(fromFederation, config.federation().truststore());
 
 		Map<OAuthProviderKey, Instant> expiryMap = new ConcurrentHashMap<>();
 		fromFederation.forEach(fp -> expiryMap.put(fp.config().key(), fp.expiresAt()));

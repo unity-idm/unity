@@ -9,7 +9,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HexFormat;
 
-public record OAuthProviderKey(String key)
+import pl.edu.icm.unity.engine.api.files.logo.LogoCacheKey;
+
+public record OAuthProviderKey(String key) implements LogoCacheKey
 {
 	static final String FEDERATION_PREFIX = "_fed_";
 
@@ -53,6 +55,12 @@ public record OAuthProviderKey(String key)
 	}
 
 	public String asString()
+	{
+		return key;
+	}
+
+	@Override
+	public String asCacheBasename()
 	{
 		return key;
 	}

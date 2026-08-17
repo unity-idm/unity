@@ -86,7 +86,9 @@ public class OAuthServiceConfiguration
 	private String federationHostnameChecking;
 	private String federationDisplayName;
 	private String federationLogoUri;
-	
+	private boolean federationAllowAnyScopes;
+	private List<String> federationDefaultAllowedScopes;
+
 	public OAuthServiceConfiguration()
 	{
 
@@ -131,6 +133,8 @@ public class OAuthServiceConfiguration
 		trustedUpstreamAS = new ArrayList<>();
 		authorizationScripts = new ArrayList<>();
 		federationMetadataValidity = OAuthASProperties.DEFAULT_FEDERATION_METADATA_VALIDITY;
+		federationAllowAnyScopes = true;
+		federationDefaultAllowedScopes = new ArrayList<>();
 	}
 
 	public String toProperties(MessageSource msg, PKIManagement pkiForValidation)
@@ -336,6 +340,12 @@ public class OAuthServiceConfiguration
 			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_DISPLAY_NAME, federationDisplayName);
 		if (!Strings.isNullOrEmpty(federationLogoUri))
 			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_LOGO_URI, federationLogoUri);
+		raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_ALLOW_ANY_SCOPES,
+				String.valueOf(federationAllowAnyScopes));
+		if (federationDefaultAllowedScopes != null)
+			for (int i = 0; i < federationDefaultAllowedScopes.size(); i++)
+				raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_ALLOWED_SCOPES + (i + 1),
+						federationDefaultAllowedScopes.get(i));
 
 		raw.put(OAuthASProperties.P + OAuthASProperties.CLIENTS_GROUP, clientGroup.group().toString());
 		raw.put(OAuthASProperties.P + OAuthASProperties.USERS_GROUP, usersGroup.group().toString());
@@ -452,6 +462,8 @@ public class OAuthServiceConfiguration
 		federationHostnameChecking = oauthProperties.getValue(OAuthASProperties.FEDERATION_HOSTNAME_CHECKING);
 		federationDisplayName = oauthProperties.getValue(OAuthASProperties.FEDERATION_DISPLAY_NAME);
 		federationLogoUri = oauthProperties.getValue(OAuthASProperties.FEDERATION_LOGO_URI);
+		federationAllowAnyScopes = oauthProperties.getBooleanValue(OAuthASProperties.FEDERATION_ALLOW_ANY_SCOPES);
+		federationDefaultAllowedScopes = oauthProperties.getListOfValues(OAuthASProperties.FEDERATION_ALLOWED_SCOPES);
 
 		openIDConnect = isScopeEnabled(OIDCScopeValue.OPENID.getValue());
 		tokenExchangeSupport = isScopeEnabled(OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
@@ -924,5 +936,25 @@ public class OAuthServiceConfiguration
 	public void setFederationLogoUri(String federationLogoUri)
 	{
 		this.federationLogoUri = federationLogoUri;
+	}
+
+	public List<String> getFederationDefaultAllowedScopes()
+	{
+		return federationDefaultAllowedScopes;
+	}
+
+	public void setFederationDefaultAllowedScopes(List<String> federationDefaultAllowedScopes)
+	{
+		this.federationDefaultAllowedScopes = federationDefaultAllowedScopes;
+	}
+
+	public boolean isFederationAllowAnyScopes()
+	{
+		return federationAllowAnyScopes;
+	}
+
+	public void setFederationAllowAnyScopes(boolean federationAllowAnyScopes)
+	{
+		this.federationAllowAnyScopes = federationAllowAnyScopes;
 	}
 }

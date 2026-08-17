@@ -8,8 +8,10 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
@@ -48,6 +50,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.files.RemoteFileData;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.client.federation.TlsEntityStatementRetriever;
 import pl.edu.icm.unity.stdext.attr.ImageAttribute;
@@ -55,6 +58,8 @@ import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+
+import static java.util.Collections.synchronizedSet;
 
 @Component
 public class FederatedOAuthClientService
@@ -64,6 +69,7 @@ public class FederatedOAuthClientService
 
 	private final Map<String, CachedChain> chainCache = new ConcurrentHashMap<>();
 	private final Map<String, URI> lastFetchedLogoUri = new ConcurrentHashMap<>();
+	private final Set<String> currentlyRefreshingLogo = synchronizedSet(new HashSet<>());
 
 	private final EntityManagement identitiesMan;
 	private final AttributesManagement attributesMan;
@@ -71,6 +77,7 @@ public class FederatedOAuthClientService
 	private final AttributeSupport attributeSupport;
 	private final AttributeTypeSupport attrTypeSupport;
 	private final URIAccessService uriAccessService;
+	private final ExecutorsService executorsService;
 
 	public FederatedOAuthClientService(
 			@Qualifier("insecure") EntityManagement identitiesMan,
@@ -78,7 +85,8 @@ public class FederatedOAuthClientService
 			@Qualifier("insecure") GroupsManagement groupsMan,
 			AttributeSupport attributeSupport,
 			AttributeTypeSupport attrTypeSupport,
-			URIAccessService uriAccessService)
+			URIAccessService uriAccessService,
+			ExecutorsService executorsService)
 	{
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
@@ -86,6 +94,7 @@ public class FederatedOAuthClientService
 		this.attributeSupport = attributeSupport;
 		this.attrTypeSupport = attrTypeSupport;
 		this.uriAccessService = uriAccessService;
+		this.executorsService = executorsService;
 	}
 
 	public record FederatedClientResolution(long entityId, JWKSet jwks) {}
@@ -119,44 +128,46 @@ public class FederatedOAuthClientService
 			throw new AuthenticationException(
 					"Empty JWKS in openid_relying_party metadata in federation leaf entity for " + clientId);
 
-		long entityId = resolveOrRegister(clientId, rpMeta, config.clientsGroup(), config.trustAnchorId());
+		long entityId = resolveOrRegister(clientId, rpMeta, config);
 		return new FederatedClientResolution(entityId, jwkSet);
 	}
 
-	private long resolveOrRegister(String clientId, OIDCClientMetadata metadata, String oauthGroup, String trustAnchorId) throws Exception
+	private long resolveOrRegister(String clientId, OIDCClientMetadata metadata, OAuthASFederationConfig config) throws Exception
 	{
 		try
 		{
 			var entity = identitiesMan.getEntity(new EntityParam(new IdentityTaV(UsernameIdentity.ID, clientId)));
 			long entityId = entity.getId();
-			refreshAttributesIfChanged(entityId, clientId, metadata, oauthGroup);
+			refreshAttributesIfChanged(entityId, clientId, metadata, config);
 			log.info("Federation client {} found in DB, entityId={}", clientId, entityId);
 			return entityId;
 		} catch (IllegalArgumentException e)
 		{
-			return registerNewClient(clientId, metadata, oauthGroup, trustAnchorId);
+			return registerNewClient(clientId, metadata, config);
 		}
 	}
 
-	private long registerNewClient(String clientId, OIDCClientMetadata metadata, String oauthGroup, String trustAnchorId)
+	private long registerNewClient(String clientId, OIDCClientMetadata metadata, OAuthASFederationConfig config)
 			throws EngineException
 	{
 		log.info("Auto-registering federation client {}", clientId);
+		String oauthGroup = config.clientsGroup();
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, clientId);
-		identity.setRemoteIdp(trustAnchorId);
+		identity.setRemoteIdp(config.trustAnchorId());
 		long entityId = identitiesMan.addEntity(identity, EntityState.valid).getEntityId();
 		groupsMan.addMemberFromParent(oauthGroup, new EntityParam(entityId));
-		for (Attribute attr : FederationClientAttributesMapper.toOAuthAttributes(metadata, oauthGroup, clientId))
+		for (Attribute attr : FederationClientAttributesMapper.toOAuthAttributes(metadata, oauthGroup, clientId, config.clientDefaults()))
 			attributesMan.setAttribute(new EntityParam(entityId), attr);
 		setEntityDisplayedName(entityId, FederationClientAttributesMapper.toDisplayName(metadata, clientId));
-		updateLogoIfChanged(clientId, entityId, oauthGroup, metadata.getLogoURI());
+		updateLogoIfChanged(clientId, entityId, oauthGroup, metadata.getLogoURI(), config.truststoreName());
 		log.info("Federation client {} registered as entityId={}", clientId, entityId);
 		return entityId;
 	}
 
-	private void refreshAttributesIfChanged(long entityId, String clientId, OIDCClientMetadata metadata, String oauthGroup)
+	private void refreshAttributesIfChanged(long entityId, String clientId, OIDCClientMetadata metadata, OAuthASFederationConfig config)
 	{
-		List<Attribute> fresh = FederationClientAttributesMapper.toOAuthAttributes(metadata, oauthGroup, clientId);
+		String oauthGroup = config.clientsGroup();
+		List<Attribute> fresh = FederationClientAttributesMapper.toOAuthAttributes(metadata, oauthGroup, clientId, config.clientDefaults());
 		try
 		{
 			Collection<AttributeExt> existing = attributesMan.getAllAttributes(
@@ -170,7 +181,7 @@ public class FederatedOAuthClientService
 					attributesMan.setAttribute(new EntityParam(entityId), attr);
 			}
 			setEntityDisplayedName(entityId, FederationClientAttributesMapper.toDisplayName(metadata, clientId));
-			updateLogoIfChanged(clientId, entityId, oauthGroup, metadata.getLogoURI());
+			updateLogoIfChangedAsync(clientId, entityId, oauthGroup, metadata.getLogoURI(), config.truststoreName());
 		} catch (Exception e)
 		{
 			log.warn("Failed to refresh attributes for federation client entityId={}: {}", entityId, e.getMessage());
@@ -195,7 +206,32 @@ public class FederatedOAuthClientService
 		}
 	}
 
-	private void updateLogoIfChanged(String clientId, long entityId, String oauthGroup, URI logoUri)
+	/**
+	 * Like {@link #updateLogoIfChanged(String, long, String, URI)}, but fetches the logo in the background
+	 * instead of blocking the caller. Used when refreshing an already-registered client (which already has
+	 * a logo attribute value from a previous fetch), as opposed to first-time registration where the caller
+	 * needs the logo to be present by the time it returns.
+	 */
+	private void updateLogoIfChangedAsync(String clientId, long entityId, String oauthGroup, URI logoUri, String truststoreName)
+	{
+		if (logoUri == null || logoUri.equals(lastFetchedLogoUri.get(clientId)))
+			return;
+		if (!currentlyRefreshingLogo.add(clientId))
+			return;
+		executorsService.getExecutionService().execute(() ->
+		{
+			try
+			{
+				updateLogoIfChanged(clientId, entityId, oauthGroup, logoUri, truststoreName);
+			}
+			finally
+			{
+				currentlyRefreshingLogo.remove(clientId);
+			}
+		});
+	}
+
+	private void updateLogoIfChanged(String clientId, long entityId, String oauthGroup, URI logoUri, String truststoreName)
 	{
 		if (logoUri == null)
 			return;
@@ -203,7 +239,7 @@ public class FederatedOAuthClientService
 			return;
 		try
 		{
-			RemoteFileData fileData = uriAccessService.readURL(logoUri, null,
+			RemoteFileData fileData = uriAccessService.readURL(logoUri, truststoreName,
 					LOGO_FETCH_TIMEOUT, LOGO_FETCH_TIMEOUT, 0);
 			ImageType imageType = ImageType.fromMimeType(fileData.mimeType);
 			UnityImage image = new UnityImage(fileData.getContents(), imageType);

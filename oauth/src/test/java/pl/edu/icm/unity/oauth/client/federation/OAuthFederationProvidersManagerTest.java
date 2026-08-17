@@ -52,13 +52,15 @@ class OAuthFederationProvidersManagerTest
 	OAuthFederationService federationService;
 	@Mock
 	FederationEntityToProviderConverter converter;
+	@Mock
+	OAuthFederationLogoDownloader logoDownloader;
 
 	OAuthFederationProvidersManager manager;
 
 	@BeforeEach
 	void setUp()
 	{
-		manager = new OAuthFederationProvidersManager(federationService, converter);
+		manager = new OAuthFederationProvidersManager(federationService, converter, logoDownloader);
 	}
 
 	@Test

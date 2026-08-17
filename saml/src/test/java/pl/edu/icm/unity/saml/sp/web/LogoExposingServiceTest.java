@@ -7,7 +7,8 @@ import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
-import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileLoader;
+import pl.edu.icm.unity.engine.api.files.logo.CachedLogoFileLoader;
+import pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 
 import java.io.File;
@@ -29,7 +30,7 @@ class LogoExposingServiceTest
 	@Test
 	void shouldReturnNullWhenLogoUriIsNull()
 	{
-		ExternalLogoFileLoader external = mock(ExternalLogoFileLoader.class);
+		CachedLogoFileLoader external = mock(CachedLogoFileLoader.class);
 		VaadinLogoImageLoader vaadinLoader = mock(VaadinLogoImageLoader.class);
 		LogoExposingService service = new LogoExposingService(external, vaadinLoader);
 
@@ -42,7 +43,7 @@ class LogoExposingServiceTest
 	@Test
 	void shouldReturnImageFromLoaderWhenDirectLogoRequestedAndCanBeLoaded()
 	{
-		ExternalLogoFileLoader external = mock(ExternalLogoFileLoader.class);
+		CachedLogoFileLoader external = mock(CachedLogoFileLoader.class);
 		VaadinLogoImageLoader vaadinLoader = mock(VaadinLogoImageLoader.class);
 		LogoExposingService service = new LogoExposingService(external, vaadinLoader);
 		LocalOrRemoteResource expected = new LocalOrRemoteResource("http://example/logo.png", "");
@@ -58,7 +59,7 @@ class LogoExposingServiceTest
 	@Test
 	void shouldReturnNullWhenDirectLogoRequestedAndCanNotBeLoaded()
 	{
-		ExternalLogoFileLoader external = mock(ExternalLogoFileLoader.class);
+		CachedLogoFileLoader external = mock(CachedLogoFileLoader.class);
 		VaadinLogoImageLoader vaadinLoader = mock(VaadinLogoImageLoader.class);
 		LogoExposingService service = new LogoExposingService(external, vaadinLoader);
 		when(vaadinLoader.loadImageFromUri(eq("file:/tmp/logo.png")))
@@ -76,11 +77,11 @@ class LogoExposingServiceTest
 		Path file = tempDir.resolve("logo.bin");
 		Files.writeString(file, "data");
 
-		ExternalLogoFileLoader external = mock(ExternalLogoFileLoader.class);
+		CachedLogoFileLoader external = mock(CachedLogoFileLoader.class);
 		VaadinLogoImageLoader vaadinLoader = mock(VaadinLogoImageLoader.class);
 		LogoExposingService service = new LogoExposingService(external, vaadinLoader);
 
-		when(external.getFile(eq("fed"), any(TrustedIdPKey.class), any(Locale.class)))
+		when(external.getFile(eq(AsyncExternalLogoFileDownloader.CACHE_GROUP), eq("fed"), any(TrustedIdPKey.class), any(Locale.class)))
 				.thenReturn(Optional.of(file.toFile()));
 
 		IdPVisalSettings cfg = new IdPVisalSettings("http://idp/logo", Set.of(), "name", "fed");
@@ -99,12 +100,12 @@ class LogoExposingServiceTest
 	@Test
 	void shouldReturnImageWithoutClassWhenPrefetchedFileMissing()
 	{
-		ExternalLogoFileLoader external = mock(ExternalLogoFileLoader.class);
+		CachedLogoFileLoader external = mock(CachedLogoFileLoader.class);
 		VaadinLogoImageLoader vaadinLoader = mock(VaadinLogoImageLoader.class);
 		LogoExposingService service = new LogoExposingService(external, vaadinLoader);
 
 		File missing = new File("/path/that/does/not/exist/logo.png");
-		when(external.getFile(eq("fed"), any(TrustedIdPKey.class), any(Locale.class)))
+		when(external.getFile(eq(AsyncExternalLogoFileDownloader.CACHE_GROUP), eq("fed"), any(TrustedIdPKey.class), any(Locale.class)))
 				.thenReturn(Optional.of(missing));
 
 		IdPVisalSettings cfg = new IdPVisalSettings("http://idp/logo", Set.of(), "name", "fed");

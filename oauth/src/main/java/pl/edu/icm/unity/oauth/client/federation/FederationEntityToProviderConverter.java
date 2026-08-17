@@ -107,7 +107,7 @@ public class FederationEntityToProviderConverter
 			OAuthProviderConfiguration providerConfig = OAuthProviderConfiguration.builder()
 					.withKey(key)
 					.withName(new I18nString(name))
-					.withIconUrl(logoUri != null ? new I18nString(logoUri.toString()) : null)
+					.withIconUrl(toIconUrl(logoUri))
 					.withFederationId(federationId)
 					.withFederationName(federationName)
 					.withProviderType(Providers.custom)
@@ -140,6 +140,15 @@ public class FederationEntityToProviderConverter
 			log.warn("Failed to convert federation entity to provider config", e);
 			return Optional.empty();
 		}
+	}
+
+	private static I18nString toIconUrl(URI logoUri)
+	{
+		if (logoUri == null)
+			return null;
+		I18nString iconUrl = new I18nString(logoUri.toString());
+		iconUrl.addValue("", logoUri.toString());
+		return iconUrl;
 	}
 
 	private static List<String> ensureOpenIdScope(List<String> scopes)

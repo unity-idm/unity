@@ -5,71 +5,46 @@
 
 package pl.edu.icm.unity.saml.metadata.cfg;
 
+import java.time.Duration;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.ProfileType;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.RemoteFileData;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.files.logo.RemoteLogoCacheDownloader;
 import pl.edu.icm.unity.saml.sp.config.BaseSamlConfiguration.RemoteMetadataSource;
-import pl.edu.icm.unity.saml.sp.config.TrustedIdPConfiguration;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static java.util.Base64.getDecoder;
 import static java.util.Collections.synchronizedSet;
 
 @Component
 public class AsyncExternalLogoFileDownloader
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, AsyncExternalLogoFileDownloader.class);
-	private static final String STAGING = "staging";
-	private final ExecutorService executorService;
-	private final URIAccessService uriAccessService;
+	public static final String CACHE_GROUP = "samlIdpLogos";
 
 	private final MetadataToSPConfigConverter converter;
-	private final String workspaceDir;
-	private final String defaultLocale;
-	private final Duration socketReadTimeout;
-	private final Duration connectionTimeout;
+	private final RemoteLogoCacheDownloader remoteLogoCacheDownloader;
 
 	private final Set<String> currentlyDownloadingFederation = synchronizedSet(new HashSet<>());
 
-	public AsyncExternalLogoFileDownloader(UnityServerConfiguration conf, MessageSource msg, URIAccessService uriAccessService,
-	                                       ExecutorsService executorsService, MetadataToSPConfigConverter converter)
+	public AsyncExternalLogoFileDownloader(MetadataToSPConfigConverter converter,
+			RemoteLogoCacheDownloader remoteLogoCacheDownloader)
 	{
-		workspaceDir = LogoFilenameUtils.getLogosWorkspace(conf);
-		executorService = executorsService.getExecutionService();
-		defaultLocale = msg.getLocale().toString();
-		this.uriAccessService = uriAccessService;
 		this.converter = converter;
-		this.socketReadTimeout = Duration.ofMillis(conf.getIntValue(UnityServerConfiguration.BULK_FILES_DOWNLOAD_TIMEOUT));
-		this.connectionTimeout = Duration.ofMillis(conf.getIntValue(UnityServerConfiguration.BULK_FILES_CONNECTION_TIMEOUT));
+		this.remoteLogoCacheDownloader = remoteLogoCacheDownloader;
 	}
 
-	@SuppressWarnings("unchecked")
 	public CompletableFuture<Void> downloadLogoFilesAsync(EntitiesDescriptorDocument entitiesDescriptorDocument, String httpsTruststore)
 	{
 		String federationId = entitiesDescriptorDocument.getEntitiesDescriptor().getID();
@@ -78,7 +53,6 @@ public class AsyncExternalLogoFileDownloader
 			log.info("Logos of federation {} are being downloaded, won't start a new downloading process", federationId);
 			return CompletableFuture.completedFuture(null);
 		}
-		CompletableFuture<Set<String>>[] savedFilesNamesFutures;
 		try
 		{
 			RemoteMetadataSource metadataSource = RemoteMetadataSource.builder()
@@ -89,9 +63,10 @@ public class AsyncExternalLogoFileDownloader
 			TrustedIdPs trustedIdPs = converter.convertToTrustedIdPs(entitiesDescriptorDocument, metadataSource);
 			log.info("Will download logos for {} IdPs of federation {}", trustedIdPs.getKeys().size(),
 					entitiesDescriptorDocument.getEntitiesDescriptor().getName());
-			savedFilesNamesFutures = trustedIdPs.getEntrySet().stream()
-					.map(entry -> CompletableFuture.supplyAsync(() -> downloadFiles(entry, httpsTruststore), executorService))
-					.toArray(CompletableFuture[]::new);
+			Map<TrustedIdPKey, Map<String, String>> logosByKeyAndLocale = trustedIdPs.getEntrySet().stream()
+					.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().logoURI.getMap()));
+			return remoteLogoCacheDownloader.downloadLogoFilesAsync(CACHE_GROUP, federationId, logosByKeyAndLocale, httpsTruststore)
+					.whenComplete((result, error) -> currentlyDownloadingFederation.remove(federationId));
 		}
 		catch (Exception e)
 		{
@@ -99,178 +74,5 @@ public class AsyncExternalLogoFileDownloader
 			log.error("This exception occurred when metadata has been converted to TrustedIdPs", e);
 			return CompletableFuture.completedFuture(null);
 		}
-		return CompletableFuture.allOf(savedFilesNamesFutures)
-			.thenRunAsync(
-				() -> cleanUp(entitiesDescriptorDocument, savedFilesNamesFutures),
-				executorService)
-			.whenComplete((result, error) -> currentlyDownloadingFederation.remove(federationId))
-			.whenComplete((result, error) -> log.info("Prefetched logos of federation {}", federationId));
-	}
-
-	private void cleanUp(EntitiesDescriptorDocument entitiesDescriptorDocument, CompletableFuture<Set<String>>[] savedFilesNamesFutures)
-	{
-		Set<String> downloadedFilesName = Arrays.stream(savedFilesNamesFutures)
-				.filter(future -> !future.isCompletedExceptionally())
-				.flatMap(this::getFileNamesAfterJobCompletion)
-				.collect(Collectors.toSet());
-		cleanUp(entitiesDescriptorDocument.getEntitiesDescriptor().getID(), downloadedFilesName);
-	}
-
-	private Stream<String> getFileNamesAfterJobCompletion(CompletableFuture<Set<String>> completableFuture)
-	{
-		try
-		{
-			return completableFuture.get().stream();
-		} catch (InterruptedException | ExecutionException e)
-		{
-			throw new IllegalStateException("This shouldn't happen, only completed future should be processed ", e);
-		}
-	}
-
-	private void cleanUp(String federationId, Set<String> downloadedFilesName)
-	{
-		String catalog = LogoFilenameUtils.federationDirName(federationId);
-		try
-		{
-			Path finalDir = Paths.get(workspaceDir, catalog);
-			Paths.get(workspaceDir, STAGING, catalog).toFile().deleteOnExit();
-			if(!finalDir.toFile().exists())
-				return;
-			removeFilesFromFinalDestinationWhichAreNotReplacedByNewOne(downloadedFilesName, finalDir);
-			log.debug("Not used logos from federation id {} has been cleaned from {}", federationId, finalDir);
-		}
-		catch (IOException e)
-		{
-			log.error("Failed while cleaning images from final destination", e);
-		}
-	}
-
-	private static void removeFilesFromFinalDestinationWhichAreNotReplacedByNewOne(Set<String> savedFilesBasedNames,
-	                                                                               Path finalDir) throws IOException
-	{
-		try (Stream<Path> paths = Files.walk(finalDir))
-		{
-			paths.filter(Files::isRegularFile)
-					.filter(path -> savedFilesBasedNames.stream().noneMatch(name -> path.getFileName().toString().startsWith(name)))
-					.forEach(AsyncExternalLogoFileDownloader::deleteCachedLogoFileIfExists);
-		}
-	}
-
-	private Set<String> downloadFiles(Map.Entry<TrustedIdPKey, TrustedIdPConfiguration> entry, String httpsTruststore)
-	{
-		return entry.getValue().logoURI
-				.getMap()
-				.entrySet().stream()
-				.map(entry1 ->
-					{
-						String federationDirName = LogoFilenameUtils.federationDirName(entry.getValue().federationId);
-						String logoFileBasename = LogoFilenameUtils.getLogoFileBasename(
-								entry.getKey(), Locale.forLanguageTag(entry1.getKey()), defaultLocale);
-						fetchAndSaveFileOnDisk(federationDirName, logoFileBasename, entry1.getValue(), httpsTruststore);
-						return logoFileBasename;
-					}
-				).collect(Collectors.toSet());
-	}
-
-	private void fetchAndSaveFileOnDisk(String catalog, String name, String logoURI, String httpsTruststore)
-	{
-		try
-		{
-			URI uri = URI.create(logoURI);
-			if(uri.getScheme().equals("data"))
-				saveFileBasedOnDataURI(catalog, name, uri);
-			else
-				downloadFile(catalog, name, uri, httpsTruststore);
-
-			log.trace("Logo file with uri {} was downloaded to {}", logoURI, name);
-		} catch (Exception e)
-		{
-			String cause = e.getCause() != null ? e.getCause().getMessage() : "-";
-			if (e.getCause() == null || !knownException(e.getCause()))
-				log.debug("Details of fetching logo {} error", logoURI, e);
-			else if (log.isTraceEnabled())
-				log.trace("Details of fetching logo {} error", logoURI, e);
-			else
-				log.debug("Logo file with uri {} cannot be downloaded: {}, cause: {}", logoURI, e.getMessage(), cause);
-		}
-	}
-
-	private boolean knownException(Throwable exception)
-	{
-		return exception instanceof IOException; 
-	}
-
-	private void downloadFile(String catalog, String name, URI uri, String httpsTruststore) throws IOException
-	{
-		log.trace("Downloading from {}", uri);
-		RemoteFileData fileData = uriAccessService.readURL(uri, httpsTruststore, connectionTimeout, socketReadTimeout, 0);
-		String extension = LogoFilenameUtils.getExtensionForRemoteFile(fileData);
-		saveImageFileAndItsPointer(catalog, name, fileData.getContents(), extension);
-	}
-
-	private void saveFileBasedOnDataURI(String catalog, String name, URI logoURI) throws IOException
-	{
-		String logoURIStr = logoURI.toString();
-		int dataStartIndex = logoURIStr.indexOf(",") + 1;
-		String data = logoURIStr.substring(dataStartIndex);
-		byte[] decoded = getDecoder().decode(data);
-		String extension = LogoFilenameUtils.getExtensionFromDataURI(logoURI);
-		saveImageFileAndItsPointer(catalog, name, decoded, extension);
-	}
-
-	private void saveImageFileAndItsPointer(String catalog, String name, byte[] decoded, String extension) throws IOException
-	{
-		File imageFile = createFile(catalog, name + "." + extension);
-		Files.write(imageFile.toPath(), decoded);
-		File pointerFile = createFile(catalog, name);
-		Files.write(pointerFile.toPath(), extension.getBytes(StandardCharsets.UTF_8));
-		Path finalImagePath = Path.of(workspaceDir, catalog, name + "." + extension);
-		Path finalPointerPath = Path.of(workspaceDir, catalog, name);
-		try
-		{
-			Files.createDirectories(finalImagePath.getParent());
-			Files.move(imageFile.toPath(), finalImagePath, StandardCopyOption.REPLACE_EXISTING);
-			Files.move(pointerFile.toPath(), finalPointerPath, StandardCopyOption.REPLACE_EXISTING);
-			removeObsoleteLogoFiles(catalog, name, extension);
-		}
-		finally
-		{
-			imageFile.delete();
-			pointerFile.delete();
-		}
-	}
-
-	private void removeObsoleteLogoFiles(String catalog, String name, String currentExtension) throws IOException
-	{
-		Path finalDir = Path.of(workspaceDir, catalog);
-		if(!Files.exists(finalDir))
-			return;
-		String currentFileName = name + "." + currentExtension;
-		try (Stream<Path> paths = Files.list(finalDir))
-		{
-			paths.filter(Files::isRegularFile)
-					.filter(path -> path.getFileName().toString().startsWith(name + "."))
-					.filter(path -> !path.getFileName().toString().equals(currentFileName))
-					.forEach(AsyncExternalLogoFileDownloader::deleteCachedLogoFileIfExists);
-		}
-	}
-
-	private static void deleteCachedLogoFileIfExists(Path path)
-	{
-		try
-		{
-			Files.deleteIfExists(path);
-		} catch (IOException e)
-		{
-			log.warn("Failed to delete cached logo file {}", path, e);
-		}
-	}
-
-	private File createFile(String catalog, String name) throws IOException
-	{
-		new File(Path.of(workspaceDir, STAGING, catalog).toUri()).mkdirs();
-		File file = new File(Path.of(workspaceDir, STAGING, catalog, name).toUri());
-		file.createNewFile();
-		return file;
 	}
 }

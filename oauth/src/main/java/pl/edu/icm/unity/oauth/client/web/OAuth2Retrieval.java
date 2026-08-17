@@ -8,7 +8,6 @@ import io.imunity.vaadin.auth.ProxyAuthenticationCapable;
 import io.imunity.vaadin.auth.SigInInProgressContextService;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -40,18 +39,18 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	public static final String NAME = "vaadin-oauth2";
 	public static final String DESC = "OAuth2RetrievalFactory.desc";
 	private final MessageSource msg;
-	private final VaadinLogoImageLoader imageService;
+	private final OAuthProviderLogoLoader logoLoader;
 	private final NotificationPresenter notificationPresenter;
 	private OAuthProxyAuthnHandler oAuthProxyAuthnHandler;
 
 	@Autowired
-	public OAuth2Retrieval(MessageSource msg, VaadinLogoImageLoader imageService,
+	public OAuth2Retrieval(MessageSource msg, OAuthProviderLogoLoader logoLoader,
 	                       NotificationPresenter notificationPresenter)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
-		this.imageService = imageService;
+		this.logoLoader = logoLoader;
 	}
 
 	@Override
@@ -86,7 +85,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 		{
 			String idpKey = provider.key().asString();
 			AuthenticationOptionKey authenticationOptionKey = new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
-			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange,
+			ret.add(new OAuth2RetrievalUI(msg, logoLoader, credentialExchange,
 					provider.key(), context,
 					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey,
 							SigInInProgressContextService.getVaadinContext()),

@@ -13,6 +13,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -54,8 +55,10 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.federation.FederatedOAuthClientService.FederatedClientResolution;
+import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 
 class FederatedOAuthClientServiceTest
@@ -63,6 +66,7 @@ class FederatedOAuthClientServiceTest
 	private static final String CLIENT_ID = "https://client.example.com";
 	private static final String TRUST_ANCHOR_ID = "https://anchor.example.com";
 	private static final String CLIENTS_GROUP = "/oauth-clients";
+	private static final String FEDERATION_TRUSTSTORE = "FED_TS";
 	private static final long ENTITY_ID = 42L;
 	private static final String DISPLAYED_NAME_ATTR = "cn";
 
@@ -72,6 +76,7 @@ class FederatedOAuthClientServiceTest
 	private AttributeSupport attributeSupport;
 	private AttributeTypeSupport attrTypeSupport;
 	private URIAccessService uriAccessService;
+	private ExecutorsService executorsService;
 	private FederatedOAuthClientService service;
 	private OAuthASFederationConfig federationConfig;
 	private ECKey signingKey;
@@ -85,13 +90,21 @@ class FederatedOAuthClientServiceTest
 		attributeSupport = mock(AttributeSupport.class);
 		attrTypeSupport = mock(AttributeTypeSupport.class);
 		uriAccessService = mock(URIAccessService.class);
+		executorsService = mock(ExecutorsService.class);
+		when(executorsService.getExecutionService()).thenReturn(java.util.concurrent.Executors.newSingleThreadExecutor());
 		signingKey = new ECKeyGenerator(Curve.P_256).keyID("test").generate();
 
+		AttributeType logoType = new AttributeType(OAuthSystemAttributesProvider.CLIENT_LOGO,
+				pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax.ID);
+		when(attrTypeSupport.getType(OAuthSystemAttributesProvider.CLIENT_LOGO)).thenReturn(logoType);
+		doReturn(new ImageAttributeSyntax()).when(attrTypeSupport).getSyntax(logoType);
+
 		service = spy(new FederatedOAuthClientService(identitiesMan, attributesMan, groupsMan, attributeSupport,
-				attrTypeSupport, uriAccessService));
+				attrTypeSupport, uriAccessService, executorsService));
 
 		federationConfig = new OAuthASFederationConfig(true, TRUST_ANCHOR_ID,
-				new JWKSet(signingKey.toPublicJWK()), null, null, CLIENTS_GROUP);
+				new JWKSet(signingKey.toPublicJWK()), null, FEDERATION_TRUSTSTORE, null, CLIENTS_GROUP,
+				new OAuthFederationClientDefaults(true, List.of()));
 
 		AttributeType cnType = new AttributeType(DISPLAYED_NAME_ATTR,
 				pl.edu.icm.unity.stdext.attr.StringAttributeSyntax.ID);
@@ -316,6 +329,70 @@ class FederatedOAuthClientServiceTest
 				eq(new EntityParam(ENTITY_ID)),
 				argThat((Attribute a) -> a.getName().equals(DISPLAYED_NAME_ATTR)
 						&& a.getValues().get(0).equals("[Federated] New Name")));
+	}
+
+	@Test
+	void shouldFetchLogoSynchronously_onFirstRegistration() throws Exception
+	{
+		URI logoUri = new URI("https://client.example.com/logo.png");
+		OIDCClientMetadata rpMeta = buildRpMetadata();
+		rpMeta.setLogoURI(logoUri);
+		TrustChain chain = buildChain(CLIENT_ID, rpMeta);
+		doReturn(chain).when(service).resolveAndCacheChain(eq(CLIENT_ID), any());
+		stubLogoDownload(logoUri);
+
+		Identity identity = mock(Identity.class);
+		when(identity.getEntityId()).thenReturn(ENTITY_ID);
+		when(identitiesMan.addEntity(any(), any(EntityState.class))).thenReturn(identity);
+		when(identitiesMan.getEntity(any())).thenThrow(new IllegalArgumentException("not found"));
+		when(attributesMan.getAllAttributes(any(), eq(true), eq(CLIENTS_GROUP), any(), eq(false)))
+				.thenReturn(List.of());
+		when(attributesMan.getAllAttributes(any(), eq(true), eq("/"), any(), eq(false)))
+				.thenReturn(List.of());
+
+		service.resolveAndRegister(CLIENT_ID, federationConfig);
+
+		// no waiting/timeout - the logo must already be set by the time resolveAndRegister returns,
+		// so that it's shown on the very first login of a newly seen federation client
+		verify(attributesMan).setAttribute(
+				eq(new EntityParam(ENTITY_ID)),
+				argThat(a -> a.getName().equals(OAuthSystemAttributesProvider.CLIENT_LOGO)));
+	}
+
+	@Test
+	void shouldFetchLogoAsynchronously_onRefresh_whenChanged() throws Exception
+	{
+		URI newLogoUri = new URI("https://client.example.com/new-logo.png");
+		OIDCClientMetadata rpMeta = buildRpMetadata();
+		rpMeta.setLogoURI(newLogoUri);
+		TrustChain chain = buildChain(CLIENT_ID, rpMeta);
+		doReturn(chain).when(service).resolveAndCacheChain(eq(CLIENT_ID), any());
+		stubLogoDownload(newLogoUri);
+
+		Entity existingEntity = mock(Entity.class);
+		when(existingEntity.getId()).thenReturn(ENTITY_ID);
+		when(identitiesMan.getEntity(any())).thenReturn(existingEntity);
+		when(attributesMan.getAllAttributes(any(), eq(true), eq(CLIENTS_GROUP), any(), eq(false)))
+				.thenReturn(List.of());
+		when(attributesMan.getAllAttributes(any(), eq(true), eq("/"), any(), eq(false)))
+				.thenReturn(List.of());
+
+		service.resolveAndRegister(CLIENT_ID, federationConfig);
+
+		// runs in background - allow it to complete rather than asserting it happened inline
+		verify(attributesMan, timeout(2000)).setAttribute(
+				eq(new EntityParam(ENTITY_ID)),
+				argThat(a -> a.getName().equals(OAuthSystemAttributesProvider.CLIENT_LOGO)));
+	}
+
+	private void stubLogoDownload(URI logoUri) throws Exception
+	{
+		byte[] tinyPng = java.util.Base64.getDecoder().decode(
+				"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/AP4AAAAAElFTkSuQmCC");
+		// must use the federation's configured truststore, not the default/system one
+		when(uriAccessService.readURL(eq(logoUri), eq(FEDERATION_TRUSTSTORE), any(), any(), eq(0)))
+				.thenReturn(new pl.edu.icm.unity.engine.api.files.RemoteFileData(logoUri.toString(), tinyPng,
+						new java.util.Date(), "image/png"));
 	}
 
 	@Test

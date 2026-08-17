@@ -93,7 +93,8 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 				"Validity period in seconds of the generated federation entity statement metadata"));
 		META.put(FEDERATION_TRUSTSTORE, new PropertyMD().setDescription(
 				"Truststore used for TLS connections to federation infrastructure endpoints (entity listing, "
-				+ "trust chain resolution). If not set, the JVM default truststore is used."));
+				+ "trust chain resolution) and for fetching logos of discovered providers. "
+				+ "If not set, the JVM default truststore is used."));
 		META.put(FEDERATION_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL)
 				.setDescription("Controls hostname verification for TLS connections to federation infrastructure endpoints."));
 		META.put(FEDERATION_TRANSLATION_PROFILE, new PropertyMD().setDescription(

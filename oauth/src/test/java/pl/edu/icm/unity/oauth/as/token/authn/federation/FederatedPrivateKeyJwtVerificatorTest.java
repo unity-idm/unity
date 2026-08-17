@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,6 +34,7 @@ import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.federation.FederatedOAuthClientService;
 import pl.edu.icm.unity.oauth.as.federation.FederatedOAuthClientService.FederatedClientResolution;
 import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
+import pl.edu.icm.unity.oauth.as.federation.OAuthFederationClientDefaults;
 
 class FederatedPrivateKeyJwtVerificatorTest
 {
@@ -53,7 +55,8 @@ class FederatedPrivateKeyJwtVerificatorTest
 
 	private OAuthASFederationConfig configWithAnchor(JWKSet anchorJwks)
 	{
-		return new OAuthASFederationConfig(true, TRUST_ANCHOR_ID, anchorJwks, null, null, CLIENTS_GROUP);
+		return new OAuthASFederationConfig(true, TRUST_ANCHOR_ID, anchorJwks, null, null, null, CLIENTS_GROUP,
+				new OAuthFederationClientDefaults(true, List.of()));
 	}
 
 	private void stubFederationConfig(OAuthASFederationConfig config)
@@ -82,7 +85,8 @@ class FederatedPrivateKeyJwtVerificatorTest
 	{
 		var anchorKey = new RSAKeyGenerator(2048).keyID("anchor").generate();
 		OAuthASFederationConfig config = new OAuthASFederationConfig(
-				false, TRUST_ANCHOR_ID, new JWKSet(anchorKey.toPublicJWK()), null, null, CLIENTS_GROUP);
+				false, TRUST_ANCHOR_ID, new JWKSet(anchorKey.toPublicJWK()), null, null, null, CLIENTS_GROUP,
+				new OAuthFederationClientDefaults(true, List.of()));
 		stubFederationConfig(config);
 
 		AuthenticationResult result = verificator().verifyClientAssertion("any-jwt", TOKEN_URI);

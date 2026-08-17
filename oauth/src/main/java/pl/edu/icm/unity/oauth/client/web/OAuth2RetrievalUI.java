@@ -27,7 +27,6 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.LoginMachineDetailsExtractor;
 import io.imunity.vaadin.endpoint.common.SessionStorage;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -49,7 +48,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	private static final String SELF_WINDOW_NAME = "_self";
 
 	private final MessageSource msg;
-	private final VaadinLogoImageLoader imageAccessService;
+	private final OAuthProviderLogoLoader logoLoader;
 	private final OAuthExchange credentialExchange;
 	private final OAuthProviderKey providerKey;
 	private final String idpKey;
@@ -70,7 +69,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	private ExpectedIdentity expectedIdentity;
 
 
-	public OAuth2RetrievalUI(MessageSource msg, VaadinLogoImageLoader imageAccessService,
+	public OAuth2RetrievalUI(MessageSource msg, OAuthProviderLogoLoader logoLoader,
 	                         OAuthExchange credentialExchange,
 	                         OAuthProviderKey providerKey,
 	                         VaadinAuthentication.Context context,
@@ -78,7 +77,7 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 	                         NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
-		this.imageAccessService = imageAccessService;
+		this.logoLoader = logoLoader;
 		this.credentialExchange = credentialExchange;
 		this.providerKey = providerKey;
 		this.idpKey = authenticationStepContext.authnOptionId.getOptionKey();
@@ -115,12 +114,11 @@ public class OAuth2RetrievalUI implements VaadinAuthentication.VaadinAuthenticat
 		if (provider == null)
 			throw new IllegalStateException("OAuth provider " + providerKey + " is not available");
 		String name = provider.name().getValue(msg);
-		String logoURI = provider.iconUrl() != null ? provider.iconUrl().getValue(msg) : null;
 
 		cachedLabel = name;
-		cachedImage = imageAccessService.loadImageFromUri(logoURI).orElse(null);
+		cachedImage = logoLoader.loadLogo(provider, msg).orElse(null);
 
-		Image logo = imageAccessService.loadImageFromUri(logoURI)
+		Image logo = logoLoader.loadLogo(provider, msg)
 				.orElse(new LocalOrRemoteResource());
 		logo.setClassName("u-logo-idp-image");
 

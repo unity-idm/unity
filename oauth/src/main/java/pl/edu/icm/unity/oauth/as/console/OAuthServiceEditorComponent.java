@@ -97,6 +97,7 @@ class OAuthServiceEditorComponent extends ServiceEditorBase
 		usersTab.initUI(oauthConfigBinder);
 		federationTab.initUI(oauthConfigBinder);
 		federationTab.addFederationMembershipChangeListener(this::onFederationMembershipChanged);
+		generalTab.addScopesChangeListener(federationTab::refreshAvailableScopes);
 
 		generalTab.addNameValueChangeListener(value -> {
 			String displayedName = (value != null && !value.isEmpty()) ? value
