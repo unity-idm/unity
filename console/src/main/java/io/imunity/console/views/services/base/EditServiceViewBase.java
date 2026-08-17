@@ -117,7 +117,6 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 
 	private void onConfirm()
 	{
-
 		ServiceDefinition service;
 		try
 		{
@@ -129,14 +128,17 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 			return;
 		}
 
-		if (service.getType()
-				.equals(ConsoleEndpointFactory.TYPE.getName()))
+		editor.confirmPreSave(() -> proceedWithUpdate(service));
+	}
+
+	private void proceedWithUpdate(ServiceDefinition service)
+	{
+		if (service.getType().equals(ConsoleEndpointFactory.TYPE.getName()))
 		{
 			ConfirmDialog confirm = new ConfirmDialog("",
 					msg.getMessage("EditServiceView.confirmUpdateDesc"), msg.getMessage("EditServiceView.confirmUpdate"), e ->
 					{
-						UI.getCurrent()
-								.navigate(mainServicesViewName);
+						UI.getCurrent().navigate(mainServicesViewName);
 						update(service);
 					}, msg.getMessage("cancel"), e ->
 					{
@@ -145,7 +147,6 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 		} else
 		{
 			update(service);
-
 		}
 	}
 	

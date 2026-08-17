@@ -11,23 +11,17 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.mockito.stubbing.ValidableAnswer;
 
-import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.files.logo.RemoteLogoCacheDownloader;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorType;
 
 import java.io.Serializable;
-import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -38,21 +32,14 @@ public class AsyncExternalLogoFileDownloaderTest
 	@Test
 	public void shouldBlockAnotherInvocationOfDownloadLogosWhenLogosAreCurrentlyDownloading()
 	{
-		UnityServerConfiguration configuration = mock(UnityServerConfiguration.class);
-		when(configuration.getValue(eq(UnityServerConfiguration.WORKSPACE_DIRECTORY))).thenReturn(".");
-		MessageSource messageSource = mock(MessageSource.class);
-		URIAccessService uriAccessService = mock(URIAccessService.class);
-		ExecutorsService executorService = mock(ExecutorsService.class);
 		MetadataToSPConfigConverter metadataConverter = mock(MetadataToSPConfigConverter.class);
+		RemoteLogoCacheDownloader remoteLogoCacheDownloader = mock(RemoteLogoCacheDownloader.class);
+		when(remoteLogoCacheDownloader.downloadLogoFilesAsync(any(), any(), any(), any()))
+				.thenReturn(CompletableFuture.completedFuture(null));
 
-		when(messageSource.getLocale()).thenReturn(Locale.forLanguageTag("en"));
-		when(executorService.getExecutionService()).thenReturn(Executors.newWorkStealingPool(1));
 		AsyncExternalLogoFileDownloader asyncExternalLogoFileDownloader = new AsyncExternalLogoFileDownloader(
-				configuration,
-				messageSource,
-				uriAccessService,
-				executorService,
-				metadataConverter
+				metadataConverter,
+				remoteLogoCacheDownloader
 		);
 
 		EntitiesDescriptorDocument entitiesDescriptorDocument = mock(EntitiesDescriptorDocument.class);

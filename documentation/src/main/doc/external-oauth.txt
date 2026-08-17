@@ -71,6 +71,56 @@ Substitute +CLIENT_ID+ with any identifier you prefer to use in the configuratio
 
 include::ref-oauthProviderProperties.txt[]
 
+==== OpenID Federation membership
+
+Besides configuring individual providers by hand, the OAuth2 authenticator can also participate in an
+https://openid.net/specs/openid-federation-1_0.html[OpenID Federation] as a Relying Party. In this mode Unity
+trusts a single federation _trust anchor_ and automatically discovers all OpenID Providers (OPs) reachable through
+it, without registering each of them individually. This is enabled with a handful of +federation*+ options
+of the general reference table above; the most important ones are:
+
+----
+unity.oauth2.client.federationMembershipEnabled=true
+unity.oauth2.client.federationTrustAnchorId=https://federation.example.com
+unity.oauth2.client.federationTrustAnchorJwks=classpath:federation-anchor-jwks.json
+unity.oauth2.client.federationCredential=MAIN
+unity.oauth2.client.federationScopes.1=openid
+unity.oauth2.client.federationScopes.2=profile
+unity.oauth2.client.federationTranslationProfile=federationProfile
+----
+
++federationCredential+ is used to sign the +private_key_jwt+ client assertions Unity presents to the discovered
+OPs (+federationJwtSigningAlg+ controls the signing algorithm) - this is currently the only supported client
+authentication method for federation-discovered providers. +federationScopes+ lists the scopes Unity would like
+to request; for each OP the actually requested set is the intersection with what the OP declares as supported
+(a scope missing from the OP's metadata is silently dropped, with a warning logged). All federation-discovered
+providers share the same +federationTranslationProfile+ (or +federationRegistrationForm+, ACR settings, etc.) -
+per-provider customization as available for manually configured providers is not possible for federation ones.
+
+Discovered providers get a stable, federation-derived key so that manually configuring a provider under
++unity.oauth2.client.providers.X+ with the very same key always takes precedence over the federation-discovered
+one with the same identity - this allows overriding a single federation member's settings without disabling
+federation membership entirely.
+
+The federation's trust anchor and the discovered providers' metadata are periodically refreshed; the interval
+is controlled by +federationMetadataValidity+ (default: one day). A provider disappears from the login screen
+automatically once its metadata can no longer be refreshed as valid (e.g. the federation entity statement expired
+and could not be renewed) - there is no need to manually prune stale providers.
+
+===== Logo caching for federation-discovered providers
+
+Since version 4.5.0, similarly to the handling of trusted SAML federation IdP logos (see 'Serving of logo files
+of trusted federation IdPs' above) and to <<endp-oauth-as,federation client logos>> on the Authorization Server
+side, Unity downloads and caches on local disk the logos of OpenID Providers discovered through the federation,
+instead of loading them directly from the (untrusted, remote-controlled) URI declared by the OP on every page render.
+The cache is refreshed together with the federation's metadata, using +federationHttpClientTruststore+ for the
+download. Manually configured providers (including a +file:+ logo URI) are not affected and keep loading their
+logo directly as before.
+
+Note that right after Unity's startup, or right after a new provider first appears in the federation, its logo
+may not be available yet until the first background download completes; the login screen falls back to showing
+no logo for that provider in the meantime.
+
 
 === Simple OAuth2 (Unity as OAuth Resource Provider)
 

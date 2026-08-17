@@ -221,6 +221,8 @@
 								<argument>pl.edu.icm.unity.store.rdbms.RDBMSConfiguration|ref-storeRDBMSProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties|ref-JWTManProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.as.OAuthASProperties|ref-oauthASProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.oauth.as.token.authn.local.PrivateKeyJwtAuthenticatorProperties|ref-privateKeyJwtAuthenticatorProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.oauth.as.token.authn.federation.FederatedPrivateKeyJwtAuthenticatorProperties|ref-federatedPrivateKeyJwtAuthenticatorProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.rp.OAuthRPProperties|ref-oauthRPProperties.txt|</argument>
 								<argument>io.imunity.home.HomeEndpointProperties|ref-homeEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.engine.userimport.UserImportProperties|ref-genericUserImportProperties.txt|</argument>

@@ -5,12 +5,13 @@
 package pl.edu.icm.unity.saml.sp.config;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import pl.edu.icm.unity.engine.api.files.logo.LogoCacheKey;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 
 import java.util.Objects;
 import java.util.Optional;
 
-public class TrustedIdPKey
+public class TrustedIdPKey implements LogoCacheKey
 {
 	private final String key;
 	private final Optional<SourceData> sourceData;
@@ -49,7 +50,13 @@ public class TrustedIdPKey
 	{
 		return key;
 	}
-	
+
+	@Override
+	public String asCacheBasename()
+	{
+		return sourceData.map(data -> data.entityHex + data.index).orElse(key);
+	}
+
 	@Override
 	public String toString()
 	{

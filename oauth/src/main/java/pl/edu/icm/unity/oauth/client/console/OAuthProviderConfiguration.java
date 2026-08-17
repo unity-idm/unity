@@ -22,11 +22,15 @@ import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
+import pl.edu.icm.unity.base.utils.Log;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +40,7 @@ import java.util.stream.Collectors;
 
 public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthProviderConfiguration.class);
 	private String type;
 	private String id;
 	private I18nString name;
@@ -98,6 +103,25 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 
 		setClientId(source.getValue(CustomProviderProperties.CLIENT_ID));
 		setClientSecret(source.getValue(CustomProviderProperties.CLIENT_SECRET));
+		if (source.isSet(CustomProviderProperties.CLIENT_AUTHN_METHOD))
+			setClientAuthenticationMethod(source.getEnumValue(
+					CustomProviderProperties.CLIENT_AUTHN_METHOD, ClientAuthnMethod.class));
+		else
+			setClientAuthenticationMethod(ClientAuthnMethod.client_secret);
+		setClientCredential(source.getValue(CustomProviderProperties.CLIENT_CREDENTIAL));
+		if (source.isSet(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG))
+		{
+			try
+			{
+				setClientJwtSigningAlg(SigningAlgorithms.valueOf(source.getValue(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG)));
+			} catch (IllegalArgumentException e)
+			{
+				log.warn("Unknown JWT signing algorithm '{}', ignoring it - "
+						+ "the algorithm will be derived from the key type instead, "
+						+ "and the invalid value will be dropped if this configuration is saved",
+						source.getValue(CustomProviderProperties.CLIENT_JWT_SIGNING_ALG));
+			}
+		}
 		setClientAuthenticationMode(
 				source.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, ClientAuthnMode.class));
 		setClientAuthenticationModeForProfile(source.getEnumValue(
@@ -193,19 +217,25 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 
 		raw.put(prefix + CustomProviderProperties.CLIENT_ID, getClientId());
 
-		raw.put(prefix + CustomProviderProperties.CLIENT_SECRET, getClientSecret());
+		if (getClientAuthenticationMethod() != null)
+			raw.put(prefix + CustomProviderProperties.CLIENT_AUTHN_METHOD, getClientAuthenticationMethod().toString());
 
-		if (getClientAuthenticationMode() != null)
+		if (ClientAuthnMethod.private_key_jwt.equals(getClientAuthenticationMethod()))
 		{
-			raw.put(prefix + CustomProviderProperties.CLIENT_AUTHN_MODE,
-					getClientAuthenticationMode().toString());
+			if (!Strings.isNullOrEmpty(getClientCredential()))
+				raw.put(prefix + CustomProviderProperties.CLIENT_CREDENTIAL, getClientCredential());
+			if (getClientJwtSigningAlg() != null)
+				raw.put(prefix + CustomProviderProperties.CLIENT_JWT_SIGNING_ALG, getClientJwtSigningAlg().name());
+		} else
+		{
+			if (!Strings.isNullOrEmpty(getClientSecret()))
+				raw.put(prefix + CustomProviderProperties.CLIENT_SECRET, getClientSecret());
+			if (getClientAuthenticationMode() != null)
+				raw.put(prefix + CustomProviderProperties.CLIENT_AUTHN_MODE, getClientAuthenticationMode().toString());
 		}
-
 		if (getClientAuthenticationModeForProfile() != null)
-		{
 			raw.put(prefix + CustomProviderProperties.CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS,
 					getClientAuthenticationModeForProfile().toString());
-		}
 
 		if (getClientHttpMethodForProfileAccess() != null)
 		{
@@ -427,6 +457,9 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);
 		clone.setClientId(this.getClientId() != null ? new String(this.getClientId()) : null);
 		clone.setClientSecret(this.getClientSecret() != null ? new String(this.getClientSecret()) : null);
+		clone.setClientAuthenticationMethod(this.getClientAuthenticationMethod());
+		clone.setClientCredential(this.getClientCredential() != null ? new String(this.getClientCredential()) : null);
+		clone.setClientJwtSigningAlg(this.getClientJwtSigningAlg());
 		clone.setClientAuthenticationMode(this.getClientAuthenticationMode() != null
 				? ClientAuthnMode.valueOf(this.getClientAuthenticationMode().toString())
 				: null);

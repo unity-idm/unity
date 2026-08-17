@@ -5,7 +5,9 @@
 
 package pl.edu.icm.unity.oauth.as.console;
 
+import com.vaadin.flow.component.AbstractField;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.HasSize;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.customfield.CustomField;
@@ -15,11 +17,11 @@ import io.imunity.vaadin.elements.StringBindingValue;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 /**
- * 
+ *
  * @author P.Piernik
  *
  */
-public class TextFieldWithChangeConfirmation<T extends CustomField<String>> extends CustomField<String>
+public class TextFieldWithChangeConfirmation<T extends AbstractField<?, String> & HasSize> extends CustomField<String>
 {
 	private final MessageSource msg;
 	private final T field;

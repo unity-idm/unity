@@ -83,11 +83,38 @@ public class MockTokensMan implements TokensManagement
 	public void addToken(String type, String value, byte[] contents, Date created, Date expires)
 			throws IllegalTypeException
 	{
+		Token t = new Token(type, value, null);
+		t.setContents(contents);
+		t.setExpires(expires);
+		t.setCreated(created);
+		tokens.put(type + value, t);
 	}
 
 	@Override
 	public List<Token> getAllTokens()
 	{
 		return null;
+	}
+
+	public Map<String, Token> snapshot()
+	{
+		Map<String, Token> copy = new HashMap<>();
+		for (Map.Entry<String, Token> e : tokens.entrySet())
+			copy.put(e.getKey(), cloneToken(e.getValue()));
+		return copy;
+	}
+
+	public void restore(Map<String, Token> snapshot)
+	{
+		tokens = snapshot;
+	}
+
+	private static Token cloneToken(Token orig)
+	{
+		Token clone = new Token(orig.getType(), orig.getValue(), orig.getOwner());
+		clone.setContents(orig.getContents());
+		clone.setExpires(orig.getExpires());
+		clone.setCreated(orig.getCreated());
+		return clone;
 	}
 }

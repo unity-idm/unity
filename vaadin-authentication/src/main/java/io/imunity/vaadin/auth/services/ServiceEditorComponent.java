@@ -17,10 +17,15 @@ public interface ServiceEditorComponent
 {
 	public enum ServiceEditorTab
 	{
-		GENERAL, AUTHENTICATION, CLIENTS, USERS, POLICY_AGREEMENTS, OTHER
+		GENERAL, AUTHENTICATION, CLIENTS, USERS, POLICY_AGREEMENTS, FEDERATION, OTHER
 	}
 
 	public abstract void setActiveTab(String tab);
-	
+
 	public Component getComponent();
+
+	default void confirmPreSave(Runnable onProceed)
+	{
+		onProceed.run();
+	}
 }
