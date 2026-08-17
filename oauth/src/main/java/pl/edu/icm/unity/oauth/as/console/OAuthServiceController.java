@@ -84,11 +84,16 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
+import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWebEndpoint;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.as.token.authn.local.PrivateKeyJwtExtraInfo;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthAuthzWebEndpoint;
+
+import java.io.StringReader;
+import java.util.Properties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.stdext.attr.BooleanAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
@@ -114,6 +119,8 @@ class OAuthServiceController implements IdpServiceController
 	public static final String JWKS_CREDENTIAL = "sys:oauth-private-key-jwt";
 	public static final String IDP_CLIENT_MAIN_GROUP = "/IdPs";
 	public static final String OAUTH_CLIENTS_SUBGROUP = "oauth-clients";
+	public static final String DEVICE_SIGNIN_ADDRESS_SUFFIX = "-device-signin";
+	public static final String DEVICE_SIGNIN_NAME_SUFFIX = " - device sign-in";
 
 	private MessageSource msg;
 	private EndpointManagement endpointMan;
@@ -207,7 +214,9 @@ class OAuthServiceController implements IdpServiceController
 				DefaultServiceDefinition tokenService = getTokenService(endpoint.getConfiguration().getTag());
 				if (tokenService != null)
 				{
-					ret.add(new OAuthServiceDefinition(oauthWebService, tokenService));
+					OAuthServiceDefinition serviceDef = new OAuthServiceDefinition(oauthWebService, tokenService);
+					serviceDef.setDeviceSignInService(getDeviceSignInService(endpoint.getConfiguration().getTag()));
+					ret.add(serviceDef);
 				}
 			}
 			return ret;
@@ -240,20 +249,34 @@ class OAuthServiceController implements IdpServiceController
 		return tokenService;
 	}
 
-	private DefaultServiceDefinition getServiceDef(Endpoint endpoint)
+	private DefaultServiceDefinition getDeviceSignInService(String tag) throws EngineException
 	{
-		DefaultServiceDefinition serviceDef = new DefaultServiceDefinition(endpoint.getTypeId());
-		serviceDef.setName(endpoint.getName());
-		serviceDef.setAddress(endpoint.getContextAddress());
-		serviceDef.setConfiguration(endpoint.getConfiguration().getConfiguration());
-		serviceDef.setAuthenticationOptions(endpoint.getConfiguration().getAuthenticationOptions());
-		serviceDef.setDisplayedName(endpoint.getConfiguration().getDisplayedName());
-		serviceDef.setRealm(endpoint.getConfiguration().getRealm());
-		serviceDef.setDescription(endpoint.getConfiguration().getDescription());
-		serviceDef.setState(endpoint.getState());
-		serviceDef.setSupportsConfigReloadFromFile(
-				serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
-		return serviceDef;
+		List<Endpoint> matchingEndpoints = endpointMan.getEndpoints().stream()
+				.filter(e -> e.getTypeId().equals(DeviceSignInWebEndpoint.TYPE.getName())
+						&& e.getConfiguration().getTag().equals(tag))
+				.collect(Collectors.toList());
+		if (matchingEndpoints.size() != 1)
+			return null;
+
+		DefaultServiceDefinition deviceSignInService = getServiceDef(matchingEndpoints.get(0));
+		deviceSignInService.setBinding(DeviceSignInWebEndpoint.TYPE.getSupportedBinding());
+		return deviceSignInService;
+	}
+
+	private boolean isDeviceGrantEnabled(String rawConfiguration)
+	{
+		if (rawConfiguration == null)
+			return false;
+		try
+		{
+			Properties raw = new Properties();
+			raw.load(new StringReader(rawConfiguration));
+			return Boolean.parseBoolean(raw.getProperty(OAuthASProperties.P + OAuthASProperties.DEVICE_GRANT_ENABLED));
+		} catch (Exception e)
+		{
+			log.warn("Can not parse OAuth service configuration to check the device grant flag", e);
+			return false;
+		}
 	}
 
 	@Override
@@ -272,6 +295,7 @@ class OAuthServiceController implements IdpServiceController
 			oauthWebService.setBinding(OAuthAuthzWebEndpoint.Factory.TYPE.getSupportedBinding());
 			OAuthServiceDefinition def = new OAuthServiceDefinition(oauthWebService,
 					getTokenService(endpoint.getConfiguration().getTag()));
+			def.setDeviceSignInService(getDeviceSignInService(endpoint.getConfiguration().getTag()));
 			def.setClientsSupplier(this::getOAuthClients);
 			return def;
 		} catch (Exception e)
@@ -302,6 +326,16 @@ class OAuthServiceController implements IdpServiceController
 				endpointMan.deploy(tokenService.getType(), tokenService.getName(), tokenService.getAddress(), rconfig);
 			}
 
+			if (isDeviceGrantEnabled(webAuthzService.getConfiguration()))
+			{
+				DefaultServiceDefinition deviceSignInService = buildDeviceSignInServiceDef(webAuthzService);
+				EndpointConfiguration dconfig = new EndpointConfiguration(deviceSignInService.getDisplayedName(),
+						deviceSignInService.getDescription(), deviceSignInService.getAuthenticationOptions(),
+						deviceSignInService.getConfiguration(), deviceSignInService.getRealm(), tag);
+				endpointMan.deploy(deviceSignInService.getType(), deviceSignInService.getName(),
+						deviceSignInService.getAddress(), dconfig);
+			}
+
 			if (groupMan.getChildGroups("/").stream().map(g -> g.toString())
 					.filter(g -> g.equals(IDP_CLIENT_MAIN_GROUP)).count() == 0)
 			{
@@ -314,6 +348,7 @@ class OAuthServiceController implements IdpServiceController
 				updateClients(def.getSelectedClients());
 		} catch (Exception e)
 		{
+			log.error("Can not deploy OAuth service {}", webAuthzService.getName(), e);
 			throw new ControllerException(msg.getMessage("ServicesController.deployError", webAuthzService.getName()),
 					e);
 		}
@@ -339,6 +374,7 @@ class OAuthServiceController implements IdpServiceController
 		OAuthServiceDefinition def = (OAuthServiceDefinition) service;
 		DefaultServiceDefinition webAuthzService = def.getWebAuthzService();
 		DefaultServiceDefinition tokenService = def.getTokenService();
+		DefaultServiceDefinition deviceSignInService = def.getDeviceSignInService();
 
 		try
 		{
@@ -346,6 +382,10 @@ class OAuthServiceController implements IdpServiceController
 			if (tokenService != null)
 			{
 				endpointMan.undeploy(tokenService.getName());
+			}
+			if (deviceSignInService != null)
+			{
+				endpointMan.undeploy(deviceSignInService.getName());
 			}
 
 		} catch (Exception e)
@@ -364,6 +404,12 @@ class OAuthServiceController implements IdpServiceController
 		String tag = UUID.randomUUID().toString();
 		try
 		{
+			String currentTag = endpointMan.getEndpoints().stream()
+					.filter(e -> e.getName().equals(webAuthzService.getName()))
+					.findFirst()
+					.map(e -> e.getConfiguration().getTag())
+					.orElse(null);
+
 			EndpointConfiguration wconfig = new EndpointConfiguration(webAuthzService.getDisplayedName(),
 					webAuthzService.getDescription(), webAuthzService.getAuthenticationOptions(),
 					webAuthzService.getConfiguration(), webAuthzService.getRealm(), tag);
@@ -375,14 +421,70 @@ class OAuthServiceController implements IdpServiceController
 						tokenService.getConfiguration(), tokenService.getRealm(), tag);
 				endpointMan.updateEndpoint(tokenService.getName(), rconfig);
 			}
+
+			DefaultServiceDefinition deviceSignInService = currentTag != null ? getDeviceSignInService(currentTag) : null;
+			if (isDeviceGrantEnabled(webAuthzService.getConfiguration()))
+			{
+				if (deviceSignInService == null)
+				{
+					deviceSignInService = buildDeviceSignInServiceDef(webAuthzService);
+					EndpointConfiguration dconfig = new EndpointConfiguration(deviceSignInService.getDisplayedName(),
+							deviceSignInService.getDescription(), deviceSignInService.getAuthenticationOptions(),
+							deviceSignInService.getConfiguration(), deviceSignInService.getRealm(), tag);
+					endpointMan.deploy(deviceSignInService.getType(), deviceSignInService.getName(),
+							deviceSignInService.getAddress(), dconfig);
+				} else
+				{
+					EndpointConfiguration dconfig = new EndpointConfiguration(deviceSignInService.getDisplayedName(),
+							deviceSignInService.getDescription(), deviceSignInService.getAuthenticationOptions(),
+							webAuthzService.getConfiguration(), deviceSignInService.getRealm(), tag);
+					endpointMan.updateEndpoint(deviceSignInService.getName(), dconfig);
+				}
+			} else if (deviceSignInService != null)
+			{
+				endpointMan.undeploy(deviceSignInService.getName());
+			}
+
 			updateClients(def.getSelectedClients());
 		} catch (Exception e)
 		{
+			log.error("Can not update OAuth service {}", def.getName(), e);
 			throw new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e);
 		}
 
 	}
 
+	private DefaultServiceDefinition buildDeviceSignInServiceDef(DefaultServiceDefinition webAuthzService)
+	{
+		DefaultServiceDefinition deviceSignInService = new DefaultServiceDefinition(
+				DeviceSignInWebEndpoint.TYPE.getName());
+		deviceSignInService.setName(webAuthzService.getName() + DEVICE_SIGNIN_NAME_SUFFIX);
+		deviceSignInService.setAddress(webAuthzService.getAddress() + DEVICE_SIGNIN_ADDRESS_SUFFIX);
+		deviceSignInService.setDisplayedName(webAuthzService.getDisplayedName());
+		deviceSignInService.setDescription(webAuthzService.getDescription());
+		deviceSignInService.setRealm(webAuthzService.getRealm());
+		deviceSignInService.setAuthenticationOptions(webAuthzService.getAuthenticationOptions());
+		deviceSignInService.setConfiguration(webAuthzService.getConfiguration());
+		return deviceSignInService;
+	}
+
+	private DefaultServiceDefinition getServiceDef(Endpoint endpoint)
+	{
+		DefaultServiceDefinition serviceDef = new DefaultServiceDefinition(endpoint.getTypeId());
+		serviceDef.setName(endpoint.getName());
+		serviceDef.setAddress(endpoint.getContextAddress());
+		serviceDef.setConfiguration(endpoint.getConfiguration().getConfiguration());
+		serviceDef.setAuthenticationOptions(endpoint.getConfiguration().getAuthenticationOptions());
+		serviceDef.setDisplayedName(endpoint.getConfiguration().getDisplayedName());
+		serviceDef.setRealm(endpoint.getConfiguration().getRealm());
+		serviceDef.setDescription(endpoint.getConfiguration().getDescription());
+		serviceDef.setState(endpoint.getState());
+		serviceDef.setSupportsConfigReloadFromFile(
+				serviceFileConfigController.getEndpointConfigKey(endpoint.getName()).isPresent());
+		return serviceDef;
+	}
+
+	
 	@Override
 	public void reloadConfigFromFile(ServiceDefinition service) throws ControllerException
 	{
@@ -406,6 +508,19 @@ class OAuthServiceController implements IdpServiceController
 			{
 				endpointMan.updateEndpoint(tokenService.getName(),
 						serviceFileConfigController.getEndpointConfig(tokenService.getName()));
+			}
+		} catch (Exception e)
+		{
+			exs.add(new ControllerException(msg.getMessage("ServicesController.updateError", def.getName()), e));
+		}
+
+		try
+		{
+			DefaultServiceDefinition deviceSignInService = def.getDeviceSignInService();
+			if (deviceSignInService != null)
+			{
+				endpointMan.updateEndpoint(deviceSignInService.getName(),
+						serviceFileConfigController.getEndpointConfig(deviceSignInService.getName()));
 			}
 		} catch (Exception e)
 		{

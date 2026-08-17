@@ -52,8 +52,13 @@ public class OAuthToken
 	private List<AttributeFilteringSpec> attributeValueFilters;
 	private SerializableUserAuthnDetails userAuthnDetails;
 	private RequestedAuthenticationContextClassReference requestedACR;
+	private DeviceCodeStatus deviceCodeStatus;
+	private String userCode;
+	private Instant lastPolledAt;
+	private int currentPollInterval;
+	private Long subjectEntityId;
 
-	
+
 	public OAuthToken()
 	{
 		claimsInTokenAttribute = Optional.empty();
@@ -90,6 +95,11 @@ public class OAuthToken
 		setAttributeValueFilters(source.getAttributeValueFilters());
 		setUserAuthnDetails(source.getUserAuthnDetails());
 		setRequestedACR(source.getRequestedACR());
+		setDeviceCodeStatus(source.getDeviceCodeStatus());
+		setUserCode(source.getUserCode());
+		setLastPolledAt(source.getLastPolledAt());
+		setCurrentPollInterval(source.getCurrentPollInterval());
+		setSubjectEntityId(source.getSubjectEntityId());
 	}
 	
 	public static OAuthToken getInstanceFromJson(byte[] json) 
@@ -404,6 +414,56 @@ public class OAuthToken
 		this.userAuthnDetails = userAuthnDetails;
 	}
 
+	public DeviceCodeStatus getDeviceCodeStatus()
+	{
+		return deviceCodeStatus;
+	}
+
+	public void setDeviceCodeStatus(DeviceCodeStatus deviceCodeStatus)
+	{
+		this.deviceCodeStatus = deviceCodeStatus;
+	}
+
+	public String getUserCode()
+	{
+		return userCode;
+	}
+
+	public void setUserCode(String userCode)
+	{
+		this.userCode = userCode;
+	}
+
+	public Instant getLastPolledAt()
+	{
+		return lastPolledAt;
+	}
+
+	public void setLastPolledAt(Instant lastPolledAt)
+	{
+		this.lastPolledAt = lastPolledAt;
+	}
+
+	public int getCurrentPollInterval()
+	{
+		return currentPollInterval;
+	}
+
+	public void setCurrentPollInterval(int currentPollInterval)
+	{
+		this.currentPollInterval = currentPollInterval;
+	}
+
+	public Long getSubjectEntityId()
+	{
+		return subjectEntityId;
+	}
+
+	public void setSubjectEntityId(Long subjectEntityId)
+	{
+		this.subjectEntityId = subjectEntityId;
+	}
+
 	@Override
 	public int hashCode()
 	{
@@ -414,7 +474,7 @@ public class OAuthToken
 				authzCode, claimsInTokenAttribute, clientEntityId, clientName, clientType, clientUsername,
 				effectiveScope, firstRefreshRollingToken, issuerUri, maxExtendedValidity, openidInfo, pkcsInfo,
 				redirectUri, refreshToken, userAuthnDetails, requestedACR, responseType, subject, tokenValidity,
-				userInfo);
+				userInfo, deviceCodeStatus, userCode, lastPolledAt, currentPollInterval, subjectEntityId);
 		return result;
 	}
 
@@ -445,7 +505,11 @@ public class OAuthToken
 				&& Objects.equals(requestedACR, other.requestedACR)
 				&& Arrays.equals(requestedScope, other.requestedScope)
 				&& Objects.equals(responseType, other.responseType) && Objects.equals(subject, other.subject)
-				&& tokenValidity == other.tokenValidity && Objects.equals(userInfo, other.userInfo);
+				&& tokenValidity == other.tokenValidity && Objects.equals(userInfo, other.userInfo)
+				&& deviceCodeStatus == other.deviceCodeStatus && Objects.equals(userCode, other.userCode)
+				&& Objects.equals(lastPolledAt, other.lastPolledAt)
+				&& currentPollInterval == other.currentPollInterval
+				&& Objects.equals(subjectEntityId, other.subjectEntityId);
 	}
 
 	@Override
@@ -460,7 +524,9 @@ public class OAuthToken
 				+ ", tokenValidity=" + tokenValidity + ", responseType=" + responseType + ", audience="
 				+ audience + ", issuerUri=" + issuerUri + ", clientType=" + clientType + ", pkcsInfo="
 				+ pkcsInfo + ", attributeValueFilters=" + attributeValueFilters + ", requestedACR=" + requestedACR
-				+ ", userAuthnDetails=" + userAuthnDetails + "]";
+				+ ", userAuthnDetails=" + userAuthnDetails + ", deviceCodeStatus=" + deviceCodeStatus
+				+ ", userCode=" + userCode + ", lastPolledAt=" + lastPolledAt + ", currentPollInterval="
+				+ currentPollInterval + ", subjectEntityId=" + subjectEntityId + "]";
 	}
 
 	public static class PKCSInfo
