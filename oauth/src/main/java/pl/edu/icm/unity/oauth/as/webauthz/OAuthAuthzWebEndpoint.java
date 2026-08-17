@@ -61,6 +61,8 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter.OAuthIdpStatisticReporterFactory;
+import pl.edu.icm.unity.oauth.as.federation.FederatedOAuthClientService;
+import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 
 /**
@@ -84,8 +86,10 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 	private final OAuthEndpointsCoordinator coordinator;
 	private final ASConsentDeciderServletFactory dispatcherServletFactory;
 	private final OAuthIdpStatisticReporterFactory idpReporterFactory;
+	private final FederatedOAuthClientService federationClientService;
 
 	private OAuthASProperties oauthProperties;
+	private OAuthASFederationConfig federationConfig;
 
 	private final OAuthScopesService scopeService;
 
@@ -103,7 +107,8 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 			RemoteRedirectedAuthnResponseProcessingFilter remoteAuthnResponseProcessingFilter,
 			OAuthIdpStatisticReporterFactory idpReporterFactory,
 			SandboxAuthnRouter sandboxAuthnRouter,
-			OAuthScopesService scopeService)
+			OAuthScopesService scopeService,
+			FederatedOAuthClientService federationClientService)
 	{
 		super(server, advertisedAddrProvider, msg, applicationContext, new OAuthResourceProvider(),
 				OAUTH_UI_SERVLET_PATH, remoteAuthnResponseProcessingFilter, sandboxAuthnRouter, OAuthVaadin2XServlet.class);
@@ -115,7 +120,7 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		this.dispatcherServletFactory = dispatcherServletFactory;
 		this.idpReporterFactory = idpReporterFactory;
 		this.scopeService = scopeService;
-
+		this.federationClientService = federationClientService;
 	}
 
 	@Override
@@ -128,6 +133,7 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 					getServletUrl(OAUTH_CONSUMER_SERVLET_PATH));
 			coordinator.registerAuthzEndpoint(oauthProperties.getValue(OAuthASProperties.ISSUER_URI),
 					getServletUrl(OAUTH_CONSUMER_SERVLET_PATH));
+			federationConfig = OAuthASFederationConfig.from(oauthProperties, pkiManagement);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("Can't initialize the OAuth 2 AS endpoint's configuration", e);
@@ -162,7 +168,8 @@ public class OAuthAuthzWebEndpoint extends SecureVaadin2XEndpoint
 		}
 
 		Servlet oauthParseServlet = new OAuthParseServlet(oauthProperties, getServletUrl(OAUTH_CONSENT_DECIDER_SERVLET_PATH),
-				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, scopeService, serverConfig);
+				new ErrorHandler(freemarkerHandler), identitiesManagement, attributesManagement, scopeService,
+				serverConfig, federationClientService, federationConfig);
 		ServletHolder oauthParseHolder = createServletHolder(oauthParseServlet);
 		servletContextHandler.addServlet(oauthParseHolder, OAUTH_CONSUMER_SERVLET_PATH + "/*");
 

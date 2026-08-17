@@ -24,10 +24,12 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.binder.ValidationResult;
 import io.imunity.vaadin.elements.CopyToClipboardButton;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.endpoint.common.api.UnitySubView;
@@ -35,6 +37,8 @@ import io.imunity.vaadin.endpoint.common.file.FileField;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.token.JwksParseUtils;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
 
 import java.util.*;
@@ -134,8 +138,8 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		header.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		TextField name = new TextField();
-		binder.forField(name).withValidator((v, c) -> {
-			if (v != null && v.length() == 1)
+		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).withValidator((v, c) -> {
+			if (v != null && v.length() < 2)
 			{
 				return ValidationResult.error(msg.getMessage("toShortValue"));
 			}
@@ -163,20 +167,28 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 		}).bind("id");
 		header.addFormItem(id, msg.getMessage("EditOAuthClientSubView.id"));
 		
+		Select<String> authnMethod = new Select<>();
+		authnMethod.setWidth(TEXT_FIELD_MEDIUM.value());
+		authnMethod.setItems(Stream.of(ClientAuthnMethod.values()).map(ClientAuthnMethod::toString).toList());
+		binder.forField(authnMethod).bind("clientAuthnMethod");
+		header.addFormItem(authnMethod, msg.getMessage("EditOAuthClientSubView.authnMethod"));
+
 		CustomField<String> secret;
+		FormLayout.FormItem secretFormItem;
 		if (!editMode)
 		{
 			secret = new TextFieldWithGenerator();
 			secret.setWidth(30, Unit.EM);
 			binder.forField(secret).withValidator((v, c) -> {
-				if ((v == null || v.isEmpty()) && ClientType.CONFIDENTIAL.toString().equals(type.getValue()))
+				if ((v == null || v.isEmpty())
+						&& ClientType.CONFIDENTIAL.toString().equals(type.getValue())
+						&& ClientAuthnMethod.client_secret.toString().equals(authnMethod.getValue()))
 				{
 					return ValidationResult.error(msg.getMessage("fieldRequired"));
 				}
 				return ValidationResult.ok();
-
 			}).bind("secret");
-			header.addFormItem(secret, msg.getMessage("EditOAuthClientSubView.secret"));
+			secretFormItem = header.addFormItem(secret, msg.getMessage("EditOAuthClientSubView.secret"));
 		} else
 		{
 			TextFieldWithChangeConfirmation<TextFieldWithGenerator> secretWithChangeConfirmation =
@@ -187,18 +199,65 @@ class EditOAuthClientSubView extends VerticalLayout implements UnitySubView
 				{
 					return ValidationResult.error(msg.getMessage("fieldRequired"));
 				}
-
 				return ValidationResult.ok();
 			}).bind("secret");
-			header.addFormItem(secretWithChangeConfirmation, msg.getMessage("EditOAuthClientSubView.secret"));
+			secretFormItem = header.addFormItem(secretWithChangeConfirmation, msg.getMessage("EditOAuthClientSubView.secret"));
 			secret = secretWithChangeConfirmation;
 		}
 
+		TextArea jwksArea = new TextArea();
+		jwksArea.setWidth(TEXT_FIELD_BIG.value());
+		jwksArea.setHeight("14em");
+		jwksArea.addClassName(CssClassNames.MONOSPACE.getName());
+		jwksArea.addClassName(CssClassNames.SMALL_FONT_FIELD.getName());
+
+		binder.forField(jwksArea).withValidator((v, c) -> {
+			if (v != null && !v.isBlank())
+			{
+				Optional<String> error = JwksParseUtils.validationError(v);
+				if (error.isPresent())
+				{
+					return ValidationResult.error(
+							msg.getMessage("EditOAuthClientSubView.invalidJwks") + ": " + error.get());
+				}
+			}
+			return ValidationResult.ok();
+		}).bind("jwks");
+		FormLayout.FormItem jwksFormItem = header.addFormItem(jwksArea, msg.getMessage("EditOAuthClientSubView.jwks"));
+		Consumer<Boolean> setJwksEnabled = jwksArea::setEnabled;
+		Runnable clearJwks = () -> jwksArea.setValue("");
+
+		boolean isPrivateKeyJwt = ClientAuthnMethod.private_key_jwt.toString().equals(authnMethod.getValue());
+		boolean isConfidential = ClientType.CONFIDENTIAL.toString().equals(type.getValue());
+		secretFormItem.setVisible(!isPrivateKeyJwt);
+		jwksFormItem.setVisible(isPrivateKeyJwt);
+		secret.setEnabled(!isPrivateKeyJwt && isConfidential);
+		setJwksEnabled.accept(isPrivateKeyJwt && isConfidential);
+
+		authnMethod.addValueChangeListener(e -> {
+			boolean pkjwt = ClientAuthnMethod.private_key_jwt.toString().equals(e.getValue());
+			boolean confidential = ClientType.CONFIDENTIAL.toString().equals(type.getValue());
+			secretFormItem.setVisible(!pkjwt);
+			jwksFormItem.setVisible(pkjwt);
+			secret.setEnabled(!pkjwt && confidential);
+			setJwksEnabled.accept(pkjwt && confidential);
+			if (pkjwt)
+				secret.setValue("");
+			else
+				clearJwks.run();
+		});
+
 		type.addValueChangeListener(e ->
 		{
-			secret.setEnabled(ClientType.CONFIDENTIAL.toString().equals(e.getValue()));
-			if (!secret.isEnabled())
+			boolean confidential = ClientType.CONFIDENTIAL.toString().equals(e.getValue());
+			authnMethod.setEnabled(confidential);
+			secret.setEnabled(confidential && ClientAuthnMethod.client_secret.toString().equals(authnMethod.getValue()));
+			setJwksEnabled.accept(confidential && ClientAuthnMethod.private_key_jwt.toString().equals(authnMethod.getValue()));
+			if (!confidential)
+			{
 				secret.setValue("");
+				clearJwks.run();
+			}
 		});
 		
 		MultiSelectComboBox<String> allowedFlows = new MultiSelectComboBox<>();

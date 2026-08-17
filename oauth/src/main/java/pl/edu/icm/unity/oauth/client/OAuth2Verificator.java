@@ -7,7 +7,6 @@ package pl.edu.icm.unity.oauth.client;
 import static pl.edu.icm.unity.oauth.client.URLObfuscator.obfuscateURLParams;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,8 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
 
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
@@ -32,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Strings;
+import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -44,9 +42,6 @@ import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
-import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
-import com.nimbusds.oauth2.sdk.auth.ClientSecretPost;
-import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
@@ -61,7 +56,6 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.vaadin.auth.CommonWebAuthnProperties;
 import jakarta.ws.rs.core.MediaType;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
@@ -69,7 +63,6 @@ import pl.edu.icm.unity.base.authn.ExpectedIdentity;
 import pl.edu.icm.unity.base.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;
-import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -79,6 +72,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.ResolvableError;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationStepContext;
 import pl.edu.icm.unity.engine.api.authn.IdPInfo;
+import pl.edu.icm.unity.engine.api.authn.IdPInfo.IdpGroup;
 import pl.edu.icm.unity.engine.api.authn.RememberMeToken.LoginMachineDetails;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthenticationResult;
@@ -92,18 +86,28 @@ import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.URIBuilderFixer;
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientConfiguration;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientConfigurationParser;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviders;
+import pl.edu.icm.unity.oauth.client.federation.OAuthFederationEntityStatementConfig;
+import pl.edu.icm.unity.oauth.client.federation.OAuthFederationEntityStatementServlet;
+import pl.edu.icm.unity.oauth.client.federation.OAuthFederationMetadataManager;
+import pl.edu.icm.unity.oauth.client.federation.OAuthFederationProvidersManager;
+import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherConfig;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 import pl.edu.icm.unity.oauth.oidc.metadata.OAuthDiscoveryMetadataCache;
+import pl.edu.icm.unity.oauth.oidc.metadata.OIDCMetadataRequest;
 
 
 /**
  * Binding independent OAuth 2 logic. Creates authZ requests, validates response (OAuth authorization grant)
  * performs subsequent call to AS to get resource owner's (authenticated user) information.
- *   
+ *
  * @author K. Benedyczak
  */
 @PrototypeComponent
@@ -115,33 +119,46 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			+ "Queries about additional user information.";
 	public static final String DEFAULT_TOKEN_EXPIRATION = "3600";
 
-
-	private OAuthClientProperties config;
+	private final InstanceId instanceId = new InstanceId();
+	private OAuthClientConfiguration config;
 	private final String responseConsumerAddress;
+	private final String federationEntityBaseUrl;
 	private final OAuthContextsManagement contextManagement;
 	private final PKIManagement pkiManagement;
-	private final MessageSource msg;
+	private final ClientAuthenticationFactory clientAuthnFactory;
 	private final OAuthDiscoveryMetadataCache metadataManager;
 	private final OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler;
-	
+	private final OAuthFederationMetadataManager federationManager;
+	private final OAuthFederationProvidersManager federationProvidersManager;
+	private final OAuthClientConfigurationParser configurationParser;
+
 	@Autowired
-	public OAuth2Verificator(MessageSource msg, AdvertisedAddressProvider advertisedAddrProvider,
+	public OAuth2Verificator(AdvertisedAddressProvider advertisedAddrProvider,
 			SharedEndpointManagement sharedEndpointManagement,
 			OAuthContextsManagement contextManagement,
 			PKIManagement pkiManagement,
 			RemoteAuthnResultTranslator processor,
-			OAuthDiscoveryMetadataCache metadataManager, OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler)
+			OAuthDiscoveryMetadataCache metadataManager,
+			OAuthRemoteAuthenticationInputAssembler remoteAuthenticationInputAssembler,
+			OAuthFederationMetadataManager federationManager,
+			OAuthFederationProvidersManager federationProvidersManager,
+			OAuthClientConfigurationParser configurationParser)
 	{
 		super(NAME, DESC, OAuthExchange.ID, processor);
 		URL baseAddress = advertisedAddrProvider.get();
 		String baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.responseConsumerAddress = baseAddress + baseContext + ResponseConsumerServlet.PATH;
+		this.federationEntityBaseUrl = baseAddress + baseContext + OAuthFederationEntityStatementServlet.PATH;
 		this.contextManagement = contextManagement;
 		this.pkiManagement = pkiManagement;
-		this.msg = msg;
+		this.clientAuthnFactory = new ClientAuthenticationFactory(pkiManagement);
 		this.metadataManager = metadataManager;
 		this.remoteAuthenticationInputAssembler = remoteAuthenticationInputAssembler;
+		this.federationManager = federationManager;
+		this.federationProvidersManager = federationProvidersManager;
+		this.configurationParser = configurationParser;
 	}
+
 
 	@Override
 	public String getSerializedConfiguration()
@@ -149,68 +166,121 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		StringWriter sbw = new StringWriter();
 		try
 		{
-			config.getProperties().store(sbw, "");
+			config.rawProperties().store(sbw, "");
 		} catch (IOException e)
 		{
 			throw new InternalException("Can't serialize OAuth2 verificator configuration", e);
 		}
-		return sbw.toString();	
+		return sbw.toString();
 	}
 
 	@Override
 	public void setSerializedConfiguration(String source)
 	{
+		config = configurationParser.parse(source);
+		updateFederationConfiguration();
+		if (instanceName != null)
+			federationProvidersManager.setConfiguration(instanceName,
+					federationEntityBaseUrl + "/" + instanceName, config, instanceId);
+	}
+
+	@Override
+	public OAuthProviders getProviders()
+	{
+		if (instanceName != null)
+			return federationProvidersManager.getCombinedProviders(instanceName);
+		return config.providers();
+	}
+
+	@Override
+	public void destroy()
+	{
+		if (instanceName != null)
+		{
+			federationManager.updateConfiguration(instanceName, null, instanceId);
+			federationProvidersManager.removeConfiguration(instanceName, instanceId);
+		}
+	}
+
+	private void updateFederationConfiguration()
+	{
+		if (instanceName == null)
+			return;
+		if (!config.federation().enabled())
+		{
+			federationManager.updateConfiguration(instanceName, null, instanceId);
+			return;
+		}
+
+		String federationCredName = config.federation().credential();
+		String authCredName = config.authenticationCredential();
+
+		if (Strings.isNullOrEmpty(federationCredName))
+		{
+			log.warn("Federation membership enabled but no federation credential configured for authenticator: {}",
+					instanceName);
+			federationManager.updateConfiguration(instanceName, null, instanceId);
+			return;
+		}
+
 		try
 		{
-			Properties properties = new Properties();
-			properties.load(new StringReader(source));
-			config = new OAuthClientProperties(properties, pkiManagement);			
-		} catch(ConfigurationException e)
+			eu.emi.security.authn.x509.X509Credential federationCred =
+					pkiManagement.getCredential(federationCredName);
+			eu.emi.security.authn.x509.X509Credential authCred =
+					Strings.isNullOrEmpty(authCredName) ? null : pkiManagement.getCredential(authCredName);
+
+			String entityId = federationEntityBaseUrl + "/" + instanceName;
+			String superiorEntityId = config.federation().superiorEntityId();
+			long metadataValidity = config.federation().metadataValidity();
+
+			OAuthFederationEntityStatementConfig federationConfig = new OAuthFederationEntityStatementConfig(
+					entityId, federationCred, authCred, responseConsumerAddress, superiorEntityId, metadataValidity,
+					config.federation().organizationName(), config.federation().logoUri());
+			federationManager.updateConfiguration(instanceName, federationConfig, instanceId);
+		} catch (EngineException e)
 		{
-			throw new InternalException("Invalid configuration of the OAuth2 verificator", e);
-		} catch (IOException e)
-		{
-			throw new InternalException("Invalid configuration of the OAuth2 verificator(?)", e);
+			log.error("Failed to configure federation for authenticator: {}", instanceName, e);
+			federationManager.updateConfiguration(instanceName, null, instanceId);
 		}
 	}
 
 	@Override
-	public OAuthClientProperties getSettings()
+	public OAuthClientConfiguration getSettings()
 	{
 		return config;
 	}
 
 	@Override
-	public OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity, 
-			AuthenticationStepContext authnStepContext, 
-			LoginMachineDetails initialLoginMachine, 
+	public OAuthContext createRequest(OAuthProviderKey providerKey, Optional<ExpectedIdentity> expectedIdentity,
+			AuthenticationStepContext authnStepContext,
+			LoginMachineDetails initialLoginMachine,
 			String ultimateReturnURL,
-			AuthenticationTriggeringContext authnTriggeringContext) 
+			AuthenticationTriggeringContext authnTriggeringContext)
 			throws URISyntaxException, ParseException, IOException
 	{
-		CustomProviderProperties providerCfg = config.getProvider(providerKey);
-		String clientId = providerCfg.getValue(CustomProviderProperties.CLIENT_ID);
-		String authzEndpoint = providerCfg.getValue(CustomProviderProperties.PROVIDER_LOCATION);
-		
-		String scopes = providerCfg.getValue(CustomProviderProperties.SCOPES);
-		boolean openidMode = providerCfg.getBooleanValue(CustomProviderProperties.OPENID_CONNECT);
+		OAuthProviderConfiguration providerCfg = getProviders().get(providerKey);
+		String clientId = providerCfg.clientId();
+		String authzEndpoint = providerCfg.authorizationEndpoint();
+		String scopes = providerCfg.scopes();
+		boolean openidMode = providerCfg.openIdConnect();
 
-		RedirectedAuthnState baseAuthnContext = new RedirectedAuthnState(authnStepContext, this::processResponse, 
-				initialLoginMachine, ultimateReturnURL, 
+		RedirectedAuthnState baseAuthnContext = new RedirectedAuthnState(authnStepContext, this::processResponse,
+				initialLoginMachine, ultimateReturnURL,
 				authnTriggeringContext);
 		OAuthContext context = new OAuthContext(baseAuthnContext);
 		AuthorizationRequest req;
 		if (openidMode)
 		{
 			if (Strings.isNullOrEmpty(authzEndpoint))
-			{	
-				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg.generateMetadataRequest());
+			{
+				OIDCProviderMetadata providerMeta = metadataManager.getMetadata(buildMetadataRequest(providerCfg));
 				if (providerMeta.getAuthorizationEndpointURI() == null)
 					throw new ConfigurationException("The authorization endpoint address is not set and"
 							+ " it is not available in the discovered OpenID Provider metadata.");
 				authzEndpoint = providerMeta.getAuthorizationEndpointURI().toString();
 			}
-			Builder builder = new AuthenticationRequest.Builder(new ResponseType(ResponseType.Value.CODE), 
+			Builder builder = new AuthenticationRequest.Builder(new ResponseType(ResponseType.Value.CODE),
 					Scope.parse(scopes), new ClientID(clientId),
 					new URI(responseConsumerAddress));
 			builder.state(new State(context.getRelayState()))
@@ -221,7 +291,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				context.setExpectedIdentity(expectedIdentity.get());
 			}
 			new AuthenticationRequestACRBuilder(builder).addACR(providerCfg, authnStepContext.signInInProgressContext.acr());
-			
+
 			req = builder.build();
 		} else
 		{
@@ -232,20 +302,19 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 					null,
 					new ClientID(clientId),
 					new URI(responseConsumerAddress),
-					scope, 
+					scope,
 					new State(context.getRelayState()));
-			
 		}
-		
+
 		URIBuilder uriBuilder = URIBuilderFixer.newInstance(req.toURI());
-		uriBuilder.addParameters(providerCfg.getAdditionalAuthzParams());
+		uriBuilder.addParameters(providerCfg.additionalAuthzParams());
 		context.setRequest(req, uriBuilder.build(), providerKey);
 		contextManagement.addAuthnContext(context);
 		return context;
 	}
 
-	
-	
+
+
 	private AuthenticationResult processResponse(RedirectedAuthnState remoteAuthnState)
 	{
 		try
@@ -258,11 +327,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		}
 	}
 
-	
+
 	/**
-	 * The real OAuth workhorse. The authz code response verification needs not to be done: the state is 
+	 * The real OAuth workhorse. The authz code response verification needs not to be done: the state is
 	 * correct as otherwise there would be no match with the {@link OAuthContext}. However we need to
-	 * use the authz code to retrieve access token. The access code may include everything we need. But it 
+	 * use the authz code to retrieve access token. The access code may include everything we need. But it
 	 * may also happen that we need to perform one more query to obtain additional profile information.
 	 */
 	private AuthenticationResult verifyOAuthAuthzResponse(OAuthContext context)
@@ -271,20 +340,13 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
 			verifyExpectedIdentity(input, context.getExpectedIdentity());
-			CustomProviderProperties providerProps = config.getProvider(context.getProviderConfigKey());
-			TranslationProfile profile = getTranslationProfile(
-					providerProps,
-					CommonWebAuthnProperties.TRANSLATION_PROFILE,
-					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
-			
-			String regFormForUnknown = providerProps.getValue(CommonWebAuthnProperties.REGISTRATION_FORM);
-			boolean enableAssociation = providerProps.isSet(CommonWebAuthnProperties.ENABLE_ASSOCIATION) ?
-					providerProps.getBooleanValue(CommonWebAuthnProperties.ENABLE_ASSOCIATION) :
-					config.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
-			return getResult(input, 
-					profile, 
-					context.getAuthenticationTriggeringContext().isSandboxTriggered(), 
-					regFormForUnknown, 
+			OAuthProviderConfiguration providerCfg = getProviders().get(context.getProviderConfigKey());
+			TranslationProfile profile = providerCfg.translationProfile();
+			String regFormForUnknown = providerCfg.registrationForm();
+			boolean enableAssociation = providerCfg.enableAssociation();
+			return getResult(input, profile,
+					context.getAuthenticationTriggeringContext().isSandboxTriggered(),
+					regFormForUnknown,
 					enableAssociation);
 		} catch (UnexpectedIdentityException uie)
 		{
@@ -293,12 +355,12 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		} catch (RemoteAuthenticationException e)
 		{
 			log.info("OAuth2 authorization code verification or processing failed", e);
-			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), e, 
+			return RemoteAuthenticationResult.failed(e.getResult().getRemotelyAuthenticatedPrincipal(), e,
 					new ResolvableError("OAuth2Retrieval.authnFailedError"));
 		}
-		
+
 	}
-	
+
 	private void verifyExpectedIdentity(RemotelyAuthenticatedInput input, ExpectedIdentity expectedIdentity)
 	{
 		if (expectedIdentity == null)
@@ -320,69 +382,57 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		throw new UnexpectedIdentityException(identity);
 	}
 
-	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(OAuthContext context) 
-			throws RemoteAuthenticationException 
+	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(OAuthContext context)
+			throws RemoteAuthenticationException
 	{
 		String error = context.getErrorCode();
 		if (error != null)
 		{
-			throw new RemoteAuthenticationException("OAuth provider returned an error: " + 
-					error + (context.getErrorDescription() != null ? 
+			throw new RemoteAuthenticationException("OAuth provider returned an error: " +
+					error + (context.getErrorDescription() != null ?
 							" " + context.getErrorDescription() : ""));
 		}
-		
-		boolean openIdConnectMode = config.getProvider(context.getProviderConfigKey()).getBooleanValue(
-				CustomProviderProperties.OPENID_CONNECT);
-		
+
+		OAuthProviderConfiguration providerCfg = getProviders().get(context.getProviderConfigKey());
+		boolean openIdConnectMode = providerCfg.openIdConnect();
+
 		AttributeFetchResult attributes;
 		try
 		{
-			attributes = openIdConnectMode ? getAccessTokenAndProfileOpenIdConnect(context) :
-				getAccessTokenAndProfilePlain(context);
+			attributes = openIdConnectMode ? getAccessTokenAndProfileOpenIdConnect(context, providerCfg) :
+				getAccessTokenAndProfilePlain(context, providerCfg);
 		} catch (Exception e)
 		{
 			throw new RemoteAuthenticationException("Problem during user information retrieval", e);
 		}
 
-		return  remoteAuthenticationInputAssembler.convertInput(config.getProvider(context.getProviderConfigKey()), context, attributes, openIdConnectMode);	
-	}
-	
-	private AccessTokenFormat getAccessTokenFormat(OAuthContext context)
-	{
-		CustomProviderProperties providerCfg = config
-				.getProvider(context.getProviderConfigKey());
-		return providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT,
-				AccessTokenFormat.class);
+		return remoteAuthenticationInputAssembler.convertInput(providerCfg, context, attributes, openIdConnectMode);
 	}
 
-	private HTTPResponse retrieveAccessTokenGeneric(OAuthContext context, String tokenEndpoint, 
-			ClientAuthnMode mode) 
-			throws IOException, URISyntaxException
+	private HTTPResponse retrieveAccessTokenGeneric(OAuthContext context, OAuthProviderConfiguration providerCfg,
+			String tokenEndpoint, ClientAuthnMode mode)
+			throws IOException, URISyntaxException, EngineException, JOSEException
 	{
-		String clientId = config.getProvider(context.getProviderConfigKey()).getValue(
-				CustomProviderProperties.CLIENT_ID);
-		String clientSecret = config.getProvider(context.getProviderConfigKey()).getValue(
-				CustomProviderProperties.CLIENT_SECRET);
-
-		ClientAuthentication clientAuthn = getClientAuthentication(clientId, clientSecret, mode);
+		URI tokenEndpointURI = new URI(tokenEndpoint);
+		ClientAuthentication clientAuthn = clientAuthnFactory.build(providerCfg, tokenEndpointURI, mode);
 		AuthorizationCodeGrant authzCodeGrant = new AuthorizationCodeGrant(
-				new AuthorizationCode(context.getAuthzCode()), 
-				new URI(responseConsumerAddress)); 
+				new AuthorizationCode(context.getAuthzCode()),
+				new URI(responseConsumerAddress));
 		TokenRequest request = new TokenRequest(
-				new URI(tokenEndpoint),
+				tokenEndpointURI,
 				clientAuthn,
 				authzCodeGrant, null);
-		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
-		
+
 		HTTPRequest httpRequest = new HttpRequestConfigurer()
-				.secureRequest(request.toHTTPRequest(), providerCfg.getValidator(), providerCfg.getHostNameCheckingMode()); 
-		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
+				.secureRequest(request.toHTTPRequest(), providerCfg.validator(),
+						providerCfg.hostNameCheckingMode());
+		if (providerCfg.accessTokenFormat() == AccessTokenFormat.standard)
 			httpRequest.setAccept(MediaType.APPLICATION_JSON);
-		
+
 		log.debug("Exchanging authorization code for access token with request to: {}",
 					obfuscateURLParams(httpRequest.getURL()));
 		HTTPResponse response = httpRequest.send();
-		
+
 		log.debug("Received answer: {}", response.getStatusCode());
 		if (response.getStatusCode() != 200)
 			log.warn("Error received. Contents: {}", response.getBody());
@@ -393,24 +443,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return response;
 	}
 
-	private ClientAuthentication getClientAuthentication(String clientId, String clientSecret,
-			ClientAuthnMode mode)
+	private AttributeFetchResult getAccessTokenAndProfileOpenIdConnect(OAuthContext context,
+			OAuthProviderConfiguration providerCfg) throws Exception
 	{
-		switch (mode)
-		{
-		case secretPost:
-			return new ClientSecretPost(new ClientID(clientId), new Secret(clientSecret));
-		case secretBasic:
-		default:
-			return new ClientSecretBasic(new ClientID(clientId), new Secret(clientSecret));
-		}
-	}
-	
-	private AttributeFetchResult getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
-	{
-		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
-		OIDCProviderMetadata providerMeta = metadataManager.getMetadata(providerCfg.generateMetadataRequest());
-		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
+		OIDCProviderMetadata providerMeta = metadataManager.getMetadata(buildMetadataRequest(providerCfg));
+		String tokenEndpoint = providerCfg.accessTokenEndpoint();
 		if (tokenEndpoint == null)
 		{
 			if (providerMeta.getTokenEndpointURI() != null)
@@ -419,72 +456,85 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				throw new AuthenticationException("The access token endpoint is not set "
 						+ "in provider's metadata and it is not configured manually");
 		}
-		
+
 		ClientAuthnMode selectedMethod = establishOpenIDAuthnMode(providerMeta, providerCfg);
-		
-		HTTPResponse response = retrieveAccessTokenGeneric(context, tokenEndpoint, selectedMethod);
+
+		HTTPResponse response = retrieveAccessTokenGeneric(context, providerCfg, tokenEndpoint, selectedMethod);
 		OIDCTokenResponse acResponse = OIDCTokenResponse.parse(response);
 		BearerAccessToken accessToken = extractAccessToken(acResponse);
-		
+
 		JWT idToken = acResponse.getOIDCTokens().getIDToken();
 		if (idToken == null)
 			throw new AuthenticationException("Id token was not returned by the authorization server");
 		JWTClaimsSet accessTokenClaimsSet = idToken.getJWTClaimsSet();
 		Map<String, List<String>> accessTokenAttributes = ProfileFetcherUtils.convertToAttributes(
 				new JSONObject(accessTokenClaimsSet.getClaims()));
-		
-		List<String> userInfoEndpoints = providerCfg.getUserInfoEndpoints();
-		if (userInfoEndpoints.isEmpty() && providerMeta.getUserInfoEndpointURI() != null) 
+
+		List<String> userInfoEndpoints = new ArrayList<>(providerCfg.userInfoEndpoints());
+		if (userInfoEndpoints.isEmpty() && providerMeta.getUserInfoEndpointURI() != null)
 			userInfoEndpoints.add(providerMeta.getUserInfoEndpointURI().toString());
 
 		return fetchUserAttributes(providerCfg, accessToken, accessTokenAttributes, userInfoEndpoints);
 	}
-	
+
 	private ClientAuthnMode establishOpenIDAuthnMode(OIDCProviderMetadata providerMeta,
-			CustomProviderProperties providerCfg) throws AuthenticationException
+			OAuthProviderConfiguration providerCfg) throws AuthenticationException
 	{
+		if (ClientAuthnMethod.private_key_jwt == providerCfg.clientAuthnMethod())
+			return establishOpenIDAuthnModeForPrivateKeyJwt(providerMeta);
+		return establishOpenIDAuthnModeForSecret(providerMeta, providerCfg);
+	}
+
+	ClientAuthnMode establishOpenIDAuthnModeForPrivateKeyJwt(OIDCProviderMetadata providerMeta)
+			throws AuthenticationException
+	{
+		List<ClientAuthenticationMethod> supportedMethods = providerMeta.getTokenEndpointAuthMethods();
+		if (supportedMethods != null && !supportedMethods.contains(ClientAuthenticationMethod.PRIVATE_KEY_JWT))
+			throw new AuthenticationException("Provider does not support private_key_jwt authentication. "
+					+ "Supported methods: " + supportedMethods);
+		return ClientAuthnMode.secretBasic; // unused — private_key_jwt path ignores ClientAuthnMode
+	}
+
+	ClientAuthnMode establishOpenIDAuthnModeForSecret(OIDCProviderMetadata providerMeta,
+			OAuthProviderConfiguration providerCfg) throws AuthenticationException
+	{
+		if (providerCfg.clientAuthnMode().isPresent())
+			return providerCfg.clientAuthnMode().get();
+
 		ClientAuthnMode selectedMethod = ClientAuthnMode.secretBasic;
-		if (providerCfg.isSet(CustomProviderProperties.CLIENT_AUTHN_MODE))
+		List<ClientAuthenticationMethod> supportedMethods = providerMeta.getTokenEndpointAuthMethods();
+		if (supportedMethods != null)
 		{
-			selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
-					ClientAuthnMode.class);
-		} else
-		{
-			List<ClientAuthenticationMethod> supportedMethods = providerMeta.getTokenEndpointAuthMethods();
-			if (supportedMethods != null)
+			selectedMethod = null;
+			for (ClientAuthenticationMethod sm : supportedMethods)
 			{
-				selectedMethod = null;
-				for (ClientAuthenticationMethod sm: supportedMethods)
+				if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(sm))
 				{
-					if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(sm))
-					{
-						selectedMethod = ClientAuthnMode.secretPost;
-						break;
-					} else if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(sm))
-					{
-						selectedMethod = ClientAuthnMode.secretBasic;
-						break;
-					}
+					selectedMethod = ClientAuthnMode.secretPost;
+					break;
+				} else if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(sm))
+				{
+					selectedMethod = ClientAuthnMode.secretBasic;
+					break;
 				}
-				if (selectedMethod == null)
-					throw new AuthenticationException("Client authentication metods supported by"
-							+ " the provider (" + supportedMethods + ") do not include "
-							+ "any of methods supported by Unity.");
 			}
+			if (selectedMethod == null)
+				throw new AuthenticationException("Client authentication methods supported by"
+						+ " the provider (" + supportedMethods + ") do not include "
+						+ "any of methods supported by Unity.");
 		}
 		return selectedMethod;
 	}
-	
-	private AttributeFetchResult getAccessTokenAndProfilePlain(OAuthContext context) throws Exception 
+
+	private AttributeFetchResult getAccessTokenAndProfilePlain(OAuthContext context,
+			OAuthProviderConfiguration providerCfg) throws Exception
 	{
-		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
-		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
-		ClientAuthnMode selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
-					ClientAuthnMode.class);
-		HTTPResponse response = retrieveAccessTokenGeneric(context, tokenEndpoint, selectedMethod);
+		String tokenEndpoint = providerCfg.accessTokenEndpoint();
+		ClientAuthnMode selectedMethod = providerCfg.getClientAuthModeFallbackToDefault();
+		HTTPResponse response = retrieveAccessTokenGeneric(context, providerCfg, tokenEndpoint, selectedMethod);
 		Map<String, List<String>> accessTokenAttributes = new HashMap<>();
 		BearerAccessToken accessToken;
-		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
+		if (providerCfg.accessTokenFormat() == AccessTokenFormat.standard)
 		{
 			JSONObject jsonResp = response.getBodyAsJSONObject();
 			if (!jsonResp.containsKey("token_type"))
@@ -510,7 +560,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				lifetimeStr = map.getString("expires_in");
 			if (lifetimeStr == null)
 			{
-				log.debug("AS didn't provide expiration time, assuming default value " + 
+				log.debug("AS didn't provide expiration time, assuming default value " +
 						DEFAULT_TOKEN_EXPIRATION);
 				lifetimeStr = DEFAULT_TOKEN_EXPIRATION;
 			}
@@ -518,30 +568,27 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			extractUserInfoFromHttpParamsAccessToken(map, accessTokenAttributes);
 		}
 
-		List<String> userInfoEndpoints = providerCfg.getUserInfoEndpoints();
+		List<String> userInfoEndpoints = new ArrayList<>(providerCfg.userInfoEndpoints());
 		return fetchUserAttributes(providerCfg, accessToken, accessTokenAttributes, userInfoEndpoints);
 	}
-	
-	private AttributeFetchResult fetchUserAttributes(CustomProviderProperties providerCfg, 
+
+	private AttributeFetchResult fetchUserAttributes(OAuthProviderConfiguration providerCfg,
 			BearerAccessToken accessToken, Map<String, List<String>> baseAttributes,
 			List<String> userInfoEndpoints) throws Exception
 	{
-		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
+		ProfileFetcherConfig fetcherConfig = ProfileFetcherConfig.from(providerCfg);
 		AttributeFetchResult fetchRet = new AttributeFetchResult();
-		if (userAttributesFetcher != null)
+		for (String userInfoEndpoint: userInfoEndpoints)
 		{
-			for (String userInfoEndpoint: userInfoEndpoints)
-			{
-				AttributeFetchResult fetchSingle = userAttributesFetcher.fetchProfile(accessToken, 
-					userInfoEndpoint, providerCfg, baseAttributes);
-				fetchRet = fetchRet.mergeWith(fetchSingle);
-			}
+			AttributeFetchResult fetchSingle = providerCfg.userAttributesResolver().fetchProfile(accessToken,
+					userInfoEndpoint, fetcherConfig, baseAttributes);
+			fetchRet = fetchRet.mergeWith(fetchSingle);
 		}
-		fetchRet.getAttributes().putAll(baseAttributes); //minor bug - those won't be visible as rawAttribtues.
+		fetchRet.getAttributes().putAll(baseAttributes);
 		log.debug("Received the following attributes from the OAuth provider: {}", fetchRet.getAttributes());
 		return fetchRet;
 	}
-	
+
 	private void extractUserInfoFromStandardAccessToken(AccessTokenResponse atResponse, Map<String, List<String>> ret)
 	{
 		Map<String, Object> customParameters = atResponse.getCustomParameters();
@@ -564,13 +611,13 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			ret.put(key, values);
 		}
 	}
-	
+
 	private boolean attributeIgnored(String key)
 	{
 		return key.equals("access_token") || key.equals("expires") || key.equals("expires_in") ||
 				key.equals("id_token");
 	}
-	
+
 	private BearerAccessToken extractAccessToken(AccessTokenResponse atResponse) throws AuthenticationException
 	{
 		AccessToken accessTokenGeneric = atResponse.getTokens().getAccessToken();
@@ -578,96 +625,106 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			throw new AuthenticationException("OAuth provider returned an access token which is not "
 					+ "the bearer token, it is unsupported and most probably a problem on "
-					+ "the provider side. The received token type is: " + 
+					+ "the provider side. The received token type is: " +
 					accessTokenGeneric.getType().toString());
 		}
 		return (BearerAccessToken) accessTokenGeneric;
 	}
-	
-	
-	
+
+	private OIDCMetadataRequest buildMetadataRequest(OAuthProviderConfiguration providerCfg)
+	{
+		return OIDCMetadataRequest.builder()
+				.withUrl(providerCfg.openIdDiscoveryEndpoint())
+				.withValidator(providerCfg.validator())
+				.withValidatorName(providerCfg.truststoreName())
+				.withHostnameChecking(providerCfg.hostNameCheckingMode())
+				.build();
+	}
+
 	@Override
 	public VerificatorType getType()
 	{
 		return VerificatorType.Remote;
 	}
-	
+
 	@Override
 	public List<IdPInfo> getIdPs()
 	{
 		List<IdPInfo> providers = new ArrayList<>();
-		Set<String> keys = config.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
-		for (String key : keys)
+		for (OAuthProviderConfiguration provider : getProviders().getAll())
 		{
-			CustomProviderProperties providerProps = config.getProvider(key);
-			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), key.length() - 1);
-			if (config.getProvider(key).getBooleanValue(CustomProviderProperties.OPENID_CONNECT))
+			String idpKey = provider.key().asString();
+			if (provider.openIdConnect() && provider.federationId() == null)
 			{
-				extractIdPInfoFromOIDCProvider(key, idpKey, providerProps).ifPresent(i -> providers.add(i));
-
+				extractIdPInfoFromOIDCProvider(idpKey, provider).ifPresent(providers::add);
 			} else
 			{
 				IdPInfo providerInfo = IdPInfo.builder()
-						.withId(config.getProvider(key).getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT))
+						.withId(provider.accessTokenEndpoint())
 						.withConfigId(idpKey)
-						.withDisplayedName(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
-								CustomProviderProperties.PROVIDER_NAME))
+						.withDisplayedName(provider.name())
+						.withGroup(buildFederationGroup(provider))
 						.build();
 				providers.add(providerInfo);
 			}
 		}
 		return providers;
 	}
-	
-	private Optional<IdPInfo> extractIdPInfoFromOIDCProvider(String key, String idpKey,
-			CustomProviderProperties providerProps)
 
+	private IdpGroup buildFederationGroup(OAuthProviderConfiguration provider)
 	{
-		
+		if (provider.federationId() == null)
+			return null;
+		return new IdpGroup(provider.federationId(), Optional.ofNullable(provider.federationName()));
+	}
+
+	private Optional<IdPInfo> extractIdPInfoFromOIDCProvider(String idpKey, OAuthProviderConfiguration provider)
+	{
 		OIDCProviderMetadata metadata;
 		try
 		{
-			metadata = metadataManager.getMetadata(providerProps.generateMetadataRequest());
+			metadata = metadataManager.getMetadata(buildMetadataRequest(provider));
 		} catch (Exception e)
 		{
 			log.warn("Can't obtain OIDC metadata", e);
 			return Optional.empty();
 		}
 
-		return Optional.of(IdPInfo.builder().withId(metadata.getTokenEndpointURI().toString()).withConfigId(idpKey)
-				.withDisplayedName(config.getProvider(key).getLocalizedStringWithoutFallbackToDefault(msg,
-						CustomProviderProperties.PROVIDER_NAME))
+		return Optional.of(IdPInfo.builder()
+				.withId(metadata.getTokenEndpointURI().toString())
+				.withConfigId(idpKey)
+				.withDisplayedName(provider.name())
+				.withGroup(buildFederationGroup(provider))
 				.build());
 	}
-	
+
 	@Override
 	public AuthenticationMethod getAuthenticationMethod()
 	{
 		return AuthenticationMethod.U_OAUTH;
 	}
-	
+
 	@Component
 	public static class Factory extends AbstractCredentialVerificatorFactory
 	{
 		@Autowired
-		public Factory(ObjectFactory<OAuth2Verificator> factory, 
+		public Factory(ObjectFactory<OAuth2Verificator> factory,
 				SharedEndpointManagement sharedEndpointManagement,
 				OAuthContextsManagement contextManagement,
-				SharedRemoteAuthenticationContextStore remoteAuthnContextStore) throws EngineException
+				SharedRemoteAuthenticationContextStore remoteAuthnContextStore,
+				OAuthFederationMetadataManager federationManager) throws EngineException
 		{
 			super(NAME, DESC, factory);
-			
-			ServletHolder servlet = new ServletHolder(new ResponseConsumerServlet(contextManagement, 
-					remoteAuthnContextStore));
+
+			ServletHolder responseConsumerServlet = new ServletHolder(
+					new ResponseConsumerServlet(contextManagement, remoteAuthnContextStore));
 			sharedEndpointManagement.deployInternalEndpointServlet(
-					ResponseConsumerServlet.PATH, servlet, false);
+					ResponseConsumerServlet.PATH, responseConsumerServlet, false);
+
+			ServletHolder federationServlet = new ServletHolder(
+					new OAuthFederationEntityStatementServlet(federationManager));
+			sharedEndpointManagement.deployInternalEndpointServlet(
+					OAuthFederationEntityStatementServlet.PATH, federationServlet, false);
 		}
-	}	
+	}
 }
-
-
-
-
-
-
-

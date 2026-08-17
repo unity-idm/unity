@@ -228,11 +228,18 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 		Button metaPath = new Button();
 		metaPath.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
+		Button federationMetaPath = new Button();
+		federationMetaPath.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+
 		if (editMode)
 		{
 			infoLayoutWrapper.addFormItem(metaPath, msg.getMessage("OAuthEditorGeneralTab.metadataLink"));
 			metaPath.addClickListener(e -> UI.getCurrent().getPage()
 					.open(metaPath.getText(), "_blank"));
+			infoLayoutWrapper.addFormItem(federationMetaPath,
+					msg.getMessage("OAuthEditorGeneralTab.federationMetadataLink"));
+			federationMetaPath.addClickListener(e -> UI.getCurrent().getPage()
+					.open(federationMetaPath.getText(), "_blank"));
 		}
 
 		name = new TextField();
@@ -296,6 +303,7 @@ class OAuthEditorGeneralTab extends VerticalLayout implements ServiceEditorBase.
 					{
 						tokenEndpointPath.setText(serverPrefix + v + OAuthTokenEndpoint.TOKEN_PATH);
 						metaPath.setText(serverPrefix + v + "/.well-known/openid-configuration");
+						federationMetaPath.setText(serverPrefix + v + "/.well-known/openid-federation");
 					}
 					return r;
 

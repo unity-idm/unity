@@ -102,19 +102,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		credentialExtraInfo = new VerticalLayout();
 		credentialExtraInfo.setPadding(false);
 
-		credEditor = credEditorReg.getEditor(toEdit.getTypeId());
-
-		ComponentsContainer editorComponents = credEditor.getEditor(CredentialEditorContext.builder()
-				.withConfiguration(toEdit.getConfiguration())
-				.withRequired(true)
-				.withEntityId(entityId)
-				.withAdminMode(enableAdminOptions)
-				.withCustomWidth(SingleCredentialEditComponent.WIDTH)
-				.withCustomWidthUnit(Unit.EM)
-				.withCredentialName(toEdit.getName())
-				.build());
-		credEditorPanel = new SingleCredentialEditComponent(msg, editorComponents, this::onCredentialUpdate,
-				this::hideEditor);
+		buildCredEditor();
 
 		FormLayout fl = new FormLayout();
 		fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
@@ -129,6 +117,31 @@ public class SingleCredentialPanel extends VerticalLayout
 
 		credEditorFormItem.setVisible(false);
 		updateCredentialStatus();
+	}
+
+	private void buildCredEditor()
+	{
+		credEditor = credEditorReg.getEditor(toEdit.getTypeId());
+
+		ComponentsContainer editorComponents = credEditor.getEditor(CredentialEditorContext.builder()
+				.withConfiguration(toEdit.getConfiguration())
+				.withRequired(true)
+				.withEntityId(entityId)
+				.withAdminMode(enableAdminOptions)
+				.withCustomWidth(SingleCredentialEditComponent.WIDTH)
+				.withCustomWidthUnit(Unit.EM)
+				.withCredentialName(toEdit.getName())
+				.build());
+		credEditorPanel = new SingleCredentialEditComponent(msg, editorComponents, this::onCredentialUpdate,
+				this::hideEditor);
+	}
+
+	private void rebuildEditor()
+	{
+		buildCredEditor();
+		credEditorFormItem.removeAll();
+		credEditorFormItem.add(credEditorPanel);
+		credEditorFormItem.setVisible(false);
 	}
 
 	private Component createActionsBar()
@@ -379,6 +392,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		}
 		loadEntity(entityP);
 		updateCredentialStatus();
+		rebuildEditor();
 	}
 
 	private void loadEntity(EntityParam entityP)

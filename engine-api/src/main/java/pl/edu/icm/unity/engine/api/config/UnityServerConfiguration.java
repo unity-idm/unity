@@ -40,7 +40,8 @@ import java.util.stream.Collectors;
 public class UnityServerConfiguration extends UnityFilePropertiesHelper
 {
 	public static final String PROFILE_PRODUCTION = "production";
-	
+	public static final String PROFILE_TEST = "test";
+
 	public enum LogoutMode {internalOnly, internalAndSyncPeers, internalAndAsyncPeers}
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";

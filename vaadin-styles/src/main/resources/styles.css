@@ -635,6 +635,12 @@ vaadin-details.u-multi-tab-details {
     font-family: Monospace;
 }
 
+/* Shrinks only the rendered text, not the host's own font-size, so it doesn't
+   affect widths/heights set in em (which are relative to the host font-size). */
+.u-small-font-field::part(input-field) {
+    font-size: var(--lumo-font-size-s);
+}
+
 .u-token-value {
     font-family: Monospace;
     word-break: break-all;

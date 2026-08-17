@@ -293,6 +293,7 @@ public class TrustedOAuthClientsManagementTest
 		config.setIdTokenExpiration(1);
 		config.setCodeTokenExpiration(1);
 		config.setSigningAlg(SigningAlgorithms.ES256);
+		config.setFederationMetadataValidity(1);
 
 		return config.toProperties(msg, null);
 	}

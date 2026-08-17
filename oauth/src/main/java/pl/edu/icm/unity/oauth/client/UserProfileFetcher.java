@@ -9,7 +9,7 @@ import java.util.Map;
 
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
-import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
+import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherConfig;
 
 public interface UserProfileFetcher
 {
@@ -17,6 +17,6 @@ public interface UserProfileFetcher
 	 * Retrieves attributes from user's profile which is accessed in implementation specific way.
 	 */
 	AttributeFetchResult fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
-			BaseRemoteASProperties providerConfig, Map<String, List<String>> attributesFromACResponse) 
+			ProfileFetcherConfig fetcherConfig, Map<String, List<String>> attributesFromACResponse)
 					throws Exception;
 }

@@ -95,6 +95,18 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_TRUSTSTORE = "httpClientTruststore";
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_HOSTNAME_CHECKING = "httpClientHostnameChecking";
 	
+	public static final String FEDERATION_MEMBERSHIP_ENABLED = "federationMembershipEnabled";
+	public static final String FEDERATION_TRUST_ANCHOR_ID = "federationTrustAnchorId";
+	public static final String FEDERATION_TRUST_ANCHOR_JWKS = "federationTrustAnchorJwks";
+	public static final String FEDERATION_CREDENTIAL = "federationCredential";
+	public static final String FEDERATION_SUPERIOR_ENTITY_ID = "federationSuperiorEntityId";
+	public static final String FEDERATION_METADATA_VALIDITY = "federationMetadataValidity";
+	public static final int DEFAULT_FEDERATION_METADATA_VALIDITY = 86400;
+	public static final String FEDERATION_TRUSTSTORE = "federationTruststore";
+	public static final String FEDERATION_HOSTNAME_CHECKING = "federationHostnameChecking";
+	public static final String FEDERATION_DISPLAY_NAME = "federationDisplayName";
+	public static final String FEDERATION_LOGO_URI = "federationLogoUri";
+
 	public static final String SIGNING_ALGORITHM = "signingAlgorithm";
 	public static final String SIGNING_SECRET = "signingSecret";
 
@@ -189,6 +201,28 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("Script triggering scope - pattern"));
 		
 		
+		defaults.put(FEDERATION_MEMBERSHIP_ENABLED, new PropertyMD("false")
+				.setDescription("Whether this server participates in an OpenID federation."));
+		defaults.put(FEDERATION_TRUST_ANCHOR_ID, new PropertyMD()
+				.setDescription("Entity ID of the trusted OpenID federation trust anchor."));
+		defaults.put(FEDERATION_TRUST_ANCHOR_JWKS, new PropertyMD()
+				.setDescription("JWKS of the trusted OpenID federation trust anchor."));
+		defaults.put(FEDERATION_CREDENTIAL, new PropertyMD()
+				.setDescription("Credential used to sign the OpenID federation entity statement."));
+		defaults.put(FEDERATION_SUPERIOR_ENTITY_ID, new PropertyMD()
+				.setDescription("Entity ID of the superior federation entity (used in authority_hints)."));
+		defaults.put(FEDERATION_METADATA_VALIDITY,
+				new PropertyMD(String.valueOf(DEFAULT_FEDERATION_METADATA_VALIDITY)).setInt().setPositive()
+						.setDescription("Validity period in seconds of the generated federation entity statement."));
+		defaults.put(FEDERATION_TRUSTSTORE, new PropertyMD()
+				.setDescription("Truststore for TLS validation when fetching OpenID federation entity statements."));
+		defaults.put(FEDERATION_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL)
+				.setDescription("TLS hostname checking mode when fetching OpenID federation entity statements."));
+		defaults.put(FEDERATION_DISPLAY_NAME, new PropertyMD()
+				.setDescription("Display name of this IdP presented in the federation entity statement."));
+		defaults.put(FEDERATION_LOGO_URI, new PropertyMD()
+				.setDescription("Logo URI of this IdP presented in the federation entity statement."));
+
 		defaults.put(SIGNING_ALGORITHM, new PropertyMD(SigningAlgorithms.RS256)
 				.setDescription("An algorithm used for JWT access token and id token (OIDC mode) signing."));
 		defaults.put(SIGNING_SECRET,

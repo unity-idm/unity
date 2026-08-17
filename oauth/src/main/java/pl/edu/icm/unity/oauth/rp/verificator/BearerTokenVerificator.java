@@ -27,6 +27,8 @@ import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.OpenIdProfileFetcher;
 import pl.edu.icm.unity.oauth.client.profile.PlainProfileFetcher;
+import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherConfig;
+import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.oauth.rp.verificator.ResultsCache.CacheEntry;
@@ -205,12 +207,22 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			log.debug("The profile endpoint is not defined, skipping the profile fetching");
 			return ret;
 		}
-		UserProfileFetcher profileFetcher = openIdMode ? new OpenIdProfileFetcher() : 
+		UserProfileFetcher profileFetcher = openIdMode ? new OpenIdProfileFetcher() :
 			new PlainProfileFetcher();
-		
+		ProfileFetcherConfig fetcherConfig = new ProfileFetcherConfig(
+				verificatorProperties.getValue(BaseRemoteASProperties.CLIENT_TRUSTSTORE),
+				verificatorProperties.getValidator(),
+				verificatorProperties.getEnumValue(BaseRemoteASProperties.CLIENT_HOSTNAME_CHECKING,
+						eu.unicore.util.httpclient.ServerHostnameCheckingMode.class),
+				verificatorProperties.getClientAuthModeForProfileAccess(),
+				verificatorProperties.getClientHttpMethodForProfileAccess(),
+				verificatorProperties.getValue(BaseRemoteASProperties.CLIENT_ID),
+				verificatorProperties.getValue(BaseRemoteASProperties.CLIENT_SECRET),
+				null);
+
 		try
 		{
-			ret = profileFetcher.fetchProfile(accessToken, profileEndpoint, verificatorProperties, 
+			ret = profileFetcher.fetchProfile(accessToken, profileEndpoint, fetcherConfig,
 					new HashMap<>());
 		} catch (Exception e)
 		{

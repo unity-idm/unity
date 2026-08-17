@@ -19,6 +19,7 @@ import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
@@ -41,6 +42,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String CLIENT_LOGO = "sys:oauth:clientLogo";
 	public static final String CLIENT_TYPE = "sys:oauth:clientType";
 	public static final String CAN_RECEIVE_PATTERN_SCOPES = "sys:oauth:canReceivePatternScopes";
+	public static final String CLIENT_AUTHN_METHOD = "sys:oauth:clientAuthnMethod";
 	
 	public static final int MAXIMUM_ALLOWED_URIS = 512;
 	public static final int MAXIMUM_ALLOWED_SCOPES = 512;
@@ -61,6 +63,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		oauthAttributes.add(getNameAT());
 		oauthAttributes.add(getPerClientGroupAT());
 		oauthAttributes.add(getCanReceivePatternScopesAT());
+		oauthAttributes.add(getClientAuthnMethodAT());
 	}
 	
 	private AttributeType getAllowedGrantFlowsAT()
@@ -160,6 +163,17 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		allowedScopesAt.setMinElements(1);
 		allowedScopesAt.setMaxElements(1);
 		return allowedScopesAt;
+	}
+
+	private AttributeType getClientAuthnMethodAT()
+	{
+		EnumAttributeSyntax syntax = new EnumAttributeSyntax(ClientAuthnMethod.private_key_jwt.toString(), ClientAuthnMethod.client_secret.toString());
+		AttributeType at = new AttributeType(CLIENT_AUTHN_METHOD, EnumAttributeSyntax.ID, msg);
+		at.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
+		at.setMinElements(1);
+		at.setMaxElements(1);
+		at.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
+		return at;
 	}
 
 	@Override

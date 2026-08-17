@@ -4,20 +4,22 @@
  */
 package pl.edu.icm.unity.oauth.client.config;
 
-import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.configuration.DocumentationReferenceMeta;
-import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertyMD;
-import io.imunity.vaadin.auth.CommonWebAuthnProperties;
-import org.apache.logging.log4j.Logger;
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
+import org.apache.logging.log4j.Logger;
+
+import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.DocumentationReferenceMeta;
+import eu.unicore.util.configuration.DocumentationReferencePrefix;
+import eu.unicore.util.configuration.PropertyMD;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 
 /**
  * Configuration of OAuth client.
@@ -25,14 +27,41 @@ import java.util.Set;
  */
 public class OAuthClientProperties extends UnityPropertiesHelper
 {
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, OAuthClientProperties.class);
 
 	public enum Providers {custom, google, facebook, dropbox, github, microsoft, microsoftAzureV2, orcid, linkedin, unity, intuit};
 
+	public static final String DEFAULT_TRANSLATION_PROFILE_FOR_FEDERATION_CLIENT = "sys:oidc";
+	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.client.";
 
 	public static final String PROVIDERS = "providers.";
+
+	public static final String FEDERATION_MEMBERSHIP_ENABLED = "federationMembershipEnabled";
+	public static final String FEDERATION_CREDENTIAL = "federationCredential";
+	public static final String FEDERATION_SUPERIOR_ENTITY_ID = "superiorEntityId";
+	public static final String FEDERATION_TRUST_ANCHOR_ID = "federationTrustAnchorId";
+	public static final String FEDERATION_TRUST_ANCHOR_JWKS = "federationTrustAnchorJwks";
+	public static final String FEDERATION_METADATA_VALIDITY = "federationMetadataValidity";
+	public static final int DEFAULT_FEDERATION_METADATA_VALIDITY = 86400;
+	public static final String FEDERATION_TRUSTSTORE = "federationHttpClientTruststore";
+	public static final String FEDERATION_HOSTNAME_CHECKING = "federationHttpClientHostnameChecking";
+
+	public static final String AUTHENTICATION_CREDENTIAL = "authenticationCredential";
+	public static final String FEDERATION_TRANSLATION_PROFILE = "federationTranslationProfile";
+	public static final String FEDERATION_EMBEDDED_TRANSLATION_PROFILE = "federationEmbeddedTranslationProfile";
+	public static final String FEDERATION_REGISTRATION_FORM = "federationRegistrationForm";
+	public static final String FEDERATION_JWT_SIGNING_ALG = "federationJwtSigningAlg";
+	public static final String FEDERATION_ORGANIZATION_NAME = "federationOrganizationName";
+	public static final String FEDERATION_LOGO_URI = "federationLogoUri";
+	public static final String FEDERATION_REQUEST_ACRS_MODE = "federationRequestACRs";
+	public static final String FEDERATION_REQUESTED_ACRS = "federationRequestedACRs.";
+	public static final String FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL = "federationRequestedACRsAreEssential";
+	public static final String FEDERATION_SCOPES = "federationScopes.";
+	public static final String FEDERATION_ACCESS_TOKEN_FORMAT = "federationAccessTokenFormat";
+	public static final String FEDERATION_ADDITIONAL_AUTHZ_PARAMS = "federationAdditionalAuthzParams.";
 
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
@@ -47,6 +76,59 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 				+ "Used for those providers, for which the setting is not set explicitly."));
 		META.put(CustomProviderProperties.PROVIDER_TYPE, new PropertyMD(Providers.custom).setHidden().
 				setStructuredListEntry(PROVIDERS));
+		META.put(FEDERATION_MEMBERSHIP_ENABLED, new PropertyMD("false").setDescription(
+				"Enables participation in an OpenID Federation as a federation member entity"));
+		META.put(FEDERATION_CREDENTIAL, new PropertyMD()
+				.setDescription("Credential used as the federation entity credential (federation signing key)"));
+		META.put(AUTHENTICATION_CREDENTIAL, new PropertyMD()
+				.setDescription("Credential used for protocol operations (e.g. OIDC/OAuth protocol signing)"));
+		META.put(FEDERATION_SUPERIOR_ENTITY_ID, new PropertyMD().setDescription(
+				"Entity ID (URL) of the superior federation entity"));
+		META.put(FEDERATION_TRUST_ANCHOR_ID, new PropertyMD().setDescription(
+				"Entity ID (URL) of the trusted federation's trust anchor"));
+		META.put(FEDERATION_TRUST_ANCHOR_JWKS, new PropertyMD().setDescription(
+				"JWKS (JSON Web Key Set) of the trusted OpenID federation"));
+		META.put(FEDERATION_METADATA_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_FEDERATION_METADATA_VALIDITY))
+				.setInt().setDescription(
+				"Validity period in seconds of the generated federation entity statement metadata"));
+		META.put(FEDERATION_TRUSTSTORE, new PropertyMD().setDescription(
+				"Truststore used for TLS connections to federation infrastructure endpoints (entity listing, "
+				+ "trust chain resolution). If not set, the JVM default truststore is used."));
+		META.put(FEDERATION_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL)
+				.setDescription("Controls hostname verification for TLS connections to federation infrastructure endpoints."));
+		META.put(FEDERATION_TRANSLATION_PROFILE, new PropertyMD().setDescription(
+				"Translation profile applied to all providers discovered from the federation. "
+				+ "If not set, the default OIDC profile is used."));
+		META.put(FEDERATION_EMBEDDED_TRANSLATION_PROFILE, new PropertyMD().setHidden().setDescription(
+				"Translation profile (embedded JSON) applied to all providers discovered from the federation."));
+		META.put(FEDERATION_REGISTRATION_FORM, new PropertyMD().setDescription(
+				"Registration form applied to all providers discovered from the federation."));
+		META.put(FEDERATION_JWT_SIGNING_ALG, new PropertyMD().setDescription(
+				"JWS algorithm used for private_key_jwt assertions when authenticating to federation providers "
+				+ "(e.g. RS256, ES256, PS256). If not set, derived from the credential key type."));
+		META.put(FEDERATION_ORGANIZATION_NAME, new PropertyMD().setDescription(
+				"Organization name presented in the federation entity statement RP metadata."));
+		META.put(FEDERATION_LOGO_URI, new PropertyMD().setDescription(
+				"Logo URI presented in the federation entity statement RP metadata."));
+		META.put(FEDERATION_REQUEST_ACRS_MODE, new PropertyMD(RequestACRsMode.NONE).setDescription(
+				"Controls how ACR (Authentication Context Class Reference) values are requested from "
+				+ "federation IdPs. NONE: no ACR requested; FIXED: always request the configured ACRs; "
+				+ "FORWARD: forward the ACR requested by the downstream client."));
+		META.put(FEDERATION_REQUESTED_ACRS, new PropertyMD().setList(true).setDescription(
+				"List of ACR values to request from federation IdPs. Used only when "
+				+ FEDERATION_REQUEST_ACRS_MODE + " is set to FIXED."));
+		META.put(FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL, new PropertyMD("false").setDescription(
+				"Whether the requested ACR values are essential (true) or voluntary (false). "
+				+ "Used only when " + FEDERATION_REQUEST_ACRS_MODE + " is set to FIXED."));
+		META.put(FEDERATION_SCOPES, new PropertyMD().setList(true).setDescription(
+				"Additional authorization scopes to request from providers discovered from the federation, "
+				+ "besides the always implied 'openid' scope."));
+		META.put(FEDERATION_ACCESS_TOKEN_FORMAT, new PropertyMD(CustomProviderProperties.AccessTokenFormat.standard)
+				.setDescription("Access token format to use for providers discovered from the federation."));
+		META.put(FEDERATION_ADDITIONAL_AUTHZ_PARAMS, new PropertyMD().setList(false).setDescription(
+				"Allows to specify non-standard, fixed parameters which shall be added to the query string "
+				+ "of the authorization redirect request, for providers discovered from the federation. "
+				+ "format must be: PARAM=VALUE"));
 	}
 
 	private final Map<String, CustomProviderProperties> providers = new HashMap<>();
