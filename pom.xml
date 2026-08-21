@@ -16,13 +16,13 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>12.1.10</jetty.version>
+		<jetty.version>12.1.12</jetty.version>
 		<slf4j.version>2.0.18</slf4j.version>
-		<log4j.version>2.26.0</log4j.version>
+		<log4j.version>2.26.1</log4j.version>
 		<spring.version>6.2.19</spring.version>
-		<vaadin.version>24.9.18</vaadin.version>
-		<cxf.version>4.1.7</cxf.version>
-		<apacheds.version>2.0.0-M26</apacheds.version>
+		<vaadin.version>24.9.20</vaadin.version>
+		<cxf.version>4.1.8</cxf.version>
+		<apacheds.version>2.0.0.AM27</apacheds.version>
 		<bc.version>1.84</bc.version>
 		<selenium.version>4.36.0</selenium.version>
 		<junit5.version>5.9.3</junit5.version>
@@ -621,12 +621,12 @@
 			<dependency>
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
-				<version>42.7.11</version>
+				<version>42.7.13</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mariadb.jdbc</groupId>
 				<artifactId>mariadb-java-client</artifactId>
-				<version>3.5.8</version>
+				<version>3.5.10</version>
 			</dependency>
 			<dependency>
 				<groupId>com.mysql</groupId>
@@ -646,7 +646,7 @@
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis-spring</artifactId>
-				<version>3.0.5</version>
+				<version>3.0.6</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.vt.middleware</groupId>
@@ -705,7 +705,7 @@
 			<dependency>
 				<groupId>com.unboundid</groupId>
 				<artifactId>unboundid-ldapsdk</artifactId>
-				<version>7.0.4</version>
+				<version>7.0.5</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mvel</groupId>
@@ -745,7 +745,7 @@
 			<dependency>
 				<groupId>commons-codec</groupId>
 				<artifactId>commons-codec</artifactId>
-				<version>1.22.0</version>
+				<version>1.22.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
