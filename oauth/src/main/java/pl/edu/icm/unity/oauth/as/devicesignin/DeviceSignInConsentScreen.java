@@ -29,9 +29,10 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 
 /**
- * Consent screen shown on device sign-in after the resource owner has logged in. A deliberately
- * reduced variant of {@code OAuthConsentScreen}: no remembered-consent, no active value selection,
- * no policy agreements - RFC 8628 device pairing is always interactively confirmed.
+ * Consent screen shown on device sign-in after the resource owner has logged in, and after
+ * {@link DeviceSignInView} has already handled any pending policy agreements and active-value
+ * selection. A deliberately reduced variant of {@code OAuthConsentScreen}: no remembered-consent -
+ * RFC 8628 device pairing is always interactively confirmed.
  */
 class DeviceSignInConsentScreen extends VerticalLayout
 {

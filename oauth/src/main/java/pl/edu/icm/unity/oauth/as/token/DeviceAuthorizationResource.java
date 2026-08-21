@@ -34,6 +34,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.oauth.as.DeviceCodeStatus;
+import pl.edu.icm.unity.oauth.as.DeviceCodeToken;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
@@ -92,8 +93,9 @@ public class DeviceAuthorizationResource extends BaseOAuthResource
 		if (!allowedFlows.contains(GrantFlow.deviceCode))
 			return makeError(OAuth2Error.INVALID_CLIENT, "device grant flow is not allowed for this client");
 
-		List<RequestedOAuthScope> validScopes = scope == null ? List.of()
-				: requestValidator.getValidRequestedScopes(client.attributes, Scope.parse(scope));
+		Scope requestedScope = scope == null ? new Scope() : Scope.parse(scope);
+		List<RequestedOAuthScope> validScopes = requestValidator.getValidRequestedScopes(client.attributes,
+				requestedScope);
 
 		DeviceCode deviceCode = new DeviceCode();
 		UserCode userCode = new UserCode();
@@ -104,17 +106,21 @@ public class DeviceAuthorizationResource extends BaseOAuthResource
 		token.setClientName(client.name);
 		token.setClientType(client.type);
 		token.setEffectiveScope(validScopes);
+		token.setRequestedScope(requestedScope.toStringList().toArray(String[]::new));
 		token.setIssuerUri(config.getValue(OAuthASProperties.ISSUER_URI));
-		token.setDeviceCodeStatus(DeviceCodeStatus.PENDING);
-		token.setUserCode(userCode.getValue());
-		token.setCurrentPollInterval(config.getDeviceCodeMinPollInterval());
+
+		DeviceCodeToken deviceCodeToken = new DeviceCodeToken();
+		deviceCodeToken.setOauthToken(token);
+		deviceCodeToken.setDeviceCodeStatus(DeviceCodeStatus.PENDING);
+		deviceCodeToken.setUserCode(userCode.getValue());
+		deviceCodeToken.setCurrentPollInterval(config.getDeviceCodeMinPollInterval());
 
 		Date now = new Date();
 		int validity = config.getDeviceCodeValidity();
 		Date expiration = new Date(now.getTime() + validity * 1000L);
 		try
 		{
-			deviceCodeRepository.store(deviceCode.getValue(), token, now, expiration);
+			deviceCodeRepository.store(deviceCode.getValue(), deviceCodeToken, now, expiration);
 		} catch (Exception e)
 		{
 			log.error("Can not store the device code", e);

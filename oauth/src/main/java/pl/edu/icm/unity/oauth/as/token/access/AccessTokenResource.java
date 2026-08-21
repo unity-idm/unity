@@ -73,6 +73,7 @@ public class AccessTokenResource extends BaseOAuthResource
 			@FormParam("actor_token_type") String actorTokenType,
 			@FormParam("resource") List<String> resource,
 			@FormParam("device_code") String deviceCode,
+			@FormParam("client_id") String clientId,
 			@HeaderParam("Accept") String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
@@ -115,7 +116,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		{
 			if (deviceCode == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "device_code is required");
-			return deviceCodeHandler.handleDeviceCodeGrant(deviceCode, acceptHeader);
+			return deviceCodeHandler.handleDeviceCodeGrant(deviceCode, clientId, acceptHeader);
 		} else
 		{
 			return makeError(OAuth2Error.INVALID_GRANT, "wrong or not supported grant_type value");
@@ -125,8 +126,10 @@ public class AccessTokenResource extends BaseOAuthResource
 	/**
 	 * Authentication is optional for this REST path. However, this is only for the
 	 * code, refresh or device_code grant (where we allow unauthenticated public clients secured by
-	 * PKCE, or without a client secret). So let's ensure for other cases that client's authn was
-	 * performed.
+	 * PKCE, or identified by client_id for device_code). So let's ensure for other cases that
+	 * client's authn was performed. For the code and device_code grants, whether authentication (or
+	 * client_id) is actually mandatory depends on the client's type, which is only known once the
+	 * code/device_code is looked up - so that is verified by the respective handler.
 	 */
 	private boolean isRequiredClientAuthenticationMissing(String grantType)
 	{

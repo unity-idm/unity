@@ -107,9 +107,9 @@ public class RevocationResourceAuthnHintTest
 		
 		AccessTokenResource tokenEndpoint = new AccessTokenResource(authzCodeHandler, refreshTokenHandler, exchangeTokenHandler,
 				credentialFlowHandler, null, null);
-		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
-				null, null, null, null, null, null, null, null, null, null, null);
+		Response resp = tokenEndpoint.getToken(GrantType.AUTHORIZATION_CODE.getValue(),
+				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo",
+				null, null, null, null, null, null, null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setBody(resp.getEntity().toString());

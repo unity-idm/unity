@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.oauth.as.DeviceCodeToken;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
@@ -39,6 +40,7 @@ import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.SystemOAuthScopeProvidersRegistry;
 import pl.edu.icm.unity.oauth.as.token.access.DeviceCodeRepository;
 
@@ -139,6 +141,28 @@ public class DeviceAuthorizationResourceTest
 		Response resp = tested.deviceAuthorization(null, null);
 
 		assertEquals(200, resp.getStatus());
+	}
+
+	@Test
+	public void shouldRecordRequestedScopeOnStoredToken() throws Exception
+	{
+		setupUnauthenticated();
+		setupClient(42, "device1", GrantFlow.deviceCode);
+
+		Response resp = tested.deviceAuthorization("device1", "sc1 sc2");
+
+		assertEquals(200, resp.getStatus());
+		JSONObject body = (JSONObject) JSONValue.parse(resp.getEntity().toString());
+		String deviceCode = (String) body.get("device_code");
+
+		OAuthToken storedToken = deviceCodeRepository.getByDeviceCode(deviceCode)
+				.map(t -> DeviceCodeToken.getInstanceFromJson(t.getContents()))
+				.map(DeviceCodeToken::getOauthToken)
+				.orElseThrow();
+		// requested scope must be recorded even though the server doesn't define "sc1"/"sc2" -
+		// otherwise a later refresh-token grant without an explicit scope NPEs (RefreshTokenHandler
+		// falls back to replaying the originally requested scope)
+		assertThat(storedToken.getRequestedScope()).containsExactlyInAnyOrder("sc1", "sc2");
 	}
 
 	private void setupClient(long entityId, String username, GrantFlow... allowedFlows)

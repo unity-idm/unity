@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.as.devicesignin;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -12,11 +13,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.Issuer;
+import com.nimbusds.oauth2.sdk.id.Subject;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -33,11 +40,16 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.WildcardParameter;
 
 import io.imunity.vaadin.elements.CssClassNames;
+import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.UnityViewComponent;
 import io.imunity.vaadin.endpoint.common.Vaadin2XWebAppContext;
 import io.imunity.vaadin.endpoint.common.VaadinWebLogoutHandler;
+import io.imunity.vaadin.endpoint.common.active_value_select.ActiveValueSelectionScreen;
+import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
+import io.imunity.vaadin.endpoint.common.consent_utils.PolicyAgreementScreen;
 import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.forms.components.WorkflowCompletedComponent;
+import io.imunity.vaadin.endpoint.common.forms.policy_agreements.PolicyAgreementRepresentationBuilder;
 import io.imunity.vaadin.endpoint.common.layout.WrappedLayout;
 import io.imunity.vaadin.endpoint.common.plugins.attributes.AttributeHandlerRegistry;
 import jakarta.annotation.security.PermitAll;
@@ -45,8 +57,10 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
 import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -55,10 +69,16 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper;
+import pl.edu.icm.unity.engine.api.idp.ActiveValueClientHelper.ActiveValueSelectionConfig;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
+import pl.edu.icm.unity.engine.api.policyAgreement.PolicyAgreementManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
+import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.DeviceCodeStatus;
+import pl.edu.icm.unity.oauth.as.DeviceCodeToken;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
@@ -66,9 +86,9 @@ import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
-import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
 import pl.edu.icm.unity.oauth.as.token.access.DeviceCodeRepository;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
@@ -95,16 +115,24 @@ class DeviceSignInView extends UnityViewComponent
 	private final AttributeTypeSupport aTypeSupport;
 	private final VaadinWebLogoutHandler authnProcessor;
 	private final OAuthRequestValidatorFactory requestValidatorFactory;
+	private final PolicyAgreementManagement policyAgreementsMan;
+	private final PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder;
+	private final NotificationPresenter notificationPresenter;
+	private final EnquiresDialogLauncher enquiresDialogLauncher;
 
 	private String deviceCodeValue;
-	private OAuthToken parsedToken;
+	private DeviceCodeToken parsedToken;
 	private OAuthASProperties config;
+	private List<DynamicAttribute> activeValueSelectionFilteredAttributes;
 
 	@Autowired
 	DeviceSignInView(MessageSource msg, OAuthEndpointsCoordinator coordinator,
 			DeviceCodeRepository deviceCodeRepository, IdPEngine idPEngine, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypeSupport idTypeSupport, AttributeTypeSupport aTypeSupport,
-			VaadinWebLogoutHandler authnProcessor, OAuthRequestValidatorFactory requestValidatorFactory)
+			VaadinWebLogoutHandler authnProcessor, OAuthRequestValidatorFactory requestValidatorFactory,
+			PolicyAgreementManagement policyAgreementsMan,
+			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
+			NotificationPresenter notificationPresenter, EnquiresDialogLauncher enquiresDialogLauncher)
 	{
 		this.msg = msg;
 		this.coordinator = coordinator;
@@ -115,7 +143,10 @@ class DeviceSignInView extends UnityViewComponent
 		this.aTypeSupport = aTypeSupport;
 		this.authnProcessor = authnProcessor;
 		this.requestValidatorFactory = requestValidatorFactory;
-		showCodeEntryForm();
+		this.policyAgreementsMan = policyAgreementsMan;
+		this.policyAgreementRepresentationBuilder = policyAgreementRepresentationBuilder;
+		this.notificationPresenter = notificationPresenter;
+		this.enquiresDialogLauncher = enquiresDialogLauncher;
 	}
 
 	@Override
@@ -128,10 +159,13 @@ class DeviceSignInView extends UnityViewComponent
 				.stream()
 				.findFirst()
 				.orElse(null);
-		if (userCode == null || userCode.isBlank())
-			showCodeEntryForm();
-		else
-			tryResolve(userCode, true);
+		enquiresDialogLauncher.showEnquiryDialogIfNeeded(() ->
+		{
+			if (userCode == null || userCode.isBlank())
+				showCodeEntryForm();
+			else
+				tryResolve(userCode, true);
+		});
 	}
 
 	private void showCodeEntryForm()
@@ -191,7 +225,7 @@ class DeviceSignInView extends UnityViewComponent
 			return;
 		}
 		Token token = tokenOpt.get();
-		OAuthToken parsed = BaseOAuthResource.parseInternalToken(token);
+		DeviceCodeToken parsed = DeviceCodeToken.getInstanceFromJson(token.getContents());
 
 		if (token.getExpires() != null && token.getExpires().before(new Date()))
 		{
@@ -204,7 +238,7 @@ class DeviceSignInView extends UnityViewComponent
 			return;
 		}
 
-		Optional<OAuthASProperties> configOpt = coordinator.getDeviceSignInConfig(parsed.getIssuerUri());
+		Optional<OAuthASProperties> configOpt = coordinator.getDeviceSignInConfig(parsed.getOauthToken().getIssuerUri());
 		if (configOpt.isEmpty() || !configOpt.get().isDeviceGrantEnabled())
 		{
 			showError(msg.getMessage("DeviceSignIn.disabled"));
@@ -214,11 +248,12 @@ class DeviceSignInView extends UnityViewComponent
 		this.deviceCodeValue = token.getValue();
 		this.parsedToken = parsed;
 		this.config = configOpt.get();
+		this.activeValueSelectionFilteredAttributes = null;
 
 		if (confirmCodeStep)
 			showConfirmCodeForm(parsed.getUserCode());
 		else
-			showConsentScreen();
+			startConsentFlow();
 	}
 
 	private void showConfirmCodeForm(String userCode)
@@ -233,7 +268,7 @@ class DeviceSignInView extends UnityViewComponent
 
 		Button cancel = new Button(msg.getMessage("cancel"), e -> onCancel());
 		cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-		Button confirm = new Button(msg.getMessage("DeviceSignIn.confirmCodeSubmit"), e -> showConsentScreen());
+		Button confirm = new Button(msg.getMessage("DeviceSignIn.confirmCodeSubmit"), e -> startConsentFlow());
 		confirm.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		HorizontalLayout buttons = new HorizontalLayout(cancel, confirm);
 
@@ -244,44 +279,115 @@ class DeviceSignInView extends UnityViewComponent
 		getContent().add(layout);
 	}
 
-	private void showConsentScreen()
+	private void startConsentFlow()
+	{
+		List<PolicyAgreementConfiguration> toPresent = filterAgreementsToPresent();
+		if (!toPresent.isEmpty())
+			showPolicyAgreementsScreen(toPresent);
+		else
+			prepareAndShowConsent();
+	}
+
+	private List<PolicyAgreementConfiguration> filterAgreementsToPresent()
+	{
+		List<PolicyAgreementConfiguration> toPresent = new ArrayList<>();
+		try
+		{
+			toPresent.addAll(policyAgreementsMan.filterAgreementToPresent(
+					new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId()),
+					CommonIdPProperties.getPolicyAgreementsConfig(msg, config).agreements));
+		} catch (EngineException e)
+		{
+			log.error("Unable to determine policy agreements to accept", e);
+		}
+		return toPresent;
+	}
+
+	private void showPolicyAgreementsScreen(List<PolicyAgreementConfiguration> toPresent)
+	{
+		getContent().removeAll();
+		getContent().add(PolicyAgreementScreen.builder()
+				.withMsg(msg)
+				.withPolicyAgreementDecider(policyAgreementsMan)
+				.withNotificationPresenter(notificationPresenter)
+				.withPolicyAgreementRepresentationBuilder(policyAgreementRepresentationBuilder)
+				.withTitle(config.getLocalizedStringWithoutFallbackToDefault(msg,
+						CommonIdPProperties.POLICY_AGREEMENTS_TITLE))
+				.withInfo(config.getLocalizedStringWithoutFallbackToDefault(msg,
+						CommonIdPProperties.POLICY_AGREEMENTS_INFO))
+				.withAgreements(toPresent)
+				.withWidth(config.getLongValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH),
+						config.getValue(CommonIdPProperties.POLICY_AGREEMENTS_WIDTH_UNIT))
+				.withSubmitHandler(this::prepareAndShowConsent)
+				.build());
+	}
+
+	private void prepareAndShowConsent()
 	{
 		try
 		{
+			OAuthToken oauthToken = parsedToken.getOauthToken();
 			OAuthRequestValidator requestValidator = requestValidatorFactory.getOAuthRequestValidator(config);
 			Map<String, AttributeExt> clientAttributes = requestValidator
-					.getAttributesNoAuthZ(new EntityParam(parsedToken.getClientId()));
+					.getAttributesNoAuthZ(new EntityParam(oauthToken.getClientId()));
 
 			String usersGroup = getUsersGroup(clientAttributes);
 			EntityInGroup requesterEntity = new EntityInGroup(config.getValue(OAuthASProperties.CLIENTS_GROUP),
-					new EntityParam(parsedToken.getClientId()));
+					new EntityParam(oauthToken.getClientId()));
 			LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
 
 			TranslationResult translationResult = idpEngine.getUserInfoUnsafe(loginSession.getEntityId(),
-					parsedToken.getClientUsername(), Optional.of(requesterEntity), usersGroup,
+					oauthToken.getClientUsername(), Optional.of(requesterEntity), usersGroup,
 					config.getOutputTranslationProfile(), GrantFlow.deviceCode.toString(), config, null);
 
 			IdentityParam identity = idpEngine.getIdentity(translationResult, config.getSubjectIdentityType());
 
 			Set<String> requestedAttributes = new HashSet<>();
-			for (RequestedOAuthScope si : parsedToken.getEffectiveScope())
+			for (RequestedOAuthScope si : oauthToken.getEffectiveScope())
 				requestedAttributes.addAll(si.scopeDefinition().attributes());
 			Set<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(translationResult, requestedAttributes);
 
 			Image clientLogo = buildClientLogo(clientAttributes);
-			String clientName = parsedToken.getClientName() != null ? parsedToken.getClientName()
-					: parsedToken.getClientUsername();
+			String clientName = oauthToken.getClientName() != null ? oauthToken.getClientName()
+					: oauthToken.getClientUsername();
 
-			DeviceSignInConsentScreen consentScreen = new DeviceSignInConsentScreen(msg, handlersRegistry,
-					authnProcessor, idTypeSupport, clientName, clientLogo, parsedToken.getEffectiveScope(), identity,
-					attributes, DeviceSignInWebEndpoint.SERVLET_PATH, this::onDeny, this::onAccept);
-			getContent().removeAll();
-			getContent().add(consentScreen);
+			Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = ActiveValueClientHelper
+					.getActiveValueSelectionConfig(config.getActiveValueClients(), oauthToken.getClientUsername(),
+							attributes);
+
+			if (activeValueSelectionConfig.isPresent())
+				showActiveValueSelectionScreen(activeValueSelectionConfig.get(), identity, clientName, clientLogo);
+			else
+				buildAndShowConsentScreen(identity, clientName, clientLogo, attributes, null);
 		} catch (Exception e)
 		{
 			log.error("Error while preparing the device sign-in consent screen", e);
 			showError(msg.getMessage("DeviceSignIn.internalError"));
 		}
+	}
+
+	private void showActiveValueSelectionScreen(ActiveValueSelectionConfig activeValueSelectionConfig,
+			IdentityParam identity, String clientName, Image clientLogo)
+	{
+		ActiveValueSelectionScreen selectionScreen = new ActiveValueSelectionScreen(msg, handlersRegistry,
+				authnProcessor, activeValueSelectionConfig.singleSelectableAttributes,
+				activeValueSelectionConfig.multiSelectableAttributes, activeValueSelectionConfig.remainingAttributes,
+				DeviceSignInWebEndpoint.SERVLET_PATH, this::onDeny,
+				selectionResult -> buildAndShowConsentScreen(identity, clientName, clientLogo,
+						selectionResult.allAttributes(), selectionResult.filteredAttributes()));
+		getContent().removeAll();
+		getContent().add(selectionScreen);
+	}
+
+	private void buildAndShowConsentScreen(IdentityParam identity, String clientName, Image clientLogo,
+			Collection<DynamicAttribute> attributes, List<DynamicAttribute> activeValueFilteredAttributes)
+	{
+		this.activeValueSelectionFilteredAttributes = activeValueFilteredAttributes;
+		DeviceSignInConsentScreen consentScreen = new DeviceSignInConsentScreen(msg, handlersRegistry, authnProcessor,
+				idTypeSupport, clientName, clientLogo, parsedToken.getOauthToken().getEffectiveScope(), identity,
+				attributes, DeviceSignInWebEndpoint.SERVLET_PATH, this::onDeny, this::onAccept);
+		getContent().removeAll();
+		getContent().add(consentScreen);
 	}
 
 	private String getUsersGroup(Map<String, AttributeExt> clientAttributes)
@@ -306,19 +412,73 @@ class DeviceSignInView extends UnityViewComponent
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
 		UserInfo userInfo = OAuthProcessor.prepareUserInfoClaimSet(identity.getValue(), attributes);
 
-		parsedToken.setSubject(identity.getValue());
-		parsedToken.setUserInfo(userInfo.toJSONObject().toJSONString());
-		parsedToken.setAuthenticationTime(loginSession.getAuthenticationTime());
+		OAuthToken oauthToken = parsedToken.getOauthToken();
+		oauthToken.setSubject(identity.getValue());
+		oauthToken.setUserInfo(userInfo.toJSONObject().toJSONString());
+		oauthToken.setAuthenticationTime(loginSession.getAuthenticationTime());
+		oauthToken.setTokenValidity(config.getAccessTokenValidity());
+		oauthToken.setMaxExtendedValidity(config.getMaxExtendedAccessTokenValidity());
+		oauthToken.setAudience(List.of(oauthToken.getClientUsername()));
+		if (activeValueSelectionFilteredAttributes != null)
+			oauthToken.setAttributeValueFilters(mapSelectedAttributesToFilters(activeValueSelectionFilteredAttributes));
+
+		if (!signAndRecordIdTokenIfRequested(oauthToken, userInfo))
+		{
+			showError(msg.getMessage("DeviceSignIn.internalError"));
+			return;
+		}
+
 		parsedToken.setSubjectEntityId(loginSession.getEntityId());
-		parsedToken.setTokenValidity(config.getAccessTokenValidity());
-		parsedToken.setMaxExtendedValidity(config.getMaxExtendedAccessTokenValidity());
-		parsedToken.setAudience(List.of(parsedToken.getClientUsername()));
 		parsedToken.setDeviceCodeStatus(DeviceCodeStatus.APPROVED);
 
 		if (!updateRecord())
 			return;
 
 		showCompleted(true);
+	}
+
+	private List<AttributeFilteringSpec> mapSelectedAttributesToFilters(Collection<DynamicAttribute> attributes)
+	{
+		return attributes.stream()
+				.map(a -> new AttributeFilteringSpec(a.getAttribute().getName(),
+						a.getAttribute().getValues().stream().collect(Collectors.toSet())))
+				.toList();
+	}
+
+	/**
+	 * Mirrors {@code OAuthProcessor}'s id token generation for the authorization_code flow: an OIDC
+	 * ID token is minted once, at consent time, and carried in {@code openidInfo} for later reuse
+	 * (device_code grant handling and any subsequent refresh both just decode it, they never sign a
+	 * fresh one). Without this, clients requesting the {@code openid} scope would silently get an
+	 * OAuth-only response, even though discovery advertises OIDC support for the device grant.
+	 */
+	private boolean signAndRecordIdTokenIfRequested(OAuthToken oauthToken, UserInfo userInfo)
+	{
+		boolean openIdRequested = oauthToken.getEffectiveScope()
+				.stream()
+				.anyMatch(s -> OAuthSystemScopeProvider.OPENID_SCOPE.equals(s.scope()));
+		if (!openIdRequested)
+			return true;
+
+		try
+		{
+			Date now = new Date();
+			IDTokenClaimsSet idToken = new IDTokenClaimsSet(new Issuer(config.getIssuerName()),
+					new Subject(oauthToken.getSubject()),
+					oauthToken.getAudience().stream().filter(a -> a != null).map(Audience::new).toList(),
+					new Date(now.getTime() + config.getIdTokenValidity() * 1000L), now);
+			idToken.setAuthenticationTime(Date.from(oauthToken.getAuthenticationTime()));
+			if (oauthToken.hasSupportAttributesInIdToken().orElse(false))
+				idToken.putAll(userInfo);
+
+			JWT idTokenSigned = config.getTokenSigner().sign(idToken);
+			oauthToken.setOpenidToken(idTokenSigned.serialize());
+			return true;
+		} catch (Exception e)
+		{
+			log.error("Cannot create the OpenID Connect ID token for the device code grant", e);
+			return false;
+		}
 	}
 
 	private void onDeny()
