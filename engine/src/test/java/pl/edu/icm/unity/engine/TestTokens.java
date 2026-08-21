@@ -23,11 +23,14 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 public class TestTokens extends DBIntegrationTestBase
 {
 	@Autowired
 	protected TokensManagement tokensMan;
+	@Autowired
+	protected TransactionalRunner tx;
 	
 	@Test
 	public void addedTokenIsReturnedById() throws Exception
@@ -157,5 +160,49 @@ public class TestTokens extends DBIntegrationTestBase
 		assertThat(counter.get()).isEqualTo(THREADS * TRIES);
 	}
 
-	
+	@Test
+	public void getTokenByIdForUpdateSerializesConcurrentReadModifyWrite() throws Exception
+	{
+		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
+		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT,
+				EntityState.valid);
+		EntityParam ep = new EntityParam(id);
+		Date exp = new Date(System.currentTimeMillis() + 500000);
+		tokensMan.addToken("lockt", "1234", ep, new byte[] { 0 }, new Date(), exp);
+
+		int THREADS = 4;
+		int INCREMENTS_PER_THREAD = 25;
+		Runnable incrementer = () ->
+		{
+			for (int i = 0; i < INCREMENTS_PER_THREAD; i++)
+			{
+				tx.runInTransaction(() ->
+				{
+					Token current = tokensMan.getTokenByIdForUpdate("lockt", "1234");
+					int value = current.getContents()[0] & 0xFF;
+					// widens the race window: without the row lock, two threads reading
+					// the same value here would both write back value+1, losing an update
+					try
+					{
+						Thread.sleep(1);
+					} catch (InterruptedException e)
+					{
+						Thread.currentThread().interrupt();
+					}
+					tokensMan.updateToken("lockt", "1234", null, new byte[] { (byte) (value + 1) });
+				});
+			}
+		};
+
+		List<Thread> threads = new ArrayList<>();
+		for (int i = 0; i < THREADS; i++)
+			threads.add(new Thread(incrementer));
+		for (Thread t : threads)
+			t.start();
+		for (Thread t : threads)
+			t.join();
+
+		Token result = tokensMan.getTokenById("lockt", "1234");
+		assertThat(result.getContents()[0] & 0xFF).isEqualTo(THREADS * INCREMENTS_PER_THREAD);
+	}
 }

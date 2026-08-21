@@ -54,6 +54,13 @@
 		SELECT * FROM TOKENS WHERE NAME=#{name} AND TYPE = #{type}
 	</select>
 
+	<!-- Row-locking variant of getById: must only be used inside a transaction that will follow up
+	     with a write, to atomically read-decide-write without racing a concurrent reader/writer of
+	     the same token. -->
+	<select id="getByIdForUpdate" parameterType="TokenB" resultMap="tokenResult">
+		SELECT * FROM TOKENS WHERE NAME=#{name} AND TYPE = #{type} FOR UPDATE
+	</select>
+
 	<select id="getByType" parameterType="string" resultMap="tokenResult">
 		SELECT  * FROM TOKENS WHERE TYPE = #{value}
 	</select>

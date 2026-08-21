@@ -44,6 +44,7 @@ import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.token.access.DeviceCodeRepository;
+import pl.edu.icm.unity.oauth.as.token.access.DeviceCodeRepository.UserCodeAlreadyInUseException;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
 /**
@@ -54,6 +55,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 public class DeviceAuthorizationResource extends BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, DeviceAuthorizationResource.class);
+	private static final int MAX_USER_CODE_GENERATION_ATTEMPTS = 5;
 
 	private final OAuthASProperties config;
 	private final OAuthEndpointsCoordinator coordinator;
@@ -98,7 +100,14 @@ public class DeviceAuthorizationResource extends BaseOAuthResource
 				requestedScope);
 
 		DeviceCode deviceCode = new DeviceCode();
-		UserCode userCode = new UserCode();
+
+		Date now = new Date();
+		int validity = config.getDeviceCodeValidity();
+		Date expiration = new Date(now.getTime() + validity * 1000L);
+
+		UserCode userCode = claimUniqueUserCode(deviceCode.getValue(), now, expiration);
+		if (userCode == null)
+			return makeError(OAuth2Error.SERVER_ERROR, "internal error");
 
 		OAuthToken token = new OAuthToken();
 		token.setClientId(client.entityId);
@@ -115,15 +124,13 @@ public class DeviceAuthorizationResource extends BaseOAuthResource
 		deviceCodeToken.setUserCode(userCode.getValue());
 		deviceCodeToken.setCurrentPollInterval(config.getDeviceCodeMinPollInterval());
 
-		Date now = new Date();
-		int validity = config.getDeviceCodeValidity();
-		Date expiration = new Date(now.getTime() + validity * 1000L);
 		try
 		{
 			deviceCodeRepository.store(deviceCode.getValue(), deviceCodeToken, now, expiration);
 		} catch (Exception e)
 		{
 			log.error("Can not store the device code", e);
+			deviceCodeRepository.releaseClaimedUserCode(userCode.getStrippedValue());
 			return makeError(OAuth2Error.SERVER_ERROR, "internal error");
 		}
 
@@ -144,6 +151,31 @@ public class DeviceAuthorizationResource extends BaseOAuthResource
 		DeviceAuthorizationSuccessResponse response = new DeviceAuthorizationSuccessResponse(deviceCode, userCode,
 				verificationUri, verificationUriComplete, validity, config.getDeviceCodeMinPollInterval(), null);
 		return toResponse(Response.ok(response.toJSONObject().toJSONString()));
+	}
+
+	/**
+	 * Generates user_codes until one can be claimed as not already in use by another active device
+	 * code (the shared token store enforces this atomically), giving up after a small bounded number
+	 * of attempts. A genuine collision is expected to be astronomically rare given the user_code's
+	 * entropy and short lifetime; this loop exists to make that guarantee airtight rather than
+	 * probabilistic.
+	 */
+	private UserCode claimUniqueUserCode(String deviceCodeValue, Date now, Date expiration)
+	{
+		for (int attempt = 1; attempt <= MAX_USER_CODE_GENERATION_ATTEMPTS; attempt++)
+		{
+			UserCode candidate = new UserCode();
+			try
+			{
+				deviceCodeRepository.claimUserCode(candidate.getStrippedValue(), deviceCodeValue, now, expiration);
+				return candidate;
+			} catch (UserCodeAlreadyInUseException e)
+			{
+				log.debug("Generated user_code collided with an active one on attempt {}, retrying", attempt);
+			}
+		}
+		log.error("Can not generate a unique device user_code after {} attempts", MAX_USER_CODE_GENERATION_ATTEMPTS);
+		return null;
 	}
 
 	private ResolvedClient resolveClient(String clientIdParam) throws OAuthErrorException

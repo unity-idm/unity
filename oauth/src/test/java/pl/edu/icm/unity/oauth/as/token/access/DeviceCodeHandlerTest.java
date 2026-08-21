@@ -215,14 +215,38 @@ public class DeviceCodeHandlerTest
 		deviceCodeRepository.store("dc1", token, now, new Date(now.getTime() + 60_000));
 
 		tested.handleDeviceCodeGrant("dc1", "clientC", null);
+		Token afterFirstPoll = tokensManagement.getTokenById(DeviceCodeRepository.INTERNAL_DEVICE_TOKEN, "dc1");
+		DeviceCodeToken tokenAfterFirstPoll = DeviceCodeToken.getInstanceFromJson(afterFirstPoll.getContents());
+
 		Response resp = tested.handleDeviceCodeGrant("dc1", "clientC", null);
 
 		assertEquals(400, resp.getStatus());
 		assertEquals("slow_down", getError(resp));
 
-		Token updated = tokensManagement.getTokenById(DeviceCodeRepository.INTERNAL_DEVICE_TOKEN, "dc1");
-		DeviceCodeToken updatedToken = DeviceCodeToken.getInstanceFromJson(updated.getContents());
-		assertEquals(OAuthASProperties.DEFAULT_DEVICE_CODE_MIN_POLL_INTERVAL + 5, updatedToken.getCurrentPollInterval());
+		// a rejected (too-fast) poll must not write anything - otherwise a client hammering the
+		// endpoint could turn every rejected request into a DB write (a DoS amplifier). The record
+		// after the rejected second poll must be byte-for-byte the same as after the first one.
+		Token afterSecondPoll = tokensManagement.getTokenById(DeviceCodeRepository.INTERNAL_DEVICE_TOKEN, "dc1");
+		DeviceCodeToken tokenAfterSecondPoll = DeviceCodeToken.getInstanceFromJson(afterSecondPoll.getContents());
+		assertEquals(tokenAfterFirstPoll.getLastPolledAt(), tokenAfterSecondPoll.getLastPolledAt());
+		assertEquals(tokenAfterFirstPoll.getCurrentPollInterval(), tokenAfterSecondPoll.getCurrentPollInterval());
+	}
+
+	@Test
+	void shouldAcceptPollAgainOncePollIntervalHasElapsed() throws Exception
+	{
+		DeviceCodeToken token = buildApprovedToken();
+		token.setDeviceCodeStatus(DeviceCodeStatus.PENDING);
+		token.setCurrentPollInterval(1);
+		Date now = new Date();
+		deviceCodeRepository.store("dc1", token, now, new Date(now.getTime() + 60_000));
+
+		tested.handleDeviceCodeGrant("dc1", "clientC", null);
+		Thread.sleep(1100);
+		Response resp = tested.handleDeviceCodeGrant("dc1", "clientC", null);
+
+		assertEquals(400, resp.getStatus());
+		assertEquals("authorization_pending", getError(resp));
 	}
 
 	@Test
@@ -235,7 +259,9 @@ public class DeviceCodeHandlerTest
 
 		Response resp = tested.handleDeviceCodeGrant("dc1", "clientC", null);
 
-		assertEquals(403, resp.getStatus());
+		// RFC 6749 §5.2: token endpoint errors use 400, not the 403 that OAuth2Error.ACCESS_DENIED
+		// defaults to for the authorization endpoint's redirect-based error
+		assertEquals(400, resp.getStatus());
 		assertEquals("access_denied", getError(resp));
 		assertTrue(deviceCodeRepository.getByDeviceCode("dc1").isEmpty());
 	}
