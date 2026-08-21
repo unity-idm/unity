@@ -11,9 +11,11 @@ import java.util.Optional;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.device.DeviceAuthorizationGrantError;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -40,6 +42,16 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 class DeviceCodeHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, DeviceCodeHandler.class);
+
+	/**
+	 * RFC 6749 §5.2 / RFC 8628 §3.5: token endpoint error responses use HTTP 400 for every error
+	 * except invalid_client (401). {@link OAuth2Error#ACCESS_DENIED} bakes in HTTP 403, which is
+	 * correct for the authorization endpoint's redirect-based error (RFC 6749 §4.1.2.1) but wrong
+	 * here - some device-client libraries reject a 403 outright before ever parsing the OAuth error
+	 * body, so the client would never learn it was actually an access_denied.
+	 */
+	private static final ErrorObject ACCESS_DENIED_TOKEN_ERROR = new ErrorObject(OAuth2Error.ACCESS_DENIED_CODE,
+			OAuth2Error.ACCESS_DENIED.getDescription(), HTTPResponse.SC_BAD_REQUEST);
 
 	private final DeviceCodeRepository deviceCodeRepository;
 	private final TransactionalRunner tx;
@@ -85,7 +97,11 @@ class DeviceCodeHandler
 			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "device grant disabled"));
 		}
 
-		Optional<Token> tokenOpt = deviceCodeRepository.getByDeviceCode(deviceCodeValue);
+		// locked for the rest of this transaction: a concurrent poll or browser approval/denial on
+		// the same device code must be serialized against this one, otherwise both could observe
+		// APPROVED and issue tokens, or a concurrent write here and in DeviceSignInView could clobber
+		// each other
+		Optional<Token> tokenOpt = deviceCodeRepository.getByDeviceCodeForUpdate(deviceCodeValue);
 		if (tokenOpt.isEmpty())
 		{
 			statisticsPublisher.reportFailAsLoggedClient();
@@ -108,7 +124,7 @@ class DeviceCodeHandler
 
 		if (deviceToken.getExpires() != null && deviceToken.getExpires().before(new Date()))
 		{
-			deviceCodeRepository.remove(deviceCodeValue);
+			deviceCodeRepository.remove(deviceCodeValue, parsedToken.getUserCode());
 			statisticsPublisher.reportFail(oauthToken.getClientUsername(), oauthToken.getClientName());
 			return BaseOAuthResource.makeError(DeviceAuthorizationGrantError.EXPIRED_TOKEN, null);
 		}
@@ -119,9 +135,9 @@ class DeviceCodeHandler
 		DeviceCodeStatus status = parsedToken.getDeviceCodeStatus();
 		if (status == DeviceCodeStatus.DENIED)
 		{
-			deviceCodeRepository.remove(deviceCodeValue);
+			deviceCodeRepository.remove(deviceCodeValue, parsedToken.getUserCode());
 			statisticsPublisher.reportFail(oauthToken.getClientUsername(), oauthToken.getClientName());
-			return BaseOAuthResource.makeError(OAuth2Error.ACCESS_DENIED, null);
+			return BaseOAuthResource.makeError(ACCESS_DENIED_TOKEN_ERROR, null);
 		} else if (status == DeviceCodeStatus.APPROVED)
 		{
 			return handleApproved(deviceCodeValue, parsedToken, acceptHeader);
@@ -178,11 +194,10 @@ class DeviceCodeHandler
 
 		if (lastPolledAt != null && now.isBefore(lastPolledAt.plusSeconds(interval)))
 		{
-			parsedToken.setCurrentPollInterval(interval + 5);
-			parsedToken.setLastPolledAt(now);
-			updateRecord(deviceCodeValue, parsedToken);
-			// returned, not thrown: the transaction only commits (persisting the bookkeeping
-			// above) if this method returns normally
+			// rejected, read-only: lastPolledAt is left untouched, so this device code keeps being
+			// rejected at no storage cost - however fast a client (ab)polls - until real time
+			// actually advances past lastPolledAt + interval. Writing bookkeeping on every rejected
+			// poll would let a client turn a tight polling loop into a DB write per request.
 			return BaseOAuthResource.makeError(DeviceAuthorizationGrantError.SLOW_DOWN, null);
 		}
 
@@ -239,7 +254,7 @@ class DeviceCodeHandler
 			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.SERVER_ERROR, "internal error"));
 		}
 
-		deviceCodeRepository.remove(deviceCodeValue);
+		deviceCodeRepository.remove(deviceCodeValue, parsedToken.getUserCode());
 
 		statisticsPublisher.reportSuccess(internalToken.getClientUsername(), internalToken.getClientName(),
 				new EntityParam(ownerId));

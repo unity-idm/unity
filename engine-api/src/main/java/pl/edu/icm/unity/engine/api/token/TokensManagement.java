@@ -63,9 +63,23 @@ public interface TokensManagement
 	void updateToken(String type, String value, Date expires, byte[] contents);
 	
 	/**
-	 * Returns a specified token 
+	 * Returns a specified token
 	 */
 	Token getTokenById(String type, String value);
+
+	/**
+	 * As {@link #getTokenById(String, String)}, but takes a database row lock (SELECT ... FOR
+	 * UPDATE), held for the duration of the current transaction. Must be called inside an existing
+	 * transaction which will follow up with a write, so that the whole read-decide-write sequence
+	 * is atomic with regard to concurrent callers acting on the same token.
+	 * <p>
+	 * Unlike {@link #getTokenById(String, String)}, this does NOT filter out an already-expired
+	 * token - it is still returned (with {@link Token#isExpired()} true) rather than causing a
+	 * {@code TokenNotFoundException}. Callers of this method are, by definition, about to make their
+	 * own atomic decision and often need to distinguish "expired" from "never existed" themselves
+	 * (e.g. to report a protocol-specific expiry error instead of a generic not-found one).
+	 */
+	Token getTokenByIdForUpdate(String type, String value);
 	
 	/**
 	 * Returns all tokens of the entity

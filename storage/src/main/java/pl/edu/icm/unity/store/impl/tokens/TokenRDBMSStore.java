@@ -69,6 +69,17 @@ public class TokenRDBMSStore extends GenericRDBMSCRUD<Token, TokenBean> implemen
 	}
 
 	@Override
+	public Token getForUpdate(String type, String id)
+	{
+		TokensMapper mapper = SQLTransactionTL.getSql().getMapper(TokensMapper.class);
+		TokenBean inDB = mapper.getByIdForUpdate(new TokenBean(id, type));
+		if (inDB == null)
+			throw new TokenNotFoundException(elementName + " with key [" + type + "//" + id +
+					"] does not exist");
+		return jsonSerializer.fromDB(inDB);
+	}
+
+	@Override
 	public List<Token> getByType(String type)
 	{
 		TokensMapper mapper = SQLTransactionTL.getSql().getMapper(TokensMapper.class);

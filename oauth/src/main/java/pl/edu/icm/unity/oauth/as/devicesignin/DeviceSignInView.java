@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -92,6 +93,7 @@ import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.token.access.DeviceCodeRepository;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
 /**
  * RFC 8628 §3.3: device sign-in view. Reads an optional {@code ?user_code=} query parameter; if
@@ -119,11 +121,18 @@ class DeviceSignInView extends UnityViewComponent
 	private final PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder;
 	private final NotificationPresenter notificationPresenter;
 	private final EnquiresDialogLauncher enquiresDialogLauncher;
+	private final TransactionalRunner tx;
+	private final DeviceCodeVerificationThrottle throttle;
 
 	private String deviceCodeValue;
 	private DeviceCodeToken parsedToken;
 	private OAuthASProperties config;
 	private List<DynamicAttribute> activeValueSelectionFilteredAttributes;
+
+	private enum TransitionResult
+	{
+		APPLIED, ALREADY_PROCESSED, FAILED
+	}
 
 	@Autowired
 	DeviceSignInView(MessageSource msg, OAuthEndpointsCoordinator coordinator,
@@ -132,16 +141,19 @@ class DeviceSignInView extends UnityViewComponent
 			VaadinWebLogoutHandler authnProcessor, OAuthRequestValidatorFactory requestValidatorFactory,
 			PolicyAgreementManagement policyAgreementsMan,
 			PolicyAgreementRepresentationBuilder policyAgreementRepresentationBuilder,
-			NotificationPresenter notificationPresenter, EnquiresDialogLauncher enquiresDialogLauncher)
+			NotificationPresenter notificationPresenter, EnquiresDialogLauncher enquiresDialogLauncher,
+			TransactionalRunner tx, DeviceCodeVerificationThrottle throttle)
 	{
 		this.msg = msg;
 		this.coordinator = coordinator;
 		this.deviceCodeRepository = deviceCodeRepository;
 		this.idpEngine = new OAuthIdPEngine(idPEngine);
+		this.throttle = throttle;
 		this.handlersRegistry = handlersRegistry;
 		this.idTypeSupport = idTypeSupport;
 		this.aTypeSupport = aTypeSupport;
 		this.authnProcessor = authnProcessor;
+		this.tx = tx;
 		this.requestValidatorFactory = requestValidatorFactory;
 		this.policyAgreementsMan = policyAgreementsMan;
 		this.policyAgreementRepresentationBuilder = policyAgreementRepresentationBuilder;
@@ -204,9 +216,16 @@ class DeviceSignInView extends UnityViewComponent
 	{
 		if (parsedToken != null)
 		{
-			parsedToken.setDeviceCodeStatus(DeviceCodeStatus.DENIED);
-			if (!updateRecord())
+			TransitionResult result = applyTransitionAtomically(currentToken ->
+			{
+				currentToken.setDeviceCodeStatus(DeviceCodeStatus.DENIED);
+				return true;
+			});
+			if (result == TransitionResult.FAILED)
+			{
+				showError(msg.getMessage("DeviceSignIn.internalError"));
 				return;
+			}
 		}
 		showError(msg.getMessage("DeviceSignIn.cancelled"));
 	}
@@ -218,9 +237,18 @@ class DeviceSignInView extends UnityViewComponent
 			showError(msg.getMessage("DeviceSignIn.invalidCode"));
 			return;
 		}
+
+		long entityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
+		if (throttle.getRemainingBlockedTimeMs(entityId) > 0)
+		{
+			showError(msg.getMessage("DeviceSignIn.tooManyAttempts"));
+			return;
+		}
+
 		Optional<Token> tokenOpt = deviceCodeRepository.findByUserCode(userCode);
 		if (tokenOpt.isEmpty())
 		{
+			throttle.unsuccessfulAttempt(entityId);
 			showError(msg.getMessage("DeviceSignIn.invalidCode"));
 			return;
 		}
@@ -229,11 +257,13 @@ class DeviceSignInView extends UnityViewComponent
 
 		if (token.getExpires() != null && token.getExpires().before(new Date()))
 		{
+			throttle.unsuccessfulAttempt(entityId);
 			showError(msg.getMessage("DeviceSignIn.expiredCode"));
 			return;
 		}
 		if (parsed.getDeviceCodeStatus() != DeviceCodeStatus.PENDING)
 		{
+			// not a guessing signal - most likely the user's own code, already acted upon
 			showError(msg.getMessage("DeviceSignIn.alreadyProcessed"));
 			return;
 		}
@@ -245,6 +275,7 @@ class DeviceSignInView extends UnityViewComponent
 			return;
 		}
 
+		throttle.successfulAttempt(entityId);
 		this.deviceCodeValue = token.getValue();
 		this.parsedToken = parsed;
 		this.config = configOpt.get();
@@ -411,30 +442,35 @@ class DeviceSignInView extends UnityViewComponent
 	{
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
 		UserInfo userInfo = OAuthProcessor.prepareUserInfoClaimSet(identity.getValue(), attributes);
+		List<AttributeFilteringSpec> activeValueFilters = activeValueSelectionFilteredAttributes == null ? null
+				: mapSelectedAttributesToFilters(activeValueSelectionFilteredAttributes);
 
-		OAuthToken oauthToken = parsedToken.getOauthToken();
-		oauthToken.setSubject(identity.getValue());
-		oauthToken.setUserInfo(userInfo.toJSONObject().toJSONString());
-		oauthToken.setAuthenticationTime(loginSession.getAuthenticationTime());
-		oauthToken.setTokenValidity(config.getAccessTokenValidity());
-		oauthToken.setMaxExtendedValidity(config.getMaxExtendedAccessTokenValidity());
-		oauthToken.setAudience(List.of(oauthToken.getClientUsername()));
-		if (activeValueSelectionFilteredAttributes != null)
-			oauthToken.setAttributeValueFilters(mapSelectedAttributesToFilters(activeValueSelectionFilteredAttributes));
-
-		if (!signAndRecordIdTokenIfRequested(oauthToken, userInfo))
+		TransitionResult result = applyTransitionAtomically(currentToken ->
 		{
-			showError(msg.getMessage("DeviceSignIn.internalError"));
-			return;
+			OAuthToken oauthToken = currentToken.getOauthToken();
+			oauthToken.setSubject(identity.getValue());
+			oauthToken.setUserInfo(userInfo.toJSONObject().toJSONString());
+			oauthToken.setAuthenticationTime(loginSession.getAuthenticationTime());
+			oauthToken.setTokenValidity(config.getAccessTokenValidity());
+			oauthToken.setMaxExtendedValidity(config.getMaxExtendedAccessTokenValidity());
+			oauthToken.setAudience(List.of(oauthToken.getClientUsername()));
+			if (activeValueFilters != null)
+				oauthToken.setAttributeValueFilters(activeValueFilters);
+
+			if (!signAndRecordIdTokenIfRequested(oauthToken, userInfo))
+				return false;
+
+			currentToken.setSubjectEntityId(loginSession.getEntityId());
+			currentToken.setDeviceCodeStatus(DeviceCodeStatus.APPROVED);
+			return true;
+		});
+
+		switch (result)
+		{
+		case APPLIED -> showCompleted(true);
+		case ALREADY_PROCESSED -> showError(msg.getMessage("DeviceSignIn.alreadyProcessed"));
+		case FAILED -> showError(msg.getMessage("DeviceSignIn.internalError"));
 		}
-
-		parsedToken.setSubjectEntityId(loginSession.getEntityId());
-		parsedToken.setDeviceCodeStatus(DeviceCodeStatus.APPROVED);
-
-		if (!updateRecord())
-			return;
-
-		showCompleted(true);
 	}
 
 	private List<AttributeFilteringSpec> mapSelectedAttributesToFilters(Collection<DynamicAttribute> attributes)
@@ -483,22 +519,53 @@ class DeviceSignInView extends UnityViewComponent
 
 	private void onDeny()
 	{
-		parsedToken.setDeviceCodeStatus(DeviceCodeStatus.DENIED);
-		updateRecord();
-		showCompleted(false);
+		TransitionResult result = applyTransitionAtomically(currentToken ->
+		{
+			currentToken.setDeviceCodeStatus(DeviceCodeStatus.DENIED);
+			return true;
+		});
+		switch (result)
+		{
+		case APPLIED -> showCompleted(false);
+		case ALREADY_PROCESSED -> showError(msg.getMessage("DeviceSignIn.alreadyProcessed"));
+		case FAILED -> showError(msg.getMessage("DeviceSignIn.internalError"));
+		}
 	}
 
-	private boolean updateRecord()
+	/**
+	 * Atomically re-reads the pending record under a database row lock, applies {@code mutator} only
+	 * if it is still PENDING, and writes it back - all within one transaction. This closes two
+	 * races: a concurrent /token poll transitioning or removing the same record, and a second
+	 * browser session (duplicate tab, or resubmission) trying to accept/deny/cancel a record that
+	 * was already decided.
+	 */
+	private TransitionResult applyTransitionAtomically(Predicate<DeviceCodeToken> mutator)
 	{
 		try
 		{
-			deviceCodeRepository.update(deviceCodeValue, parsedToken, null);
-			return true;
-		} catch (JsonProcessingException e)
+			return tx.runInTransactionRet(() ->
+			{
+				Optional<Token> current = deviceCodeRepository.getByDeviceCodeForUpdate(deviceCodeValue);
+				if (current.isEmpty())
+					return TransitionResult.ALREADY_PROCESSED;
+				DeviceCodeToken currentToken = DeviceCodeToken.getInstanceFromJson(current.get().getContents());
+				if (currentToken.getDeviceCodeStatus() != DeviceCodeStatus.PENDING)
+					return TransitionResult.ALREADY_PROCESSED;
+				if (!mutator.test(currentToken))
+					return TransitionResult.FAILED;
+				try
+				{
+					deviceCodeRepository.update(deviceCodeValue, currentToken, null);
+				} catch (JsonProcessingException e)
+				{
+					throw new RuntimeException(e);
+				}
+				return TransitionResult.APPLIED;
+			});
+		} catch (Exception e)
 		{
 			log.error("Can not update the device code record", e);
-			showError(msg.getMessage("DeviceSignIn.internalError"));
-			return false;
+			return TransitionResult.FAILED;
 		}
 	}
 

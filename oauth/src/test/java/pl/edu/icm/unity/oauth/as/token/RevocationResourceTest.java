@@ -191,8 +191,9 @@ public class RevocationResourceTest
 		token.setClientId(CLIENT_ENTITY_ID);
 		if (scopes.length > 0)
 			token.setEffectiveScope(Stream.of(scopes).map(s -> new RequestedOAuthScope(s, ActiveOAuthScopeDefinition.builder().withName(s).build(), false)).toList());
-		tokensManagement.addToken(type, type.equals(INTERNAL_ACCESS_TOKEN) ? token.getAccessToken() : token.getRefreshToken(), 
-				new EntityParam(CLIENT_ENTITY_ID), token.getSerialized(), new Date(), new Date());
+		tokensManagement.addToken(type, type.equals(INTERNAL_ACCESS_TOKEN) ? token.getAccessToken() : token.getRefreshToken(),
+				new EntityParam(CLIENT_ENTITY_ID), token.getSerialized(), new Date(),
+				new Date(System.currentTimeMillis() + 500000));
 		
 	}
 	

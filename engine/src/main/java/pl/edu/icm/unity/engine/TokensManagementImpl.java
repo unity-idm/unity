@@ -114,6 +114,17 @@ public class TokensManagementImpl implements TokensManagement
 			throw new TokenNotFoundException();
 		return token;
 	}
+
+	@Transactional(autoCommit=false)
+	@Override
+	public Token getTokenByIdForUpdate(String type, String value)
+	{
+		// unlike getTokenById, expiry is intentionally NOT filtered here: a caller reaching for the
+		// locked variant is about to make its own atomic decision, and needs to be able to tell
+		// "already expired" apart from "never existed" itself (e.g. to return a protocol-specific
+		// expired error instead of a generic not-found one)
+		return dbTokens.getForUpdate(type, value);
+	}
 	
 	@Transactional
 	@Override

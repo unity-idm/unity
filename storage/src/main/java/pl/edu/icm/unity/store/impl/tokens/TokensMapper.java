@@ -16,6 +16,7 @@ import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
 public interface TokensMapper extends BasicCRUDMapper<TokenBean>
 {
 	public TokenBean getById(TokenBean toSelect);
+	public TokenBean getByIdForUpdate(TokenBean toSelect);
 	public List<TokenBean> getByOwner(TokenBean toSelect);
 	public List<TokenBean> getByType(String type);
 	public List<TokenBean> getExpired(Date now);
