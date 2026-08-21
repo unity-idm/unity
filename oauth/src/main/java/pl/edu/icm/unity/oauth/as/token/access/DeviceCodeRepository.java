@@ -17,7 +17,7 @@ import com.nimbusds.oauth2.sdk.device.UserCode;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.DeviceCodeToken;
 import pl.edu.icm.unity.store.api.TokenDAO.TokenNotFoundException;
 
 /**
@@ -36,7 +36,7 @@ public class DeviceCodeRepository
 		this.tokensMan = tokensMan;
 	}
 
-	public void store(String deviceCode, OAuthToken token, Date now, Date expiration)
+	public void store(String deviceCode, DeviceCodeToken token, Date now, Date expiration)
 			throws IllegalTypeException, JsonProcessingException
 	{
 		tokensMan.addToken(INTERNAL_DEVICE_TOKEN, deviceCode, token.getSerialized(), now, expiration);
@@ -59,15 +59,15 @@ public class DeviceCodeRepository
 		List<Token> all = tokensMan.getAllTokens(INTERNAL_DEVICE_TOKEN);
 		for (Token token : all)
 		{
-			OAuthToken oauthToken = OAuthToken.getInstanceFromJson(token.getContents());
-			if (oauthToken.getUserCode() != null
-					&& new UserCode(oauthToken.getUserCode()).getStrippedValue().equals(normalized))
+			DeviceCodeToken deviceCodeToken = DeviceCodeToken.getInstanceFromJson(token.getContents());
+			if (deviceCodeToken.getUserCode() != null
+					&& new UserCode(deviceCodeToken.getUserCode()).getStrippedValue().equals(normalized))
 				return Optional.of(token);
 		}
 		return Optional.empty();
 	}
 
-	public void update(String deviceCode, OAuthToken token, Date expires) throws JsonProcessingException
+	public void update(String deviceCode, DeviceCodeToken token, Date expires) throws JsonProcessingException
 	{
 		tokensMan.updateToken(INTERNAL_DEVICE_TOKEN, deviceCode, expires, token.getSerialized());
 	}

@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.device.DeviceAuthorizationGrantError;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
@@ -26,6 +27,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.oauth.as.DeviceCodeStatus;
+import pl.edu.icm.unity.oauth.as.DeviceCodeToken;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.token.BaseOAuthResource;
@@ -63,19 +65,26 @@ class DeviceCodeHandler
 		this.tokenService = tokenService;
 	}
 
-	Response handleDeviceCodeGrant(String deviceCode, String acceptHeader) throws EngineException
+	Response handleDeviceCodeGrant(String deviceCode, String clientId, String acceptHeader) throws EngineException
 	{
 		try
 		{
-			return tx.runInTransactionRetThrowing(() -> handleInTransaction(deviceCode, acceptHeader));
+			return tx.runInTransactionRetThrowing(() -> handleInTransaction(deviceCode, clientId, acceptHeader));
 		} catch (OAuthErrorException e)
 		{
 			return e.response;
 		}
 	}
 
-	private Response handleInTransaction(String deviceCodeValue, String acceptHeader) throws OAuthErrorException
+	private Response handleInTransaction(String deviceCodeValue, String clientId, String acceptHeader)
+			throws OAuthErrorException
 	{
+		if (!config.isDeviceGrantEnabled())
+		{
+			statisticsPublisher.reportFailAsLoggedClient();
+			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_REQUEST, "device grant disabled"));
+		}
+
 		Optional<Token> tokenOpt = deviceCodeRepository.getByDeviceCode(deviceCodeValue);
 		if (tokenOpt.isEmpty())
 		{
@@ -84,29 +93,34 @@ class DeviceCodeHandler
 		}
 
 		Token deviceToken = tokenOpt.get();
-		OAuthToken parsedToken = BaseOAuthResource.parseInternalToken(deviceToken);
+		DeviceCodeToken parsedToken = DeviceCodeToken.getInstanceFromJson(deviceToken.getContents());
+		OAuthToken oauthToken = parsedToken.getOauthToken();
+
+		// the device_code namespace is shared by all deployed OAuth AS endpoints; a code must only
+		// ever be redeemable through the endpoint that issued it, so that a different endpoint's
+		// disabled grant, client group or signing/refresh policy can never apply to it
+		String currentIssuer = config.getValue(OAuthASProperties.ISSUER_URI);
+		if (!currentIssuer.equals(oauthToken.getIssuerUri()))
+		{
+			statisticsPublisher.reportFailAsLoggedClient();
+			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "wrong device_code"));
+		}
 
 		if (deviceToken.getExpires() != null && deviceToken.getExpires().before(new Date()))
 		{
 			deviceCodeRepository.remove(deviceCodeValue);
-			statisticsPublisher.reportFail(parsedToken.getClientUsername(), parsedToken.getClientName());
+			statisticsPublisher.reportFail(oauthToken.getClientUsername(), oauthToken.getClientName());
 			return BaseOAuthResource.makeError(DeviceAuthorizationGrantError.EXPIRED_TOKEN, null);
 		}
 
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
-		if (loginSession != null && parsedToken.getClientId() != loginSession.getEntityId())
-		{
-			log.warn("Client with id {} presented device code issued for client {}", loginSession.getEntityId(),
-					parsedToken.getClientId());
-			// intended - we mask the reason
-			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "wrong device_code"));
-		}
+		assertClientAuthenticated(oauthToken, loginSession, clientId);
 
 		DeviceCodeStatus status = parsedToken.getDeviceCodeStatus();
 		if (status == DeviceCodeStatus.DENIED)
 		{
 			deviceCodeRepository.remove(deviceCodeValue);
-			statisticsPublisher.reportFail(parsedToken.getClientUsername(), parsedToken.getClientName());
+			statisticsPublisher.reportFail(oauthToken.getClientUsername(), oauthToken.getClientName());
 			return BaseOAuthResource.makeError(OAuth2Error.ACCESS_DENIED, null);
 		} else if (status == DeviceCodeStatus.APPROVED)
 		{
@@ -117,7 +131,45 @@ class DeviceCodeHandler
 		}
 	}
 
-	private Response handlePending(String deviceCodeValue, OAuthToken parsedToken) throws OAuthErrorException
+	/**
+	 * RFC 8628 §3.4: confidential clients must authenticate as for any other token request; public
+	 * clients (who cannot authenticate) must identify themselves with client_id, as required by
+	 * RFC 6749 §4.1.3 for unauthenticated token requests.
+	 */
+	private void assertClientAuthenticated(OAuthToken oauthToken, LoginSession loginSession, String clientId)
+			throws OAuthErrorException
+	{
+		if (loginSession != null)
+		{
+			if (oauthToken.getClientId() != loginSession.getEntityId())
+			{
+				log.warn("Client with id {} presented device code issued for client {}", loginSession.getEntityId(),
+						oauthToken.getClientId());
+				statisticsPublisher.reportFail(oauthToken.getClientUsername(), oauthToken.getClientName());
+				// intended - we mask the reason
+				throw new OAuthErrorException(
+						BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "wrong device_code"));
+			}
+			return;
+		}
+
+		if (oauthToken.getClientType() == ClientType.CONFIDENTIAL)
+		{
+			statisticsPublisher.reportFail(oauthToken.getClientUsername(), oauthToken.getClientName());
+			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_CLIENT, "not authenticated"));
+		}
+
+		if (clientId == null || !clientId.equals(oauthToken.getClientUsername()))
+		{
+			log.warn("Client {} presented device code issued for client {}", clientId,
+					oauthToken.getClientUsername());
+			statisticsPublisher.reportFail(oauthToken.getClientUsername(), oauthToken.getClientName());
+			// intended - we mask the reason
+			throw new OAuthErrorException(BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "wrong device_code"));
+		}
+	}
+
+	private Response handlePending(String deviceCodeValue, DeviceCodeToken parsedToken) throws OAuthErrorException
 	{
 		Instant now = Instant.now();
 		int interval = parsedToken.getCurrentPollInterval() > 0 ? parsedToken.getCurrentPollInterval()
@@ -139,7 +191,7 @@ class DeviceCodeHandler
 		return BaseOAuthResource.makeError(DeviceAuthorizationGrantError.AUTHORIZATION_PENDING, null);
 	}
 
-	private void updateRecord(String deviceCodeValue, OAuthToken token) throws OAuthErrorException
+	private void updateRecord(String deviceCodeValue, DeviceCodeToken token) throws OAuthErrorException
 	{
 		try
 		{
@@ -151,10 +203,10 @@ class DeviceCodeHandler
 		}
 	}
 
-	private Response handleApproved(String deviceCodeValue, OAuthToken parsedToken, String acceptHeader)
+	private Response handleApproved(String deviceCodeValue, DeviceCodeToken parsedToken, String acceptHeader)
 			throws OAuthErrorException
 	{
-		OAuthToken internalToken = new OAuthToken(parsedToken);
+		OAuthToken internalToken = new OAuthToken(parsedToken.getOauthToken());
 		Date now = new Date();
 		AccessToken accessToken = accessTokenFactory.create(internalToken, now, acceptHeader);
 		internalToken.setAccessToken(accessToken.getValue());

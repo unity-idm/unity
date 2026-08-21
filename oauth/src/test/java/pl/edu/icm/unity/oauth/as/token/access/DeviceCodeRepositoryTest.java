@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.oauth.as.DeviceCodeStatus;
+import pl.edu.icm.unity.oauth.as.DeviceCodeToken;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 
@@ -31,10 +32,12 @@ public class DeviceCodeRepositoryTest
 	@Test
 	void shouldFindByUserCodeCaseAndDashInsensitively() throws Exception
 	{
-		OAuthToken token = new OAuthToken();
+		OAuthToken oauthToken = new OAuthToken();
+		oauthToken.setEffectiveScope(List.of());
+		DeviceCodeToken token = new DeviceCodeToken();
+		token.setOauthToken(oauthToken);
 		token.setUserCode("WDJB-MJHT");
 		token.setDeviceCodeStatus(DeviceCodeStatus.PENDING);
-		token.setEffectiveScope(List.of());
 		Date now = new Date();
 		tested.store("device-code-1", token, now, new Date(now.getTime() + 60_000));
 
@@ -55,10 +58,12 @@ public class DeviceCodeRepositoryTest
 	@Test
 	void shouldNotFindAfterRemoval() throws Exception
 	{
-		OAuthToken token = new OAuthToken();
+		OAuthToken oauthToken = new OAuthToken();
+		oauthToken.setEffectiveScope(List.of());
+		DeviceCodeToken token = new DeviceCodeToken();
+		token.setOauthToken(oauthToken);
 		token.setUserCode("ABCD-EFGH");
 		token.setDeviceCodeStatus(DeviceCodeStatus.PENDING);
-		token.setEffectiveScope(List.of());
 		Date now = new Date();
 		tested.store("device-code-2", token, now, new Date(now.getTime() + 60_000));
 

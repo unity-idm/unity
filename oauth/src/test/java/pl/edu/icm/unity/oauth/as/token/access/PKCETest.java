@@ -68,7 +68,7 @@ public class PKCETest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null, null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -95,7 +95,7 @@ public class PKCETest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null, null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
 	}
 	
@@ -116,7 +116,7 @@ public class PKCETest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null, null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_UNAUTHORIZED, r.getStatus());
 	}
 	
@@ -139,7 +139,7 @@ public class PKCETest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null, null, null, null, null, null, null);
+				null, null, null, null, null, null, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -163,7 +163,7 @@ public class PKCETest
 				null,
 				"https://return.host.com/foo",
 				null, null, null, null, null, 
-				"WRONG_____123456789012345678901234567890123", null, null, null, null, null);
+				"WRONG_____123456789012345678901234567890123", null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 
@@ -211,7 +211,7 @@ public class PKCETest
 				null,
 				"https://return.host.com/foo",
 				null, null, null, null, null, 
-				verifier, null, null, null, null, null);
+				verifier, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
 	}
 
@@ -235,7 +235,7 @@ public class PKCETest
 				null,
 				"https://return.host.com/foo",
 				null, null, null, null, null, 
-				verifier, null, null, null, null, null);
+				verifier, null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_OK, r.getStatus());
 	}
 
