@@ -113,29 +113,36 @@ public class VaadinWebLogoutHandler implements WebLogoutHandler
 	public void logoutImmediately(String logoutRedirectPath)
 	{
 		LoginSession contextSession = InvocationContext.getCurrent().getLoginSession();
-		LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE, LogoutMode.class);
-
-		if (mode == LogoutMode.internalAndSyncPeers)
+		if (contextSession != null)
 		{
-			try
+			LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE, LogoutMode.class);
+
+			if (mode == LogoutMode.internalAndSyncPeers)
 			{
-				LoginSession session = sessionMan.getSession(contextSession.getId());
-				logoutProcessorsManager.handleSynchronousLogout(session);
-			} catch (IllegalArgumentException e)
+				try
+				{
+					LoginSession session = sessionMan.getSession(contextSession.getId());
+					logoutProcessorsManager.handleSynchronousLogout(session);
+				} catch (IllegalArgumentException e)
+				{
+					log.warn("Can not refresh the state of the current session. Logout of session participants "
+							+ "won't be performed", e);
+				}
+			} else if (mode == LogoutMode.internalAndAsyncPeers)
 			{
-				log.warn("Can not refresh the state of the current session. Logout of session participants "
-						+ "won't be performed", e);
+				log.warn("Immediate logout of entity {} requested, but the configured logout mode "
+						+ "(internalAndAsyncPeers) requires browser redirects to log out remote session "
+						+ "participants; that step will be skipped", contextSession.getEntityId());
 			}
-		} else if (mode == LogoutMode.internalAndAsyncPeers)
-		{
-			log.warn("Immediate logout of entity {} requested, but the configured logout mode "
-					+ "(internalAndAsyncPeers) requires browser redirects to log out remote session "
-					+ "participants; that step will be skipped", contextSession.getEntityId());
-		}
 
-		destroySession(false);
-		rememberMeProcessor.removeRememberMeWithWholeAuthn(contextSession.getRealm(),
-				VaadinServletRequest.getCurrent(), VaadinServletResponse.getCurrent());
+			destroySession(false);
+			rememberMeProcessor.removeRememberMeWithWholeAuthn(contextSession.getRealm(),
+					VaadinServletRequest.getCurrent(), VaadinServletResponse.getCurrent());
+		} else
+		{
+			log.debug("Immediate logout requested but there is no active login session (already logged out, "
+					+ "e.g. from another browser tab) - skipping session teardown");
+		}
 
 		String contextPath = VaadinServlet.getCurrent().getServletContext().getContextPath();
 		if (!logoutRedirectPath.endsWith("/"))
@@ -146,10 +153,16 @@ public class VaadinWebLogoutHandler implements WebLogoutHandler
 
 	private void logoutSessionPeers(URI currentLocation, boolean soft)
 	{
+		LoginSession contextSession = InvocationContext.getCurrent().getLoginSession();
+		if (contextSession == null)
+		{
+			log.debug("Logout requested but there is no active login session (already logged out, "
+					+ "e.g. from another browser tab) - skipping peer logout");
+			return;
+		}
+
 		LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE,
 				LogoutMode.class);
-
-		LoginSession contextSession = InvocationContext.getCurrent().getLoginSession();
 
 		if (mode == LogoutMode.internalOnly)
 		{
