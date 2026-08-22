@@ -58,6 +58,10 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String BULK_FILES_DOWNLOAD_TIMEOUT = "bulkFilesDownloadReadTimeout";
 
 	public static final String BULK_FILES_CONNECTION_TIMEOUT = "bulkFilesDownloadConnectionTimeout";
+
+	public static final String BULK_FILES_MAX_SIZE = "bulkFilesDownloadMaxSize";
+
+	public static final String BULK_FILES_MAX_CONCURRENT_DOWNLOADS = "bulkFilesDownloadMaxConcurrency";
 	public static final String ENABLED_LOCALES = "enabledLocales.";
 	public static final String DEFAULT_LOCALE = "defaultLocale";
 	public static final String MAIL_CONF = "mailConfig";
@@ -540,6 +544,15 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "like logo files."
 						+ "This connection timeout is not critical for "
 						+ "system operation."));
+		defaults.put(BULK_FILES_MAX_SIZE, new PropertyMD("5242880")
+				.setDescription("Maximum allowed size in bytes of a single small file (e.g. a logo) "
+						+ "downloaded from a remote, potentially untrusted source. Enforced while "
+						+ "streaming the response, regardless of the declared Content-Length."));
+		defaults.put(BULK_FILES_MAX_CONCURRENT_DOWNLOADS, new PropertyMD("8")
+				.setDescription("Maximum number of small files (e.g. logos) downloaded concurrently "
+						+ "from remote, potentially untrusted sources. Downloads run on a dedicated "
+						+ "bounded pool, separate from the server-wide thread pool, so that a source "
+						+ "with many entries can not starve unrelated services."));
 		defaults.put(EXTRA_LEFT_PANEL, new PropertyMD("").
 				setDescription("Relative to web contents directory path, pointing to an optional HTML file containing a fixed left sidebar, which will wrap the main Unity UI."));
 		defaults.put(EXTRA_RIGHT_PANEL, new PropertyMD("").

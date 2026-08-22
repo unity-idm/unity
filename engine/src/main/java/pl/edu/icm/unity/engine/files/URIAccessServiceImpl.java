@@ -96,12 +96,13 @@ public class URIAccessServiceImpl implements URIAccessService
 
 	@Override
 	@Transactional
-	public RemoteFileData readURL(URI uri, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber)
+	public RemoteFileData readURL(URI uri, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout,
+			int retriesNumber, long maxResponseSizeBytes)
 	{
 		try
 		{
 			URIHelper.validateURI(uri);
-			return readURL(uri.toURL(), customTruststore, connectionTimeout, socketReadTimeout, retriesNumber);
+			return readURL(uri.toURL(), customTruststore, connectionTimeout, socketReadTimeout, retriesNumber, maxResponseSizeBytes);
 		} catch (EngineException | IOException e)
 		{
 			log.trace("Can not read uri: " + uri, e);
@@ -239,11 +240,11 @@ public class URIAccessServiceImpl implements URIAccessService
 		return new FileData(url.toString(), contentsWithType.contents, new Date());
 	}
 
-	private RemoteFileData readURL(URL url, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber)
-			throws IOException, EngineException
+	private RemoteFileData readURL(URL url, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout,
+			int retriesNumber, long maxResponseSizeBytes) throws IOException, EngineException
 	{
-		ContentsWithType contentsWithType = fileNetworkClient.download(url, customTruststore, 
-				connectionTimeout, socketReadTimeout, retriesNumber);
+		ContentsWithType contentsWithType = fileNetworkClient.download(url, customTruststore,
+				connectionTimeout, socketReadTimeout, retriesNumber, maxResponseSizeBytes);
 		return new RemoteFileData(url.toString(), contentsWithType.contents, new Date(), contentsWithType.mimeType);
 	}
 

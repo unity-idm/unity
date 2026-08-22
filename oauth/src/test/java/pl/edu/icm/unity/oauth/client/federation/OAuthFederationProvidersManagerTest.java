@@ -237,6 +237,45 @@ class OAuthFederationProvidersManagerTest
 	}
 
 	@Test
+	void shouldInvalidateLogoCacheNamespaceOnRemoveConfigurationWhenFederationWasEnabled()
+	{
+		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
+		OAuthClientConfiguration config = federationEnabledConfig();
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
+
+		manager.removeConfiguration(AUTHENTICATOR_ID, INSTANCE_ID);
+
+		verify(logoDownloader).invalidateNamespace(TRUST_ANCHOR);
+	}
+
+	@Test
+	void shouldNotInvalidateLogoCacheNamespaceOnRemoveConfigurationWhenFederationWasDisabled()
+	{
+		OAuthClientConfiguration config = configBuilder()
+				.withFederation(disabledFederation())
+				.withProviders(new OAuthProviders(List.of()))
+				.build();
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
+
+		manager.removeConfiguration(AUTHENTICATOR_ID, INSTANCE_ID);
+
+		verify(logoDownloader, never()).invalidateNamespace(any());
+	}
+
+	@Test
+	void shouldPassFederationIdToLogoDownloaderEvenWhenNoProvidersReturned()
+	{
+		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
+		OAuthClientConfiguration config = federationEnabledConfig();
+		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
+
+		BiConsumer<List<TrustChain>, String> callback = captureCallback();
+		callback.accept(List.of(), "consumer-1");
+
+		verify(logoDownloader).downloadLogoFilesAsync(eq(TRUST_ANCHOR), eq(List.of()), any());
+	}
+
+	@Test
 	void shouldReturnEmptyAfterRemoveConfiguration()
 	{
 		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
@@ -251,10 +290,7 @@ class OAuthFederationProvidersManagerTest
 	@Test
 	void shouldIgnoreUpdateForRemovedAuthenticator()
 	{
-		OAuthProviderConfiguration fedProvider = buildFederationProvider("fed1");
 		when(federationService.preregisterConsumer()).thenReturn("consumer-1");
-		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
-				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
 		OAuthClientConfiguration config = federationEnabledConfig();
 		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, INSTANCE_ID);
@@ -264,6 +300,8 @@ class OAuthFederationProvidersManagerTest
 		callback.accept(List.of(), "consumer-1");
 
 		assertThat(manager.getCombinedProviders(AUTHENTICATOR_ID).getAll()).isEmpty();
+		verify(converter, never()).convert(any(), any(), any(), anyBoolean(), any(), any());
+		verify(logoDownloader, never()).downloadLogoFilesAsync(any(), any(), any());
 	}
 
 	@Test
@@ -289,12 +327,9 @@ class OAuthFederationProvidersManagerTest
 	@SuppressWarnings("unchecked")
 	void shouldIgnoreStaleCallbackAfterConsumerReplaced()
 	{
-		OAuthProviderConfiguration fedProvider = buildFederationProvider("fed1");
 		when(federationService.preregisterConsumer())
 				.thenReturn("consumer-1")
 				.thenReturn("consumer-2");
-		when(converter.convert(any(), any(), any(), anyBoolean(), any(), any()))
-				.thenReturn(List.of(new FederationProvider(fedProvider, Instant.now().plusSeconds(3600))));
 
 		OAuthClientConfiguration config = federationEnabledConfig();
 		manager.setConfiguration(AUTHENTICATOR_ID, CLIENT_ID, config, new InstanceId());
@@ -308,6 +343,8 @@ class OAuthFederationProvidersManagerTest
 		staleCallback.accept(List.of(), "consumer-1");
 
 		assertThat(manager.getCombinedProviders(AUTHENTICATOR_ID).getAll()).isEmpty();
+		verify(converter, never()).convert(any(), any(), any(), anyBoolean(), any(), any());
+		verify(logoDownloader, never()).downloadLogoFilesAsync(any(), any(), any());
 	}
 
 	// --- helpers ---

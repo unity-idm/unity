@@ -8,14 +8,14 @@ import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.jose.jwk.JWKSet;
@@ -48,7 +48,9 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.RemoteFileData;
+import pl.edu.icm.unity.engine.api.files.SsrfProtection;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
@@ -59,17 +61,14 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 
-import static java.util.Collections.synchronizedSet;
-
 @Component
 public class FederatedOAuthClientService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, FederatedOAuthClientService.class);
-	private static final Duration LOGO_FETCH_TIMEOUT = Duration.ofSeconds(10);
 
 	private final Map<String, CachedChain> chainCache = new ConcurrentHashMap<>();
 	private final Map<String, URI> lastFetchedLogoUri = new ConcurrentHashMap<>();
-	private final Set<String> currentlyRefreshingLogo = synchronizedSet(new HashSet<>());
+	private final Map<String, LogoRefreshCoordinator> logoRefreshCoordinators = new ConcurrentHashMap<>();
 
 	private final EntityManagement identitiesMan;
 	private final AttributesManagement attributesMan;
@@ -78,6 +77,10 @@ public class FederatedOAuthClientService
 	private final AttributeTypeSupport attrTypeSupport;
 	private final URIAccessService uriAccessService;
 	private final ExecutorsService executorsService;
+	private final Duration logoConnectionTimeout;
+	private final Duration logoSocketReadTimeout;
+	private final long maxLogoSizeBytes;
+	private final boolean restrictInternalDestinations;
 
 	public FederatedOAuthClientService(
 			@Qualifier("insecure") EntityManagement identitiesMan,
@@ -86,7 +89,9 @@ public class FederatedOAuthClientService
 			AttributeSupport attributeSupport,
 			AttributeTypeSupport attrTypeSupport,
 			URIAccessService uriAccessService,
-			ExecutorsService executorsService)
+			ExecutorsService executorsService,
+			UnityServerConfiguration conf,
+			Environment environment)
 	{
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
@@ -95,6 +100,10 @@ public class FederatedOAuthClientService
 		this.attrTypeSupport = attrTypeSupport;
 		this.uriAccessService = uriAccessService;
 		this.executorsService = executorsService;
+		this.logoConnectionTimeout = Duration.ofMillis(conf.getIntValue(UnityServerConfiguration.BULK_FILES_CONNECTION_TIMEOUT));
+		this.logoSocketReadTimeout = Duration.ofMillis(conf.getIntValue(UnityServerConfiguration.BULK_FILES_DOWNLOAD_TIMEOUT));
+		this.maxLogoSizeBytes = conf.getIntValue(UnityServerConfiguration.BULK_FILES_MAX_SIZE);
+		this.restrictInternalDestinations = !environment.acceptsProfiles(Profiles.of(UnityServerConfiguration.PROFILE_TEST));
 	}
 
 	public record FederatedClientResolution(long entityId, JWKSet jwks) {}
@@ -210,25 +219,64 @@ public class FederatedOAuthClientService
 	 * Like {@link #updateLogoIfChanged(String, long, String, URI)}, but fetches the logo in the background
 	 * instead of blocking the caller. Used when refreshing an already-registered client (which already has
 	 * a logo attribute value from a previous fetch), as opposed to first-time registration where the caller
-	 * needs the logo to be present by the time it returns.
+	 * needs the logo to be present by the time it returns. Concurrent requests for the same client are
+	 * coalesced: while a fetch is in progress, a newer request replaces any not-yet-started one queued
+	 * behind it and runs immediately once the current fetch finishes - so a client whose metadata keeps
+	 * changing during a slow fetch ends up with the latest logo, not whichever fetch happened to start.
 	 */
 	private void updateLogoIfChangedAsync(String clientId, long entityId, String oauthGroup, URI logoUri, String truststoreName)
 	{
 		if (logoUri == null || logoUri.equals(lastFetchedLogoUri.get(clientId)))
 			return;
-		if (!currentlyRefreshingLogo.add(clientId))
-			return;
-		executorsService.getExecutionService().execute(() ->
+		logoRefreshCoordinators.computeIfAbsent(clientId, k -> new LogoRefreshCoordinator())
+				.submit(new PendingLogoUpdate(clientId, entityId, oauthGroup, logoUri, truststoreName));
+	}
+
+	private record PendingLogoUpdate(String clientId, long entityId, String oauthGroup, URI logoUri, String truststoreName) {}
+
+	private final class LogoRefreshCoordinator
+	{
+		private boolean running;
+		private PendingLogoUpdate pending;
+
+		synchronized void submit(PendingLogoUpdate update)
 		{
-			try
+			if (running)
 			{
-				updateLogoIfChanged(clientId, entityId, oauthGroup, logoUri, truststoreName);
+				pending = update;
+				return;
 			}
-			finally
+			running = true;
+			dispatch(update);
+		}
+
+		private void dispatch(PendingLogoUpdate update)
+		{
+			executorsService.getExecutionService().execute(() ->
 			{
-				currentlyRefreshingLogo.remove(clientId);
+				try
+				{
+					updateLogoIfChanged(update.clientId(), update.entityId(), update.oauthGroup(), update.logoUri(),
+							update.truststoreName());
+				}
+				finally
+				{
+					onFinished();
+				}
+			});
+		}
+
+		private synchronized void onFinished()
+		{
+			PendingLogoUpdate next = pending;
+			pending = null;
+			if (next == null)
+			{
+				running = false;
+				return;
 			}
-		});
+			dispatch(next);
+		}
 	}
 
 	private void updateLogoIfChanged(String clientId, long entityId, String oauthGroup, URI logoUri, String truststoreName)
@@ -239,8 +287,10 @@ public class FederatedOAuthClientService
 			return;
 		try
 		{
+			if (restrictInternalDestinations)
+				SsrfProtection.assertNoInternalDestination(logoUri);
 			RemoteFileData fileData = uriAccessService.readURL(logoUri, truststoreName,
-					LOGO_FETCH_TIMEOUT, LOGO_FETCH_TIMEOUT, 0);
+					logoConnectionTimeout, logoSocketReadTimeout, 0, maxLogoSizeBytes);
 			ImageType imageType = ImageType.fromMimeType(fileData.mimeType);
 			UnityImage image = new UnityImage(fileData.getContents(), imageType);
 			ImageAttributeSyntax syntax = (ImageAttributeSyntax) attrTypeSupport

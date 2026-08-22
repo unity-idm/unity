@@ -51,7 +51,7 @@ public class OAuthFederationProvidersManager
 				federationService.unregisterConsumer(existing.consumerId);
 
 			if (config.federation() == null || !config.federation().enabled() || config.federation().trustAnchorId() == null)
-				return new InstanceState(instanceId, null, config.providers());
+				return new InstanceState(instanceId, null, null, config.providers());
 
 			try
 			{
@@ -60,12 +60,12 @@ public class OAuthFederationProvidersManager
 				federationService.registerConsumer(consumerId, fedConfig.refreshInterval(), fedConfig,
 						(chains, cid) -> onUpdatedFederation(authenticatorId, clientId, cid, chains, config));
 				OAuthProviders initial = existing != null ? existing.combinedProviders : config.providers();
-				return new InstanceState(instanceId, consumerId, initial);
+				return new InstanceState(instanceId, consumerId, config.federation().trustAnchorId(), initial);
 			} catch (ParseException e)
 			{
 				log.error("Failed to parse federation config for authenticator {}: {}",
 						authenticatorId, e.getMessage(), e);
-				return new InstanceState(instanceId, null, config.providers());
+				return new InstanceState(instanceId, null, null, config.providers());
 			}
 		});
 	}
@@ -78,6 +78,8 @@ public class OAuthFederationProvidersManager
 				return existing;
 			if (existing.consumerId != null)
 				federationService.unregisterConsumer(existing.consumerId);
+			if (existing.federationId != null)
+				logoDownloader.invalidateNamespace(existing.federationId);
 			return null;
 		});
 	}
@@ -93,11 +95,19 @@ public class OAuthFederationProvidersManager
 	private void onUpdatedFederation(String authenticatorId, String clientId,
 			String consumerId, List<TrustChain> chains, OAuthClientConfiguration config)
 	{
+		InstanceState currentState = stateByAuthenticator.get(authenticatorId);
+		if (currentState == null || !consumerId.equals(currentState.consumerId))
+		{
+			log.debug("Discarding federation update for authenticator {}: consumer {} is no longer active",
+					authenticatorId, consumerId);
+			return;
+		}
+
 		List<FederationProvider> fromFederation = converter.convert(chains, clientId,
 				config.authenticationCredential(), config.defaultEnableAssociation(),
 				config.federationProviderDefaults(), config.federation());
 		log.debug("Updated {} federation providers for authenticator {}", fromFederation.size(), authenticatorId);
-		logoDownloader.downloadLogoFilesAsync(fromFederation, config.federation().truststore());
+		logoDownloader.downloadLogoFilesAsync(config.federation().trustAnchorId(), fromFederation, config.federation().truststore());
 
 		Map<OAuthProviderKey, Instant> expiryMap = new ConcurrentHashMap<>();
 		fromFederation.forEach(fp -> expiryMap.put(fp.config().key(), fp.expiresAt()));
@@ -109,19 +119,20 @@ public class OAuthFederationProvidersManager
 		{
 			if (!consumerId.equals(state.consumerId))
 				return state;
-			return new InstanceState(state.instanceId, state.consumerId, combined, expiryMap);
+			return new InstanceState(state.instanceId, state.consumerId, state.federationId, combined, expiryMap);
 		});
 	}
 
 	private record InstanceState(
 			InstanceId instanceId,
 			String consumerId,
+			String federationId,
 			OAuthProviders combinedProviders,
 			Map<OAuthProviderKey, Instant> federationExpiry)
 	{
-		InstanceState(InstanceId instanceId, String consumerId, OAuthProviders combinedProviders)
+		InstanceState(InstanceId instanceId, String consumerId, String federationId, OAuthProviders combinedProviders)
 		{
-			this(instanceId, consumerId, combinedProviders, Collections.emptyMap());
+			this(instanceId, consumerId, federationId, combinedProviders, Collections.emptyMap());
 		}
 
 		OAuthProviders effectiveProviders()

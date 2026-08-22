@@ -21,7 +21,8 @@ public interface URIAccessService
 
 	FileData readURI(URI uri, String customTruststore);
 
-	RemoteFileData readURL(URI uri, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber);
+	RemoteFileData readURL(URI uri, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout,
+			int retriesNumber, long maxResponseSizeBytes);
 	
 	FileData readImageURI(URI uri);
 
