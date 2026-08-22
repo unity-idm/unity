@@ -28,6 +28,16 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 {
 	private static final String TINY_PNG_BASE64 =
 			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/AP4AAAAAElFTkSuQmCC";
+	private static final String TINY_JPEG_BASE64 =
+			"/9j/4AAQSkZJRgABAgAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcp"
+			+ "LDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy"
+			+ "MjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAA"
+			+ "AgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6"
+			+ "Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXG"
+			+ "x8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREA"
+			+ "AgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5"
+			+ "OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPE"
+			+ "xcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigD//2Q==";
 	private static final String LOGO_ROOT = "target/workspace/downloadedLogos/" + AsyncExternalLogoFileDownloader.CACHE_GROUP + "/";
 
 	@Autowired
@@ -182,7 +192,9 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 		try
 		{
 			String metadata = Files.readString(new File("src/test/resources/metadata-of-signed-response.xml").toPath());
-			return EntitiesDescriptorDocument.Factory.parse(metadata.replace("data:image/png", "data:" + mimeType));
+			metadata = metadata.replaceFirst("data:image/png;base64,[^<]*",
+					"data:" + mimeType + ";base64," + payloadFor(mimeType));
+			return EntitiesDescriptorDocument.Factory.parse(metadata);
 		} catch (XmlException | IOException e)
 		{
 			throw new RuntimeException("Can't load test XML", e);
@@ -194,14 +206,20 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 		try
 		{
 			String metadata = Files.readString(new File("src/test/resources/metadata-of-signed-response.xml").toPath());
-			metadata = metadata.replace("data:image/png", "data:" + enMimeType);
+			metadata = metadata.replaceFirst("data:image/png;base64,[^<]*",
+					"data:" + enMimeType + ";base64," + payloadFor(enMimeType));
 			String deLogo = "<mdui:Logo height=\"16\" width=\"16\" xml:lang=\"de\">data:"
-					+ deMimeType + ";base64," + TINY_PNG_BASE64 + "</mdui:Logo>";
+					+ deMimeType + ";base64," + payloadFor(deMimeType) + "</mdui:Logo>";
 			metadata = metadata.replace("</mdui:UIInfo>", deLogo + "</mdui:UIInfo>");
 			return EntitiesDescriptorDocument.Factory.parse(metadata);
 		} catch (XmlException | IOException e)
 		{
 			throw new RuntimeException("Can't load test XML", e);
 		}
+	}
+
+	private static String payloadFor(String mimeType)
+	{
+		return "image/jpeg".equals(mimeType) ? TINY_JPEG_BASE64 : TINY_PNG_BASE64;
 	}
 }
