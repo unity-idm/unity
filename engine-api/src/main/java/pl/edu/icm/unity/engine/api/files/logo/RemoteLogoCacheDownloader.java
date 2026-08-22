@@ -13,36 +13,43 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.RemoteFileData;
+import pl.edu.icm.unity.engine.api.files.SsrfProtection;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 
 import static java.util.Base64.getDecoder;
-import static java.util.Collections.synchronizedSet;
 
 /**
  * Downloads and caches on local disk logo files referenced by a remote source (a SAML federation's
  * IdPs, an OpenID federation's OPs, ...), so that they can later be served locally without a browser
  * or per-request server side fetch to the (untrusted, remote-controlled) original URI. Downloads for
- * a given cache group + namespace (e.g. a single federation) are deduplicated - a new run is not
- * started while a previous one is still in progress. See {@link CachedLogoFileLoader} for the read side.
+ * a given cache group + namespace (e.g. a single federation) are coalesced: while a run is in progress,
+ * further requests don't start a parallel run - the latest one supersedes any not-yet-started request
+ * queued behind it, and runs as soon as the current run finishes. See {@link CachedLogoFileLoader} for
+ * the read side.
  */
 @Component
 public class RemoteLogoCacheDownloader
@@ -56,11 +63,14 @@ public class RemoteLogoCacheDownloader
 	private final String defaultLocale;
 	private final Duration socketReadTimeout;
 	private final Duration connectionTimeout;
+	private final long maxFileSizeBytes;
+	private final ExecutorService downloadExecutorService;
+	private final boolean restrictInternalDestinations;
 
-	private final Set<String> currentlyDownloading = synchronizedSet(new HashSet<>());
+	private final Map<String, RefreshCoordinator> coordinatorsByKey = new ConcurrentHashMap<>();
 
 	public RemoteLogoCacheDownloader(UnityServerConfiguration conf, MessageSource msg,
-			URIAccessService uriAccessService, ExecutorsService executorsService)
+			URIAccessService uriAccessService, ExecutorsService executorsService, Environment environment)
 	{
 		workspaceRoot = LogoFilenameUtils.getLogosWorkspaceRoot(conf);
 		executorService = executorsService.getExecutionService();
@@ -68,6 +78,18 @@ public class RemoteLogoCacheDownloader
 		this.uriAccessService = uriAccessService;
 		this.socketReadTimeout = Duration.ofMillis(conf.getIntValue(UnityServerConfiguration.BULK_FILES_DOWNLOAD_TIMEOUT));
 		this.connectionTimeout = Duration.ofMillis(conf.getIntValue(UnityServerConfiguration.BULK_FILES_CONNECTION_TIMEOUT));
+		this.maxFileSizeBytes = conf.getIntValue(UnityServerConfiguration.BULK_FILES_MAX_SIZE);
+		this.downloadExecutorService = Executors.newFixedThreadPool(
+				conf.getIntValue(UnityServerConfiguration.BULK_FILES_MAX_CONCURRENT_DOWNLOADS),
+				RemoteLogoCacheDownloader::newDaemonThread);
+		this.restrictInternalDestinations = !environment.acceptsProfiles(Profiles.of(UnityServerConfiguration.PROFILE_TEST));
+	}
+
+	private static Thread newDaemonThread(Runnable runnable)
+	{
+		Thread thread = new Thread(runnable, "logo-downloader");
+		thread.setDaemon(true);
+		return thread;
 	}
 
 	/**
@@ -78,31 +100,113 @@ public class RemoteLogoCacheDownloader
 	 * @param logosByKeyAndLocale for every cached entity, its logo URI(s) keyed by locale code (empty string
 	 * for the default/unlocalized one).
 	 */
-	@SuppressWarnings("unchecked")
 	public CompletableFuture<Void> downloadLogoFilesAsync(String cacheGroup, String namespaceId,
 			Map<? extends LogoCacheKey, Map<String, String>> logosByKeyAndLocale, String httpsTruststore)
 	{
 		String dedupKey = cacheGroup + "/" + namespaceId;
-		if (!currentlyDownloading.add(dedupKey))
-		{
-			log.info("Logos of {} are being downloaded, won't start a new downloading process", dedupKey);
-			return CompletableFuture.completedFuture(null);
-		}
-		String catalog = catalog(cacheGroup, namespaceId);
-		CompletableFuture<Set<String>>[] savedFilesNamesFutures = logosByKeyAndLocale.entrySet().stream()
-				.map(entry -> CompletableFuture.supplyAsync(
-						() -> downloadFiles(catalog, entry.getKey(), entry.getValue(), httpsTruststore),
-						executorService))
-				.toArray(CompletableFuture[]::new);
-		return CompletableFuture.allOf(savedFilesNamesFutures)
-			.thenRunAsync(() -> cleanUp(catalog, savedFilesNamesFutures), executorService)
-			.whenComplete((result, error) -> currentlyDownloading.remove(dedupKey))
-			.whenComplete((result, error) -> log.info("Prefetched logos of {}", dedupKey));
+		RefreshCoordinator coordinator = coordinatorsByKey.computeIfAbsent(dedupKey,
+				k -> new RefreshCoordinator(dedupKey, catalog(cacheGroup, namespaceId)));
+		return coordinator.submit(logosByKeyAndLocale, httpsTruststore);
 	}
 
 	private String catalog(String cacheGroup, String namespaceId)
 	{
 		return Path.of(cacheGroup, LogoFilenameUtils.namespaceDirName(namespaceId)).toString();
+	}
+
+	/**
+	 * Coalesces concurrent refresh requests for a single cache group + namespace: while a run is in
+	 * progress, at most one further request is kept pending - a newer one replaces it - and is run,
+	 * with the latest data, as soon as the current run completes. Every caller superseded this way still
+	 * gets a future that completes with the run that ends up actually reflecting its (or newer) data.
+	 */
+	private final class RefreshCoordinator
+	{
+		private final String dedupKey;
+		private final String catalog;
+		private boolean running;
+		private PendingRefresh pending;
+
+		RefreshCoordinator(String dedupKey, String catalog)
+		{
+			this.dedupKey = dedupKey;
+			this.catalog = catalog;
+		}
+
+		synchronized CompletableFuture<Void> submit(Map<? extends LogoCacheKey, Map<String, String>> logosByKeyAndLocale,
+				String httpsTruststore)
+		{
+			if (!running)
+			{
+				running = true;
+				return runAndChain(logosByKeyAndLocale, httpsTruststore, null);
+			}
+			log.info("Logos of {} are being downloaded, queuing the newest request to run next", dedupKey);
+			if (pending == null)
+				pending = new PendingRefresh();
+			pending.logosByKeyAndLocale = logosByKeyAndLocale;
+			pending.httpsTruststore = httpsTruststore;
+			CompletableFuture<Void> waiter = new CompletableFuture<>();
+			pending.waiters.add(waiter);
+			return waiter;
+		}
+
+		private CompletableFuture<Void> runAndChain(Map<? extends LogoCacheKey, Map<String, String>> logosByKeyAndLocale,
+				String httpsTruststore, List<CompletableFuture<Void>> waitersToComplete)
+		{
+			CompletableFuture<Void> run = doDownload(dedupKey, catalog, logosByKeyAndLocale, httpsTruststore);
+			run.whenComplete((result, error) ->
+			{
+				if (waitersToComplete != null)
+					completeAll(waitersToComplete, result, error);
+				onRunFinished();
+			});
+			return run;
+		}
+
+		private synchronized void onRunFinished()
+		{
+			PendingRefresh next = pending;
+			pending = null;
+			if (next == null)
+			{
+				running = false;
+				return;
+			}
+			runAndChain(next.logosByKeyAndLocale, next.httpsTruststore, next.waiters);
+		}
+
+		private void completeAll(List<CompletableFuture<Void>> waiters, Void result, Throwable error)
+		{
+			for (CompletableFuture<Void> waiter : waiters)
+			{
+				if (error != null)
+					waiter.completeExceptionally(error);
+				else
+					waiter.complete(result);
+			}
+		}
+	}
+
+	private static final class PendingRefresh
+	{
+		private Map<? extends LogoCacheKey, Map<String, String>> logosByKeyAndLocale;
+		private String httpsTruststore;
+		private final List<CompletableFuture<Void>> waiters = new ArrayList<>();
+	}
+
+	@SuppressWarnings("unchecked")
+	private CompletableFuture<Void> doDownload(String dedupKey, String catalog,
+			Map<? extends LogoCacheKey, Map<String, String>> logosByKeyAndLocale, String httpsTruststore)
+	{
+		CompletableFuture<Set<String>>[] savedFilesNamesFutures = logosByKeyAndLocale.entrySet().stream()
+				.map(entry -> CompletableFuture.supplyAsync(
+						() -> downloadFiles(catalog, entry.getKey(), entry.getValue(), httpsTruststore),
+						downloadExecutorService))
+				.toArray(CompletableFuture[]::new);
+		return CompletableFuture.allOf(savedFilesNamesFutures)
+			.thenRunAsync(() -> cleanUp(catalog, savedFilesNamesFutures), executorService)
+			.whenComplete((result, error) -> log.info("Prefetched logos of {}", dedupKey));
 	}
 
 	private void cleanUp(String catalog, CompletableFuture<Set<String>>[] savedFilesNamesFutures)
@@ -192,7 +296,10 @@ public class RemoteLogoCacheDownloader
 	private void downloadFile(String catalog, String name, URI uri, String httpsTruststore) throws IOException
 	{
 		log.trace("Downloading from {}", uri);
-		RemoteFileData fileData = uriAccessService.readURL(uri, httpsTruststore, connectionTimeout, socketReadTimeout, 0);
+		if (restrictInternalDestinations)
+			SsrfProtection.assertNoInternalDestination(uri);
+		RemoteFileData fileData = uriAccessService.readURL(uri, httpsTruststore, connectionTimeout, socketReadTimeout,
+				0, maxFileSizeBytes);
 		String extension = LogoFilenameUtils.getExtensionForRemoteFile(fileData);
 		saveImageFileAndItsPointer(catalog, name, fileData.getContents(), extension);
 	}
@@ -203,12 +310,17 @@ public class RemoteLogoCacheDownloader
 		int dataStartIndex = logoURIStr.indexOf(",") + 1;
 		String data = logoURIStr.substring(dataStartIndex);
 		byte[] decoded = getDecoder().decode(data);
+		if (decoded.length > maxFileSizeBytes)
+			throw new IOException("Data URI logo " + name + " is " + decoded.length
+					+ " bytes, which exceeds the allowed maximum of " + maxFileSizeBytes + " bytes");
 		String extension = LogoFilenameUtils.getExtensionFromDataURI(logoURI);
 		saveImageFileAndItsPointer(catalog, name, decoded, extension);
 	}
 
 	private void saveImageFileAndItsPointer(String catalog, String name, byte[] decoded, String extension) throws IOException
 	{
+		if (!SupportedImageContentValidator.isSupportedImage(decoded, extension))
+			throw new IOException("Logo " + name + " content does not match the expected " + extension + " image format");
 		File imageFile = createFile(catalog, name + "." + extension);
 		Files.write(imageFile.toPath(), decoded);
 		File pointerFile = createFile(catalog, name);

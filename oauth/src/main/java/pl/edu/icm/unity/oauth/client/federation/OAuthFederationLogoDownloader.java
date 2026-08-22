@@ -30,14 +30,27 @@ public class OAuthFederationLogoDownloader
 		this.remoteLogoCacheDownloader = remoteLogoCacheDownloader;
 	}
 
-	public void downloadLogoFilesAsync(List<FederationProvider> providers, String httpsTruststore)
+	/**
+	 * @param federationId namespace of the caller's federation - always used, even when
+	 * {@code providers} is empty or none of them have an icon, so that a refresh removing the last
+	 * logo (or all providers) still triggers {@link RemoteLogoCacheDownloader}'s cleanup and doesn't
+	 * leave stale files behind for a namespace that's no longer referenced.
+	 */
+	public void downloadLogoFilesAsync(String federationId, List<FederationProvider> providers, String httpsTruststore)
 	{
-		Map<String, Map<OAuthProviderKey, Map<String, String>>> logosByFederation = providers.stream()
-				.filter(p -> p.config().iconUrl() != null && p.config().federationId() != null)
-				.collect(Collectors.groupingBy(p -> p.config().federationId(),
-						Collectors.toMap(p -> p.config().key(), p -> p.config().iconUrl().getMap())));
+		Map<OAuthProviderKey, Map<String, String>> logosByKeyAndLocale = providers.stream()
+				.filter(p -> p.config().iconUrl() != null)
+				.collect(Collectors.toMap(p -> p.config().key(), p -> p.config().iconUrl().getMap()));
 
-		logosByFederation.forEach((federationId, logosByKeyAndLocale) ->
-				remoteLogoCacheDownloader.downloadLogoFilesAsync(CACHE_GROUP, federationId, logosByKeyAndLocale, httpsTruststore));
+		remoteLogoCacheDownloader.downloadLogoFilesAsync(CACHE_GROUP, federationId, logosByKeyAndLocale, httpsTruststore);
+	}
+
+	/**
+	 * Removes all cached logos of a federation that's no longer configured (e.g. its authenticator was
+	 * removed), since no future refresh will run for it to notice via an empty {@code providers} list.
+	 */
+	public void invalidateNamespace(String federationId)
+	{
+		remoteLogoCacheDownloader.downloadLogoFilesAsync(CACHE_GROUP, federationId, Map.of(), null);
 	}
 }
