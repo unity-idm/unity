@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.files.RemoteFileData;
 public class LogoFilenameUtils
 {
 	private static final String LOGOS_ROOT_DIR = "downloadedLogos";
+	private static final String KEY_LOCALE_SEPARATOR = "~";
 
 	public static String getLogoFileBasename(LogoCacheKey key, Locale locale, String defaultLocale)
 	{
@@ -26,7 +27,7 @@ public class LogoFilenameUtils
 
 	public static String getLogoFileBasename(LogoCacheKey key, String localeString)
 	{
-		return key.asCacheBasename() + localeString;
+		return key.asCacheBasename() + KEY_LOCALE_SEPARATOR + localeString;
 	}
 
 	public static String getLogosWorkspaceRoot(UnityServerConfiguration conf)

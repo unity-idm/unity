@@ -6,10 +6,8 @@
 package pl.edu.icm.unity.saml.metadata.cfg;
 
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -25,8 +23,6 @@ import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPs;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
-import static java.util.Collections.synchronizedSet;
-
 @Component
 public class AsyncExternalLogoFileDownloader
 {
@@ -35,8 +31,6 @@ public class AsyncExternalLogoFileDownloader
 
 	private final MetadataToSPConfigConverter converter;
 	private final RemoteLogoCacheDownloader remoteLogoCacheDownloader;
-
-	private final Set<String> currentlyDownloadingFederation = synchronizedSet(new HashSet<>());
 
 	public AsyncExternalLogoFileDownloader(MetadataToSPConfigConverter converter,
 			RemoteLogoCacheDownloader remoteLogoCacheDownloader)
@@ -48,11 +42,6 @@ public class AsyncExternalLogoFileDownloader
 	public CompletableFuture<Void> downloadLogoFilesAsync(EntitiesDescriptorDocument entitiesDescriptorDocument, String httpsTruststore)
 	{
 		String federationId = entitiesDescriptorDocument.getEntitiesDescriptor().getID();
-		if (!currentlyDownloadingFederation.add(federationId))
-		{
-			log.info("Logos of federation {} are being downloaded, won't start a new downloading process", federationId);
-			return CompletableFuture.completedFuture(null);
-		}
 		try
 		{
 			RemoteMetadataSource metadataSource = RemoteMetadataSource.builder()
@@ -65,12 +54,10 @@ public class AsyncExternalLogoFileDownloader
 					entitiesDescriptorDocument.getEntitiesDescriptor().getName());
 			Map<TrustedIdPKey, Map<String, String>> logosByKeyAndLocale = trustedIdPs.getEntrySet().stream()
 					.collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().logoURI.getMap()));
-			return remoteLogoCacheDownloader.downloadLogoFilesAsync(CACHE_GROUP, federationId, logosByKeyAndLocale, httpsTruststore)
-					.whenComplete((result, error) -> currentlyDownloadingFederation.remove(federationId));
+			return remoteLogoCacheDownloader.downloadLogoFilesAsync(CACHE_GROUP, federationId, logosByKeyAndLocale, httpsTruststore);
 		}
 		catch (Exception e)
 		{
-			currentlyDownloadingFederation.remove(federationId);
 			log.error("This exception occurred when metadata has been converted to TrustedIdPs", e);
 			return CompletableFuture.completedFuture(null);
 		}

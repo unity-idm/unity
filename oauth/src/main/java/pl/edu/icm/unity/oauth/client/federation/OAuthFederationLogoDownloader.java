@@ -40,7 +40,7 @@ public class OAuthFederationLogoDownloader
 	{
 		Map<OAuthProviderKey, Map<String, String>> logosByKeyAndLocale = providers.stream()
 				.filter(p -> p.config().iconUrl() != null)
-				.collect(Collectors.toMap(p -> p.config().key(), p -> p.config().iconUrl().getMap()));
+				.collect(Collectors.toMap(p -> p.config().key(), p -> p.config().iconUrl().getMap(), (a, b) -> a));
 
 		remoteLogoCacheDownloader.downloadLogoFilesAsync(CACHE_GROUP, federationId, logosByKeyAndLocale, httpsTruststore);
 	}
