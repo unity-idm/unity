@@ -26,7 +26,7 @@ public class LogoFilenameUtilsTest
 	{
 		String result = LogoFilenameUtils.getLogoFileBasename(key, "en");
 
-		assertThat(result).isEqualTo("keyBasenameen");
+		assertThat(result).isEqualTo("keyBasename~en");
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class LogoFilenameUtilsTest
 	{
 		String result = LogoFilenameUtils.getLogoFileBasename(key, Locale.forLanguageTag("de"), "en");
 
-		assertThat(result).isEqualTo("keyBasenamede");
+		assertThat(result).isEqualTo("keyBasename~de");
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class LogoFilenameUtilsTest
 	{
 		String result = LogoFilenameUtils.getLogoFileBasename(key, null, "en");
 
-		assertThat(result).isEqualTo("keyBasenameen");
+		assertThat(result).isEqualTo("keyBasename~en");
 	}
 
 	@Test
@@ -50,7 +50,7 @@ public class LogoFilenameUtilsTest
 	{
 		String result = LogoFilenameUtils.getLogoFileBasename(key, Locale.ROOT, "en");
 
-		assertThat(result).isEqualTo("keyBasenameen");
+		assertThat(result).isEqualTo("keyBasename~en");
 	}
 
 	@Test

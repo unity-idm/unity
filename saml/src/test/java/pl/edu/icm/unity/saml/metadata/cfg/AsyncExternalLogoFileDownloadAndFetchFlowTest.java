@@ -160,7 +160,7 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 	{
 		File staging = new File("target/workspace/downloadedLogos/staging/" + AsyncExternalLogoFileDownloader.CACHE_GROUP
 				+ "/" + LogoFilenameUtils.namespaceDirName(federationId));
-		if(Objects.requireNonNull(staging.listFiles()).length != 0)
+		if(staging.exists() && Objects.requireNonNull(staging.listFiles()).length != 0)
 			throw new IllegalStateException("Staging catalog not clean");
 	}
 

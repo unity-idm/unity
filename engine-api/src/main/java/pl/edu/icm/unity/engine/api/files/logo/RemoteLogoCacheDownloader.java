@@ -15,6 +15,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Component;
@@ -52,7 +54,7 @@ import static java.util.Base64.getDecoder;
  * the read side.
  */
 @Component
-public class RemoteLogoCacheDownloader
+public class RemoteLogoCacheDownloader implements DisposableBean
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, RemoteLogoCacheDownloader.class);
 	private static final String STAGING = "staging";
@@ -83,6 +85,12 @@ public class RemoteLogoCacheDownloader
 				conf.getIntValue(UnityServerConfiguration.BULK_FILES_MAX_CONCURRENT_DOWNLOADS),
 				RemoteLogoCacheDownloader::newDaemonThread);
 		this.restrictInternalDestinations = !environment.acceptsProfiles(Profiles.of(UnityServerConfiguration.PROFILE_TEST));
+	}
+
+	@Override
+	public void destroy()
+	{
+		downloadExecutorService.shutdownNow();
 	}
 
 	private static Thread newDaemonThread(Runnable runnable)
@@ -154,7 +162,19 @@ public class RemoteLogoCacheDownloader
 		private CompletableFuture<Void> runAndChain(Map<? extends LogoCacheKey, Map<String, String>> logosByKeyAndLocale,
 				String httpsTruststore, List<CompletableFuture<Void>> waitersToComplete)
 		{
-			CompletableFuture<Void> run = doDownload(dedupKey, catalog, logosByKeyAndLocale, httpsTruststore);
+			CompletableFuture<Void> run;
+			try
+			{
+				run = doDownload(dedupKey, catalog, logosByKeyAndLocale, httpsTruststore);
+			}
+			catch (RuntimeException e)
+			{
+				log.error("Failed to start logo refresh for {}", dedupKey, e);
+				if (waitersToComplete != null)
+					completeAll(waitersToComplete, null, e);
+				onRunFinished();
+				return CompletableFuture.failedFuture(e);
+			}
 			run.whenComplete((result, error) ->
 			{
 				if (waitersToComplete != null)
@@ -217,8 +237,15 @@ public class RemoteLogoCacheDownloader
 				.collect(Collectors.toSet());
 		try
 		{
+			deleteDirectoryRecursively(Paths.get(workspaceRoot, STAGING, catalog));
+		}
+		catch (IOException e)
+		{
+			log.warn("Failed to clean up staging directory of {}", catalog, e);
+		}
+		try
+		{
 			Path finalDir = Paths.get(workspaceRoot, catalog);
-			Paths.get(workspaceRoot, STAGING, catalog).toFile().deleteOnExit();
 			if (!finalDir.toFile().exists())
 				return;
 			removeFilesFromFinalDestinationWhichAreNotReplacedByNewOne(downloadedFilesName, finalDir);
@@ -227,6 +254,16 @@ public class RemoteLogoCacheDownloader
 		catch (IOException e)
 		{
 			log.error("Failed while cleaning images from final destination", e);
+		}
+	}
+
+	private static void deleteDirectoryRecursively(Path dir) throws IOException
+	{
+		if (!Files.exists(dir))
+			return;
+		try (Stream<Path> paths = Files.walk(dir))
+		{
+			paths.sorted(Comparator.reverseOrder()).forEach(RemoteLogoCacheDownloader::deleteCachedLogoFileIfExists);
 		}
 	}
 
@@ -247,9 +284,15 @@ public class RemoteLogoCacheDownloader
 		try (Stream<Path> paths = Files.walk(finalDir))
 		{
 			paths.filter(Files::isRegularFile)
-					.filter(path -> savedFilesBasedNames.stream().noneMatch(name -> path.getFileName().toString().startsWith(name)))
+					.filter(path -> savedFilesBasedNames.stream().noneMatch(name -> isFileOfBasename(path, name)))
 					.forEach(RemoteLogoCacheDownloader::deleteCachedLogoFileIfExists);
 		}
+	}
+
+	private static boolean isFileOfBasename(Path path, String basename)
+	{
+		String fileName = path.getFileName().toString();
+		return fileName.equals(basename) || fileName.startsWith(basename + ".");
 	}
 
 	private Set<String> downloadFiles(String catalog, LogoCacheKey key, Map<String, String> logosByLocale, String httpsTruststore)

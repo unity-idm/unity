@@ -75,43 +75,43 @@ public class CachedLogoFileLoaderTest
 	public void shouldReturnLocalizedFileWhenPointerForRequestedLocaleExists() throws IOException
 	{
 		Files.createDirectories(catalogDir);
-		writePointerFile("provider1de", "png");
+		writePointerFile("provider1~de", "png");
 
 		Optional<java.io.File> result = tested.getFile("samlIdpLogos", "federation1", key, Locale.forLanguageTag("de"));
 
 		assertThat(result).isPresent();
-		assertThat(result.get().toPath()).isEqualTo(catalogDir.resolve("provider1de.png"));
+		assertThat(result.get().toPath()).isEqualTo(catalogDir.resolve("provider1~de.png"));
 	}
 
 	@Test
 	public void shouldFallBackToDefaultLocaleWhenLocalizedPointerIsMissing() throws IOException
 	{
 		Files.createDirectories(catalogDir);
-		writePointerFile("provider1en", "jpeg");
+		writePointerFile("provider1~en", "jpeg");
 
 		Optional<java.io.File> result = tested.getFile("samlIdpLogos", "federation1", key, Locale.forLanguageTag("de"));
 
 		assertThat(result).isPresent();
-		assertThat(result.get().toPath()).isEqualTo(catalogDir.resolve("provider1en.jpeg"));
+		assertThat(result.get().toPath()).isEqualTo(catalogDir.resolve("provider1~en.jpeg"));
 	}
 
 	@Test
 	public void shouldFallBackToDefaultLocaleWhenRequestedLocaleIsNull() throws IOException
 	{
 		Files.createDirectories(catalogDir);
-		writePointerFile("provider1en", "gif");
+		writePointerFile("provider1~en", "gif");
 
 		Optional<java.io.File> result = tested.getFile("samlIdpLogos", "federation1", key, null);
 
 		assertThat(result).isPresent();
-		assertThat(result.get().toPath()).isEqualTo(catalogDir.resolve("provider1en.gif"));
+		assertThat(result.get().toPath()).isEqualTo(catalogDir.resolve("provider1~en.gif"));
 	}
 
 	@Test
 	public void shouldReturnEmptyWhenNeitherLocalizedNorDefaultPointerExists() throws IOException
 	{
 		Files.createDirectories(catalogDir);
-		writePointerFile("provider1fr", "png");
+		writePointerFile("provider1~fr", "png");
 
 		Optional<java.io.File> result = tested.getFile("samlIdpLogos", "federation1", key, Locale.forLanguageTag("de"));
 

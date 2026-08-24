@@ -97,10 +97,10 @@ public class RemoteLogoCacheDownloaderTest
 				.join();
 
 		Path catalog = catalogDir("samlIdpLogos", "federation1");
-		assertThat(catalog.resolve("provider1en")).exists();
-		assertThat(readString(catalog.resolve("provider1en"))).isEqualTo("png");
-		assertThat(catalog.resolve("provider1en.png")).exists();
-		assertThat(readBytes(catalog.resolve("provider1en.png"))).isEqualTo(pngBytes("imageBytes"));
+		assertThat(catalog.resolve("provider1~en")).exists();
+		assertThat(readString(catalog.resolve("provider1~en"))).isEqualTo("png");
+		assertThat(catalog.resolve("provider1~en.png")).exists();
+		assertThat(readBytes(catalog.resolve("provider1~en.png"))).isEqualTo(pngBytes("imageBytes"));
 	}
 
 	@Test
@@ -112,7 +112,7 @@ public class RemoteLogoCacheDownloaderTest
 		tested.downloadLogoFilesAsync("samlIdpLogos", "federation1", Map.of(key, Map.of("", dataURI)), "MAIN")
 				.join();
 
-		assertThat(catalogDir("samlIdpLogos", "federation1").resolve("provider1en.png")).doesNotExist();
+		assertThat(catalogDir("samlIdpLogos", "federation1").resolve("provider1~en.png")).doesNotExist();
 	}
 
 	@Test
@@ -127,7 +127,7 @@ public class RemoteLogoCacheDownloaderTest
 		smallLimitTested.downloadLogoFilesAsync("samlIdpLogos", "federation1", Map.of(key, Map.of("", dataURI)), "MAIN")
 				.join();
 
-		assertThat(catalogDir("samlIdpLogos", "federation1").resolve("provider1en.png")).doesNotExist();
+		assertThat(catalogDir("samlIdpLogos", "federation1").resolve("provider1~en.png")).doesNotExist();
 	}
 
 	@Test
@@ -143,8 +143,8 @@ public class RemoteLogoCacheDownloaderTest
 				Map.of(key, Map.of("", "https://example.com/logo")), "MAIN").join();
 
 		Path catalog = catalogDir("oauthFederationLogos", "federation1");
-		assertThat(catalog.resolve("provider1en.jpeg")).exists();
-		assertThat(readBytes(catalog.resolve("provider1en.jpeg"))).isEqualTo(jpegBytes("content"));
+		assertThat(catalog.resolve("provider1~en.jpeg")).exists();
+		assertThat(readBytes(catalog.resolve("provider1~en.jpeg"))).isEqualTo(jpegBytes("content"));
 	}
 
 	@Test
@@ -172,7 +172,7 @@ public class RemoteLogoCacheDownloaderTest
 				Map.of(key, Map.of("", "http://127.0.0.1/logo.png")), "MAIN").join();
 
 		verify(uriAccessService, never()).readURL(any(), any(), any(), any(), anyInt(), anyLong());
-		assertThat(catalogDir("oauthFederationLogos", "federation1").resolve("provider1en.png")).doesNotExist();
+		assertThat(catalogDir("oauthFederationLogos", "federation1").resolve("provider1~en.png")).doesNotExist();
 	}
 
 	@Test
@@ -185,7 +185,7 @@ public class RemoteLogoCacheDownloaderTest
 		tested.downloadLogoFilesAsync("oauthFederationLogos", "federation1",
 				Map.of(key, Map.of("", "http://127.0.0.1/logo.png")), "MAIN").join();
 
-		assertThat(catalogDir("oauthFederationLogos", "federation1").resolve("provider1en.png")).exists();
+		assertThat(catalogDir("oauthFederationLogos", "federation1").resolve("provider1~en.png")).exists();
 	}
 
 	@Test
@@ -200,7 +200,7 @@ public class RemoteLogoCacheDownloaderTest
 				Map.of(key, Map.of("", "https://example.com/logo")), "customTruststore").join();
 
 		verify(uriAccessService).readURL(any(), eq("customTruststore"), any(Duration.class), any(Duration.class), anyInt(), anyLong());
-		assertThat(catalogDir("oauthFederationLogos", "federation1").resolve("provider1en.png")).exists();
+		assertThat(catalogDir("oauthFederationLogos", "federation1").resolve("provider1~en.png")).exists();
 	}
 
 	@Test
@@ -216,7 +216,7 @@ public class RemoteLogoCacheDownloaderTest
 				.join())
 				.doesNotThrowAnyException();
 
-		assertThat(catalogDir("oauthFederationLogos", "federation1").resolve("provider1en.png")).doesNotExist();
+		assertThat(catalogDir("oauthFederationLogos", "federation1").resolve("provider1~en.png")).doesNotExist();
 	}
 
 	@Test
@@ -225,8 +225,8 @@ public class RemoteLogoCacheDownloaderTest
 		LogoCacheKey key = () -> "provider1";
 		Path catalog = catalogDir("oauthFederationLogos", "federation1");
 		Files.createDirectories(catalog);
-		Files.writeString(catalog.resolve("provider1en"), "png", StandardCharsets.UTF_8);
-		Files.write(catalog.resolve("provider1en.png"), "oldContent".getBytes(StandardCharsets.UTF_8));
+		Files.writeString(catalog.resolve("provider1~en"), "png", StandardCharsets.UTF_8);
+		Files.write(catalog.resolve("provider1~en.png"), "oldContent".getBytes(StandardCharsets.UTF_8));
 
 		when(uriAccessService.readURL(any(), any(), any(Duration.class), any(Duration.class), anyInt(), anyLong()))
 				.thenThrow(new RuntimeException("simulated network failure"));
@@ -234,8 +234,8 @@ public class RemoteLogoCacheDownloaderTest
 		tested.downloadLogoFilesAsync("oauthFederationLogos", "federation1",
 				Map.of(key, Map.of("", "https://example.com/logo")), "MAIN").join();
 
-		assertThat(catalog.resolve("provider1en.png")).exists();
-		assertThat(readBytes(catalog.resolve("provider1en.png"))).isEqualTo("oldContent".getBytes(StandardCharsets.UTF_8));
+		assertThat(catalog.resolve("provider1~en.png")).exists();
+		assertThat(readBytes(catalog.resolve("provider1~en.png"))).isEqualTo("oldContent".getBytes(StandardCharsets.UTF_8));
 	}
 
 	@Test
@@ -254,7 +254,7 @@ public class RemoteLogoCacheDownloaderTest
 
 		assertThat(catalog.resolve("removedProviderEn")).doesNotExist();
 		assertThat(catalog.resolve("removedProviderEn.png")).doesNotExist();
-		assertThat(catalog.resolve("provider1en.png")).exists();
+		assertThat(catalog.resolve("provider1~en.png")).exists();
 	}
 
 	@Test
@@ -262,8 +262,8 @@ public class RemoteLogoCacheDownloaderTest
 	{
 		Path catalog = catalogDir("oauthFederationLogos", "federation1");
 		Files.createDirectories(catalog);
-		Files.writeString(catalog.resolve("provider1en"), "jpeg", StandardCharsets.UTF_8);
-		Files.write(catalog.resolve("provider1en.jpeg"), "oldPng".getBytes(StandardCharsets.UTF_8));
+		Files.writeString(catalog.resolve("provider1~en"), "jpeg", StandardCharsets.UTF_8);
+		Files.write(catalog.resolve("provider1~en.jpeg"), "oldPng".getBytes(StandardCharsets.UTF_8));
 
 		LogoCacheKey key = () -> "provider1";
 		String dataURI = "data:image/png;base64," + base64(pngBytes("newPng"));
@@ -271,9 +271,9 @@ public class RemoteLogoCacheDownloaderTest
 		tested.downloadLogoFilesAsync("oauthFederationLogos", "federation1", Map.of(key, Map.of("", dataURI)), "MAIN")
 				.join();
 
-		assertThat(catalog.resolve("provider1en.jpeg")).doesNotExist();
-		assertThat(catalog.resolve("provider1en.png")).exists();
-		assertThat(readString(catalog.resolve("provider1en"))).isEqualTo("png");
+		assertThat(catalog.resolve("provider1~en.jpeg")).doesNotExist();
+		assertThat(catalog.resolve("provider1~en.png")).exists();
+		assertThat(readString(catalog.resolve("provider1~en"))).isEqualTo("png");
 	}
 
 	@Test
@@ -319,8 +319,8 @@ public class RemoteLogoCacheDownloaderTest
 		futureB.get(5, TimeUnit.SECONDS);
 
 		Path catalog = catalogDir("oauthFederationLogos", "federation1");
-		assertThat(readBytes(catalog.resolve("stableen.png"))).isEqualTo(pngBytes("fromB"));
-		assertThat(catalog.resolve("slowen.png")).doesNotExist();
+		assertThat(readBytes(catalog.resolve("stable~en.png"))).isEqualTo(pngBytes("fromB"));
+		assertThat(catalog.resolve("slow~en.png")).doesNotExist();
 	}
 
 	private Path catalogDir(String cacheGroup, String namespaceId)
