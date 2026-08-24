@@ -84,6 +84,38 @@ class JwtClientAssertionVerifierTest
 	}
 
 	@Test
+	void shouldRejectSubjectNotMatchingClientId() throws Exception
+	{
+		Date now = new Date();
+		JWTClaimsSet claims = new JWTClaimsSet.Builder()
+				.subject("someone-else").issuer(CLIENT_ID).audience(TOKEN_URI.toString())
+				.issueTime(now).expirationTime(new Date(now.getTime() + 60_000))
+				.jwtID(UUID.randomUUID().toString())
+				.build();
+		SignedJWT jwt = sign(claims);
+
+		assertThatThrownBy(() -> verifier.verifyJwt(jwt, jwkSet, TOKEN_URI, CLIENT_ID))
+				.isInstanceOf(AuthenticationException.class)
+				.hasMessageContaining("subject");
+	}
+
+	@Test
+	void shouldRejectMissingSubject() throws Exception
+	{
+		Date now = new Date();
+		JWTClaimsSet claims = new JWTClaimsSet.Builder()
+				.issuer(CLIENT_ID).audience(TOKEN_URI.toString())
+				.issueTime(now).expirationTime(new Date(now.getTime() + 60_000))
+				.jwtID(UUID.randomUUID().toString())
+				.build();
+		SignedJWT jwt = sign(claims);
+
+		assertThatThrownBy(() -> verifier.verifyJwt(jwt, jwkSet, TOKEN_URI, CLIENT_ID))
+				.isInstanceOf(AuthenticationException.class)
+				.hasMessageContaining("subject");
+	}
+
+	@Test
 	void shouldRejectMissingIat() throws Exception
 	{
 		Date now = new Date();
@@ -229,6 +261,27 @@ class JwtClientAssertionVerifierTest
 
 		assertThatCode(() -> verifier.verifyJwt(jwt, jwkSet, TOKEN_URI, CLIENT_ID))
 				.doesNotThrowAnyException();
+	}
+
+	@Test
+	void shouldStillEnforceReplayGuardAfterReconfiguration() throws Exception
+	{
+		SignedJWT first = buildValidJwt(UUID.randomUUID().toString());
+		assertThatCode(() -> verifier.verifyJwt(first, jwkSet, TOKEN_URI, CLIENT_ID))
+				.doesNotThrowAnyException();
+
+		verifier.setClockSkew(Duration.ofSeconds(45));
+		verifier.setMaxAssertionLifetime(Duration.ofMinutes(10));
+
+		String jti = UUID.randomUUID().toString();
+		SignedJWT jwt = buildValidJwt(jti);
+		assertThatCode(() -> verifier.verifyJwt(jwt, jwkSet, TOKEN_URI, CLIENT_ID))
+				.doesNotThrowAnyException();
+
+		SignedJWT replay = buildValidJwt(jti);
+		assertThatThrownBy(() -> verifier.verifyJwt(replay, jwkSet, TOKEN_URI, CLIENT_ID))
+				.isInstanceOf(AuthenticationException.class)
+				.hasMessageContaining("already been used");
 	}
 
 	@Test
