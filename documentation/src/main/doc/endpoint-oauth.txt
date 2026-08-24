@@ -120,7 +120,7 @@ Unlike most Unity authenticators, +private-key-jwt+ is backed by a local *creden
 +Client public keys+ type) rather than a configuration file: the referenced local credential
 (+sys:oauth-private-key-jwt+ above, any name can be used) must be assigned to the client entity's credential
 requirement, and its value - the client's JWKS - set on the client entity (e.g. from the Console), exactly as
-a password or certificate credential would be. Once a client is configured this way, and its
+a password credential would be. Once a client is configured this way, and its
 +sys:oauth:clientAuthnMethod+ attribute is set to +private_key_jwt+, it can authenticate to the token endpoint
 by presenting a signed JWT assertion instead of its +clientSecret+.
 
