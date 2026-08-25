@@ -111,7 +111,7 @@ public class RemoteLogoCacheDownloader implements DisposableBean
 	public CompletableFuture<Void> downloadLogoFilesAsync(String cacheGroup, String namespaceId,
 			Map<? extends LogoCacheKey, Map<String, String>> logosByKeyAndLocale, String httpsTruststore)
 	{
-		String dedupKey = cacheGroup + "/" + namespaceId;
+		String dedupKey = cacheGroup + " [" + namespaceId + "]";
 		RefreshCoordinator coordinator = coordinatorsByKey.computeIfAbsent(dedupKey,
 				k -> new RefreshCoordinator(dedupKey, catalog(cacheGroup, namespaceId)));
 		return coordinator.submit(logosByKeyAndLocale, httpsTruststore);
