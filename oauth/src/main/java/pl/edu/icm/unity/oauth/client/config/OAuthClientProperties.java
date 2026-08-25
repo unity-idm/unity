@@ -68,8 +68,10 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 
 	static
 	{
-		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setCanHaveSubkeys().setMandatory().
-				setDescription("Prefix, under which the available oauth providers are defined."));
+		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setCanHaveSubkeys().
+				setDescription("Prefix, under which the available oauth providers are defined. "
+						+ "Can be empty when relying solely on providers discovered via an OpenID Federation "
+						+ "(see " + FEDERATION_MEMBERSHIP_ENABLED + ")."));
 		META.put(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION, new PropertyMD("true").
 				setDescription("Default setting allowing to globally control whether "
 				+ "account association feature is enabled. "
