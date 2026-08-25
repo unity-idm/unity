@@ -319,6 +319,9 @@ public class RemoteLogoCacheDownloader implements DisposableBean
 				downloadFile(catalog, name, uri, httpsTruststore);
 
 			log.trace("Logo file with uri {} was downloaded to {}", logoURI, name);
+		} catch (SsrfProtection.BlockedDestinationException e)
+		{
+			log.warn("Blocked fetching logo {} ({}) - SSRF protection: {}", name, logoURI, e.getMessage());
 		} catch (Exception e)
 		{
 			String cause = e.getCause() != null ? e.getCause().getMessage() : "-";
