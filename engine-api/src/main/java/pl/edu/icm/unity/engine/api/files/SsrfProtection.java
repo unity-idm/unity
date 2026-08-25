@@ -40,8 +40,22 @@ public class SsrfProtection
 		}
 		for (InetAddress address : addresses)
 			if (isInternal(address))
-				throw new IOException("Destination " + address.getHostAddress() + " (resolved from " + host
-						+ ") is not a permitted public network address");
+				throw new BlockedDestinationException("Destination " + address.getHostAddress() + " (resolved from "
+						+ host + ") is not a permitted public network address");
+	}
+
+	/**
+	 * Thrown specifically when a destination was resolved and rejected as internal/non-public - as
+	 * opposed to other {@link IOException}s this method throws (unsupported scheme, unresolvable host),
+	 * which are not themselves indicative of an SSRF attempt. Callers can catch this type to give SSRF
+	 * blocks distinct, more visible logging than ordinary network failures.
+	 */
+	public static class BlockedDestinationException extends IOException
+	{
+		public BlockedDestinationException(String message)
+		{
+			super(message);
+		}
 	}
 
 	private static boolean isInternal(InetAddress address)
