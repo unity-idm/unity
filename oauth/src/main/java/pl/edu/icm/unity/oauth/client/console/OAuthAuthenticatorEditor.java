@@ -44,6 +44,8 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.BinderValidationStatus;
+import com.vaadin.flow.data.binder.BindingValidationStatus;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.validator.IntegerRangeValidator;
 
@@ -543,18 +545,29 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 	private String getConfiguration() throws FormValidationException
 	{
-		if (configBinder.validate().hasErrors())
-			throw new FormValidationException();
-
-		List<OAuthProviderConfiguration> providersConfigs = configBinder.getBean().getProviders();
-
-		if (providersConfigs.isEmpty())
+		BinderValidationStatus<OAuthConfiguration> status = configBinder.validate();
+		if (status.hasErrors())
 		{
-			providersComponent.setErrorMessage(msg.getMessage("OAuthAuthenticatorEditor.emptyProvidersError"));
-			throw new FormValidationException();
+			String details = status.getFieldValidationErrors().stream()
+					.map(BindingValidationStatus::getMessage)
+					.filter(Optional::isPresent)
+					.map(Optional::get)
+					.filter(m -> !m.isBlank())
+					.distinct()
+					.collect(Collectors.joining(", "));
+			throw new FormValidationException(details.isBlank() ? null : details);
 		}
 
 		OAuthConfiguration config = configBinder.getBean();
+		List<OAuthProviderConfiguration> providersConfigs = config.getProviders();
+
+		if (providersConfigs.isEmpty() && !config.isFederationMembershipEnabled())
+		{
+			String message = msg.getMessage("OAuthAuthenticatorEditor.emptyProvidersError");
+			providersComponent.setErrorMessage(message);
+			throw new FormValidationException(message);
+		}
+
 		try
 		{
 			return config.toProperties(msg, pkiMan, fileStorageService, getName());
