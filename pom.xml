@@ -20,7 +20,7 @@
 		<slf4j.version>2.0.18</slf4j.version>
 		<log4j.version>2.26.1</log4j.version>
 		<spring.version>6.2.19</spring.version>
-		<vaadin.version>24.9.20</vaadin.version>
+		<vaadin.version>24.9.18</vaadin.version>
 		<cxf.version>4.2.3</cxf.version>
 		<apacheds.version>2.0.0.AM27</apacheds.version>
 		<bc.version>1.84</bc.version>
