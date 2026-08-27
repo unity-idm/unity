@@ -27,6 +27,9 @@ For patch/revision mode, read [references/patch-mode.md](references/patch-mode.m
 - [references/full-mode.md](references/full-mode.md)
 - [references/dependency-policy.md](references/dependency-policy.md)
 
+For any Vaadin candidate in either mode, also read the **Vaadin free-release requirement** in
+[references/dependency-policy.md](references/dependency-policy.md).
+
 ## Guardrails
 
 - Work from the checkout root containing the master `pom.xml`; read and follow its `AGENTS.md` first.
@@ -37,6 +40,10 @@ For patch/revision mode, read [references/patch-mode.md](references/patch-mode.m
   dependency updating.
 - Use release versions only. Honor the root POM's Versions Plugin configuration and `version-rules.xml`; do not
   bypass ignored-version rules merely to reach a newer number.
+- For Vaadin, use only freely usable releases. Never select or retain a release that Vaadin identifies as
+  commercial or that requires a paid Vaadin license for building or running the application. This requirement is
+  unconditional, applies in every mode, and cannot be overridden by a request for the "latest" version. Resolve the
+  newest free release as specified in `references/dependency-policy.md`.
 - Treat one version property or BOM as one logical library even when it controls several artifacts. Deduplicate
   property, dependency, and plugin report entries before editing or prompting.
 - Interpret patch/minor/major using Maven's version comparison and the existing version line. If a version scheme is
