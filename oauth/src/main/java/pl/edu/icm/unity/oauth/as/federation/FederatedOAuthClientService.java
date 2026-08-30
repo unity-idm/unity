@@ -232,7 +232,14 @@ public class FederatedOAuthClientService
 				.submit(new PendingLogoUpdate(clientId, entityId, oauthGroup, logoUri, truststoreName));
 	}
 
-	private record PendingLogoUpdate(String clientId, long entityId, String oauthGroup, URI logoUri, String truststoreName) {}
+	private record PendingLogoUpdate(
+			String clientId,
+			long entityId,
+			String oauthGroup,
+			URI logoUri,
+			String truststoreName)
+	{
+	}
 
 	private final class LogoRefreshCoordinator
 	{
