@@ -8,6 +8,7 @@ package pl.edu.icm.unity.engine.project;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -38,8 +39,12 @@ import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementPresentationType;
 import pl.edu.icm.unity.base.registration.BaseFormNotifications;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
+import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.base.registration.layout.FormLayout;
+import pl.edu.icm.unity.base.registration.layout.FormLayoutElement;
+import pl.edu.icm.unity.base.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
@@ -242,6 +247,30 @@ public class TestGroupDelegationConfigGenerator extends TestProjectBase
 
 		List<String> errors = generator.validateUpdateEnquiryForm("/A", "aenSuffix");
 		assertThat(errors.size()).isEqualTo(0);
+	}
+
+	@Test
+	public void shouldUpdateCustomEnquiryLayoutWhenProjectPoliciesAreReset() throws EngineException
+	{
+		when(mockPolicyDocumentDB.getByKey(2L)).thenReturn(new StoredPolicyDocument(2L, "Policy"));
+		EnquiryForm form = new EnquiryFormBuilder()
+				.withName("aenSuffix")
+				.withTargetGroups(new String[] { "/" })
+				.withType(EnquiryForm.EnquiryType.STICKY)
+				.withAddedGroupParam()
+				.withGroupPath("/A/?*/**")
+				.endGroupParam()
+				.withLayout(new FormLayout(List.of(new FormParameterElement(FormLayoutElement.GROUP, 0))))
+				.build();
+		when(mockEnqFormDB.get(eq("aenSuffix"))).thenReturn(form);
+
+		generator.resetFormsPolicies("aenSuffix", FormType.ENQUIRY, List.of(2L));
+
+		assertThat(form.getPolicyAgreements()).hasSize(1);
+		assertThat(form.getLayout().getElements()).containsExactly(
+				new FormParameterElement(FormLayoutElement.GROUP, 0),
+				new FormParameterElement(FormLayoutElement.POLICY_AGREEMENT, 0));
+		verify(mockEnqFormDB).update(form);
 	}
 
 	@Test

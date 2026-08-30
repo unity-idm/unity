@@ -36,6 +36,7 @@ import pl.edu.icm.unity.base.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.base.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.base.registration.FormLayoutUtils;
 import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.base.registration.ParameterRetrievalSettings;
@@ -426,6 +427,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 			for (Long policyDocumentId : projectPolicyDocumentsIds) {
 				addPolicyParam(form.getPolicyAgreements(), policyDocumentId);
 			}
+			FormLayoutUtils.updateRegistrationFormLayout(form.getFormLayouts(), form);
 			regFormDB.update(form);
 		}
 		else if (formType.equals(FormType.ENQUIRY))
@@ -435,6 +437,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 			for (Long policyDocumentId : projectPolicyDocumentsIds) {
 				addPolicyParam(form.getPolicyAgreements(), policyDocumentId);
 			}
+			FormLayoutUtils.updateEnquiryLayout(form.getLayout(), form);
 			enqFormDB.update(form);
 		}
 		
