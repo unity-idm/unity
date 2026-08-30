@@ -74,7 +74,6 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private PKIManagement pkiManagement;
 	private OAuthASProperties config;
 	private OAuthEndpointsCoordinator coordinator;
-	private final EntityManagement identitiesMan;
 	private final OAuthScopesService scopeService;
 	private final AccessTokenResourceFactory accessTokenResourceFactory;
 	private final OAuthAccessTokenRepository accessTokenRepository;
@@ -82,12 +81,14 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private final TokenIntrospectionResourceFactory tokenIntrospectionResourceFactory;
 	private final OAuthRequestValidatorFactory requestValidatorFactory;
 	private final DeviceCodeRepository deviceCodeRepository;
+	private final EntityManagement unsecureIdentitiesMan;
 
 
 	@Autowired
 	public OAuthTokenEndpoint(MessageSource msg, SessionManagement sessionMan, NetworkServer server,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, AuthenticationProcessor authnProcessor,
-			EntityManagement identitiesMan, @Qualifier("insecure") AttributesManagement attributesMan,
+			EntityManagement identitiesMan, @Qualifier("insecure")  EntityManagement unsecureIdentitiesMan,
+			@Qualifier("insecure") AttributesManagement attributesMan,
 			@Qualifier("insecure") IdPEngine idPEngine, TokensManagement tokensManagement,
 			OAuthAccessTokenRepository accessTokenRepository, OAuthRefreshTokenRepository refreshTokenRepository,
 			AdvertisedAddressProvider advertisedAddrProvider, OAuthScopesService scopeService,
@@ -98,7 +99,6 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
 		this.pkiManagement = pkiManagement;
 		this.coordinator = coordinator;
-		this.identitiesMan = identitiesMan;
 		this.accessTokenRepository = accessTokenRepository;
 		this.refreshTokenRepository = refreshTokenRepository;
 		this.scopeService = scopeService;
@@ -106,6 +106,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.tokenIntrospectionResourceFactory = tokenIntrospectionResourceFactory;
 		this.requestValidatorFactory = requestValidatorFactory;
 		this.deviceCodeRepository = deviceCodeRepository;
+		this.unsecureIdentitiesMan = unsecureIdentitiesMan;
 	}
 	
 	@Override
@@ -145,7 +146,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			ret.add(new DiscoveryResource(config, coordinator, scopeService));
 			ret.add(new OAuthASFederationEntityStatementResource(config, coordinator, scopeService, pkiManagement));
 			ret.add(new DeviceAuthorizationResource(config, coordinator,
-					requestValidatorFactory.getOAuthRequestValidator(config), identitiesMan, deviceCodeRepository));
+					requestValidatorFactory.getOAuthRequestValidator(config), unsecureIdentitiesMan, deviceCodeRepository));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(accessTokenRepository));
 			ret.add(tokenIntrospectionResourceFactory.getTokenIntrospection(config));

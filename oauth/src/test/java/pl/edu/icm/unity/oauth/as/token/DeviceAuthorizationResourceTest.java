@@ -144,6 +144,37 @@ public class DeviceAuthorizationResourceTest
 	}
 
 	@Test
+	public void shouldRejectConfidentialClientWithoutSession() throws Exception
+	{
+		setupUnauthenticated();
+		setupClient(42, "device1", "CONFIDENTIAL", GrantFlow.deviceCode);
+
+		Response resp = tested.deviceAuthorization("device1", null);
+
+		assertEquals(401, resp.getStatus());
+		assertEquals("invalid_client", getError(resp));
+	}
+
+	@Test
+	public void shouldNotRequireAuthenticatedSessionForPublicClient() throws Exception
+	{
+		// regression test: a genuinely anonymous caller (no InvocationContext login session at
+		// all, matching how the REST layer handles the optionally-authenticated
+		// /device_authorization path when no credentials are sent) must still be able to resolve
+		// a public client's identity/attributes. Historically this required entity/attribute
+		// lookups guarded by AuthzCapability.read, which throw (or NPE via isSelf()) once there is
+		// no login session - the fix routes these lookups through Spring's "insecure"-qualified
+		// EntityManagement/AttributesManagement beans instead.
+		setupUnauthenticated();
+		assertThat(InvocationContext.getCurrent().getLoginSession()).isNull();
+		setupClient(42, "device1", "PUBLIC", GrantFlow.deviceCode);
+
+		Response resp = tested.deviceAuthorization("device1", null);
+
+		assertEquals(200, resp.getStatus());
+	}
+
+	@Test
 	public void shouldRecordRequestedScopeOnStoredToken() throws Exception
 	{
 		setupUnauthenticated();
@@ -167,6 +198,11 @@ public class DeviceAuthorizationResourceTest
 
 	private void setupClient(long entityId, String username, GrantFlow... allowedFlows)
 	{
+		setupClient(entityId, username, "PUBLIC", allowedFlows);
+	}
+
+	private void setupClient(long entityId, String username, String clientType, GrantFlow... allowedFlows)
+	{
 		Entity entity = mock(Entity.class);
 		when(entity.getId()).thenReturn(entityId);
 		try
@@ -186,7 +222,7 @@ public class DeviceAuthorizationResourceTest
 
 		AttributeExt clientTypeAttr = mock(AttributeExt.class);
 		when(clientTypeAttr.getName()).thenReturn(OAuthSystemAttributesProvider.CLIENT_TYPE);
-		when(clientTypeAttr.getValues()).thenReturn(List.of("PUBLIC"));
+		when(clientTypeAttr.getValues()).thenReturn(List.of(clientType));
 
 		try
 		{

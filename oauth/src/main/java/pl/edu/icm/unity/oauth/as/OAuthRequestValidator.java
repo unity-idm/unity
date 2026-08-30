@@ -217,7 +217,7 @@ public class OAuthRequestValidator
 		private final OAuthScopesService scopeService;
 		
 		@Autowired
-		public OAuthRequestValidatorFactory(EntityManagement identitiesMan, @Qualifier("insecure") AttributesManagement attributesMan,
+		public OAuthRequestValidatorFactory(@Qualifier("insecure") EntityManagement identitiesMan, @Qualifier("insecure") AttributesManagement attributesMan,
 				OAuthScopesService scopeService)
 		{	
 			this.identitiesMan = identitiesMan;
