@@ -26,6 +26,7 @@ class OAuthFederationSourceHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthFederationSourceHandler.class);
 	private static final Duration RERUN_INTERVAL = Duration.ofSeconds(30);
+	private static final Duration INITIAL_DELAY = Duration.ofSeconds(3);
 
 	private final OAuthFederationLoader loader;
 	private final Map<String, ConsumerEntry> consumers = new LinkedHashMap<>();
@@ -45,8 +46,11 @@ class OAuthFederationSourceHandler
 		boolean wasEmpty = consumers.isEmpty();
 		consumers.put(id, new ConsumerEntry(id, refreshInterval, config, consumer));
 		if (scheduledTask == null)
+			// a short but non-zero initial delay: 0 would race a same-JVM trust anchor (e.g. this
+			// server federating with itself) whose HTTP listener isn't bound yet at authenticator
+			// configuration time, causing a connection-refused on every restart
 			scheduledTask = scheduler.scheduleWithFixedDelay(this::refresh,
-					RERUN_INTERVAL.toSeconds(), RERUN_INTERVAL.toSeconds(), TimeUnit.SECONDS);
+					INITIAL_DELAY.toSeconds(), RERUN_INTERVAL.toSeconds(), TimeUnit.SECONDS);
 		else if (wasEmpty)
 			lastRefresh = Instant.EPOCH;
 	}

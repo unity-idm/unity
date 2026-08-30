@@ -85,7 +85,7 @@ class OAuthFederationSourceHandlerTest
 		{
 		});
 
-		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(30L), eq(30L), eq(TimeUnit.SECONDS));
+		verify(scheduler).scheduleWithFixedDelay(any(Runnable.class), eq(3L), eq(30L), eq(TimeUnit.SECONDS));
 	}
 
 	@Test
