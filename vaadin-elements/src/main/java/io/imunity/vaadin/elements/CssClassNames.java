@@ -33,6 +33,8 @@ public enum CssClassNames
 	WARN_BACKGROUND("u-warn-bg"),
 	MONOSPACE("u-monospace"),
 	DEVICE_CODE("u-device-code"),
+	DEVICE_SIGNIN_CARD("u-device-signin-card"),
+	HINT_TEXT("u-hint-text"),
 	BIG_VAADIN_FORM_ITEM_LABEL("u-big-vaadin-form-item"),
 	MEDIUM_VAADIN_FORM_ITEM_LABEL("u-medium-vaadin-form-item"),	
 	SMALL_VAADIN_FORM_ITEM_LABEL("u-small-vaadin-form-item"),
