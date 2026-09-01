@@ -14,6 +14,7 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
@@ -54,6 +55,7 @@ import pl.edu.icm.unity.oauth.as.DeviceCodeToken;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.devicesignin.DeviceCodeTransitionService.TransitionResult;
+import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWorkflowPreparer.ClientInfo;
 import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWorkflowPreparer.ConsentPresentation;
 import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWorkflowPreparer.ResolveError;
 import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWorkflowPreparer.ResolveResult;
@@ -131,22 +133,42 @@ class DeviceSignInView extends UnityViewComponent
 		});
 	}
 
+	/**
+	 * Deliberately shares its CSS hook classes and card layout with {@link #showConfirmCodeForm} /
+	 * {@link DeviceSignInConsentScreen} for a visually consistent flow, even though the client isn't
+	 * known yet at this step (no code has been resolved), so no logo/name header is shown here.
+	 */
 	private void showCodeEntryForm()
 	{
 		VerticalLayout layout = new VerticalLayout();
+		layout.setMargin(false);
+		layout.setSpacing(false);
 		layout.setAlignItems(Alignment.CENTER);
-		H2 title = new H2(msg.getMessage("DeviceSignIn.connectDeviceTitle"));
-		Span description = new Span(msg.getMessage("DeviceSignIn.connectDeviceDescription"));
 
+		VerticalLayout contents = new VerticalLayout();
+		contents.addClassName("u-consentMainColumn");
+		contents.setAlignItems(Alignment.CENTER);
+		contents.addClassName(CssClassNames.DEVICE_SIGNIN_CARD.getName());
+		layout.add(contents);
+
+		contents.add(new H2(msg.getMessage("DeviceSignIn.connectDeviceTitle")));
+		contents.add(new Span(msg.getMessage("DeviceSignIn.connectDeviceDescription")));
+
+		Div codePanel = new Div();
+		codePanel.setClassName("u-consent-screen");
+		contents.add(codePanel);
 		VerticalLayout codeGroup = new VerticalLayout();
 		codeGroup.setAlignItems(Alignment.CENTER);
-		codeGroup.setPadding(false);
-		codeGroup.setSpacing(false);
+		codePanel.add(codeGroup);
 		Span codeLabel = new Span(msg.getMessage("DeviceSignIn.enterCode"));
 		TextField codeField = new TextField();
 		codeGroup.add(codeLabel, codeField);
 
 		Span codeHint = new Span(msg.getMessage("DeviceSignIn.codeHint"));
+		codeHint.addClassName(CssClassNames.HINT_TEXT.getName());
+		contents.add(codeHint);
+		contents.add(new Span(msg.getMessage("DeviceSignIn.codeWarning1")));
+		contents.add(new Span(msg.getMessage("DeviceSignIn.codeWarning2")));
 
 		Button cancel = new Button(msg.getMessage("cancel"), e -> onCancel());
 		cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
@@ -154,11 +176,9 @@ class DeviceSignInView extends UnityViewComponent
 		submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		submit.addClickShortcut(Key.ENTER);
 		HorizontalLayout buttons = new HorizontalLayout(cancel, submit);
+		buttons.setAlignItems(Alignment.CENTER);
+		contents.add(buttons);
 
-		Span warning1 = new Span(msg.getMessage("DeviceSignIn.codeWarning1"));
-		Span warning2 = new Span(msg.getMessage("DeviceSignIn.codeWarning2"));
-
-		layout.add(title, description, codeGroup, codeHint, buttons, warning1, warning2);
 		getContent().removeAll();
 		getContent().add(layout);
 	}
@@ -190,7 +210,7 @@ class DeviceSignInView extends UnityViewComponent
 			this.config = resolved.config();
 			this.activeValueSelectionFilteredAttributes = null;
 			if (confirmCodeStep)
-				showConfirmCodeForm(resolved.parsedToken().getUserCode());
+				prepareAndShowConfirmCodeForm();
 			else
 				startConsentFlow();
 		}
@@ -210,25 +230,62 @@ class DeviceSignInView extends UnityViewComponent
 		};
 	}
 
-	private void showConfirmCodeForm(String userCode)
+	private void prepareAndShowConfirmCodeForm()
+	{
+		try
+		{
+			ClientInfo clientInfo = workflowPreparer.resolveClientInfo(parsedToken.getOauthToken(), config);
+			showConfirmCodeForm(parsedToken.getUserCode(), clientInfo.clientName(), clientInfo.clientLogo());
+		} catch (Exception e)
+		{
+			log.error("Error while preparing the device sign-in confirm code screen", e);
+			showError(msg.getMessage("DeviceSignIn.internalError"));
+		}
+	}
+
+	/**
+	 * Deliberately mirrors {@link DeviceSignInConsentScreen}'s structure (same CSS hook classes,
+	 * client logo+name header) so that the transition into the consent screen right after this one
+	 * changes only the panel content, not the overall layout.
+	 */
+	private void showConfirmCodeForm(String userCode, String clientName, Image clientLogo)
 	{
 		VerticalLayout layout = new VerticalLayout();
+		layout.setMargin(false);
+		layout.setSpacing(false);
 		layout.setAlignItems(Alignment.CENTER);
-		H2 title = new H2(msg.getMessage("DeviceSignIn.confirmCodeTitle"));
-		Span description = new Span(msg.getMessage("DeviceSignIn.confirmCodeDescription"));
 
+		VerticalLayout contents = new VerticalLayout();
+		contents.addClassName("u-consentMainColumn");
+		contents.setAlignItems(Alignment.CENTER);
+		contents.addClassName(CssClassNames.DEVICE_SIGNIN_CARD.getName());
+		layout.add(contents);
+
+		if (clientLogo != null)
+			contents.add(clientLogo);
+		contents.add(new H2(msg.getMessage("DeviceSignIn.confirmCodeTitle")));
+		contents.add(new Span(msg.getMessage("DeviceSignIn.confirmCodeDescription", clientName)));
+
+		Div codePanel = new Div();
+		codePanel.setClassName("u-consent-screen");
+		contents.add(codePanel);
+		VerticalLayout codeLayout = new VerticalLayout();
+		codeLayout.setAlignItems(Alignment.CENTER);
+		codePanel.add(codeLayout);
 		Span code = new Span(userCode);
 		code.addClassName(CssClassNames.DEVICE_CODE.getName());
+		codeLayout.add(code);
+
+		contents.add(new Span(msg.getMessage("DeviceSignIn.confirmCodeWarning")));
 
 		Button cancel = new Button(msg.getMessage("cancel"), e -> onCancel());
 		cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		Button confirm = new Button(msg.getMessage("DeviceSignIn.confirmCodeSubmit"), e -> startConsentFlow());
 		confirm.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		HorizontalLayout buttons = new HorizontalLayout(cancel, confirm);
+		buttons.setAlignItems(Alignment.CENTER);
+		contents.add(buttons);
 
-		Span warning = new Span(msg.getMessage("DeviceSignIn.confirmCodeWarning"));
-
-		layout.add(title, description, code, buttons, warning);
 		getContent().removeAll();
 		getContent().add(layout);
 	}

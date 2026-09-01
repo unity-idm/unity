@@ -165,6 +165,23 @@ class DeviceSignInWorkflowPreparer
 	{
 	}
 
+	record ClientInfo(String clientName, Image clientLogo)
+	{
+	}
+
+	/**
+	 * Resolves the client's displayed name and logo for the given (already resolved) device code, so
+	 * that the code-confirmation screen can show the same client header as the consent screen shown
+	 * right after it.
+	 */
+	ClientInfo resolveClientInfo(OAuthToken oauthToken, OAuthASProperties config) throws Exception
+	{
+		OAuthRequestValidator requestValidator = requestValidatorFactory.getOAuthRequestValidator(config);
+		Map<String, AttributeExt> clientAttributes = requestValidator
+				.getAttributesNoAuthZ(new EntityParam(oauthToken.getClientId()));
+		return clientInfoFrom(oauthToken, clientAttributes);
+	}
+
 	/**
 	 * Resolves the identity and attributes to show on the consent screen for the given (already
 	 * resolved and PENDING) device code, mirroring {@code OAuthProcessor}'s authorization_code
@@ -193,15 +210,22 @@ class DeviceSignInWorkflowPreparer
 			requestedAttributes.addAll(si.scopeDefinition().attributes());
 		Set<DynamicAttribute> attributes = OAuthProcessor.filterAttributes(translationResult, requestedAttributes);
 
-		Image clientLogo = buildClientLogo(clientAttributes);
-		String clientName = oauthToken.getClientName() != null ? oauthToken.getClientName()
-				: oauthToken.getClientUsername();
+		ClientInfo clientInfo = clientInfoFrom(oauthToken, clientAttributes);
 
 		Optional<ActiveValueSelectionConfig> activeValueSelectionConfig = ActiveValueClientHelper
 				.getActiveValueSelectionConfig(config.getActiveValueClients(), oauthToken.getClientUsername(),
 						attributes);
 
-		return new ConsentPresentation(identity, clientName, clientLogo, attributes, activeValueSelectionConfig);
+		return new ConsentPresentation(identity, clientInfo.clientName(), clientInfo.clientLogo(), attributes,
+				activeValueSelectionConfig);
+	}
+
+	private ClientInfo clientInfoFrom(OAuthToken oauthToken, Map<String, AttributeExt> clientAttributes)
+	{
+		Image clientLogo = buildClientLogo(clientAttributes);
+		String clientName = oauthToken.getClientName() != null ? oauthToken.getClientName()
+				: oauthToken.getClientUsername();
+		return new ClientInfo(clientName, clientLogo);
 	}
 
 	private String getUsersGroup(Map<String, AttributeExt> clientAttributes, OAuthASProperties config)
