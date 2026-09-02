@@ -30,10 +30,14 @@ import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.nimbusds.oauth2.sdk.id.Audience;
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.oauth2.sdk.id.Subject;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
@@ -45,13 +49,16 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.DeviceCodeStatus;
 import pl.edu.icm.unity.oauth.as.DeviceCodeToken;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
+import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.RollbackOnThrowTxRunner;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
@@ -311,6 +318,103 @@ public class DeviceCodeHandlerTest
 		Response resp2 = tested.handleDeviceCodeGrant("dc1", "clientC", null);
 		assertEquals(400, resp2.getStatus());
 		assertEquals("invalid_grant", getError(resp2));
+	}
+
+	@Test
+	void shouldIncludeIdTokenInResponseWhenOpenidScopeWasApproved() throws Exception
+	{
+		// reproduces the QA report "no id_token for oidc": exercises the read/attach half of the
+		// chain (DeviceCodeHandler + the shared TokenService), complementing
+		// DeviceCodeTransitionServiceTest which covers the mint/persist half
+		DeviceCodeToken token = buildApprovedToken();
+		token.getOauthToken()
+				.setEffectiveScope(List.of(new RequestedOAuthScope(OAuthSystemScopeProvider.OPENID_SCOPE,
+						ActiveOAuthScopeDefinition.builder()
+								.withName(OAuthSystemScopeProvider.OPENID_SCOPE)
+								.withDescription("openid")
+								.build(),
+						false)));
+		Date now = new Date();
+		IDTokenClaimsSet idTokenClaims = new IDTokenClaimsSet(new Issuer(OAuthTestUtils.ISSUER), new Subject("userA"),
+				List.of(new Audience("clientC")), new Date(now.getTime() + 300_000), now);
+		// signed with a separately-initialized OIDC config: DeviceCodeHandler never signs an id
+		// token itself (that happens earlier, in DeviceCodeTransitionService at consent time), it
+		// only decodes whatever is already stored in openidInfo - this mirrors that division
+		token.getOauthToken()
+				.setOpenidToken(OAuthTestUtils.getOIDCConfig().getTokenSigner().sign(idTokenClaims).serialize());
+		deviceCodeRepository.store("dc1", token, now, new Date(now.getTime() + 60_000));
+
+		Response resp = tested.handleDeviceCodeGrant("dc1", "clientC", null);
+
+		assertEquals(200, resp.getStatus());
+		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
+		httpResp.setBody(resp.getEntity().toString());
+		httpResp.setContentType("application/json");
+		OIDCTokenResponse parsed = OIDCTokenResponse.parse(httpResp);
+		assertThat(parsed.getOIDCTokens().getAccessToken()).isNotNull();
+		assertThat(parsed.getOIDCTokens().getIDToken()).isNotNull();
+		assertEquals("userA", parsed.getOIDCTokens().getIDToken().getJWTClaimsSet().getSubject());
+	}
+
+	@Test
+	void shouldIncludeRefreshTokenWhenOfflineAccessScopeWasApproved() throws Exception
+	{
+		// exercises the default REFRESH_TOKEN_ISSUE_POLICY (OFFLINE_SCOPE_BASED): a refresh_token
+		// must be issued when the client requested and was granted offline_access. Confidential
+		// client on purpose - a PUBLIC client never gets a refresh token here regardless of scope
+		// unless issueRefreshTokensWithRotationForPublicClients is on (a separate, unrelated gate)
+		DeviceCodeToken token = buildApprovedToken();
+		token.getOauthToken().setClientType(ClientType.CONFIDENTIAL);
+		token.getOauthToken()
+				.setEffectiveScope(List.of(new RequestedOAuthScope(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE,
+						ActiveOAuthScopeDefinition.builder()
+								.withName(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE)
+								.withDescription("offline_access")
+								.build(),
+						false)));
+		Date now = new Date();
+		deviceCodeRepository.store("dc1", token, now, new Date(now.getTime() + 60_000));
+		authenticateAsClient(now);
+
+		Response resp = tested.handleDeviceCodeGrant("dc1", null, null);
+
+		assertEquals(200, resp.getStatus());
+		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
+		httpResp.setBody(resp.getEntity().toString());
+		httpResp.setContentType("application/json");
+		AccessTokenResponse parsed = AccessTokenResponse.parse(httpResp);
+		assertThat(parsed.getTokens().getRefreshToken()).isNotNull();
+	}
+
+	@Test
+	void shouldNotIncludeRefreshTokenWhenOfflineAccessScopeWasNotRequested() throws Exception
+	{
+		// same setup as shouldIncludeRefreshTokenWhenOfflineAccessScopeWasApproved, minus the
+		// offline_access scope (buildApprovedToken's effectiveScope is already empty) - the negative
+		// side of the same OFFLINE_SCOPE_BASED policy check
+		DeviceCodeToken token = buildApprovedToken();
+		token.getOauthToken().setClientType(ClientType.CONFIDENTIAL);
+		Date now = new Date();
+		deviceCodeRepository.store("dc1", token, now, new Date(now.getTime() + 60_000));
+		authenticateAsClient(now);
+
+		Response resp = tested.handleDeviceCodeGrant("dc1", null, null);
+
+		assertEquals(200, resp.getStatus());
+		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
+		httpResp.setBody(resp.getEntity().toString());
+		httpResp.setContentType("application/json");
+		AccessTokenResponse parsed = AccessTokenResponse.parse(httpResp);
+		assertThat(parsed.getTokens().getRefreshToken()).isNull();
+	}
+
+	private void authenticateAsClient(Date now)
+	{
+		AuthenticationRealm realm = new AuthenticationRealm("foo", "", 5, 10, RememberMePolicy.disallow, 1, 1000);
+		InvocationContext authed = new InvocationContext(null, realm, Collections.emptyList());
+		LoginSession loginSession = new LoginSession("sid", now, 1000, 100L, "clientC", null, null, null);
+		authed.setLoginSession(loginSession);
+		InvocationContext.setCurrent(authed);
 	}
 
 	@Test

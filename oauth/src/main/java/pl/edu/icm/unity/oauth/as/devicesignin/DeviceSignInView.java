@@ -58,6 +58,7 @@ import pl.edu.icm.unity.oauth.as.devicesignin.DeviceCodeTransitionService.Transi
 import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWorkflowPreparer.ClientInfo;
 import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWorkflowPreparer.ConsentPresentation;
 import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWorkflowPreparer.ResolveError;
+import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWorkflowPreparer.ResolveErrorReason;
 import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWorkflowPreparer.ResolveResult;
 import pl.edu.icm.unity.oauth.as.devicesignin.DeviceSignInWorkflowPreparer.Resolved;
 
@@ -93,6 +94,7 @@ class DeviceSignInView extends UnityViewComponent
 	private DeviceCodeToken parsedToken;
 	private OAuthASProperties config;
 	private List<DynamicAttribute> activeValueSelectionFilteredAttributes;
+	private TextField codeEntryField;
 
 	@Autowired
 	DeviceSignInView(MessageSource msg, DeviceSignInWorkflowPreparer workflowPreparer,
@@ -163,6 +165,7 @@ class DeviceSignInView extends UnityViewComponent
 		Span codeLabel = new Span(msg.getMessage("DeviceSignIn.enterCode"));
 		TextField codeField = new TextField();
 		codeGroup.add(codeLabel, codeField);
+		this.codeEntryField = codeField;
 
 		Span codeHint = new Span(msg.getMessage("DeviceSignIn.codeHint"));
 		codeHint.addClassName(CssClassNames.HINT_TEXT.getName());
@@ -214,8 +217,39 @@ class DeviceSignInView extends UnityViewComponent
 			else
 				startConsentFlow();
 		}
-		case ResolveError error -> showError(msg.getMessage(resolveErrorMessageKey(error)));
+		case ResolveError error ->
+		{
+			// a wrong code typed on the code-entry form is by far the most common error here (a
+			// typo), so it stays on that same form instead of navigating to a full error page; the
+			// URL-provided code path (confirmCodeStep) never had a form to stay on, so it keeps the
+			// full-page error, as do the other, rarer reasons on this form
+			if (!confirmCodeStep && error.reason() == ResolveErrorReason.INVALID_CODE)
+				rejectInvalidManualCode();
+			else
+				showError(msg.getMessage(resolveErrorMessageKey(error)));
 		}
+		}
+	}
+
+	/**
+	 * QA request: on a wrong manually-entered code, don't navigate away - just clear the field and
+	 * pop up an error notification. The 3s delay is deliberate and blocks this view's UI for its
+	 * duration (the click is a single synchronous server round-trip): server-side throttling
+	 * ({@link DeviceCodeVerificationThrottle}) already caps the number of guesses, but this adds a
+	 * per-guess minimum latency so an automated guesser can't submit codes back-to-back.
+	 */
+	private void rejectInvalidManualCode()
+	{
+		try
+		{
+			Thread.sleep(3000);
+		} catch (InterruptedException e)
+		{
+			Thread.currentThread().interrupt();
+		}
+		if (codeEntryField != null)
+			codeEntryField.clear();
+		notificationPresenter.showError(msg.getMessage("DeviceSignIn.invalidCode"), "");
 	}
 
 	private String resolveErrorMessageKey(ResolveError error)
