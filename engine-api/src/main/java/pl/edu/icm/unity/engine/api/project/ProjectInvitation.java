@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.engine.api.project;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,7 @@ import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 public class ProjectInvitation extends ProjectInvitationParam
 {
 	public static final long DEFAULT_TTL_DAYS = 3;
+	public static final Duration MINIMUM_RESEND_VALIDITY = Duration.ofHours(8);
 
 	public final String registrationCode;
 	public final Instant lastSentTime;
@@ -41,6 +43,11 @@ public class ProjectInvitation extends ProjectInvitationParam
 		this.lastSentTime = org.getLastSentTime();
 		this.numberOfSends = org.getNumberOfSends();
 		this.link = link;
+	}
+
+	public static boolean canBeResent(Instant expiration, Instant referenceTime)
+	{
+		return expiration != null && !expiration.isBefore(referenceTime.plus(MINIMUM_RESEND_VALIDITY));
 	}
 
 	@Override

@@ -108,14 +108,44 @@ public class TestInvitationService
 	}
 
 	@Test
-	public void shouldSend() throws EngineException
+	public void shouldResend() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
-		InvitationModel code = new InvitationModel("code", null, null, null, null, null);
+		InvitationModel invitation = new InvitationModel("code", "user@example.com", null, null, null, null);
+		when(mockMsg.getMessage("InvitationsComponent.resent", List.of("user@example.com")))
+				.thenReturn("Invitation message resent");
 
-		service.resendInvitations(project, Set.of(code));
+		service.resendInvitations(project, Set.of(invitation));
 
-		verify(mockInvitationMan).sendInvitation(eq("/project"), eq("code"));
+		verify(mockInvitationMan).resendInvitation(eq("/project"), eq("code"));
+		verify(notificationPresenter).showSuccess("Invitation message resent");
+	}
+
+	@Test
+	public void shouldReinvite() throws EngineException
+	{
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
+		InvitationModel invitation = new InvitationModel("code", "user@example.com", null, null, null, null);
+		when(mockMsg.getMessage("InvitationsComponent.reinvited", List.of("user@example.com")))
+				.thenReturn("New invitation created and sent");
+
+		service.reinvite(project, Set.of(invitation));
+
+		verify(mockInvitationMan).reinvite(eq("/project"), eq("code"));
+		verify(notificationPresenter).showSuccess("New invitation created and sent");
+	}
+
+	@Test
+	public void shouldAllowResendOnlyWithAtLeastEightHoursOfValidity()
+	{
+		Instant referenceTime = Instant.parse("2026-09-05T12:00:00Z");
+		InvitationModel validForEightHours = new InvitationModel("code", null, null, null,
+				referenceTime.plusSeconds(8 * 60 * 60), null);
+		InvitationModel validForLessThanEightHours = new InvitationModel("code", null, null, null,
+				referenceTime.plusSeconds(8 * 60 * 60).minusNanos(1), null);
+
+		assertThat(validForEightHours.canBeResentAt(referenceTime)).isTrue();
+		assertThat(validForLessThanEightHours.canBeResentAt(referenceTime)).isFalse();
 	}
 
 	@Test

@@ -214,7 +214,7 @@ public class EnquiryInvitationParam extends InvitationParam
 		public Builder(EnquiryInvitationParam enquiryInvitationParam)
 		{
 			super(new EnquiryInvitationParam(enquiryInvitationParam.toJson()));
-			instance = enquiryInvitationParam;
+			instance = (EnquiryInvitationParam) super.getInstance();
 		}
 			
 		public EnquiryInvitationParam build()

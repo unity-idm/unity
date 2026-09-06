@@ -5,13 +5,14 @@
 
 package io.imunity.upman.front.views.invitations;
 
-import com.google.common.base.Objects;
+import static pl.edu.icm.unity.engine.api.project.ProjectInvitation.canBeResent;
+import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
-import static pl.edu.icm.unity.engine.api.utils.TimeUtil.formatStandardInstant;
+import com.google.common.base.Objects;
 
 class InvitationModel
 {
@@ -69,6 +70,12 @@ class InvitationModel
 				|| (email != null && email.toLowerCase().contains(lowerCaseValue))
 				|| (requestedTime != null && formatStandardInstant(requestedTime).toLowerCase().contains(lowerCaseValue))
 				|| (expirationTime != null && formatStandardInstant(expirationTime).toLowerCase().contains(lowerCaseValue))
-				|| (groupsDisplayedNames != null && groupsDisplayedNames.stream().anyMatch(grp -> grp.toLowerCase().contains(lowerCaseValue)));
+				|| (groupsDisplayedNames != null && groupsDisplayedNames.stream()
+						.anyMatch(group -> group.toLowerCase().contains(lowerCaseValue)));
+	}
+
+	boolean canBeResentAt(Instant referenceTime)
+	{
+		return canBeResent(expirationTime, referenceTime);
 	}
 }
