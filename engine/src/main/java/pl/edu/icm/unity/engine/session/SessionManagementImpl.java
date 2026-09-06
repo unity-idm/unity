@@ -247,6 +247,9 @@ public class SessionManagementImpl implements SessionManagement
 		} catch (IllegalArgumentException e)
 		{
 			//not found - ok
+		} finally
+		{
+			recentUsageUpdates.remove(id);
 		}
 	}
 
