@@ -73,6 +73,7 @@ public class InvitationGridTest
 		return new InvitationModel("code", "user@example.com", List.of(), null, expiration, "link");
 	}
 
+	@SuppressWarnings("unchecked")
 	private Span renderExpiration(InvitationModel invitation)
 	{
 		InvitationGrid grid = new InvitationGrid(msg, ignored -> new Span());

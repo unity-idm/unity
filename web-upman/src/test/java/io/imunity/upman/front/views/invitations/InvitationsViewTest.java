@@ -40,20 +40,23 @@ public class InvitationsViewTest
 	private ProjectService projectService;
 
 	private ProjectGroup projectGroup;
+	private UI ui;
 
 	@BeforeEach
 	public void setUp()
 	{
 		when(msg.getMessage(anyString())).thenAnswer(invocation -> invocation.getArgument(0));
 		projectGroup = new ProjectGroup("/project", "project", "regForm", "signupForm");
-		UI.setCurrent(new UI());
-		ComponentUtil.setData(UI.getCurrent(), ProjectGroup.class, projectGroup);
+		ui = new UI();
+		UI.setCurrent(ui);
+		ComponentUtil.setData(ui, ProjectGroup.class, projectGroup);
 	}
 
 	@AfterEach
 	public void cleanUp()
 	{
 		UI.setCurrent(null);
+		ui = null;
 	}
 
 	@Test
