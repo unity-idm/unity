@@ -47,14 +47,23 @@ public interface ProjectInvitationsManagement
 	void removeInvitation(String projectPath, String code) throws EngineException;
 
 	/**
-	 * Sends an invitation message to the invitation specified by the code.
+	 * Sends the existing invitation message again. The invitation must remain valid for at least
+	 * {@link ProjectInvitation#MINIMUM_RESEND_VALIDITY}.
 	 * In case when there is no such invitation, it has missing or invalid
 	 * contact address or when the associated form has no message template
 	 * for invitation this method throws exception.
-	 * 
+	 *
 	 * @param code
 	 */
-	void sendInvitation(String projectPath, String code) throws EngineException;
+	void resendInvitation(String projectPath, String code) throws EngineException;
+
+	/**
+	 * Creates and sends a new invitation based on the invitation specified by the code, and removes the old invitation.
+	 * The new invitation has a new code and its validity period starts when this method is called.
+	 *
+	 * @param code
+	 */
+	void reinvite(String projectPath, String code) throws EngineException;
 	
 
 	public static class NotProjectInvitation extends InternalException

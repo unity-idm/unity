@@ -230,7 +230,7 @@ public class RegistrationInvitationParam extends InvitationParam
 		public Builder(RegistrationInvitationParam registrationInvitationParam)
 		{
 			super(new RegistrationInvitationParam(registrationInvitationParam.toJson()));
-			instance = registrationInvitationParam;
+			instance = (RegistrationInvitationParam) super.getInstance();
 		}
 		
 		public Builder withExpectedIdentity(ExpectedIdentity identity)

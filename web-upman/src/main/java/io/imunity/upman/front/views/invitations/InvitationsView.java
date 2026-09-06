@@ -5,31 +5,40 @@
 
 package io.imunity.upman.front.views.invitations;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.ENVELOPE;
+import static com.vaadin.flow.component.icon.VaadinIcon.REFRESH;
+import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.UpManMenu;
 import io.imunity.upman.utils.ProjectService;
-import io.imunity.vaadin.elements.*;
+import io.imunity.vaadin.elements.ActionMenu;
+import io.imunity.vaadin.elements.BaseDialog;
+import io.imunity.vaadin.elements.Breadcrumb;
+import io.imunity.vaadin.elements.MenuButton;
+import io.imunity.vaadin.elements.SearchField;
+import io.imunity.vaadin.elements.SubmitButton;
 import jakarta.annotation.security.PermitAll;
 import pl.edu.icm.unity.base.message.MessageSource;
-
-import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.ENVELOPE;
-import static com.vaadin.flow.component.icon.VaadinIcon.TRASH;
 
 @PermitAll
 @Breadcrumb(key = "UpManMenu.invitations")
@@ -90,7 +99,8 @@ public class InvitationsView extends UpmanViewComponent
 	private Dialog createInvitationDialog()
 	{
 		Dialog dialog = new BaseDialog(msg.getMessage("NewInvitationDialog.caption"), msg.getMessage("Cancel"), getContent());
-		InvitationForm invitationForm = new InvitationForm(msg, projectGroup, projectService.getProjectGroups(projectGroup).getAllOffspring(), getContent());
+		InvitationForm invitationForm = new InvitationForm(msg, projectGroup,
+				projectService.getProjectGroups(projectGroup).getAllOffspring(), getContent());
 		dialog.add(invitationForm);
 
 		SubmitButton saveButton = new SubmitButton(msg::getMessage);
@@ -129,34 +139,58 @@ public class InvitationsView extends UpmanViewComponent
 	{
 		ActionMenu menu = new ActionMenu();
 
-		MenuButton removeInvitationButton = new MenuButton(msg.getMessage("InvitationsComponent.removeInvitationAction"), TRASH);
-		menu.addItem(
-				removeInvitationButton,
-				event ->
-				{
-					invitationsService.removeInvitations(projectGroup, invitationsGetter.get());
-					loadData();
-				}
-		);
-		MenuButton resendInvitationButton = new MenuButton(msg.getMessage("InvitationsComponent.resendInvitationAction"), ENVELOPE);
-		menu.addItem(
+		MenuButton resendInvitationButton = new MenuButton(
+				msg.getMessage("InvitationsComponent.resendInvitationAction"), ENVELOPE);
+		MenuItem resendInvitationItem = menu.addItem(
 				resendInvitationButton,
 				event ->
 				{
 					invitationsService.resendInvitations(projectGroup, invitationsGetter.get());
-					loadData();
+					refreshAfterInvitationAction(menu);
+				}
+		);
+		MenuButton reinviteButton = new MenuButton(msg.getMessage("InvitationsComponent.reinviteAction"), REFRESH);
+		MenuItem reinviteItem = menu.addItem(
+				reinviteButton,
+				event ->
+				{
+					invitationsService.reinvite(projectGroup, invitationsGetter.get());
+					refreshAfterInvitationAction(menu);
+				}
+		);
+		MenuButton removeInvitationButton = new MenuButton(
+				msg.getMessage("InvitationsComponent.removeInvitationAction"), TRASH);
+		MenuItem removeInvitationItem = menu.addItem(
+				removeInvitationButton,
+				event ->
+				{
+					invitationsService.removeInvitations(projectGroup, invitationsGetter.get());
+					refreshAfterInvitationAction(menu);
 				}
 		);
 
 		menu.addOpenedChangeListener(event ->
 		{
-			boolean anySelected = !invitationsGetter.get().isEmpty();
-			menu.getItems().forEach(menuItem -> menuItem.setEnabled(anySelected));
+			Set<InvitationModel> selectedInvitations = invitationsGetter.get();
+			boolean anySelected = !selectedInvitations.isEmpty();
+			Instant referenceTime = Instant.now();
+			boolean resendEnabled = anySelected && selectedInvitations.stream()
+					.allMatch(invitation -> invitation.canBeResentAt(referenceTime));
+			removeInvitationItem.setEnabled(anySelected);
 			removeInvitationButton.setEnabled(anySelected);
-			resendInvitationButton.setEnabled(anySelected);
+			resendInvitationItem.setEnabled(resendEnabled);
+			resendInvitationButton.setEnabled(resendEnabled);
+			reinviteItem.setEnabled(anySelected);
+			reinviteButton.setEnabled(anySelected);
 		});
 
 		return menu.getTarget();
+	}
+
+	private void refreshAfterInvitationAction(ActionMenu menu)
+	{
+		menu.close();
+		loadData();
 	}
 
 	@Override
@@ -171,6 +205,7 @@ public class InvitationsView extends UpmanViewComponent
 		List<InvitationModel> invitations = invitationsService.getInvitations(projectGroup).stream()
 				.filter(model -> model.anyFieldContains(searchField.getValue()))
 				.collect(Collectors.toList());
+		grid.deselectAll();
 		grid.setItems(invitations);
 	}
 }
