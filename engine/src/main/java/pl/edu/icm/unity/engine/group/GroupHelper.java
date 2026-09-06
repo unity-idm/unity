@@ -34,6 +34,7 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.identity.IllegalIdentityValueException;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributesCacheInvalidation;
 import pl.edu.icm.unity.engine.api.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
@@ -61,12 +62,13 @@ public class GroupHelper
 	private GroupDAO groupDAO;
 	private AttributeDAO dbAttributes;
 	private AuditPublisher audit;
-	
+	private AttributesCacheInvalidation attributesCacheInvalidation;
+
 	@Autowired
 	public GroupHelper(MembershipDAO membershipDAO, EntityResolver entityResolver,
 			AttributeTypeDAO attributeTypeDAO, AttributesHelper attributesHelper,
 			GroupDAO groupDAO, AttributeDAO dbAttributes,
-			AuditPublisher audit)
+			AuditPublisher audit, AttributesCacheInvalidation attributesCacheInvalidation)
 	{
 		this.membershipDAO = membershipDAO;
 		this.entityResolver = entityResolver;
@@ -75,6 +77,7 @@ public class GroupHelper
 		this.groupDAO = groupDAO;
 		this.dbAttributes = dbAttributes;
 		this.audit = audit;
+		this.attributesCacheInvalidation = attributesCacheInvalidation;
 	}
 
 	/**
@@ -105,6 +108,7 @@ public class GroupHelper
 				.name(group.getName())
 				.tags(MEMBERS, GROUPS));
 		log.info("Added entity " + entityId + " to group " + group.toString());
+		attributesCacheInvalidation.invalidateEntity(entityId);
 	}
 	
 	public boolean isMember(long entityId, String path)
@@ -187,10 +191,12 @@ public class GroupHelper
 							.details(ImmutableMap.of("action", "remove"))
 							.tags(MEMBERS, GROUPS));
 					dbAttributes.deleteAttributesInGroup(entityId, group);
+					attributesCacheInvalidation.invalidateEntityInGroup(entityId, group);
 					log.info("Removed entity " + entityId + " from group " + group);
 				}
 			}
 		}
+		attributesCacheInvalidation.invalidateEntity(entityId);
 	}
 	
 	private Set<String> establishOnlyParentGroups(Set<String> source)

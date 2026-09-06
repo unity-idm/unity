@@ -23,6 +23,12 @@
 	<update id="cleardb-04-2">
 		DROP TABLE IF EXISTS ATTRIBUTES;
 	</update>
+	<update id="cleardb-04-3">
+		DROP TABLE IF EXISTS ATTRIBUTES_CACHE_PENDING;
+	</update>
+	<update id="cleardb-04-4">
+		DROP TABLE IF EXISTS ATTRIBUTES_CACHE;
+	</update>
 	<update id="cleardb-05">
 		DROP TABLE IF EXISTS <include refid="io.imunity.sql.groups"/>;
 	</update>
@@ -85,6 +91,12 @@
 	</delete>
 	<delete id="deletedb-attributes">
 		DELETE FROM ATTRIBUTES;
+	</delete>
+	<delete id="deletedb-attributesCache">
+		DELETE FROM ATTRIBUTES_CACHE;
+	</delete>
+	<delete id="deletedb-attributesCachePending">
+		DELETE FROM ATTRIBUTES_CACHE_PENDING;
 	</delete>
 	<delete id="deletedb-groups">
 		DELETE FROM <include refid="io.imunity.sql.groups"/>;

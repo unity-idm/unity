@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.ImmutableMap;
@@ -56,6 +57,7 @@ import pl.edu.icm.unity.engine.api.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.mvel.CachingMVELGroupProvider;
+import pl.edu.icm.unity.engine.attribute.cache.EntityAttributesChangedEvent;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger;
 import pl.edu.icm.unity.engine.audit.AuditEventTrigger.AuditEventTriggerBuilder;
 import pl.edu.icm.unity.engine.audit.AuditPublisher;
@@ -97,7 +99,8 @@ public class AttributesHelper
 	private final InternalCapacityLimitVerificator capacityLimitVerificator;
 	private final PublicAttributeRegistry attrRegistry;
 	private final AttributeTypeByMetaCache attributeTypeByMetaCache;
-	
+	private final ApplicationEventPublisher eventPublisher;
+
 	@Autowired
 	public AttributesHelper(
 			AttributeClassDB acDB, IdentityDAO identityDAO,
@@ -107,7 +110,8 @@ public class AttributesHelper
 			AttributeTypeHelper atHelper, AttributeClassUtil acUtil,
 			AuditPublisher audit,
 			InternalCapacityLimitVerificator capacityLimitVerificator,
-			AttributeTypeByMetaCache attributeTypeByMetaCache)
+			AttributeTypeByMetaCache attributeTypeByMetaCache,
+			ApplicationEventPublisher eventPublisher)
 	{
 		this.acDB = acDB;
 		this.identityDAO = identityDAO;
@@ -123,6 +127,7 @@ public class AttributesHelper
 		this.capacityLimitVerificator = capacityLimitVerificator;
 		this.attrRegistry = new PublicAttributeRegistry(attributeDAO, atHelper);
 		this.attributeTypeByMetaCache = attributeTypeByMetaCache;
+		this.eventPublisher = eventPublisher;
 	}
 
 	public Map<String, AttributeExt> getAllAttributesAsMapOneGroup(long entityId, String groupPath) 
@@ -327,6 +332,7 @@ public class AttributesHelper
 			attributeDAO.updateAttribute(param);
 			audit.log(getAttrAudit(entityId, attribute, AuditEventAction.UPDATE));
 		}
+		eventPublisher.publishEvent(new EntityAttributesChangedEvent(entityId));
 	}
 
 	private void checkAttributeCapacityLimit(AttributeType at, Attribute attr) throws CapacityLimitReachedException
@@ -555,8 +561,9 @@ public class AttributesHelper
 						.tags(AUTHN));
 			}
 		}
+		eventPublisher.publishEvent(new EntityAttributesChangedEvent(entityId));
 	}
-	
+
 	/**
 	 * Creates or updates an attribute. No schema checking is performed.
 	 */
@@ -564,6 +571,7 @@ public class AttributesHelper
 	{
 		StoredAttribute sAttr = toStoredAttribute(toCreate, entityId);
 		attributeDAO.create(sAttr);
+		eventPublisher.publishEvent(new EntityAttributesChangedEvent(entityId));
 	}
 
 	private StoredAttribute toStoredAttribute(Attribute toCreate, long entityId)

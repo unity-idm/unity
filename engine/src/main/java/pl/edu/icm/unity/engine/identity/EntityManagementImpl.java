@@ -58,6 +58,7 @@ import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.attributes.AttributesCacheInvalidation;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
@@ -133,6 +134,7 @@ public class EntityManagementImpl implements EntityManagement
 	private final AuditPublisher auditPublisher;
 	private final InternalCapacityLimitVerificator capacityLimitVerificator;
 	private final ExistingUserFinder byEmailUserFinder;
+	private final AttributesCacheInvalidation attributesCacheInvalidation;
 
 	@Autowired
 	public EntityManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
@@ -148,7 +150,8 @@ public class EntityManagementImpl implements EntityManagement
 			UnityServerConfiguration cfg, NotificationProducer notificationProducer,
 			AuditEventListener auditEventListener, AuditPublisher auditPublisher,
 			InternalCapacityLimitVerificator capacityLimitVerificator,
-			ExistingUserFinder byEmailUserFinder)
+			ExistingUserFinder byEmailUserFinder,
+			AttributesCacheInvalidation attributesCacheInvalidation)
 	{
 		this.idTypeDAO = idTypeDAO;
 		this.idTypeHelper = idTypeHelper;
@@ -174,6 +177,7 @@ public class EntityManagementImpl implements EntityManagement
 		this.auditPublisher = auditPublisher;
 		this.capacityLimitVerificator = capacityLimitVerificator;
 		this.byEmailUserFinder = byEmailUserFinder;
+		this.attributesCacheInvalidation = attributesCacheInvalidation;
 	}
 
 	@Override
@@ -358,6 +362,7 @@ public class EntityManagementImpl implements EntityManagement
 				.name(join(":", toRemove.getTypeId(), cmpValue))
 				.subject(auditEventListener.createAuditEntity(entityId))
 				.tags(USERS));
+		attributesCacheInvalidation.invalidateEntity(entityId);
 	}
 
 	@Override
@@ -389,6 +394,7 @@ public class EntityManagementImpl implements EntityManagement
 				.subject(updatedFull.getEntityId())
 				.details(ImmutableMap.of("action", "manual update"))
 				.tags(USERS));
+		attributesCacheInvalidation.invalidateEntity(entityId);
 	}
 
 	@Override
@@ -420,6 +426,7 @@ public class EntityManagementImpl implements EntityManagement
 					.map(id -> new IdentityWithAuthzInfo(id, fullAuthz))
 					.forEach(arg -> created.add(arg));
 			}
+			attributesCacheInvalidation.invalidateEntity(entityId);
 			return created;
 		});
 		for (IdentityWithAuthzInfo id: ret)
@@ -606,6 +613,7 @@ public class EntityManagementImpl implements EntityManagement
 		long entityId = idResolver.getEntityId(toReset);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 		resetIdentityForEntity(entityId, typeIdToReset, realm, target);
+		attributesCacheInvalidation.invalidateEntity(entityId);
 	}
 
 	@Override
@@ -661,6 +669,7 @@ public class EntityManagementImpl implements EntityManagement
 				.subject(entityId)
 				.details(ImmutableMap.of("state", status.toString()))
 				.tags(USERS));
+		attributesCacheInvalidation.invalidateEntity(entityId);
 		sendNotification(entityId, notificationToSend);
 	}
 
@@ -866,6 +875,7 @@ public class EntityManagementImpl implements EntityManagement
 		mergeMemberships(mergedId, targetId);
 		mergeAttributes(mergedId, targetId, safeMode);
 		entityDAO.deleteByKey(mergedId);
+		attributesCacheInvalidation.invalidateEntity(targetId);
 	}
 
 	@Override

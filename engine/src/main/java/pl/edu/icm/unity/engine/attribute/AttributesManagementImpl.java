@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributesCacheInvalidation;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
@@ -78,6 +79,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	private AdditionalAuthenticationService additionalAuthnService;
 	private final AuditPublisher audit;
 	private final MembershipDAO membershipDAO;
+	private final AttributesCacheInvalidation attributesCacheInvalidation;
 
 	@Autowired
 	public AttributesManagementImpl(AttributeClassUtil acUtil,
@@ -88,7 +90,8 @@ public class AttributesManagementImpl implements AttributesManagement
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			AdditionalAuthenticationService repeatedAuthnService,
 			AuditPublisher audit,
-			MembershipDAO membershipDAO)
+			MembershipDAO membershipDAO,
+			AttributesCacheInvalidation attributesCacheInvalidation)
 	{
 		this.acUtil = acUtil;
 		this.attributeTypeDAO = attributeTypeDAO;
@@ -98,6 +101,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.attributesHelper = attributesHelper;
 		this.confirmationManager = confirmationManager;
 		this.txRunner = txRunner;
+		this.attributesCacheInvalidation = attributesCacheInvalidation;
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.additionalAuthnService = repeatedAuthnService;
 		this.audit = audit;	
@@ -233,7 +237,8 @@ public class AttributesManagementImpl implements AttributesManagement
 		checkIfMandatory(entityId, groupPath, attributeTypeId);
 		
 		dbAttributes.deleteAttribute(attributeTypeId, entityId, groupPath);
-		
+		attributesCacheInvalidation.invalidateEntity(entityId);
+
 		audit.log(AuditEventTrigger.builder()
 				.type(AuditEventType.ATTRIBUTE)
 				.action(AuditEventAction.REMOVE)

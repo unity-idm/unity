@@ -283,6 +283,47 @@ CREATE TABLE IDP_STATISTICS (
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-varObjectsTypeIdx2"/>
 	</update>
 
+	<sql id="sql-attributesCache">
+CREATE TABLE ATTRIBUTES_CACHE(
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.primaryKeyColumn"/>,
+		TYPE_ID INTEGER NOT NULL,
+		ENTITY_ID INTEGER NOT NULL,
+		GROUP_ID INTEGER NOT NULL,
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.contentsColumnBlob"/>,
+		UNIQUE (ENTITY_ID, GROUP_ID, TYPE_ID),
+		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,
+		FOREIGN KEY (TYPE_ID) REFERENCES ATTRIBUTE_TYPES(ID) ON DELETE CASCADE,
+		FOREIGN KEY (GROUP_ID) REFERENCES <include refid="io.imunity.sql.groups"/>(ID) ON DELETE CASCADE
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
+	</sql>
+
+	<update id="initdb-27">
+		<include refid="sql-attributesCache"/>
+	</update>
+
+	<sql id="sql-attributesCachePending">
+CREATE TABLE ATTRIBUTES_CACHE_PENDING(
+		ENTITY_ID INTEGER NOT NULL,
+		GROUP_ID INTEGER NOT NULL,
+		CREATED <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.dateTimeType"/> NOT NULL,
+		PRIMARY KEY (ENTITY_ID, GROUP_ID),
+		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,
+		FOREIGN KEY (GROUP_ID) REFERENCES <include refid="io.imunity.sql.groups"/>(ID) ON DELETE CASCADE
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
+	</sql>
+
+	<update id="initdb-28">
+		<include refid="sql-attributesCachePending"/>
+	</update>
+
+	<sql id="sql-attributesCachePendingGroupIdx">
+		CREATE INDEX ATTRIBUTES_CACHE_PENDING_GROUP_IDX ON ATTRIBUTES_CACHE_PENDING(GROUP_ID)
+	</sql>
+
+	<update id="initdb-29">
+		<include refid="sql-attributesCachePendingGroupIdx"/>
+	</update>
+
 	<update id="initdb-99">
 CREATE TABLE UVOS_FLAG(
 		VAL VARCHAR(128)

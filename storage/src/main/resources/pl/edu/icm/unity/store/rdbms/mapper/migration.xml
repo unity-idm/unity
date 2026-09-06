@@ -153,4 +153,20 @@
 		UPDATE UVOS_FLAG SET VAL = '23'
 	</update>
 
+	<update id="updateSchema-024-01">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-attributesCache"/>
+	</update>
+
+	<update id="updateSchema-024-02">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-attributesCachePending"/>
+	</update>
+
+	<update id="updateSchema-024-03">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-attributesCachePendingGroupIdx"/>
+	</update>
+
+	<update id="updateSchema-024-04">
+		UPDATE UVOS_FLAG SET VAL = '24'
+	</update>
+
 </mapper>

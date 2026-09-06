@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.attribute.AttributesCachePendingMapper">
+
+	<resultMap id="pendingResult" type="AttributesCachePendingB">
+		<result property="entityId" column="ENTITY_ID"/>
+		<result property="groupId" column="GROUP_ID"/>
+		<result property="created" column="CREATED"/>
+		<result property="group" column="NAME"/>
+	</resultMap>
+
+	<insert id="create" parameterType="AttributesCachePendingB">
+		INSERT INTO ATTRIBUTES_CACHE_PENDING (ENTITY_ID, GROUP_ID, CREATED)
+			VALUES (#{entityId}, #{groupId}, #{created})
+	</insert>
+
+	<insert id="createList" parameterType="java.util.List">
+		INSERT INTO ATTRIBUTES_CACHE_PENDING (ENTITY_ID, GROUP_ID, CREATED) VALUES
+		<foreach open="(" separator="),(" close=")" collection="list" index="index" item="element">
+			#{element.entityId}, #{element.groupId}, #{element.created}
+		</foreach>
+	</insert>
+
+	<delete id="deleteByKey" parameterType="AttributesCachePendingB">
+		DELETE FROM ATTRIBUTES_CACHE_PENDING WHERE ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
+	</delete>
+
+	<delete id="deleteByGroup" parameterType="long">
+		DELETE FROM ATTRIBUTES_CACHE_PENDING WHERE GROUP_ID = #{value}
+	</delete>
+
+	<select id="getByKey" parameterType="AttributesCachePendingB" resultMap="pendingResult">
+		SELECT P.*, G.NAME FROM ATTRIBUTES_CACHE_PENDING P, <include refid="io.imunity.sql.groups"/> G
+			WHERE P.ENTITY_ID = #{entityId} AND P.GROUP_ID = #{groupId} AND G.ID = P.GROUP_ID
+	</select>
+
+	<select id="getAll" resultMap="pendingResult">
+		SELECT P.*, G.NAME FROM ATTRIBUTES_CACHE_PENDING P, <include refid="io.imunity.sql.groups"/> G
+			WHERE G.ID = P.GROUP_ID
+	</select>
+
+	<select id="getByGroup" parameterType="long" resultMap="pendingResult">
+		SELECT P.*, G.NAME FROM ATTRIBUTES_CACHE_PENDING P, <include refid="io.imunity.sql.groups"/> G
+			WHERE P.GROUP_ID = #{value} AND G.ID = P.GROUP_ID
+	</select>
+
+</mapper>

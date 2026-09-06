@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.attribute.AttributesCacheMapper">
+
+	<resultMap id="attributesCacheResult" type="AttributesCacheB">
+		<result property="id" column="ID"/>
+		<result property="typeId" column="TYPE_ID"/>
+		<result property="entityId" column="ENTITY_ID"/>
+		<result property="groupId" column="GROUP_ID"/>
+		<result property="values" column="CONTENTS"/>
+		<result property="name" column="NAME"/>
+		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
+		<result property="group" column="GROUP_PATH"/>
+	</resultMap>
+
+	<insert id="create" parameterType="AttributesCacheB" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+		INSERT INTO ATTRIBUTES_CACHE (TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS)
+			VALUES (#{typeId}, #{entityId}, #{groupId}, #{values})
+	</insert>
+
+	<insert id="createWithKey" parameterType="AttributesCacheB">
+		INSERT INTO ATTRIBUTES_CACHE (ID, TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS)
+			VALUES (#{id}, #{typeId}, #{entityId}, #{groupId}, #{values})
+	</insert>
+
+	<insert id="createList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO ATTRIBUTES_CACHE (TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS) VALUES
+		<foreach open="(" separator="),(" close=")" collection="list" index="index" item="element">
+			#{element.typeId}, #{element.entityId}, #{element.groupId}, #{element.values}
+		</foreach>
+	</insert>
+
+	<update id="updateByKey" parameterType="AttributesCacheB">
+		UPDATE ATTRIBUTES_CACHE SET CONTENTS = #{values}
+			WHERE ID = #{id}
+	</update>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM ATTRIBUTES_CACHE WHERE ID = #{id}
+	</delete>
+
+	<delete id="deleteAll">
+		DELETE FROM ATTRIBUTES_CACHE
+	</delete>
+
+	<select id="getAll" resultMap="attributesCacheResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH
+			from ATTRIBUTES_CACHE A, ATTRIBUTE_TYPES AT, <include refid="io.imunity.sql.groups"/> G
+			WHERE A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
+	</select>
+
+	<select id="getByKey" parameterType="long" resultMap="attributesCacheResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH
+			from ATTRIBUTES_CACHE A, ATTRIBUTE_TYPES AT, <include refid="io.imunity.sql.groups"/> G
+			WHERE A.ID = #{id} AND A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
+	</select>
+
+	<select id="getCount" resultType="long">
+		SELECT COUNT(*) FROM ATTRIBUTES_CACHE
+	</select>
+
+	<!-- non standard -->
+	<delete id="deleteCacheInGroup" parameterType="AttributesCacheB">
+		DELETE FROM ATTRIBUTES_CACHE WHERE ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
+	</delete>
+
+	<select id="getEntityGroupAttributes" parameterType="AttributesCacheB" resultMap="attributesCacheResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH
+		from ATTRIBUTES_CACHE A, ATTRIBUTE_TYPES AT, <include refid="io.imunity.sql.groups"/> G
+		WHERE A.ENTITY_ID = #{entityId} AND A.GROUP_ID = #{groupId}
+			AND A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
+	</select>
+
+	<select id="getGroupAttributes" parameterType="string" resultMap="attributesCacheResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH
+		from ATTRIBUTES_CACHE A, ATTRIBUTE_TYPES AT, <include refid="io.imunity.sql.groups"/> G
+		WHERE G.NAME = #{value}
+			AND A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
+	</select>
+
+</mapper>

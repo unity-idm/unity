@@ -24,6 +24,7 @@ import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.attributes.AttributesCacheInvalidation;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
@@ -54,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -90,8 +92,9 @@ public class GroupsManagementImpl implements GroupsManagement
 	private MessageSource msg;
 	private AuditPublisher audit;
 	private InternalCapacityLimitVerificator capacityLimitVerificator;
+	private AttributesCacheInvalidation attributesCacheInvalidation;
 
-	
+
 	@Autowired
 	public GroupsManagementImpl(GroupDAO dbGroups, MembershipDAO membershipDAO,
 			GroupHelper groupHelper, AttributeDAO dbAttributes,
@@ -99,7 +102,8 @@ public class GroupsManagementImpl implements GroupsManagement
 			InternalAuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityResolver idResolver, EmailConfirmationManager confirmationManager,
 			AttributeClassUtil acUtil, TransactionalRunner tx, MessageSource msg,
-			AuditPublisher audit, InternalCapacityLimitVerificator capacityLimitVerificator)
+			AuditPublisher audit, InternalCapacityLimitVerificator capacityLimitVerificator,
+			AttributesCacheInvalidation attributesCacheInvalidation)
 	{
 		this.dbGroups = dbGroups;
 		this.membershipDAO = membershipDAO;
@@ -116,6 +120,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		this.msg = msg;
 		this.audit = audit;
 		this.capacityLimitVerificator = capacityLimitVerificator;
+		this.attributesCacheInvalidation = attributesCacheInvalidation;
 	}
 
 	@Override
@@ -191,6 +196,12 @@ public class GroupsManagementImpl implements GroupsManagement
 			throw new IllegalGroupValueException("Removing the root group is forbidden");
 		if (!recursive && !getSubGroups(path).isEmpty())
 			throw new IllegalGroupValueException("The group contains subgroups");
+
+		Set<Long> affectedEntities = new HashSet<>();
+		for (String affectedGroup : getSubGroupsInclusive(path))
+			for (GroupMembership membership : membershipDAO.getMembers(affectedGroup))
+				affectedEntities.add(membership.getEntityId());
+
 		try
 		{
 			dbGroups.delete(path);
@@ -205,6 +216,12 @@ public class GroupsManagementImpl implements GroupsManagement
 				.action(AuditEventAction.REMOVE)
 				.name(path)
 				.tags(GROUPS));
+
+		// the removed group's own ATTRIBUTES_CACHE/ATTRIBUTES_CACHE_PENDING rows are cleaned up by the
+		// DB FK cascade on GROUPS deletion; here we conservatively invalidate remaining groups of
+		// entities which were members of the removed (sub)tree, as their statements may depend on it
+		for (Long entityId : affectedEntities)
+			attributesCacheInvalidation.invalidateEntity(entityId);
 	}
 
 	@Override
@@ -268,8 +285,10 @@ public class GroupsManagementImpl implements GroupsManagement
 						.subject(entityId)
 						.tags(MEMBERS, GROUPS));
 				dbAttributes.deleteAttributesInGroup(entityId, group);
+				attributesCacheInvalidation.invalidateEntityInGroup(entityId, group);
 			}
 		}
+		attributesCacheInvalidation.invalidateEntity(entityId);
 	}
 
 	@Override
@@ -440,6 +459,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			auditEvent.details(ImmutableMap.of("action", changedProperty, "value", newValue));
 		}
 		audit.log(auditEvent);
+		attributesCacheInvalidation.invalidateGroup(path);
 	}
 	
 	

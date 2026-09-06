@@ -23,6 +23,7 @@ import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.attributes.AttributesCacheInvalidation;
 import pl.edu.icm.unity.engine.api.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
@@ -51,12 +52,14 @@ public class AttributeClassManagementImpl implements AttributeClassManagement
 	private EntityResolver idResolver;
 	private InternalAuthorizationManager authz;
 	private AttributesHelper attributesHelper;
+	private AttributesCacheInvalidation attributesCacheInvalidation;
 
-	
+
 	@Autowired
 	public AttributeClassManagementImpl(AttributeClassDB acDB, AttributeDAO dbAttributes,
 			IdentityHelper identityHelper, GroupDAO dbGroups, EntityResolver idResolver,
-			InternalAuthorizationManager authz, AttributesHelper attributesHelper)
+			InternalAuthorizationManager authz, AttributesHelper attributesHelper,
+			AttributesCacheInvalidation attributesCacheInvalidation)
 	{
 		this.acDB = acDB;
 		this.dbAttributes = dbAttributes;
@@ -65,6 +68,7 @@ public class AttributeClassManagementImpl implements AttributeClassManagement
 		this.idResolver = idResolver;
 		this.authz = authz;
 		this.attributesHelper = attributesHelper;
+		this.attributesCacheInvalidation = attributesCacheInvalidation;
 	}
 
 	@Override
@@ -86,6 +90,7 @@ public class AttributeClassManagementImpl implements AttributeClassManagement
 
 		AttributeClassHelper.cleanupClass(clazz, allClasses);
 		acDB.create(clazz);
+		attributesCacheInvalidation.invalidateEverything();
 	}
 
 	@Override
@@ -118,6 +123,7 @@ public class AttributeClassManagementImpl implements AttributeClassManagement
 					groupsUsing.toString());
 
 		acDB.delete(id);
+		attributesCacheInvalidation.invalidateEverything();
 	}
 
 	@Override
@@ -143,6 +149,7 @@ public class AttributeClassManagementImpl implements AttributeClassManagement
 			checkIfUnused(acName, allClasses);
 
 		acDB.update(updated);
+		attributesCacheInvalidation.invalidateEverything();
 	}
 	
 	@Override
@@ -167,6 +174,7 @@ public class AttributeClassManagementImpl implements AttributeClassManagement
 		authz.checkAuthorization(group, AuthzCapability.attributeModify);
 		long entityId = idResolver.getEntityId(entity);
 		attributesHelper.setAttributeClasses(entityId, group, classes);
+		attributesCacheInvalidation.invalidateEntity(entityId);
 	}
 	
 

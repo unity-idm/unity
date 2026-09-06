@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
+import pl.edu.icm.unity.engine.api.attributes.AttributesCacheInvalidation;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
@@ -54,6 +55,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	private EventProcessor eventProcessor;
 	private InternalCapacityLimitVerificator capacityLimit;
 	private AttributeTypeByMetaCache attributeTypeByMetaCache;
+	private AttributesCacheInvalidation attributesCacheInvalidation;
 
 	@Autowired
 	public AttributeTypeManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
@@ -61,8 +63,9 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
 			InternalAuthorizationManager authz, AttributeTypeHelper atHelper,
 			AttributesHelper aHelper, TxManager txMan, EventProcessor eventProcessor,
-			InternalCapacityLimitVerificator capacityLimit, 
-			AttributeTypeByMetaCache attributeTypeByMetaCache)
+			InternalCapacityLimitVerificator capacityLimit,
+			AttributeTypeByMetaCache attributeTypeByMetaCache,
+			AttributesCacheInvalidation attributesCacheInvalidation)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;
 		this.attributeTypeDAO = attributeTypeDAO;
@@ -75,6 +78,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		this.eventProcessor = eventProcessor;
 		this.capacityLimit = capacityLimit;
 		this.attributeTypeByMetaCache = attributeTypeByMetaCache;
+		this.attributesCacheInvalidation = attributesCacheInvalidation;
 	}
 
 	@Override
@@ -109,6 +113,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		
 		attributeTypeByMetaCache.clear();
 		attributeTypeDAO.create(toAdd);
+		attributesCacheInvalidation.invalidateEverything();
 		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(null, toAdd)));
 	}
 
@@ -140,6 +145,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 				() -> Long.valueOf(atHelper.getSyntax(at).getMaxSize()));
 		attributeTypeByMetaCache.clear();
 		attributeTypeDAO.update(at);
+		attributesCacheInvalidation.invalidateEverything();
 		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(atExisting, at)));
 	}
 
@@ -184,6 +190,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 		setModifiableSettingsOfImmutableAT(at, existing);
 		attributeTypeByMetaCache.clear();
 		attributeTypeDAO.update(existing);
+		attributesCacheInvalidation.invalidateEverything();
 	}
 	
 	private void verifyATMetadata(AttributeType at, Collection<AttributeType> existingAts) 
@@ -233,6 +240,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			throw new IllegalAttributeTypeException("The attribute type " + id + " has instances");
 		attributeTypeByMetaCache.clear();
 		attributeTypeDAO.delete(id);
+		attributesCacheInvalidation.invalidateEverything();
 		txMan.addPostCommitAction(() -> eventProcessor.fireEvent(new AttributeTypeChangedEvent(at, null)));
 	}
 
