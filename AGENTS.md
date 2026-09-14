@@ -7,12 +7,16 @@
 - Notable modules: `engine`, `engine-api`, `storage(-api)`, `std-plugins`, `rest`, `rest-admin`, `saml`, `oauth`, `vaadin-*`, `web-upman`, `unity-rest-api`, `documentation`, `console`
 
 ## Build, Test, and Development Commands
-- Full build with unit tests: `mvn -T 1C clean install -Dunity.selenium.opts=--headless=new -Dgpg.skip=true` (parallel)
+- Full build with unit tests in a headless/containerized environment: `mvn -T 1C clean install '-Dunity.selenium.opts=--headless=new,--disable-dev-shm-usage,--disable-gpu' -Dgpg.skip=true -Dhttp.proxyHost= -Dhttps.proxyHost=` (parallel)
 - Full build without unit tests: `mvn -T 1C clean install -DskipTests -Dgpg.skip=true` (parallel)
 - Module build: `mvn -pl engine -am package -Dgpg.skip=true` (builds `engine` and dependencies)
 - Unit tests: `mvn test` or `mvn -Dtest=ClassNameTest test -Dgpg.skip=true` (runs `*Test`)
-- Integration tests: `mvn -pl integration-tests -am test -Dgpg.skip=true` (Selenium/JUnit; requires browser drivers/headless env)
+- Integration tests in a headless/containerized environment: `mvn -pl integration-tests -am test '-Dunity.selenium.opts=--headless=new,--disable-dev-shm-usage,--disable-gpu' -Dgpg.skip=true -Dhttp.proxyHost= -Dhttps.proxyHost=` (Selenium/JUnit; requires a browser driver)
 - Whenever you are running full build w/ or w/o tests, redirect the output of the build to a file. In case the build fails, examine an output file to find the root cause, and address the issue. This is to optimize context window usage. Delete the output file when it is no longer needed.
+
+### Headless Test Environment Notes
+- Pass Selenium browser options as a comma-separated value of `unity.selenium.opts`. In containers, keep `--disable-dev-shm-usage` and `--disable-gpu`; without the latter, Chrome can terminate with `FATAL: GPU process isn't usable`.
+- Clear Java's `http.proxyHost` and `https.proxyHost` properties for test builds when the environment injects a proxy. Otherwise, localhost secure WebSocket tests can be routed through the proxy and fail during the TLS/WebSocket handshake. The empty `-Dhttp.proxyHost=` and `-Dhttps.proxyHost=` arguments in the full-build command above do this without changing repository configuration.
 
 ## Coding Style
 - Indentation: use tabs.

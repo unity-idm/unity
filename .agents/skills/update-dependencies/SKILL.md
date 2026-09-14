@@ -2,8 +2,9 @@
 name: update-dependencies
 description: >-
   Update Maven dependency and build-plugin versions in the Unity root POM, either as one bulk patch/revision update
-  or as an interactive full update with per-library minor/major choices. Use when asked to discover, apply, build,
-  and commit dependency updates in a Unity checkout.
+  or as an interactive full update with per-library minor/major choices, including staged Vaadin upgrades with
+  release-note-driven compatibility work. Use when asked to discover, apply, build, and commit dependency updates
+  in a Unity checkout.
 ---
 
 # Update Dependencies
@@ -17,6 +18,8 @@ successful result.
 - **Patch** or **revision** mode updates every eligible incremental version in bulk and creates one commit.
 - **Full** mode includes the bulk patch pass, then asks which eligible libraries should receive a minor or major
   update before creating one commit.
+- A dedicated **Vaadin** update uses the staged workflow in
+  [references/vaadin-updates.md](references/vaadin-updates.md).
 
 Infer the mode from the request. If it is not explicit, ask the user to choose patch/revision or full mode before
 changing files. Discovery may happen before that question because it is read-only.
@@ -27,8 +30,9 @@ For patch/revision mode, read [references/patch-mode.md](references/patch-mode.m
 - [references/full-mode.md](references/full-mode.md)
 - [references/dependency-policy.md](references/dependency-policy.md)
 
-For any Vaadin candidate in either mode, also read the **Vaadin free-release requirement** in
-[references/dependency-policy.md](references/dependency-policy.md).
+For any Vaadin candidate in any mode, also read
+[references/vaadin-updates.md](references/vaadin-updates.md). This includes Vaadin patch candidates found during a
+bulk patch pass.
 
 ## Guardrails
 
@@ -43,7 +47,7 @@ For any Vaadin candidate in either mode, also read the **Vaadin free-release req
 - For Vaadin, use only freely usable releases. Never select or retain a release that Vaadin identifies as
   commercial or that requires a paid Vaadin license for building or running the application. This requirement is
   unconditional, applies in every mode, and cannot be overridden by a request for the "latest" version. Resolve the
-  newest free release as specified in `references/dependency-policy.md`.
+  newest free release and perform non-patch upgrades as specified in `references/vaadin-updates.md`.
 - Treat one version property or BOM as one logical library even when it controls several artifacts. Deduplicate
   property, dependency, and plugin report entries before editing or prompting.
 - Interpret patch/minor/major using Maven's version comparison and the existing version line. If a version scheme is
@@ -68,7 +72,9 @@ remove the verified temporary directory created for this run.
 
 Before committing, run `git diff --check`, inspect the complete diff, and stage explicit attributable paths only;
 never use `git add -A`. Create exactly one commit for the completed update set unless the user requested a different
-split. Prefix the concise imperative commit subject with an issue key when one is applicable. If Maven finds no
-eligible updates, do not build or create an empty commit; report that the POM is current for the selected mode.
+split. Each staged Vaadin minor or major hop is a separate update set and therefore gets its own successful build
+and commit. Prefix the concise imperative commit subject with an issue key when one is applicable. If Maven finds
+no eligible updates, do not build or create an empty commit; report that the POM is current for the selected mode.
 
-Finish by reporting the old-to-new versions, skipped and manual-only candidates, build result, and commit hash.
+Finish by reporting the old-to-new versions, skipped and manual-only candidates, build result, and commit hash. For
+Vaadin, also report the release, upgrade, and changelog URLs reviewed and summarize the compatibility adaptations.
