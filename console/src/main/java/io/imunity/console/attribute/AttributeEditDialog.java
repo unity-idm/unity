@@ -14,7 +14,7 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 
-@CssImport(value = "./dialog.css", themeFor = "vaadin-confirm-dialog-overlay")
+@CssImport("./dialog.css")
 public class AttributeEditDialog extends DialogWithActionFooter
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AttributeEditDialog.class);

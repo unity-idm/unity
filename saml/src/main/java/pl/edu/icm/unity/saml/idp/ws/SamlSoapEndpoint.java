@@ -12,8 +12,8 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement;
 import jakarta.servlet.Servlet;
 
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

@@ -5,14 +5,17 @@
 
 package io.imunity.vaadin.shared.endpoint;
 
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.shared.ui.Transport;
+import com.vaadin.flow.theme.lumo.Lumo;
 import io.imunity.vaadin.endpoint.common.FaviconSetuper;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 
+@StyleSheet(Lumo.STYLESHEET)
 @Push(transport = Transport.LONG_POLLING)
 class PublicSharedShellConfigurator implements AppShellConfigurator
 {

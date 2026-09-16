@@ -12,7 +12,7 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.message.MessageSource;

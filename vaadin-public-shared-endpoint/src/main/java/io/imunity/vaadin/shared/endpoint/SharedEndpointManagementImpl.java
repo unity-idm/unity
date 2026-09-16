@@ -16,10 +16,10 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee11.servlet.FilterHolder;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
 import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;

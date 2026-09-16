@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
 import org.springframework.beans.factory.ObjectFactory;

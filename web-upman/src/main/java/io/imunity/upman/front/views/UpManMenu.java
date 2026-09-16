@@ -34,6 +34,8 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NavigationTrigger;
 import com.vaadin.flow.router.PreserveOnRefresh;
 
+import jakarta.annotation.security.PermitAll;
+
 import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.front.views.groups.GroupsView;
@@ -51,6 +53,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 
 @PreserveOnRefresh
+@PermitAll
 public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserver
 {
 	private final ProjectService projectService;

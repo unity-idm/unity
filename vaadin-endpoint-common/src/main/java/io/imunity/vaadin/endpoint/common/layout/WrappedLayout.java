@@ -17,10 +17,12 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 import io.imunity.vaadin.endpoint.common.VaadinEndpointProperties;
 
 @Tag("vaadin-wrapped-layout")
+@AnonymousAllowed
 public class WrappedLayout extends Component implements RouterLayout, HasComponents
 {
 	private ExtraPanelsConfigurationProvider config;

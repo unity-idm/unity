@@ -176,8 +176,8 @@ vaadin-icon {
     height: var(--lumo-icon-size-s);
 }
 
-vaadin-form-item {
-    --vaadin-form-item-label-width: 11em;
+vaadin-form-layout {
+    --vaadin-form-layout-label-width: 11em;
     white-space: nowrap;
 }
 
@@ -248,11 +248,11 @@ vaadin-checkbox-group.check-box-with-error::part(group-field) {
 	display: inline-flex;
 }
 
-vaadin-tooltip-overlay[position=end-top]::part(overlay) {
+vaadin-tooltip[position=end-top]::part(overlay) {
     margin-top: var(--unity-base-margin);
 }
 
-vaadin-tooltip-overlay::part(overlay) {
+vaadin-tooltip::part(overlay) {
     font-size: var(--lumo-font-size-s);
 }
 
@@ -440,16 +440,16 @@ vaadin-button.u-text-left::part(label) {
     height: var(--unity-icon-size);
 }
 
-.u-small-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 3em;
+.u-small-vaadin-form-item {
+    --vaadin-form-layout-label-width: 3em;
 }
 
-.u-medium-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 17em;
+.u-medium-vaadin-form-item {
+    --vaadin-form-layout-label-width: 17em;
 }
 
-.u-big-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 25em;
+.u-big-vaadin-form-item {
+    --vaadin-form-layout-label-width: 25em;
 }
 
 .u-fido-layout {
@@ -824,7 +824,7 @@ vaadin-grid::part(u-bold) {
     color: var(--unity-font-primary-color);
 }
 
-vaadin-combo-box-overlay.u-combobox-hidden-checkmark > * ::part(checkmark){
+vaadin-combo-box-item.u-combobox-hidden-checkmark::part(checkmark){
 	visibility: hidden;
 }
 
@@ -921,5 +921,4 @@ vaadin-accordion-heading[opened]::part(toggle) {
 .u-grid-with-action-padding::part(last-column-cell){
 	padding-right: 1em;
 }
-
 

@@ -44,16 +44,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty.ee10</groupId>
-            <artifactId>jetty-ee10-webapp</artifactId>
+            <groupId>org.eclipse.jetty.ee11</groupId>
+            <artifactId>jetty-ee11-webapp</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty.ee10</groupId>
-            <artifactId>jetty-ee10-plus</artifactId>
+            <groupId>org.eclipse.jetty.ee11</groupId>
+            <artifactId>jetty-ee11-plus</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty.ee10</groupId>
-            <artifactId>jetty-ee10-annotations</artifactId>
+            <groupId>org.eclipse.jetty.ee11</groupId>
+            <artifactId>jetty-ee11-annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.annotation</groupId>
@@ -79,11 +79,6 @@
             <groupId>io.imunity.simplecaptcha</groupId>
             <artifactId>simplecaptcha</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.vaadin.componentfactory</groupId>
-            <artifactId>tooltip</artifactId>
-        </dependency>
-        
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>

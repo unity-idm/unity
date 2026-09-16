@@ -35,6 +35,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	                                 String verifyButtonDesc, Icon verifyButtonIcon,
 	                                 String adminConfirmCheckBoxLabel, boolean showLabelInline)
 	{
+		super("");
 		this.showLabelInline = showLabelInline;
 		this.verifyButtonIcon = new Div(verifyButtonIcon);
 		this.label = new InputLabel("");
