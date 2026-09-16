@@ -72,6 +72,20 @@ public class TestProjectService
 	}
 
 	@Test
+	public void shouldReturnEmptyProjectListWhenUserCannotManageAnyProject() throws EngineException
+	{
+		// given
+		long entityId = 1;
+		when(delGroupMan.getProjectsForEntity(entityId)).thenReturn(List.of());
+
+		// when
+		List<ProjectGroup> projectForUser = projectService.getProjectForUser(entityId);
+
+		// then
+		assertThat(projectForUser).isEmpty();
+	}
+
+	@Test
 	public void shouldGetProjectLogo() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
