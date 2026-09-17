@@ -135,6 +135,10 @@
 			<artifactId>jakarta.xml.bind-api</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+		</dependency>
     </dependencies>
 	
 	<build>

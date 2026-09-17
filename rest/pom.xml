@@ -98,8 +98,8 @@
 			<artifactId>nimbus-jose-jwt</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.eclipse.jetty.ee10</groupId>
-			<artifactId>jetty-ee10-servlets</artifactId>
+			<groupId>org.eclipse.jetty.ee11</groupId>
+			<artifactId>jetty-ee11-servlets</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>javax.annotation</groupId>

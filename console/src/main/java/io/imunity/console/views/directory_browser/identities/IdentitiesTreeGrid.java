@@ -12,7 +12,6 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -21,6 +20,7 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
+import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.data.selection.SelectionListener;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.shared.Registration;
@@ -71,6 +71,11 @@ import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
 public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTreeGrid.class);
+	static final String ENTITY_HIERARCHY_TEMPLATE = "<vaadin-grid-tree-toggle "
+			+ "@click=${e => requestAnimationFrame(() => { e.defaultPrevented && onToggle(e) })} "
+			+ "class=${item.cssClassName} .leaf=${!model.hasChildren} "
+			+ ".expanded=${live(model.expanded)} .level=${model.level}>"
+			+ "</vaadin-grid-tree-toggle><span>${item.entityName}</span>";
 
 	private final AttributeSupport attributeSupport;
 	private final CredentialManagement credentialManagement;
@@ -224,13 +229,9 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	private void createBaseColumns()
 	{
-		addComponentHierarchyColumn(ie ->
-		{
-			Div div = new Div(new Span(ie.getBaseValue(BaseColumn.entity)));
-			div.getElement().setAttribute("onclick", "event.stopPropagation();");
-			div.addSingleClickListener(event -> GridSelectionSupport.replaceSelection(this, ie));
-			return div;
-		})
+		addColumn(LitRenderer.<IdentityEntry>of(ENTITY_HIERARCHY_TEMPLATE)
+				.withProperty("entityName", ie -> ie.getBaseValue(BaseColumn.entity))
+				.withFunction("onToggle", this::toggleExpansion))
 				.setHeader(msg.getMessage(BaseColumn.entity.captionKey))
 				.setWidth(BaseColumn.entity.defWidth + "px")
 				.setResizable(true)
@@ -248,6 +249,14 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 			baseColumn.setVisible(!column.initiallyCollapsed);
 			columnToggleMenu.addColumn(msg.getMessage(column.captionKey), baseColumn);
 		}
+	}
+
+	private void toggleExpansion(IdentityEntry entry)
+	{
+		if (isExpanded(entry))
+			collapse(List.of(entry), true);
+		else
+			expand(List.of(entry), true);
 	}
 
 	private void refreshActionColumn()

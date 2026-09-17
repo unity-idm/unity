@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.HasLabel;
-import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
@@ -89,9 +88,7 @@ public class FormLayoutEmbeddable
 					select.setTooltipChangeListener(t ->
 					{
 						tooltip.tooltip()
-								.removeAll();
-						tooltip.tooltip()
-								.add(new Html("<div>" + t + "</div>"));
+								.setMarkdown(t);
 					});
 				}
 			}

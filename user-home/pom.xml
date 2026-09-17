@@ -75,10 +75,6 @@
 			<artifactId>unity-server-idp-spi</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
-            <groupId>com.vaadin.componentfactory</groupId>
-            <artifactId>tooltip</artifactId>
-        </dependency>
 	</dependencies>
 	
 	<build>

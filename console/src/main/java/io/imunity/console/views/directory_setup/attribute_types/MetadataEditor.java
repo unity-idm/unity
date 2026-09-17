@@ -53,7 +53,7 @@ class MetadataEditor extends VerticalLayout
 		addNew.setIcon(VaadinIcon.PLUS_CIRCLE_O.create());
 		metaChoice = new ComboBox<>();
 		metaChoice.setWidth(CSSVars.TEXT_FIELD_MEDIUM.value());
-		metaChoice.setOverlayClassName(CssClassNames.HIDDEN_COMBO_CHECKMARK.getName());
+		metaChoice.setClassNameGenerator(item -> CssClassNames.HIDDEN_COMBO_CHECKMARK.getName());
 		
 		HorizontalLayout wrapper = new HorizontalLayout();
 		wrapper.setPadding(false);
