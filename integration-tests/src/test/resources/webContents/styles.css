@@ -249,7 +249,7 @@ vaadin-checkbox-group.check-box-with-error::part(group-field) {
 	display: inline-flex;
 }
 
-vaadin-tooltip[position=end-top]::part(overlay) {
+vaadin-tab.u-multi-tab > vaadin-tooltip[slot=tooltip]::part(overlay) {
     margin-top: var(--unity-base-margin);
 }
 
@@ -845,4 +845,3 @@ vaadin-accordion-heading::part(toggle){
 vaadin-accordion-heading[opened]::part(toggle) {
 	transform: rotate(270deg);
 }
-

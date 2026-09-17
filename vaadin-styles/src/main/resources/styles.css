@@ -248,7 +248,7 @@ vaadin-checkbox-group.check-box-with-error::part(group-field) {
 	display: inline-flex;
 }
 
-vaadin-tooltip[position=end-top]::part(overlay) {
+vaadin-tab.u-multi-tab > vaadin-tooltip[slot=tooltip]::part(overlay) {
     margin-top: var(--unity-base-margin);
 }
 
@@ -921,4 +921,3 @@ vaadin-accordion-heading[opened]::part(toggle) {
 .u-grid-with-action-padding::part(last-column-cell){
 	padding-right: 1em;
 }
-
