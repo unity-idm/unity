@@ -4,6 +4,7 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes.ext.img;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -86,7 +87,9 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 			switchView();
 			WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
 		}));
-		upload.setAcceptedFileTypes(ImageType.getSupportedMimeTypes(","));
+		upload.setAcceptedMimeTypes(Arrays.stream(ImageType.values())
+				.map(ImageType::getMimeType)
+				.toArray(String[]::new));
 		upload.setMaxFileSize(imgConfig.getMaxSize());
 		upload.getElement().addEventListener("file-remove", e -> cleanImage());
 		upload.addFileRejectedListener(event -> showErrorNotification(event.getErrorMessage()));
