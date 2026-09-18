@@ -121,7 +121,7 @@ class ImportAttributeTypeEditor extends VerticalLayout
 			reloadTableFromFile();
 		}));
 		upload.setMaxFileSize(MAX_FILE_SIZE_IN_BYTES);
-		upload.setAcceptedFileTypes("application/json");
+		upload.setAcceptedMimeTypes("application/json");
 		upload.getElement()
 				.addEventListener("file-remove", e -> clear());
 		upload.addFileRejectedListener(
