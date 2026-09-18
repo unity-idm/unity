@@ -16,8 +16,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>12.1.12</jetty.version>
-		<slf4j.version>2.0.18</slf4j.version>
+		<jetty.version>12.1.13</jetty.version>
+		<slf4j.version>2.0.19</slf4j.version>
 		<log4j.version>2.26.1</log4j.version>
 		<spring.version>6.2.19</spring.version>
 		<vaadin.version>25.2.8</vaadin.version>
@@ -216,7 +216,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>exec-maven-plugin</artifactId>
-					<version>3.6.3</version>
+					<version>3.6.4</version>
 				</plugin>
 				<plugin>
 					<groupId>com.googlecode.maven-download-plugin</groupId>
@@ -689,7 +689,7 @@
 			<dependency>
 				<groupId>org.freemarker</groupId>
 				<artifactId>freemarker</artifactId>
-				<version>2.3.34</version>
+				<version>2.3.35</version>
 			</dependency>
 
 			<dependency>
@@ -737,7 +737,7 @@
 			<dependency>
 				<groupId>org.mvel</groupId>
 				<artifactId>mvel2</artifactId>
-				<version>2.5.2.Final</version>
+				<version>2.5.4.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents.client5</groupId>
