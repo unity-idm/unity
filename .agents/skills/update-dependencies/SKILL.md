@@ -37,6 +37,8 @@ bulk patch pass.
 ## Guardrails
 
 - Work from the checkout root containing the master `pom.xml`; read and follow its `AGENTS.md` first.
+- Require a ticket ID before applying dependency updates. Discovery may run without one, but do not edit files until
+  the user supplies the ID.
 - Inspect `git status --short` before editing. Preserve unrelated work and never stage it. If `pom.xml` already has
   user changes, inspect them and stop for clarification when the skill's edits cannot be isolated safely.
 - Scope automated version edits to the root `pom.xml`. Use Maven with `-N` for version discovery so module POMs are
@@ -73,8 +75,9 @@ remove the verified temporary directory created for this run.
 Before committing, run `git diff --check`, inspect the complete diff, and stage explicit attributable paths only;
 never use `git add -A`. Create exactly one commit for the completed update set unless the user requested a different
 split. Each staged Vaadin minor or major hop is a separate update set and therefore gets its own successful build
-and commit. Prefix the concise imperative commit subject with an issue key when one is applicable. If Maven finds
-no eligible updates, do not build or create an empty commit; report that the POM is current for the selected mode.
+and commit. Prefix every commit subject with the required ticket ID followed by one space and a concise imperative
+subject, without a colon (for example, `UY-1601 Update Jackson dependencies`). If Maven finds no eligible updates,
+do not build or create an empty commit; report that the POM is current for the selected mode.
 
 Finish by reporting the old-to-new versions, skipped and manual-only candidates, build result, and commit hash. For
 Vaadin, also report the release, upgrade, and changelog URLs reviewed and summarize the compatibility adaptations.
