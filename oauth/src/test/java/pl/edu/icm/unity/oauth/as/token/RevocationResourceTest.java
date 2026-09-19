@@ -8,7 +8,7 @@ package pl.edu.icm.unity.oauth.as.token;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.oauth.as.InternalAccessTokenTestExposer.INTERNAL_ACCESS_TOKEN;
 
@@ -152,7 +152,7 @@ public class RevocationResourceTest
 		
 		assertThat(response.getStatus()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
 		assertThat(response.readEntity(String.class)).containsSequence("invalid_scope");
-		verifyZeroInteractions(sessionManagement);
+		verifyNoInteractions(sessionManagement);
 	}
 
 	@Test

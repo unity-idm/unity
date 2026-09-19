@@ -16,17 +16,18 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>12.1.12</jetty.version>
-		<slf4j.version>2.0.18</slf4j.version>
+		<jetty.version>12.1.13</jetty.version>
+		<slf4j.version>2.0.19</slf4j.version>
 		<log4j.version>2.26.1</log4j.version>
-		<spring.version>6.2.19</spring.version>
+		<spring.version>7.0.9</spring.version>
 		<vaadin.version>25.2.8</vaadin.version>
 		<cxf.version>4.2.3</cxf.version>
 		<apacheds.version>2.0.0.AM27</apacheds.version>
 		<bc.version>1.84</bc.version>
-		<selenium.version>4.36.0</selenium.version>
-		<junit.version>6.0.3</junit.version>
+		<selenium.version>4.49.0</selenium.version>
+		<junit.version>6.1.3</junit.version>
 		<jackson.version>2.22.2</jackson.version>
+		<jackson3.version>3.2.2</jackson3.version>
 		<javadocPlugin.version>3.12.0</javadocPlugin.version>
 		<java.source.version>21</java.source.version>
 
@@ -215,7 +216,7 @@
 				<plugin>
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>exec-maven-plugin</artifactId>
-					<version>3.6.3</version>
+					<version>3.6.4</version>
 				</plugin>
 				<plugin>
 					<groupId>com.googlecode.maven-download-plugin</groupId>
@@ -305,6 +306,20 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.fasterxml.jackson</groupId>
+				<artifactId>jackson-bom</artifactId>
+				<version>${jackson.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>tools.jackson</groupId>
+				<artifactId>jackson-bom</artifactId>
+				<version>${jackson3.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-bom</artifactId>
 				<version>${vaadin.version}</version>
@@ -339,6 +354,16 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>net.bytebuddy</groupId>
+				<artifactId>byte-buddy</artifactId>
+				<version>1.18.14</version>
+			</dependency>
+			<dependency>
+				<groupId>net.bytebuddy</groupId>
+				<artifactId>byte-buddy-agent</artifactId>
+				<version>1.18.14</version>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-test</artifactId>
 				<version>${spring.version}</version>
@@ -347,13 +372,13 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
-				<version>2.27.0</version>
+				<version>5.23.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-junit-jupiter</artifactId>
-				<version>5.4.0</version>
+				<version>5.23.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -427,6 +452,11 @@
 				<groupId>jakarta.annotation</groupId>
 				<artifactId>jakarta.annotation-api</artifactId>
 				<version>3.0.0</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.validation</groupId>
+				<artifactId>jakarta.validation-api</artifactId>
+				<version>3.1.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty.compression</groupId>
@@ -638,12 +668,12 @@
 			<dependency>
 				<groupId>com.mysql</groupId>
 				<artifactId>mysql-connector-j</artifactId>
-				<version>9.4.0</version>
+				<version>26.7.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.h2database</groupId>
 				<artifactId>h2</artifactId>
-				<version>2.3.232</version>
+				<version>2.5.250</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mybatis</groupId>
@@ -653,7 +683,7 @@
 			<dependency>
 				<groupId>org.mybatis</groupId>
 				<artifactId>mybatis-spring</artifactId>
-				<version>3.0.6</version>
+				<version>4.1.0</version>
 			</dependency>
 			<dependency>
 				<groupId>edu.vt.middleware</groupId>
@@ -674,7 +704,7 @@
 			<dependency>
 				<groupId>org.freemarker</groupId>
 				<artifactId>freemarker</artifactId>
-				<version>2.3.34</version>
+				<version>2.3.35</version>
 			</dependency>
 
 			<dependency>
@@ -722,12 +752,12 @@
 			<dependency>
 				<groupId>org.mvel</groupId>
 				<artifactId>mvel2</artifactId>
-				<version>2.5.2.Final</version>
+				<version>2.5.4.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents.client5</groupId>
 				<artifactId>httpclient5</artifactId>
-				<version>5.5.2</version>
+				<version>5.6.4</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
@@ -737,12 +767,12 @@
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>nimbus-jose-jwt</artifactId>
-				<version>10.9.1</version>
+				<version>10.10</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>33.6.0-jre</version>
+				<version>33.7.1-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.directory.server</groupId>
@@ -752,7 +782,7 @@
 			<dependency>
 				<groupId>commons-validator</groupId>
 				<artifactId>commons-validator</artifactId>
-				<version>1.10.1</version>
+				<version>1.11.0</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-codec</groupId>
@@ -762,7 +792,7 @@
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
 				<artifactId>quartz</artifactId>
-				<version>2.3.2</version>
+				<version>2.5.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.geronimo.specs</groupId>
@@ -772,7 +802,12 @@
 			<dependency>
 				<groupId>net.java.dev.jna</groupId>
 				<artifactId>jna</artifactId>
-				<version>5.18.1</version>
+				<version>5.19.1</version>
+			</dependency>
+			<dependency>
+				<groupId>net.java.dev.jna</groupId>
+				<artifactId>jna-platform</artifactId>
+				<version>5.19.1</version>
 			</dependency>
 			<dependency>
 				<groupId>org.kohsuke</groupId>
@@ -803,7 +838,7 @@
 			<dependency>
 				<groupId>com.yubico</groupId>
 				<artifactId>webauthn-server-core</artifactId>
-				<version>2.4.1</version>
+				<version>2.9.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.github.ua-parser</groupId>
@@ -828,7 +863,7 @@
 			<dependency>
 				<groupId>org.webjars</groupId>
 				<artifactId>swagger-ui</artifactId>
-				<version>5.29.5</version>
+				<version>5.32.15</version>
 			</dependency>
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
@@ -839,7 +874,7 @@
 			<dependency>
 				<groupId>com.googlecode.owasp-java-html-sanitizer</groupId>
 				<artifactId>owasp-java-html-sanitizer</artifactId>
-				<version>20240325.1</version>
+				<version>20260313.1</version>
 			</dependency>
 			<dependency>
 				<groupId>dk.brics</groupId>
