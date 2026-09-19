@@ -6,16 +6,14 @@
 package io.imunity.vaadin.endpoint.common.file;
 
 import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.server.AbstractStreamResource;
-import com.vaadin.flow.server.StreamResource;
-
-import java.io.ByteArrayInputStream;
+import com.vaadin.flow.server.streams.DownloadHandler;
 
 import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
 
 public class LocalOrRemoteResource extends Image
 {
 	private byte[] local;
+	private String mimeType;
 
 	public LocalOrRemoteResource()
 	{
@@ -28,13 +26,13 @@ public class LocalOrRemoteResource extends Image
 		addClassName(LOGO_IMAGE.getName());
 	}
 
-	public LocalOrRemoteResource(AbstractStreamResource src, String alt, byte[] local)
+	public LocalOrRemoteResource(DownloadHandler src, String alt, byte[] local)
 	{
 		super(src, alt);
 		this.local = local;
 	}
 
-	public void setSrc(AbstractStreamResource src, byte[] local)
+	public void setSrc(DownloadHandler src, byte[] local)
 	{
 		this.local = local;
 		super.setSrc(src);
@@ -50,11 +48,22 @@ public class LocalOrRemoteResource extends Image
 		this.local = local;
 	}
 
-	public LocalOrRemoteResource clone()
+	public String getMimeType()
 	{
-		if(local == null)
-			return new LocalOrRemoteResource(getSrc(), getAlt().orElse(null));
-		return new LocalOrRemoteResource(new StreamResource("file", () -> new ByteArrayInputStream(local)), "", local.clone());
+		return mimeType;
 	}
 
+	public void setMimeType(String mimeType)
+	{
+		this.mimeType = mimeType;
+	}
+
+	@Override
+	public LocalOrRemoteResource clone()
+	{
+		LocalOrRemoteResource clone = new LocalOrRemoteResource(getSrc(), getAlt().orElse(null));
+		clone.local = this.local != null ? this.local.clone() : null;
+		clone.mimeType = this.mimeType;
+		return clone;
+	}
 }

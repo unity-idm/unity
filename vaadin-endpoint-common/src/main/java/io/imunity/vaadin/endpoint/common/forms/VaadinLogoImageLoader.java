@@ -5,7 +5,7 @@
 
 package io.imunity.vaadin.endpoint.common.forms;
 
-import com.vaadin.flow.server.StreamResource;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 
 import org.apache.logging.log4j.Logger;
@@ -16,9 +16,10 @@ import pl.edu.icm.unity.engine.api.files.IllegalURIException;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 
-import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.Optional;
+
+import com.vaadin.flow.server.streams.DownloadHandler;
 
 @Component
 public class VaadinLogoImageLoader
@@ -34,8 +35,10 @@ public class VaadinLogoImageLoader
 	public Optional<LocalOrRemoteResource> loadImageFromUri(String logoUri)
 	{
 		if (logoUri == null || logoUri.isEmpty())
+		{
 			return Optional.empty();
-			
+		}
+
 		URI uri;
 		try
 		{
@@ -49,7 +52,6 @@ public class VaadinLogoImageLoader
 		return URIHelper.isWebReady(uri) ?
 			Optional.of(new LocalOrRemoteResource(uri.toString(), "")) :
 			fetchAndExpose(logoUri, uri);
-
 	}
 
 	private Optional<LocalOrRemoteResource> fetchAndExpose(String logoUri, URI uri)
@@ -63,9 +65,47 @@ public class VaadinLogoImageLoader
 			log.error("Can not read image from URI: " + logoUri);
 			return Optional.empty();
 		}
-		
-		ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(fileData.getContents());
-		StreamResource streamResource = new StreamResource(fileData.getName(), () -> byteArrayInputStream);
-		return Optional.of(new LocalOrRemoteResource(streamResource, "", fileData.getContents()));
+
+		String mimeType = getMimeTypeFromFilename(fileData.getName());
+		DownloadHandler downloadHandler = DownloadHandlers.forBytes(fileData.getContents(), fileData.getName(), mimeType);
+		return Optional.of(new LocalOrRemoteResource(downloadHandler, "", fileData.getContents()));
+	}
+
+	private static String getMimeTypeFromFilename(String filename)
+	{
+		if (filename == null)
+		{
+			return "application/octet-stream";
+		}
+		String lower = filename.toLowerCase();
+		if (lower.endsWith(".png"))
+		{
+			return "image/png";
+		}
+		if (lower.endsWith(".jpg") || lower.endsWith(".jpeg"))
+		{
+			return "image/jpeg";
+		}
+		if (lower.endsWith(".gif"))
+		{
+			return "image/gif";
+		}
+		if (lower.endsWith(".svg"))
+		{
+			return "image/svg+xml";
+		}
+		if (lower.endsWith(".webp"))
+		{
+			return "image/webp";
+		}
+		if (lower.endsWith(".bmp"))
+		{
+			return "image/bmp";
+		}
+		if (lower.endsWith(".ico"))
+		{
+			return "image/x-icon";
+		}
+		return "application/octet-stream";
 	}
 }

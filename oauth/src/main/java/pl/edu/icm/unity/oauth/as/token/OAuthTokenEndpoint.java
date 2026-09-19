@@ -33,8 +33,12 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
+import pl.edu.icm.unity.oauth.as.OAuthRequestValidator.OAuthRequestValidatorFactory;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
+import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
+import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationEntityStatementResource;
 import pl.edu.icm.unity.oauth.as.token.access.AccessTokenResourceFactory;
+import pl.edu.icm.unity.oauth.as.token.access.DeviceCodeRepository;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.exception.OAuthExceptionMapper;
@@ -65,7 +69,8 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	public static final String TOKEN_INFO_PATH = "/tokeninfo";
 	public static final String TOKEN_INTROSPECTION_PATH = "/introspect";
 	public static final String TOKEN_REVOCATION_PATH = "/revoke";
-	
+	public static final String DEVICE_AUTHORIZATION_PATH = "/device_authorization";
+
 	private PKIManagement pkiManagement;
 	private OAuthASProperties config;
 	private OAuthEndpointsCoordinator coordinator;
@@ -74,17 +79,22 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	private final OAuthAccessTokenRepository accessTokenRepository;
 	private final OAuthRefreshTokenRepository refreshTokenRepository;
 	private final TokenIntrospectionResourceFactory tokenIntrospectionResourceFactory;
-	
-	
+	private final OAuthRequestValidatorFactory requestValidatorFactory;
+	private final DeviceCodeRepository deviceCodeRepository;
+	private final EntityManagement unsecureIdentitiesMan;
+
+
 	@Autowired
 	public OAuthTokenEndpoint(MessageSource msg, SessionManagement sessionMan, NetworkServer server,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, AuthenticationProcessor authnProcessor,
-			EntityManagement identitiesMan, @Qualifier("insecure") AttributesManagement attributesMan,
+			EntityManagement identitiesMan, @Qualifier("insecure")  EntityManagement unsecureIdentitiesMan,
+			@Qualifier("insecure") AttributesManagement attributesMan,
 			@Qualifier("insecure") IdPEngine idPEngine, TokensManagement tokensManagement,
 			OAuthAccessTokenRepository accessTokenRepository, OAuthRefreshTokenRepository refreshTokenRepository,
 			AdvertisedAddressProvider advertisedAddrProvider, OAuthScopesService scopeService,
 			AccessTokenResourceFactory accessTokenResourceFactory,
-			TokenIntrospectionResourceFactory tokenIntrospectionResourceFactory)
+			TokenIntrospectionResourceFactory tokenIntrospectionResourceFactory,
+			OAuthRequestValidatorFactory requestValidatorFactory, DeviceCodeRepository deviceCodeRepository)
 	{
 		super(msg, sessionMan, authnProcessor, server, advertisedAddrProvider, PATH, identitiesMan);
 		this.pkiManagement = pkiManagement;
@@ -94,18 +104,28 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		this.scopeService = scopeService;
 		this.accessTokenResourceFactory = accessTokenResourceFactory;
 		this.tokenIntrospectionResourceFactory = tokenIntrospectionResourceFactory;
+		this.requestValidatorFactory = requestValidatorFactory;
+		this.deviceCodeRepository = deviceCodeRepository;
+		this.unsecureIdentitiesMan = unsecureIdentitiesMan;
 	}
 	
 	@Override
 	protected void setSerializedConfiguration(String serializedState)
 	{
 		super.setSerializedConfiguration(serializedState);
-		config = new OAuthASProperties(properties, pkiManagement, 
+		config = new OAuthASProperties(properties, pkiManagement,
 				getServletUrl(PATH));
-		coordinator.registerTokenEndpoint(config.getValue(OAuthASProperties.ISSUER_URI), 
+		coordinator.registerTokenEndpoint(config.getValue(OAuthASProperties.ISSUER_URI),
 				getServletUrl(""));
-		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", TOKEN_INFO_PATH, USER_INFO_PATH);
-		addOptionallyAuthenticatedPaths(TOKEN_REVOCATION_PATH, TOKEN_PATH);
+		coordinator.registerFederationConfig(getServletUrl(TOKEN_PATH), buildFederationConfig(config));
+		addNotProtectedPaths(JWK_PATH, "/.well-known/openid-configuration", "/.well-known/openid-federation",
+				TOKEN_INFO_PATH, USER_INFO_PATH);
+		addOptionallyAuthenticatedPaths(TOKEN_REVOCATION_PATH, TOKEN_PATH, DEVICE_AUTHORIZATION_PATH);
+	}
+
+	private OAuthASFederationConfig buildFederationConfig(OAuthASProperties props)
+	{
+		return OAuthASFederationConfig.from(props, pkiManagement);
 	}
 	
 	@Override
@@ -124,6 +144,9 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(accessTokenResourceFactory.getHandler(config, description));
 			ret.add(new DiscoveryResource(config, coordinator, scopeService));
+			ret.add(new OAuthASFederationEntityStatementResource(config, coordinator, scopeService, pkiManagement));
+			ret.add(new DeviceAuthorizationResource(config, coordinator,
+					requestValidatorFactory.getOAuthRequestValidator(config), unsecureIdentitiesMan, deviceCodeRepository));
 			ret.add(new KeysResource(config));
 			ret.add(new TokenInfoResource(accessTokenRepository));
 			ret.add(tokenIntrospectionResourceFactory.getTokenIntrospection(config));

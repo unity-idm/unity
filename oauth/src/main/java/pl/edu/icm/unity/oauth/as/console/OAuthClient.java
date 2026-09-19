@@ -8,6 +8,7 @@ package pl.edu.icm.unity.oauth.as.console;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 import io.imunity.vaadin.endpoint.common.file.LocalOrRemoteResource;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMethod;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,6 +30,7 @@ public class OAuthClient
 	private String secret;
 	private List<String> flows;
 	private boolean allowAnyScopes;
+	private boolean canReceivePatternScopes;
 	private List<String> scopes;
 	private String type;
 	private List<String> redirectURIs;
@@ -37,6 +39,8 @@ public class OAuthClient
 	private String group;
 	private boolean toRemove;
 	private boolean updated;
+	private String clientAuthnMethod;
+	private String jwks;
 
 	public OAuthClient()
 	{
@@ -45,6 +49,7 @@ public class OAuthClient
 		this.flows = new ArrayList<>();
 		this.scopes = new ArrayList<>();
 		this.redirectURIs = new ArrayList<>();
+		this.clientAuthnMethod = ClientAuthnMethod.client_secret.toString();
 	}
 
 	public OAuthClient(String id, String secret)
@@ -197,6 +202,16 @@ public class OAuthClient
 		this.allowAnyScopes = allowAnyScopes;
 	}
 	
+	public boolean isCanReceivePatternScopes()
+	{
+		return canReceivePatternScopes;
+	}
+
+	public void setCanReceivePatternScopes(boolean canReceivePatternScopes)
+	{
+		this.canReceivePatternScopes = canReceivePatternScopes;
+	}
+	
 	public OAuthClient clone()
 	{
 		OAuthClient clone = new OAuthClient();
@@ -228,7 +243,30 @@ public class OAuthClient
 		clone.setType(this.getType());
 		clone.setUpdated(this.isUpdated());
 		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);
+		clone.setCanReceivePatternScopes(this.isCanReceivePatternScopes());
+		clone.setClientAuthnMethod(this.getClientAuthnMethod());
+		clone.setJwks(this.getJwks());
 		return clone;
+	}
+
+	public String getClientAuthnMethod()
+	{
+		return clientAuthnMethod;
+	}
+
+	public void setClientAuthnMethod(String clientAuthnMethod)
+	{
+		this.clientAuthnMethod = clientAuthnMethod;
+	}
+
+	public String getJwks()
+	{
+		return jwks;
+	}
+
+	public void setJwks(String jwks)
+	{
+		this.jwks = jwks;
 	}
 
 	public static class OAuthClientsBean

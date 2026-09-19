@@ -9,11 +9,11 @@
     <parent>
         <groupId>io.imunity</groupId>
         <artifactId>unity-server-parent</artifactId>
-        <version>4.2.0-SNAPSHOT</version>
+        <version>4.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>unity-server-console-utils</artifactId>
-
+    <name>UNITY Server ${m.name} module</name>
     <properties>
         <m.name>console-utils</m.name>
     </properties>

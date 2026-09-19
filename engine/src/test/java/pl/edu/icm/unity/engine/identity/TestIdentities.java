@@ -421,7 +421,6 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertEquals(EntityState.disabled, entity.getState());
 	}
 	
-	
 	@Test
 	public void shouldFailToAddToSubgoupWhenNotInParent() throws Exception
 	{

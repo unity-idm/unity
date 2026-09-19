@@ -6,7 +6,6 @@ package pl.edu.icm.unity.store.impl.attribute;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,7 +22,6 @@ public class DefaultAttributeDAOFactory
 {
 	@Bean
 	@Primary
-	@Autowired
 	public AttributeDAO getDefaultAttributeDAO(StorageConfiguration cfg, 
 			Map<String, AttributeDAO> daos)
 	{

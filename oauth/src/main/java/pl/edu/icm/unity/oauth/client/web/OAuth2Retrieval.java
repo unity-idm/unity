@@ -8,7 +8,6 @@ import io.imunity.vaadin.auth.ProxyAuthenticationCapable;
 import io.imunity.vaadin.auth.SigInInProgressContextService;
 import io.imunity.vaadin.auth.VaadinAuthentication;
 import io.imunity.vaadin.elements.NotificationPresenter;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,7 +18,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.*;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,11 +26,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * OAuth2 authn retrieval. It is responsible for browser redirection to the OAuth provider with an authorization
- * request provided by verificator. 
+ * request provided by verificator.
  * @author K. Benedyczak
  */
 @PrototypeComponent
@@ -41,18 +39,18 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	public static final String NAME = "vaadin-oauth2";
 	public static final String DESC = "OAuth2RetrievalFactory.desc";
 	private final MessageSource msg;
-	private final VaadinLogoImageLoader imageService;
+	private final OAuthProviderLogoLoader logoLoader;
 	private final NotificationPresenter notificationPresenter;
 	private OAuthProxyAuthnHandler oAuthProxyAuthnHandler;
 
 	@Autowired
-	public OAuth2Retrieval(MessageSource msg, VaadinLogoImageLoader imageService,
+	public OAuth2Retrieval(MessageSource msg, OAuthProviderLogoLoader logoLoader,
 	                       NotificationPresenter notificationPresenter)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
-		this.imageService = imageService;
+		this.logoLoader = logoLoader;
 	}
 
 	@Override
@@ -65,34 +63,37 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	public void setSerializedConfiguration(String json) throws InternalException
 	{
 	}
-	
+
 	@Override
 	public void setCredentialExchange(CredentialExchange e, String id)
 	{
 		super.setCredentialExchange(e, id);
 		oAuthProxyAuthnHandler = new OAuthProxyAuthnHandler((OAuthExchange) e, id);
 	}
-	
+
+	@Override
+	public void destroy()
+	{
+		credentialExchange.destroy();
+	}
+
 	@Override
 	public Collection<VaadinAuthenticationUI> createUIInstance(Context context, AuthenticatorStepContext authenticatorContext)
 	{
 		List<VaadinAuthenticationUI> ret = new ArrayList<>();
-		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		Set<String> keys = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
-		for (String key: keys)
+		for (OAuthProviderConfiguration provider : credentialExchange.getProviders().getAll())
 		{
-			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), 
-					key.length()-1);
-			AuthenticationOptionKey authenticationOptionKey = 
-					new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
-			ret.add(new OAuth2RetrievalUI(msg, imageService, credentialExchange,
-					key, context,
-					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey, SigInInProgressContextService.getVaadinContext()),
+			String idpKey = provider.key().asString();
+			AuthenticationOptionKey authenticationOptionKey = new AuthenticationOptionKey(getAuthenticatorId(), idpKey);
+			ret.add(new OAuth2RetrievalUI(msg, logoLoader, credentialExchange,
+					provider.key(), context,
+					new AuthenticationStepContext(authenticatorContext, authenticationOptionKey,
+							SigInInProgressContextService.getVaadinContext()),
 					notificationPresenter));
 		}
 		return ret;
 	}
-	
+
 	@Component
 	public static class Factory extends AbstractCredentialRetrievalFactory<OAuth2Retrieval>
 	{

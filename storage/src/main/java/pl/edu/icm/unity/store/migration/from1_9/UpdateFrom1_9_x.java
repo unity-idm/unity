@@ -261,7 +261,7 @@ public class UpdateFrom1_9_x implements JsonDumpUpdate
 			target.put("lastSentTime", lastSent*1000);
 		}
 		ObjectNode attributesOld = (ObjectNode) target.get("attributes");
-		attributesOld.fields().forEachRemaining(field ->
+		attributesOld.properties().iterator().forEachRemaining(field ->
 		{
 			ObjectNode el = (ObjectNode) field.getValue();
 			ObjectNode oldEntry = (ObjectNode) el.get("attribute");

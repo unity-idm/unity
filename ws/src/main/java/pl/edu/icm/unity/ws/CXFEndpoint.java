@@ -7,10 +7,12 @@ package pl.edu.icm.unity.ws;
 import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
+import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -91,10 +93,18 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 		AuthenticationRealm realm = description.getRealm();
 		inInterceptors.add(new AuthenticationInterceptor(msg, authnProcessor, authenticationFlows, realm, sessionMan, 
 				Collections.emptySet(), Collections.emptySet(), 
-				getEndpointDescription().getType().getFeatures(), entityMan));
+				getEndpointDescription().getType().getFeatures(), entityMan,
+				CXFEndpoint::generateFault));
+		SoapFault soapFault = new SoapFault("Authentication failed", SoapFault.FAULT_CODE_CLIENT);
 		RESTEndpoint.installAuthnInterceptors(authenticationFlows, inInterceptors);
 	}
-	
+
+	private static Fault generateFault(Optional<Exception> cause)
+	{
+		return cause.map(e -> new SoapFault("Authentication failed", e, SoapFault.FAULT_CODE_CLIENT))
+				.orElse(new SoapFault("Authentication failed", SoapFault.FAULT_CODE_CLIENT));
+	}
+
 	protected abstract void configureServices();
 	
 	@Override

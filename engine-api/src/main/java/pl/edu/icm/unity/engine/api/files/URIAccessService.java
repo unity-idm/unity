@@ -8,7 +8,9 @@ package pl.edu.icm.unity.engine.api.files;
 
 import pl.edu.icm.unity.base.file.FileData;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Path;
 import java.time.Duration;
 
 public interface URIAccessService
@@ -19,7 +21,10 @@ public interface URIAccessService
 
 	FileData readURI(URI uri, String customTruststore);
 
-	RemoteFileData readURL(URI uri, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber);
+	RemoteFileData readURL(URI uri, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout,
+			int retriesNumber, long maxResponseSizeBytes);
 	
 	FileData readImageURI(URI uri);
+
+	void assertAccessToFile(Path pathToCheck) throws IOException;
 }

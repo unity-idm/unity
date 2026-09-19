@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.as;
 import static com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue.ID_TOKEN;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -43,12 +44,17 @@ import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.DynamicAttribute;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.SerializableRemoteAuthnMetadata;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
@@ -110,7 +116,7 @@ public class OAuthProcessor
 	{
 		OAuthToken internalToken = new OAuthToken();
 		OAuthASProperties config = ctx.getConfig();
-		internalToken.setEffectiveScope(ctx.getEffectiveRequestedScopesList());
+		internalToken.setEffectiveScope(ctx.getEffectiveRequestedScopes().stream().toList());
 		internalToken.setRequestedScope(ctx.getRequestedScopes().stream().toArray(String[]::new));
 		internalToken.setClientId(ctx.getClientEntityId());
 		internalToken.setRedirectUri(ctx.getReturnURI().toASCIIString());
@@ -125,7 +131,14 @@ public class OAuthProcessor
 		internalToken.setClaimsInTokenAttribute(ctx.getClaimsInTokenAttribute());
 		internalToken.setAuthenticationTime(authenticationTime);
 		internalToken.setAttributeValueFilters(attributeWhiteList);
-		
+		internalToken.setRequestedACR(RequestedACRMapper.mapToInternalACRFromNimbusdsACRType(ctx.getRequestedAcr()));
+		if (InvocationContext.hasCurrent())
+		{
+			Optional.ofNullable(InvocationContext.getCurrent())
+					.ifPresent(context -> Optional.ofNullable(context.getLoginSession())
+							.ifPresent(loginSession -> internalToken
+									.setUserAuthnDetails(getAuthnDetailsFromLoginSession(loginSession))));
+		}
 		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
 				null : ctx.getRequest().getCodeChallenge().getValue();
 		String codeChallengeMethod = ctx.getRequest().getCodeChallengeMethod() == null ? 
@@ -347,5 +360,34 @@ public class OAuthProcessor
 		}
 		
 		return userInfo;
+	}
+	
+	private SerializableUserAuthnDetails getAuthnDetailsFromLoginSession(LoginSession loginSession)
+	{
+		if (loginSession == null)
+		{
+			return null;
+		}
+		SerializableRemoteAuthnMetadata remoteAuthnMetadata = null;
+		RemoteAuthnMetadata remote = loginSession.getFirstFactorRemoteIdPAuthnContext();
+		if (remote != null)
+		{
+			remoteAuthnMetadata = SerializableRemoteAuthnMetadata.builder()
+					.withProtocol(remote.protocol())
+					.withRemoteIdPId(remote.remoteIdPId())
+					.withClassReferences(remote.classReferences())
+					.build();
+		}
+		Set<AuthenticationMethod> authenticationMethods = loginSession.getAuthenticationMethods();
+		Set<String> authenticatedIdentities = loginSession.getAuthenticatedIdentities();
+		List<String> usedAuthenticators = new ArrayList<>();
+		if (loginSession.getLogin1stFactor() != null && loginSession.getLogin1stFactor().optionId != null)
+			usedAuthenticators.add(loginSession.getLogin1stFactor().optionId.getAuthenticatorKey());
+		if (loginSession.getLogin2ndFactor() != null && loginSession.getLogin2ndFactor().optionId != null)
+			usedAuthenticators.add(loginSession.getLogin2ndFactor().optionId.getAuthenticatorKey());
+		String remoteIdp = loginSession.getRemoteIdP();
+		return new SerializableUserAuthnDetails(remoteAuthnMetadata,
+				authenticationMethods != null ? authenticationMethods : Set.of(),
+				authenticatedIdentities != null ? authenticatedIdentities : Set.of(), usedAuthenticators, remoteIdp);
 	}
 }

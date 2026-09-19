@@ -145,6 +145,24 @@ public class TestSessions extends DBIntegrationTestBase
 	}
 
 	@Test
+	public void shouldRejectActivityUpdateImmediatelyAfterSessionRemoval() throws Exception
+	{
+		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
+		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT,
+				EntityState.valid);
+		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33,
+				RememberMePolicy.disallow, 1, 100);
+		LoginSession session = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null,
+				authenticatorOnlyKey("auth1"), null, null, null, null);
+		sessionMan.updateSessionActivity(session.getId());
+
+		sessionMan.removeSession(session.getId(), false);
+		Throwable error = catchThrowable(() -> sessionMan.updateSessionActivity(session.getId()));
+
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
 	public void sessionsAreRealmScoped() throws Exception
 	{
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");

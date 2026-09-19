@@ -96,11 +96,13 @@ public class URIAccessServiceImpl implements URIAccessService
 
 	@Override
 	@Transactional
-	public RemoteFileData readURL(URI uri, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber)
+	public RemoteFileData readURL(URI uri, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout,
+			int retriesNumber, long maxResponseSizeBytes)
 	{
 		try
 		{
-			return readURL(uri.toURL(), customTruststore, connectionTimeout, socketReadTimeout, retriesNumber);
+			URIHelper.validateURI(uri);
+			return readURL(uri.toURL(), customTruststore, connectionTimeout, socketReadTimeout, retriesNumber, maxResponseSizeBytes);
 		} catch (EngineException | IOException e)
 		{
 			log.trace("Can not read uri: " + uri, e);
@@ -139,6 +141,28 @@ public class URIAccessServiceImpl implements URIAccessService
 
 		log.warn("Can not read image uri: " + uri.toString());
 		throw new URIAccessException("Can not read image uri: " + uri.toString());
+	}
+	
+	@Transactional
+	@Override
+	public void assertAccessToFile(Path pathToCheck) throws IOException
+	{
+		if (!restrictFileSystemAccess)
+			return;
+		Path realRoot;
+		try
+		{
+			realRoot = Paths.get(new File(webContentDir).getAbsolutePath())
+					.toRealPath();
+		} catch (IOException e)
+		{
+			throw new IOException("Web content dir " + webContentDir + " does not exists");
+		}
+
+		if (!pathToCheck.startsWith(realRoot))
+		{
+			throw new IOException("Access to script " + pathToCheck + " is limited");
+		}
 	}
 
 	private FileData readUriInternal(String root, URI uri, String customTrustStore) throws EngineException
@@ -216,38 +240,24 @@ public class URIAccessServiceImpl implements URIAccessService
 		return new FileData(url.toString(), contentsWithType.contents, new Date());
 	}
 
-	private RemoteFileData readURL(URL url, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber)
-			throws IOException, EngineException
+	private RemoteFileData readURL(URL url, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout,
+			int retriesNumber, long maxResponseSizeBytes) throws IOException, EngineException
 	{
-		ContentsWithType contentsWithType = fileNetworkClient.download(url, customTruststore, 
-				connectionTimeout, socketReadTimeout, retriesNumber);
+		ContentsWithType contentsWithType = fileNetworkClient.download(url, customTruststore,
+				connectionTimeout, socketReadTimeout, retriesNumber, maxResponseSizeBytes);
 		return new RemoteFileData(url.toString(), contentsWithType.contents, new Date(), contentsWithType.mimeType);
 	}
 
 	private FileData readRestrictedFile(URI uri, String root) throws IOException, IllegalURIException
 	{
 		Path toRead = getRealFilePath(root, URIHelper.getPathFromURI(uri));
-
-		Path realRoot;
-		try
-		{
-			realRoot = Paths.get(new File(webContentDir).getAbsolutePath()).toRealPath();
-		} catch (IOException e)
-		{
-			throw new IOException("Web content dir does not exists");
-		}
-
-		if (!toRead.startsWith(realRoot))
-		{
-			throw new IOException("Access to file is limited");
-		}
-
+		assertAccessToFile(toRead);
 		File read = toRead.toFile();
 		log.debug("Read file from path: " + toRead.toString());
 		
 		return new FileData(read.getName(), Files.readAllBytes(toRead), new Date(read.lastModified()));
 	}
-
+	
 	private FileData readUnRestrictedFile(URI uri, String root) throws IOException
 	{
 		Path toRead = getRealFilePath(root, URIHelper.getPathFromURI(uri));

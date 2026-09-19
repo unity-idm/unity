@@ -11,6 +11,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+
 
 /**
  * Default configuration of annotations required to run Unity integration test with Spring
@@ -18,7 +20,7 @@ import org.springframework.test.context.TestPropertySource;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
-@ActiveProfiles("test")
+@ActiveProfiles(UnityServerConfiguration.PROFILE_TEST)
 @TestPropertySource(properties = { "unityConfig: src/test/resources/unityServer.conf" })
 public @interface UnityIntegrationTest {
 

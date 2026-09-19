@@ -302,6 +302,60 @@ public class TestWrite extends RESTAdminTestBase
 			assertEquals(Status.BAD_REQUEST.getStatusCode(), response.getCode());
 		}
 	}
+	
+	@Test
+	public void shouldClearScheduledOperation() throws Exception
+	{
+		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/userName/userA?credentialRequirement=cr-pass");
+		String contents = executeQuery(addEntity);
+		ObjectNode root = (ObjectNode) m.readTree(contents);
+		long entityId = root.get("entityId").asLong();
+		assertTrue(checkIdentity("userA"));
+		System.out.println("Added entity:\n" + contents);
+		
+		long time = System.currentTimeMillis() + 20000;
+		HttpPut scheduleRemoval = new HttpPut("/restadm/v1/entity/" + entityId + "/admin-schedule?when=" + 
+				time + "&operation=REMOVE");
+		try(ClassicHttpResponse response = client.executeOpen(host, scheduleRemoval, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+		
+		HttpDelete clearSchedule = new HttpDelete("/restadm/v1/entity/" + entityId + "/admin-schedule");
+		try(ClassicHttpResponse response = client.executeOpen(host, clearSchedule, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+		
+		Entity entity = idsMan.getEntity(new EntityParam(entityId));
+		assertEquals(null, entity.getEntityInformation().getScheduledOperationTime());
+		assertEquals(null, entity.getEntityInformation().getScheduledOperation());
+	}
+	
+	@Test
+	public void shouldClearRemovalByUserTime() throws Exception
+	{
+		HttpPost addEntity = new HttpPost("/restadm/v1/entity/identity/userName/userA?credentialRequirement=cr-pass");
+		String contents = executeQuery(addEntity);
+		ObjectNode root = (ObjectNode) m.readTree(contents);
+		long entityId = root.get("entityId").asLong();
+		assertTrue(checkIdentity("userA"));
+		System.out.println("Added entity:\n" + contents);
+		
+		long time = System.currentTimeMillis() + 20000;
+		HttpPut removalSchedule = new HttpPut("/restadm/v1/entity/" + entityId + "/removal-schedule?when=" + 
+				time);
+		try(ClassicHttpResponse response = client.executeOpen(host, removalSchedule, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+		
+		HttpDelete clearSchedule = new HttpDelete("/restadm/v1/entity/" + entityId + "/admin-schedule");
+		try(ClassicHttpResponse response = client.executeOpen(host, clearSchedule, getClientContext(host))){
+			assertEquals(Status.NO_CONTENT.getStatusCode(), response.getCode());
+		}
+		
+		Entity entity = idsMan.getEntity(new EntityParam(entityId));
+		assertEquals(EntityState.valid, entity.getEntityInformation().getState());
+		assertEquals(null, entity.getEntityInformation().getRemovalByUserTime());	
+	}
 
 	@Test
 	public void scheduleRemovalByUserWorks() throws Exception

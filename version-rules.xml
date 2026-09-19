@@ -1,0 +1,6 @@
+<ruleset comparisonMethod="maven">
+    <ignoreVersions>
+        <ignoreVersion type="regex">.*[.-](alpha|beta|rc|RC|cr|CR|m|M)[0-9]*.*</ignoreVersion>
+        <ignoreVersion type="regex">.*-jdk5</ignoreVersion>
+    </ignoreVersions>
+</ruleset>

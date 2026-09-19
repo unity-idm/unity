@@ -208,12 +208,12 @@ public class FormPrefill
 
 		n = json.get("messageParams");
 		if (n != null)
-			n.fields().forEachRemaining(field -> messageParams.put(field.getKey(), field.getValue().asText()));
+			n.properties().iterator().forEachRemaining(field -> messageParams.put(field.getKey(), field.getValue().asText()));
 	}
 
 	private void fill(JsonNode root, Map<Integer, GroupSelection> allowedGroups)
 	{
-		root.fields().forEachRemaining(field ->
+		root.properties().iterator().forEachRemaining(field ->
 			allowedGroups.put(Integer.parseInt(field.getKey()),
 						parseTree(field.getValue(), GroupSelection.class))
 		);
@@ -222,7 +222,7 @@ public class FormPrefill
 
 	protected <T> void fill(JsonNode root, Map<Integer, PrefilledEntry<T>> map, Class<T> clazz)
 	{
-		root.fields().forEachRemaining(field ->
+		root.properties().iterator().forEachRemaining(field ->
 		{
 			ObjectNode el = (ObjectNode) field.getValue();
 			map.put(Integer.parseInt(field.getKey()), toPrefilledEntry(el, clazz));
@@ -250,7 +250,7 @@ public class FormPrefill
 	public static class Builder
 	{
 
-		private FormPrefill instance;
+		private final FormPrefill instance;
 		
 		public Builder()
 		{

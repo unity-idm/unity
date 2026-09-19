@@ -12,11 +12,10 @@ import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 
 /**
  * Interface for validation of an access token obtained by a credential retrieval.
- * @author K. Benedyczak
  */
 public interface AccessTokenExchange extends CredentialExchange
 {
-	public static final String ID = "access token exchange";
+	String ID = "access token exchange";
 	
-	public AuthenticationResult checkToken(BearerAccessToken token) throws AuthenticationException;
+	AuthenticationResult checkToken(BearerAccessToken token) throws AuthenticationException;
 }

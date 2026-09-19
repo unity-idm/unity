@@ -55,7 +55,7 @@ public class InternalTokenVerificator implements TokenVerificatorProtocol
 			throw new InternalException("Can not parse the internal code token", e);
 		}
 		
-		Scope scope = new Scope(internalToken.getEffectiveScope());
+		Scope scope = new Scope(internalToken.getEffectiveScopeAsString());
 		return new TokenStatus(true, internalAccessToken.getExpires(), scope, internalToken.getSubject(), internalAccessToken.getOwner(), internalToken.getClientId());
 	}
 

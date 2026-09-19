@@ -96,12 +96,50 @@ public class SingleCredentialPanel extends VerticalLayout
 
 	private void init()
 	{
-		credentialName = new Html("<div></div>");
+		credentialName = createCredentialName();
 		credentialStatus = new Span();
 
 		credentialExtraInfo = new VerticalLayout();
 		credentialExtraInfo.setPadding(false);
 
+		buildCredEditor();
+
+		FormLayout fl = createCredentialFormLayout();
+		fl.addFormItem(credentialName, msg.getMessage("CredentialChangeDialog.credentialName"));
+		credentialStatusFormItem = fl.addFormItem(credentialStatus,
+				msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
+		credentialExtraFormItem = fl.addFormItem(credentialExtraInfo, "");
+		credEditorFormItem = fl.addFormItem(credEditorPanel, "");
+		actionsBar = createActionsBar();
+		fl.addFormItem(actionsBar, "");
+		add(fl);
+
+		credEditorFormItem.setVisible(false);
+		updateCredentialStatus();
+	}
+
+	static Html createCredentialName()
+	{
+		Html credentialName = new Html("<div></div>");
+		credentialName.getStyle()
+				.set("width", "100%")
+				.set("min-width", "0")
+				.set("overflow-wrap", "anywhere")
+				.set("white-space", "normal");
+		return credentialName;
+	}
+
+	static FormLayout createCredentialFormLayout()
+	{
+		FormLayout form = new FormLayout();
+		form.setWidthFull();
+		form.getStyle().set("min-width", "0");
+		form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+		return form;
+	}
+
+	private void buildCredEditor()
+	{
 		credEditor = credEditorReg.getEditor(toEdit.getTypeId());
 
 		ComponentsContainer editorComponents = credEditor.getEditor(CredentialEditorContext.builder()
@@ -115,20 +153,14 @@ public class SingleCredentialPanel extends VerticalLayout
 				.build());
 		credEditorPanel = new SingleCredentialEditComponent(msg, editorComponents, this::onCredentialUpdate,
 				this::hideEditor);
+	}
 
-		FormLayout fl = new FormLayout();
-		fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		fl.addFormItem(credentialName, msg.getMessage("CredentialChangeDialog.credentialName"));
-		credentialStatusFormItem = fl.addFormItem(credentialStatus,
-				msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
-		credentialExtraFormItem = fl.addFormItem(credentialExtraInfo, "");
-		credEditorFormItem = fl.addFormItem(credEditorPanel, "");
-		actionsBar = createActionsBar();
-		fl.addFormItem(actionsBar, "");
-		add(fl);
-
+	private void rebuildEditor()
+	{
+		buildCredEditor();
+		credEditorFormItem.removeAll();
+		credEditorFormItem.add(credEditorPanel);
 		credEditorFormItem.setVisible(false);
-		updateCredentialStatus();
 	}
 
 	private Component createActionsBar()
@@ -379,6 +411,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		}
 		loadEntity(entityP);
 		updateCredentialStatus();
+		rebuildEditor();
 	}
 
 	private void loadEntity(EntityParam entityP)

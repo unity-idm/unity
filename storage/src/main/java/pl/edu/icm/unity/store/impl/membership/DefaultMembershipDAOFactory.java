@@ -6,7 +6,6 @@ package pl.edu.icm.unity.store.impl.membership;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -23,7 +22,6 @@ public class DefaultMembershipDAOFactory
 {
 	@Bean
 	@Primary
-	@Autowired
 	public MembershipDAO getDefaultMembershipDAO(StorageConfiguration cfg, 
 			Map<String, MembershipDAO> daos)
 	{

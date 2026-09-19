@@ -127,6 +127,13 @@ public interface EntityManagement
 	 */
 	void scheduleRemovalByUser(EntityParam toChange, Date changeTime) throws EngineException;	
 
+	/**
+	 * If entity is in the state {@link EntityState#onlyLoginPermitted} this method clears the 
+	 * removal of the entity: state is set to enabled and user ordered removal is removed.
+	 * Requires only the attributeModify capability (allowed for selfAccess).
+	 */
+	void clearScheduledRemovalStatus(EntityParam toChange) throws EngineException;	
+	
 	Map<Long, List<Identity>> getIdentitiesForEntities(Set<Long> entityIds);
 
 	/**

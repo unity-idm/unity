@@ -19,6 +19,7 @@ import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.StatusLine;
+import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
@@ -87,7 +88,7 @@ public class TestJWTAuthentication extends TestRESTBase
 	{
 		HttpGet get = new HttpGet("/jwt/token");
 		ClassicHttpResponse response = execute(get);
-		assertEquals(500, response.getCode(), new StatusLine(response).toString());
+		assertEquals(HttpStatus.FORBIDDEN_403, response.getCode(), new StatusLine(response).toString());
 	}	
 
 	@Test
@@ -140,7 +141,7 @@ public class TestJWTAuthentication extends TestRESTBase
 		post.setEntity(new StringEntity(token));
 		response = execute(post);
 		
-		assertEquals(500, response.getCode(), new StatusLine(response).toString());
+		assertEquals(HttpStatus.FORBIDDEN_403, response.getCode(), new StatusLine(response).toString());
 	}
 	
 

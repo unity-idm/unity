@@ -25,15 +25,25 @@ public class MockTokensMan implements TokensManagement
 	
 	@Override
 	public void addToken(String type, String value, EntityParam owner, byte[] contents,
-			Date created, Date expires) throws 
+			Date created, Date expires) throws
 			IllegalIdentityValueException, IllegalTypeException
 	{
+		assertNotAlreadyPresent(type, value);
 		long entityId = owner.getEntityId() == null ? owner.getIdentity().hashCode() : owner.getEntityId();
 		Token t = new Token(type, value, entityId);
 		t.setContents(contents);
 		t.setExpires(expires);
 		t.setCreated(created);
 		tokens.put(type+value, t);
+	}
+
+	private void assertNotAlreadyPresent(String type, String value)
+	{
+		// mirrors the real store's UNIQUE(NAME, TYPE) constraint on the shared tokens table: a
+		// duplicate insert fails regardless of whether the existing row is logically expired, since
+		// expiry filtering only happens on read, not at insert time
+		if (tokens.containsKey(type + value))
+			throw new IllegalStateException("A token of type " + type + " and value " + value + " already exists");
 	}
 
 	@Override
@@ -52,7 +62,21 @@ public class MockTokensMan implements TokensManagement
 	}
 
 	@Override
-	public Token getTokenById(String type, String value) 
+	public Token getTokenById(String type, String value)
+	{
+		Token token = getTokenRegardlessOfExpiry(type, value);
+		if (token.isExpired())
+			throw new TokenNotFoundException("no such token");
+		return token;
+	}
+
+	@Override
+	public Token getTokenByIdForUpdate(String type, String value)
+	{
+		return getTokenRegardlessOfExpiry(type, value);
+	}
+
+	private Token getTokenRegardlessOfExpiry(String type, String value)
 	{
 		if (!tokens.containsKey(type+value))
 			throw new TokenNotFoundException("no such token");
@@ -83,11 +107,39 @@ public class MockTokensMan implements TokensManagement
 	public void addToken(String type, String value, byte[] contents, Date created, Date expires)
 			throws IllegalTypeException
 	{
+		assertNotAlreadyPresent(type, value);
+		Token t = new Token(type, value, null);
+		t.setContents(contents);
+		t.setExpires(expires);
+		t.setCreated(created);
+		tokens.put(type + value, t);
 	}
 
 	@Override
 	public List<Token> getAllTokens()
 	{
 		return null;
+	}
+
+	public Map<String, Token> snapshot()
+	{
+		Map<String, Token> copy = new HashMap<>();
+		for (Map.Entry<String, Token> e : tokens.entrySet())
+			copy.put(e.getKey(), cloneToken(e.getValue()));
+		return copy;
+	}
+
+	public void restore(Map<String, Token> snapshot)
+	{
+		tokens = snapshot;
+	}
+
+	private static Token cloneToken(Token orig)
+	{
+		Token clone = new Token(orig.getType(), orig.getValue(), orig.getOwner());
+		clone.setContents(orig.getContents());
+		clone.setExpires(orig.getExpires());
+		clone.setCreated(orig.getCreated());
+		return clone;
 	}
 }

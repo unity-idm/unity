@@ -1,0 +1,4 @@
+interface:
+  display_name: "Update Dependencies"
+  short_description: "Safely update Maven dependencies in Unity"
+  default_prompt: "Use $update-dependencies to update this Unity checkout’s Maven dependencies."

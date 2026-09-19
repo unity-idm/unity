@@ -4,9 +4,13 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import java.net.URI;
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.oauth.as.federation.OAuthASFederationConfig;
 
 /**
  * Singleton, coordinating pairs of co-working OAuth Unity endpoints. Each web authorization endpoint should have
@@ -21,7 +25,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class OAuthEndpointsCoordinator
 {
-	private HashMap<String, EndpointsPair> pairs = new HashMap<>(); 
+	public record FederationConfigEntry(String canonicalUrl, OAuthASFederationConfig config) {}
+
+	private HashMap<String, EndpointsPair> pairs = new HashMap<>();
+	private HashMap<String, OAuthASFederationConfig> federationConfigs = new HashMap<>();
+	private HashMap<String, String> pathToCanonicalUrl = new HashMap<>();
+	private HashMap<String, OAuthASProperties> deviceSignInConfigs = new HashMap<>();
 	
 	public synchronized void registerAuthzEndpoint(String issuer, String path)
 	{
@@ -44,7 +53,40 @@ public class OAuthEndpointsCoordinator
 		}
 		pair.setTokenPath(path);
 	}
+
+	public synchronized void registerDeviceSignInEndpoint(String issuer, String path)
+	{
+		EndpointsPair pair = pairs.get(issuer);
+		if (pair == null)
+		{
+			pair = new EndpointsPair();
+			pairs.put(issuer, pair);
+		}
+		pair.setDeviceSignInPath(path);
+	}
 	
+	public synchronized void registerFederationConfig(String tokenEndpointUrl, OAuthASFederationConfig config)
+	{
+		federationConfigs.put(tokenEndpointUrl, config);
+		pathToCanonicalUrl.put(URI.create(tokenEndpointUrl).getPath(), tokenEndpointUrl);
+	}
+
+	public synchronized Optional<OAuthASFederationConfig> getFederationConfig(String tokenEndpointUrl)
+	{
+		return Optional.ofNullable(federationConfigs.get(tokenEndpointUrl));
+	}
+
+	public synchronized Optional<FederationConfigEntry> findFederationConfigByPath(String path)
+	{
+		String canonicalUrl = pathToCanonicalUrl.get(path);
+		if (canonicalUrl == null)
+			return Optional.empty();
+		OAuthASFederationConfig config = federationConfigs.get(canonicalUrl);
+		if (config == null)
+			return Optional.empty();
+		return Optional.of(new FederationConfigEntry(canonicalUrl, config));
+	}
+
 	public synchronized String getAuthzEndpoint(String issuer)
 	{
 		EndpointsPair pair = pairs.get(issuer);
@@ -53,12 +95,32 @@ public class OAuthEndpointsCoordinator
 					+ issuer);
 		return pair.getAuthZPath();
 	}
-	
+
+	public synchronized String getDeviceSignInEndpoint(String issuer)
+	{
+		EndpointsPair pair = pairs.get(issuer);
+		if (pair == null || pair.getDeviceSignInPath() == null)
+			throw new IllegalArgumentException("There is no device sign-in endpoint deployed for the OAuth issuer "
+					+ issuer + ". Deploy an " + "OAuth2DeviceSignIn" + " endpoint for this issuer to use the device grant.");
+		return pair.getDeviceSignInPath();
+	}
+
+	public synchronized void registerDeviceSignInConfig(String issuer, OAuthASProperties config)
+	{
+		deviceSignInConfigs.put(issuer, config);
+	}
+
+	public synchronized Optional<OAuthASProperties> getDeviceSignInConfig(String issuer)
+	{
+		return Optional.ofNullable(deviceSignInConfigs.get(issuer));
+	}
+
 	public static class EndpointsPair
 	{
 		private String authZPath;
 		private String tokenPath;
-		
+		private String deviceSignInPath;
+
 		public String getAuthZPath()
 		{
 			return authZPath;
@@ -77,6 +139,16 @@ public class OAuthEndpointsCoordinator
 		public void setTokenPath(String tokenPath)
 		{
 			this.tokenPath = tokenPath;
+		}
+
+		public String getDeviceSignInPath()
+		{
+			return deviceSignInPath;
+		}
+
+		public void setDeviceSignInPath(String deviceSignInPath)
+		{
+			this.deviceSignInPath = deviceSignInPath;
 		}
 	}
 }

@@ -139,9 +139,18 @@ class ScheduledEntityRemovalDialog extends Dialog
 	{
 		try
 		{
-			identitiesMan.scheduleRemovalByUser(new EntityParam(entity), time);
 			close();
-			authnProcessor.logout();
+			if (time.getTime() <= System.currentTimeMillis())
+			{
+				// removal happens synchronously below; log out first to close the race window
+				// where a still-valid session could hit the just-deleted entity
+				authnProcessor.logoutImmediately("/");
+				identitiesMan.scheduleRemovalByUser(new EntityParam(entity), time);
+			} else
+			{
+				identitiesMan.scheduleRemovalByUser(new EntityParam(entity), time);
+				authnProcessor.logout();
+			}
 		} catch (EngineException e)
 		{
 			notificationPresenter.showError(msg.getMessage("RemoveEntityDialog.scheduleFailed"), e.getMessage());

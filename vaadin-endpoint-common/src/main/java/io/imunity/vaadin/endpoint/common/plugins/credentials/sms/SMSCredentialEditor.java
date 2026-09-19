@@ -19,6 +19,7 @@ import io.imunity.vaadin.endpoint.common.plugins.attributes.components.Confirmat
 import io.imunity.vaadin.endpoint.common.plugins.attributes.components.SingleStringFieldBinder;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
+
 import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;

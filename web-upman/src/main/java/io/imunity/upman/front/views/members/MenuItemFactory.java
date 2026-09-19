@@ -5,6 +5,18 @@
 
 package io.imunity.upman.front.views.members;
 
+import static com.vaadin.flow.component.icon.VaadinIcon.BAN;
+import static com.vaadin.flow.component.icon.VaadinIcon.FILE_REMOVE;
+import static com.vaadin.flow.component.icon.VaadinIcon.PLUS_CIRCLE_O;
+import static com.vaadin.flow.component.icon.VaadinIcon.STAR_O;
+import static pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole.manager;
+import static pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole.projectsAdmin;
+import static pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole.regular;
+
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
@@ -21,24 +33,17 @@ import com.vaadin.flow.component.radiobutton.RadioGroupVariant;
 import com.vaadin.flow.router.Location;
 import com.vaadin.flow.router.NavigationTrigger;
 import com.vaadin.flow.router.Route;
+
 import io.imunity.upman.front.model.Group;
 import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.vaadin.elements.BaseDialog;
+import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.MenuButton;
 import io.imunity.vaadin.elements.SubmitButton;
-import io.imunity.vaadin.elements.CssClassNames;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
-
-import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
-
-import static com.vaadin.flow.component.icon.VaadinIcon.*;
-import static java.util.stream.Collectors.toList;
-import static pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole.*;
 
 class MenuItemFactory
 {
@@ -293,10 +298,7 @@ class MenuItemFactory
 		button.addClickListener(event ->
 		{
 			GroupTreeNode value = comboBox.getValue();
-			List<GroupTreeNode> parents = value.getNodeWithAllOffspring();
-			parents.add(value);
-
-			groupMembersController.addToGroup(projectGroup, parents.stream().map(node -> node.group).collect(toList()), members);
+			groupMembersController.addToGroup(projectGroup, value.group, members);
 			dialog.close();
 		});
 		return button;

@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.servlet.FilterHolder;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;

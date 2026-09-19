@@ -1,7 +1,6 @@
 
 package pl.edu.icm.unity.oauth.rp.local;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -21,9 +20,9 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
-import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -65,7 +64,6 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 
 	private static final String OAUTH_RP_CFG_INTERNAL = """
 			unity.oauth2-local-rp.requiredScopes.1=sc1
-			unity.oauth2-local-rp.credential=credential1
 			""";
 
 	private static final String JWT_ENDP_CFG = "unity.jwtauthn.credential=MAIN\n";
@@ -137,60 +135,30 @@ public class LocalOAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		AccessToken ac = resp1.getAccessToken();
 
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
-		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50QTpwYXNzd29yZA==");
+		httpReqRaw.setAuthorization("Bearer " + ac.getValue());
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
 		assertEquals(200, response.getStatusCode());
 	}
-	
+
 	@Test
-	public void shouldFailWhenOnlyToken() throws Exception
+	public void shouldFailToAuthenticateViaLocalOAuthRPWithInvalidToken() throws Exception
 	{
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(),
 				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
 		AccessToken ac = resp1.getAccessToken();
 
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
-		httpReqRaw.setAuthorization("Bearer " + ac.getValue());
+		httpReqRaw.setAuthorization("Bearer " + ac.getValue()+"modified");
 
 		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
 				ServerHostnameCheckingMode.NONE);
 		HTTPResponse response = httpReq.send();
-		assertEquals(500, response.getStatusCode());
+		assertEquals(403, response.getStatusCode());
 	}
-	
-	@Test
-	public void shouldFailWhenOnlyClientCredential() throws Exception
-	{
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
-		httpReqRaw.setAuthorization("Basic Y2xpZW50QTpwYXNzd29yZA==");
 
-		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
-				ServerHostnameCheckingMode.NONE);
-		HTTPResponse response = httpReq.send();
-		assertEquals(500, response.getStatusCode());
-	}
-	
-	@Test
-	public void shouldFailWhenClientNotMatchToToken() throws Exception
-	{
-		createUsernameUser("client2", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE, "client2", CRED_REQ_PASS);
-
-		AuthorizationSuccessResponse resp1 = OAuthTestUtils.initOAuthFlowHybrid(OAuthTestUtils.getConfig(),
-				OAuthTestUtils.getOAuthProcessor(tokensMan), client.getEntityId());
-		AccessToken ac = resp1.getAccessToken();
-
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, URLFactory.of(getBaseUrl() + "/jwt-int/token"));
-		httpReqRaw.setAuthorization("Bearer " + ac.getValue() + ",Basic Y2xpZW50MjpjbGllbnQy");
-
-		HTTPRequest httpReq = new HttpRequestConfigurer().secureRequest(httpReqRaw, new BinaryCertChainValidator(true),
-				ServerHostnameCheckingMode.NONE);
-		HTTPResponse response = httpReq.send();
-		assertEquals(500, response.getStatusCode());
-	}
-	
 	private String getBaseUrl()
 	{
 		return "https://localhost:" + port;

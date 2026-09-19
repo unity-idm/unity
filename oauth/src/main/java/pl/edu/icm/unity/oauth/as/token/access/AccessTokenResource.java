@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.token.access;
 
+import java.util.List;
+
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -44,16 +46,18 @@ public class AccessTokenResource extends BaseOAuthResource
 	private final RefreshTokenHandler refreshTokenHandler;
 	private final ExchangeTokenHandler exchangeTokenHandler;
 	private final CredentialFlowHandler credentialFlowHandler;
+	private final DeviceCodeHandler deviceCodeHandler;
 	private final OAuthTokenStatisticPublisher statisticPublisher;
 
 	public AccessTokenResource(AuthzCodeHandler authzCodeHandler, RefreshTokenHandler refreshTokenHandler,
 			ExchangeTokenHandler exchangeTokenHandler, CredentialFlowHandler credentialFlowHandler,
-			OAuthTokenStatisticPublisher statisticPublisher)
+			DeviceCodeHandler deviceCodeHandler, OAuthTokenStatisticPublisher statisticPublisher)
 	{
 		this.authzCodeHandler = authzCodeHandler;
 		this.refreshTokenHandler = refreshTokenHandler;
 		this.exchangeTokenHandler = exchangeTokenHandler;
 		this.credentialFlowHandler = credentialFlowHandler;
+		this.deviceCodeHandler = deviceCodeHandler;
 		this.statisticPublisher = statisticPublisher;
 	}
 
@@ -61,10 +65,16 @@ public class AccessTokenResource extends BaseOAuthResource
 	@POST
 	public Response getToken(@FormParam("grant_type") String grantType, @FormParam("code") String code,
 			@FormParam("scope") String scope, @FormParam("redirect_uri") String redirectUri,
-			@FormParam("refresh_token") String refreshToken, @FormParam("audience") String audience,
+			@FormParam("refresh_token") String refreshToken, @FormParam("audience") List<String> audiences,
 			@FormParam("requested_token_type") String requestedTokenType,
 			@FormParam("subject_token") String subjectToken, @FormParam("subject_token_type") String subjectTokenType,
-			@FormParam("code_verifier") String codeVerifier, @HeaderParam("Accept") String acceptHeader)
+			@FormParam("code_verifier") String codeVerifier,
+			@FormParam("actor_token") String actorToken,
+			@FormParam("actor_token_type") String actorTokenType,
+			@FormParam("resource") List<String> resource,
+			@FormParam("device_code") String deviceCode,
+			@FormParam("client_id") String clientId,
+			@HeaderParam("Accept") String acceptHeader)
 			throws EngineException, JsonProcessingException
 	{
 		if (grantType == null)
@@ -91,19 +101,22 @@ public class AccessTokenResource extends BaseOAuthResource
 			return credentialFlowHandler.handleClientCredentialFlow(scope, acceptHeader);
 		} else if (grantType.equals(GrantType.TOKEN_EXCHANGE.getValue()))
 		{
-			if (audience == null)
-				return makeError(OAuth2Error.INVALID_REQUEST, "audience is required");
 			if (subjectToken == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "subject_token is required");
 			if (subjectTokenType == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "subject_token_type is required");
 			return exchangeTokenHandler.handleExchangeToken(subjectToken, subjectTokenType, requestedTokenType,
-					audience, scope, acceptHeader);
+					audiences, scope, actorToken, actorTokenType, resource, acceptHeader);
 		} else if (grantType.equals(GrantType.REFRESH_TOKEN.getValue()))
 		{
 			if (refreshToken == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "refresh_token is required");
 			return refreshTokenHandler.handleRefreshTokenGrant(refreshToken, scope, acceptHeader);
+		} else if (grantType.equals(GrantType.DEVICE_CODE.getValue()))
+		{
+			if (deviceCode == null)
+				return makeError(OAuth2Error.INVALID_REQUEST, "device_code is required");
+			return deviceCodeHandler.handleDeviceCodeGrant(deviceCode, clientId, acceptHeader);
 		} else
 		{
 			return makeError(OAuth2Error.INVALID_GRANT, "wrong or not supported grant_type value");
@@ -112,13 +125,17 @@ public class AccessTokenResource extends BaseOAuthResource
 
 	/**
 	 * Authentication is optional for this REST path. However, this is only for the
-	 * code or refresh grant (where we allow unauthenticated public clients secured by PKCE).
-	 * So let's ensure for other cases that client's authn was performed.
+	 * code, refresh or device_code grant (where we allow unauthenticated public clients secured by
+	 * PKCE, or identified by client_id for device_code). So let's ensure for other cases that
+	 * client's authn was performed. For the code and device_code grants, whether authentication (or
+	 * client_id) is actually mandatory depends on the client's type, which is only known once the
+	 * code/device_code is looked up - so that is verified by the respective handler.
 	 */
 	private boolean isRequiredClientAuthenticationMissing(String grantType)
 	{
 		if (grantType.equals(GrantType.AUTHORIZATION_CODE.getValue())
-				|| grantType.equals(GrantType.REFRESH_TOKEN.getValue()))
+				|| grantType.equals(GrantType.REFRESH_TOKEN.getValue())
+				|| grantType.equals(GrantType.DEVICE_CODE.getValue()))
 			return false;
 		return InvocationContext.getCurrent().getLoginSession() == null;
 	}

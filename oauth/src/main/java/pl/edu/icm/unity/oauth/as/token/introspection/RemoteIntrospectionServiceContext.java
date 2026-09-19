@@ -7,8 +7,6 @@ package pl.edu.icm.unity.oauth.as.token.introspection;
 
 import java.net.URL;
 
-import com.nimbusds.jose.JWSVerifier;
-
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
@@ -17,7 +15,6 @@ class RemoteIntrospectionServiceContext
 	final String clientId;
 	final String clientSecret;
 	final String issuer;
-	final JWSVerifier verifier;
 	final URL url;
 	final ServerHostnameCheckingMode hostnameCheckingMode;
 	final X509CertChainValidator validator;
@@ -27,7 +24,6 @@ class RemoteIntrospectionServiceContext
 		this.clientId = builder.clientId;
 		this.clientSecret = builder.clientSecret;
 		this.issuer = builder.issuer;
-		this.verifier = builder.verifier;
 		this.url = builder.url;
 		this.hostnameCheckingMode = builder.hostnameCheckingMode;
 		this.validator = builder.validator;
@@ -43,7 +39,6 @@ class RemoteIntrospectionServiceContext
 		private String clientId;
 		private String clientSecret;
 		private String issuer;
-		private JWSVerifier verifier;
 		private URL url;
 		private ServerHostnameCheckingMode hostnameCheckingMode;
 		private X509CertChainValidator validator;
@@ -67,12 +62,6 @@ class RemoteIntrospectionServiceContext
 		RemoteIntrospectionServiceContext.Builder withIssuer(String issuer)
 		{
 			this.issuer = issuer;
-			return this;
-		}
-
-		RemoteIntrospectionServiceContext.Builder withVerifier(JWSVerifier verifier)
-		{
-			this.verifier = verifier;
 			return this;
 		}
 

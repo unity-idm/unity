@@ -273,7 +273,7 @@ public class SAMLIdPConfiguration extends BaseSamlConfiguration
 		
 		for (X509Certificate c : config.getCertificates())
 		{
-			if (c.getNotBefore().compareTo(now) < 0)
+			if (c.getNotBefore().after(now))
 			{
 				continue;
 			}

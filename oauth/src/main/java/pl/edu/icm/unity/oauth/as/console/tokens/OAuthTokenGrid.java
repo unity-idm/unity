@@ -14,6 +14,7 @@ import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.SearchField;
 import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
 import io.imunity.vaadin.elements.grid.GridSearchFieldFactory;
+import io.imunity.vaadin.elements.grid.GridSelectionSupport;
 import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
@@ -55,25 +56,30 @@ class OAuthTokenGrid extends VerticalLayout
 		tokensGrid.addColumn(OAuthTokenBean::getType)
 				.setHeader(msg.getMessage("OAuthToken.type"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		tokensGrid.addColumn(OAuthTokenBean::getId)
 				.setHeader(msg.getMessage("OAuthToken.id"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		Grid.Column<OAuthTokenBean> ownerColumn = tokensGrid.addColumn(OAuthTokenBean::getOwner)
 				.setHeader(msg.getMessage("OAuthToken.owner"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.owner"), ownerColumn);
 
 		Grid.Column<OAuthTokenBean> clientColumn = tokensGrid.addColumn(OAuthTokenBean::getClientName)
 				.setHeader(msg.getMessage("OAuthToken.clientName"))
 				.setSortable(true)
+				.setResizable(true)
 				.setAutoWidth(true);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.clientName"), clientColumn);
 
 		Grid.Column<OAuthTokenBean> createTimeColumn = tokensGrid.addColumn(OAuthTokenBean::getCreateTime)
 				.setHeader(msg.getMessage("OAuthToken.createTime"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
 		createTimeColumn.setVisible(false);
@@ -81,12 +87,14 @@ class OAuthTokenGrid extends VerticalLayout
 
 		Grid.Column<OAuthTokenBean> expiresColumn = tokensGrid.addColumn(OAuthTokenBean::getExpires)
 				.setHeader(msg.getMessage("OAuthToken.expires"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.expires"), expiresColumn);
 
 		Grid.Column<OAuthTokenBean> serverIdColumn = tokensGrid.addColumn(OAuthTokenBean::getServerId)
 				.setHeader(msg.getMessage("OAuthToken.serverId"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
 		serverIdColumn.setVisible(false);
@@ -95,19 +103,25 @@ class OAuthTokenGrid extends VerticalLayout
 		Grid.Column<OAuthTokenBean> refreshTokenColumn = tokensGrid.addColumn(
 						OAuthTokenBean::getAssociatedRefreshTokenForAccessToken)
 				.setHeader(msg.getMessage("OAuthToken.refreshToken"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
 		refreshTokenColumn.setVisible(false);
 		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.refreshToken"), refreshTokenColumn);
 
-		Grid.Column<OAuthTokenBean> scopesColumn = tokensGrid.addColumn(OAuthTokenBean::getScopes)
-				.setHeader(msg.getMessage("OAuthToken.scopes"))
+		Grid.Column<OAuthTokenBean> scopesColumn = tokensGrid
+				.addComponentColumn(t -> new GrantedScopeComponent(t.getOAuthToken(), msg))
+				.setHeader(msg.getMessage("OAuthToken.grantedScopes"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
-		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.scopes"), scopesColumn);
+		scopesColumn.setVisible(false);
+				
+		columnToggleMenu.addColumn(msg.getMessage("OAuthToken.grantedScopes"), scopesColumn);
 
 		Grid.Column<OAuthTokenBean> hasIdTokenColumn = tokensGrid.addColumn(r -> String.valueOf(r.getHasIdToken()))
 				.setHeader(msg.getMessage("OAuthToken.hasIdToken"))
+				.setResizable(true)
 				.setSortable(true)
 				.setAutoWidth(true);
 		hasIdTokenColumn.setVisible(false);
@@ -119,7 +133,6 @@ class OAuthTokenGrid extends VerticalLayout
 		ActionMenuWithHandlerSupport<OAuthTokenBean> hamburgerMenu = new ActionMenuWithHandlerSupport<>();
 		hamburgerMenu.addActionHandlers(Collections.singletonList(getDeleteAction()));
 		tokensGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
-		tokensGrid.addItemClickListener(e -> tokensGrid.select(e.getItem()));
 
 		SearchField search = GridSearchFieldFactory.generateSearchField(tokensGrid, msg::getMessage);
 		Toolbar<OAuthTokenBean> toolbar = new Toolbar<>();
@@ -130,6 +143,8 @@ class OAuthTokenGrid extends VerticalLayout
 		reqGridWithToolbar.setWidthFull();
 		reqGridWithToolbar.setSpacing(false);
 
+		GridSelectionSupport.installClickListener(tokensGrid);
+		
 		add(reqGridWithToolbar, tokensGrid);
 		setWidthFull();
 	}

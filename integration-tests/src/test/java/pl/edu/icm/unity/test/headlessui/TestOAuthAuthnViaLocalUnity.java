@@ -23,6 +23,7 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 	public void testLoginWithDynamicAttributeOnConsentScreen()
 	{
 		driver.get(baseUrl + "/home");
+		waitForPageLoadByURL("/home/authentication");
 		waitForPageLoad(By.className("u-idpAuthentication-oauth-local")).click();	
 		
 		waitForPageLoadByURL("/oauth2-as/authentication");

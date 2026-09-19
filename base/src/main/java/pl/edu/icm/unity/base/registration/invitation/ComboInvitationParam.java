@@ -247,7 +247,6 @@ public class ComboInvitationParam extends InvitationParam
 		public Builder(ComboInvitationParam comboInvitationParam)
 		{
 			super(new ComboInvitationParam(comboInvitationParam.toJson()));
-			instance = comboInvitationParam;
 		}
 
 		public ComboInvitationParam build()

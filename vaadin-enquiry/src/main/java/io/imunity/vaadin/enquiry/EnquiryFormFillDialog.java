@@ -47,7 +47,7 @@ public class EnquiryFormFillDialog extends ConfirmDialog
 			setRejectable(true);
 			addRejectListener(e -> callback.ignored());
 		}
-		add(getContents());
+		setText(getContents());
 	}
 	
 	protected VerticalLayout getContents()

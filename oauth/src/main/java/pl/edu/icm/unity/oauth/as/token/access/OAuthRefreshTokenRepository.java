@@ -82,7 +82,7 @@ public class OAuthRefreshTokenRepository
 			return Optional.empty();
 		
 		RefreshToken refreshToken = checkPolicyAndGetRefreshToken(config,
-				Arrays.asList(newToken.getEffectiveScope()).contains(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE));
+				Arrays.asList(newToken.getEffectiveScopeAsString()).contains(OAuthSystemScopeProvider.OFFLINE_ACCESS_SCOPE));
 		if (refreshToken != null)
 		{
 			newToken.setRefreshToken(refreshToken.getValue());

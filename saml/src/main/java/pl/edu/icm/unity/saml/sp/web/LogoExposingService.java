@@ -4,34 +4,34 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.server.StreamResource;
-import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import static com.vaadin.flow.server.VaadinService.getCurrentRequest;
+import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
+
+import java.io.File;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.server.streams.DownloadHandler;
+
+import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.saml.metadata.cfg.ExternalLogoFileLoader;
+import pl.edu.icm.unity.engine.api.files.logo.CachedLogoFileLoader;
+import pl.edu.icm.unity.saml.metadata.cfg.AsyncExternalLogoFileDownloader;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import static com.vaadin.flow.server.VaadinService.getCurrentRequest;
-import static io.imunity.vaadin.elements.CssClassNames.LOGO_IMAGE;
 
 @Component
 class LogoExposingService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, LogoExposingService.class);
-	
-	private final ExternalLogoFileLoader externalLogoFileLoader;
+
+	private final CachedLogoFileLoader cachedLogoFileLoader;
 	private final VaadinLogoImageLoader logoImageLoader;
-	
-	LogoExposingService(ExternalLogoFileLoader externalLogoFileLoader, VaadinLogoImageLoader logoImageLoader)
+
+	LogoExposingService(CachedLogoFileLoader cachedLogoFileLoader, VaadinLogoImageLoader logoImageLoader)
 	{
-		this.externalLogoFileLoader = externalLogoFileLoader;
+		this.cachedLogoFileLoader = cachedLogoFileLoader;
 		this.logoImageLoader = logoImageLoader;
 	}
 
@@ -48,7 +48,8 @@ class LogoExposingService
 	{
 		try
 		{
-			return externalLogoFileLoader.getFile(configuration.federationId, configKey, getSafeLocale())
+			return cachedLogoFileLoader.getFile(AsyncExternalLogoFileDownloader.CACHE_GROUP,
+					configuration.federationId, configKey, getSafeLocale())
 				.map(LogoExposingService::createImage)
 				.orElse(null);
 		} catch (Exception e)
@@ -66,19 +67,9 @@ class LogoExposingService
 
 	private static Image createImage(File file)
 	{
-		try 
-		{
-			@SuppressWarnings("resource")
-			FileInputStream byteArrayInputStream = new FileInputStream(file);
-			StreamResource streamResource = new StreamResource(file.getName(), () -> byteArrayInputStream);
-			Image img = new Image(streamResource, "");
-			img.addClassName(LOGO_IMAGE.getName());
-			return img;
-		} catch (IOException  e)
-		{
-			log.warn(e);
-			return new Image();
-		}
+		Image img = new Image(DownloadHandler.forFile(file), "");
+		img.addClassName(LOGO_IMAGE.getName());
+		return img;
 	}
 
 	private Image getDirectlyDefinedImage(IdPVisalSettings configuration)

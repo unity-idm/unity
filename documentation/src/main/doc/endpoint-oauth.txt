@@ -7,23 +7,34 @@ Exposed paths:: +/oauth2-authz+
 
 Endpoint 2 type:: +OAuth2Token+
 Binding:: RESTful (CXF)
-Exposed paths:: +/token+, +/userinfo+, +/jwk+, +/introspect+, +/tokeninfo+, +.well-known/openid-configuration+, +/revoke+
+Exposed paths:: +/token+, +/userinfo+, +/jwk+, +/introspect+, +/tokeninfo+, +.well-known/openid-configuration+, +/revoke+, +.well-known/openid-federation+, +/device_authorization+ (when the RFC 8628 device grant is enabled, see below)
+
+Endpoint 3 type:: +OAuth2DeviceSignIn+
+Binding:: Web
+Exposed paths:: +/device_signin+
 
 
 The OAuth 2 endpoints expose a functionality of a generic Authorization Server with a support for the OpenID
-Connect specification. The _code_, _implicit_, _client credentials_ and _hybrid_ flows are supported.    
+Connect specification. The _code_, _implicit_, _client credentials_, _hybrid_ and _device authorization_ (RFC 8628)
+flows are supported.
 
-The functionality is provided by two Unity endpoints, which shouldn't be mixed with endpoints in OAuth sense 
+The functionality is provided by two or three Unity endpoints, which shouldn't be mixed with endpoints in OAuth sense
 which are equivalent to particular paths exposed by Unity endpoints. The first Unity endpoint, +OAuth2Authz+,
-exposes the OAuth authorization endpoint functionality. It is a web endpoint. It is used by end-users and 
+exposes the OAuth authorization endpoint functionality. It is a web endpoint. It is used by end-users and
 the authentication of this endpoint should be configured so that OAuth users can authenticate themselves.
 
-The second Unity endpoint, +OAuth2Token+, supports all remaining OAuth endpoints, including the most important 
+The second Unity endpoint, +OAuth2Token+, supports all remaining OAuth endpoints, including the most important
 _token endpoint_. The authentication settings of this endpoint should allow for authenticating OAuth clients accessing
-the +/token+ path as required by OAuth specification. Note however that some of the operations needs to 
-be authorized/authenticated by providing an OAuth access token only and this fact is handled internally - 
-nothing has to be configured. Also two of the paths require neither 
-authentication nor access token: +/jwk+ and +.well-known/openid-configuration+. This is also handled automatically. 
+the +/token+ path as required by OAuth specification. Note however that some of the operations needs to
+be authorized/authenticated by providing an OAuth access token only and this fact is handled internally -
+nothing has to be configured. Also three of the paths require neither
+authentication nor access token: +/jwk+, +.well-known/openid-configuration+ and (when OpenID Federation membership
+is enabled, see below) +.well-known/openid-federation+. This is also handled automatically.
+
+The optional third Unity endpoint, +OAuth2DeviceSignIn+, is only needed when the RFC 8628 device authorization
+grant is used (see <<device-grant>> below). It is a standardly-authenticated web endpoint, used by end-users to
+confirm or deny a pairing request initiated by a browserless/input-constrained device (e.g. a smart TV or a CLI
+tool).
 
 ==== Configuration
 
@@ -88,10 +99,86 @@ other services will neither issue nor validate them, and can be considered less 
 Unity supports OpenID Connect (OIDC) protocol nearly out of the box. The only requirement to enable OIDC 
 is to define a scope with a special name +openid+. Typically the +openid+ scope has no attributes assigned. 
 
-Clients requesting the +openid+ scope trigger OpenID Connect compatibility mode. In this mode the OIDC _id token_ 
+Clients requesting the +openid+ scope trigger OpenID Connect compatibility mode. In this mode the OIDC _id token_
 is generated and returned in the implicit grant from the authorization endpoint or in the
-code grant from the token endpoint.  
-    
+code grant from the token endpoint.
+
+==== OAuth client authentication with private_key_jwt
+
+Besides the standard +client_secret_basic+/+client_secret_post+ client authentication, Unity supports the
++private_key_jwt+ client authentication method (https://datatracker.ietf.org/doc/html/rfc7523[RFC 7523]): instead
+of a shared secret, the client signs a JWT assertion with its own private key and Unity verifies it against the
+client's public keys (a JWKS). This is enabled with a dedicated +private-key-jwt+ authenticator:
+
+----
+unityServer.core.authenticators.x.authenticatorName=oauthPrivateKeyJwt
+unityServer.core.authenticators.x.authenticatorType=private-key-jwt
+unityServer.core.authenticators.x.localCredential=sys:oauth-private-key-jwt
+----
+
+Unlike most Unity authenticators, +private-key-jwt+ is backed by a local *credential* (of the
++Client public keys+ type) rather than a configuration file: the referenced local credential
+(+sys:oauth-private-key-jwt+ above, any name can be used) must be assigned to the client entity's credential
+requirement, and its value - the client's JWKS - set on the client entity (e.g. from the Console), exactly as
+a password credential would be. Once a client is configured this way, and its
++sys:oauth:clientAuthnMethod+ attribute is set to +private_key_jwt+, it can authenticate to the token endpoint
+by presenting a signed JWT assertion instead of its +clientSecret+.
+
+The authenticator's own options control assertion validation, not key storage:
+
+include::ref-privateKeyJwtAuthenticatorProperties.txt[]
+
+==== OpenID Federation membership
+
+Besides manually registered clients, the +/oauth2+ endpoint can act as an
+https://openid.net/specs/openid-federation-1_0.html[OpenID Federation] entity, accepting clients which are
+members of a single trusted federation without registering each of them by hand. Enabling this mode requires
++federationMembershipEnabled+ and a few more +federation*+ options from the reference table above:
+
+----
+unity.oauth2.as.federationMembershipEnabled=true
+unity.oauth2.as.federationCredential=MAIN
+unity.oauth2.as.federationSuperiorEntityId=https://federation.example.com
+unity.oauth2.as.federationTrustAnchorId=https://federation.example.com
+unity.oauth2.as.federationTrustAnchorJwks=classpath:federation-anchor-jwks.json
+unity.oauth2.as.federationDisplayName=My Organization
+unity.oauth2.as.federationLogoUri=https://example.com/logo.png
+----
+
+When enabled, this Unity instance itself becomes a federation entity: it signs and serves its own entity
+statement (using +federationCredential+) under +.well-known/openid-federation+, declaring +federationSuperiorEntityId+
+in its +authority_hints+. +federationTrustAnchorId+/+federationTrustAnchorJwks+ configure the trust anchor this
+server trusts when *accepting* clients - it does not need to be the same entity as the superior used when
+*advertising* itself; a typical federation uses the same trust anchor for both.
+
+Federation clients authenticate to the token endpoint using the +private-key-jwt-federated+ authenticator
+(a variant of the standard +private-key-jwt+ authenticator, but resolving the client's public keys and its
+metadata from the federation instead of from a locally configured attribute):
+
+----
+unityServer.core.authenticators.x.authenticatorName=oauthFederatedPrivateKeyJwt
+unityServer.core.authenticators.x.authenticatorType=private-key-jwt-federated
+unityServer.core.authenticators.x.configurationFile=conf/authenticators/federatedPrivateKeyJwt.properties
+----
+
+include::ref-federatedPrivateKeyJwtAuthenticatorProperties.txt[]
+
+On the very first successful client assertion from a federation member Unity auto-registers it as a regular
+entity in the configured +clientsGroup+, deriving its OAuth attributes (+sys:oauth:allowedReturnURI+,
++sys:oauth:allowedScopes+, +sys:oauth:allowedGrantFlows+, +sys:oauth:clientType+, +sys:oauth:clientAuthnMethod+)
+and displayed name (prefixed with +[Federated]+) from the client's federation metadata. Allowed scopes for
+federation clients can be further restricted with +federationAllowAnyScopes+/+federationAllowedScopes+. Client
+attributes and the trust chain are refreshed automatically whenever the cached trust chain expires (its validity
+follows the federation entity statement's own +exp+ claim); there is no need to re-register a client manually
+after e.g. it rotates its keys or changes its declared redirect URIs.
+
+[NOTE]
+The client's logo (if declared in its federation metadata) is fetched and stored as the usual
++sys:oauth:clientLogo+ attribute, using +federationTruststore+ for the download. On first registration the logo
+is fetched synchronously, so that it is already present for the very first consent screen shown to the user.
+On later refreshes (triggered by trust chain expiry) the logo is instead re-fetched in the background, so that
+a slow or unreachable logo URI of an already-known client never delays the +/authorize+ or token endpoint response.
+
 ==== Usage
 
 Unity as Authorization Server usage is mostly regulated with the OAuth or OIDC specifications. In short the client
@@ -166,42 +253,89 @@ separating them with space.
 
 ==== Token exchange
 
-Unity supports token exchange according to https://tools.ietf.org/html/draft-ietf-oauth-token-exchange-08 specification. 
+Unity supports token exchange according to https://datatracker.ietf.org/doc/html/rfc8693[RFC 8693] specification.
 For this purpose a special grant type +urn:ietf:params:oauth:grant-type:token-exchange+ is used.
 
 The token exchange process can be described in a simplified way:
 
- - Client A receives an _access token A_ from Unity. 
- - Client A gives the obtained _access token A_ to Resource Provider B (to authorize itself).
+ - Client A receives an access token *AT-A* from Unity, with audience set to Resource Provider B.
+ - Client A gives the obtained access token *AT-A* to Resource Provider B (to authorize itself).
  - Resource Provider B wants to play a role of client -- Client B -- and access Resource Provider C. 
- To do so Client B exchanges the _access token A_ for a new _access token B_ 
+ To do so Client B exchanges the access token *AT-A* for a new access token *AT-B*, with updated audience,
  which can be used to obtain data from Resource Provider C. The exchange is supported by Unity token endpoint.
+
+Token exchange supports also other use cases, such as change of scopes.
 
 There are several conditions that must be met to perform a successful exchange:
 
- - Only an _access token_ which was issued with a special scope +token-exchange+ can be exchanged. 
- - Only the +urn:ietf:params:oauth:token-type:access_token+ token type exchange can be used as +subject_token_type+.
- - Only the original scopes or their subset can can be requested for the exchanged scope.
- - Audience parameter in exchange request is mandatory and must contain Unity username of the new _access token_ owner 
- (and must be the same as the +client_id+ parameter).  
+ - Only an _access token_ which was issued with a special scope +token-exchange+ can be exchanged.
+ - Exchanged token can not be exchanged again (to eliminate possibility of infinite extension of token lifetime).
+ This behaviour is a result of scope limitation: exchanged token won't have +token-exchange+ scope.
+ - Only the +urn:ietf:params:oauth:token-type:access_token+ token type can be used as +subject_token_type+.
+ - Only the original scopes, their subset or scopes mattching a pattern scope can can be requested as the exchanged scopes.
+ See <<pattern-scopes>> for details on usage of pattern scopes in token exchange.
  - _id token_ can be issued only if +requested_token_type+ is equal to +urn:ietf:params:oauth:token-type:id_token+ 
  and scopes contain +openid+. 
  - Exchange may be only performed by an authenticated Unity client.
+ - +actor_token+ and +actor_token_type+ parameters are not supported.
 
-Sample exchange request parameters:
+Example Token Exchange flow:
+
+In this example, the client *oauth-client* obtains an access token that it uses to call
+a resource provider RP1. RP1, acting as a different Unity client (*oauth-client2*),
+needs to access another downstream service RP2. To do this, *oauth-client2* performs a token exchange:
+it takes the original access token issued to *oauth-client* and exchanges it for a new token whose audience
+match RP2.
+
+
+. Orginal access token issued for client *oauth-client*
+
+----
+{
+  "sub": "dc9f3603-07f0-4045-966f-1f3bd836150a",
+  "aud": "oauth-client2",
+  "scope": "openid token-exchange profile",
+  "auth_time": 1763889199,
+  "iss": "https://localhost:2443/oauth2",
+  "exp": 1763893256,
+  "iat": 1763889656,
+  "jti": "907379fa-25fe-4eab-8521-9674c6b89bbd",
+  "client_id": "oauth-client"
+}
+----
+
+. Token exchange request performed by client *oauth-client2*.  Subject token was received from the initial client 
 
 ----
 client_id=oauth-client2
 client_secret=secretPass
 grant_type=urn:ietf:params:oauth:grant-type:token-exchange 
-audience=oauth-client2
-subject_token=ZCrlkMyxzhJ0CyQlskOsIgkcDqjW51ViZko0bopHzfM \ # This token was received from the initial client 
+audience=RP2
+subject_token=ZCrlkMyxzhJ0CyQlskOsIgkcDqjW51ViZko0bopHzfM 
 subject_token_type=urn:ietf:params:oauth:token-type:access_token
-requested_token_type=urn:ietf:params:oauth:token-type:id_token
+requested_token_type=urn:ietf:params:oauth:token-type:access_token
 scope="openid profile read-tasks" 
+resource="https://RP2.example.com"
 ----
 
+. Received new access token
 
+----
+{
+  "sub": "dc9f3603-07f0-4045-966f-1f3bd836150a",
+  "aud": [
+    "RP2",
+    "https://RP2.example.com"
+  ],
+  "scope": "openid",
+  "auth_time": 1763889199,
+  "iss": "https://localhost:2443/oauth2",
+  "exp": 1763893375,
+  "iat": 1763889775,
+  "jti": "89634969-04b8-4dac-bb7c-7bc5fb35f0f5",
+  "client_id": "oauth-client2"
+}
+----
 
 ==== Revocation and logout
 
@@ -256,16 +390,192 @@ See the aforementioned RFCs for details on how to use PKCE,
 and what forms of return redirections are available for native clients.
 
 
+[[device-grant]]
+==== Device Authorization Grant (RFC 8628)
+
+Unity supports the _OAuth 2.0 Device Authorization Grant_ (RFC 8628), intended for clients running on
+browserless or input-constrained devices (smart TVs, CLI tools, IoT devices) that cannot easily perform the
+standard redirect-based authorization flow.
+
+The feature is disabled by default and must be turned on with +deviceGrantEnabled+ (see the properties table
+below). When disabled, the +/device_authorization+ endpoint returns a +400 invalid_request+ error and the
+device grant is neither advertised in +.well-known/openid-configuration+ nor accepted on the +/token+ endpoint.
+
+Once enabled, an OAuth client must additionally be granted the +deviceCode+ value in its
++sys:oauth:allowedGrantFlows+ attribute, exactly as for the other grant flows.
+
+The flow proceeds as follows:
+
+* The device sends a +POST+ request to +/device_authorization+ (optionally authenticated, exactly like
++/token+ - confidential clients must authenticate, public clients don't). It receives a +device_code+, a
+short, human-typeable +user_code+, and a +verification_uri+/+verification_uri_complete+ pointing at the
++OAuth2DeviceSignIn+ endpoint's +/device_signin+ path.
+* The user opens +verification_uri+ (or +verification_uri_complete+, which pre-fills the +user_code+) in a
+regular browser, logs in if needed, and is shown the same kind of consent screen as on the regular
++/authorize+ endpoint (client name/logo, requested attribute release), where they approve or deny the
+device's request.
+* Meanwhile, the device polls the +/token+ endpoint with +grant_type=urn:ietf:params:oauth:device_code+ and
+its +device_code+. Until the user has made a decision, the server replies with the standard
++authorization_pending+ error (or +slow_down+ if the device polls faster than the configured minimum
+interval). Once the user approves, the next poll returns a regular access token response; if the user
+denies, it returns +access_denied+. A device code can only be redeemed once and expires after
++deviceCodeValidity+ seconds.
+
+The relevant configuration options are +deviceGrantEnabled+, +deviceCodeValidity+ and
++deviceCodeMinPollInterval+, documented in the properties table below.
+
+
 ==== Client-Requested Claim Value Filtering
 
-Unity supports a proprietary feature that allows OAuth clients to request filtering of claim values. This feature is activated when the client uses a special scope prefixed with +claim_filter:+, as follows:
+Unity supports a proprietary feature that allows OAuth clients to request filtering of claim values.
+This feature is activated when the client uses a special scope prefixed with +claim_filter:+, as follows:
 
 ----
 scope=profile%20claim_filter:entitlements:abc
 ----
 
-In this example, one regular scope +profile+ is requested, as well as one claim value filter. If the +entitlements+ claim is returned as part of the +profile+ scope, only its +abc+ value is included. If the +entitlements+ claim has no +abc+ value, it is not returned.
+In this example, one regular scope +profile+ is requested, as well as one claim value filter. If the +entitlements+
+claim is returned as part of the +profile+ scope, only its +abc+ value is included. If the +entitlements+ claim
+has no +abc+ value, it is not returned.
 
-Multiple claim value filters can be used together, even for the same claim. These filters function as a whitelist: every value matching a filter is returned.
+Multiple claim value filters can be used together, even for the same claim. These filters function as a whitelist:
+every value matching a filter is returned.
 
 Note that when requesting a refresh token, a client may change (or completely omit) claim filters.
+
+[[pattern-scopes]]
+==== Pattern scopes
+
+Unity supports scopes defined using regular expressions. Such scopes must be explicitly marked as Pattern scope in the server configuration.
+
+Pattern scopes support dynamic configuration, where the scope name contains a dynamic component, typically denoting an accessed resource. Clients may request arbitrary scopes that match defined pattern scopes.
+
+There is also a more advanced feature that allows for granting clients a pattern scope. Granting a client a pattern scope is useful when the client requires broad permissions that are concretized at a later stage.
+
+A practical realization of such a workflow is as follows:
+
+. An OAuth IdP on the server defines a pattern scope.
+. A registered OAuth client is granted the right to obtain pattern scopes, either via its settings in the Console or by assigning
+the attribute +sys:oauth:canReceivePatternScopes+ with the value +true+.
+. The client requests a token with a scope that is itself a regular expression. The requested regular-expression scope
+must be a subset of the pattern scope defined on the server.
+. After obtaining a token with a pattern scope, the client uses the Unity token exchange endpoint to exchange the token
+for a new token with a regular scope that matches the pattern scope granted in the original token.
+
+Example:
+
+. Pattern scope defined in the OAuth IdP: +read:.*+
+. An authorized client requests a token with scope +read:/home/user1/.*+.
+. The client exchanges the obtained token for a new token with scope +read:/home/user1/data.txt+ and uses this token to access the file.
+
+==== External Authorization of OAuth Requests
+
+Unity supports integration with external scripts for fine-grained authorization of OAuth Authorization Code Grant requests.  
+This mechanism allows administrators to configure scripts — written in any language (e.g. Python) — that can intercept
+and evaluate OAuth authorization requests before the consent screen is displayed, or, if consent is implicit, before
+the authorization code is issued.
+
+Example of config:
+
+----
+unity.oauth2.as.authorizationScripts.1.triggeringScope=test*
+unity.oauth2.as.authorizationScripts.1.path=/opt/unity/scripts/oauth_external_auth.py
+----
+
+
+An external script can be triggered based on the scopes requested by an OAuth client.  
+If the incoming OAuth request contains at least one scope matching a configured *triggering scope* (regexp pattern are
+supported), Unity will execute the associated external script.
+
+===== Input JSON
+
+The script receives a JSON document containing the following information:
+----
+ {
+  "attributes" : [ {
+    "name" : "blocked",
+    "valueSyntax" : "boolean",
+    "groupPath" : "/",
+    "values" : [ "true" ],
+    "translationProfile" : null,
+    "remoteIdp" : null
+  }, {
+    "name" : "memberOf",
+    "valueSyntax" : "string",
+    "groupPath" : "/",
+    "values" : [ "/" ],
+    "translationProfile" : null,
+    "remoteIdp" : null
+  }, {
+    "name" : "username",
+    "valueSyntax" : "string",
+    "groupPath" : "/",
+    "values" : [ "a" ],
+    "translationProfile" : null,
+    "remoteIdp" : null
+  } ],
+  "identities" : [ {
+    "typeId" : "userName",
+    "value" : "a",
+    "target" : null,
+    "realm" : null,
+    "translationProfile" : null,
+    "remoteIdp" : null
+  } 
+  ....
+  ],
+  "request" : {
+    "responseType" : [ "code" ],
+    "clientID" : "oauth-client",
+    "redirectURI" : "https://localhost:2443/unitygw/oauth2ResponseConsumer",
+    "scope" : [ {
+      "value" : "openid",
+      "requirement" : null
+    }, {
+      "value" : "test1",
+      "requirement" : null
+    }, {
+      "value" : "scope1",
+      "requirement" : null
+    }, {
+      "value" : "json",
+      "requirement" : null
+    } ],
+    "responseMode" : null,
+    "resources" : null,
+    "requestURI" : null,
+    "prompt" : null,
+    "customParams" : {
+      "claims_in_tokens" : [ "id_token" ]
+    },
+    "acrValues" : null,
+    "uiLocales" : null
+  }
+}
+----
+
+===== Output JSON
+
+The script must return a JSON object with the following structure:
+
+----
+{
+  "status": "PROCEED",
+  "claims": [
+    {
+      "name": "example_claim",
+      "values": [
+        "authorized"
+      ]
+    }
+  ]
+}
+----
+
+Unity taking into account the scripts responses, processes the OAuth request:
+
+* +DENY+ the entire OAuth interaction if a triggered script fails or returns a DENY status.
+* +PROCEED+ with the request otherwise, supplementing the resulting token with any claims returned by the triggered script.
+
+
+

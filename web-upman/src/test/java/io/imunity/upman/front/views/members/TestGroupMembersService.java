@@ -55,7 +55,7 @@ public class TestGroupMembersService
 	}
 
 	@Test
-	public void shouldGerMembers() throws EngineException
+	public void shouldGetMembers() throws EngineException
 	{
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/group",  new I18nString("group"),"group", false, false, "", false, 0);
@@ -71,8 +71,21 @@ public class TestGroupMembersService
 		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
 		Group group = new Group("/project/group", new I18nString("group"), "group", false, false, "", false, 0);
 
-		service.addToGroup(project, List.of(group), Set.of(getMember()));
+		service.addToGroup(project, group, Set.of(getMember()));
 		verify(mockDelGroupMan).addMemberToGroup(eq("/project"), eq("/project/group"), eq(1L));
+	}
+	
+	@Test
+	public void shouldAddMultipleMembersToGroup() throws EngineException
+	{
+		ProjectGroup project = new ProjectGroup("/project", "project", "regForm", "singupForm");
+		Group group = new Group("/project/group", new I18nString("group"), "group", false, false, "", false, 0);
+
+		service.addToGroup(project, group, Set.of(getMember(), MemberModel.builder()
+				.entityId(2)
+				.build()));
+		verify(mockDelGroupMan).addMemberToGroup(eq("/project"), eq("/project/group"), eq(1L));
+		verify(mockDelGroupMan).addMemberToGroup(eq("/project"), eq("/project/group"), eq(2L));
 	}
 
 	@Test

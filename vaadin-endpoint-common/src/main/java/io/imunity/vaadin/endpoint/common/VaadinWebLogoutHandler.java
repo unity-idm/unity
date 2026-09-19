@@ -109,12 +109,60 @@ public class VaadinWebLogoutHandler implements WebLogoutHandler
 		UI.getCurrent().getPage().setLocation(redirectURI);
 	}
 
+	@Override
+	public void logoutImmediately(String logoutRedirectPath)
+	{
+		LoginSession contextSession = InvocationContext.getCurrent().getLoginSession();
+		if (contextSession != null)
+		{
+			LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE, LogoutMode.class);
+
+			if (mode == LogoutMode.internalAndSyncPeers)
+			{
+				try
+				{
+					LoginSession session = sessionMan.getSession(contextSession.getId());
+					logoutProcessorsManager.handleSynchronousLogout(session);
+				} catch (IllegalArgumentException e)
+				{
+					log.warn("Can not refresh the state of the current session. Logout of session participants "
+							+ "won't be performed", e);
+				}
+			} else if (mode == LogoutMode.internalAndAsyncPeers)
+			{
+				log.warn("Immediate logout of entity {} requested, but the configured logout mode "
+						+ "(internalAndAsyncPeers) requires browser redirects to log out remote session "
+						+ "participants; that step will be skipped", contextSession.getEntityId());
+			}
+
+			destroySession(false);
+			rememberMeProcessor.removeRememberMeWithWholeAuthn(contextSession.getRealm(),
+					VaadinServletRequest.getCurrent(), VaadinServletResponse.getCurrent());
+		} else
+		{
+			log.debug("Immediate logout requested but there is no active login session (already logged out, "
+					+ "e.g. from another browser tab) - skipping session teardown");
+		}
+
+		String contextPath = VaadinServlet.getCurrent().getServletContext().getContextPath();
+		if (!logoutRedirectPath.endsWith("/"))
+			logoutRedirectPath += "/";
+		URI redirectURI = URI.create(contextPath + logoutRedirectPath);
+		UI.getCurrent().getPage().setLocation(redirectURI);
+	}
+
 	private void logoutSessionPeers(URI currentLocation, boolean soft)
 	{
+		LoginSession contextSession = InvocationContext.getCurrent().getLoginSession();
+		if (contextSession == null)
+		{
+			log.debug("Logout requested but there is no active login session (already logged out, "
+					+ "e.g. from another browser tab) - skipping peer logout");
+			return;
+		}
+
 		LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE,
 				LogoutMode.class);
-
-		LoginSession contextSession = InvocationContext.getCurrent().getLoginSession();
 
 		if (mode == LogoutMode.internalOnly)
 		{

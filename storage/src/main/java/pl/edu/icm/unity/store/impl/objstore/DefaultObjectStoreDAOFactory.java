@@ -6,7 +6,6 @@ package pl.edu.icm.unity.store.impl.objstore;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -22,7 +21,6 @@ public class DefaultObjectStoreDAOFactory
 {
 	@Bean
 	@Primary
-	@Autowired
 	public ObjectStoreDAO getDefaultObjectStoreDAO(StorageConfiguration cfg, 
 			Map<String, ObjectStoreDAO> daos)
 	{

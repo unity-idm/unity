@@ -8,13 +8,14 @@ package pl.edu.icm.unity.oauth.as.token;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.oauth.as.InternalAccessTokenTestExposer.INTERNAL_ACCESS_TOKEN;
 
 import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 import jakarta.ws.rs.core.Response;
 
@@ -32,8 +33,10 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.MockTokensMan;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthAccessTokenRepository;
 import pl.edu.icm.unity.oauth.as.token.access.OAuthRefreshTokenRepository;
 
@@ -149,7 +152,7 @@ public class RevocationResourceTest
 		
 		assertThat(response.getStatus()).isEqualTo(HTTPResponse.SC_BAD_REQUEST);
 		assertThat(response.readEntity(String.class)).containsSequence("invalid_scope");
-		verifyZeroInteractions(sessionManagement);
+		verifyNoInteractions(sessionManagement);
 	}
 
 	@Test
@@ -187,9 +190,10 @@ public class RevocationResourceTest
 		token.setClientUsername(CLIENT_ID);
 		token.setClientId(CLIENT_ENTITY_ID);
 		if (scopes.length > 0)
-			token.setEffectiveScope(scopes);
-		tokensManagement.addToken(type, type.equals(INTERNAL_ACCESS_TOKEN) ? token.getAccessToken() : token.getRefreshToken(), 
-				new EntityParam(CLIENT_ENTITY_ID), token.getSerialized(), new Date(), new Date());
+			token.setEffectiveScope(Stream.of(scopes).map(s -> new RequestedOAuthScope(s, ActiveOAuthScopeDefinition.builder().withName(s).build(), false)).toList());
+		tokensManagement.addToken(type, type.equals(INTERNAL_ACCESS_TOKEN) ? token.getAccessToken() : token.getRefreshToken(),
+				new EntityParam(CLIENT_ENTITY_ID), token.getSerialized(), new Date(),
+				new Date(System.currentTimeMillis() + 500000));
 		
 	}
 	

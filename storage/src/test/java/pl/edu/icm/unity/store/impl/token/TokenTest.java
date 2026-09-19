@@ -115,6 +115,33 @@ public class TokenTest extends AbstractBasicDAOTest<Token>
 	}	
 	
 	@Test
+	public void tokenSelectedForUpdateByIdIsReturned()
+	{
+		tx.runInTransaction(() -> {
+			Token obj = getObject("name1");
+			dao.create(obj);
+
+			Token ret = dao.getForUpdate(obj.getType(), obj.getValue());
+
+			assertThat(ret).isNotNull();
+			assertThat(ret).isEqualTo(obj);
+		});
+	}
+
+	@Test
+	public void missingTokenSelectedForUpdateFails()
+	{
+		tx.runInTransaction(() -> {
+			Token obj = getObject("name1");
+			dao.create(obj);
+
+			Throwable error = catchThrowable(() -> dao.getForUpdate(obj.getType(), obj.getValue() + "__CHANGED"));
+
+			assertThat(error).isInstanceOf(IllegalArgumentException.class);
+		});
+	}
+
+	@Test
 	public void missingTokenSelectedByValueFails()
 	{
 		tx.runInTransaction(() -> {

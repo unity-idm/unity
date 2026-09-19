@@ -17,7 +17,8 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
@@ -51,12 +52,12 @@ public class RealmEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String realmName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String realmName)
 	{
 		getContent().removeAll();
 
 		AuthenticationRealmEntry certificateEntry;
-		if (realmName == null)
+		if (!StringUtils.hasLength(realmName))
 		{
 			certificateEntry = new AuthenticationRealmEntry();
 			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));

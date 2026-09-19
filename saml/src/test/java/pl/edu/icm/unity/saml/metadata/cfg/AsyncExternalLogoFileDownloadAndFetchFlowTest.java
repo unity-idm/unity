@@ -6,33 +6,49 @@
 package pl.edu.icm.unity.saml.metadata.cfg;
 
 import org.apache.xmlbeans.XmlException;
-import org.awaitility.Awaitility;
-import org.awaitility.Durations;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.files.logo.CachedLogoFileLoader;
+import pl.edu.icm.unity.engine.api.files.logo.LogoFilenameUtils;
 import pl.edu.icm.unity.saml.sp.config.TrustedIdPKey;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Objects;
 import java.util.Optional;
 
 import static org.apache.commons.io.FileUtils.deleteDirectory;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegrationTestBase
 {
+	private static final String TINY_PNG_BASE64 =
+			"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+M8AAAMBAQDJ/AP4AAAAAElFTkSuQmCC";
+	private static final String TINY_JPEG_BASE64 =
+			"/9j/4AAQSkZJRgABAgAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcp"
+			+ "LDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy"
+			+ "MjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAA"
+			+ "AgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6"
+			+ "Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXG"
+			+ "x8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREA"
+			+ "AgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5"
+			+ "OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPE"
+			+ "xcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD3+iiigD//2Q==";
+	private static final String LOGO_ROOT = "target/workspace/downloadedLogos/" + AsyncExternalLogoFileDownloader.CACHE_GROUP + "/";
+
 	@Autowired
-	private ExternalLogoFileLoader externalLogoFileLoader;
+	private CachedLogoFileLoader cachedLogoFileLoader;
 	@Autowired
 	private AsyncExternalLogoFileDownloader fileDownloader;
 
 	@AfterEach
 	public void tearDown() throws IOException
 	{
-		deleteDirectory(new File("target/workspace/downloadedIdPLogos"));
+		deleteDirectory(new File("target/workspace/downloadedLogos"));
 	}
 
 	@Test
@@ -41,15 +57,10 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 		EntitiesDescriptorDocument metadata = loadMetadata("src/test/resources/metadata-of-signed-response.xml");
 		TrustedIdPKey trustedIdPKey = TrustedIdPKey.metadataEntity("http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php", 1);
 
-		fileDownloader.downloadLogoFilesAsync(metadata, null);
+		fileDownloader.downloadLogoFilesAsync(metadata, null).join();
 
-		Awaitility.await()
-				.atMost(Durations.TEN_SECONDS)
-				.untilAsserted(() ->
-				{
-					checkIfFileSaved(metadata.getEntitiesDescriptor().getID(), trustedIdPKey);
-					checkIfStagingCleaned(metadata.getEntitiesDescriptor().getID());
-				});
+		checkIfFileSaved(metadata.getEntitiesDescriptor().getID(), trustedIdPKey);
+		checkIfStagingCleaned(metadata.getEntitiesDescriptor().getID());
 	}
 
 	@Test
@@ -62,26 +73,63 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 		TrustedIdPKey trustedIdPKey = TrustedIdPKey.metadataEntity("http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php", 1);
 		createOldFiles(oldFileName, oldFileExtension, metadata);
 
-		fileDownloader.downloadLogoFilesAsync(metadata, null);
+		fileDownloader.downloadLogoFilesAsync(metadata, null).join();
 
-		Awaitility.await()
-				.atMost(Durations.TEN_SECONDS)
-				.untilAsserted(() ->
-				{
-					checkIfFileSaved(metadata.getEntitiesDescriptor().getID(), trustedIdPKey);
-					checkIfOldFileCleaned(metadata.getEntitiesDescriptor().getID(), oldFileName, oldFileExtension);
-					checkIfStagingCleaned(metadata.getEntitiesDescriptor().getID());
-				});
+		checkIfFileSaved(metadata.getEntitiesDescriptor().getID(), trustedIdPKey);
+		checkIfOldFileCleaned(metadata.getEntitiesDescriptor().getID(), oldFileName, oldFileExtension);
+		checkIfStagingCleaned(metadata.getEntitiesDescriptor().getID());
+	}
+
+	@Test
+	public void shouldReplaceCachedLogoWhenExtensionChanges() throws IOException
+	{
+		EntitiesDescriptorDocument oldMetadata = loadMetadata("src/test/resources/metadata-of-signed-response.xml");
+		EntitiesDescriptorDocument newMetadata = loadMetadataWithLogoMimeType("image/jpeg");
+		TrustedIdPKey trustedIdPKey = TrustedIdPKey.metadataEntity("http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php", 1);
+		String baseName = LogoFilenameUtils.getLogoFileBasename(trustedIdPKey, "en");
+
+		fileDownloader.downloadLogoFilesAsync(oldMetadata, null).join();
+		assertThat(getLogoFile(oldMetadata, baseName, "png")).isFile();
+
+		fileDownloader.downloadLogoFilesAsync(newMetadata, null).join();
+
+		assertThat(getLogoFile(newMetadata, baseName, "jpeg")).isFile();
+		assertThat(getLogoFile(newMetadata, baseName, "png")).doesNotExist();
+		assertThat(Files.readString(getLogoPointer(newMetadata, baseName).toPath())).isEqualTo("jpeg");
+		checkIfStagingCleaned(newMetadata.getEntitiesDescriptor().getID());
+	}
+
+	@Test
+	public void shouldKeepOtherLocaleLogoWhenOneLocaleExtensionChanges() throws IOException
+	{
+		EntitiesDescriptorDocument pngForBothLocales = loadMetadataWithEnAndDeLogos("image/png", "image/png");
+		EntitiesDescriptorDocument enJpegDePng = loadMetadataWithEnAndDeLogos("image/jpeg", "image/png");
+		TrustedIdPKey trustedIdPKey = TrustedIdPKey.metadataEntity("http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php", 1);
+		String enBaseName = LogoFilenameUtils.getLogoFileBasename(trustedIdPKey, "en");
+		String deBaseName = LogoFilenameUtils.getLogoFileBasename(trustedIdPKey, "de");
+
+		fileDownloader.downloadLogoFilesAsync(pngForBothLocales, null).join();
+		assertThat(getLogoFile(pngForBothLocales, enBaseName, "png")).isFile();
+		assertThat(getLogoFile(pngForBothLocales, deBaseName, "png")).isFile();
+
+		fileDownloader.downloadLogoFilesAsync(enJpegDePng, null).join();
+
+		assertThat(getLogoFile(enJpegDePng, enBaseName, "jpeg")).isFile();
+		assertThat(getLogoFile(enJpegDePng, enBaseName, "png")).doesNotExist();
+		assertThat(getLogoFile(enJpegDePng, deBaseName, "png")).isFile();
+		assertThat(Files.readString(getLogoPointer(enJpegDePng, enBaseName).toPath())).isEqualTo("jpeg");
+		assertThat(Files.readString(getLogoPointer(enJpegDePng, deBaseName).toPath())).isEqualTo("png");
+		checkIfStagingCleaned(enJpegDePng.getEntitiesDescriptor().getID());
 	}
 
 	private static void createOldFiles(String oldFileName, String oldFileExtension, EntitiesDescriptorDocument metadata)
 	{
 		try
 		{
-			File oldFile = new File("target/workspace/downloadedIdPLogos/" + LogoFilenameUtils.federationDirName(metadata.getEntitiesDescriptor().getID()) + "/" + oldFileName + "." + oldFileExtension);
+			File oldFile = new File(LOGO_ROOT + LogoFilenameUtils.namespaceDirName(metadata.getEntitiesDescriptor().getID()) + "/" + oldFileName + "." + oldFileExtension);
 			oldFile.getParentFile().mkdirs();
 			oldFile.createNewFile();
-			File oldFilePointer = new File("target/workspace/downloadedIdPLogos/" + LogoFilenameUtils.federationDirName(metadata.getEntitiesDescriptor().getID()) + "/" + oldFileName);
+			File oldFilePointer = new File(LOGO_ROOT + LogoFilenameUtils.namespaceDirName(metadata.getEntitiesDescriptor().getID()) + "/" + oldFileName);
 			oldFilePointer.getParentFile().mkdirs();
 			oldFilePointer.createNewFile();
 		} catch (IOException e)
@@ -93,7 +141,7 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 
 	private void checkIfFileSaved(String federationId, TrustedIdPKey trustedIdPKey)
 	{
-		Optional<File> file = externalLogoFileLoader.getFile(federationId, trustedIdPKey, null);
+		Optional<File> file = cachedLogoFileLoader.getFile(AsyncExternalLogoFileDownloader.CACHE_GROUP, federationId, trustedIdPKey, null);
 		if(file.isEmpty())
 			throw new IllegalArgumentException("Empty file");
 		if(!file.get().isFile())
@@ -102,17 +150,30 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 
 	private void checkIfOldFileCleaned(String federationId, String oldFileName, String extension)
 	{
-		if(new File("target/workspace/downloadedIdPLogos/" + LogoFilenameUtils.federationDirName(federationId) + "/" + oldFileName + "." + extension).isFile())
+		if(new File(LOGO_ROOT + LogoFilenameUtils.namespaceDirName(federationId) + "/" + oldFileName + "." + extension).isFile())
 			throw new IllegalStateException("File not clean");
-		if(new File("target/workspace/downloadedIdPLogos/" + LogoFilenameUtils.federationDirName(federationId) + "/" + oldFileName).isFile())
+		if(new File(LOGO_ROOT + LogoFilenameUtils.namespaceDirName(federationId) + "/" + oldFileName).isFile())
 			throw new IllegalStateException("File not clean");
 	}
 
 	private void checkIfStagingCleaned(String federationId)
 	{
-		File staging = new File("target/workspace/downloadedIdPLogos/staging/" + LogoFilenameUtils.federationDirName(federationId));
-		if(Objects.requireNonNull(staging.listFiles()).length != 0)
+		File staging = new File("target/workspace/downloadedLogos/staging/" + AsyncExternalLogoFileDownloader.CACHE_GROUP
+				+ "/" + LogoFilenameUtils.namespaceDirName(federationId));
+		if(staging.exists() && Objects.requireNonNull(staging.listFiles()).length != 0)
 			throw new IllegalStateException("Staging catalog not clean");
+	}
+
+	private File getLogoFile(EntitiesDescriptorDocument metadata, String baseName, String extension)
+	{
+		return new File(LOGO_ROOT
+				+ LogoFilenameUtils.namespaceDirName(metadata.getEntitiesDescriptor().getID()) + "/" + baseName + "." + extension);
+	}
+
+	private File getLogoPointer(EntitiesDescriptorDocument metadata, String baseName)
+	{
+		return new File(LOGO_ROOT
+				+ LogoFilenameUtils.namespaceDirName(metadata.getEntitiesDescriptor().getID()) + "/" + baseName);
 	}
 
 	private EntitiesDescriptorDocument loadMetadata(String path)
@@ -124,5 +185,41 @@ public class AsyncExternalLogoFileDownloadAndFetchFlowTest extends DBIntegration
 		{
 			throw new RuntimeException("Can't load test XML", e);
 		}
+	}
+
+	private EntitiesDescriptorDocument loadMetadataWithLogoMimeType(String mimeType)
+	{
+		try
+		{
+			String metadata = Files.readString(new File("src/test/resources/metadata-of-signed-response.xml").toPath());
+			metadata = metadata.replaceFirst("data:image/png;base64,[^<]*",
+					"data:" + mimeType + ";base64," + payloadFor(mimeType));
+			return EntitiesDescriptorDocument.Factory.parse(metadata);
+		} catch (XmlException | IOException e)
+		{
+			throw new RuntimeException("Can't load test XML", e);
+		}
+	}
+
+	private EntitiesDescriptorDocument loadMetadataWithEnAndDeLogos(String enMimeType, String deMimeType)
+	{
+		try
+		{
+			String metadata = Files.readString(new File("src/test/resources/metadata-of-signed-response.xml").toPath());
+			metadata = metadata.replaceFirst("data:image/png;base64,[^<]*",
+					"data:" + enMimeType + ";base64," + payloadFor(enMimeType));
+			String deLogo = "<mdui:Logo height=\"16\" width=\"16\" xml:lang=\"de\">data:"
+					+ deMimeType + ";base64," + payloadFor(deMimeType) + "</mdui:Logo>";
+			metadata = metadata.replace("</mdui:UIInfo>", deLogo + "</mdui:UIInfo>");
+			return EntitiesDescriptorDocument.Factory.parse(metadata);
+		} catch (XmlException | IOException e)
+		{
+			throw new RuntimeException("Can't load test XML", e);
+		}
+	}
+
+	private static String payloadFor(String mimeType)
+	{
+		return "image/jpeg".equals(mimeType) ? TINY_JPEG_BASE64 : TINY_PNG_BASE64;
 	}
 }

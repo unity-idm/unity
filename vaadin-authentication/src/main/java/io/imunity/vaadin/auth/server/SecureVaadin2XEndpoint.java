@@ -10,10 +10,10 @@ import java.util.EnumSet;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee11.servlet.FilterHolder;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
 
 import io.imunity.vaadin.endpoint.common.CustomResourceProvider;

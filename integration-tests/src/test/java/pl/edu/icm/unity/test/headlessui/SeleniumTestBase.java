@@ -9,7 +9,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
@@ -87,8 +86,7 @@ public abstract class SeleniumTestBase
 			log.error("Failed to create ChromeDriver: {}", t.toString(), t);
 			throw t;
 		}
-		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(WAIT_TIME_S));
-	}	
+	}
 	
 	public WebDriver getDriver()
 	{

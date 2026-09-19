@@ -7,8 +7,10 @@ package pl.edu.icm.unity.oauth.as.token.access;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.URI;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,9 +33,9 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.RememberMePolicy;
-import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -46,13 +48,16 @@ import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
+import pl.edu.icm.unity.oauth.as.AttributeFilteringSpec;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
-import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
-import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
+import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
+import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
+import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -79,8 +84,20 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			+ "unity.oauth2.as.scopes.2.attributes.1=c\n"
 			+ "unity.oauth2.as.scopes.99.name=" + OIDCScopeValue.OFFLINE_ACCESS.getValue() + "\n"
 			+ "unity.oauth2.as.refreshTokenValidity=3600\n"
-			+ "unity.oauth2.as.tokenFormat=JWT\n";
-			
+			+ "unity.oauth2.as.tokenFormat=JWT\n"
+			+ "unity.oauth2.as.embeddedTranslationProfile={\"ver\":\"2\",\"name\":\"Embedded\",\"description\":\"\",\"type\":\"OUTPUT\","
+			+ "\"mode\":\"DEFAULT\",\"rules\":[{\"condition\":{\"conditionValue\":\"true\"},\"action\":{\"name\":\"createAttribute\","
+			+ "\"parameters\":[\"amr\",\"amr\",\"false\",\"\",\"\",\"\"]}},{\"condition\":{\"conditionValue\":\"true\"},"
+			+ "\"action\":{\"name\":\"createAttribute\",\"parameters\":[\"authenticatedWith\",\"authenticatedWith\","
+			+ "\"false\",\"\",\"\",\"\"]}},{\"condition\":{\"conditionValue\":\"true\"},\"action\":{\"name\":\"createAttribute\","
+			+ "\"parameters\":[\"authentications\",\"authentications\",\"false\",\"\",\"\",\"\"]}},"
+			+ "{\"condition\":{\"conditionValue\":\"true\"},\"action\":{\"name\":\"createAttribute\",\"parameters\":[\"idp\",\"idp\","
+			+ "\"false\",\"\",\"\",\"\"]}},{\"condition\":{\"conditionValue\":\"true\"},\"action\":{\"name\":\"createAttribute\","
+			+ "\"parameters\":[\"protocol\",\"protocol\",\"false\",\"\",\"\",\"\"]}},{\"condition\":{\"conditionValue\":\"true\"},"
+			+ "\"action\":{\"name\":\"createAttribute\",\"parameters\":[\"upstreamACRs\",\"upstreamACRs\",\"false\",\"\",\"\",\"\"]}},"
+			+ "{\"condition\":{\"conditionValue\":\"true\"},\"action\":{\"name\":\"createAttribute\",\"parameters\":[\"upstreamProtocol\","
+			+ "\"upstreamProtocol\",\"false\",\"\",\"\",\"\"]}},{\"condition\":{\"conditionValue\":\"upstreamACRs.size()!=0\"},"
+			+ "\"action\":{\"name\":\"createAttribute\",\"parameters\":[\"acr\",\"upstreamACRs[0]\",\"false\",\"\",\"\",\"\"]}}]}\n";
 	
 
 	private static final String OIDC_ENDP_CFG = OAUTH_ENDP_CFG 
@@ -104,10 +121,13 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	{
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		groupsMan.addMemberFromParent("/oauth-users", new EntityParam(identity));
-		aTypeMan.addAttributeType(new AttributeType("email", StringAttributeSyntax.ID));
+		
+		AttributeType emailAttributeType = new AttributeType("email", StringAttributeSyntax.ID);
+		emailAttributeType.setMaxElements(2);
+		aTypeMan.addAttributeType(emailAttributeType);
 		aTypeMan.addAttributeType(new AttributeType("c", StringAttributeSyntax.ID));
 		attrsMan.createAttribute(new EntityParam(identity),
-				StringAttribute.of("email", "/oauth-users", "example@example.com"));
+				StringAttribute.of("email", "/oauth-users", "example@example.com", "example2@example.com"));
 		attrsMan.createAttribute(new EntityParam(identity),
 				StringAttribute.of("c", "/oauth-users", "PL"));
 		return identity;
@@ -191,35 +211,55 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 		}
 	}
 	
-	
 	/**
 	 * Initialize environment before token refresh or exchange:
 	 * -add attributes to the user
 	 * -create OAuth context
 	 * -prepare access token request (with refresh token) and invoke them. 
-	 * @param scope requested scope in code flow
-	 * @param ca user auth 
-	 * @return Parsed access token response
+	 * @param list 
 	 */
-	protected AccessTokenResponse init(List<String> scopes, ClientAuthentication ca)
-			throws Exception
+	protected AccessTokenResponse init(Set<String> scopes, ClientAuthentication ca, List<String> additionalAudience,
+			ClaimsInTokenAttribute claimInIdToken, List<AttributeFilteringSpec> claimValueFilters) throws Exception
+	{
+		return init(scopes.stream()
+				.map(s -> new RequestedOAuthScope(s, ActiveOAuthScopeDefinition.builder()
+						.withName(s)
+						.withDescription(s)
+						.withAttributes(Lists.newArrayList(s + " attr"))
+						.build(), false))
+				.toList(), ca, additionalAudience, claimInIdToken, claimValueFilters);
+	}
+	
+	protected AccessTokenResponse init(List<RequestedOAuthScope> scopes, ClientAuthentication ca,
+			List<String> additionalAudience, ClaimsInTokenAttribute claimInIdToken, List<AttributeFilteringSpec> claimValueFilters) throws Exception
 	{
 		IdentityParam identity = initUser("userA");
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getOIDCConfig(),
-				new ResponseType(ResponseType.Value.CODE),
-				GrantFlow.authorizationCode, clientId1.getEntityId());
+				new ResponseType(ResponseType.Value.CODE), GrantFlow.authorizationCode, clientId1.getEntityId());
 
-		ctx.setRequestedScopes(new HashSet<>(scopes));
-		for (String scope: scopes)
-			ctx.addEffectiveScopeInfo(OAuthScope.builder().withName(scope).withDescription(scope)
-					.withAttributes(Lists.newArrayList(scope + " attr")).withEnabled(true).build());					
-					
+		ctx.setRequestedScopes(scopes.stream()
+				.map(s -> s.scope())
+				.collect(Collectors.toSet()));
+
+		scopes.forEach(s -> ctx.addEffectiveScopeInfo(s));
+
 		ctx.setOpenIdMode(true);
+		if (additionalAudience != null)
+		{
+			ctx.setAdditionalAudience(additionalAudience);
+		}
+		ctx.setClaimsInTokenAttribute(Optional.ofNullable(claimInIdToken));
+
+		if (claimValueFilters != null && !claimValueFilters.isEmpty())
+		{
+			ctx.setClaimValueFilters(claimValueFilters);
+		}
+		
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(OAuthTestUtils.getOAuthProcessor(tokensMan), ctx, identity);
 		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,
 				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
-						.build();	
+						.build();
 		HTTPRequest bare = request.toHTTPRequest();
 		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
 				ServerHostnameCheckingMode.NONE);

@@ -18,7 +18,8 @@ import io.imunity.vaadin.endpoint.common.consent_utils.LoginInProgressService.Va
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.endpoint.idp.IdpStatistic.Status;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
+import pl.edu.icm.unity.saml.ResponseTemplates;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter;
 import pl.edu.icm.unity.saml.idp.SamlIdpStatisticReporter.SamlIdpStatisticReporterFactory;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
@@ -41,11 +42,11 @@ import java.util.Map;
 public class SamlResponseHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlResponseHandler.class);
-	protected FreemarkerAppHandler freemarkerHandler;
+	protected FreemarkerXHTMLHandler freemarkerHandler;
 	protected AuthnResponseProcessor samlProcessor;
 	private final SamlIdpStatisticReporter reporter;
 
-	public SamlResponseHandler(FreemarkerAppHandler freemarkerHandler,
+	public SamlResponseHandler(FreemarkerXHTMLHandler freemarkerHandler,
 			AuthnResponseProcessor samlProcessor, 
 			SamlIdpStatisticReporterFactory reporterFactory,
 			Endpoint endpoint
@@ -134,7 +135,7 @@ public class SamlResponseHandler
 
 			response.setContentType("application/xhtml+xml; charset=utf-8");
 			PrintWriter writer = response.getWriter();
-			freemarkerHandler.printGenericPage(writer, "samlFinish.ftl", data);
+			freemarkerHandler.printXHTMLDocument(writer, ResponseTemplates.FINISH_TMPL.templateFile, data);
 			return true;
 		}
 	}

@@ -6,16 +6,26 @@ package pl.edu.icm.unity.oauth.as.token.access;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.net.URI;
-import java.util.Arrays;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
+import com.nimbusds.jwt.util.DateUtils;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
+import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
+import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.RefreshTokenGrant;
+import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
@@ -32,12 +42,29 @@ import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
+import com.nimbusds.openid.connect.sdk.claims.ACR;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
+import com.nimbusds.openid.connect.sdk.op.ACRRequest;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import pl.edu.icm.unity.base.authn.AuthenticationMethod;
+import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.identity.IdentityParam;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
+import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata.Protocol;
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.oauth.as.OAuthIdpStatisticReporter;
+import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.OAuthTestUtils;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
+import pl.edu.icm.unity.oauth.as.webauthz.ClaimsInTokenAttribute;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -49,9 +76,9 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
  */
 public class RefreshTokenTest extends TokenTestBase
 {
-	private RefreshToken initRefresh(List<String> scope, ClientAuthentication ca) throws Exception
+	private RefreshToken initRefresh(Set<String> scope, ClientAuthentication ca) throws Exception
 	{
-		return init(scope, ca).getTokens().getRefreshToken();	
+		return init(scope, ca, null, null, null).getTokens().getRefreshToken();	
 	}
 	
 
@@ -61,7 +88,7 @@ public class RefreshTokenTest extends TokenTestBase
 		super.setupPlain(RefreshTokenIssuePolicy.ALWAYS);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 
 		AccessTokenResponse parsedResp = getRefreshedAccessToken(refreshToken, ca, "foo", "bar");
 		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
@@ -77,7 +104,7 @@ public class RefreshTokenTest extends TokenTestBase
 		super.setupPlain(RefreshTokenIssuePolicy.NEVER);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 		assertThat(refreshToken).isNull();
 	}
 
@@ -87,7 +114,7 @@ public class RefreshTokenTest extends TokenTestBase
 		super.setupPlain(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 		assertThat(refreshToken).isNull();
 	}
 
@@ -97,7 +124,7 @@ public class RefreshTokenTest extends TokenTestBase
 		super.setupPlain(RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED);
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar", OIDCScopeValue.OFFLINE_ACCESS.getValue()),
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar", OIDCScopeValue.OFFLINE_ACCESS.getValue()),
 				ca);
 		assertThat(refreshToken).isNotNull();
 	}
@@ -109,7 +136,7 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 
 		AccessTokenResponse parsedResp = getRefreshedAccessToken(refreshToken, ca);
 		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
@@ -126,12 +153,26 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
-
+		
+		RefreshToken refreshToken =init(List.of(
+		new RequestedOAuthScope("foo", ActiveOAuthScopeDefinition.builder()
+				.withName("foo")
+				.withDescription("foo")
+				.withAttributes(List.of("email"))
+				.withPattern(true)
+				.build(), true), 
+		new RequestedOAuthScope("bar", ActiveOAuthScopeDefinition.builder()
+				.withName("bar")
+				.withDescription("bar")
+				.withAttributes(List.of("c"))
+				.withPattern(true)
+				.build(), true)), ca, null, null, null).getTokens().getRefreshToken();
+		
+		
 		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");
 
 		assertThat(claimSet.getClaim("c")).isEqualTo("PL");
-		assertThat(claimSet.getClaim("email")).isEqualTo("example@example.com");
+		assertThat(claimSet.getListClaim("email")).contains("example@example.com");
 		assertThat(claimSet.getClaim("sub")).isEqualTo("userA");
 	}
 
@@ -142,7 +183,7 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("openid"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("openid"), ca);
 
 		TokenRequest refreshRequest = new TokenRequest(
 				new URI(getOauthUrl("/oauth/token")), ca,
@@ -165,7 +206,7 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 
 		// check wrong scope
 		TokenRequest refreshRequest = new TokenRequest(
@@ -189,7 +230,7 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca2 = new ClientSecretBasic(new ClientID("client2"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken = initRefresh(Set.of("foo", "bar"), ca);
 
 		TokenRequest refreshRequest = new TokenRequest(
 				new URI(getOauthUrl("/oauth/token")), ca2,
@@ -211,7 +252,19 @@ public class RefreshTokenTest extends TokenTestBase
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));
 
-		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+		RefreshToken refreshToken =init(List.of(
+				new RequestedOAuthScope("foo", ActiveOAuthScopeDefinition.builder()
+						.withName("foo")
+						.withDescription("foo")
+						.withAttributes(List.of("email"))
+						.withPattern(true)
+						.build(), true), 
+				new RequestedOAuthScope("bar", ActiveOAuthScopeDefinition.builder()
+						.withName("bar")
+						.withDescription("bar")
+						.withAttributes(List.of("c"))
+						.withPattern(true)
+						.build(), true)), ca, null, null, null).getTokens().getRefreshToken();
 
 		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");	
 		
@@ -224,6 +277,59 @@ public class RefreshTokenTest extends TokenTestBase
 		claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");
 		assertThat(claimSet.getClaim("c")).isEqualTo("new");	
 		
+	}
+	
+	@Test
+	public void shouldPreserveUserAuthneticationDetailsAndAuthnTimeAfterTokenRefresh() throws Exception
+	{
+		super.setupOIDC(RefreshTokenIssuePolicy.ALWAYS);
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"), new Secret("clientPass"));
+		IdentityParam identity = initUser("userA");
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getOIDCConfig(),
+				new ResponseType(ResponseType.Value.CODE), GrantFlow.authorizationCode, clientId1.getEntityId());
+		ctx.setRequestedScopes(Set.of("openid"));
+		ctx.addEffectiveScopeInfo(new RequestedOAuthScope("openid", ActiveOAuthScopeDefinition.builder().withName("openid").build(), false));
+		ctx.addEffectiveScopeInfo(new RequestedOAuthScope("profile", ActiveOAuthScopeDefinition.builder()
+				.withName("profile")
+				.withAttributes(List.of("idp", "amr", "acr", "authentications", "authenticatedWith"))
+				.build(), false));
+
+		ctx.setOpenIdMode(true);
+		ctx.setRequestedAcr(new ACRRequest(List.of(new ACR("acrReq")), null));
+		ctx.setClaimsInTokenAttribute(Optional.of(ClaimsInTokenAttribute.builder().withValues(Set.of(ClaimsInTokenAttribute.Value.token)).build()));
+		InvocationContext simpltyContext = new InvocationContext(null, new AuthenticationRealm(), Collections.emptyList());
+		LoginSession session = new LoginSession();
+		session.setFirstFactorRemoteIdPAuthnContext(new RemoteAuthnMetadata(Protocol.OIDC, "idp", List.of("acr1")));
+		session.addAuthenticatedIdentities(Set.of("userA"));
+		session.setAuthenticationMethods(Set.of(AuthenticationMethod.U_OAUTH));
+		session.setRemoteIdP("idp1");
+		session.setLogin1stFactor(new AuthNInfo(AuthenticationOptionKey.authenticatorOnlyKey("1"), null));
+		
+		simpltyContext.setLoginSession(session);
+		InvocationContext.setCurrent(simpltyContext);
+		Instant authn_time = Instant.ofEpochMilli(1000);
+	
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils.getOAuthProcessor(tokensMan).prepareAuthzResponseAndRecordInternalState(
+				List.of(), identity, ctx, mock(OAuthIdpStatisticReporter.class), authn_time , null);
+		TokenRequest request = new TokenRequest.Builder(new URI(getOauthUrl("/oauth/token")), ca,
+				new AuthorizationCodeGrant(resp1.getAuthorizationCode(), new URI("https://return.host.com/foo")))
+						.build();
+		HTTPRequest bare = request.toHTTPRequest();
+		HTTPRequest wrapped = new HttpRequestConfigurer().secureRequest(bare, pkiMan.getValidator("MAIN"),
+				ServerHostnameCheckingMode.NONE);
+		HTTPResponse resp2 = wrapped.send();
+		AccessTokenResponse parsedInitialResp = AccessTokenResponse.parse(resp2);
+		
+		AccessTokenResponse refreshParsedResp = getRefreshedAccessToken(parsedInitialResp.getTokens().getRefreshToken(), ca, "openid", "profile");
+		
+		SignedJWT signedJWT = SignedJWT.parse(refreshParsedResp.getTokens().getAccessToken().getValue());
+		assertThat(signedJWT.getJWTClaimsSet().getClaim("acr")).isEqualTo("acr1");
+		assertThat(signedJWT.getJWTClaimsSet()
+				.getClaim("auth_time")).isEqualTo(DateUtils.toSecondsSinceEpoch(Date.from(authn_time)));
+		assertThat(signedJWT.getJWTClaimsSet().getClaim("idp")).isEqualTo("idp1");	
+		assertThat(signedJWT.getJWTClaimsSet().getClaim("amr")).isEqualTo("[u_oauth]");	
+		assertThat(signedJWT.getJWTClaimsSet().getClaim("authentications")).isEqualTo("1");	
+		assertThat(signedJWT.getJWTClaimsSet().getClaim("authenticatedWith")).isEqualTo("userA");
 	}
 
 	private AccessTokenResponse getRefreshedAccessToken(RefreshToken token, 

@@ -29,10 +29,13 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.function.SerializableRunnable;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.NavigationTrigger;
 import com.vaadin.flow.router.PreserveOnRefresh;
+
+import jakarta.annotation.security.PermitAll;
 
 import io.imunity.upman.front.UpmanViewComponent;
 import io.imunity.upman.front.model.ProjectGroup;
@@ -51,6 +54,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 
 @PreserveOnRefresh
+@PermitAll
 public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserver
 {
 	private final ProjectService projectService;
@@ -58,8 +62,9 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 	private Optional<UpmanViewComponent> currentView = Optional.empty();
 
 	@Autowired
-	public UpManMenu(VaadinWebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg, EnquiresDialogLauncher enquiresDialogLauncher,
-	                 HomeServiceLinkService homeServiceLinkService, ExtraPanelsConfigurationProvider extraPanelsConfiguration)
+	public UpManMenu(VaadinWebLogoutHandler standardWebLogoutHandler, ProjectService projectService, MessageSource msg,
+			EnquiresDialogLauncher enquiresDialogLauncher, HomeServiceLinkService homeServiceLinkService,
+			ExtraPanelsConfigurationProvider extraPanelsConfiguration)
 	{
 		super(Stream.of(
 						MenuComponent.builder(MembersView.class).tabName(msg.getMessage("UpManMenu.members"))
@@ -71,7 +76,8 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 						MenuComponent.builder(UserUpdatesView.class).tabName(msg.getMessage("UpManMenu.userUpdates"))
 								.icon(USER_CHECK).build()
 						)
-						.collect(toList()), standardWebLogoutHandler, msg, enquiresDialogLauncher, false, createHomeIcon(homeServiceLinkService), extraPanelsConfiguration
+						.collect(toList()), standardWebLogoutHandler, msg, enquiresDialogLauncher, false,
+				createHomeIcon(homeServiceLinkService), extraPanelsConfiguration
 		);
 		this.projectService = projectService;
 
@@ -80,11 +86,13 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 		imageLayout.getStyle().set("margin-bottom", "1.5em");
 
 
-		List<ProjectGroup> projectGroups = projectService.getProjectForUser(InvocationContext.getCurrent().getLoginSession().getEntityId());
+		List<ProjectGroup> projectGroups = projectService.getProjectForUser(
+				InvocationContext.getCurrent().getLoginSession().getEntityId());
 
 		super.initView();
 
-		projectsLayout = new ProjectsLayout(msg, projectGroups, imageLayout);
+		projectsLayout = new ProjectsLayout(msg, projectGroups, imageLayout, projectService,
+				() -> currentView.ifPresent(UpmanViewComponent::loadData));
 		addToLeftContainerAsFirst(projectsLayout);
 		addToLeftContainerAsFirst(imageLayout);
 	}
@@ -116,32 +124,40 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 	{
 		if(beforeEnterEvent.getTrigger().equals(NavigationTrigger.PROGRAMMATIC))
 		{
-			projectsLayout.load(projectService.getProjectForUser(InvocationContext.getCurrent().getLoginSession().getEntityId()));
-			ComponentUtil.setData(UI.getCurrent(), ProjectGroup.class, projectsLayout.selectedProject);
-			currentView.ifPresent(UpmanViewComponent::loadData);
+			projectsLayout.load(projectService.getProjectForUser(
+					InvocationContext.getCurrent().getLoginSession().getEntityId()));
+			ProjectGroup selectedProject = projectsLayout.getSelectedProject();
+			ComponentUtil.setData(UI.getCurrent(), ProjectGroup.class, selectedProject);
+			if(selectedProject != null)
+				currentView.ifPresent(UpmanViewComponent::loadData);
 		}
 		if(ComponentUtil.getData(UI.getCurrent(), ProjectGroup.class) == null)
 		{
-			if (projectsLayout.selectedProject == null)
+			if (projectsLayout.getSelectedProject() == null)
 			{
 				beforeEnterEvent.rerouteToError(IllegalAccessException.class);
 				return;
 			}
-			ComponentUtil.setData(UI.getCurrent(), ProjectGroup.class, projectsLayout.selectedProject);
+			ComponentUtil.setData(UI.getCurrent(), ProjectGroup.class, projectsLayout.getSelectedProject());
 		}
 	}
 
-	class ProjectsLayout extends HorizontalLayout
+	static class ProjectsLayout extends HorizontalLayout
 	{
 		private final MessageSource msg;
 		private final HorizontalLayout imageLayout;
+		private final ProjectService projectService;
+		private final SerializableRunnable currentViewLoader;
 
 		private ProjectGroup selectedProject;
 
-		ProjectsLayout(MessageSource msg, List<ProjectGroup> projectGroups, HorizontalLayout imageLayout)
+		ProjectsLayout(MessageSource msg, List<ProjectGroup> projectGroups, HorizontalLayout imageLayout,
+				ProjectService projectService, SerializableRunnable currentViewLoader)
 		{
 			this.msg = msg;
 			this.imageLayout = imageLayout;
+			this.projectService = projectService;
+			this.currentViewLoader = currentViewLoader;
 
 			setAlignItems(Alignment.CENTER);
 			setJustifyContentMode(JustifyContentMode.CENTER);
@@ -150,13 +166,22 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 			load(projectGroups);
 		}
 
-		private void load(List<ProjectGroup> projectGroups)
+		void load(List<ProjectGroup> projectGroups)
 		{
+			selectedProject = null;
+			imageLayout.removeAll();
 			removeAll();
+			if(projectGroups.isEmpty())
+				return;
 			if(projectGroups.size() == 1)
 				add(createLabel(projectGroups));
 			else
 				add(createComboBox(projectGroups));
+		}
+
+		ProjectGroup getSelectedProject()
+		{
+			return selectedProject;
 		}
 
 		private ComboBox<ProjectGroup> createComboBox(List<ProjectGroup> projectGroups)
@@ -174,7 +199,7 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 				}
 				selectedProject = event.getValue();
 				ComponentUtil.setData(UI.getCurrent(), ProjectGroup.class, event.getValue());
-				currentView.ifPresent(UpmanViewComponent::loadData);
+				currentViewLoader.run();
 				setImage(event.getValue());
 			});
 

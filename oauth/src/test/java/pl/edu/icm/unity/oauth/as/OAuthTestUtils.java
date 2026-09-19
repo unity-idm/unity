@@ -130,8 +130,8 @@ public class OAuthTestUtils
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(true);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addEffectiveScopeInfo(OAuthScope.builder().withName("sc1").withDescription("scope 1")
-				.withAttributes(Lists.newArrayList("email")).withEnabled(true).build());
+		ctx.addEffectiveScopeInfo(new RequestedOAuthScope("sc1", ActiveOAuthScopeDefinition.builder().withName("sc1").withDescription("scope 1")
+				.withAttributes(Lists.newArrayList("email")).build(), false));
 		return ctx;
 	}
 
@@ -157,8 +157,8 @@ public class OAuthTestUtils
 		ctx.setFlow(grant);
 		ctx.setOpenIdMode(false);
 		ctx.setReturnURI(new URI("https://return.host.com/foo"));
-		ctx.addEffectiveScopeInfo(OAuthScope.builder().withName("sc1").withDescription("scope 1")
-				.withAttributes(Lists.newArrayList("email")).withEnabled(true).build());
+		ctx.addEffectiveScopeInfo( new RequestedOAuthScope("sc1", ActiveOAuthScopeDefinition.builder().withName("sc1").withDescription("scope 1")
+				.withAttributes(Lists.newArrayList("email")).build(), false));
 		return ctx;
 	}
 
@@ -207,11 +207,11 @@ public class OAuthTestUtils
 			OAuthAuthzContext ctx, IdentityParam identity) throws Exception
 	{
 		Collection<DynamicAttribute> attributes = new ArrayList<>();
-		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com")));
+		attributes.add(new DynamicAttribute(StringAttribute.of("email", "/", "example@example.com", "example2@example.com")));
 		attributes.add(new DynamicAttribute(StringAttribute.of("c", "/", "PL")));
 		
 		return processor.prepareAuthzResponseAndRecordInternalState(
-				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now(), null);
+				attributes, identity, ctx, mock(OAuthIdpStatisticReporter.class), Instant.now(), ctx.getClaimValueFilters());
 	}
 
 	public static Identity createOauthClient(EntityManagement idsMan, AttributesManagement attrsMan,

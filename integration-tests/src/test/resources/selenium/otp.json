@@ -1,0 +1,17 @@
+{
+	"otpParams": {
+		"codeLength": 6,
+		"hashFunction": "SHA1",
+		"timeStepSeconds": 30
+	},
+	"issuerName": "Unity Selenium",
+	"allowedTimeDriftSteps": 3,
+	"resetSettings": {
+		"enabled": false,
+		"codeLength": 6,
+		"emailSecurityCodeMsgTemplate": null,
+		"mobileSecurityCodeMsgTemplate": null,
+		"confirmationMode": "EMAIL"
+	},
+	"logoURI": null
+}

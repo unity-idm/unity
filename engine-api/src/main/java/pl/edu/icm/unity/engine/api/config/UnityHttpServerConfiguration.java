@@ -49,7 +49,7 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 			return httpValue;
 		}
 	}
-	
+
 	@DocumentationReferencePrefix
 	public static final String PREFIX = UnityServerConfiguration.P+HttpServerProperties.DEFAULT_PREFIX;
 

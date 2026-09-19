@@ -68,7 +68,7 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 		addRejectListener(event -> close());
 		setCancelable(true);
 		setConfirmText("OK");
-		add(getContents());
+		setText(getContents());
 	}
 	
 	

@@ -248,8 +248,7 @@ public class TrustedOAuthClientsManagementTest
 		oauthToken.setClientUsername("clientEntityId");
 		oauthToken.setClientId(1);
 		oauthToken.setIssuerUri("uri");
-		String[] scopes =
-		{ "scope" };
+		List<RequestedOAuthScope> scopes = List.of(new RequestedOAuthScope("scope", ActiveOAuthScopeDefinition.builder().withName("scope").build(), false));
 		oauthToken.setEffectiveScope(scopes);
 		Token token = new Token("", "ac", 1L);
 		token.setContents(oauthToken.getSerialized());
@@ -294,6 +293,7 @@ public class TrustedOAuthClientsManagementTest
 		config.setIdTokenExpiration(1);
 		config.setCodeTokenExpiration(1);
 		config.setSigningAlg(SigningAlgorithms.ES256);
+		config.setFederationMetadataValidity(1);
 
 		return config.toProperties(msg, null);
 	}

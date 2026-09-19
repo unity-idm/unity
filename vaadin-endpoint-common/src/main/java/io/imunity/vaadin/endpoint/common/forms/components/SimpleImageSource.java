@@ -5,19 +5,21 @@
 
 package io.imunity.vaadin.endpoint.common.forms.components;
 
-import com.vaadin.flow.server.StreamResource;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Random;
 
+import com.vaadin.flow.server.streams.DownloadHandler;
+
 class SimpleImageSource
 {
 	private static final Random random = new Random();
+	private static final String PNG_MIME_TYPE = "image/png";
 	private final byte[] data;
 
 	public SimpleImageSource(BufferedImage value)
@@ -33,8 +35,8 @@ class SimpleImageSource
 		data = bos.toByteArray();
 	}
 
-	public StreamResource getResource()
+	public DownloadHandler getSrc()
 	{
-		return new StreamResource("imgattribute-"+random.nextLong()+".png", () -> new ByteArrayInputStream(data));
+		return DownloadHandlers.forBytes(data, "%s.png".formatted(random.nextLong()), PNG_MIME_TYPE);
 	}
 }

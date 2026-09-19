@@ -176,8 +176,8 @@ vaadin-icon {
     height: var(--lumo-icon-size-s);
 }
 
-vaadin-form-item {
-    --vaadin-form-item-label-width: 11em;
+vaadin-form-layout {
+    --vaadin-form-layout-label-width: 11em;
     white-space: nowrap;
 }
 
@@ -249,11 +249,11 @@ vaadin-checkbox-group.check-box-with-error::part(group-field) {
 	display: inline-flex;
 }
 
-vaadin-tooltip-overlay[position=end-top]::part(overlay) {
+vaadin-tab.u-multi-tab > vaadin-tooltip[slot=tooltip]::part(overlay) {
     margin-top: var(--unity-base-margin);
 }
 
-vaadin-tooltip-overlay::part(overlay) {
+vaadin-tooltip::part(overlay) {
     font-size: var(--lumo-font-size-s);
 }
 
@@ -428,16 +428,16 @@ vaadin-button.u-text-left::part(label) {
     height: var(--unity-icon-size);
 }
 
-.u-small-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 3em;
+.u-small-vaadin-form-item {
+    --vaadin-form-layout-label-width: 3em;
 }
 
-.u-medium-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 17em;
+.u-medium-vaadin-form-item {
+    --vaadin-form-layout-label-width: 17em;
 }
 
-.u-big-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 25em;
+.u-big-vaadin-form-item {
+    --vaadin-form-layout-label-width: 25em;
 }
 
 .u-fido-layout {
@@ -461,11 +461,11 @@ vaadin-button.u-text-left::part(label) {
     cursor: pointer;
 }
 
-.u-usual-row {
+vaadin-grid::part(u-usual-row) {
     background-color: inherit;
 }
 
-.u-error-row {
+vaadin-grid::part(u-error-row) {
     background-color: var(--unity-grid-error-row-color);
 }
 
@@ -683,11 +683,11 @@ vaadin-details.u-multi-tab-details {
     margin-bottom: 0.75em;
 }
 
-.u-immutableAttribute {
+vaadin-grid::part(u-immutableAttribute) {
 	color: var(--unity-immutable-attribute-color);
 }
 
-.u-bold {
+vaadin-grid::part(u-bold) {
 	font-weight: var(--unity-bold-font-weight);
 }
 
@@ -772,7 +772,7 @@ vaadin-details.u-multi-tab-details {
     color: var(--unity-font-primary-color);
 }
 
-vaadin-combo-box-overlay.u-combobox-hidden-checkmark > * ::part(checkmark){
+vaadin-combo-box-item.u-combobox-hidden-checkmark::part(checkmark){
 	visibility: hidden;
 }
 
@@ -845,5 +845,3 @@ vaadin-accordion-heading::part(toggle){
 vaadin-accordion-heading[opened]::part(toggle) {
 	transform: rotate(270deg);
 }
-
-

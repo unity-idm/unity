@@ -4,17 +4,7 @@
  */
 package io.imunity.console.views.directory_browser.identities;
 
-import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.datetimepicker.DateTimePicker;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.select.Select;
-import io.imunity.console.views.directory_browser.EntityWithLabel;
-import io.imunity.vaadin.elements.DialogWithActionFooter;
-import pl.edu.icm.unity.base.entity.EntityInformation;
-import pl.edu.icm.unity.base.entity.EntityScheduledOperation;
-import pl.edu.icm.unity.base.entity.EntityState;
-import pl.edu.icm.unity.base.message.MessageSource;
+import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -22,11 +12,28 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Locale;
 
+import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.datetimepicker.DateTimePicker;
+import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.formlayout.FormLayout.FormItem;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.select.Select;
+
+import io.imunity.console.views.directory_browser.EntityWithLabel;
+import io.imunity.vaadin.elements.DialogWithActionFooter;
+import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
+import pl.edu.icm.unity.base.entity.EntityInformation;
+import pl.edu.icm.unity.base.entity.EntityScheduledOperation;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.message.MessageSource;
+
 
 class ChangeEntityStateDialog extends DialogWithActionFooter
 {
 	private static final Locale EUROPEAN_TIME_FORMAT = Locale.forLanguageTag("DE");
 
+	private final HtmlTooltipFactory htmlTooltipFactory;
 	private final MessageSource msg;
 	private final EntityWithLabel entity;
 	private final Callback callback;
@@ -35,12 +42,17 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 	private Checkbox scheduleEnable;
 	private Select<EntityScheduledOperation> entityScheduledChange;
 	private DateTimePicker changeTime;
-	private FormLayout.FormItem changeTimeFormItem;
+	private DateTimePicker removalTime;
+	private FormItem changeTimeFormItem;
 
-	ChangeEntityStateDialog(MessageSource msg, EntityWithLabel entity, Callback callback)
+	private FormItem removalFormItem;
+
+	ChangeEntityStateDialog(MessageSource msg, HtmlTooltipFactory htmlTooltipFactory, EntityWithLabel entity,
+			Callback callback)
 	{
 		super(msg::getMessage);
 		this.msg = msg;
+		this.htmlTooltipFactory = htmlTooltipFactory;
 		this.entity = entity;
 		this.callback = callback;
 		setHeaderTitle(msg.getMessage("ChangeEntityStateDialog.caption"));
@@ -58,6 +70,18 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 		entityState.setValue(entity.getEntity().getState());
 		entityState.setWidthFull();
 
+		entityState.addValueChangeListener(event ->
+		{
+			EntityState newValue = event.getValue();
+			if (newValue == EntityState.onlyLoginPermitted)
+			{
+				removalFormItem.setVisible(true);
+			} else
+			{
+				removalFormItem.setVisible(false);
+			}
+		});
+		
 		scheduleEnable = new Checkbox(msg.getMessage("ChangeEntityStateDialog.enableScheduled"));
 		
 		EntityInformation initial = entity.getEntity().getEntityInformation();
@@ -67,10 +91,17 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 		entityScheduledChange.setItems(EntityScheduledOperation.values());
 		entityScheduledChange.setItemLabelGenerator(item -> msg.getMessage("EntityScheduledOperation." + item));
 		entityScheduledChange.setValue(initialOp);
+		
 
 		changeTime = new DateTimePicker();
 		changeTime.setLocale(EUROPEAN_TIME_FORMAT);
 		changeTime.setRequiredIndicatorVisible(true);
+		
+		removalTime = new DateTimePicker();
+		removalTime.setLocale(EUROPEAN_TIME_FORMAT);
+		removalTime.setRequiredIndicatorVisible(true);
+	
+		
 		if (initial.getScheduledOperation() != null)
 		{
 			scheduleEnable.setValue(true);
@@ -90,25 +121,28 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 		});
 
 		FormLayout main = new FormLayout();
+		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		FormLayout embedded = new FormLayout();
-		embedded.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
-		embedded.addFormItem(entityScheduledChange, msg.getMessage("ChangeEntityStateDialog.scheduledOperation"));
-		changeTimeFormItem = embedded.addFormItem(changeTime,
-				msg.getMessage("ChangeEntityStateDialog.scheduledChangeTime"));
-
+		main.addFormItem(entityState, msg.getMessage("ChangeEntityStateDialog.newState"));
+		removalFormItem = main.addFormItem(removalTime, msg.getMessage("ChangeEntityStateDialog.removalGracePeriodEnd"));
+		removalFormItem.add(htmlTooltipFactory.get(msg.getMessage("ChangeEntityStateDialog.removalGracePeriodEndDescription")));
+		removalFormItem.setVisible(false);
+		main.addFormItem(scheduleEnable, "");		
+		main.addFormItem(entityScheduledChange, msg.getMessage("ChangeEntityStateDialog.scheduledOperation"));
+		changeTimeFormItem = main.addFormItem(changeTime,
+				msg.getMessage("ChangeEntityStateDialog.scheduledChangeTime"));		
+		main.setSizeFull();
+		
+		
 		if (entity.getEntity().getEntityInformation().getRemovalByUserTime() != null &&
 				entity.getEntity().getEntityInformation().getState() == EntityState.onlyLoginPermitted)
 		{
-			Span infoRemovalByUser = new Span(msg.getMessage("ChangeEntityStateDialog.infoUserScheduledRemoval",
-				entity.getEntity().getEntityInformation().getRemovalByUserTime()));
-			main.add(infoRemovalByUser);
+			removalFormItem.setVisible(true);
+			removalTime.setValue(LocalDateTime.ofInstant(entity.getEntity().getEntityInformation().getRemovalByUserTime()
+					.toInstant(), ZoneId.systemDefault()));
 		}
 		
-		main.addFormItem(entityState, msg.getMessage("ChangeEntityStateDialog.newState"));
-		main.addFormItem(scheduleEnable, "");
-		main.addFormItem(embedded, "");
-		main.setSizeFull();
+		
 		return main;
 	}
 
@@ -121,6 +155,25 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 		changeTime.setErrorMessage(null);
 		changeTime.setInvalid(false);
 
+		if (newState.equals(EntityState.onlyLoginPermitted))
+		{
+			LocalDateTime ldt = removalTime.getValue();
+			if (ldt == null)
+			{
+				removalTime.setErrorMessage(msg.getMessage("fieldRequired"));
+				removalTime.setInvalid(true);
+				open();
+				removalTime.getElement().setAttribute("invalid", true);
+				return;
+			}
+			Date zonedDate = Date.from(ldt.atZone(ZoneId.systemDefault())
+					.toInstant());
+			newInfo.setRemovalByUserTime(zonedDate);
+		} else
+		{
+			newInfo.setRemovalByUserTime(null);
+		}
+		
 		if (scheduleEnable.getValue())
 		{
 			if (changeTime.getValue() == null)
@@ -137,8 +190,23 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 			newInfo.setScheduledOperationTime(zonedDate);
 		}
 		
-		if (callback.onChanged(newInfo))
-			close();		
+		if (newInfo.getScheduledOperation() != null && newInfo.getRemovalByUserTime() != null)
+		{
+			ConfirmDialog confirm = new ConfirmDialog();
+			confirm.setConfirmButton(msg.getMessage("ok"), e ->
+			{
+				if (callback.onChanged(newInfo))
+					close();
+			});
+			confirm.setCancelable(true);
+			confirm.add(new Span(msg.getMessage("ChangeEntityStateDialog.warningScheduledChangeAndRemoval")));
+			confirm.open();
+
+		} else
+		{
+			if (callback.onChanged(newInfo))
+				close();
+		}
 	}
 	
 	interface Callback 

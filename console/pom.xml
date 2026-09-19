@@ -9,7 +9,7 @@
     <parent>
         <groupId>io.imunity</groupId>
         <artifactId>unity-server-parent</artifactId>
-        <version>4.2.0-SNAPSHOT</version>
+        <version>4.6.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>unity-server-console</artifactId>
@@ -59,7 +59,7 @@
             <exclusions>
                 <exclusion>
                     <groupId>com.vaadin</groupId>
-                    <artifactId>vaadin-dev-server</artifactId>
+                    <artifactId>vaadin-dev</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -81,8 +81,18 @@
             <artifactId>tinymce-for-flow</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.vaadin.componentfactory</groupId>
-            <artifactId>tooltip</artifactId>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

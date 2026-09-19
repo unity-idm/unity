@@ -12,7 +12,7 @@ import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.Location;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
 
 import io.imunity.console.ConsoleEndpointFactory;
 import io.imunity.console.components.InfoBanner;
@@ -62,7 +62,7 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String serviceName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String serviceName)
 	{
 		breadCrumbParameter = new BreadCrumbParameter(serviceName, serviceName);
 		Location location = event.getLocation();
@@ -117,7 +117,6 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 
 	private void onConfirm()
 	{
-
 		ServiceDefinition service;
 		try
 		{
@@ -129,14 +128,17 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 			return;
 		}
 
-		if (service.getType()
-				.equals(ConsoleEndpointFactory.TYPE.getName()))
+		editor.confirmPreSave(() -> proceedWithUpdate(service));
+	}
+
+	private void proceedWithUpdate(ServiceDefinition service)
+	{
+		if (service.getType().equals(ConsoleEndpointFactory.TYPE.getName()))
 		{
 			ConfirmDialog confirm = new ConfirmDialog("",
 					msg.getMessage("EditServiceView.confirmUpdateDesc"), msg.getMessage("EditServiceView.confirmUpdate"), e ->
 					{
-						UI.getCurrent()
-								.navigate(mainServicesViewName);
+						UI.getCurrent().navigate(mainServicesViewName);
 						update(service);
 					}, msg.getMessage("cancel"), e ->
 					{
@@ -145,7 +147,6 @@ public abstract class EditServiceViewBase extends ConsoleViewComponent
 		} else
 		{
 			update(service);
-
 		}
 	}
 	

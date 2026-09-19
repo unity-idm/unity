@@ -1,0 +1,150 @@
+/*
+ * Copyright (c) 2024 Bixbit - Krzysztof Benedyczak. All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+package pl.edu.icm.unity.oauth.client.federation;
+
+import java.text.ParseException;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+
+import com.nimbusds.openid.connect.sdk.federation.trust.TrustChain;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.oauth.client.InstanceId;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientConfiguration;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviders;
+import pl.edu.icm.unity.oauth.client.federation.FederationEntityToProviderConverter.FederationProvider;
+
+@Component
+public class OAuthFederationProvidersManager
+{
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthFederationProvidersManager.class);
+
+	private final OAuthFederationService federationService;
+	private final FederationEntityToProviderConverter converter;
+	private final OAuthFederationLogoDownloader logoDownloader;
+
+	private final Map<String, InstanceState> stateByAuthenticator = new ConcurrentHashMap<>();
+
+	public OAuthFederationProvidersManager(OAuthFederationService federationService,
+			FederationEntityToProviderConverter converter, OAuthFederationLogoDownloader logoDownloader)
+	{
+		this.federationService = federationService;
+		this.converter = converter;
+		this.logoDownloader = logoDownloader;
+	}
+
+	public void setConfiguration(String authenticatorId, String clientId, OAuthClientConfiguration config,
+			InstanceId instanceId)
+	{
+		stateByAuthenticator.compute(authenticatorId, (id, existing) ->
+		{
+			if (existing != null && existing.consumerId != null)
+				federationService.unregisterConsumer(existing.consumerId);
+
+			if (config.federation() == null || !config.federation().enabled() || config.federation().trustAnchorId() == null)
+				return new InstanceState(instanceId, null, null, config.providers());
+
+			try
+			{
+				OAuthFederationTrustConfig fedConfig = OAuthFederationTrustConfig.from(config.federation());
+				String consumerId = federationService.preregisterConsumer();
+				federationService.registerConsumer(consumerId, fedConfig.refreshInterval(), fedConfig,
+						(chains, cid) -> onUpdatedFederation(authenticatorId, clientId, cid, chains, config));
+				OAuthProviders initial = existing != null ? existing.combinedProviders : config.providers();
+				return new InstanceState(instanceId, consumerId, config.federation().trustAnchorId(), initial);
+			} catch (ParseException e)
+			{
+				log.error("Failed to parse federation config for authenticator {}: {}",
+						authenticatorId, e.getMessage(), e);
+				return new InstanceState(instanceId, null, null, config.providers());
+			}
+		});
+	}
+
+	public void removeConfiguration(String authenticatorId, InstanceId instanceId)
+	{
+		stateByAuthenticator.compute(authenticatorId, (id, existing) ->
+		{
+			if (existing == null || existing.instanceId != instanceId)
+				return existing;
+			if (existing.consumerId != null)
+				federationService.unregisterConsumer(existing.consumerId);
+			if (existing.federationId != null)
+				logoDownloader.invalidateNamespace(existing.federationId);
+			return null;
+		});
+	}
+
+	public OAuthProviders getCombinedProviders(String authenticatorId)
+	{
+		InstanceState state = stateByAuthenticator.get(authenticatorId);
+		if (state == null)
+			return new OAuthProviders(List.of());
+		return state.effectiveProviders();
+	}
+
+	private void onUpdatedFederation(String authenticatorId, String clientId,
+			String consumerId, List<TrustChain> chains, OAuthClientConfiguration config)
+	{
+		InstanceState currentState = stateByAuthenticator.get(authenticatorId);
+		if (currentState == null || !consumerId.equals(currentState.consumerId))
+		{
+			log.debug("Discarding federation update for authenticator {}: consumer {} is no longer active",
+					authenticatorId, consumerId);
+			return;
+		}
+
+		List<FederationProvider> fromFederation = converter.convert(chains, clientId,
+				config.authenticationCredential(), config.defaultEnableAssociation(),
+				config.federationProviderDefaults(), config.federation());
+		log.debug("Updated {} federation providers for authenticator {}", fromFederation.size(), authenticatorId);
+		logoDownloader.downloadLogoFilesAsync(config.federation().trustAnchorId(), fromFederation, config.federation().truststore());
+
+		Map<OAuthProviderKey, Instant> expiryMap = new ConcurrentHashMap<>();
+		fromFederation.forEach(fp -> expiryMap.put(fp.config().key(), fp.expiresAt()));
+		OAuthProviders combined = config.providers()
+				.replaceFederation(fromFederation.stream().map(FederationProvider::config).toList())
+				.overrideWithStatic(config.providers());
+
+		stateByAuthenticator.computeIfPresent(authenticatorId, (id, state) ->
+		{
+			if (!consumerId.equals(state.consumerId))
+				return state;
+			return new InstanceState(state.instanceId, state.consumerId, state.federationId, combined, expiryMap);
+		});
+	}
+
+	private record InstanceState(
+			InstanceId instanceId,
+			String consumerId,
+			String federationId,
+			OAuthProviders combinedProviders,
+			Map<OAuthProviderKey, Instant> federationExpiry)
+	{
+		InstanceState(InstanceId instanceId, String consumerId, String federationId, OAuthProviders combinedProviders)
+		{
+			this(instanceId, consumerId, federationId, combinedProviders, Collections.emptyMap());
+		}
+
+		OAuthProviders effectiveProviders()
+		{
+			Instant now = Instant.now();
+			List<pl.edu.icm.unity.oauth.client.config.OAuthProviderConfiguration> nonExpired =
+					combinedProviders.getAll().stream()
+							.filter(p -> !p.key().isFromFederation()
+									|| !federationExpiry.containsKey(p.key())
+									|| now.isBefore(federationExpiry.get(p.key())))
+							.toList();
+			return new OAuthProviders(nonExpired);
+		}
+	}
+}

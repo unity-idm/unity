@@ -10,6 +10,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest;
 
 import pl.edu.icm.unity.base.authn.ExpectedIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RedirectedAuthnState;
+import pl.edu.icm.unity.oauth.client.config.OAuthProviderKey;
 
 
 /**
@@ -26,15 +27,15 @@ public class OAuthContext extends RedirectedAuthnState
 	private String errorCode;
 	private String errorDescription;
 	private String returnUrl;
-	private String providerConfigKey;
-	private ExpectedIdentity expectedIdentity; 
+	private OAuthProviderKey providerConfigKey;
+	private ExpectedIdentity expectedIdentity;
 
 	public OAuthContext(RedirectedAuthnState base)
 	{
 		super(base);
 	}
 
-	public synchronized void setRequest(AuthorizationRequest request, URI requestURI, String providerConfigKey)
+	public synchronized void setRequest(AuthorizationRequest request, URI requestURI, OAuthProviderKey providerConfigKey)
 	{
 		this.request = request;
 		this.requestURI = requestURI;
@@ -45,8 +46,8 @@ public class OAuthContext extends RedirectedAuthnState
 	{
 		return errorCode != null || authzCode != null;
 	}
-	
-	public synchronized String getProviderConfigKey()
+
+	public synchronized OAuthProviderKey getProviderConfigKey()
 	{
 		return providerConfigKey;
 	}

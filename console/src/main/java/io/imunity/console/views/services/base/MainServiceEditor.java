@@ -154,4 +154,12 @@ public class MainServiceEditor extends VerticalLayout
 		return editor.getEndpointDefiniton();
 	}
 
+	public void confirmPreSave(Runnable onProceed)
+	{
+		if (editorComponent != null)
+			editorComponent.confirmPreSave(onProceed);
+		else
+			onProceed.run();
+	}
+
 }

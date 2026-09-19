@@ -16,10 +16,10 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee11.servlet.FilterHolder;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
 import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -82,6 +82,8 @@ public class SharedEndpointManagementImpl implements SharedEndpointManagement
 		ServletHolder servletHolder = context.addServlet(SimpleVaadin2XServlet.class, "/*");
 		servletHolder.setAsyncSupported(true);
 		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_CLOSE_IDLE_SESSIONS, "true");
+		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_FRAME_OPTIONS, "");
+		servletHolder.setInitParameter(InitParameters.SERVLET_PARAMETER_PRODUCTION_MODE, "true");
 		servletHolder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(SESSION_TIMEOUT_VALUE.getSeconds()));
 
 		httpServer.deployHandler(context, ENDPOINT_ID);

@@ -2,7 +2,7 @@
 	<parent>
 		<groupId>io.imunity</groupId>
 		<artifactId>unity-server-parent</artifactId>
-		<version>4.2.0-SNAPSHOT</version>
+		<version>4.6.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -221,6 +221,8 @@
 								<argument>pl.edu.icm.unity.store.rdbms.RDBMSConfiguration|ref-storeRDBMSProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties|ref-JWTManProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.as.OAuthASProperties|ref-oauthASProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.oauth.as.token.authn.local.PrivateKeyJwtAuthenticatorProperties|ref-privateKeyJwtAuthenticatorProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.oauth.as.token.authn.federation.FederatedPrivateKeyJwtAuthenticatorProperties|ref-federatedPrivateKeyJwtAuthenticatorProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.oauth.rp.OAuthRPProperties|ref-oauthRPProperties.txt|</argument>
 								<argument>io.imunity.home.HomeEndpointProperties|ref-homeEndpointProperties.txt|</argument>
 								<argument>pl.edu.icm.unity.engine.userimport.UserImportProperties|ref-genericUserImportProperties.txt|</argument>
@@ -231,6 +233,7 @@
 								<argument>io.imunity.otp.ldap.OTPWithLDAPProperties|ref-OTPLDAPProperties.txt|</argument>
 								<argument>io.imunity.upman.UpmanEndpointProperties|ref-UpmanProperties.txt|</argument>
 								<argument>io.imunity.scim.config.SCIMEndpointProperties|ref-scimEndpointProperties.txt|</argument>
+								<argument>pl.edu.icm.unity.oauth.rp.local.LocalOAuthRPProperties|ref-LocalOAuthRPProperties.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>
@@ -324,14 +327,14 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.3.1</version>
+				<version>${javadocPlugin.version}</version>
 				<configuration>
 					<includeDependencySources>true</includeDependencySources>
 					<dependencySourceIncludes>
 						<dependencySourceInclude>io.imunity:unity-types-api</dependencySourceInclude>
 						<dependencySourceInclude>io.imunity:unity-server-engine-api</dependencySourceInclude>
 					</dependencySourceIncludes>
-					<additionalparam>-Xdoclint:none</additionalparam>
+					<additionalJOption>-Xdoclint:none</additionalJOption>
 					<subpackages>pl.edu.icm.unity</subpackages>
 				</configuration>
 				<reportSets>
@@ -345,7 +348,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>2.6</version>
+				<version>3.9.0</version>
 				<reportSets>
 					<reportSet>
 						<reports>

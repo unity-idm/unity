@@ -4,6 +4,11 @@
  */
 package pl.edu.icm.unity.engine.forms;
 
+import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.DEFAULT_CONTEXT;
+import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.SEC_ENQUIRY_PATH;
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQUIRY_PATH;
+import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.REGISTRATION_PATH;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,14 +16,7 @@ import pl.edu.icm.unity.base.registration.FormType;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
-import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.DEFAULT_CONTEXT;
-import static pl.edu.icm.unity.engine.api.endpoint.SecuredSharedEndpointPaths.SEC_ENQUIRY_PATH;
-import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.ENQUIRY_PATH;
-import static pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement.REGISTRATION_PATH;
+import pl.edu.icm.unity.engine.api.utils.NameToURLEncoder;
 
 @Component
 public class PublicRegistrationURLSupportImpl implements PublicRegistrationURLSupport
@@ -76,6 +74,6 @@ public class PublicRegistrationURLSupportImpl implements PublicRegistrationURLSu
 
 	private String urlEncodePath(String pathElement)
 	{
-		return URLEncoder.encode(pathElement, StandardCharsets.UTF_8).replaceAll("\\+", "%20");
+		return NameToURLEncoder.encode(pathElement);
 	}
 }

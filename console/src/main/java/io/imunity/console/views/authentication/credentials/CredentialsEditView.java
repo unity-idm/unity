@@ -14,7 +14,8 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
@@ -76,13 +77,13 @@ public class CredentialsEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String credentialName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String credentialName)
 	{
 		getContent().removeAll();
 
 		CredentialDefinition definition;
 		Set<String> supportedTypes = credentialEditorReg.getSupportedTypes();
-		if(credentialName == null)
+		if(!StringUtils.hasLength(credentialName))
 		{
 			definition = new CredentialDefinition();
 			definition.setDisplayedName(new I18nString());

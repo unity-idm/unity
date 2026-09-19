@@ -79,6 +79,11 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String SCOPE_DESCRIPTION = "description";
 	public static final String SCOPE_NAME = "name";
 	public static final String SCOPE_ENABLED = "enabled";
+	public static final String SCOPE_IS_PATTERN = "isPattern";
+	
+	public static final String AUTHORIZATION_SCRIPTS = "authorizationScripts.";
+	public static final String AUTHORIZATION_SCRIPT_PATH = "path";
+	public static final String AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE = "triggeringScope";
 
 	public static final String TRUSTED_UPSTREAM_AS = "trustedUpstreamAS.";
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_ID = "clientId";
@@ -90,12 +95,32 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_TRUSTSTORE = "httpClientTruststore";
 	public static final String TRUSTED_UPSTREAM_AS_CLIENT_HOSTNAME_CHECKING = "httpClientHostnameChecking";
 	
+	public static final String FEDERATION_MEMBERSHIP_ENABLED = "federationMembershipEnabled";
+	public static final String FEDERATION_TRUST_ANCHOR_ID = "federationTrustAnchorId";
+	public static final String FEDERATION_TRUST_ANCHOR_JWKS = "federationTrustAnchorJwks";
+	public static final String FEDERATION_CREDENTIAL = "federationCredential";
+	public static final String FEDERATION_SUPERIOR_ENTITY_ID = "federationSuperiorEntityId";
+	public static final String FEDERATION_METADATA_VALIDITY = "federationMetadataValidity";
+	public static final int DEFAULT_FEDERATION_METADATA_VALIDITY = 86400;
+	public static final String FEDERATION_TRUSTSTORE = "federationTruststore";
+	public static final String FEDERATION_HOSTNAME_CHECKING = "federationHostnameChecking";
+	public static final String FEDERATION_DISPLAY_NAME = "federationDisplayName";
+	public static final String FEDERATION_LOGO_URI = "federationLogoUri";
+	public static final String FEDERATION_ALLOW_ANY_SCOPES = "federationAllowAnyScopes";
+	public static final String FEDERATION_ALLOWED_SCOPES = "federationAllowedScopes.";
+
 	public static final String SIGNING_ALGORITHM = "signingAlgorithm";
 	public static final String SIGNING_SECRET = "signingSecret";
 
 	public static final String ACCESS_TOKEN_FORMAT = "tokenFormat";
 
 	public static final String ALLOW_UNAUTHENTICATED_REVOCATION = "allowUnauthenticatedRevocation";
+
+	public static final String DEVICE_GRANT_ENABLED = "deviceGrantEnabled";
+	public static final String DEVICE_CODE_VALIDITY = "deviceCodeValidity";
+	public static final int DEFAULT_DEVICE_CODE_VALIDITY = 1800;
+	public static final String DEVICE_CODE_MIN_POLL_INTERVAL = "deviceCodeMinPollInterval";
+	public static final int DEFAULT_DEVICE_CODE_MIN_POLL_INTERVAL = 5;
 
 	public static final int DEFAULT_CODE_TOKEN_VALIDITY = 600;
 	public static final int DEFAULT_ID_TOKEN_VALIDITY = 3600;
@@ -164,6 +189,8 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("Name of the scope as used in OAuth protocol."));
 		defaults.put(SCOPE_ENABLED, new PropertyMD("true").setStructuredListEntry(SCOPES)
 				.setDescription("Indicates whether the scope is available."));
+		defaults.put(SCOPE_IS_PATTERN, new PropertyMD("false").setStructuredListEntry(SCOPES)
+				.setDescription("Indicates whether the scope is treated as a pattern. All concrete scopes matching the pattern will be accepted."));
 		defaults.put(SCOPE_DESCRIPTION, new PropertyMD().setStructuredListEntry(SCOPES)
 				.setDescription("Human readable description of the scope meaning."));
 		defaults.put(SCOPE_ATTRIBUTES, new PropertyMD().setStructuredListEntry(SCOPES)
@@ -171,6 +198,48 @@ public class OAuthASProperties extends UnityPropertiesHelper
 				.setDescription("List of Unity attributes that should be returned when the scope is "
 						+ "requested. Note that those attribtues are merely an input to the "
 						+ "configured output translation profile."));
+		
+		defaults.put(AUTHORIZATION_SCRIPTS, new PropertyMD().setStructuredList(false)
+				.setDescription("Under this prefix external authorization of request scrips can be defined."));
+		defaults.put(AUTHORIZATION_SCRIPT_PATH, new PropertyMD().setStructuredListEntry(AUTHORIZATION_SCRIPTS)
+				.setMandatory()
+				.setDescription("Path of the script to be run"));
+		defaults.put(AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE, new PropertyMD().setStructuredListEntry(AUTHORIZATION_SCRIPTS)
+				.setMandatory()
+				.setDescription("Script triggering scope - pattern"));
+		
+		
+		defaults.put(FEDERATION_MEMBERSHIP_ENABLED, new PropertyMD("false")
+				.setDescription("Whether this server participates in an OpenID federation."));
+		defaults.put(FEDERATION_TRUST_ANCHOR_ID, new PropertyMD()
+				.setDescription("Entity ID of the trusted OpenID federation trust anchor."));
+		defaults.put(FEDERATION_TRUST_ANCHOR_JWKS, new PropertyMD()
+				.setDescription("JWKS of the trusted OpenID federation trust anchor."));
+		defaults.put(FEDERATION_CREDENTIAL, new PropertyMD()
+				.setDescription("Credential used to sign the OpenID federation entity statement."));
+		defaults.put(FEDERATION_SUPERIOR_ENTITY_ID, new PropertyMD()
+				.setDescription("Entity ID of the superior federation entity (used in authority_hints)."));
+		defaults.put(FEDERATION_METADATA_VALIDITY,
+				new PropertyMD(String.valueOf(DEFAULT_FEDERATION_METADATA_VALIDITY)).setInt().setPositive()
+						.setDescription("Validity period in seconds of the generated federation entity statement."));
+		defaults.put(FEDERATION_TRUSTSTORE, new PropertyMD()
+				.setDescription("Truststore for TLS validation when fetching OpenID federation entity statements "
+						+ "and when fetching logos of federation clients. If not set, the JVM default truststore is used."));
+		defaults.put(FEDERATION_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL)
+				.setDescription("TLS hostname checking mode when fetching OpenID federation entity statements."));
+		defaults.put(FEDERATION_DISPLAY_NAME, new PropertyMD()
+				.setDescription("Display name of this IdP presented in the federation entity statement."));
+		defaults.put(FEDERATION_LOGO_URI, new PropertyMD()
+				.setDescription("Logo URI of this IdP presented in the federation entity statement."));
+		defaults.put(FEDERATION_ALLOW_ANY_SCOPES, new PropertyMD("true")
+				.setDescription("Whether OpenID Federation clients are allowed to use any scope. "
+						+ "If false, " + FEDERATION_ALLOWED_SCOPES + " is used to restrict the allowed scopes."));
+		defaults.put(FEDERATION_ALLOWED_SCOPES, new PropertyMD().setList(true)
+				.setDescription("Default set of OAuth scopes allowed for OpenID Federation clients, "
+						+ "used only when " + FEDERATION_ALLOW_ANY_SCOPES + " is false. "
+						+ "Used as a fallback when a federation client's own metadata doesn't declare its scopes, "
+						+ "and as an upper bound (intersection) when it does."));
+
 		defaults.put(SIGNING_ALGORITHM, new PropertyMD(SigningAlgorithms.RS256)
 				.setDescription("An algorithm used for JWT access token and id token (OIDC mode) signing."));
 		defaults.put(SIGNING_SECRET,
@@ -184,6 +253,13 @@ public class OAuthASProperties extends UnityPropertiesHelper
 								+ "It is the same as in the case of tokens issued to public clients. "
 								+ "Setting this option to false makes the authentication required and "
 								+ "in line with the RFC 7009."));
+
+		defaults.put(DEVICE_GRANT_ENABLED, new PropertyMD("false")
+				.setDescription("Whether the RFC 8628 Device Authorization Grant flow is enabled."));
+		defaults.put(DEVICE_CODE_VALIDITY, new PropertyMD(String.valueOf(DEFAULT_DEVICE_CODE_VALIDITY)).setPositive()
+				.setDescription("Controls the maximum validity period of a device code (in seconds)."));
+		defaults.put(DEVICE_CODE_MIN_POLL_INTERVAL, new PropertyMD(String.valueOf(DEFAULT_DEVICE_CODE_MIN_POLL_INTERVAL)).setPositive()
+				.setDescription("Minimum interval in seconds between client polls of the token endpoint for a device code."));
 
 		defaults.put(TRUSTED_UPSTREAM_AS, new PropertyMD().setStructuredList(false)
 				.setDescription(
@@ -294,6 +370,21 @@ public class OAuthASProperties extends UnityPropertiesHelper
 	public int getRefreshTokenValidity()
 	{
 		return getIntValue(OAuthASProperties.REFRESH_TOKEN_VALIDITY);
+	}
+
+	public boolean isDeviceGrantEnabled()
+	{
+		return getBooleanValue(OAuthASProperties.DEVICE_GRANT_ENABLED);
+	}
+
+	public int getDeviceCodeValidity()
+	{
+		return getIntValue(OAuthASProperties.DEVICE_CODE_VALIDITY);
+	}
+
+	public int getDeviceCodeMinPollInterval()
+	{
+		return getIntValue(OAuthASProperties.DEVICE_CODE_MIN_POLL_INTERVAL);
 	}
 
 	public RefreshTokenIssuePolicy getRefreshTokenIssuePolicy()

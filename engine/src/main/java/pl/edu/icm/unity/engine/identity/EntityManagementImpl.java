@@ -841,6 +841,15 @@ public class EntityManagementImpl implements EntityManagement
 			scheduledOperationHelper.setScheduledRemovalByUser(entityId, changeTime);
 	}
 
+	@Override
+	@Transactional
+	public void clearScheduledRemovalStatus(EntityParam toChange) throws EngineException
+	{
+		toChange.validateInitialization();
+		long entityId = idResolver.getEntityId(toChange);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.attributeModify);
+		scheduledOperationHelper.clearScheduledRemovalStatus(entityId);
+	}
 
 	@Override
 	@Transactional

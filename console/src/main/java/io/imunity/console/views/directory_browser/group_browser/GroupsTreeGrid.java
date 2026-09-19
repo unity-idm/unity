@@ -19,15 +19,17 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
 import com.vaadin.flow.function.SerializablePredicate;
-import io.imunity.console.views.directory_browser.GridSelectionSupport;
+
 import io.imunity.console.views.directory_browser.identities.IdentityTreeGridDragItems;
 import io.imunity.vaadin.elements.SearchField;
 import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.GridSelectionSupport;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.Toolbar;
 import io.imunity.vaadin.endpoint.common.WebSession;
@@ -89,7 +91,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		hamburgerMenu.addActionHandler(deleteAction);
 
 		toolbar.addCompactHamburger(hamburgerMenu, FlexComponent.Alignment.CENTER);
-		hamburgerMenu.add(new Hr());
+		hamburgerMenu.addComponent(new Hr());
 		hamburgerMenu.addItem(msg.getMessage("GroupDetails.multiselect"), event ->
 		{
 			if(event.getSource().isChecked())
@@ -399,9 +401,10 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 				msg.getMessage("cancel"),
 				e -> {}
 		);
-		confirmDialog.add(new Span(msg.getMessage("GroupRemovalDialog.confirmDelete",
+
+		confirmDialog.setText(new VerticalLayout(new Span(msg.getMessage("GroupRemovalDialog.confirmDelete",
 				realToRemove.stream().map(TreeNode::toString)
-						.collect(Collectors.joining(", ")))), checkbox);
+						.collect(Collectors.joining(", ")))), checkbox));
 		confirmDialog.setWidth("30em");
 		confirmDialog.open();
 	}

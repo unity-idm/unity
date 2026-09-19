@@ -18,40 +18,28 @@ import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
-import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
-import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
-/**
- * Fetches user's profile from OIDC endpoint.
- * @author K. Benedyczak
- */
 public class OpenIdProfileFetcher implements UserProfileFetcher
 {
 	@Override
 	public AttributeFetchResult fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
-			BaseRemoteASProperties providerConfig, Map<String, List<String>> attributesSoFar) throws Exception
+			ProfileFetcherConfig fetcherConfig, Map<String, List<String>> attributesSoFar) throws Exception
 	{
 		UserInfoRequest uiRequest = new UserInfoRequest(new URI(userInfoEndpoint), accessToken);
-		ServerHostnameCheckingMode checkingMode = providerConfig.getEnumValue(
-				CustomProviderProperties.CLIENT_HOSTNAME_CHECKING, 
-				ServerHostnameCheckingMode.class);
-		HTTPRequest httpsRequest = new HttpRequestConfigurer().secureRequest(uiRequest.toHTTPRequest(), 
-				providerConfig.getValidator(), checkingMode); 
+		HTTPRequest httpsRequest = new HttpRequestConfigurer().secureRequest(uiRequest.toHTTPRequest(),
+				fetcherConfig.validator(), fetcherConfig.hostNameCheckingMode());
 		HTTPResponse uiHttpResponse = httpsRequest.send();
 		UserInfoResponse uiResponse = UserInfoResponse.parse(uiHttpResponse);
 		if (uiResponse instanceof UserInfoErrorResponse)
-		{
-			String code = uiHttpResponse.getBody();
 			throw new AuthenticationException("Authentication was successful, but an error "
-					+ "occurred during user information endpoint query: " + 
-					code);
-		}
+					+ "occurred during user information endpoint query: "
+					+ uiHttpResponse.getBody());
+
 		UserInfoSuccessResponse uiResponseS = (UserInfoSuccessResponse) uiResponse;
 		if (uiResponseS.getUserInfoJWT() != null)
 		{
@@ -63,7 +51,7 @@ public class OpenIdProfileFetcher implements UserProfileFetcher
 			UserInfo ui = uiResponseS.getUserInfo();
 			JWTClaimsSet claimSet = ui.toJWTClaimsSet();
 			JSONObject raw = new JSONObject(claimSet.getClaims());
-			return ProfileFetcherUtils.fetchFromJsonObject(raw);			
+			return ProfileFetcherUtils.fetchFromJsonObject(raw);
 		}
 	}
 }

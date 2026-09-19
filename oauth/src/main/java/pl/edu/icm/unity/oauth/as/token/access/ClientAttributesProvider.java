@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.entity.EntityParam;
@@ -51,6 +52,16 @@ class ClientAttributesProvider
 			return null;
 	}
 
+	ClientType getClientType(EntityParam entity) throws OAuthErrorException
+	{
+		Map<String, AttributeExt> attributes = getClientAttributes(entity);
+		AttributeExt typeA = attributes.get(OAuthSystemAttributesProvider.CLIENT_TYPE);
+		if (typeA != null)
+			return  ClientType.valueOf(typeA.getValues().get(0));
+		else
+			return ClientType.CONFIDENTIAL;
+	}
+	
 	@Component
 	static class ClientAttributesProviderFactory
 	{

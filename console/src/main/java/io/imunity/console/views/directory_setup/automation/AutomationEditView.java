@@ -11,7 +11,8 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.tprofile.ActionEditor;
@@ -50,13 +51,13 @@ public class AutomationEditView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String ruleId)
+	public void setParameter(BeforeEvent event, @WildcardParameter String ruleId)
 	{
 		getContent().removeAll();
 		id = ruleId;
 
 		ScheduledProcessingRuleParam translationRule;
-		if(ruleId == null)
+		if(!StringUtils.hasLength(ruleId))
 		{
 			translationRule = new ScheduledProcessingRuleParam("status == 'disabled'", null, "0 0 6 * * ?");
 			breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));

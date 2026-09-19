@@ -8,7 +8,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -44,7 +43,7 @@ public class OAuthAuthzContext
 	private Attribute clientLogo;
 	private TranslationProfile translationProfile;
 	private String usersGroup;
-	private Set<OAuthScope> effectiveRequestedScopes = new HashSet<>();
+	private Set<RequestedOAuthScope> effectiveRequestedScopes = new HashSet<>();
 	private Set<String> requestedScopes = new HashSet<>();
 	private Set<String> effectiveRequestedAttrs = new HashSet<>();
 	private Set<Prompt> prompts= new HashSet<>();
@@ -138,10 +137,10 @@ public class OAuthAuthzContext
 		this.translationProfile = translationProfile;
 	}
 	
-	public void addEffectiveScopeInfo(OAuthScope scopeInfo)
+	public void addEffectiveScopeInfo(RequestedOAuthScope scopeInfo)
 	{
 		effectiveRequestedScopes.add(scopeInfo);
-		effectiveRequestedAttrs.addAll(scopeInfo.attributes);
+		effectiveRequestedAttrs.addAll(scopeInfo.scopeDefinition().attributes());
 	}
 	
 	public Set<String> getEffectiveRequestedAttrs()
@@ -149,18 +148,16 @@ public class OAuthAuthzContext
 		return effectiveRequestedAttrs;
 	}
 
-	public Set<OAuthScope> getEffectiveRequestedScopes()
+	public Set<RequestedOAuthScope> getEffectiveRequestedScopes()
 	{
 		return effectiveRequestedScopes;
 	}
 
 	public String[] getEffectiveRequestedScopesList()
 	{
-		String[] ret = new String[effectiveRequestedScopes.size()];
-		Iterator<OAuthScope> sIt = effectiveRequestedScopes.iterator();
-		for (int i=0; i<ret.length; i++)
-			ret[i] = sIt.next().name;
-		return ret;
+		 return effectiveRequestedScopes.stream()
+		            .map(RequestedOAuthScope::scope)
+		            .toArray(String[]::new);
 	}
 
 	public Set<Prompt> getPrompts()
@@ -196,7 +193,7 @@ public class OAuthAuthzContext
 	public boolean hasOfflineAccessScope()
 	{
 		return !getEffectiveRequestedScopes().stream()
-				.filter(a -> a.name.equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty();
+				.filter(a -> a.scope().equals(OIDCScopeValue.OFFLINE_ACCESS.getValue())).findAny().isEmpty();
 	}
 	
 	public long getClientEntityId()

@@ -5,7 +5,6 @@
 package io.imunity.console.views.directory_browser.group_browser;
 
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
-import com.vaadin.flow.component.html.Span;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.console.views.directory_setup.attribute_classes.RequiredAttributesDialog;
 import io.imunity.vaadin.elements.NotificationPresenter;
@@ -126,15 +125,21 @@ public class GroupManagementHelper
 		{
 			String confirmationMessage = msg.getMessage("GroupsTree.confirmAddToGroup",
 				MessageUtils.createConfirmFromStrings(msg, entities), finalGroup); 
-			ConfirmDialog confirm = new ConfirmDialog();
+			ConfirmDialog confirm = createConfirmationDialog(confirmationMessage);
 			confirm.setConfirmButton(msg.getMessage("ok"), e -> doAddToGroup(toAdd));
 			confirm.setCancelable(true);
-			confirm.add(new Span(confirmationMessage));
 			confirm.open();
 		} else
 		{
 			doAddToGroup(toAdd);
 		}
+	}
+
+	static ConfirmDialog createConfirmationDialog(String confirmationMessage)
+	{
+		ConfirmDialog confirm = new ConfirmDialog();
+		confirm.setText(confirmationMessage);
+		return confirm;
 	}
 
 	private void doAddToGroup(Map<EntityWithLabel, Deque<String>> toAdd)

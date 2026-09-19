@@ -32,6 +32,9 @@ public enum CssClassNames
 	ERROR_BACKGROUND("u-error-bg"),
 	WARN_BACKGROUND("u-warn-bg"),
 	MONOSPACE("u-monospace"),
+	DEVICE_CODE("u-device-code"),
+	DEVICE_SIGNIN_CARD("u-device-signin-card"),
+	HINT_TEXT("u-hint-text"),
 	BIG_VAADIN_FORM_ITEM_LABEL("u-big-vaadin-form-item"),
 	MEDIUM_VAADIN_FORM_ITEM_LABEL("u-medium-vaadin-form-item"),	
 	SMALL_VAADIN_FORM_ITEM_LABEL("u-small-vaadin-form-item"),
@@ -57,7 +60,9 @@ public enum CssClassNames
 	SPACE_PRE("u-space-pre"),
 	AUTHN_SCREEN("u-authn-screen"),
 	MAIN_LAYOUT_CONTAINER("u-main-layout-container"),
-	SIGNIN_BUTTON("u-signin-button");
+	TOKEN_VALUE("u-token-value"),
+	SIGNIN_BUTTON("u-signin-button"),
+	SMALL_FONT_FIELD("u-small-font-field");
 	
 	private final String name;
 

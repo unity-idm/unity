@@ -79,8 +79,8 @@ class AddToGroupHandler
 			groupSelection.setInput("/", false);
 			groupSelection.setWidthFull();
 			FormLayout main = new FormLayout();
-			main.addFormItem(groupSelection, msg.getMessage("AddToGroupHandler.selectGroup"))
-					.getStyle().set("--vaadin-form-item-label-width", "3em");
+			main.getStyle().set("--vaadin-form-layout-label-width", "3em");
+			main.addFormItem(groupSelection, msg.getMessage("AddToGroupHandler.selectGroup"));
 			main.setSizeFull();
 			return main;
 		}

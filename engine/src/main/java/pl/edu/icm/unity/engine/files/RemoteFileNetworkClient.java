@@ -7,7 +7,9 @@ package pl.edu.icm.unity.engine.files;
 import static eu.unicore.util.httpclient.HttpClientProperties.CONNECT_TIMEOUT;
 import static eu.unicore.util.httpclient.HttpClientProperties.SO_TIMEOUT;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -17,7 +19,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.hc.client5.http.classic.HttpClient;
 import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.config.ConnectionConfig;
@@ -67,14 +68,23 @@ class RemoteFileNetworkClient
 	ContentsWithType download(URL url, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout, int retriesNumber)
 			throws EngineException, IOException
 	{
+		return download(url, customTruststore, connectionTimeout, socketReadTimeout, retriesNumber, Long.MAX_VALUE);
+	}
+
+	ContentsWithType download(URL url, String customTruststore, Duration connectionTimeout, Duration socketReadTimeout,
+			int retriesNumber, long maxResponseSizeBytes) throws EngineException, IOException
+	{
 		HttpClient client = new ApacheHttpClientBuilder(pkiManagement)
 				.withConnectionTimeout(connectionTimeout)
 				.withSocketReadTimeout(socketReadTimeout)
 				.withCustomTruststore(customTruststore)
 				.withRetriesNumber(retriesNumber)
 				.withURL(url)
+				// this overload is only ever used for untrusted, remote-source-declared URIs (logos);
+				// a redirect there could otherwise be used to reach a destination SsrfProtection rejected
+				.disableRedirects()
 				.build();
-		return download(client, url);
+		return download(client, url, maxResponseSizeBytes);
 	}
 
 	ContentsWithType download(URL url, String customTruststore) throws EngineException, IOException
@@ -87,10 +97,10 @@ class RemoteFileNetworkClient
 				.withDefaultRetries()
 				.withURL(url)
 				.build();
-		return download(client, url);
+		return download(client, url, Long.MAX_VALUE);
 	}
-			
-	private ContentsWithType download(HttpClient client, URL url) throws EngineException, IOException
+
+	private ContentsWithType download(HttpClient client, URL url, long maxResponseSizeBytes) throws EngineException, IOException
 	{
 		HttpGet request = new HttpGet(url.toString());
 		ClassicHttpResponse response = client.executeOpen(null, request, HttpClientContext.create());
@@ -117,9 +127,30 @@ class RemoteFileNetworkClient
 			}
 			throw new IOException(errorMessage.toString());
 		}
+		long declaredLength = response.getEntity().getContentLength();
+		if (declaredLength >= 0 && declaredLength > maxResponseSizeBytes)
+			throw new IOException("File download from " + url + " rejected: declared size " + declaredLength
+					+ " bytes exceeds the allowed maximum of " + maxResponseSizeBytes + " bytes");
 		Header contentTypeHeader = response.getFirstHeader("Content-Type");
 		String contentType = contentTypeHeader != null ? contentTypeHeader.getValue() : null;
-		return new ContentsWithType(IOUtils.toByteArray(response.getEntity().getContent()), contentType);
+		return new ContentsWithType(readBounded(response.getEntity().getContent(), maxResponseSizeBytes, url), contentType);
+	}
+
+	private static byte[] readBounded(InputStream in, long maxResponseSizeBytes, URL url) throws IOException
+	{
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		byte[] chunk = new byte[8192];
+		long total = 0;
+		int read;
+		while ((read = in.read(chunk)) != -1)
+		{
+			total += read;
+			if (total > maxResponseSizeBytes)
+				throw new IOException("File download from " + url + " rejected: response body exceeds the "
+						+ "allowed maximum of " + maxResponseSizeBytes + " bytes");
+			buffer.write(chunk, 0, read);
+		}
+		return buffer.toByteArray();
 	}
 	
 	static class ContentsWithType
@@ -144,6 +175,7 @@ class RemoteFileNetworkClient
 		private Integer connectionTimeout;
 		private Integer socketReadTimeout;
 		private int retriesNumber = DEFAULT_RETRY_MECHANISM;
+		private boolean redirectsDisabled = false;
 
 		ApacheHttpClientBuilder(PKIManagement pkiManagement)
 		{
@@ -197,15 +229,23 @@ class RemoteFileNetworkClient
 			this.retriesNumber = retriesNumber;
 			return this;
 		}
-		
+
+		ApacheHttpClientBuilder disableRedirects()
+		{
+			this.redirectsDisabled = true;
+			return this;
+		}
+
 		HttpClient build() throws EngineException
 		{
 			Preconditions.checkNotNull(url, "url must not provided");
 			Preconditions.checkNotNull(connectionTimeout, "connectionTimeout must not provided");
 			Preconditions.checkNotNull(socketReadTimeout, "socketReadTimeout must not provided");
-			
+
 			HttpClientBuilder builder = HttpClientBuilder.create();
-			
+			if (redirectsDisabled)
+				builder.disableRedirectHandling();
+
 			if (retriesNumber == 0)
 			{
 				builder.disableAutomaticRetries();

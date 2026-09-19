@@ -8,6 +8,7 @@ package pl.edu.icm.unity.engine.identity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -79,6 +80,21 @@ public class TestIdentitiesWithPassword extends DBIntegrationTestBase
 		}
 	}
 
+	@Test
+	public void shouldClearScheduledRemovalAndSetStatusToValid() throws Exception
+	{
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
+		EntityParam ep1 = new EntityParam(id.getEntityId());
+		
+		setupUserContext(DEF_USER, null);
+		
+		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()+200));
+		idsMan.clearScheduledRemovalStatus(ep1);
+		Entity entity = idsMan.getEntity(ep1);
+		assertEquals(EntityState.valid, entity.getState());
+		assertNull(entity.getEntityInformation().getScheduledOperationTime());
+	}
+	
 	@Test
 	public void scheduledRemovalWorksForUserImmediately() throws Exception
 	{

@@ -92,19 +92,7 @@ class SingleCredentialPanel extends VerticalLayout
 		credentialExtraInfo = new VerticalLayout();
 		credentialExtraInfo.setPadding(false);
 		
-		credEditor = credEditorReg.getEditor(toEdit.getTypeId());
-		
-		ComponentsContainer editorComponents = credEditor.getEditor(CredentialEditorContext.builder()
-				.withConfiguration(toEdit.getConfiguration())
-				.withRequired(true)
-				.withEntityId(entityId)
-				.withAdminMode(enableAdminOptions)
-				.withCustomWidth(SingleCredentialEditComponent.WIDTH)
-				.withCustomWidthUnit(Unit.EM)
-				.withCredentialName(toEdit.getName())
-				.build());
-		credEditorPanel = new SingleCredentialEditComponent(msg, editorComponents, this::onCredentialUpdate, 
-				this::hideEditor);
+		buildCredEditor();
 		credEditorPanel.setVisible(false);
 
 		add(new H3(Optional.ofNullable(toEdit.getDisplayedName().getValue(msg)).orElse(toEdit.getTypeId())));
@@ -114,7 +102,32 @@ class SingleCredentialPanel extends VerticalLayout
 
 		updateCredentialStatus();
 	}
-	
+
+	private void buildCredEditor()
+	{
+		credEditor = credEditorReg.getEditor(toEdit.getTypeId());
+
+		ComponentsContainer editorComponents = credEditor.getEditor(CredentialEditorContext.builder()
+				.withConfiguration(toEdit.getConfiguration())
+				.withRequired(true)
+				.withEntityId(entityId)
+				.withAdminMode(enableAdminOptions)
+				.withCustomWidth(SingleCredentialEditComponent.WIDTH)
+				.withCustomWidthUnit(Unit.EM)
+				.withCredentialName(toEdit.getName())
+				.build());
+		credEditorPanel = new SingleCredentialEditComponent(msg, editorComponents, this::onCredentialUpdate,
+				this::hideEditor);
+	}
+
+	private void rebuildEditor()
+	{
+		SingleCredentialEditComponent oldPanel = credEditorPanel;
+		buildCredEditor();
+		credEditorPanel.setVisible(false);
+		replace(oldPanel, credEditorPanel);
+	}
+
 	private Component createActionsBar()
 	{
 		clear = new LinkButton(msg.getMessage("CredentialChangeDialog.clear"), e -> clearCredential());
@@ -325,8 +338,9 @@ class SingleCredentialPanel extends VerticalLayout
 		}
 		loadEntity(entityP);
 		updateCredentialStatus();
+		rebuildEditor();
 	}
-	
+
 	private void loadEntity(EntityParam entityP)
 	{
 		try

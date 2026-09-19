@@ -63,10 +63,7 @@ public class ProjectService
 		}
 
 		if (projects.isEmpty())
-		{
-			NotificationPresenter.showCriticalError(logoutHandler::logout, msg.getMessage("ProjectController.noProjectAvailable"), null);
 			return List.of();
-		}
 
 		return projects.stream()
 				.map(group -> new ProjectGroup(group.path, group.displayedName.getValue(msg), group.delegationConfiguration.registrationForm, group.delegationConfiguration.signupEnquiryForm))

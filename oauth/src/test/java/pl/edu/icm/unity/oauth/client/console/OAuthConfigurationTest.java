@@ -100,19 +100,32 @@ public class OAuthConfigurationTest
 				.update("embeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
 				.update("extraAuthzParams.1", "foo=bar")
 				.update("requestACRs", "FIXED")
+				.update("clientCredential", "bar")
+				.update("clientAuthenticationMethod", "private_key_jwt")
+				.update("clientJwtSigningAlg", "RS256")
 				.get();
-		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META).get();
+		Properties sourceCfg = ConfigurationGenerator.generateCompleteWithNonDefaults(P, META)
+				.update("federationEmbeddedTranslationProfile", DEF_PROFILE.toJsonObject().toString())
+				.update("federationJwtSigningAlg", "RS256")
+				.update("federationRequestACRs", "FIXED")
+				.update("federationRequestedACRsAreEssential", "true")
+				.update("federationAdditionalAuthzParams.1", "foo=bar")
+				.get();
 		sourceCfg.putAll(sourceProviderCfg);
-		
+
 		OAuthConfiguration processor = new OAuthConfiguration();
-		
+
 		processor.fromProperties(ConfigurationComparator.getAsString(sourceCfg), msg, pkiMan, imageAccessService);
 		String converted = processor.toProperties(msg, pkiMan, fileStorageSrv, "authName");
-		
+
 		Properties result = ConfigurationComparator.fromString(converted, P).get();
-		
+
 		createComparator(P, META)
 			.ignoringMissing("providers.1.translationProfile")
+			.ignoringMissing("providers.1.clientSecret")
+			.ignoringMissing("providers.1.clientAuthenticationMode")
+			.ignoringMissing("providers.1.clientAuthenticationModeForProfileAccess")
+			.ignoringMissing("federationTranslationProfile")
 			.checkMatching(result, sourceCfg);
 	}
 }

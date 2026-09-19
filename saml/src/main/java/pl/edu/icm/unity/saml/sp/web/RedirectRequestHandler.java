@@ -4,28 +4,40 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import eu.unicore.samly2.binding.HttpPostBindingSupport;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
+
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
 import eu.unicore.samly2.binding.SAMLMessageType;
-import org.apache.logging.log4j.Logger;
-
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.saml.SamlProperties.Binding;
-import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
-
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.saml.ResponseTemplates;
+import pl.edu.icm.unity.saml.SamlProperties.Binding;
+import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
+import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 
 /**
  * Final redirection code. Universal, can be used from both UI/vaadin and filter.
- * 
- * @author K. Benedyczak
  */
+@Component
 public class RedirectRequestHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RedirectRequestHandler.class);
-	
-	public static boolean handleRequest(RemoteAuthnContext context, HttpServletResponse response) throws IOException
+	private final FreemarkerXHTMLHandler xhtmlHandler;
+
+	RedirectRequestHandler(FreemarkerXHTMLHandler xhtmlHandler)
+	{
+		this.xhtmlHandler = xhtmlHandler;
+	}
+
+	public boolean handleRequest(RemoteAuthnContext context, HttpServletResponse response) throws IOException
 	{
 		Binding binding = context.getRequestBinding();
 		if (binding == Binding.HTTP_POST)
@@ -40,16 +52,27 @@ public class RedirectRequestHandler
 			return false;
 	}
 	
-	private static void handlePost(RemoteAuthnContext context, HttpServletResponse response) throws IOException
+	private void handlePost(RemoteAuthnContext context, HttpServletResponse response) throws IOException
 	{
 		response.setContentType("text/html; charset=utf-8");
 		setCommonHeaders(response);
 		response.setDateHeader("Expires", -1);
 
 		log.debug("Starting SAML HTTP POST binding exchange with IdP " + context.getIdpUrl());
-		String htmlResponse = HttpPostBindingSupport.getHtmlPOSTFormContents(
-				SAMLMessageType.SAMLRequest, context.getIdpUrl(), context.getRequest(), 
-				context.getRelayState());
+		
+		String xmlString = context.getRequest();
+		String encodedMessage = Base64.getEncoder().encodeToString(xmlString.getBytes(StandardCharsets.UTF_8));
+		Map<String, String> data = new HashMap<>();
+		data.put("samlMessage", encodedMessage);
+		data.put("messageType", SAMLMessageType.SAMLRequest.name());
+		data.put("destinationURL", context.getIdpUrl());
+		if (context.getRelayState() != null)
+			data.put("relayState", context.getRelayState());
+		
+		StringWriter out = new StringWriter();
+		xhtmlHandler.printXHTMLDocument(out, ResponseTemplates.POST_BINDING_TMPL.templateFile, data);
+		String htmlResponse = out.toString();
+		
 		if (log.isTraceEnabled())
 		{
 			log.trace("SAML request is:\n" + context.getRequest());
@@ -58,7 +81,7 @@ public class RedirectRequestHandler
 		response.getWriter().append(htmlResponse);
 	}
 	
-	private static void handleRedirect(RemoteAuthnContext context, HttpServletResponse response) throws IOException
+	private void handleRedirect(RemoteAuthnContext context, HttpServletResponse response) throws IOException
 	{
 		setCommonHeaders(response);
 		log.debug("Starting SAML HTTP Redirect binding exchange with IdP " + context.getIdpUrl());
@@ -69,7 +92,7 @@ public class RedirectRequestHandler
 		response.sendRedirect(redirectURL);
 	}
 	
-	private static void setCommonHeaders(HttpServletResponse response)
+	private void setCommonHeaders(HttpServletResponse response)
 	{
 		response.setHeader("Cache-Control","no-cache,no-store");
 		response.setHeader("Pragma","no-cache");

@@ -176,8 +176,8 @@ vaadin-icon {
     height: var(--lumo-icon-size-s);
 }
 
-vaadin-form-item {
-    --vaadin-form-item-label-width: 11em;
+vaadin-form-layout {
+    --vaadin-form-layout-label-width: 11em;
     white-space: nowrap;
 }
 
@@ -248,11 +248,11 @@ vaadin-checkbox-group.check-box-with-error::part(group-field) {
 	display: inline-flex;
 }
 
-vaadin-tooltip-overlay[position=end-top]::part(overlay) {
+vaadin-tab.u-multi-tab > vaadin-tooltip[slot=tooltip]::part(overlay) {
     margin-top: var(--unity-base-margin);
 }
 
-vaadin-tooltip-overlay::part(overlay) {
+vaadin-tooltip::part(overlay) {
     font-size: var(--lumo-font-size-s);
 }
 
@@ -307,6 +307,7 @@ vcf-tooltip[theme=light]::part(container) {
     color: var(--lumo-body-text-color);
     border-radius: var(--lumo-border-radius-m);
     box-shadow: 0 0 0 1px var(--lumo-shade-5pct), var(--lumo-box-shadow-m);
+    max-width: 30em;
 }
 
 vaadin-grid[navigating]::part(focused-cell last-column-cell):focus::before {
@@ -439,16 +440,16 @@ vaadin-button.u-text-left::part(label) {
     height: var(--unity-icon-size);
 }
 
-.u-small-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 3em;
+.u-small-vaadin-form-item {
+    --vaadin-form-layout-label-width: 3em;
 }
 
-.u-medium-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 17em;
+.u-medium-vaadin-form-item {
+    --vaadin-form-layout-label-width: 17em;
 }
 
-.u-big-vaadin-form-item > vaadin-form-item {
-    --vaadin-form-item-label-width: 25em;
+.u-big-vaadin-form-item {
+    --vaadin-form-layout-label-width: 25em;
 }
 
 .u-fido-layout {
@@ -472,11 +473,11 @@ vaadin-button.u-text-left::part(label) {
     cursor: pointer;
 }
 
-.u-usual-row {
+vaadin-grid::part(u-usual-row) {
     background-color: inherit;
 }
 
-.u-error-row {
+vaadin-grid::part(u-error-row) {
     background-color: var(--unity-grid-error-row-color);
 }
 
@@ -634,6 +635,34 @@ vaadin-details.u-multi-tab-details {
     font-family: Monospace;
 }
 
+.u-device-code {
+    font-family: Monospace;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.u-device-signin-card {
+    width: 100%;
+    max-width: 30em;
+    margin: 0 auto;
+}
+
+.u-hint-text {
+    color: var(--lumo-secondary-text-color);
+    font-size: var(--lumo-font-size-s);
+}
+
+/* Shrinks only the rendered text, not the host's own font-size, so it doesn't
+   affect widths/heights set in em (which are relative to the host font-size). */
+.u-small-font-field::part(input-field) {
+    font-size: var(--lumo-font-size-s);
+}
+
+.u-token-value {
+    font-family: Monospace;
+    word-break: break-all;
+}
+
 .u-edit-view-action-buttons-layout {
     width: 13em;
 }
@@ -702,11 +731,15 @@ vaadin-details.u-multi-tab-details {
     margin-bottom: 0.75em;
 }
 
-.u-immutableAttribute {
+vaadin-grid::part(u-immutableAttribute) {
 	color: var(--unity-immutable-attribute-color);
 }
 
 .u-bold {
+	font-weight: var(--unity-bold-font-weight);
+}
+
+vaadin-grid::part(u-bold) {
 	font-weight: var(--unity-bold-font-weight);
 }
 
@@ -791,7 +824,7 @@ vaadin-details.u-multi-tab-details {
     color: var(--unity-font-primary-color);
 }
 
-vaadin-combo-box-overlay.u-combobox-hidden-checkmark > * ::part(checkmark){
+vaadin-combo-box-item.u-combobox-hidden-checkmark::part(checkmark){
 	visibility: hidden;
 }
 
@@ -835,7 +868,7 @@ vaadin-tab.u-tabsheet-full {
 }
 
 .u-idp-info-layout {
-	margin-left: -20em;
+	margin-left: 0;
 	min-width: 50em;
 }
 
@@ -875,10 +908,16 @@ vaadin-accordion-heading[opened]::part(toggle) {
 
 .u-directory-browser-members-grid::part(last-header-row-cell){
 	padding: 0;
-}	
+}
+
+.u-directory-browser-members-grid vaadin-grid-tree-toggle:hover::part(toggle) {
+	color: var(--lumo-contrast-50pct);
+}
+
+.u-directory-browser-members-grid vaadin-grid-tree-toggle::part(toggle):hover {
+	color: var(--lumo-contrast-80pct);
+}
 
 .u-grid-with-action-padding::part(last-column-cell){
 	padding-right: 1em;
 }
-
-

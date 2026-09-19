@@ -17,16 +17,16 @@ import java.io.IOException;
 /**
  * Used to trigger authn request redirect. 
  * Delegates to {@link RedirectRequestHandler} via dynamic proxy.
- * 
- * @author K. Benedyczak
  */
-public class VaadinRedirectRequestHandler extends AbstractRedirectRequestHandler
+class VaadinRedirectRequestHandler extends AbstractRedirectRequestHandler
 {
-	public static final String REMOTE_AUTHN_CONTEXT = SAMLRetrieval.class.getName() + ".REMOTE_AUTHN_CONTEXT";
-	
-	public VaadinRedirectRequestHandler()
+	static final String REMOTE_AUTHN_CONTEXT = SAMLRetrieval.class.getName() + ".REMOTE_AUTHN_CONTEXT";
+	private final RedirectRequestHandler redirectRequestHandler;
+
+	VaadinRedirectRequestHandler(RedirectRequestHandler redirectRequestHandler)
 	{
 		super(REMOTE_AUTHN_CONTEXT);
+		this.redirectRequestHandler = redirectRequestHandler;
 	}
 	
 	@Override
@@ -36,6 +36,6 @@ public class VaadinRedirectRequestHandler extends AbstractRedirectRequestHandler
 		RemoteAuthnContext context = (RemoteAuthnContext)contextO;
 		HttpServletResponse proxiedResponse = VaadinResponseToServletProxy
 				.getProxiedResponse((VaadinServletResponse) response);
-		return RedirectRequestHandler.handleRequest(context, proxiedResponse);
+		return redirectRequestHandler.handleRequest(context, proxiedResponse);
 	}
 }

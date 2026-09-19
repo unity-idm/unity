@@ -19,6 +19,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 	public void registrationTest()
 	{
 		driver.get(baseUrl + "/home2");
+		waitForPageLoadByURL("/home2/authentication");
 		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		
 		waitForPageLoadByURL("/saml-idp/authentication");
@@ -34,7 +35,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 		WebElement webElement = waitForElement(By.id("EmailValueEditor.Email"));
 		webElement.findElement(By.tagName("input")).clear();
 		webElement.sendKeys("test@test.com");
-		waitForElement(By.tagName("vaadin-dialog-overlay")).findElement(By.cssSelector("vaadin-button[theme='primary']")).click();
+		waitForElement(By.tagName("vaadin-dialog")).findElement(By.cssSelector("vaadin-button[theme='primary']")).click();
 
 		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();

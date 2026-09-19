@@ -6,6 +6,7 @@
 package io.imunity.console.views.directory_setup.attribute_types;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.NativeLabel;
+import io.imunity.vaadin.endpoint.common.safe_html.HtmlConfigurableLabel;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
@@ -25,7 +27,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouterLink;
-import com.vaadin.flow.server.StreamResource;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.Breadcrumb;
@@ -38,6 +39,7 @@ import io.imunity.vaadin.elements.grid.GridWithActionColumn;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.ComponentWithToolbar;
 import io.imunity.vaadin.endpoint.common.Toolbar;
+import io.imunity.vaadin.endpoint.common.file.DownloadHandlers;
 import jakarta.annotation.security.PermitAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.base.Constants;
@@ -45,7 +47,6 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import io.imunity.vaadin.endpoint.common.exceptions.ControllerException;
 
-import java.io.ByteArrayInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -189,41 +190,25 @@ public class AttributeTypesView extends ConsoleViewComponent
 
 	private void export(Set<AttributeTypeEntry> selectedItems)
 	{
-		Anchor download = new Anchor(getStreamResource(selectedItems), "");
-		download.getElement()
-				.setAttribute("download", true);
+		Anchor download = new Anchor(DownloadHandlers.forJson(() ->
+		{
+			try
+			{
+				return Constants.MAPPER.writeValueAsBytes(selectedItems.stream()
+						.map(at -> at.attributeType)
+						.collect(Collectors.toSet()));
+			}
+			catch (Exception e)
+			{
+				throw new RuntimeException(e);
+			}
+		}, getNewFilename(selectedItems)), "");
+		download.getElement().setAttribute("download", true);
 		getContent().add(download);
 		download.getElement()
 				.executeJs("return new Promise(resolve =>{this.click(); setTimeout(() => resolve(true), 150)})",
 						download.getElement())
 				.then(j -> getContent().remove(download));
-	}
-
-	private StreamResource getStreamResource(Set<AttributeTypeEntry> selectedItems)
-	{
-		return new StreamResource(getNewFilename(selectedItems), () ->
-		{
-
-			try
-			{
-				byte[] content = Constants.MAPPER.writeValueAsBytes(selectedItems.stream()
-						.map(at -> at.attributeType)
-						.collect(Collectors.toSet()));
-				return new ByteArrayInputStream(content);
-			} catch (Exception e)
-			{
-				throw new RuntimeException(e);
-			}
-		})
-		{
-			@Override
-			public Map<String, String> getHeaders()
-			{
-				Map<String, String> headers = new HashMap<>(super.getHeaders());
-				headers.put("Content-Disposition", "attachment; filename=\"" + getNewFilename(selectedItems) + "\"");
-				return headers;
-			}
-		};
 	}
 
 	private String getNewFilename(Set<AttributeTypeEntry> selectedItems)
@@ -248,7 +233,9 @@ public class AttributeTypesView extends ConsoleViewComponent
 				msg.getMessage("ok"), e -> remove(items, checkbox.getValue()), msg.getMessage("cancel"), e ->
 				{
 				});
-		confirmDialog.add(new NativeLabel(msg.getMessage("AttributeTypesView.confirmDelete", confirmText)), checkbox);
+		confirmDialog.setText(new VerticalLayout(
+			new NativeLabel(msg.getMessage("AttributeTypesView.confirmDelete", confirmText)), checkbox)
+		);
 		confirmDialog.open();
 
 	}
@@ -319,15 +306,16 @@ public class AttributeTypesView extends ConsoleViewComponent
 		return new HorizontalLayout(label);
 	}
 
-	private FormLayout getDetailsComponent(AttributeTypeEntry i)
+	private FormLayout getDetailsComponent(AttributeTypeEntry typeEntry)
 	{
+		String raw = typeEntry.getDescription();
+		String safe = raw == null ? "" : HtmlConfigurableLabel.conditionallyEscape(raw);
+		Html description = new Html("<span>" + safe + "</span>");
 		FormLayout wrapper = new FormLayout();
-		wrapper.setWidthFull();
-		NativeLabel label = new NativeLabel(i.getDescription());
-		label.setWidthFull();
-		FormItem addFormItem = wrapper.addFormItem(label, msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
-		addFormItem.addClassName(CssClassNames.WIDTH_FULL.getName());
-
+		FormItem formItem = wrapper.addFormItem(description,
+				msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
+		formItem.addClassName(CssClassNames.GRID_DETAILS_FORM_ITEM.getName());
+		wrapper.addClassName(CssClassNames.GRID_DETAILS_FORM.getName());
 		return wrapper;
 	}
 }

@@ -144,7 +144,8 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		private ValidationResult validate(Object value, ValueContext context)
 		{
 			String val = (String) value;
-
+			if (val.isEmpty() && !this.context.isRequired())
+				return ValidationResult.ok();
 			try
 			{
 				syntax.validateStringValue(val);

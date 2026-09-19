@@ -16,7 +16,6 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.stdext.attr.PublicLinkableImageSyntax;
 import pl.edu.icm.unity.stdext.utils.ImageConfiguration;
 
-import javax.annotation.Nullable;
 import java.net.URL;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,7 +34,7 @@ class PublicLinkableImageValueComponent extends Component implements HasComponen
 		EXTERNAL_IMAGE_URL
 	}
 	
-	PublicLinkableImageValueComponent(@Nullable LinkableImage value,
+	PublicLinkableImageValueComponent(LinkableImage value,
 	                                  ImageConfiguration imgConfig,
 	                                  MessageSource msg)
 	{

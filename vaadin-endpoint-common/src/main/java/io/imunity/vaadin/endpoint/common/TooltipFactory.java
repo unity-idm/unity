@@ -7,10 +7,10 @@ package io.imunity.vaadin.endpoint.common;
 
 import static io.imunity.vaadin.elements.CssClassNames.FIELD_ICON_GAP;
 
-import com.vaadin.componentfactory.Tooltip;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.shared.Tooltip;
 
 import io.imunity.vaadin.endpoint.common.api.HtmlTooltipFactory;
 

@@ -6,7 +6,7 @@
 package io.imunity.console.views.identity_provider.endpoints;
 
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
 import com.vaadin.flow.router.Route;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.spi.IdpServiceAdditionalAction;
@@ -31,7 +31,7 @@ public class AdditionalIdpServiceView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String serviceName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String serviceName)
 	{
 		getContent().removeAll();
 		String name = Optional.ofNullable(event.getLocation().getQueryParameters()

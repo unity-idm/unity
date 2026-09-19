@@ -50,7 +50,7 @@ try
 			"/oauth-clients",
 			Lists.newArrayList(
 			GrantFlow.authorizationCode.toString(), GrantFlow.implicit.toString(),
-			GrantFlow.openidHybrid.toString()));
+			GrantFlow.openidHybrid.toString(), GrantFlow.deviceCode.toString()));
 	attributesManagement.createAttribute(entityP, flowsA);
 	Attribute returnUrlA = StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI,
 			"/oauth-clients",

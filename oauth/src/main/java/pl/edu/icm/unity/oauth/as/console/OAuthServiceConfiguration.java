@@ -5,8 +5,17 @@
 
 package pl.edu.icm.unity.oauth.as.console;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.google.common.base.Strings;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.services.idp.ActiveValueConfig;
 import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
@@ -27,12 +36,8 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.RefreshTokenIssuePolicy;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.as.OAuthScopesService;
+import pl.edu.icm.unity.oauth.as.OAuthSystemScopeProvider;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Represent full OAuth service configuration.
@@ -69,6 +74,23 @@ public class OAuthServiceConfiguration
 	private AccessTokenFormat accessTokenFormat;
 	private IdpPolicyAgreementsConfiguration policyAgreementConfig;
 	private List<TrustedUpstreamASBean> trustedUpstreamAS;
+	private List<AuthorizationScriptBean> authorizationScripts;
+	private boolean tokenExchangeSupport;
+	private boolean deviceGrantEnabled;
+	private int deviceCodeValidity;
+	private int deviceCodeMinPollInterval;
+	private boolean federationMembershipEnabled;
+	private String federationTrustAnchorId;
+	private String federationTrustAnchorJwks;
+	private String federationCredential;
+	private String federationSuperiorEntityId;
+	private int federationMetadataValidity;
+	private String federationTruststore;
+	private String federationHostnameChecking;
+	private String federationDisplayName;
+	private String federationLogoUri;
+	private boolean federationAllowAnyScopes;
+	private List<String> federationDefaultAllowedScopes;
 
 	public OAuthServiceConfiguration()
 	{
@@ -103,6 +125,7 @@ public class OAuthServiceConfiguration
 		usersGroup = new GroupWithIndentIndicator(root, false);
 		clientGroup = new GroupWithIndentIndicator(root, false);
 		openIDConnect = false;
+		tokenExchangeSupport= false;
 		supportExtendTokenValidity = false;
 		skipUserImport = false;
 		userImports = new ArrayList<>();
@@ -111,6 +134,13 @@ public class OAuthServiceConfiguration
 		refreshTokenIssuePolicy = RefreshTokenIssuePolicy.OFFLINE_SCOPE_BASED;
 		setRefreshTokenRotationForPublicClients(false);
 		trustedUpstreamAS = new ArrayList<>();
+		authorizationScripts = new ArrayList<>();
+		federationMetadataValidity = OAuthASProperties.DEFAULT_FEDERATION_METADATA_VALIDITY;
+		federationAllowAnyScopes = true;
+		federationDefaultAllowedScopes = new ArrayList<>();
+		deviceGrantEnabled = false;
+		deviceCodeValidity = OAuthASProperties.DEFAULT_DEVICE_CODE_VALIDITY;
+		deviceCodeMinPollInterval = OAuthASProperties.DEFAULT_DEVICE_CODE_MIN_POLL_INTERVAL;
 	}
 
 	public String toProperties(MessageSource msg, PKIManagement pkiForValidation)
@@ -126,6 +156,14 @@ public class OAuthServiceConfiguration
 				String.valueOf(allowForWildcardsInAllowedURI));
 		raw.put(OAuthASProperties.P + OAuthASProperties.ALLOW_UNAUTHENTICATED_REVOCATION,
 				String.valueOf(allowForUnauthenticatedRevocation));
+		raw.put(OAuthASProperties.P + OAuthASProperties.DEVICE_GRANT_ENABLED, String.valueOf(deviceGrantEnabled));
+		if (deviceGrantEnabled)
+		{
+			raw.put(OAuthASProperties.P + OAuthASProperties.DEVICE_CODE_VALIDITY,
+					String.valueOf(deviceCodeValidity));
+			raw.put(OAuthASProperties.P + OAuthASProperties.DEVICE_CODE_MIN_POLL_INTERVAL,
+					String.valueOf(deviceCodeMinPollInterval));
+		}
 		raw.put(OAuthASProperties.P + OAuthASProperties.ACCESS_TOKEN_FORMAT, accessTokenFormat.toString());
 		if (supportExtendTokenValidity)
 		{
@@ -163,6 +201,7 @@ public class OAuthServiceConfiguration
 				String key = OAuthASProperties.SCOPES + (scopes.indexOf(scope) + 1) + ".";
 				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_NAME, scope.getName());
 				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_ENABLED, String.valueOf(scope.isEnabled()));
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.SCOPE_IS_PATTERN, String.valueOf(scope.isPattern()));
 
 				if (scope.getDescription() != null)
 				{
@@ -178,6 +217,16 @@ public class OAuthServiceConfiguration
 								+ (attributes.indexOf(attr) + 1), attr);
 					}
 				}
+			}
+		}
+		
+		if (authorizationScripts != null)
+		{
+			for (AuthorizationScriptBean script : authorizationScripts)
+			{
+				String key = OAuthASProperties.AUTHORIZATION_SCRIPTS + (authorizationScripts.indexOf(script) + 1) + ".";
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE, script.getScope());
+				raw.put(OAuthASProperties.P + key + OAuthASProperties.AUTHORIZATION_SCRIPT_PATH, script.getPath());				
 			}
 		}
 		if (activeValueSelections != null)
@@ -285,6 +334,33 @@ public class OAuthServiceConfiguration
 			throw new InternalException("Can't serialize oauth idp translation profile to JSON", e);
 		}
 
+		raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_MEMBERSHIP_ENABLED,
+				String.valueOf(federationMembershipEnabled));
+		if (!Strings.isNullOrEmpty(federationTrustAnchorId))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_TRUST_ANCHOR_ID, federationTrustAnchorId);
+		if (!Strings.isNullOrEmpty(federationTrustAnchorJwks))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_TRUST_ANCHOR_JWKS, federationTrustAnchorJwks);
+		if (!Strings.isNullOrEmpty(federationCredential))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_CREDENTIAL, federationCredential);
+		if (!Strings.isNullOrEmpty(federationSuperiorEntityId))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_SUPERIOR_ENTITY_ID, federationSuperiorEntityId);
+		raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_METADATA_VALIDITY,
+				String.valueOf(federationMetadataValidity));
+		if (!Strings.isNullOrEmpty(federationTruststore))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_TRUSTSTORE, federationTruststore);
+		if (!Strings.isNullOrEmpty(federationHostnameChecking))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_HOSTNAME_CHECKING, federationHostnameChecking);
+		if (!Strings.isNullOrEmpty(federationDisplayName))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_DISPLAY_NAME, federationDisplayName);
+		if (!Strings.isNullOrEmpty(federationLogoUri))
+			raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_LOGO_URI, federationLogoUri);
+		raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_ALLOW_ANY_SCOPES,
+				String.valueOf(federationAllowAnyScopes));
+		if (federationDefaultAllowedScopes != null)
+			for (int i = 0; i < federationDefaultAllowedScopes.size(); i++)
+				raw.put(OAuthASProperties.P + OAuthASProperties.FEDERATION_ALLOWED_SCOPES + (i + 1),
+						federationDefaultAllowedScopes.get(i));
+
 		raw.put(OAuthASProperties.P + OAuthASProperties.CLIENTS_GROUP, clientGroup.group().toString());
 		raw.put(OAuthASProperties.P + OAuthASProperties.USERS_GROUP, usersGroup.group().toString());
 
@@ -327,6 +403,9 @@ public class OAuthServiceConfiguration
 				.getBooleanValue(OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI);
 		allowForUnauthenticatedRevocation = oauthProperties
 				.getBooleanValue(OAuthASProperties.ALLOW_UNAUTHENTICATED_REVOCATION);
+		deviceGrantEnabled = oauthProperties.isDeviceGrantEnabled();
+		deviceCodeValidity = oauthProperties.getDeviceCodeValidity();
+		deviceCodeMinPollInterval = oauthProperties.getDeviceCodeMinPollInterval();
 		accessTokenFormat = oauthProperties.getAccessTokenFormat();
 		if (oauthProperties.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY))
 		{
@@ -353,8 +432,15 @@ public class OAuthServiceConfiguration
 					oauthScope.setDescription(s.description);
 					oauthScope.setAttributes(s.attributes);
 					oauthScope.setEnabled(s.enabled);
+					oauthScope.setPattern(s.pattern);
 					scopes.add(oauthScope);
 				});
+		
+		authorizationScripts.clear();
+		Set<String> scriptKeys = oauthProperties.getStructuredListKeys(OAuthASProperties.AUTHORIZATION_SCRIPTS);
+		scriptKeys.forEach(scriptKey -> authorizationScripts.add(new AuthorizationScriptBean(
+				oauthProperties.getValue(scriptKey + OAuthASProperties.AUTHORIZATION_SCRIPT_TRIGGERING_SCOPE),
+				oauthProperties.getValue(scriptKey + OAuthASProperties.AUTHORIZATION_SCRIPT_PATH))));
 
 		trustedUpstreamAS.clear();
 		Set<String> trustedUpstreamASKeys = oauthProperties
@@ -383,13 +469,22 @@ public class OAuthServiceConfiguration
 			trustedUpstreamAS.add(trustedUpstreamASBean);
 		}
 
-		Optional<OAuthScopeBean> openIdScope = scopes.stream()
-				.filter(s -> s.getName()
-						.equals(OIDCScopeValue.OPENID.getValue()))
-				.findFirst();
-		openIDConnect = openIdScope.isPresent() && openIdScope.get()
-				.isEnabled();
+		federationMembershipEnabled = oauthProperties.getBooleanValue(OAuthASProperties.FEDERATION_MEMBERSHIP_ENABLED);
+		federationTrustAnchorId = oauthProperties.getValue(OAuthASProperties.FEDERATION_TRUST_ANCHOR_ID);
+		federationTrustAnchorJwks = oauthProperties.getValue(OAuthASProperties.FEDERATION_TRUST_ANCHOR_JWKS);
+		federationCredential = oauthProperties.getValue(OAuthASProperties.FEDERATION_CREDENTIAL);
+		federationSuperiorEntityId = oauthProperties.getValue(OAuthASProperties.FEDERATION_SUPERIOR_ENTITY_ID);
+		federationMetadataValidity = oauthProperties.getIntValue(OAuthASProperties.FEDERATION_METADATA_VALIDITY);
+		federationTruststore = oauthProperties.getValue(OAuthASProperties.FEDERATION_TRUSTSTORE);
+		federationHostnameChecking = oauthProperties.getValue(OAuthASProperties.FEDERATION_HOSTNAME_CHECKING);
+		federationDisplayName = oauthProperties.getValue(OAuthASProperties.FEDERATION_DISPLAY_NAME);
+		federationLogoUri = oauthProperties.getValue(OAuthASProperties.FEDERATION_LOGO_URI);
+		federationAllowAnyScopes = oauthProperties.getBooleanValue(OAuthASProperties.FEDERATION_ALLOW_ANY_SCOPES);
+		federationDefaultAllowedScopes = oauthProperties.getListOfValues(OAuthASProperties.FEDERATION_ALLOWED_SCOPES);
 
+		openIDConnect = isScopeEnabled(OIDCScopeValue.OPENID.getValue());
+		tokenExchangeSupport = isScopeEnabled(OAuthSystemScopeProvider.TOKEN_EXCHANGE_SCOPE);
+		
 		if (oauthProperties.isSet(CommonIdPProperties.EMBEDDED_TRANSLATION_PROFILE))
 		{
 			translationProfile = TranslationProfileGenerator
@@ -454,6 +549,15 @@ public class OAuthServiceConfiguration
 		}
 
 		policyAgreementConfig = IdpPolicyAgreementsConfigurationParser.fromPropoerties(msg, oauthProperties);
+	}
+	
+	private boolean isScopeEnabled(String scopeName)
+	{
+		return scopes.stream()
+				.filter(s -> scopeName.equals(s.getName()))
+				.findFirst()
+				.map(OAuthScopeBean::isEnabled)
+				.orElse(false);
 	}
 
 	public List<UserImportConfig> getUserImports()
@@ -661,6 +765,36 @@ public class OAuthServiceConfiguration
 		this.allowForUnauthenticatedRevocation = allowForUnauthenticatedRevocation;
 	}
 
+	public boolean isDeviceGrantEnabled()
+	{
+		return deviceGrantEnabled;
+	}
+
+	public void setDeviceGrantEnabled(boolean deviceGrantEnabled)
+	{
+		this.deviceGrantEnabled = deviceGrantEnabled;
+	}
+
+	public int getDeviceCodeValidity()
+	{
+		return deviceCodeValidity;
+	}
+
+	public void setDeviceCodeValidity(int deviceCodeValidity)
+	{
+		this.deviceCodeValidity = deviceCodeValidity;
+	}
+
+	public int getDeviceCodeMinPollInterval()
+	{
+		return deviceCodeMinPollInterval;
+	}
+
+	public void setDeviceCodeMinPollInterval(int deviceCodeMinPollInterval)
+	{
+		this.deviceCodeMinPollInterval = deviceCodeMinPollInterval;
+	}
+
 	public int getMaxExtendAccessTokenValidity()
 	{
 		return maxExtendAccessTokenValidity;
@@ -729,5 +863,145 @@ public class OAuthServiceConfiguration
 	public void setTrustedUpstreamAS(List<TrustedUpstreamASBean> trustedUpstreamAS)
 	{
 		this.trustedUpstreamAS = trustedUpstreamAS;
+	}
+
+	public List<AuthorizationScriptBean> getAuthorizationScripts()
+	{
+		return authorizationScripts;
+	}
+
+	public void setAuthorizationScripts(List<AuthorizationScriptBean> authorizationScripts)
+	{
+		this.authorizationScripts = authorizationScripts;
+	}
+
+	public boolean isTokenExchangeSupport()
+	{
+		return tokenExchangeSupport;
+	}
+
+	public void setTokenExchangeSupport(boolean exchangeToken)
+	{
+		this.tokenExchangeSupport = exchangeToken;
+	}
+
+	public boolean isFederationMembershipEnabled()
+	{
+		return federationMembershipEnabled;
+	}
+
+	public void setFederationMembershipEnabled(boolean federationMembershipEnabled)
+	{
+		this.federationMembershipEnabled = federationMembershipEnabled;
+	}
+
+	public String getFederationTrustAnchorId()
+	{
+		return federationTrustAnchorId;
+	}
+
+	public void setFederationTrustAnchorId(String federationTrustAnchorId)
+	{
+		this.federationTrustAnchorId = federationTrustAnchorId;
+	}
+
+	public String getFederationTrustAnchorJwks()
+	{
+		return federationTrustAnchorJwks;
+	}
+
+	public void setFederationTrustAnchorJwks(String federationTrustAnchorJwks)
+	{
+		this.federationTrustAnchorJwks = federationTrustAnchorJwks;
+	}
+
+	public String getFederationCredential()
+	{
+		return federationCredential;
+	}
+
+	public void setFederationCredential(String federationCredential)
+	{
+		this.federationCredential = federationCredential;
+	}
+
+	public String getFederationSuperiorEntityId()
+	{
+		return federationSuperiorEntityId;
+	}
+
+	public void setFederationSuperiorEntityId(String federationSuperiorEntityId)
+	{
+		this.federationSuperiorEntityId = federationSuperiorEntityId;
+	}
+
+	public int getFederationMetadataValidity()
+	{
+		return federationMetadataValidity;
+	}
+
+	public void setFederationMetadataValidity(int federationMetadataValidity)
+	{
+		this.federationMetadataValidity = federationMetadataValidity;
+	}
+
+	public String getFederationTruststore()
+	{
+		return federationTruststore;
+	}
+
+	public void setFederationTruststore(String federationTruststore)
+	{
+		this.federationTruststore = federationTruststore;
+	}
+
+	public String getFederationHostnameChecking()
+	{
+		return federationHostnameChecking;
+	}
+
+	public void setFederationHostnameChecking(String federationHostnameChecking)
+	{
+		this.federationHostnameChecking = federationHostnameChecking;
+	}
+
+	public String getFederationDisplayName()
+	{
+		return federationDisplayName;
+	}
+
+	public void setFederationDisplayName(String federationDisplayName)
+	{
+		this.federationDisplayName = federationDisplayName;
+	}
+
+	public String getFederationLogoUri()
+	{
+		return federationLogoUri;
+	}
+
+	public void setFederationLogoUri(String federationLogoUri)
+	{
+		this.federationLogoUri = federationLogoUri;
+	}
+
+	public List<String> getFederationDefaultAllowedScopes()
+	{
+		return federationDefaultAllowedScopes;
+	}
+
+	public void setFederationDefaultAllowedScopes(List<String> federationDefaultAllowedScopes)
+	{
+		this.federationDefaultAllowedScopes = federationDefaultAllowedScopes;
+	}
+
+	public boolean isFederationAllowAnyScopes()
+	{
+		return federationAllowAnyScopes;
+	}
+
+	public void setFederationAllowAnyScopes(boolean federationAllowAnyScopes)
+	{
+		this.federationAllowAnyScopes = federationAllowAnyScopes;
 	}
 }

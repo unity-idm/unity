@@ -19,6 +19,7 @@ public class TestAttributeIntrospectionEndpoint extends SeleniumTestBase
 		waitForElement(By.className("u-idpAuthentication-saml-7")).click();
 		
 		//saml login
+		waitForPageLoadByURL("/saml-idp/authentication");
 		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user");
 		waitForElement(By.className("u-passwordField")).sendKeys("the!test12");
 		waitForElement(By.className("u-passwordSignInButton")).click();

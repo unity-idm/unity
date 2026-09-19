@@ -8,7 +8,8 @@ package io.imunity.console.views.translation_profiles;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.OptionalParameter;
+import com.vaadin.flow.router.WildcardParameter;
+import org.springframework.util.StringUtils;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.console.views.EditViewActionLayoutFactory;
 import io.imunity.console.tprofile.TranslationProfileEditor;
@@ -41,13 +42,13 @@ public abstract class NewTranslationView extends ConsoleViewComponent
 	}
 
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String profileName)
+	public void setParameter(BeforeEvent event, @WildcardParameter String profileName)
 	{
 		getContent().removeAll();
 		breadCrumbParameter = new BreadCrumbParameter(null, msg.getMessage("new"));
 		TranslationProfile profile = null;
 
-		if (profileName != null)
+		if (StringUtils.hasLength(profileName))
 		{
 			try
 			{

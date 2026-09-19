@@ -5,15 +5,27 @@
 
 package pl.edu.icm.unity.oauth.client.console;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
+
 import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.vaadin.auth.CommonWebAuthnProperties;
+import io.imunity.vaadin.auth.binding.NameValuePairBinding;
 import io.imunity.vaadin.endpoint.common.forms.VaadinLogoImageLoader;
+import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.base.translation.TranslationProfile;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.SigningAlgorithms;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.oauth.client.config.RequestACRsMode;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -22,15 +34,49 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+
+
 public class OAuthConfiguration
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuthConfiguration.class);
 	private boolean defAccountAssociation;
 	private List<OAuthProviderConfiguration> providers;
+	private boolean federationMembershipEnabled;
+	private String federationCredential;
+	private String federationSuperiorEntityId;
+	private String authenticationCredential;
+	private String federationTrustAnchorId;
+	private String federationTrustAnchorJwks;
+	private int federationMetadataValidity;
+	private String federationTruststore;
+	private String federationHostnameCheckingMode;
+	private SigningAlgorithms federationJwtSigningAlgorithm;
+	private String federationOrganizationName;
+	private String federationLogoUri;
+	private TranslationProfile federationProviderTranslationProfile;
+	private String federationProviderRegistrationForm;
+	private RequestACRsMode federationProviderRequestACRsMode;
+	private List<String> federationProviderRequestedACRs;
+	private boolean federationProviderRequestedACRsAreEssential;
+	private List<String> federationProviderScopes;
+	private AccessTokenFormat federationProviderAccessTokenFormat;
+	private List<NameValuePairBinding> federationProviderAdditionalAuthzParams;
 
 	public OAuthConfiguration()
 	{
 		providers = new ArrayList<>();
 		defAccountAssociation = true;
+		federationMetadataValidity = OAuthClientProperties.DEFAULT_FEDERATION_METADATA_VALIDITY;
+		federationHostnameCheckingMode = ServerHostnameCheckingMode.FAIL.name();
+		federationProviderTranslationProfile = TranslationProfileGenerator
+				.generateIncludeInputProfile(OAuthClientProperties.DEFAULT_TRANSLATION_PROFILE_FOR_FEDERATION_CLIENT);
+		federationProviderRequestACRsMode = RequestACRsMode.NONE;
+		federationProviderRequestedACRs = new ArrayList<>();
+		federationProviderRequestedACRsAreEssential = false;
+		federationProviderScopes = new ArrayList<>(List.of(OIDCScopeValue.OPENID.getValue()));
+		federationProviderAccessTokenFormat = AccessTokenFormat.standard;
+		federationProviderAdditionalAuthzParams = new ArrayList<>();
+
 	}
 
 	public void fromProperties(String properties, MessageSource msg, PKIManagement pkiMan,
@@ -47,6 +93,56 @@ public class OAuthConfiguration
 
 		OAuthClientProperties oauthProp = new OAuthClientProperties(raw, pkiMan);
 		defAccountAssociation = oauthProp.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
+		
+		federationMembershipEnabled = oauthProp.getBooleanValue(OAuthClientProperties.FEDERATION_MEMBERSHIP_ENABLED);
+		federationCredential = oauthProp.getValue(OAuthClientProperties.FEDERATION_CREDENTIAL);
+		federationSuperiorEntityId = oauthProp.getValue(OAuthClientProperties.FEDERATION_SUPERIOR_ENTITY_ID);
+		authenticationCredential = oauthProp.getValue(OAuthClientProperties.AUTHENTICATION_CREDENTIAL);
+		federationTrustAnchorId = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID);
+		federationTrustAnchorJwks = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUST_ANCHOR_JWKS);
+		String federationJwtSigningAlgStr = oauthProp.getValue(OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG);
+		federationJwtSigningAlgorithm = null;
+		if (federationJwtSigningAlgStr != null && !federationJwtSigningAlgStr.isEmpty())
+		{
+			try
+			{
+				federationJwtSigningAlgorithm = SigningAlgorithms.valueOf(federationJwtSigningAlgStr);
+			} catch (IllegalArgumentException e)
+			{
+				log.warn("Unknown federation JWT signing algorithm '{}', ignoring it - "
+						+ "the algorithm will be derived from the key type instead, "
+						+ "and the invalid value will be dropped if this configuration is saved",
+						federationJwtSigningAlgStr);
+			}
+		}
+		federationMetadataValidity = oauthProp.getIntValue(OAuthClientProperties.FEDERATION_METADATA_VALIDITY);
+		federationTruststore = oauthProp.getValue(OAuthClientProperties.FEDERATION_TRUSTSTORE);
+		ServerHostnameCheckingMode checkingMode = oauthProp.getEnumValue(
+				OAuthClientProperties.FEDERATION_HOSTNAME_CHECKING, ServerHostnameCheckingMode.class);
+		federationHostnameCheckingMode = checkingMode != null ? checkingMode.name()
+				: ServerHostnameCheckingMode.FAIL.name();
+		federationOrganizationName = oauthProp.getValue(OAuthClientProperties.FEDERATION_ORGANIZATION_NAME);
+		federationLogoUri = oauthProp.getValue(OAuthClientProperties.FEDERATION_LOGO_URI);
+		if (oauthProp.isSet(OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE))
+			federationProviderTranslationProfile = TranslationProfileGenerator.getProfileFromString(
+					oauthProp.getValue(OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE));
+		else if (oauthProp.isSet(OAuthClientProperties.FEDERATION_TRANSLATION_PROFILE))
+			federationProviderTranslationProfile = TranslationProfileGenerator.generateIncludeInputProfile(
+					oauthProp.getValue(OAuthClientProperties.FEDERATION_TRANSLATION_PROFILE));
+		federationProviderRegistrationForm = oauthProp.getValue(OAuthClientProperties.FEDERATION_REGISTRATION_FORM);
+		federationProviderRequestACRsMode = oauthProp.getEnumValue(
+				OAuthClientProperties.FEDERATION_REQUEST_ACRS_MODE, RequestACRsMode.class);
+		federationProviderRequestedACRs = oauthProp.getListOfValues(OAuthClientProperties.FEDERATION_REQUESTED_ACRS);
+		federationProviderRequestedACRsAreEssential = oauthProp.getBooleanValue(
+				OAuthClientProperties.FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL);
+		List<String> parsedFederationProviderScopes = oauthProp.getListOfValues(OAuthClientProperties.FEDERATION_SCOPES);
+		federationProviderScopes = parsedFederationProviderScopes.isEmpty()
+				? new ArrayList<>(List.of(OIDCScopeValue.OPENID.getValue()))
+				: parsedFederationProviderScopes;
+		federationProviderAccessTokenFormat = oauthProp.getEnumValue(
+				OAuthClientProperties.FEDERATION_ACCESS_TOKEN_FORMAT, AccessTokenFormat.class);
+		federationProviderAdditionalAuthzParams = parseAdditionalAuthzParams(
+				oauthProp.getListOfValues(OAuthClientProperties.FEDERATION_ADDITIONAL_AUTHZ_PARAMS));
 
 		providers.clear();
 		Set<String> keys = oauthProp.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
@@ -61,13 +157,116 @@ public class OAuthConfiguration
 		}
 	}
 
-	public String toProperties(MessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService, 
+	private static List<NameValuePairBinding> parseAdditionalAuthzParams(List<String> raw)
+	{
+		List<NameValuePairBinding> ret = new ArrayList<>(raw.size());
+		for (String rawParam : raw)
+		{
+			int splitAt = rawParam.indexOf('=');
+			if (splitAt == -1 || splitAt == rawParam.length() - 1)
+			{
+				log.warn("Specification of extra federation authz query parameter is invalid: "
+						+ rawParam + " ignoring it");
+				continue;
+			}
+			ret.add(new NameValuePairBinding(rawParam.substring(0, splitAt), rawParam.substring(splitAt + 1)));
+		}
+		return ret;
+	}
+
+	public String toProperties(MessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService,
 			String authName) throws ConfigurationException
 	{
 		Properties raw = new Properties();
 
 		raw.put(OAuthClientProperties.P + CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION,
 				String.valueOf(defAccountAssociation));
+
+		
+		
+		raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_MEMBERSHIP_ENABLED,
+				String.valueOf(federationMembershipEnabled));
+		
+		if(federationMembershipEnabled)
+		{
+			if (federationCredential != null && !federationCredential.isEmpty())
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_CREDENTIAL, federationCredential);
+			}
+
+			if (federationSuperiorEntityId != null && !federationSuperiorEntityId.isEmpty())
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_SUPERIOR_ENTITY_ID,
+						federationSuperiorEntityId);
+			}
+			if (authenticationCredential != null && !authenticationCredential.isEmpty())
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.AUTHENTICATION_CREDENTIAL, authenticationCredential);
+			}
+			if (federationTrustAnchorId != null && !federationTrustAnchorId.isEmpty())
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_TRUST_ANCHOR_ID, federationTrustAnchorId);
+			}
+			if (federationTrustAnchorJwks != null && !federationTrustAnchorJwks.isEmpty())
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_TRUST_ANCHOR_JWKS, federationTrustAnchorJwks);
+			}
+			if (federationJwtSigningAlgorithm != null)
+			{
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_JWT_SIGNING_ALG,
+						federationJwtSigningAlgorithm.name());
+			}
+			raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_METADATA_VALIDITY,
+					String.valueOf(federationMetadataValidity));
+			if (federationTruststore != null && !federationTruststore.isEmpty())
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_TRUSTSTORE,
+						federationTruststore);
+			if (federationHostnameCheckingMode != null && !federationHostnameCheckingMode.isEmpty())
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_HOSTNAME_CHECKING,
+						federationHostnameCheckingMode);
+			if (federationOrganizationName != null && !federationOrganizationName.isEmpty())
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_ORGANIZATION_NAME,
+						federationOrganizationName);
+			if (federationLogoUri != null && !federationLogoUri.isEmpty())
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_LOGO_URI, federationLogoUri);
+			if (federationProviderTranslationProfile != null)
+			{
+				try
+				{
+					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_EMBEDDED_TRANSLATION_PROFILE,
+							new ObjectMapper().writeValueAsString(federationProviderTranslationProfile.toJsonObject()));
+				} catch (Exception e)
+				{
+					throw new InternalException("Can't serialize federation translation profile to JSON", e);
+				}
+			}
+			if (federationProviderRegistrationForm != null && !federationProviderRegistrationForm.isEmpty())
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REGISTRATION_FORM,
+						federationProviderRegistrationForm);
+			if (federationProviderRequestACRsMode != null)
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REQUEST_ACRS_MODE,
+						federationProviderRequestACRsMode.name());
+			if (federationProviderRequestedACRs != null)
+				for (int i = 0; i < federationProviderRequestedACRs.size(); i++)
+					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REQUESTED_ACRS + (i + 1),
+							federationProviderRequestedACRs.get(i));
+			raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_REQUESTED_ACRS_ARE_ESSENTIAL,
+					String.valueOf(federationProviderRequestedACRsAreEssential));
+			if (federationProviderScopes != null)
+				for (int i = 0; i < federationProviderScopes.size(); i++)
+					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_SCOPES + (i + 1),
+							federationProviderScopes.get(i));
+			if (federationProviderAccessTokenFormat != null)
+				raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_ACCESS_TOKEN_FORMAT,
+						federationProviderAccessTokenFormat.name());
+			if (federationProviderAdditionalAuthzParams != null)
+				for (int i = 0; i < federationProviderAdditionalAuthzParams.size(); i++)
+				{
+					NameValuePairBinding nvPair = federationProviderAdditionalAuthzParams.get(i);
+					raw.put(OAuthClientProperties.P + OAuthClientProperties.FEDERATION_ADDITIONAL_AUTHZ_PARAMS
+							+ (i + 1), nvPair.getName() + "=" + nvPair.getValue());
+				}
+		}
 
 		for (OAuthProviderConfiguration provider : providers)
 		{
@@ -97,5 +296,206 @@ public class OAuthConfiguration
 	public void setDefAccountAssociation(boolean accountAssociation)
 	{
 		this.defAccountAssociation = accountAssociation;
+	}
+	
+	public boolean isFederationMembershipEnabled()
+	{
+		return federationMembershipEnabled;
+	}
+
+	public void setFederationMembershipEnabled(boolean federationMembershipEnabled)
+	{
+		this.federationMembershipEnabled = federationMembershipEnabled;
+	}
+
+	public String getFederationCredential()
+	{
+		return federationCredential;
+	}
+
+	public void setFederationCredential(String federationCredential)
+	{
+		this.federationCredential = federationCredential;
+	}
+
+	public String getFederationSuperiorEntityId()
+	{
+		return federationSuperiorEntityId;
+	}
+
+	public void setFederationSuperiorEntityId(String federationSuperiorEntityId)
+	{
+		this.federationSuperiorEntityId = federationSuperiorEntityId;
+	}
+
+	public String getAuthenticationCredential()
+	{
+		return authenticationCredential;
+	}
+
+	public void setAuthenticationCredential(String authenticationCredential)
+	{
+		this.authenticationCredential = authenticationCredential;
+	}
+
+	public String getFederationTrustAnchorId()
+	{
+		return federationTrustAnchorId;
+	}
+
+	public void setFederationTrustAnchorId(String federationTrustAnchorId)
+	{
+		this.federationTrustAnchorId = federationTrustAnchorId;
+	}
+
+	public String getFederationTrustAnchorJwks()
+	{
+		return federationTrustAnchorJwks;
+	}
+
+	public void setFederationTrustAnchorJwks(String federationTrustAnchorJwks)
+	{
+		this.federationTrustAnchorJwks = federationTrustAnchorJwks;
+	}
+
+	public int getFederationMetadataValidity()
+	{
+		return federationMetadataValidity;
+	}
+
+	public void setFederationMetadataValidity(int federationMetadataValidity)
+	{
+		this.federationMetadataValidity = federationMetadataValidity;
+	}
+
+	public String getFederationTruststore()
+	{
+		return federationTruststore;
+	}
+
+	public void setFederationTruststore(String federationTruststore)
+	{
+		this.federationTruststore = federationTruststore;
+	}
+
+	public String getFederationHostnameCheckingMode()
+	{
+		return federationHostnameCheckingMode;
+	}
+
+	public void setFederationHostnameCheckingMode(String federationHostnameCheckingMode)
+	{
+		this.federationHostnameCheckingMode = federationHostnameCheckingMode;
+	}
+
+	public SigningAlgorithms getFederationJwtSigningAlgorithm()
+	{
+		return federationJwtSigningAlgorithm;
+	}
+
+	public void setFederationJwtSigningAlgorithm(SigningAlgorithms federationJwtSigningAlgorithm)
+	{
+		this.federationJwtSigningAlgorithm = federationJwtSigningAlgorithm;
+	}
+
+	public TranslationProfile getFederationProviderTranslationProfile()
+	{
+		return federationProviderTranslationProfile;
+	}
+
+	public void setFederationProviderTranslationProfile(TranslationProfile federationProviderTranslationProfile)
+	{
+		this.federationProviderTranslationProfile = federationProviderTranslationProfile;
+	}
+
+	public String getFederationProviderRegistrationForm()
+	{
+		return federationProviderRegistrationForm;
+	}
+
+	public void setFederationProviderRegistrationForm(String federationProviderRegistrationForm)
+	{
+		this.federationProviderRegistrationForm = federationProviderRegistrationForm;
+	}
+
+	public RequestACRsMode getFederationProviderRequestACRsMode()
+	{
+		return federationProviderRequestACRsMode;
+	}
+
+	public void setFederationProviderRequestACRsMode(RequestACRsMode federationProviderRequestACRsMode)
+	{
+		this.federationProviderRequestACRsMode = federationProviderRequestACRsMode;
+	}
+
+	public List<String> getFederationProviderRequestedACRs()
+	{
+		return federationProviderRequestedACRs;
+	}
+
+	public void setFederationProviderRequestedACRs(List<String> federationProviderRequestedACRs)
+	{
+		this.federationProviderRequestedACRs = federationProviderRequestedACRs;
+	}
+
+	public boolean isFederationProviderRequestedACRsAreEssential()
+	{
+		return federationProviderRequestedACRsAreEssential;
+	}
+
+	public void setFederationProviderRequestedACRsAreEssential(boolean federationProviderRequestedACRsAreEssential)
+	{
+		this.federationProviderRequestedACRsAreEssential = federationProviderRequestedACRsAreEssential;
+	}
+
+	public String getFederationOrganizationName()
+	{
+		return federationOrganizationName;
+	}
+
+	public void setFederationOrganizationName(String federationOrganizationName)
+	{
+		this.federationOrganizationName = federationOrganizationName;
+	}
+
+	public String getFederationLogoUri()
+	{
+		return federationLogoUri;
+	}
+
+	public void setFederationLogoUri(String federationLogoUri)
+	{
+		this.federationLogoUri = federationLogoUri;
+	}
+
+	public List<String> getFederationProviderScopes()
+	{
+		return federationProviderScopes;
+	}
+
+	public void setFederationProviderScopes(List<String> federationProviderScopes)
+	{
+		this.federationProviderScopes = federationProviderScopes;
+	}
+
+	public AccessTokenFormat getFederationProviderAccessTokenFormat()
+	{
+		return federationProviderAccessTokenFormat;
+	}
+
+	public void setFederationProviderAccessTokenFormat(AccessTokenFormat federationProviderAccessTokenFormat)
+	{
+		this.federationProviderAccessTokenFormat = federationProviderAccessTokenFormat;
+	}
+
+	public List<NameValuePairBinding> getFederationProviderAdditionalAuthzParams()
+	{
+		return federationProviderAdditionalAuthzParams;
+	}
+
+	public void setFederationProviderAdditionalAuthzParams(
+			List<NameValuePairBinding> federationProviderAdditionalAuthzParams)
+	{
+		this.federationProviderAdditionalAuthzParams = federationProviderAdditionalAuthzParams;
 	}
 }

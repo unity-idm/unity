@@ -19,6 +19,7 @@ public class AccessTokenResourceFactory
 	private final RefreshTokenHandlerFactory refreshTokenHandlerFactory;
 	private final ExchangeTokenHandlerFactory exchangeTokenHandlerFactory;
 	private final CredentialFlowHandlerFactory credentialFlowHandlerFactory;
+	private final DeviceCodeHandlerFactory deviceCodeHandlerFactory;
 	private final OAuthTokenStatisticPublisherFactory statisticPublisherFactory;
 
 	@Autowired
@@ -26,6 +27,7 @@ public class AccessTokenResourceFactory
 			RefreshTokenHandlerFactory refreshTokenHandlerFactory,
 			ExchangeTokenHandlerFactory exchangeTokenHandlerFactory,
 			CredentialFlowHandlerFactory credentialFlowHandlerFactory,
+			DeviceCodeHandlerFactory deviceCodeHandlerFactory,
 			OAuthTokenStatisticPublisherFactory statisticPublisherFactory)
 	{
 
@@ -33,6 +35,7 @@ public class AccessTokenResourceFactory
 		this.refreshTokenHandlerFactory = refreshTokenHandlerFactory;
 		this.exchangeTokenHandlerFactory = exchangeTokenHandlerFactory;
 		this.credentialFlowHandlerFactory = credentialFlowHandlerFactory;
+		this.deviceCodeHandlerFactory = deviceCodeHandlerFactory;
 		this.statisticPublisherFactory = statisticPublisherFactory;
 	}
 
@@ -42,6 +45,7 @@ public class AccessTokenResourceFactory
 				refreshTokenHandlerFactory.getHandler(config),
 				exchangeTokenHandlerFactory.getHandler(config, description),
 				credentialFlowHandlerFactory.getHandler(config, description),
+				deviceCodeHandlerFactory.getHandler(config, description),
 				statisticPublisherFactory.getOAuthTokenStatisticPublisher(config, description));
 	}
 

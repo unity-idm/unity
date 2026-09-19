@@ -61,7 +61,7 @@ public class JsonDumpUpdateFromV7 implements JsonDumpUpdate
 	private ObjectNode insertFiles(ObjectNode contents)
 	{
 		ObjectNode newContents = new ObjectNode(JsonNodeFactory.instance);
-		Iterator<Map.Entry<String, JsonNode>> fields = contents.fields();
+		Iterator<Map.Entry<String, JsonNode>> fields = contents.properties().iterator();
 		while(fields.hasNext()){
 		    Map.Entry<String, JsonNode> entry = fields.next();
 		    newContents.putPOJO(entry.getKey(), entry.getValue());

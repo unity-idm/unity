@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.RemoteAuthnMetadata;
 import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.engine.api.group.GroupsChain;
+import pl.edu.icm.unity.engine.api.idp.UserAuthnDetails;
 import pl.edu.icm.unity.engine.api.mvel.MVELGroup;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
 import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
@@ -191,32 +193,61 @@ public class OutputTranslationProfile
 				.collect(Collectors.toMap(group -> group.getName(), 
 						group -> new MVELGroup(groupProvider.apply(group.getPathEncoded()))));
 		ret.put(OutputTranslationMVELContextKey.groupsObj.name(), groupsObj);
-		
-		if (InvocationContext.hasCurrent() && InvocationContext.getCurrent().getLoginSession() != null)
+		UserAuthnDetails userAuthnDetails = input.getUserAuthnDetails();
+
+		if (InvocationContext.hasCurrent() && InvocationContext.getCurrent()
+				.getLoginSession() != null)
 		{
-			LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
+			LoginSession loginSession = InvocationContext.getCurrent()
+					.getLoginSession();
 
 			Set<String> authenticatedIdentities = loginSession.getAuthenticatedIdentities();
 			ret.put(OutputTranslationMVELContextKey.authenticatedWith.name(),
-					new ArrayList<String>(authenticatedIdentities));
-			ret.put(OutputTranslationMVELContextKey.idp.name(),
-					loginSession.getRemoteIdP() == null ? "_LOCAL" : loginSession.getRemoteIdP());
+					new ArrayList<String>(Optional.ofNullable(userAuthnDetails)
+							.map(usrDetails -> usrDetails.authenticatedIdentities())
+							.orElse(authenticatedIdentities)));
+			ret.put(OutputTranslationMVELContextKey.idp.name(), Optional.ofNullable(userAuthnDetails)
+					.map(usrDetails -> usrDetails.remoteIdp())
+					.orElse(loginSession.getRemoteIdP() == null ? "_LOCAL" : loginSession.getRemoteIdP()));
 			List<String> usedAuthenticators = new ArrayList<>();
 			if (loginSession.getLogin1stFactor().optionId != null)
 				usedAuthenticators.add(loginSession.getLogin1stFactor().optionId.getAuthenticatorKey());
 			if (loginSession.getLogin2ndFactor().optionId != null)
 				usedAuthenticators.add(loginSession.getLogin2ndFactor().optionId.getAuthenticatorKey());
-			ret.put(OutputTranslationMVELContextKey.authentications.name(), usedAuthenticators);
+			ret.put(OutputTranslationMVELContextKey.authentications.name(), Optional.ofNullable(userAuthnDetails)
+					.map(usrDetails -> usrDetails.authenticators())
+					.orElse(usedAuthenticators));
 			ret.put(OutputTranslationMVELContextKey.mfa.name(), usedAuthenticators.size() > 1);
 			ret.put(OutputTranslationMVELContextKey.twoStepAuthn.name(), usedAuthenticators.size() > 1);
-			ret.putAll(getAuthnContextMvelVariables(loginSession.getFirstFactorRemoteIdPAuthnContext()));
-			ret.put(OutputTranslationMVELContextKey.amr.name(), AuthenticationMethodsToMvelContextMapper
-					.getAuthenticationMethodsWithMFAandMCAIfUsed(loginSession.getAuthenticationMethods()));
-			
+			ret.putAll(getAuthnContextMvelVariables(Optional.ofNullable(userAuthnDetails)
+					.map(usrDetails -> usrDetails.firstFactorRemoteIdPAuthnMetadata())
+					.orElse(loginSession.getFirstFactorRemoteIdPAuthnContext())));
+			ret.put(OutputTranslationMVELContextKey.amr.name(),
+					AuthenticationMethodsToMvelContextMapper
+							.getAuthenticationMethodsWithMFAandMCAIfUsed(Optional.ofNullable(userAuthnDetails)
+									.map(usrDetails -> usrDetails.authenticationMethods())
+									.orElse(loginSession.getAuthenticationMethods())));
+
 		} else
 		{
-			ret.put(OutputTranslationMVELContextKey.authenticatedWith.name(), new ArrayList<String>());
-			ret.put(OutputTranslationMVELContextKey.idp.name(), null);
+			ret.put(OutputTranslationMVELContextKey.authenticatedWith.name(),
+					new ArrayList<String>(Optional.ofNullable(userAuthnDetails)
+							.map(usrDetails -> usrDetails.authenticatedIdentities())
+							.orElse(null)));
+			ret.put(OutputTranslationMVELContextKey.idp.name(), Optional.ofNullable(userAuthnDetails)
+					.map(usrDetails -> usrDetails.remoteIdp())
+					.orElse(null));
+			ret.put(OutputTranslationMVELContextKey.amr.name(),
+					AuthenticationMethodsToMvelContextMapper
+							.getAuthenticationMethodsWithMFAandMCAIfUsed(Optional.ofNullable(userAuthnDetails)
+									.map(usrDetails -> usrDetails.authenticationMethods())
+									.orElse(null)));
+			ret.put(OutputTranslationMVELContextKey.authentications.name(), Optional.ofNullable(userAuthnDetails)
+					.map(usrDetails -> usrDetails.authenticators())
+					.orElse(null));
+			ret.putAll(getAuthnContextMvelVariables(Optional.ofNullable(userAuthnDetails)
+					.map(usrDetails -> usrDetails.firstFactorRemoteIdPAuthnMetadata())
+					.orElse(null)));	
 		}
 		return ret;
 	}

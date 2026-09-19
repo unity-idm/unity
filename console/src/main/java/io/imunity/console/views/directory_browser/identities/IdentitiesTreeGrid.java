@@ -9,9 +9,9 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -20,15 +20,19 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
+import com.vaadin.flow.data.renderer.LitRenderer;
+import com.vaadin.flow.data.selection.SelectionListener;
 import com.vaadin.flow.function.SerializablePredicate;
+import com.vaadin.flow.shared.Registration;
+
 import io.imunity.console.views.directory_browser.EntityWithLabel;
-import io.imunity.console.views.directory_browser.GridSelectionSupport;
 import io.imunity.console.views.directory_browser.group_browser.GroupChangedEvent;
 import io.imunity.console.views.directory_browser.group_browser.GroupsTreeGrid;
 import io.imunity.console.views.directory_browser.identities.credentials.CredentialsChangeDialog;
 import io.imunity.vaadin.elements.ColumnToggleMenu;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.grid.ActionMenuWithHandlerSupport;
+import io.imunity.vaadin.elements.grid.GridSelectionSupport;
 import io.imunity.vaadin.elements.grid.SingleActionHandler;
 import io.imunity.vaadin.endpoint.common.WebSession;
 import io.imunity.vaadin.endpoint.common.bus.EventsBus;
@@ -67,6 +71,11 @@ import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
 public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTreeGrid.class);
+	static final String ENTITY_HIERARCHY_TEMPLATE = "<vaadin-grid-tree-toggle "
+			+ "@click=${e => requestAnimationFrame(() => { e.defaultPrevented && onToggle(e) })} "
+			+ "class=${item.cssClassName} .leaf=${!model.hasChildren} "
+			+ ".expanded=${live(model.expanded)} .level=${model.level}>"
+			+ "</vaadin-grid-tree-toggle><span>${item.entityName}</span>";
 
 	private final AttributeSupport attributeSupport;
 	private final CredentialManagement credentialManagement;
@@ -105,6 +114,8 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	private Map<String, CredentialDefinition> credentialDefinitions;
 	private IdentityEntry lastSelected;
 	private Column<IdentityEntry> actionColumn;
+
+	private Registration deselectionIdentitiesListener;
 
 	IdentitiesTreeGrid(MessageSource msg, AttributeSupport attributeSupport,
 	                          IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
@@ -155,6 +166,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		setSelectionMode(SelectionMode.MULTI);
 		GridSelectionSupport.installClickListener(this);
 		addSelectionListener(event -> selectionChanged(event.getAllSelectedItems()));
+		addDeselectionIdentityListener();
 		setSizeFull();
 		addColumnResizeListener(event -> savePreferences());
 		addColumnReorderListener(event ->
@@ -169,6 +181,36 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		loadPreferences();
 		setupDragAndDrop();
 		refreshActionColumn();
+	}
+
+	public Registration addSelectionListenerBeforeDeselectionListener(SelectionListener<Grid<IdentityEntry>, IdentityEntry> listener)
+	{
+		if (deselectionIdentitiesListener != null)
+		{
+			deselectionIdentitiesListener.remove();
+		}
+		Registration selectionListener = super.addSelectionListener(listener);
+		addDeselectionIdentityListener();		
+		return selectionListener;
+	}
+
+	private void addDeselectionIdentityListener()
+	{
+		deselectionIdentitiesListener = asMultiSelect()
+				.addSelectionListener(event -> deselectIdenties(event.getRemovedSelection()));
+	}
+	
+	private void deselectIdenties(Set<IdentityEntry> removedSelection)
+	{
+		if (groupByEntity)
+		{
+			Set<EntityWithLabel> deselectedEntities = removedSelection.stream()
+					.filter(e -> e.getSourceIdentity() == null).map(e -> e.getSourceEntity())
+					.collect(Collectors.toSet());
+			asMultiSelect().deselect(getSelectedItems().stream()
+					.filter(e -> deselectedEntities.contains(e.getSourceEntity()))
+					.toList());
+		}
 	}
 
 	private void setupDragAndDrop()
@@ -187,13 +229,9 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	private void createBaseColumns()
 	{
-		addComponentHierarchyColumn(ie ->
-		{
-			Div div = new Div(new Span(ie.getBaseValue(BaseColumn.entity)));
-			div.getElement().setAttribute("onclick", "event.stopPropagation();");
-			div.addSingleClickListener(event -> select(ie));
-			return div;
-		})
+		addColumn(LitRenderer.<IdentityEntry>of(ENTITY_HIERARCHY_TEMPLATE)
+				.withProperty("entityName", ie -> ie.getBaseValue(BaseColumn.entity))
+				.withFunction("onToggle", this::toggleExpansion))
 				.setHeader(msg.getMessage(BaseColumn.entity.captionKey))
 				.setWidth(BaseColumn.entity.defWidth + "px")
 				.setResizable(true)
@@ -211,6 +249,14 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 			baseColumn.setVisible(!column.initiallyCollapsed);
 			columnToggleMenu.addColumn(msg.getMessage(column.captionKey), baseColumn);
 		}
+	}
+
+	private void toggleExpansion(IdentityEntry entry)
+	{
+		if (isExpanded(entry))
+			collapse(List.of(entry), true);
+		else
+			expand(List.of(entry), true);
 	}
 
 	private void refreshActionColumn()

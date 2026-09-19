@@ -9,8 +9,8 @@ import com.google.common.collect.Lists;
 import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.servlet.FilterHolder;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -324,7 +324,7 @@ public class EngineInitialization extends LifecycleBase
 		// be caught
 		try
 		{
-			Thread.sleep(1000 - (System.currentTimeMillis() - endpointsLoadTime));
+			Thread.sleep(Math.max(0, 1000 - (System.currentTimeMillis() - endpointsLoadTime)));
 		} catch (InterruptedException e)
 		{
 			// ok

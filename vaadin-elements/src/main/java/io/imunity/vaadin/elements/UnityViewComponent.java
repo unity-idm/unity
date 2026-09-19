@@ -24,7 +24,7 @@ import java.util.Optional;
 public abstract class UnityViewComponent extends Composite<Div> implements HasUrlParameter<String>, HasDynamicTitle
 {
 	@Override
-	public void setParameter(BeforeEvent event, @OptionalParameter String parameter)
+	public void setParameter(BeforeEvent event, @WildcardParameter String parameter)
 	{
 	}
 

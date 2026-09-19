@@ -17,6 +17,7 @@ import io.imunity.upman.front.model.GroupTreeNode;
 import io.imunity.upman.front.model.ProjectGroup;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.project.ProjectAddInvitationResult;
@@ -45,30 +46,52 @@ class ProjectInvitationsService
 
 	public void resendInvitations(ProjectGroup projectGroup, Set<InvitationModel> items)
 	{
-		List<String> sent = new ArrayList<>();
+		performInvitationAction(projectGroup, items, invitationMan::resendInvitation,
+				"InvitationsComponent.resent", "InvitationsController.resendInvitationError",
+				"InvitationsController.notResent", "InvitationsController.partiallyResent");
+	}
+
+	public void reinvite(ProjectGroup projectGroup, Set<InvitationModel> items)
+	{
+		performInvitationAction(projectGroup, items, invitationMan::reinvite,
+				"InvitationsComponent.reinvited", "InvitationsController.reinviteError",
+				"InvitationsController.notReinvited", "InvitationsController.partiallyReinvited");
+	}
+
+	private void performInvitationAction(ProjectGroup projectGroup, Set<InvitationModel> items,
+			InvitationAction invitationAction, String successMessage, String errorMessage, String noneProcessedMessage,
+			String partiallyProcessedMessage)
+	{
+		List<String> processed = new ArrayList<>();
 		try {
 			for (InvitationModel inv : items)
 			{
-				invitationMan.sendInvitation(projectGroup.path, inv.code);
-				sent.add(inv.email);
+				invitationAction.execute(projectGroup.path, inv.code);
+				processed.add(inv.email);
 			}
-			notificationPresenter.showSuccess(msg.getMessage("InvitationsComponent.sent"));
+			notificationPresenter.showSuccess(msg.getMessage(successMessage, processed));
 		} catch (Exception e)
 		{
-			log.warn("Can not resend invitations", e);
-			if (sent.isEmpty())
+			log.warn("Can not perform invitation action", e);
+			if (processed.isEmpty())
 			{
 				notificationPresenter.showError(
-						msg.getMessage("InvitationsController.resendInvitationError"),
-						msg.getMessage("InvitationsController.notSend")
+						msg.getMessage(errorMessage),
+						msg.getMessage(noneProcessedMessage)
 				);
 			} else {
 				notificationPresenter.showError(
-						msg.getMessage("InvitationsController.resendInvitationError"),
-						msg.getMessage("InvitationsController.partiallySend", sent)
+						msg.getMessage(errorMessage),
+						msg.getMessage(partiallyProcessedMessage, processed)
 				);
 			}
 		}
+	}
+
+	@FunctionalInterface
+	private interface InvitationAction
+	{
+		void execute(String projectPath, String invitationCode) throws EngineException;
 	}
 
 	public void removeInvitations(ProjectGroup projectGroup, Set<InvitationModel> items)

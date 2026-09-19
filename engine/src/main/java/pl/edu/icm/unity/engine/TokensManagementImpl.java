@@ -114,6 +114,13 @@ public class TokensManagementImpl implements TokensManagement
 			throw new TokenNotFoundException();
 		return token;
 	}
+
+	@Transactional(autoCommit=false)
+	@Override
+	public Token getTokenByIdForUpdate(String type, String value)
+	{
+		return dbTokens.getForUpdate(type, value);
+	}
 	
 	@Transactional
 	@Override

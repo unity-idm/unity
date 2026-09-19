@@ -8,14 +8,16 @@ import eu.unicore.util.configuration.ConfigurationException;
 import org.apache.cxf.Bus;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.endpoint.Endpoint;
+import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
-import org.eclipse.jetty.ee10.servlets.CrossOriginFilter;
+import org.eclipse.jetty.ee11.servlet.FilterHolder;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.servlets.CrossOriginFilter;
+import org.eclipse.jetty.http.HttpStatus;
 
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -181,9 +183,18 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 		AuthenticationRealm realm = description.getRealm();
 		inInterceptors.add(new AuthenticationInterceptor(msg, authenticationProcessor, 
 				authenticationFlows, realm, sessionMan, notProtectedPaths, optionallyAuthenticatedPaths,
-				getEndpointDescription().getType().getFeatures(), entityMan));
+				getEndpointDescription().getType().getFeatures(), entityMan,
+				RESTEndpoint::generateFault));
 		inInterceptors.add(new LogContextCleaningInterceptor());
 		installAuthnInterceptors(authenticationFlows, inInterceptors);
+	}
+
+	private static Fault generateFault(Optional<Exception> cause)
+	{
+		Fault fault = cause.map(e -> new Fault(e))
+				.orElse(new Fault(new Exception("Authentication failed")));
+		fault.setStatusCode(HttpStatus.FORBIDDEN_403);
+		return fault;
 	}
 
 	public static void installAuthnInterceptors(List<AuthenticationFlow> authenticatorFlows,

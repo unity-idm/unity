@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.identity.IdentityParam;
@@ -44,6 +45,7 @@ import pl.edu.icm.unity.base.registration.invitation.InvitationWithCode;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntry;
 import pl.edu.icm.unity.base.registration.invitation.PrefilledEntryMode;
 import pl.edu.icm.unity.base.registration.invitation.RegistrationInvitationParam;
+import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -333,51 +335,87 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	}
 
 	@Override
-	public void sendInvitation(String projectPath, String code) throws EngineException
+	public void resendInvitation(String projectPath, String code) throws EngineException
 	{
 		authz.assertManagerAuthorization(projectPath);
 
-		InvitationWithCode orgInvitationWithCode = assertIfIsProjectInvitation(projectPath, code);
-		InvitationParam orgInvitation = orgInvitationWithCode.getInvitation();
-
-		if (orgInvitation.isExpired())
+		InvitationWithCode invitationWithCode = assertIfIsProjectInvitation(projectPath, code);
+		InvitationParam invitation = invitationWithCode.getInvitation();
+		if (!ProjectInvitation.canBeResent(invitation.getExpiration(), Instant.now()))
 		{
-			Instant creationTime = orgInvitationWithCode.getCreationTime();
-			Instant newExpiration = Instant.now();
-			if (creationTime != null)
-			{
-				Duration between = Duration.between(creationTime, orgInvitation.getExpiration());
-				newExpiration = newExpiration.plus(between);
-			} else
-			{
-				newExpiration = newExpiration.plus(ProjectInvitation.DEFAULT_TTL_DAYS, ChronoUnit.DAYS);
-			}
-
-			InvitationParam newInvitation = null;
-			if (orgInvitation.getType().equals(InvitationType.REGISTRATION))
-			{
-				newInvitation = copyRegistrationInvitation(newExpiration, orgInvitation);
-			} else if (orgInvitation.getType().equals(InvitationType.ENQUIRY))
-			{
-				newInvitation = copyEnquiryInvitation(newExpiration, orgInvitation);
-			} else
-			{
-				newInvitation = copyComboInvitation(newExpiration, orgInvitation);
-			}
-
-			String newCode = invitationMan.addInvitation(newInvitation);
-			invitationMan.sendInvitation(newCode);
-			invitationMan.removeInvitation(orgInvitationWithCode.getRegistrationCode());
-		} else
-		{
-			invitationMan.sendInvitation(orgInvitationWithCode.getRegistrationCode());
+			throw new WrongArgumentException("The invitation must remain valid for at least "
+					+ ProjectInvitation.MINIMUM_RESEND_VALIDITY.toHours() + " hours to be resent");
 		}
+
+		invitationMan.sendInvitation(invitationWithCode.getRegistrationCode());
+	}
+
+	@Transactional
+	@Override
+	public void reinvite(String projectPath, String code) throws EngineException
+	{
+		authz.assertManagerAuthorization(projectPath);
+
+		InvitationWithCode originalInvitationWithCode = assertIfIsProjectInvitation(projectPath, code);
+		InvitationParam originalInvitation = originalInvitationWithCode.getInvitation();
+		Instant newExpiration = getNewExpiration(originalInvitationWithCode, Instant.now());
+		InvitationParam newInvitation = copyInvitation(newExpiration, originalInvitation);
+
+		String newCode = invitationMan.addInvitation(newInvitation);
+		try
+		{
+			invitationMan.sendInvitation(newCode);
+			invitationMan.removeInvitation(originalInvitationWithCode.getRegistrationCode());
+		} catch (EngineException | RuntimeException reinvitationFailure)
+		{
+			removeReplacementInvitation(newCode, reinvitationFailure);
+			throw reinvitationFailure;
+		}
+	}
+
+	private void removeReplacementInvitation(String replacementCode, Exception reinvitationFailure)
+	{
+		try
+		{
+			invitationMan.removeInvitation(replacementCode);
+		} catch (EngineException | RuntimeException cleanupFailure)
+		{
+			reinvitationFailure.addSuppressed(cleanupFailure);
+			log.error("Can not remove replacement invitation {} after re-invitation failure", replacementCode,
+					cleanupFailure);
+		}
+	}
+
+	private Instant getNewExpiration(InvitationWithCode invitationWithCode, Instant reinvitationTime)
+	{
+		Instant creationTime = invitationWithCode.getCreationTime();
+		if (creationTime != null)
+		{
+			Duration validity = Duration.between(creationTime, invitationWithCode.getInvitation().getExpiration());
+			if (validity.isPositive())
+			{
+				return reinvitationTime.plus(validity);
+			}
+		}
+		return reinvitationTime.plus(ProjectInvitation.DEFAULT_TTL_DAYS, ChronoUnit.DAYS);
+	}
+
+	private InvitationParam copyInvitation(Instant newExpiration, InvitationParam originalInvitation)
+	{
+		if (originalInvitation.getType().equals(InvitationType.REGISTRATION))
+		{
+			return copyRegistrationInvitation(newExpiration, originalInvitation);
+		} else if (originalInvitation.getType().equals(InvitationType.ENQUIRY))
+		{
+			return copyEnquiryInvitation(newExpiration, originalInvitation);
+		}
+		return copyComboInvitation(newExpiration, originalInvitation);
 	}
 	
 	private InvitationParam copyRegistrationInvitation(Instant newExpiration, InvitationParam orgInvitation)
 	{
 		RegistrationInvitationParam orgRegistrationInvitationParam = (RegistrationInvitationParam) orgInvitation;
-		return  orgRegistrationInvitationParam.cloningBuilder().withExpiration(newExpiration).build();
+		return orgRegistrationInvitationParam.cloningBuilder().withExpiration(newExpiration).build();
 	}
 	
 	private InvitationParam copyEnquiryInvitation(Instant newExpiration, InvitationParam orgInvitation)
@@ -389,8 +427,9 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	private InvitationParam copyComboInvitation(Instant newExpiration, InvitationParam orgInvitation)
 	{
 		ComboInvitationParam orgComboInvitationParam = (ComboInvitationParam) orgInvitation;
-		return 	orgComboInvitationParam.cloningBuilder().withExpiration(newExpiration).build();
+		return orgComboInvitationParam.cloningBuilder().withExpiration(newExpiration).build();
 	}
+
 	private InvitationWithCode assertIfIsProjectInvitation(String projectPath, String code) throws EngineException
 	{
 		GroupDelegationConfiguration config = getDelegationConfiguration(projectPath);

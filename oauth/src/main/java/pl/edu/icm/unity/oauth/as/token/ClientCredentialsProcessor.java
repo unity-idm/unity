@@ -31,11 +31,11 @@ import pl.edu.icm.unity.oauth.as.AttributeValueFilterUtils;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
-import pl.edu.icm.unity.oauth.as.OAuthScope;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 import pl.edu.icm.unity.oauth.as.token.access.AccessTokenResource;
 
 /**
@@ -116,19 +116,20 @@ public class ClientCredentialsProcessor
 		internalToken.setUserInfo(userInfo.toJSONObject().toJSONString());
 		return internalToken;
 	}
-	
-	private Set<String> establishFlowsAndAttributes(OAuthToken internalToken, Scope scope, Map<String, AttributeExt> clientAttributes)
+
+	private Set<String> establishFlowsAndAttributes(OAuthToken internalToken, Scope scope,
+			Map<String, AttributeExt> clientAttributes)
 	{
 		Set<String> requestedAttributes = new HashSet<>();
 		if (scope != null && !scope.isEmpty())
-		{	
-			List<OAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes, AttributeValueFilterUtils.getScopesWithoutFilterClaims(scope));
-			String[] array = validRequestedScopes.stream().
-					map(si -> si.name).
-					toArray(String[]::new);
-			internalToken.setEffectiveScope(array);
-			for (OAuthScope si: validRequestedScopes)
-				requestedAttributes.addAll(si.attributes);
+		{
+			List<RequestedOAuthScope> validRequestedScopes = requestValidator.getValidRequestedScopes(clientAttributes,
+					AttributeValueFilterUtils.getScopesWithoutFilterClaims(scope));
+
+			internalToken.setEffectiveScope(validRequestedScopes);
+			for (RequestedOAuthScope si : validRequestedScopes)
+				requestedAttributes.addAll(si.scopeDefinition()
+						.attributes());
 		}
 		return requestedAttributes;
 	}
@@ -150,7 +151,7 @@ public class ClientCredentialsProcessor
 				"OAuth2", 
 				GrantType.CLIENT_CREDENTIALS.getValue(),
 				true,
-				config.getUserImportConfigs());
+				config.getUserImportConfigs(), null);
 		return translationResult;
 	}
 	
