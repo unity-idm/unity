@@ -4,10 +4,16 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
+import static javax.xml.XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
+import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
+import static javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlBase64Binary;
@@ -17,6 +23,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
+import org.w3c.dom.Element;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
@@ -74,25 +81,41 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 			throw new IllegalStateException("There is no attribute type converter for " + syntax);
 		}
 		List<String> unityValues = unityAttribute.getValues();
-		XmlObject[] xmlValues = new XmlObject[unityValues.size()];
-		for (int i=0; i<xmlValues.length; i++)
-			xmlValues[i] = converter.convertValueToSaml(unityValues.get(i));
-		ret.setAttributeValueArray(xmlValues);
+		for (String unityValue : unityValues)
+		{
+			XmlObject converted = converter.convertValueToSaml(unityValue);
+			XmlObject attributeValue = ret.addNewAttributeValue();
+			attributeValue.set(converted);
+			setSchemaTypeAttribute(attributeValue, converted.schemaType());
+		}
 		return ret;
 	}
 
-	public <T extends XmlObject> T convertFromSaml(AttributeType attribute, Class<T> clazz, SchemaType type)
+	private static void setSchemaTypeAttribute(XmlObject value, SchemaType schemaType)
+	{
+		QName schemaTypeName = schemaType.getName();
+		if (schemaTypeName == null || !W3C_XML_SCHEMA_NS_URI.equals(schemaTypeName.getNamespaceURI()))
+			throw new IllegalArgumentException("SAML attribute value must use an XML Schema type");
+		Element element = (Element) value.getDomNode();
+		element.setAttributeNS(XMLNS_ATTRIBUTE_NS_URI, "xmlns:xsi", W3C_XML_SCHEMA_INSTANCE_NS_URI);
+		element.setAttributeNS(XMLNS_ATTRIBUTE_NS_URI, "xmlns:xs", W3C_XML_SCHEMA_NS_URI);
+		element.setAttributeNS(W3C_XML_SCHEMA_INSTANCE_NS_URI, "xsi:type", "xs:" + schemaTypeName.getLocalPart());
+	}
+
+	@Override
+	public <T extends XmlObject> T convertFromSaml(AttributeType attribute, int valueIndex, Class<T> valueClass,
+			SchemaType valueType)
 	{
 		try
 		{
 			XmlObject converted = XmlBeans.getContextTypeLoader().parse(
-					attribute.getAttributeValueArray(0).newInputStream(),
-					type,
+					attribute.getAttributeValueArray(valueIndex).newInputStream(),
+					valueType,
 					null);
-			 return (T) converted;
+			return valueClass.cast(converted);
 		} catch (XmlException | IOException e)
 		{
-			throw new IllegalArgumentException("Can not re-parse", e);
+			throw new IllegalArgumentException("Can not parse SAML attribute value", e);
 		}
 	}
 

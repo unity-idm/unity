@@ -31,7 +31,15 @@ public class HttpBasicParser
 			return null;
 		
 		String encoded = authorizationHeader.substring(6);
-		byte[] decodedBytes = Base64.getDecoder().decode(encoded.getBytes(StandardCharsets.US_ASCII));
+		byte[] decodedBytes;
+		try
+		{
+			decodedBytes = Base64.getDecoder().decode(encoded.getBytes(StandardCharsets.US_ASCII));
+		} catch (IllegalArgumentException e)
+		{
+			log.warn("Ignoring malformed Authorization HTTP header element", e);
+			return null;
+		}
 		String decoded = decodedBytes == null ? null : new String(decodedBytes, StandardCharsets.US_ASCII);
 		if (decoded == null || decoded.isEmpty())
 		{

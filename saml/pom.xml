@@ -152,26 +152,26 @@
 	
 	<build>
 		<plugins>
-		<plugin>
-        <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.8</version>
-        <executions>
-          <execution>
-            <phase>initialize</phase>
-            <goals>
-              <goal>build-classpath</goal>
-            </goals>
-            <configuration>
-              <outputProperty>xbean.classpath</outputProperty>
-              <pathSeparator>,</pathSeparator>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.8</version>
+				<executions>
+					<execution>
+						<phase>initialize</phase>
+						<goals>
+							<goal>build-classpath</goal>
+						</goals>
+						<configuration>
+							<outputProperty>xbean.classpath</outputProperty>
+							<pathSeparator>,</pathSeparator>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.xmlbeans</groupId>
 				<artifactId>xmlbeans</artifactId>
-				<version>5.3.0</version>
+				<version>${xmlbeans.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -181,12 +181,12 @@
 				</executions>
 				<inherited>true</inherited>
 				<configuration>
-				    <name>unity_server_saml</name>
+					<name>unity_server_saml</name>
 					<repackage>org.apache.xmlbeans.metadata</repackage>
-					<sourceDir>src/main/schema</sourceDir>
+					<sourceDir>${project.basedir}/src/main/schema</sourceDir>
 					<sourceSchemas>*.xsd</sourceSchemas>
-					<xmlConfigs>src/main/schema/xmlbeans_config.xsdconfig</xmlConfigs>
-					<outputJar>target/unity-server-saml-xmlbeans-${project.version}.jar</outputJar>
+					<xmlConfigs>${project.basedir}/src/main/schema/xmlbeans_config.xsdconfig</xmlConfigs>
+					<outputJar>${project.build.directory}/unity-server-saml-xmlbeans-${project.version}.jar</outputJar>
 					<classPath>${xbean.classpath}</classPath>
 				</configuration>
 			</plugin>

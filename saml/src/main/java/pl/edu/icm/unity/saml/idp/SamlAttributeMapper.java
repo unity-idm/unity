@@ -20,7 +20,8 @@ public interface SamlAttributeMapper
 	boolean isHandled(Attribute unityAttribute);
 	AttributeType convertToSaml(Attribute unityAttribute);
 	
-	<T extends XmlObject> T convertFromSaml(AttributeType attribute, Class<T> clazz, SchemaType type);
+	<T extends XmlObject> T convertFromSaml(AttributeType attribute, int valueIndex, Class<T> valueClass,
+			SchemaType valueType);
 	/*
 	public boolean isHandled(AttributeType samlAttribute);
 	public Attribute convertToUnity(AttributeType samlAttribute);
