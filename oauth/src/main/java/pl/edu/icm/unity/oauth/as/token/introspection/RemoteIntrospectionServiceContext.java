@@ -7,7 +7,7 @@ package pl.edu.icm.unity.oauth.as.token.introspection;
 
 import java.net.URL;
 
-import eu.emi.security.authn.x509.X509CertChainValidator;
+import io.imunity.tanl.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
 class RemoteIntrospectionServiceContext

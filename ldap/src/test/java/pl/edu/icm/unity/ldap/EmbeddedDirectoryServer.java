@@ -26,12 +26,12 @@ import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.schema.Schema;
 
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
-import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
+import io.imunity.tanl.x509.X509CertChainValidatorExt;
+import io.imunity.tanl.x509.X509Credential;
+import io.imunity.tanl.x509.helpers.BinaryCertChainValidator;
+import io.imunity.tanl.x509.impl.KeystoreCertChainValidator;
+import io.imunity.tanl.x509.impl.KeystoreCredential;
+import io.imunity.tanl.x509.impl.SocketFactoryCreator2;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;

@@ -18,7 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
 import org.apache.xmlbeans.XmlException;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.binding.SAMLMessageType;
 import eu.unicore.samly2.elements.NameID;

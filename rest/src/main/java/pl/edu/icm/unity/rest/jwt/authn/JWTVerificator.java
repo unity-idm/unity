@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.exceptions.EngineException;

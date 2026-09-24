@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.samly2.webservice.SAMLLogoutInterface;
 import jakarta.servlet.Servlet;
 

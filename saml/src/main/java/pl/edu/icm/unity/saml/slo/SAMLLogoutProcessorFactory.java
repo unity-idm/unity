@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;

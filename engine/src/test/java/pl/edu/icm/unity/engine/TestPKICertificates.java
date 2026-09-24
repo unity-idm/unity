@@ -17,8 +17,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import io.imunity.tanl.x509.impl.CertificateUtils;
+import io.imunity.tanl.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.base.entity.EntityState;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.engine.api.PKIManagement;

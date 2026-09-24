@@ -25,7 +25,7 @@ import org.apache.logging.log4j.Logger;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;

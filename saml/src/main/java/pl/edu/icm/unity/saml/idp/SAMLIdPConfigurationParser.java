@@ -36,8 +36,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509CertChainValidator;
+import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;

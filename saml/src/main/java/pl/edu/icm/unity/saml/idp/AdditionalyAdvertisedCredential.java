@@ -5,7 +5,7 @@
 
 package pl.edu.icm.unity.saml.idp;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 
 public class AdditionalyAdvertisedCredential
 {

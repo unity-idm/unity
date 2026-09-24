@@ -23,8 +23,8 @@ import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509CertChainValidatorExt;
+import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.security.canl.CredentialProperties;
 import eu.unicore.security.canl.DefaultAuthnAndTrustConfiguration;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;

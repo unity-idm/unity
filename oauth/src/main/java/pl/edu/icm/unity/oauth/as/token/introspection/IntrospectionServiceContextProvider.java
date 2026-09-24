@@ -17,7 +17,7 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
+import io.imunity.tanl.x509.X509CertChainValidatorExt;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;

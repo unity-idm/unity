@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.apache.xmlbeans.XmlObject;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import pl.edu.icm.unity.saml.FreemarkerXHTMLHandler;
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
 import eu.unicore.samly2.binding.SAMLMessageType;

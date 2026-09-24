@@ -8,8 +8,8 @@ import javax.net.ssl.SSLSocketFactory;
 
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 
-import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.emi.security.authn.x509.impl.SocketFactoryCreator2;
+import io.imunity.tanl.x509.X509CertChainValidator;
+import io.imunity.tanl.x509.impl.SocketFactoryCreator2;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 

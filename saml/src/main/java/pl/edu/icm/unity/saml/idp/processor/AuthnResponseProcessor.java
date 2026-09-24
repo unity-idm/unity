@@ -13,7 +13,7 @@ import java.util.TimeZone;
 
 import org.apache.logging.log4j.Logger;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.binding.SAMLMessageType;

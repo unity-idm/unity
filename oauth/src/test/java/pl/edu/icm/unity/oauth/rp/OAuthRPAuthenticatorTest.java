@@ -27,7 +27,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
-import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import io.imunity.tanl.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;

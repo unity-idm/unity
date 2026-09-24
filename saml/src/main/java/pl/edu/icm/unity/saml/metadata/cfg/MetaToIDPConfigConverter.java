@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.Logger;
 
-import eu.emi.security.authn.x509.impl.X500NameUtils;
+import io.imunity.tanl.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.exceptions.InternalException;

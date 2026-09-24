@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;

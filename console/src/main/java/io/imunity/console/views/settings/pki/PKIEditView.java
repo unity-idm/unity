@@ -20,7 +20,7 @@ import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.WildcardParameter;
 import org.springframework.util.StringUtils;
 import com.vaadin.flow.router.Route;
-import eu.emi.security.authn.x509.impl.CertificateUtils;
+import io.imunity.tanl.x509.impl.CertificateUtils;
 import io.imunity.console.ConsoleMenu;
 import io.imunity.console.views.ConsoleViewComponent;
 import io.imunity.vaadin.elements.BreadCrumbParameter;
