@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import com.nimbusds.jose.JWSAlgorithm;
 
-import eu.emi.security.authn.x509.X509CertChainValidator;
+import io.imunity.tanl.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 
 public record OAuthFederationConfig(

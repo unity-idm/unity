@@ -12,8 +12,8 @@ import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.SearchScope;
 
-import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import io.imunity.tanl.x509.X509CertChainValidator;
+import io.imunity.tanl.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.PKIManagement;

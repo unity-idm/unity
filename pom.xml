@@ -609,7 +609,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>8.2.1</version>
+				<version>8.3.0</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
@@ -632,13 +632,7 @@
 			<dependency>
 				<groupId>io.imunity.samly</groupId>
 				<artifactId>samly2</artifactId>
-				<version>3.3.0-rc1</version>
-				<exclusions>
-					<exclusion>
-						<groupId>io.imunity.tanl</groupId>
-						<artifactId>tanl</artifactId>
-					</exclusion>
-				</exclusions>
+				<version>3.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>io.imunity.samly</groupId>
@@ -664,7 +658,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
-				<version>5.0.4</version>
+				<version>5.1.0</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.apache.geronimo.javamail</groupId>

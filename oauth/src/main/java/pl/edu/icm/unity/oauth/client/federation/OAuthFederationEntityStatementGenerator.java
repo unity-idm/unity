@@ -22,7 +22,7 @@ import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistratio
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientInformation;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import pl.edu.icm.unity.oauth.as.token.CredentialJwkConverter;
 import pl.edu.icm.unity.oauth.as.token.KeyIdExtractor;
 

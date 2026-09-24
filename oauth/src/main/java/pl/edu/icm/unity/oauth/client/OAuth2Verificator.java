@@ -225,9 +225,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 		try
 		{
-			eu.emi.security.authn.x509.X509Credential federationCred =
+			io.imunity.tanl.x509.X509Credential federationCred =
 					pkiManagement.getCredential(federationCredName);
-			eu.emi.security.authn.x509.X509Credential authCred =
+			io.imunity.tanl.x509.X509Credential authCred =
 					Strings.isNullOrEmpty(authCredName) ? null : pkiManagement.getCredential(authCredName);
 
 			String entityId = federationEntityBaseUrl + "/" + instanceName;

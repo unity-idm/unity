@@ -19,8 +19,8 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaims
 import com.nimbusds.openid.connect.sdk.federation.registration.ClientRegistrationType;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientInformation;
 
-import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import io.imunity.tanl.x509.X509Credential;
+import io.imunity.tanl.x509.impl.KeystoreCredential;
 import pl.edu.icm.unity.oauth.as.token.CredentialJwkConverter;
 import pl.edu.icm.unity.oauth.as.token.KeyIdExtractor;
 

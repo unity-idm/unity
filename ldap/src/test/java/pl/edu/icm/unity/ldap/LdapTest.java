@@ -6,7 +6,7 @@ package pl.edu.icm.unity.ldap;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.sdk.LDAPException;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import io.imunity.tanl.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;

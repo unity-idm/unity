@@ -8,8 +8,8 @@ import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Set;
 
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509CertChainValidatorExt;
+import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;

@@ -7,7 +7,7 @@ package pl.edu.icm.unity.saml.idp.preferences;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import eu.emi.security.authn.x509.impl.X500NameUtils;
+import io.imunity.tanl.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import io.imunity.vaadin.endpoint.common.consent_utils.IdPPreferences;
 import pl.edu.icm.unity.base.Constants;

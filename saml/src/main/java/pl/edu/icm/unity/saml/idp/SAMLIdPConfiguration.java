@@ -5,9 +5,9 @@
 package pl.edu.icm.unity.saml.idp;
 
 import com.vaadin.flow.component.html.Image;
-import eu.emi.security.authn.x509.X509CertChainValidator;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.impl.X500NameUtils;
+import io.imunity.tanl.x509.X509CertChainValidator;
+import io.imunity.tanl.x509.X509Credential;
+import io.imunity.tanl.x509.impl.X500NameUtils;
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.trust.*;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
