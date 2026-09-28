@@ -266,6 +266,9 @@ Example output:
 
 == Forms
 
+Each form's +/link+ route returns its public URL. It returns +404+ when the form is absent,
+invitation-only, or has no public link.
+
 === Create registration form
 	
 +@Path("/projects/{project-id}/registrationForm")+ +
@@ -307,6 +310,13 @@ has pending requests (the requests will be removed with the form).
 
 Returns a project registration form. The syntax is complex
 and is not provided here.
+
+=== Get registration form link
+
++@Path("/projects/{project-id}/registrationForm/link")+ +
++@GET+ +
+
+Returns the public registration form link, for example +{"link":"https://example.org/register"}+.
 
 === Create signup enquiry form
 	
@@ -350,6 +360,13 @@ has pending requests (the requests will be removed with the form).
 Returns a project singup enquiry form. The syntax is complex
 and is not provided here.
 
+=== Get signup enquiry form link
+
++@Path("/projects/{project-id}/signUpEnquiry/link")+ +
++@GET+ +
+
+Returns the public signup enquiry form link as +{"link":"https://example.org/signup"}+.
+
 === Create membership update enquiry form
 	
 +@Path("/projects/{project-id}/membershipUpdateEnquiry")+ +
@@ -392,6 +409,13 @@ has pending requests (the requests will be removed with the form).
 
 Returns a project membership update enquiry form. The syntax is complex
 and is not provided here.
+
+=== Get membership update enquiry form link
+
++@Path("/projects/{project-id}/membershipUpdateEnquiry/link")+ +
++@GET+ +
+
+Returns the public membership update enquiry form link as +{"link":"https://example.org/update"}+.
 
 == Members
 
@@ -482,3 +506,252 @@ Example output:
     "role": "manager"
 }
 ----
+
+== Invitations, subgroups, and requests
+
+The routes below require an authenticated user with the +manager+ value of
++sys:ProjectManagementRESTAPIRole+ in the endpoint's configured authorization group.
+The project must exist under the configured root and have delegation enabled.
+Direct projects continue to use their existing +project-id+. A nested project returned by
+the project listing has a +urlId+ field: use that single URL-safe value as +{project-id}+
+for every project route. Its +projectId+ field remains the path relative to the configured root.
+
+Group paths in JSON and query parameters are relative to the selected project. An empty
+path selects the project root. Absolute paths, empty path segments, and traversal segments
+are rejected. All new routes return JSON where a body is shown. Created resources return
++201+, completed changes return +204+, malformed inputs return +400+, denied access
+returns +403+, missing or out-of-project resources return +404+, and state conflicts
+return +409+.
+
+=== Invitations
+
+==== Send invitations
+
++@Path("/projects/{project-id}/invitations")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Sends invitations to the specified addresses. Example input:
+
+----
+{
+  "emails": ["person@example.org"],
+  "groups": ["team", "team/workshop"],
+  "allowModifyGroups": false,
+  "expiration": "2026-10-01T12:00:00Z"
+}
+----
+
+A project registration form and signup enquiry form must both be configured before
+sending. Example output, with one result for each distinct address:
+
+----
+[{"email":"person@example.org","status":"sent","message":null}]
+----
+
+Statuses are +sent+, +alreadyMember+, and +failed+. A failed result includes an error
+message; sending to other addresses continues. A send failure can leave a saved invitation.
+
+==== Get invitations
+
++@Path("/projects/{project-id}/invitations")+ +
++@GET+ +
+
+Returns invitations with +code+, +email+, relative +groups+, +allowModifyGroups+,
++expiration+, +lastSentTime+, +numberOfSends+, and +link+.
+
+==== Get invitation
+
++@Path("/projects/{project-id}/invitations/{code}")+ +
++@GET+ +
+
+Returns one invitation. An invitation belonging to another project is reported as missing.
+
+==== Remove invitation
+
++@Path("/projects/{project-id}/invitations/{code}")+ +
++@DELETE+ +
+
+Removes the invitation. An invitation belonging to another project is reported as missing.
+
+==== Resend invitation
+
++@Path("/projects/{project-id}/invitations/{code}/resend")+ +
++@POST+ +
+
+Sends the same code again. The invitation must have at least eight hours of remaining
+validity and a usable contact address and message template.
+
+==== Reinvite
+
++@Path("/projects/{project-id}/invitations/{code}/reinvite")+ +
++@POST+ +
+
+Creates and sends a replacement invitation, then removes the old code. Clients should
+refresh the invitation list after reinviting.
+
+=== Subgroups
+
+==== Get subgroups
+
++@Path("/projects/{project-id}/groups")+ +
++@GET+ +
+
+Returns the project root and its descendants as a flat array. Each item has a relative
++path+, localized +displayedName+, +public+, +delegated+, +enableSubprojects+,
++logoUrl+, and relative +subGroups+ paths.
+
+==== Create subgroup
+
++@Path("/projects/{project-id}/groups")+ +
++@POST+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Creates a subgroup and returns its generated path.
+
+Example input:
+
+----
+{"parentPath":"team","displayedName":{"en":"Workshop"},"public":false}
+----
+
+Example output:
+
+----
+{"path":"team/Ab123"}
+----
+
+==== Get subgroup by path
+
++@Path("/projects/{project-id}/groups/by-path")+ +
++@QueryParam("path")+ +
++@GET+ +
+
+Returns one group. For example, use +path=team/Ab123+ to select a nested subgroup.
+
+==== Remove subgroup by path
+
++@Path("/projects/{project-id}/groups/by-path")+ +
++@QueryParam("path")+ +
++@DELETE+ +
+
+Recursively removes a regular group or a delegated subproject.
+Deleting a delegated subproject also removes its related forms. The project root cannot
+be deleted through this route.
+
+==== Update subgroup
+
++@Path("/projects/{project-id}/groups")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Updates the subgroup's displayed name and visibility together. All fields are required.
+Use the relative +path+ returned when the subgroup was created.
+The project root is updated through the project route. Example input:
+
+----
+{"path":"team/Ab123","displayedName":{"en":"New name"},"public":false}
+----
+
+==== Set subgroup delegation
+
++@Path("/projects/{project-id}/groups/by-path/delegation")+ +
++@QueryParam("path")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Accepts +{"enabled":true,"enableSubprojects":false,"logoUrl":null}+.
+Delegation follows the engine's subproject rules, including inherited forms.
+
+=== Subgroup members
+
+Use +groupPath=team/Ab123+ to select a nested subgroup. An omitted +groupPath+ selects
+the project root. The by-id routes support users without email; the existing email-based
+routes remain available.
+
+==== Get subgroup members
+
++@Path("/projects/{project-id}/members")+ +
++@QueryParam("groupPath")+ +
++@GET+ +
+
+Lists members with stable +entityId+, +name+, +email+ (which may be null), +role+,
+and +attributes+. Omitting +groupPath+ preserves the existing project-root response.
+
+==== Get subgroup member by ID
+
++@Path("/projects/{project-id}/members/by-id/{entityId}")+ +
++@QueryParam("groupPath")+ +
++@GET+ +
+
+Returns one member from the selected group.
+
+==== Add subgroup member by ID
+
++@Path("/projects/{project-id}/members/by-id/{entityId}")+ +
++@QueryParam("groupPath")+ +
++@PUT+ +
+
+Adds the entity to the selected group.
+
+==== Remove subgroup member by ID
+
++@Path("/projects/{project-id}/members/by-id/{entityId}")+ +
++@QueryParam("groupPath")+ +
++@DELETE+ +
+
+Removes the entity from the selected group and its descendants.
+
+==== Get subgroup member role
+
++@Path("/projects/{project-id}/members/by-id/{entityId}/role")+ +
++@QueryParam("groupPath")+ +
++@GET+ +
+
+Returns a role such as +{"role":"regular"}+.
+
+==== Set subgroup member role
+
++@Path("/projects/{project-id}/members/by-id/{entityId}/role")+ +
++@QueryParam("groupPath")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Accepts a role of +regular+, +manager+, or +projectsAdmin+. Role changes require
+delegation on the selected group and retain the engine's rule that a project must have
+a manager.
+
+=== Requests
+
+==== Get requests
+
++@Path("/projects/{project-id}/requests")+ +
++@GET+ +
+
+Lists pending registration, signup enquiry, and membership update requests. Each response
+item includes +id+, +operation+ (+SignUp+ or +Update+),
++type+ (+Registration+ or +Enquiry+), +name+, +email+, +emailVerified+,
+relative +groups+, and +requestedTime+:
+
+----
+{"id":"request-1","operation":"SignUp","type":"Registration",
+ "name":"Example User","email":"person@example.org","emailVerified":true,
+ "groups":["team"],"requestedTime":"2026-09-23T12:00:00Z"}
+----
+
+==== Get request
+
++@Path("/projects/{project-id}/requests/{requestId}")+ +
++@GET+ +
+
+Returns one pending request with the fields shown above.
+
+==== Decide request
+
++@Path("/projects/{project-id}/requests/{requestId}/state")+ +
++@QueryParam("decision")+ +
++@POST+ +
+
+Set +decision+ to +accept+ or +decline+ (for example, +?decision=accept+).
+The request type and operation are resolved from the stored pending request. No body is
+required. A missing, completed, or foreign-project request is not available for a decision.

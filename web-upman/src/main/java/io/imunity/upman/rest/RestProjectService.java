@@ -226,18 +226,18 @@ class RestProjectService
 		assertAuthorization();
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group projectGroup = projectGroupProvider.getProjectGroup(projectId, projectPath);
-		return map(projectId, projectGroup);
+		return map(ProjectPathProvider.relativeProjectId(projectPath, rootGroup), projectGroup);
 	}
 
 	@Transactional
 	public List<RestProject> getProjects() throws EngineException
 	{
 		assertAuthorization();
-		List<Group> groups = groupMan.getGroupsByWildcard(rootGroup + "/**");
+		List<Group> groups = groupMan.getGroupsByWildcard((rootGroup.equals("/") ? "" : rootGroup) + "/**");
 		return groups.stream()
 			.filter(group -> !group.getName().equals(rootGroup))
 			.filter(group -> group.getDelegationConfiguration().enabled)
-			.map(group -> map(group.getName().replace(rootGroup + "/", ""), group))
+			.map(group -> map(ProjectPathProvider.relativeProjectId(group.getName(), rootGroup), group))
 			.collect(Collectors.toList());
 	}
 
@@ -338,7 +338,7 @@ class RestProjectService
 
 		if(entities.size() > 1)
 			throw new BadRequestException("Ambiguous user");
-		if(entities.size() == 0)
+		if(entities.isEmpty())
 			throw new NotFoundException(String.format("Email %s not found", email));
 		return entities.iterator().next().entity.getId();
 	}
