@@ -13,6 +13,12 @@ Unity Team <unity-idm-discuss@lists.sourceforge.net>
 The Unity UpMan REST API may be exposed (or disabled) as a regular Unity endpoint. See the
 <<manual.txt#endp-rest-upman,main Unity documentation>> for endpoints configuration details.
 
+Direct authentication uses the +sys:ProjectManagementRESTAPIRole+ manager role in the configured
+authorization group. OAuth bearer tokens use +sys:upman-api+ for all projects or a concrete
++sys:upman-api:PROJECT-ID+ scope for one project. A project-scoped token sees only covered projects
+in the project listing and cannot create projects. Nested project scopes use the project path relative
+to the configured root, for example +sys:upman-api:parent/child+.
+
 All paths must be naturally prefixed with the server's base URL, endpoint deployment's path
 (as configured) and API version (currently there is only one). Example query path can be similar to:
 
@@ -510,11 +516,14 @@ Example output:
 == Invitations, subgroups, and requests
 
 The routes below require an authenticated user with the +manager+ value of
-+sys:ProjectManagementRESTAPIRole+ in the endpoint's configured authorization group.
++sys:ProjectManagementRESTAPIRole+ in the endpoint's configured authorization group, or an
+OAuth bearer token with a scope covering the selected project.
 The project must exist under the configured root and have delegation enabled.
-Direct projects continue to use their existing +project-id+. A nested project returned by
-the project listing has a +urlId+ field: use that single URL-safe value as +{project-id}+
-for every project route. Its +projectId+ field remains the path relative to the configured root.
+Each project listing entry has a +projectId+ containing its path relative to the configured
+root and a +urlId+ that fits in one URL segment. Use +urlId+ as +{project-id}+ for every
+project route. A slash is percent-encoded, so +a/b+ has URL ID +a%2Fb+. Names containing
+a literal percent sign use an opaque URL ID, since the server rejects percent-encoded percent
+signs in URL paths. Always use the listed +urlId+ instead of constructing it yourself.
 
 Group paths in JSON and query parameters are relative to the selected project. An empty
 path selects the project root. Absolute paths, empty path segments, and traversal segments

@@ -95,7 +95,7 @@ class RestProjectService
 	@Transactional
 	public RestProjectId addProject(RestProjectCreateRequest project) throws EngineException
 	{
-		assertAuthorization();
+		authz.assertManagerAuthorization(authorizationGroup);
 
 		String projectId;
 		if(project.projectId == null)
@@ -107,7 +107,7 @@ class RestProjectService
 		else
 			projectId = project.projectId;
 
-		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		String projectPath = ProjectPathProvider.getNewProjectPath(projectId, rootGroup);
 		if (project.displayedName == null || project.displayedName.isEmpty())
 			throw new IllegalArgumentException();
 
@@ -131,7 +131,7 @@ class RestProjectService
 	@Transactional
 	public void updateProject(String projectId, RestProjectUpdateRequest project) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 
 		if (project.displayedName == null || project.displayedName.isEmpty())
 			throw new IllegalArgumentException("Displayed name have to be set");
@@ -174,7 +174,7 @@ class RestProjectService
 	@Transactional
 	public void removeProject(String projectId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group projectGroup = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		try
@@ -223,7 +223,7 @@ class RestProjectService
 	@Transactional
 	public RestProject getProject(String projectId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group projectGroup = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		return map(ProjectPathProvider.relativeProjectId(projectPath, rootGroup), projectGroup);
@@ -232,11 +232,13 @@ class RestProjectService
 	@Transactional
 	public List<RestProject> getProjects() throws EngineException
 	{
-		assertAuthorization();
+		authz.assertAnyProjectAuthorization(authorizationGroup);
 		List<Group> groups = groupMan.getGroupsByWildcard((rootGroup.equals("/") ? "" : rootGroup) + "/**");
 		return groups.stream()
 			.filter(group -> !group.getName().equals(rootGroup))
 			.filter(group -> group.getDelegationConfiguration().enabled)
+			.filter(group -> authz.canAccessProject(
+					ProjectPathProvider.relativeProjectId(group.getName(), rootGroup)))
 			.map(group -> map(ProjectPathProvider.relativeProjectId(group.getName(), rootGroup), group))
 			.collect(Collectors.toList());
 	}
@@ -244,7 +246,7 @@ class RestProjectService
 	@Transactional
 	public void addProjectMember(String projectId, String email) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		Long id = getId(email);
@@ -261,7 +263,7 @@ class RestProjectService
 	@Transactional
 	public void removeProjectMember(String projectId, String email) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		try
@@ -277,7 +279,7 @@ class RestProjectService
 	@Transactional
 	public List<RestProjectMembership> getProjectMembers(String projectId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		return delGroupMan.getDelegatedGroupMembers(projectPath, projectPath).stream()
@@ -288,7 +290,7 @@ class RestProjectService
 	@Transactional
 	public RestProjectMembership getProjectMember(String projectId, String email) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		return delGroupMan.getDelegatedGroupMembers(projectPath, projectPath).stream()
@@ -308,7 +310,7 @@ class RestProjectService
 	public void setProjectAuthorizationRole(String projectId, String email,
 	                                                         RestAuthorizationRole role) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		validateRole(role);
@@ -343,9 +345,9 @@ class RestProjectService
 		return entities.iterator().next().entity.getId();
 	}
 
-	private void assertAuthorization() throws AuthorizationException
+	private void assertAuthorization(String projectId) throws AuthorizationException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
+		authz.assertProjectAuthorization(authorizationGroup, projectId);
 	}
 
 	private static RestProject map(String projectId, Group group)

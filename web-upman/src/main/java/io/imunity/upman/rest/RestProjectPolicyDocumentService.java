@@ -72,7 +72,7 @@ class RestProjectPolicyDocumentService
 	@Transactional
 	public List<RestPolicyDocument> getPolicyDocuments(String projectId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
@@ -90,7 +90,7 @@ class RestProjectPolicyDocumentService
 	@Transactional
 	public RestPolicyDocument getPolicyDocument(String projectId, Long policyId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		restPolicyDocumentAuthorizationManager.assertGetProjectPolicyAuthorization(group
@@ -101,7 +101,7 @@ class RestProjectPolicyDocumentService
 	@Transactional
 	public void removePolicyDocument(String projectId, Long policyId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
@@ -126,7 +126,7 @@ class RestProjectPolicyDocumentService
 	@Transactional
 	public void updatePolicyDocument(String projectId, RestPolicyDocumentUpdateRequest policy, boolean updateRevision) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		restPolicyDocumentAuthorizationManager.assertUpdateOrRemoveProjectPolicyAuthorization(
@@ -145,7 +145,7 @@ class RestProjectPolicyDocumentService
 	@Transactional
 	public RestPolicyDocumentId addPolicyDocument(String projectId, RestPolicyDocumentRequest policy) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		long addedPolicyDocument = policyDocumentManagement.addPolicyDocument(PolicyDocumentMapper.map(policy));
@@ -185,9 +185,9 @@ class RestProjectPolicyDocumentService
 		}
 	}
 
-	private void assertAuthorization() throws AuthorizationException
+	private void assertAuthorization(String projectId) throws AuthorizationException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
+		authz.assertProjectAuthorization(authorizationGroup, projectId);
 	}
 	
 	@Component

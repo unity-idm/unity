@@ -2,6 +2,8 @@ package io.imunity.upman.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
@@ -197,7 +199,7 @@ class UpmanWorkflowIntegrationTest extends UpmanRESTTestBase
 	}
 
 	@Test
-	void shouldAddressNestedProjectReturnedByListing() throws Exception
+	void shouldAddressNestedAndReservedProjectIdsReturnedByListing() throws Exception
 	{
 		createProject("project");
 		String base = "/restupm/v1/projects/project";
@@ -222,9 +224,37 @@ class UpmanWorkflowIntegrationTest extends UpmanRESTTestBase
 				urlId = project.get("urlId").asText();
 		}
 		assertThat(urlId).isNotNull().doesNotContain("/");
+		assertThat(urlId).isEqualTo("project%2F" + path);
 		assertThat(getJson("/restupm/v1/projects/" + urlId).get("projectId").asText())
 				.isEqualTo("project/" + path);
 		assertThat(getJson("/restupm/v1/projects/" + urlId + "/requests")).isEmpty();
+
+		String directId = "~n~" + Base64.getUrlEncoder().withoutPadding()
+				.encodeToString(("project/" + path).getBytes(StandardCharsets.UTF_8));
+		createProject(directId);
+		createProject("~e~YSUyRmI");
+		createProject("team%west");
+		JsonNode updatedProjects = getJson("/restupm/v1/projects");
+		String directUrlId = null;
+		String percentUrlId = null;
+		for (JsonNode project : updatedProjects)
+		{
+			if (project.get("projectId").asText().equals(directId))
+				directUrlId = project.get("urlId").asText();
+			if (project.get("projectId").asText().equals("team%west"))
+				percentUrlId = project.get("urlId").asText();
+		}
+		assertThat(directUrlId).isEqualTo(directId).isNotEqualTo(urlId);
+		assertThat(getJson("/restupm/v1/projects/" + directUrlId).get("projectId").asText())
+				.isEqualTo(directId);
+		assertThat(getJson("/restupm/v1/projects/" + directId).get("projectId").asText())
+				.isEqualTo(directId);
+		assertThat(getJson("/restupm/v1/projects/~e~YSUyRmI").get("projectId").asText())
+				.isEqualTo("~e~YSUyRmI");
+		assertThat(percentUrlId).startsWith("%2F~e~").doesNotContain("%25");
+		assertThat(getJson("/restupm/v1/projects/" + percentUrlId).get("projectId").asText())
+				.isEqualTo("team%west");
+		assertThat(getJson("/restupm/v1/projects/" + percentUrlId + "/requests")).isEmpty();
 	}
 
 	private void createProject(String id) throws Exception

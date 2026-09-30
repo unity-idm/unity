@@ -70,7 +70,7 @@ class RestUpmanWorkflowService
 
 	private String project(String projectId) throws EngineException
 	{
-		restAuthorization.assertManagerAuthorization(authorizationGroup);
+		restAuthorization.assertProjectAuthorization(authorizationGroup, projectId);
 		String path = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		new ProjectGroupProvider(groupManagement).getProjectGroup(projectId, path);
 		return path;
