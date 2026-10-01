@@ -9,7 +9,7 @@ This endpoint exposes a RESTful API allowing for management of Unity projects, e
 The endpoint requires two configuration properties:
 
 . +Root group+ - under which the projects shall be managed.
-. +Authorization group+ - all users who should have access to this API must be members of this group and must have the authorization attribute +sys:ProjectManagementRESTAPIRole+ set in this group.
+. +Authorization group+ - users authenticating directly must be members of this group and have the authorization attribute +sys:ProjectManagementRESTAPIRole+ set in this group.
 
 Example:
 
@@ -17,6 +17,13 @@ Example:
 unity.upman.rest.rootGroup=/A
 unity.upman.rest.authorizationGroup=/A
 ----
+
+OAuth bearer token access requires a bearer token authenticator in the endpoint's authentication flow.
+The built-in scope +sys:upman-api+ grants access to all projects, including project creation.
+The built-in pattern scope +sys:upman-api:.++ permits a concrete scope such as
++sys:upman-api:project-x+ for access to one project. Project-scoped tokens can list projects,
+but the response contains only projects covered by their scopes. For nested projects, the scope
+suffix is the project path relative to the configured root, such as +project-x/child+.
 
 The documentation of the REST API is available on a separate page
 link:upman-rest-api-v1.html[REST API]

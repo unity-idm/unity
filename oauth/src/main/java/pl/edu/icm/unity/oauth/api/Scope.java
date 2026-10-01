@@ -11,11 +11,12 @@ public class Scope
 {
 	public final String name;
 	public final String description;
+	public final boolean pattern;
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(description, name);
+		return Objects.hash(description, name, pattern);
 	}
 
 	@Override
@@ -28,13 +29,15 @@ public class Scope
 		if (getClass() != obj.getClass())
 			return false;
 		Scope other = (Scope) obj;
-		return Objects.equals(description, other.description) && Objects.equals(name, other.name);
+		return Objects.equals(description, other.description) && Objects.equals(name, other.name)
+				&& pattern == other.pattern;
 	}
 
 	private Scope(Builder builder)
 	{
 		this.name = builder.name;
 		this.description = builder.description;
+		this.pattern = builder.pattern;
 	}
 
 	public static Builder builder()
@@ -46,6 +49,7 @@ public class Scope
 	{
 		private String name;
 		private String description;
+		private boolean pattern;
 
 		private Builder()
 		{
@@ -60,6 +64,12 @@ public class Scope
 		public Builder withDescription(String description)
 		{
 			this.description = description;
+			return this;
+		}
+
+		public Builder withPattern(boolean pattern)
+		{
+			this.pattern = pattern;
 			return this;
 		}
 

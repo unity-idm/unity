@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.engine.project;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -13,7 +14,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,6 +64,12 @@ public class TestRequestManagement extends TestProjectBase
 				mockPublicRegistrationURLSupport);
 	}
 
+	private void configureProject() throws EngineException
+	{
+		when(mockGroupMan.getContents(eq("/project"), anyInt()))
+				.thenReturn(getConfiguredGroupContents("/project"));
+	}
+
 	@Test
 	public void shouldForwardGetRequestToCoreManagers() throws EngineException
 	{
@@ -81,8 +87,8 @@ public class TestRequestManagement extends TestProjectBase
 		responseFull.setRequest(response);
 		responseFull.setStatus(RegistrationRequestStatus.pending);
 
-		when(mockRegistrationMan.getRegistrationRequests()).thenReturn(Arrays.asList(requestFull));
-		when(mockEnquiryMan.getEnquiryResponses()).thenReturn(Arrays.asList(responseFull));
+		when(mockRegistrationMan.getRegistrationRequests()).thenReturn(List.of(requestFull));
+		when(mockEnquiryMan.getEnquiryResponses()).thenReturn(List.of(responseFull));
 
 		List<ProjectRequest> requests = projectRequestMan.getRequests("/project");
 
@@ -92,9 +98,14 @@ public class TestRequestManagement extends TestProjectBase
 	@Test
 	public void shouldForwardAcceptRegistrationRequestToCoreManager() throws EngineException
 	{
+		configureProject();
 		String id = "1";
 		RegistrationRequestState state = new RegistrationRequestState();
 		state.setRequestId(id);
+		RegistrationRequest request = new RegistrationRequest();
+		request.setFormId("regForm");
+		state.setRequest(request);
+		state.setStatus(RegistrationRequestStatus.pending);
 		when(mockRegistrationMan.getRegistrationRequest(eq(id))).thenReturn(state);
 
 		projectRequestMan.accept(new ProjectRequestParam("/project", id, RequestOperation.SignUp,
@@ -109,9 +120,14 @@ public class TestRequestManagement extends TestProjectBase
 	@Test
 	public void shouldForwardAcceptEnquiryResponsesToCoreManager() throws EngineException
 	{
+		configureProject();
 		String id = "1";
 		EnquiryResponseState state = new EnquiryResponseState();
 		state.setRequestId(id);
+		EnquiryResponse response = new EnquiryResponse();
+		response.setFormId("enqForm");
+		state.setRequest(response);
+		state.setStatus(RegistrationRequestStatus.pending);
 		when(mockEnquiryMan.getEnquiryResponse(eq(id))).thenReturn(state);
 
 		projectRequestMan.accept(
@@ -126,9 +142,14 @@ public class TestRequestManagement extends TestProjectBase
 	@Test
 	public void shouldForwardDeclineRegistrationRequestToCoreManager() throws EngineException
 	{
+		configureProject();
 		String id = "1";
 		RegistrationRequestState state = new RegistrationRequestState();
 		state.setRequestId(id);
+		RegistrationRequest request = new RegistrationRequest();
+		request.setFormId("regForm");
+		state.setRequest(request);
+		state.setStatus(RegistrationRequestStatus.pending);
 		when(mockRegistrationMan.getRegistrationRequest(eq(id))).thenReturn(state);
 
 		projectRequestMan.decline(new ProjectRequestParam("/project", id, RequestOperation.SignUp,
@@ -143,9 +164,14 @@ public class TestRequestManagement extends TestProjectBase
 	@Test
 	public void shouldForwardDeclineEnquiryResponsesToCoreManager() throws EngineException
 	{
+		configureProject();
 		String id = "1";
 		EnquiryResponseState state = new EnquiryResponseState();
 		state.setRequestId(id);
+		EnquiryResponse response = new EnquiryResponse();
+		response.setFormId("stickyReqForm");
+		state.setRequest(response);
+		state.setStatus(RegistrationRequestStatus.pending);
 		when(mockEnquiryMan.getEnquiryResponse(eq(id))).thenReturn(state);
 
 		projectRequestMan.decline(
@@ -155,6 +181,42 @@ public class TestRequestManagement extends TestProjectBase
 		verify(mockEnquiryMan).processEnquiryResponse(argument.capture(), any(),
 				eq(RegistrationRequestAction.reject), any(), any());
 		assertThat(argument.getValue()).isEqualTo(id);
+	}
+
+	@Test
+	public void shouldRejectForeignProjectRegistrationRequestForBothDecisions() throws EngineException
+	{
+		configureProject();
+		RegistrationRequestState state = new RegistrationRequestState();
+		state.setRequestId("foreign");
+		RegistrationRequest request = new RegistrationRequest();
+		request.setFormId("otherProjectForm");
+		state.setRequest(request);
+		state.setStatus(RegistrationRequestStatus.pending);
+		when(mockRegistrationMan.getRegistrationRequest("foreign")).thenReturn(state);
+		ProjectRequestParam param = new ProjectRequestParam("/project", "foreign", RequestOperation.SignUp,
+				RequestType.Registration);
+
+		assertThatThrownBy(() -> projectRequestMan.accept(param)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> projectRequestMan.decline(param)).isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void shouldRejectForeignProjectEnquiryForBothDecisions() throws EngineException
+	{
+		configureProject();
+		EnquiryResponseState state = new EnquiryResponseState();
+		state.setRequestId("foreign");
+		EnquiryResponse response = new EnquiryResponse();
+		response.setFormId("otherProjectForm");
+		state.setRequest(response);
+		state.setStatus(RegistrationRequestStatus.pending);
+		when(mockEnquiryMan.getEnquiryResponse("foreign")).thenReturn(state);
+		ProjectRequestParam param = new ProjectRequestParam("/project", "foreign", RequestOperation.SignUp,
+				RequestType.Enquiry);
+
+		assertThatThrownBy(() -> projectRequestMan.accept(param)).isInstanceOf(IllegalArgumentException.class);
+		assertThatThrownBy(() -> projectRequestMan.decline(param)).isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test

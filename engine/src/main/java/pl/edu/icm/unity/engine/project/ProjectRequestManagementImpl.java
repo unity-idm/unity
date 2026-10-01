@@ -54,7 +54,7 @@ import pl.edu.icm.unity.base.tx.Transactional;
  *
  */
 @Component
-public class ProjectRequestManagementImpl implements ProjectRequestManagement
+class ProjectRequestManagementImpl implements ProjectRequestManagement
 {
 	private final ProjectAuthorizationManager authz;
 	private final RegistrationsManagement registrationMan;
@@ -65,7 +65,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	private final ProjectAttributeHelper projectAttrHelper;
 	private final AttributesHelper attributesHelper;
 	
-	public ProjectRequestManagementImpl(ProjectAuthorizationManager authz,
+	ProjectRequestManagementImpl(ProjectAuthorizationManager authz,
 			@Qualifier("insecure") RegistrationsManagement registrationMan,
 			@Qualifier("insecure") EnquiryManagement enquiryMan,
 			@Qualifier("insecure") GroupsManagement groupMan, @Qualifier("insecure") EntityManagement idMan,
@@ -130,7 +130,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		if (registrationFormId == null)
 			return Optional.empty();
 
-		RegistrationForm registrationForm = null;
+		RegistrationForm registrationForm;
 		try
 		{
 			registrationForm = registrationMan.getForm(registrationFormId);
@@ -169,7 +169,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		if (formId == null)
 			return Optional.empty();
 		
-		EnquiryForm enquiryForm = null;
+		EnquiryForm enquiryForm;
 		try
 		{
 			enquiryForm = enquiryMan.getEnquiry(formId);
@@ -190,21 +190,23 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			throws EngineException
 	{
 		validateRequestParam(request);
+		GroupDelegationConfiguration config = getProjectDelegationConfig(request.project);
 
 		if (request.operation.equals(RequestOperation.SignUp))
 		{
 			if (request.type.equals(RequestType.Registration))
 			{
-				proccessRegistationRequest(request.project, request.id, action);
+				proccessRegistationRequest(config.registrationForm, request.id, action);
 			} else
 			{
-				proccessEnquiryResponse(request.project, request.id, action);
+				proccessEnquiryResponse(config.signupEnquiryForm, request.id, action);
 			}
 		}
-
 		else if (request.operation.equals(RequestOperation.Update))
 		{
-			proccessEnquiryResponse(request.project, request.id, action);
+			if (!request.type.equals(RequestType.Enquiry))
+				throw new IllegalArgumentException("Invalid request type for membership update");
+			proccessEnquiryResponse(config.membershipUpdateEnquiryForm, request.id, action);
 		}
 	}
 
@@ -218,33 +220,42 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			throw new IllegalArgumentException("Can not process request of unknown id");
 	}
 
-	private void proccessRegistationRequest(String projectPath, String id, RegistrationRequestAction action)
+	private void proccessRegistationRequest(String formId, String id, RegistrationRequestAction action)
 			throws EngineException
 	{
 		RegistrationRequestState registrationRequest = registrationMan.getRegistrationRequest(id);
 
-		if (registrationRequest != null)
+		if (isRequestProcessingActionValid(registrationRequest, formId))
 		{
 			registrationMan.processRegistrationRequest(registrationRequest.getRequestId(),
 					registrationRequest.getRequest(), action, null, null);
 		} else
 		{
-			throw new IllegalArgumentException("Registration request with id " + id + " does not exists");
+			throw new IllegalArgumentException("Registration request with id " + id + " is invalid");
 		}
 	}
 
-	private void proccessEnquiryResponse(String projectPath, String id, RegistrationRequestAction action)
+	private void proccessEnquiryResponse(String formId, String id, RegistrationRequestAction action)
 			throws EngineException
 	{
 		EnquiryResponseState enquiryResponse = enquiryMan.getEnquiryResponse(id);
-		if (enquiryResponse != null)
+		if (isRequestProcessingActionValid(enquiryResponse, formId))
 		{
 			enquiryMan.processEnquiryResponse(enquiryResponse.getRequestId(), enquiryResponse.getRequest(),
 					action, null, null);
 		} else
 		{
-			throw new IllegalArgumentException("Enquiry response with id " + id + " does not exists");
+			throw new IllegalArgumentException("Enquiry response with id " + id + " is invalid");
 		}
+	}
+
+	private boolean isRequestProcessingActionValid(UserRequestState<?> requestState, String projectFormId)
+	{
+		return requestState != null
+				&& requestState.getRequest() != null
+				&& requestState.getStatus() == RegistrationRequestStatus.pending
+				&& projectFormId != null
+				&& projectFormId.equals(requestState.getRequest().getFormId());
 	}
 
 	private List<ProjectRequest> getEnquiryRequests(String projectPath, String enquiryId,
@@ -258,7 +269,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 
 		for (EnquiryResponseState state : enquires.stream()
 				.filter(e -> e.getStatus().equals(RegistrationRequestStatus.pending))
-				.collect(Collectors.toList()))
+				.toList())
 		{
 			EnquiryResponse request = state.getRequest();
 			if (request == null)
@@ -307,7 +318,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		List<RegistrationRequestState> registrationRequests = registrationMan.getRegistrationRequests();
 		for (RegistrationRequestState state : registrationRequests.stream()
 				.filter(s -> s.getStatus().equals(RegistrationRequestStatus.pending))
-				.collect(Collectors.toList()))
+				.toList())
 		{
 			RegistrationRequest request = state.getRequest();
 			if (request == null)
@@ -341,8 +352,8 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 
 		return new ProjectRequest(state.getRequestId(), operation, type, projectPath, name, email,
 				Optional.ofNullable((request.getGroupSelections() != null && !request.getGroupSelections().isEmpty()
-						&& request.getGroupSelections().get(0) != null)
-								? request.getGroupSelections().get(0)
+						&& request.getGroupSelections().getFirst() != null)
+								? request.getGroupSelections().getFirst()
 										.getSelectedGroups()
 								: null),
 				state.getTimestamp() != null ? state.getTimestamp().toInstant() : null);

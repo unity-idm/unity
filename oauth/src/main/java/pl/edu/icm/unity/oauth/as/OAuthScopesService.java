@@ -72,7 +72,7 @@ public class OAuthScopesService
 			for (Scope scope : provider.getScopes())
 			{
 				systenScope.add(OAuthScopeDefinition.builder().withName(scope.name).withEnabled(false)
-						.withDescription(scope.description).build());
+						.withDescription(scope.description).withPattern(scope.pattern).build());
 			}
 		}
 		return systenScope;
@@ -81,7 +81,7 @@ public class OAuthScopesService
 	private List<OAuthScopeDefinition> getMissingSystemScopes(OAuthASProperties config)
 	{
 		List<String> configured = config.getStructuredListKeys(OAuthASProperties.SCOPES).stream()
-				.map(s -> config.getValue(s + OAuthASProperties.SCOPE_NAME)).collect(Collectors.toList());
+				.map(s -> config.getValue(s + OAuthASProperties.SCOPE_NAME)).toList();
 		List<OAuthScopeDefinition> missingSystemScope = new ArrayList<>();
 		for (SystemScopeProvider provider : systemScopeProvidersRegistry.getAll())
 		{
@@ -93,7 +93,7 @@ public class OAuthScopesService
 				}
 				missingSystemScope.add(OAuthScopeDefinition.builder().withName(scope.name)
 						.withEnabled(getSystemScopeDefaultStatusForNotAdded(scope, config))
-						.withDescription(scope.description).build());
+						.withDescription(scope.description).withPattern(scope.pattern).build());
 			}
 		}
 		return missingSystemScope;

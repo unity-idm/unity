@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.exceptions.InternalException;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
@@ -36,9 +37,9 @@ import java.util.Set;
 @Primary
 public class ProjectAuthorizationManager
 {
-
-	private GroupDAO groupDao;
-	private AttributeDAO attrDao;
+	private final GroupDAO groupDao;
+	private final AttributeDAO attrDao;
+	private final ThreadLocal<String> restManagedProject = new ThreadLocal<>();
 
 	@Autowired
 	public ProjectAuthorizationManager(GroupDAO groupDao, AttributeDAO attrDao)
@@ -53,6 +54,8 @@ public class ProjectAuthorizationManager
 
 		LoginSession client = getClient();
 		assertDelegationIsEnabled(projectPath);
+		if (projectPath.equals(restManagedProject.get()))
+			return;
 		assertClientIsProjectManager(projectPath, client.getEntityId());
 	}
 
@@ -90,7 +93,9 @@ public class ProjectAuthorizationManager
 		LoginSession client = getClient();
 		assertDelegationAndSubprojectsAreEnabled(projectPath);
 		assertGroupIsUnderProject(projectPath, groupPath);
-		assertClientIsProjectsAdmin(projectPath, groupPath, client.getEntityId());
+		if (projectPath.equals(restManagedProject.get()))
+			return;
+		assertClientIsProjectsAdmin(projectPath, client.getEntityId());
 
 	}
 	
@@ -103,6 +108,8 @@ public class ProjectAuthorizationManager
 		assertDelegationIsEnabled(projectPath);
 		assertDelegationIsEnabled(groupPath);
 		assertGroupIsUnderProject(projectPath, groupPath);
+		if (projectPath.equals(restManagedProject.get()))
+			return;
 		assertClientCanGiveRole(client.getEntityId(), projectPath, groupPath, role);
 
 	}
@@ -168,8 +175,7 @@ public class ProjectAuthorizationManager
 		}
 	}
 
-	private void assertClientIsProjectsAdmin(String projectPath, String groupPath,
-			long clientId) throws AuthorizationException
+	private void assertClientIsProjectsAdmin(String projectPath, long clientId) throws AuthorizationException
 	{
 		Set<GroupAuthorizationRole> roles = getAuthManagerAttribute(projectPath, clientId);
 
@@ -187,8 +193,7 @@ public class ProjectAuthorizationManager
 		try
 		{
 			attributes.addAll(attrDao.getAttributes(
-					ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE
-							.toString(),
+					ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE,
 					entity, projectPath));
 
 		} catch (Exception e)
@@ -213,6 +218,31 @@ public class ProjectAuthorizationManager
 	{
 		if (!Group.isChildOrSame(childPath, projectPath))
 			throw new NotChildOfProjectGroupException(projectPath, childPath);
+	}
+
+
+
+	@FunctionalInterface
+	public interface RestManagementOperation<T>
+	{
+		T run() throws EngineException;
+	}
+
+	public <T> T withRestManagement(String projectPath, RestManagementOperation<T> operation)
+			throws EngineException
+	{
+		String previous = restManagedProject.get();
+		restManagedProject.set(projectPath);
+		try
+		{
+			return operation.run();
+		} finally
+		{
+			if (previous == null)
+				restManagedProject.remove();
+			else
+				restManagedProject.set(previous);
+		}
 	}
 
 	private static class NotChildOfProjectGroupException extends RuntimeException

@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
 import pl.edu.icm.unity.engine.api.project.RestGroupAuthorizationRole;
 
 import java.util.ArrayList;
@@ -40,7 +41,68 @@ class UpmanRestAuthorizationManager
 	public void assertManagerAuthorization(String authorizationGroupPath) throws AuthorizationException
 	{
 		LoginSession client = getClient();
+		if (isOAuthRequest())
+		{
+			assertScope(UpmanSystemScopeProvider.API_SCOPE);
+			return;
+		}
 		assertClientIsProjectManager(authorizationGroupPath, client.getEntityId());
+	}
+
+	@Transactional
+	public void assertProjectAuthorization(String authorizationGroupPath, String projectId) throws AuthorizationException
+	{
+		LoginSession client = getClient();
+		if (isOAuthRequest())
+		{
+			String canonicalId = ProjectPathProvider.relativeProjectId(
+					ProjectPathProvider.getProjectPath(projectId, "/"), "/");
+			if (!canAccessProject(canonicalId))
+				throw new AuthorizationException("Access is denied. The token has no scope for this project.");
+			return;
+		}
+		assertClientIsProjectManager(authorizationGroupPath, client.getEntityId());
+	}
+
+	@Transactional
+	public void assertAnyProjectAuthorization(String authorizationGroupPath) throws AuthorizationException
+	{
+		LoginSession client = getClient();
+		if (isOAuthRequest())
+		{
+			if (!hasAnyProjectScope())
+				throw new AuthorizationException("Access is denied. The token has no UpMan API scope.");
+			return;
+		}
+		assertClientIsProjectManager(authorizationGroupPath, client.getEntityId());
+	}
+
+	boolean canAccessProject(String projectId)
+	{
+		if (!isOAuthRequest())
+			return true;
+		List<String> scopes = InvocationContext.getCurrent().getScopes();
+		return scopes.contains(UpmanSystemScopeProvider.API_SCOPE)
+				|| scopes.contains(UpmanSystemScopeProvider.PROJECT_SCOPE_PREFIX + projectId);
+	}
+
+	private boolean hasAnyProjectScope()
+	{
+		return InvocationContext.getCurrent().getScopes().stream()
+				.anyMatch(scope -> scope.equals(UpmanSystemScopeProvider.API_SCOPE)
+						|| scope.startsWith(UpmanSystemScopeProvider.PROJECT_SCOPE_PREFIX)
+						&& scope.length() > UpmanSystemScopeProvider.PROJECT_SCOPE_PREFIX.length());
+	}
+
+	private void assertScope(String scope) throws AuthorizationException
+	{
+		if (!InvocationContext.getCurrent().getScopes().contains(scope))
+			throw new AuthorizationException("Access is denied. The token has no " + scope + " scope.");
+	}
+
+	private boolean isOAuthRequest()
+	{
+		return InvocationContext.getCurrent().getInvocationMaterial() == InvocationMaterial.OAUTH_DELEGATION;
 	}
 
 	private LoginSession getClient() throws AuthorizationException
