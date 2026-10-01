@@ -14,8 +14,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 class RestProjectFormService
 {
 	private final UpmanRestAuthorizationManager authz;
-	private RestProjectFormServiceNoAuthz service;
-	private String authorizationGroup;
+	private final RestProjectFormServiceNoAuthz service;
+	private final String authorizationGroup;
 
 	RestProjectFormService(UpmanRestAuthorizationManager authz, RestProjectFormServiceNoAuthz service,
 			String authorizationGroup)
@@ -27,101 +27,101 @@ class RestProjectFormService
 
 	void generateRegistrationForm(String projectId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.generateRegistrationForm(projectId);
 	}
 
 	void addRegistrationForm(String projectId, RestRegistrationForm form) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.addRegistrationForm(projectId, form);
 	}
 
 	RestRegistrationForm getRegistrationForm(String projectId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		return service.getRegistrationForm(projectId);
 	}
 
 	void removeRegistrationForm(String projectId, boolean dropRequests) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.removeRegistrationForm(projectId, dropRequests);
 	}
 
 	void updateRegistrationForm(String projectId, RestRegistrationForm registrationForm, boolean ignoreRequests) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.updateRegistrationForm(projectId, registrationForm, ignoreRequests);
 	}
 
 	void generateSignupEnquiryForm(String projectId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.generateSignupEnquiryForm(projectId);
 	}
 
 	void addSignupEnquiryForm(String projectId, RestEnquiryForm form) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.addSignupEnquiryForm(projectId, form);
 	}
 
 	RestEnquiryForm getSignupEnquiryForm(String projectId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 
 		return service.getSignupEnquiryForm(projectId);
 	}
 
 	void removeSignupEnquiryForm(String projectId, boolean dropRequests) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.removeSignupEnquiryForm(projectId, dropRequests);
 
 	}
 
 	void updateSignupEnquiryForm(String projectId, RestEnquiryForm restEnquiryForm, boolean ignoreRequests) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.updateSignupEnquiryForm(projectId, restEnquiryForm, ignoreRequests);
 	}
 
 	void generateMembershipUpdateEnquiryForm(String projectId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.generateMembershipUpdateEnquiryForm(projectId);
 		
 	}
 
 	void addMembershipUpdateEnquiryForm(String projectId, RestEnquiryForm form) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.addMembershipUpdateEnquiryForm(projectId, form);
 	}
 
 	RestEnquiryForm getMembershipUpdateEnquiryForm(String projectId) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		return service.getMembershipUpdateEnquiryForm(projectId);
 	}
 
 	void removeMembershipUpdateEnquiryForm(String projectId, boolean dropRequests) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.removeMembershipUpdateEnquiryForm(projectId, dropRequests);
 
 	}
 
 	void updateMembershipUpdateEnquiryForm(String projectId, RestEnquiryForm restEnquiryForm, boolean ignoreRequests) throws EngineException
 	{
-		assertAuthorization();
+		assertAuthorization(projectId);
 		service.updateMembershipUpdateEnquiryForm(projectId, restEnquiryForm, ignoreRequests);
 	}
 
-	private void assertAuthorization() throws AuthorizationException
+	private void assertAuthorization(String projectId) throws AuthorizationException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
+		authz.assertProjectAuthorization(authorizationGroup, projectId);
 	}
 
 

@@ -61,8 +61,6 @@ class RestProjectServiceTest
 	@Mock
 	private EntityManagement idsMan;
 	@Mock
-	private ProjectGroupProvider projectGroupProvider;
-	@Mock
 	private RegistrationsManagement registrationsManagement;
 	@Mock
 	private EnquiryManagement enquiryManagement;
@@ -183,10 +181,11 @@ class RestProjectServiceTest
 		));
 		when(groupMan.getGroupsByWildcard("/A/**"))
 			.thenReturn(List.of(group));
+		when(authz.canAccessProject("B")).thenReturn(true);
 
 		List<RestProject> projects = restProjectService.getProjects();
 		assertThat(projects.size()).isEqualTo(1);
-		RestProject project = projects.iterator().next();
+		RestProject project = projects.getFirst();
 		assertThat(project.projectId).isEqualTo("B");
 		assertThat(project.isPublic).isEqualTo(true);
 		assertThat(project.displayedName).isEqualTo(Map.of("en", "disName"));
@@ -263,9 +262,6 @@ class RestProjectServiceTest
 	@Test
 	void shouldGetProjectMembers() throws EngineException
 	{
-		GroupContents groupContents = new GroupContents();
-		groupContents.setMembers(List.of(new GroupMembership("/A/B", 2, new Date())));
-
 		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
 			.thenReturn(List.of(
 				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.manager,
@@ -277,7 +273,7 @@ class RestProjectServiceTest
 		List<RestProjectMembership> members = restProjectService.getProjectMembers("B");
 
 		assertThat(members.size()).isEqualTo(1);
-		RestProjectMembership membership = members.iterator().next();
+		RestProjectMembership membership = members.getFirst();
 		assertThat(membership.email).isEqualTo("email@gmail.com");
 		assertThat(membership.role).isEqualTo(GroupAuthorizationRole.manager.name());
 		assertThat(membership.attributes).isEqualTo(List.of(new RestAttribute("attr", List.of("val"))));

@@ -7,6 +7,7 @@ package io.imunity.upman.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.Objects;
 
 
 @JsonDeserialize(builder = RestProject.RestProjectBuilder.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class RestProject
 {
 	final String projectId;
@@ -27,6 +29,11 @@ class RestProject
 	final String registrationForm;
 	final String signUpEnquiry;
 	final String membershipUpdateEnquiry;
+
+	public String getUrlId()
+	{
+		return ProjectPathProvider.urlId(projectId);
+	}
 
 	RestProject(String projectId, boolean isPublic, Map<String, String> displayedName,
 	            Map<String, String> description, String logoUrl, boolean enableSubprojects,
@@ -91,6 +98,7 @@ class RestProject
 		return new RestProjectBuilder();
 	}
 
+	@JsonIgnoreProperties(ignoreUnknown = true)
 	public static final class RestProjectBuilder
 	{
 		private String projectId;
