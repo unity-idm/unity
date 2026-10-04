@@ -149,11 +149,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 
 	private boolean checkIsAlreadyMember(Set<EntityWithContactInfo> collect, String project)
 	{
-		if (collect.stream().filter(e -> e.groups.contains(project)).findAny().isPresent())
-		{
-			return true;
-		}
-		return false;
+		return collect.stream().anyMatch(e -> e.groups.contains(project));
 	}
 
 	private ComboInvitationParam createComboInvitation(ProjectInvitationParam param) throws EngineException
@@ -182,7 +178,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	
 	private void fillGroups(FormPrefill toSet, ProjectInvitationParam param)
 	{
-		if (param.groups == null || param.groups.isEmpty())
+		if (param.groups.isEmpty())
 		{
 			toSet.getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection(Collections.emptyList()),
 					PrefilledEntryMode.READ_ONLY));
@@ -225,8 +221,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 
 		List<InvitationWithCode> allInv = invitationMan.getInvitations();
 		List<ProjectInvitation> ret = new ArrayList<>();
-		
-		
+
 		for (InvitationWithCode invitation : filterInvitations(allInv, Arrays.asList(registrationForm), InvitationType.REGISTRATION))
 		{
 			ret.add(createProjectRegistrationInvitation(projectPath, invitation, registrationForm));
@@ -402,14 +397,12 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 
 	private InvitationParam copyInvitation(Instant newExpiration, InvitationParam originalInvitation)
 	{
-		if (originalInvitation.getType().equals(InvitationType.REGISTRATION))
+		return switch (originalInvitation.getType())
 		{
-			return copyRegistrationInvitation(newExpiration, originalInvitation);
-		} else if (originalInvitation.getType().equals(InvitationType.ENQUIRY))
-		{
-			return copyEnquiryInvitation(newExpiration, originalInvitation);
-		}
-		return copyComboInvitation(newExpiration, originalInvitation);
+			case REGISTRATION -> copyRegistrationInvitation(newExpiration, originalInvitation);
+			case ENQUIRY -> copyEnquiryInvitation(newExpiration, originalInvitation);
+			case COMBO -> copyComboInvitation(newExpiration, originalInvitation);
+		};
 	}
 	
 	private InvitationParam copyRegistrationInvitation(Instant newExpiration, InvitationParam orgInvitation)
@@ -436,7 +429,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 
 		Optional<InvitationWithCode> invO = invitationMan.getInvitations().stream()
 				.filter(i -> i.getRegistrationCode().equals(code)).findFirst();
-		if (!invO.isPresent())
+		if (invO.isEmpty())
 			throw new IllegalInvitationException(code);
 
 		InvitationWithCode orgInvitationWithCode = invO.get();
