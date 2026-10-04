@@ -37,7 +37,7 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 @Path(OAuthTokenEndpoint.JWK_PATH)
 public class KeysResource extends BaseOAuthResource
 {
-	private OAuthASProperties config;
+	private final OAuthASProperties config;
 	
 	public KeysResource(OAuthASProperties config)
 	{
