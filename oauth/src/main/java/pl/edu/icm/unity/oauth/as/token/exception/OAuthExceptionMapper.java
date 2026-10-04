@@ -7,6 +7,8 @@ package pl.edu.icm.unity.oauth.as.token.exception;
 
 import java.util.Set;
 
+import org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper;
+
 import com.nimbusds.oauth2.sdk.ErrorObject;
 
 public class OAuthExceptionMapper
@@ -20,6 +22,7 @@ public class OAuthExceptionMapper
 		ret.add(new JSONParseExceptionMapper());
 		ret.add(new JSONParsingExceptionMapper());
 		ret.add(new JSONExceptionMapper());
+		ret.add(new WebApplicationExceptionMapper());
 	}
 
 	static ErrorObject makeError(ErrorObject baseError, String description)
