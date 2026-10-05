@@ -17,10 +17,10 @@ import org.springframework.util.StringUtils;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.combobox.dataview.ComboBoxListDataView;
 import com.vaadin.flow.data.selection.MultiSelectionEvent;
+import com.vaadin.flow.internal.JacksonUtils;
 
-import elemental.json.Json;
-import elemental.json.JsonArray;
-import elemental.json.JsonObject;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -137,14 +137,14 @@ class OptionalGroupWithWildcardSelection extends MultiSelectComboBox<Group>
 		{
 			return;
 		}
-		JsonArray selectedItems = modelToPresentation(this, value, msg);
+		ArrayNode selectedItems = modelToPresentation(this, value, msg);
 		getElement().setPropertyJson("selectedItems", selectedItems);
 	}
 
-	private static JsonArray modelToPresentation(OptionalGroupWithWildcardSelection multiSelectComboBox,
+	private static ArrayNode modelToPresentation(OptionalGroupWithWildcardSelection multiSelectComboBox,
 			Set<Group> model, MessageSource msg)
 	{
-		JsonArray array = Json.createArray();
+		ArrayNode array = JacksonUtils.createArrayNode();
 		if (model == null || model.isEmpty())
 		{
 			return array;
@@ -153,17 +153,17 @@ class OptionalGroupWithWildcardSelection extends MultiSelectComboBox<Group>
 		GroupSelectionHelper.sort(sortedModel, new GroupNameComparator(msg));
 		sortedModel.stream()
 				.map(g -> multiSelectComboBox.generateJson(g))
-				.forEach(jsonObject -> array.set(array.length(), jsonObject));
+				.forEach(array::add);
 
 		return array;
 	}
 
-	private JsonObject generateJson(Group item)
+	private ObjectNode generateJson(Group item)
 	{
-		JsonObject jsonObject = Json.createObject();
+		ObjectNode jsonObject = JacksonUtils.createObjectNode();
 		jsonObject.put("key", getKeyMapper().key(item));
 		getDataGenerator().generateData(item, jsonObject);
-		jsonObject.put("label", jsonObject.getString("label")
+		jsonObject.put("label", jsonObject.get("label").asString()
 				.replace(GroupSelectionHelper.GROUPS_TREE_INDENT_CHAR, ""));
 		return jsonObject;
 	}

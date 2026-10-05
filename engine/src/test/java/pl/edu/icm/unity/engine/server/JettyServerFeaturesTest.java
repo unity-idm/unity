@@ -18,13 +18,13 @@ import org.apache.hc.client5.http.classic.methods.HttpTrace;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponse;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509CertChainValidatorExt;
+import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.security.canl.CredentialProperties;
 import eu.unicore.security.canl.DefaultAuthnAndTrustConfiguration;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;

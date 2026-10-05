@@ -24,7 +24,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import io.imunity.tanl.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.otp.HashFunction;
 import io.imunity.otp.OTPGenerationParams;

@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpSession;
 import org.apache.hc.client5.http.auth.BasicUserPrincipal;
 import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
+import org.eclipse.jetty.ee11.servlet.ServletApiRequest;
 import org.eclipse.jetty.security.AuthenticationState;
 import org.eclipse.jetty.security.authentication.LoginAuthenticator;
 import org.eclipse.jetty.security.internal.DefaultUserIdentity;

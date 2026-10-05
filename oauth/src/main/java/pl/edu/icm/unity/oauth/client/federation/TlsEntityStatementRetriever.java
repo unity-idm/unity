@@ -17,7 +17,7 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatement;
 import com.nimbusds.openid.connect.sdk.federation.trust.EntityStatementRetriever;
 import com.nimbusds.openid.connect.sdk.federation.trust.ResolveException;
 
-import eu.emi.security.authn.x509.X509CertChainValidator;
+import io.imunity.tanl.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.oauth.client.HttpRequestConfigurer;
 

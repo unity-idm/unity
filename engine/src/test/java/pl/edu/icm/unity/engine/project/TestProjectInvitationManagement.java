@@ -9,18 +9,24 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -30,6 +36,7 @@ import com.google.common.collect.Sets;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
@@ -175,60 +182,108 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	}
 
 	@Test
-	public void shouldForwardSendInvToCoreManager() throws EngineException
+	public void shouldResendInvitationValidForMoreThanEightHours() throws EngineException
 	{
-		when(mockRegistrationMan.getForm("regForm")).thenReturn(
-				new RegistrationFormBuilder().withDefaultCredentialRequirement("").withName("regForm").build());
+		InvitationWithCode invitation = getComboInvitation("regForm", "enqForm",
+				Instant.now().plus(9, ChronoUnit.HOURS));
+		prepareProjectInvitation(invitation);
 
-		when(mockEnquiryMan.getEnquiry("enqForm")).thenReturn(new EnquiryFormBuilder().withName("enqForm")
-				.withType(EnquiryType.REQUESTED_MANDATORY).withTargetGroups(new String[]
-				{}).build());
+		projectInvMan.resendInvitation("/project", "code2");
 
-		shouldForwardSendInvToCoreManager(getComboInvitation("regForm", "enqForm", Instant.now().plusSeconds(1000)),
-				"code2");
-	}
-
-	private void shouldForwardSendInvToCoreManager(InvitationWithCode inv, String code) throws EngineException
-	{
-		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
-
-		when(mockInvitationMan.getInvitations()).thenReturn(Arrays.asList(inv));
-		projectInvMan.sendInvitation("/project", code);
-
-		verify(mockInvitationMan).sendInvitation(eq(code));
+		verify(mockInvitationMan).sendInvitation("code2");
+		verify(mockInvitationMan, never()).addInvitation(any());
+		verify(mockInvitationMan, never()).removeInvitation(any());
 	}
 
 	@Test
-	public void shouldOverwriteExpiredInvitation() throws EngineException
+	public void shouldRejectResendWhenInvitationIsValidForLessThanEightHours() throws EngineException
 	{
-		when(mockEnquiryMan.getEnquiry("enqForm")).thenReturn(new EnquiryFormBuilder().withName("enqForm")
-				.withType(EnquiryType.REQUESTED_MANDATORY).withTargetGroups(new String[]
-				{}).build());
-		when(mockRegistrationMan.getForm("regForm")).thenReturn(
-				new RegistrationFormBuilder().withDefaultCredentialRequirement("").withName("regForm").build());
+		InvitationWithCode invitation = getComboInvitation("regForm", "enqForm",
+				Instant.now().plus(7, ChronoUnit.HOURS));
+		prepareProjectInvitation(invitation);
 
-		shouldOverwriteExpiredInvitation(getComboInvitation("regForm", "enqForm", Instant.now().minusSeconds(1000)),
-				"code2");
+		Throwable exception = catchThrowable(() -> projectInvMan.resendInvitation("/project", "code2"));
+
+		assertExceptionType(exception, WrongArgumentException.class);
+		verify(mockInvitationMan, never()).sendInvitation(any());
 	}
 
-	private void shouldOverwriteExpiredInvitation(InvitationWithCode inv, String code) throws EngineException
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("reinvitationCases")
+	public void shouldReinviteExpiredInvitationOfEveryType(ReinvitationCase testCase) throws EngineException
 	{
-		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
+		Instant referenceTime = Instant.now();
+		Instant originalExpiration = referenceTime.minus(1, ChronoUnit.DAYS);
+		InvitationParam originalInvitation = copyWithExpiration(testCase.invitation, originalExpiration);
+		InvitationWithCode original = new InvitationWithCode(originalInvitation, "code");
+		original.setCreationTime(referenceTime.minus(4, ChronoUnit.DAYS));
+		prepareProjectInvitation(original);
+		when(mockInvitationMan.addInvitation(any())).thenReturn("newCode");
+		Instant beforeReinvite = Instant.now();
 
-		when(mockInvitationMan.getInvitations()).thenReturn(Arrays.asList(inv));
-		projectInvMan.sendInvitation("/project", code);
+		projectInvMan.reinvite("/project", "code");
 
-		ArgumentCaptor<InvitationParam> argument = ArgumentCaptor.forClass(InvitationParam.class);
-		verify(mockInvitationMan).addInvitation(argument.capture());
+		ArgumentCaptor<InvitationParam> newInvitationCaptor = ArgumentCaptor.forClass(InvitationParam.class);
+		verify(mockInvitationMan).addInvitation(newInvitationCaptor.capture());
+		InvitationParam newInvitation = newInvitationCaptor.getValue();
+		assertThat(newInvitation).isNotSameAs(original.getInvitation());
+		assertThat(newInvitation.getType()).isEqualTo(original.getInvitation().getType());
+		assertThat(newInvitation.getContactAddress()).isEqualTo(original.getInvitation().getContactAddress());
+		assertThat(newInvitation.getFormsPrefillData()).isEqualTo(original.getInvitation().getFormsPrefillData());
+		assertThat(newInvitation.getExpiration()).isBetween(
+				beforeReinvite.plus(Duration.ofDays(3)), Instant.now().plus(Duration.ofDays(3)));
+		assertThat(original.getInvitation().getExpiration()).isEqualTo(originalExpiration);
+		verify(mockInvitationMan).sendInvitation("newCode");
+		verify(mockInvitationMan).removeInvitation("code");
+	}
 
-		InvitationParam param = argument.getValue();
+	@Test
+	public void shouldReinviteInvitationThatIsStillValid() throws EngineException
+	{
+		Instant referenceTime = Instant.now();
+		InvitationWithCode original = new InvitationWithCode(new ComboInvitationParam("regForm", "enqForm",
+				referenceTime.plus(2, ChronoUnit.DAYS), "combo@example.com"), "code");
+		original.setCreationTime(referenceTime.minus(1, ChronoUnit.DAYS));
+		prepareProjectInvitation(original);
+		when(mockInvitationMan.addInvitation(any())).thenReturn("newCode");
 
-		assertThat(param.getFormsPrefillData().get(0).getFormId()).isEqualTo(inv.getInvitation().getFormsPrefillData().get(0).getFormId());
-		assertThat(param.getContactAddress()).isEqualTo("demo@demo.com");
-		assertThat(param.getFormsPrefillData().get(0).getAllowedGroups().get(0).getSelectedGroups().get(0)).isEqualTo("/A");
+		projectInvMan.reinvite("/project", "code");
 
-		verify(mockInvitationMan).removeInvitation(code);
-		verify(mockInvitationMan).sendInvitation(any());
+		ArgumentCaptor<InvitationParam> newInvitationCaptor = ArgumentCaptor.forClass(InvitationParam.class);
+		verify(mockInvitationMan).addInvitation(newInvitationCaptor.capture());
+		assertThat(newInvitationCaptor.getValue().getExpiration()).isAfter(original.getInvitation().getExpiration());
+		verify(mockInvitationMan).sendInvitation("newCode");
+		verify(mockInvitationMan).removeInvitation("code");
+	}
+
+	@Test
+	public void shouldRemoveReplacementInvitationWhenSendingFails() throws EngineException
+	{
+		InvitationWithCode original = getComboInvitation("regForm", "enqForm", Instant.now().minusSeconds(1));
+		prepareProjectInvitation(original);
+		when(mockInvitationMan.addInvitation(any())).thenReturn("newCode");
+		doThrow(new EngineException("send failed")).when(mockInvitationMan).sendInvitation("newCode");
+
+		Throwable exception = catchThrowable(() -> projectInvMan.reinvite("/project", "code2"));
+
+		assertThat(exception).hasMessage("send failed");
+		verify(mockInvitationMan).removeInvitation("newCode");
+		verify(mockInvitationMan, never()).removeInvitation("code2");
+	}
+
+	@Test
+	public void shouldRemoveReplacementInvitationWhenRemovingOriginalFails() throws EngineException
+	{
+		InvitationWithCode original = getComboInvitation("regForm", "enqForm", Instant.now().minusSeconds(1));
+		prepareProjectInvitation(original);
+		when(mockInvitationMan.addInvitation(any())).thenReturn("newCode");
+		doThrow(new EngineException("remove failed")).when(mockInvitationMan).removeInvitation("code2");
+
+		Throwable exception = catchThrowable(() -> projectInvMan.reinvite("/project", "code2"));
+
+		assertThat(exception).hasMessage("remove failed");
+		verify(mockInvitationMan).sendInvitation("newCode");
+		verify(mockInvitationMan).removeInvitation("newCode");
 	}
 
 	@Test
@@ -240,7 +295,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		when(mockInvitationMan.getInvitations())
 				.thenReturn(Arrays.asList(getComboInvitation("regForm1", "enqForm", Instant.now().plusSeconds(1000))));
 
-		Throwable exception = catchThrowable(() -> projectInvMan.sendInvitation("/project", "code"));
+		Throwable exception = catchThrowable(() -> projectInvMan.resendInvitation("/project", "code"));
 		assertExceptionType(exception, IllegalInvitationException.class);
 	}
 
@@ -253,7 +308,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
 		when(mockInvitationMan.getInvitations())
 				.thenReturn(Arrays.asList(getComboInvitation("regForm1", "enqForm", Instant.now().plusSeconds(1000))));
-		Throwable exception = catchThrowable(() -> projectInvMan.sendInvitation("/project", "code2"));
+		Throwable exception = catchThrowable(() -> projectInvMan.resendInvitation("/project", "code2"));
 		assertExceptionType(exception, NotProjectInvitation.class);
 	}
 
@@ -265,5 +320,92 @@ public class TestProjectInvitationManagement extends TestProjectBase
 						FormPrefill.builder().withForm(regForm).withAllowedGroups(Arrays.asList("/A")).build())
 				.withEnquiryForm(FormPrefill.builder().withForm(enqForm).withAllowedGroups(Arrays.asList("/A")).build())
 				.build(), "code2");
+	}
+
+	private void prepareProjectInvitation(InvitationWithCode invitation) throws EngineException
+	{
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
+		when(mockRegistrationMan.getForm("regForm")).thenReturn(
+				new RegistrationFormBuilder().withDefaultCredentialRequirement("").withName("regForm").build());
+		when(mockEnquiryMan.getEnquiry("enqForm")).thenReturn(new EnquiryFormBuilder().withName("enqForm")
+				.withType(EnquiryType.REQUESTED_MANDATORY).withTargetGroups(new String[] {}).build());
+		when(mockInvitationMan.getInvitations()).thenReturn(List.of(invitation));
+	}
+
+	private static Stream<ReinvitationCase> reinvitationCases()
+	{
+		return Stream.of(
+				ReinvitationCase.builder()
+						.withName("registration invitation")
+						.withInvitation(RegistrationInvitationParam.builder()
+								.withForm("regForm")
+								.withContactAddress("registration@example.com")
+								.withExpiration(Instant.EPOCH)
+								.build())
+						.build(),
+				ReinvitationCase.builder()
+						.withName("enquiry invitation")
+						.withInvitation(EnquiryInvitationParam.builder()
+								.withForm("enqForm")
+								.withEntity(1L)
+								.withContactAddress("enquiry@example.com")
+								.withExpiration(Instant.EPOCH)
+								.build())
+						.build(),
+				ReinvitationCase.builder()
+						.withName("combo invitation")
+						.withInvitation(new ComboInvitationParam("regForm", "enqForm", Instant.EPOCH,
+								"combo@example.com"))
+						.build());
+	}
+
+	private static InvitationParam copyWithExpiration(InvitationParam invitation, Instant expiration)
+	{
+		return switch (invitation.getType())
+		{
+		case REGISTRATION -> ((RegistrationInvitationParam) invitation).cloningBuilder()
+				.withExpiration(expiration).build();
+		case ENQUIRY -> ((EnquiryInvitationParam) invitation).cloningBuilder()
+				.withExpiration(expiration).build();
+		case COMBO -> ((ComboInvitationParam) invitation).cloningBuilder()
+				.withExpiration(expiration).build();
+		};
+	}
+
+	private record ReinvitationCase(String name, InvitationParam invitation)
+	{
+		private static Builder builder()
+		{
+			return new Builder();
+		}
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+
+		private static class Builder
+		{
+			private String name;
+			private InvitationParam invitation;
+
+			private Builder withName(String name)
+			{
+				this.name = name;
+				return this;
+			}
+
+			private Builder withInvitation(InvitationParam invitation)
+			{
+				this.invitation = invitation;
+				return this;
+			}
+
+			private ReinvitationCase build()
+			{
+				return new ReinvitationCase(name, invitation);
+			}
+		}
 	}
 }

@@ -189,7 +189,7 @@ class SCIMServiceEditorSchemaTab extends VerticalLayout implements EditorTab
 				uploadedFile = file;
 				importUserSchema();
 			}));
-			upload.setAcceptedFileTypes("application/json");
+			upload.setAcceptedMimeTypes("application/json");
 			upload.addFileRejectedListener(
 					e -> notificationPresenter.showError(msg.getMessage("error"), e.getErrorMessage()));
 			upload.setDropAllowed(false);

@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
+import org.eclipse.jetty.ee11.servlet.ServletApiRequest;
 import org.eclipse.jetty.security.AuthenticationState;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;

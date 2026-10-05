@@ -8,9 +8,9 @@ import static io.imunity.vaadin.elements.VaadinInitParameters.SESSION_TIMEOUT_PA
 
 import java.util.EnumSet;
 
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.webapp.WebAppContext;
+import org.eclipse.jetty.ee11.servlet.FilterHolder;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
 import org.springframework.context.ApplicationContext;
 
 import jakarta.servlet.DispatcherType;

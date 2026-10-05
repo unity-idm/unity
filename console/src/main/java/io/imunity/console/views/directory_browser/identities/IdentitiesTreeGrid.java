@@ -12,9 +12,7 @@ import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -22,6 +20,7 @@ import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.HierarchicalQuery;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.data.provider.hierarchy.TreeDataProvider;
+import com.vaadin.flow.data.renderer.LitRenderer;
 import com.vaadin.flow.data.selection.SelectionListener;
 import com.vaadin.flow.function.SerializablePredicate;
 import com.vaadin.flow.shared.Registration;
@@ -74,6 +73,18 @@ import static io.imunity.vaadin.elements.CSSVars.SMALL_MARGIN;
 public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesTreeGrid.class);
+	static final String ENTITY_HIERARCHY_TEMPLATE = "<vaadin-grid-tree-toggle "
+			+ "@click=${e => requestAnimationFrame(() => { e.defaultPrevented && onToggle(e) })} "
+			+ "class=${item.cssClassName} .leaf=${!model.hasChildren} "
+			+ ".expanded=${live(model.expanded)} .level=${model.level}>"
+			+ "</vaadin-grid-tree-toggle><span>${item.entityName}</span>"
+			// small indicator shown while this entity's effective attributes are being recalculated
+			// in the background (UY-1483 follow-up) - icon attribute left empty and hidden when not
+			// pending, see IdentitiesTreeGridTest for the iconName format this relies on
+			+ "<vaadin-icon icon=${item.pending ? 'vaadin:hourglass' : ''} ?hidden=${!item.pending} "
+			+ "title=${item.pendingTooltip} "
+			+ "style=\"width:0.75em;height:0.75em;margin-left:4px;vertical-align:middle;\">"
+			+ "</vaadin-icon>";
 
 	private final AttributeSupport attributeSupport;
 	private final CredentialManagement credentialManagement;
@@ -235,21 +246,11 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	private void createBaseColumns()
 	{
-		addComponentHierarchyColumn(ie ->
-		{
-			Div div = new Div(new Span(resolveEntityLabel(ie)));
-			if (isPending(ie.getSourceEntity().getEntity().getId()))
-			{
-				Icon pendingIcon = VaadinIcon.HOURGLASS.create();
-				pendingIcon.setSize("0.75em");
-				pendingIcon.getStyle().set("margin-left", SMALL_MARGIN.value());
-				pendingIcon.setTooltipText(msg.getMessage("Identities.attributesPending"));
-				div.add(pendingIcon);
-			}
-			div.getElement().setAttribute("onclick", "event.stopPropagation();");
-			div.addSingleClickListener(event -> GridSelectionSupport.replaceSelection(this, ie));
-			return div;
-		})
+		addColumn(LitRenderer.<IdentityEntry>of(ENTITY_HIERARCHY_TEMPLATE)
+				.withProperty("entityName", this::resolveEntityLabel)
+				.withProperty("pending", ie -> isPending(ie.getSourceEntity().getEntity().getId()))
+				.withProperty("pendingTooltip", this::pendingTooltip)
+				.withFunction("onToggle", this::toggleExpansion))
 				.setHeader(msg.getMessage(BaseColumn.entity.captionKey))
 				.setWidth(BaseColumn.entity.defWidth + "px")
 				.setResizable(true)
@@ -267,6 +268,14 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 			baseColumn.setVisible(!column.initiallyCollapsed);
 			columnToggleMenu.addColumn(msg.getMessage(column.captionKey), baseColumn);
 		}
+	}
+
+	private void toggleExpansion(IdentityEntry entry)
+	{
+		if (isExpanded(entry))
+			collapse(List.of(entry), true);
+		else
+			expand(List.of(entry), true);
 	}
 
 	private void refreshActionColumn()
@@ -508,6 +517,17 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	{
 		return pendingCache.computeIfAbsent(entityId,
 				id -> effectiveAttributesCacheService.isUpdatePending(id, group.getPathEncoded()));
+	}
+
+	/**
+	 * Tooltip text for the pending indicator (empty when not pending, so the bound {@code title}
+	 * attribute is blank and the hidden icon has nothing to show anyway).
+	 */
+	private String pendingTooltip(IdentityEntry ie)
+	{
+		return isPending(ie.getSourceEntity().getEntity().getId())
+				? msg.getMessage("Identities.attributesPending")
+				: "";
 	}
 
 	private void updateCredentialStatusColumns()

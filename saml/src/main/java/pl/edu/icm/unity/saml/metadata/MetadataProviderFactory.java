@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.saml.metadata;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.i18n.I18nString;

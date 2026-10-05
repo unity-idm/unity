@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.eclipse.jetty.util.MultiMap;
 import org.eclipse.jetty.util.UrlEncoded;
 import org.springframework.beans.factory.ObjectFactory;
@@ -225,9 +225,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 		try
 		{
-			eu.emi.security.authn.x509.X509Credential federationCred =
+			io.imunity.tanl.x509.X509Credential federationCred =
 					pkiManagement.getCredential(federationCredName);
-			eu.emi.security.authn.x509.X509Credential authCred =
+			io.imunity.tanl.x509.X509Credential authCred =
 					Strings.isNullOrEmpty(authCredName) ? null : pkiManagement.getCredential(authCredName);
 
 			String entityId = federationEntityBaseUrl + "/" + instanceName;

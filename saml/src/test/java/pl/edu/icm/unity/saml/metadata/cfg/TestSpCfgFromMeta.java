@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import io.imunity.tanl.x509.impl.CertificateUtils;
+import io.imunity.tanl.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;

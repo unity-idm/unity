@@ -7,7 +7,7 @@ package pl.edu.icm.unity.saml.idp.ecp;
 
 import com.google.common.collect.Lists;
 import com.nimbusds.jwt.JWTClaimsSet;
-import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
+import io.imunity.tanl.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpUtils;
 import jakarta.servlet.http.HttpServletResponse;

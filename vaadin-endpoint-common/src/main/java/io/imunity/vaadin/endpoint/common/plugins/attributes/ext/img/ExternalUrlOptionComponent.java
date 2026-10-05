@@ -10,8 +10,6 @@ import com.vaadin.flow.data.binder.*;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.engine.api.utils.URLFactory;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
@@ -68,7 +66,7 @@ class ExternalUrlOptionComponent extends TextField
 
 		void valueOf(String value)
 		{
-			if (StringUtils.isEmpty(value))
+			if (value == null || value.isEmpty())
 			{
 				this.value = null;
 				return;
@@ -94,7 +92,7 @@ class ExternalUrlOptionComponent extends TextField
 		@Override
 		public ValidationResult apply(String value, ValueContext context)
 		{
-			if (!StringUtils.isEmpty(value))
+			if (value != null && !value.isEmpty())
 			{
 				try
 				{

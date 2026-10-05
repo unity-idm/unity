@@ -15,7 +15,7 @@ import com.nimbusds.openid.connect.sdk.federation.entities.EntityStatementClaims
 import com.nimbusds.openid.connect.sdk.federation.entities.EntityType;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 import pl.edu.icm.unity.oauth.as.token.CredentialJwkConverter;
 
 class OAuthASFederationEntityStatementGenerator

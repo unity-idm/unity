@@ -12,7 +12,7 @@ import org.apache.hc.core5.http.NameValuePair;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 
-import eu.emi.security.authn.x509.X509CertChainValidator;
+import io.imunity.tanl.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.translation.TranslationProfile;

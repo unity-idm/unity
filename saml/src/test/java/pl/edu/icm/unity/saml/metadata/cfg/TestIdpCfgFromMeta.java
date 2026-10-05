@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.saml.metadata.cfg;
 
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import io.imunity.tanl.x509.impl.CertificateUtils;
+import io.imunity.tanl.x509.impl.CertificateUtils.Encoding;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import eu.unicore.util.configuration.ConfigurationException;

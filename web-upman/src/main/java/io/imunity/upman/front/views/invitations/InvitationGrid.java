@@ -44,9 +44,11 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 				.setAutoWidth(true)
 				.setSortable(true)
 				.setResizable(true);
-		addColumn(model -> format(model.expirationTime))
+		addComponentColumn(this::createExpirationLabel)
+				.setKey("expiration")
 				.setHeader(msg.getMessage("Invitation.expiration"))
 				.setAutoWidth(true)
+				.setComparator(model -> model.expirationTime)
 				.setSortable(true)
 				.setResizable(true);
 		addComponentColumn(model -> new BlankPageAnchor(model.link, VaadinIcon.EXTERNAL_LINK.create()))
@@ -68,6 +70,23 @@ class InvitationGrid extends MultiSelectGrid<InvitationModel>
 		if(instant == null)
 			return "";
 		return formatter.format(instant);
+	}
+
+	private Span createExpirationLabel(InvitationModel model)
+	{
+		Span label = new Span(format(model.expirationTime));
+		Instant referenceTime = Instant.now();
+		if (isValidButCanNotBeResent(model, referenceTime))
+		{
+			label.getStyle().set("color", "var(--unity-warning-badge-font-color)");
+		}
+		return label;
+	}
+
+	private boolean isValidButCanNotBeResent(InvitationModel model, Instant referenceTime)
+	{
+		return model.expirationTime != null && !referenceTime.isAfter(model.expirationTime)
+				&& !model.canBeResentAt(referenceTime);
 	}
 
 	private Span createGroupsLabel(InvitationModel model)

@@ -48,7 +48,7 @@ class UploadComponent extends CustomField<LocalOrRemoteResource>
 			fireEvent(new ComponentValueChangeEvent<>(this, this, image, true));
 		}));
 		upload.setMaxFiles(1);
-		upload.setAcceptedFileTypes(mimeType);
+		upload.setAcceptedMimeTypes(mimeType);
 		upload.setMaxFileSize(maxFileSize);
 		upload.addFileRejectedListener(e ->
 		{

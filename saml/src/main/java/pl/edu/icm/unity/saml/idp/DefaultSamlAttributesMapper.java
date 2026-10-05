@@ -4,15 +4,26 @@
  */
 package pl.edu.icm.unity.saml.idp;
 
+import static javax.xml.XMLConstants.XMLNS_ATTRIBUTE_NS_URI;
+import static javax.xml.XMLConstants.W3C_XML_SCHEMA_INSTANCE_NS_URI;
+import static javax.xml.XMLConstants.W3C_XML_SCHEMA_NS_URI;
+
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlBase64Binary;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlDouble;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
+import org.w3c.dom.Element;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.image.UnityImage;
@@ -32,8 +43,7 @@ import xmlbeans.org.oasis.saml2.assertion.AttributeType;
  */
 public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 {
-	private static final Map<String, ValueToSamlConverter> VALUE_TO_SAML = 
-			new HashMap<String, DefaultSamlAttributesMapper.ValueToSamlConverter>();
+	private static final Map<String, ValueToSamlConverter> VALUE_TO_SAML;
 	
 	static {
 		ValueToSamlConverter[] converters = new ValueToSamlConverter[] {
@@ -43,17 +53,15 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 				new FloatingValueToSamlConverter(),
 				new ImageValueToSamlConverter()
 		};
-
+		Map<String, ValueToSamlConverter> map = new HashMap<>();
 		for (ValueToSamlConverter conv: converters)
 		{
 			for (String syntax: conv.getSupportedSyntaxes())
-				VALUE_TO_SAML.put(syntax, conv);
+				map.put(syntax, conv);
 		}
+		VALUE_TO_SAML = Map.copyOf(map);
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isHandled(Attribute unityAttribute)
 	{
@@ -73,13 +81,43 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 			throw new IllegalStateException("There is no attribute type converter for " + syntax);
 		}
 		List<String> unityValues = unityAttribute.getValues();
-		XmlObject[] xmlValues = new XmlObject[unityValues.size()];
-		for (int i=0; i<xmlValues.length; i++)
-			xmlValues[i] = converter.convertValueToSaml(unityValues.get(i));
-		ret.setAttributeValueArray(xmlValues);
+		for (String unityValue : unityValues)
+		{
+			XmlObject converted = converter.convertValueToSaml(unityValue);
+			XmlObject attributeValue = ret.addNewAttributeValue();
+			attributeValue.set(converted);
+			setSchemaTypeAttribute(attributeValue, converted.schemaType());
+		}
 		return ret;
 	}
 
+	private static void setSchemaTypeAttribute(XmlObject value, SchemaType schemaType)
+	{
+		QName schemaTypeName = schemaType.getName();
+		if (schemaTypeName == null || !W3C_XML_SCHEMA_NS_URI.equals(schemaTypeName.getNamespaceURI()))
+			throw new IllegalArgumentException("SAML attribute value must use an XML Schema type");
+		Element element = (Element) value.getDomNode();
+		element.setAttributeNS(XMLNS_ATTRIBUTE_NS_URI, "xmlns:xsi", W3C_XML_SCHEMA_INSTANCE_NS_URI);
+		element.setAttributeNS(XMLNS_ATTRIBUTE_NS_URI, "xmlns:xs", W3C_XML_SCHEMA_NS_URI);
+		element.setAttributeNS(W3C_XML_SCHEMA_INSTANCE_NS_URI, "xsi:type", "xs:" + schemaTypeName.getLocalPart());
+	}
+
+	@Override
+	public <T extends XmlObject> T convertFromSaml(AttributeType attribute, int valueIndex, Class<T> valueClass,
+			SchemaType valueType)
+	{
+		try
+		{
+			XmlObject converted = XmlBeans.getContextTypeLoader().parse(
+					attribute.getAttributeValueArray(valueIndex).newInputStream(),
+					valueType,
+					null);
+			return valueClass.cast(converted);
+		} catch (XmlException | IOException e)
+		{
+			throw new IllegalArgumentException("Can not parse SAML attribute value", e);
+		}
+	}
 
 	private interface ValueToSamlConverter
 	{
@@ -106,7 +144,7 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 
 	private static class EmailValueToSamlConverter implements ValueToSamlConverter
 	{
-		private VerifiableEmailAttributeSyntax syntax = new VerifiableEmailAttributeSyntax();
+		private final VerifiableEmailAttributeSyntax syntax = new VerifiableEmailAttributeSyntax();
 		
 		@Override
 		public XmlObject convertValueToSaml(String value)
@@ -126,13 +164,13 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 
 	private static class IntegerValueToSamlConverter implements ValueToSamlConverter
 	{
-		private IntegerAttributeSyntax syntax = new IntegerAttributeSyntax();
+		private final IntegerAttributeSyntax syntax = new IntegerAttributeSyntax();
 		
 		@Override
 		public XmlObject convertValueToSaml(String value)
 		{
 			XmlLong v = XmlLong.Factory.newInstance();
-			v.setLongValue((Long) syntax.convertFromString(value));
+			v.setLongValue(syntax.convertFromString(value));
 			return v;
 		}
 
@@ -145,7 +183,7 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 
 	private static class FloatingValueToSamlConverter implements ValueToSamlConverter
 	{
-		private FloatingPointAttributeSyntax syntax = new FloatingPointAttributeSyntax();
+		private final FloatingPointAttributeSyntax syntax = new FloatingPointAttributeSyntax();
 		
 		@Override
 		public XmlObject convertValueToSaml(String value)
@@ -171,7 +209,9 @@ public class DefaultSamlAttributesMapper implements SamlAttributeMapper
 		{
 			UnityImage decoded = syntax.convertFromString(value);
 			byte[] octets = decoded.getImage();
-			XmlBase64Binary v = XmlBase64Binary.Factory.newInstance();
+			//that's a trick... Factory is both an inherited static variable and a nested class 
+			//(and both have newInstance() method)- this ensures we call the other.
+			XmlBase64Binary v = ((XmlBase64Binary.Factory)null).newInstance();
 			v.setByteArrayValue(octets);
 			return v;
 		}

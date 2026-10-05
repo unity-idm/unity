@@ -21,8 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import io.imunity.tanl.x509.impl.KeystoreCertChainValidator;
+import io.imunity.tanl.x509.impl.KeystoreCredential;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.authn.CredentialDefinition;

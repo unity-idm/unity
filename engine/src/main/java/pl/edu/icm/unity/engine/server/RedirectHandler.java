@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.engine.server;
 
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Response;
 import org.eclipse.jetty.util.Callback;

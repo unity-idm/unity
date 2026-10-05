@@ -11,7 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
+import org.eclipse.jetty.ee11.servlet.ServletApiRequest;
 import org.eclipse.jetty.server.Request;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;

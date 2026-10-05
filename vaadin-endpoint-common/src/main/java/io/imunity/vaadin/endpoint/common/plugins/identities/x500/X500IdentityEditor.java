@@ -11,9 +11,9 @@ import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.server.streams.InMemoryUploadHandler;
 
-import eu.emi.security.authn.x509.impl.CertificateUtils;
-import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
-import eu.emi.security.authn.x509.impl.X500NameUtils;
+import io.imunity.tanl.x509.impl.CertificateUtils;
+import io.imunity.tanl.x509.impl.CertificateUtils.Encoding;
+import io.imunity.tanl.x509.impl.X500NameUtils;
 import io.imunity.vaadin.elements.NotificationPresenter;
 import io.imunity.vaadin.elements.StringBindingValue;
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;

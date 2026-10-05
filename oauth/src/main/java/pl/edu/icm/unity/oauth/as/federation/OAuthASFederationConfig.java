@@ -6,7 +6,7 @@ package pl.edu.icm.unity.oauth.as.federation;
 
 import com.nimbusds.jose.jwk.JWKSet;
 
-import eu.emi.security.authn.x509.X509CertChainValidator;
+import io.imunity.tanl.x509.X509CertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.engine.api.PKIManagement;

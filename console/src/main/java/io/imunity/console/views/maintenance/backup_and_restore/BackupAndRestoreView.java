@@ -191,7 +191,7 @@ public class BackupAndRestoreView extends ConsoleViewComponent
 			fileUploaded.setText(msg.getMessage("ImportExport.dumpUploaded", new Date()));
 		}));
 		upload.setMaxFileSize(getDBDumbFileSizeLimit());
-		upload.setAcceptedFileTypes("application/json");
+		upload.setAcceptedMimeTypes("application/json");
 		upload.getElement().addEventListener("file-remove", e ->
 		{
 			uploadedBytes = null;

@@ -41,8 +41,8 @@ class CaptionElementEditor extends VerticalLayout implements FormElementEditor<F
 		caption = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
 		caption.setWidth(TEXT_FIELD_MEDIUM.value());
 		FormLayout layout = new FormLayout();
-		layout.addFormItem(caption, msg.getMessage("CaptionElementEditor.caption"))
-				.getStyle().set("--vaadin-form-item-label-width", "4em");
+		layout.getStyle().set("--vaadin-form-layout-label-width", "4em");
+		layout.addFormItem(caption, msg.getMessage("CaptionElementEditor.caption"));
 		add(layout);
 	}
 }

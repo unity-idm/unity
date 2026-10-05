@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.client.federation;
 
-import eu.emi.security.authn.x509.X509Credential;
+import io.imunity.tanl.x509.X509Credential;
 
 public record OAuthFederationEntityStatementConfig(
 		String entityId,

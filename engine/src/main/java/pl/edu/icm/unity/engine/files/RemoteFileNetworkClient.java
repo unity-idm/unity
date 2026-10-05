@@ -38,9 +38,9 @@ import org.apache.hc.core5.util.Timeout;
 
 import com.google.common.base.Preconditions;
 
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.helpers.ssl.SSLTrustManagerWithHostnameChecking;
-import eu.emi.security.authn.x509.impl.HostnameMismatchCallback2;
+import io.imunity.tanl.x509.X509CertChainValidatorExt;
+import io.imunity.tanl.x509.helpers.ssl.SSLTrustManagerWithHostnameChecking;
+import io.imunity.tanl.x509.impl.HostnameMismatchCallback2;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.EmptyHostnameVerifier;
 import eu.unicore.util.httpclient.HostnameMismatchCallbackImpl;

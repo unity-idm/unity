@@ -17,7 +17,7 @@ import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
-import org.eclipse.jetty.ee10.servlet.ServletApiRequest;
+import org.eclipse.jetty.ee11.servlet.ServletApiRequest;
 import org.eclipse.jetty.security.AuthenticationState;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;

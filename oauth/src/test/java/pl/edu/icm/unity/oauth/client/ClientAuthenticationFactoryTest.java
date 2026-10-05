@@ -25,8 +25,8 @@ import com.nimbusds.oauth2.sdk.auth.ClientSecretPost;
 import com.nimbusds.oauth2.sdk.auth.PrivateKeyJWT;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
-import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import io.imunity.tanl.x509.X509Credential;
+import io.imunity.tanl.x509.impl.KeystoreCredential;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;

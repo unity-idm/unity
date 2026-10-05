@@ -1,0 +1,21 @@
+{
+	"ver": "2",
+	"name": "localUsernameProfile",
+	"description": "Matches a loopback SAML assertion using its username attribute",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "attr contains 'username'"
+			},
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"userName",
+					"attr['username']",
+					"sys:all",
+					"MATCH"
+				]
+			}
+		}
+	]
+}

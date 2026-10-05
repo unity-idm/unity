@@ -7,8 +7,10 @@ package pl.edu.icm.unity.saml.idp.processor;
 import eu.unicore.samly2.assertion.Assertion;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import eu.unicore.samly2.proto.AssertionResponse;
-import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
@@ -23,7 +25,14 @@ import xmlbeans.org.oasis.saml2.protocol.AttributeQueryDocument;
 import xmlbeans.org.oasis.saml2.protocol.AttributeQueryType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * Extends {@link StatusResponseProcessor} to produce SAML Response documents, 
@@ -120,16 +129,37 @@ public class AttributeQueryResponseProcessor extends BaseResponseProcessor<Attri
 	//FIXME - this is not supporting any profile-defined attribute equality
 	protected boolean isAmongValues(XmlObject tested, XmlObject[] permitted)
 	{
-		String testedVal;
-		if (tested instanceof XmlAnySimpleType)
-			testedVal = ((XmlAnySimpleType)tested).getStringValue();
-		else
-			return false; //unsupported...
+		Optional<String> testedVal = getSimpleTextValue(tested);
+		if (testedVal.isEmpty())
+			return false;
 		for (XmlObject p: permitted)
 		{
-			if (p instanceof XmlAnySimpleType)
-				if (testedVal.equals(((XmlAnySimpleType) p).getStringValue()))
-					return true;
+			Optional<String> permittedVal = getSimpleTextValue(p);
+			if (testedVal.equals(permittedVal))
+				return true;
+		}
+		return false;
+	}
+
+	private static Optional<String> getSimpleTextValue(XmlObject value)
+	{
+		if (value.isNil() || hasElementChild(value))
+			return Optional.empty();
+		if (!value.schemaType().isSimpleType() && !XmlObject.type.equals(value.schemaType()))
+			return Optional.empty();
+		try (XmlCursor cursor = value.newCursor())
+		{
+			return Optional.of(cursor.getTextValue());
+		}
+	}
+
+	private static boolean hasElementChild(XmlObject value)
+	{
+		NodeList children = value.getDomNode().getChildNodes();
+		for (int i = 0; i < children.getLength(); i++)
+		{
+			if (children.item(i).getNodeType() == Node.ELEMENT_NODE)
+				return true;
 		}
 		return false;
 	}

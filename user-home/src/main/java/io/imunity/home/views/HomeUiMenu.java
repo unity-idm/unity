@@ -31,6 +31,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 
+import jakarta.annotation.security.PermitAll;
+
 import io.imunity.home.HomeEndpointProperties;
 import io.imunity.home.ProjectManagementHelper;
 import io.imunity.home.views.profile.ProfileView;
@@ -52,6 +54,7 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 
+@PermitAll
 public class HomeUiMenu extends LeftNavbarAppLayout implements BeforeEnterObserver
 {
 	private final static int imageSize = 7;

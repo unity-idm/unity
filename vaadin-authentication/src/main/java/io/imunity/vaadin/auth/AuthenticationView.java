@@ -81,6 +81,7 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 
 	private ColumnInstantAuthenticationScreen authenticationUI;
 	private final InteractiveAuthenticationProcessor interactiveAuthnProcessor;
+	private boolean initialized;
 
 	@Autowired
 	public AuthenticationView(MessageSource msg, VaadinLogoImageLoader imageAccessService, UnityServerConfiguration cfg,
@@ -270,7 +271,16 @@ public class AuthenticationView extends UnityViewComponent implements BeforeEnte
 		if (VaadinService.getCurrentRequest().isUserInRole(VAADIN_ROLE))
 			UI.getCurrent().getPage().setLocation(VaadinServlet.getCurrent().getServletContext().getContextPath());
 		else
-			init();
+			initializeOnce();
+	}
+
+	void initializeOnce()
+	{
+		if (initialized)
+			return;
+
+		init();
+		initialized = true;
 	}
 
 	@Override

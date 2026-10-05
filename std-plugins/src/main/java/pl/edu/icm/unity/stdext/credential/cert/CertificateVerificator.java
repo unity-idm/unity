@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import eu.emi.security.authn.x509.impl.X500NameUtils;
+import io.imunity.tanl.x509.impl.X500NameUtils;
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.base.authn.LocalCredentialState;

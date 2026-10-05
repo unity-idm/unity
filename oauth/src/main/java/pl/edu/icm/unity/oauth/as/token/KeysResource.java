@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm.Family;
@@ -36,7 +37,7 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 @Path(OAuthTokenEndpoint.JWK_PATH)
 public class KeysResource extends BaseOAuthResource
 {
-	private OAuthASProperties config;
+	private final OAuthASProperties config;
 	
 	public KeysResource(OAuthASProperties config)
 	{
@@ -45,7 +46,7 @@ public class KeysResource extends BaseOAuthResource
 
 	@Path("/")
 	@GET
-	@Produces(JWKSet.MIME_TYPE)	
+	@Produces({JWKSet.MIME_TYPE, MediaType.APPLICATION_JSON})
 	public String getKeys() 
 	{
 		if (!config.getTokenSigner().isPKIEnabled())

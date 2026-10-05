@@ -26,8 +26,8 @@ import eu.unicore.util.jetty.SecuredServerConnector;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.compression.gzip.GzipCompression;
 import org.eclipse.jetty.compression.server.CompressionHandler;
-import org.eclipse.jetty.ee10.servlet.FilterHolder;
-import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
+import org.eclipse.jetty.ee11.servlet.FilterHolder;
+import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.http.HttpHeader;
 import org.eclipse.jetty.http.UriCompliance;
 import org.eclipse.jetty.http.UriCompliance.Violation;
@@ -460,7 +460,7 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 	public synchronized void deployEndpoint(WebAppEndpointInstance endpoint)
 			throws EngineException
 	{
-		org.eclipse.jetty.ee10.servlet.ServletContextHandler handler = endpoint.getServletContextHandler();
+		org.eclipse.jetty.ee11.servlet.ServletContextHandler handler = endpoint.getServletContextHandler();
 		handler.getServletHandler().setDecodeAmbiguousURIs(true);
 		deployHandler(handler, endpoint.getEndpointDescription().getName());
 		deployedEndpoints.add(endpoint);
@@ -573,11 +573,11 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 		return usedContextPaths.keySet();
 	}
 
-	private org.eclipse.jetty.ee10.servlet.FilterHolder createDoSFilterInstance()
+	private org.eclipse.jetty.ee11.servlet.FilterHolder createDoSFilterInstance()
 	{
 		if (!serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_DOS_FILTER))
 			return null;
-		org.eclipse.jetty.ee10.servlet.FilterHolder holder = new org.eclipse.jetty.ee10.servlet.FilterHolder(new org.eclipse.jetty.ee10.servlets.DoSFilter());
+		org.eclipse.jetty.ee11.servlet.FilterHolder holder = new org.eclipse.jetty.ee11.servlet.FilterHolder(new org.eclipse.jetty.ee11.servlets.DoSFilter());
 		Set<String> keys = serverSettings.getSortedStringKeys(UnityHttpServerConfiguration.DOS_FILTER_PFX);
 		for (String key: keys)
 			holder.setInitParameter(key.substring(

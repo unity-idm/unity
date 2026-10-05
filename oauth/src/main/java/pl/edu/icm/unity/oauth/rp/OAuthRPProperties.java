@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.oauth.rp;
 
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
-import eu.emi.security.authn.x509.X509CertChainValidator;
+import io.imunity.tanl.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;

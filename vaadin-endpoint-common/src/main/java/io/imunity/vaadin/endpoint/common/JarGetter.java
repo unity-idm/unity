@@ -15,7 +15,8 @@ public class JarGetter {
 			"flow-push",
 			"flow-server",
 			"vaadin-client-compiled",
-			"vaadin-core"
+			"vaadin-core",
+			"vaadin-lumo-theme"
 	);
 
 	public static String getJarsRegex(Set<String> classPathElements)
