@@ -6,11 +6,17 @@ BASE_DIR=`pwd`
 popd > /dev/null
 BASE_DIR=`dirname "$BASE_DIR"` 
 
-if [ -z "${STARTUP_PROPERTIES+x}" ]; then
-  STARTUP_PROPERTIES="${BASE_DIR}/conf/startup.properties"
+if [[ -v STARTUP_PROPERTIES ]]; then
+	if [ -f "${STARTUP_PROPERTIES}" ]; then
+		. "${STARTUP_PROPERTIES}"
+	else
+		echo "Startup properties path is not a regular file: ${STARTUP_PROPERTIES}" >&2
+		exit 1
+	fi
+else
+	STARTUP_PROPERTIES="${BASE_DIR}/conf/startup.properties"
+	. "${STARTUP_PROPERTIES}"
 fi
-
-. "${STARTUP_PROPERTIES}"
 
 FOREGROUND=false
 if [ "$1" = "-f" ]
