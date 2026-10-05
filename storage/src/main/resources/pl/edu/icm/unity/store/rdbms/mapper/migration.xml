@@ -166,6 +166,10 @@
 	</update>
 
 	<update id="updateSchema-024-04">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-attributesCacheSearchableValueIdx"/>
+	</update>
+
+	<update id="updateSchema-024-05">
 		UPDATE UVOS_FLAG SET VAL = '24'
 	</update>
 

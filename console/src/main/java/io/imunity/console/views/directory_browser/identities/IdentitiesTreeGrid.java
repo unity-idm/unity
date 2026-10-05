@@ -14,6 +14,7 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dnd.GridDropMode;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -53,9 +54,11 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.attributes.EffectiveAttributesCacheService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -78,6 +81,11 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	private final MessageSource msg;
 	private final EntitiesLoader entitiesLoader;
 	private final AttributeHandlerRegistry attrHandlerRegistry;
+	private final EffectiveAttributesCacheService effectiveAttributesCacheService;
+	private final Map<Long, Map<String, AttributeExt>> rootAttributesCache = new HashMap<>();
+	private final Map<Long, Map<String, AttributeExt>> currentAttributesCache = new HashMap<>();
+	private final Map<Long, Boolean> pendingCache = new HashMap<>();
+	private CachedAttributeHandlers attributeHandlers;
 
 	private final List<ResolvedEntity> cachedEntitites;
 	private final TreeData<IdentityEntry> treeData;
@@ -114,7 +122,9 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	IdentitiesTreeGrid(MessageSource msg, AttributeSupport attributeSupport,
 	                          IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
-	                          AttributeHandlerRegistry attrHandlerRegistry, PreferencesManagement preferencesMan,
+	                          AttributeHandlerRegistry attrHandlerRegistry,
+	                          EffectiveAttributesCacheService effectiveAttributesCacheService,
+	                          PreferencesManagement preferencesMan,
 	                          CredentialManagement credentialManagement, EntityDetailsHandler entityDetailsHandler,
 	                          AddToGroupHandler addToGroupHandler, RemoveFromGroupHandler removeFromGroupHandler,
 	                          IdentityCreationDialog.IdentityCreationDialogHandler identityCreationDialogHanlder,
@@ -132,6 +142,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		this.idTypeSupport = idTypeSupport;
 		this.entitiesLoader = entitiesLoader;
 		this.attrHandlerRegistry = attrHandlerRegistry;
+		this.effectiveAttributesCacheService = effectiveAttributesCacheService;
 		this.preferencesMan = preferencesMan;
 		this.credentialManagement = credentialManagement;
 
@@ -226,7 +237,15 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	{
 		addComponentHierarchyColumn(ie ->
 		{
-			Div div = new Div(new Span(ie.getBaseValue(BaseColumn.entity)));
+			Div div = new Div(new Span(resolveEntityLabel(ie)));
+			if (isPending(ie.getSourceEntity().getEntity().getId()))
+			{
+				Icon pendingIcon = VaadinIcon.HOURGLASS.create();
+				pendingIcon.setSize("0.75em");
+				pendingIcon.getStyle().set("margin-left", SMALL_MARGIN.value());
+				pendingIcon.setTooltipText(msg.getMessage("Identities.attributesPending"));
+				div.add(pendingIcon);
+			}
 			div.getElement().setAttribute("onclick", "event.stopPropagation();");
 			div.addSingleClickListener(event -> GridSelectionSupport.replaceSelection(this, ie));
 			return div;
@@ -331,6 +350,11 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 		Set<IdentityEntry> selected = getSelectedItems();
 
+		rootAttributesCache.clear();
+		currentAttributesCache.clear();
+		pendingCache.clear();
+		attributeHandlers = new CachedAttributeHandlers(attrHandlerRegistry);
+
 		treeData.clear();
 		dataProvider.refreshAll();
 		cachedEntitites.clear();
@@ -369,30 +393,26 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 	private void addResolvedEntities(List<ResolvedEntity> entities, Set<IdentityEntry> selected)
 	{
-		CachedAttributeHandlers attributeHandlers = new CachedAttributeHandlers(attrHandlerRegistry);
 		for (ResolvedEntity entity : entities)
 		{
 			if (groupByEntity)
-				addGroupedEntriesToTable(entity, selected, attributeHandlers);
+				addGroupedEntriesToTable(entity, selected);
 			else
-				addFlatEntriesToTable(entity, selected, attributeHandlers);
+				addFlatEntriesToTable(entity, selected);
 		}
 		dataProvider.refreshAll();
 		setDataProvider(dataProvider);
 	}
 
-	private void addGroupedEntriesToTable(ResolvedEntity resolvedEntity, Set<IdentityEntry> savedSelection,
-			CachedAttributeHandlers attributeHandlers)
+	private void addGroupedEntriesToTable(ResolvedEntity resolvedEntity, Set<IdentityEntry> savedSelection)
 	{
 		Entity entity = resolvedEntity.getEntity();
-		IdentityEntry parentEntry = createEntry(null, entity, resolvedEntity.getRootAttributes(),
-				resolvedEntity.getCurrentAttributes(), attributeHandlers);
+		IdentityEntry parentEntry = createEntry(null, entity);
 		treeData.addItem(null, parentEntry);
 		restoreSelectionIfMatching(savedSelection, parentEntry);
 		for (Identity id : resolvedEntity.getIdentities())
 		{
-			IdentityEntry childEntry = createEntry(id, entity, resolvedEntity.getRootAttributes(),
-					resolvedEntity.getCurrentAttributes(), attributeHandlers);
+			IdentityEntry childEntry = createEntry(id, entity);
 			treeData.addItem(parentEntry, childEntry);
 			restoreSelectionIfMatching(savedSelection, childEntry);
 		}
@@ -404,46 +424,90 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 			select(currentEntry);
 	}
 
-	private void addFlatEntriesToTable(ResolvedEntity resolvedEntity, Set<IdentityEntry> savedSelection,
-			CachedAttributeHandlers attributeHandlers)
+	private void addFlatEntriesToTable(ResolvedEntity resolvedEntity, Set<IdentityEntry> savedSelection)
 	{
 		for (Identity id : resolvedEntity.getIdentities())
 		{
-			IdentityEntry idEntry = createEntry(id, resolvedEntity.getEntity(),
-					resolvedEntity.getRootAttributes(), resolvedEntity.getCurrentAttributes(),
-					attributeHandlers);
+			IdentityEntry idEntry = createEntry(id, resolvedEntity.getEntity());
 			treeData.addItem(null, idEntry);
 			restoreSelectionIfMatching(savedSelection, idEntry);
 		}
 	}
 
-	private IdentityEntry createEntry(Identity id, Entity ent, Map<String, ? extends Attribute> rootAttributes,
-			Map<String, ? extends Attribute> curAttributes, CachedAttributeHandlers attributeHandlers)
+	private IdentityEntry createEntry(Identity id, Entity ent)
 	{
-		String label = null;
-		if (entityNameAttribute != null && rootAttributes.containsKey(entityNameAttribute))
-			label = rootAttributes.get(entityNameAttribute).getValues().get(0) + " ";
-		EntityWithLabel entWithLabel = new EntityWithLabel(ent, label);
+		// label and attribute columns are resolved lazily, on first render of this row - see
+		// resolveEntityLabel/resolveAttributeColumnValue (UY-1483)
+		EntityWithLabel entWithLabel = new EntityWithLabel(ent, null);
+		return id == null ? new IdentityEntry(entWithLabel, msg)
+				: new IdentityEntry(entWithLabel, id, typeDefinitionsMap.get(id.getTypeId()), msg);
+	}
 
-		Map<String, String> attributesByColumnId = new HashMap<>();
-		List<Column<IdentityEntry>> columns = getColumns();
-		for (Column<IdentityEntry> column : columns)
+	private String resolveEntityLabel(IdentityEntry ie)
+	{
+		EntityWithLabel entWithLabel = ie.getSourceEntity();
+		if (entWithLabel.getLabel() == null && entityNameAttribute != null)
 		{
-			String columnId = column.getKey();
-			if (columnId == null || !columnId.startsWith(IdentitiesGridColumnConstants.ATTR_COL_PREFIX))
-				continue;
-			Attribute attribute = getAttributeForColumnProperty(columnId, rootAttributes, curAttributes);
-			String val;
-			if (attribute == null)
-				val = msg.getMessage("Identities.attributeUndefined");
-			else
-				val = attributeHandlers.getSimplifiedAttributeValuesRepresentation(attribute);
-			attributesByColumnId.put(columnId, val);
+			Attribute nameAttribute = getRootAttributes(entWithLabel.getEntity().getId()).get(entityNameAttribute);
+			if (nameAttribute != null)
+				entWithLabel.updateLabel(nameAttribute.getValues().get(0) + " ");
 		}
+		return entWithLabel.toString();
+	}
 
-		return id == null ? new IdentityEntry(entWithLabel, attributesByColumnId, msg)
-				: new IdentityEntry(entWithLabel, attributesByColumnId, id,
-						typeDefinitionsMap.get(id.getTypeId()), msg);
+	private String resolveAttributeColumnValue(IdentityEntry ie, String columnId)
+	{
+		String cached = ie.getAttribute(columnId);
+		if (cached != null)
+			return cached;
+
+		long entityId = ie.getSourceEntity().getEntity().getId();
+		String val = resolveAttributeValue(entityId, columnId);
+		ie.putAttributeValue(columnId, val);
+		return val;
+	}
+
+	/**
+	 * Resolves (and caches, see getRootAttributes/getCurrentAttributes) the display value of an attribute
+	 * column for an arbitrary entity, regardless of whether its row is currently rendered - used by
+	 * AddFilterDialog to evaluate an exact-match filter (UY-1483) against entities not (yet) shown.
+	 */
+	String resolveAttributeValue(long entityId, String columnId)
+	{
+		boolean isRoot = columnId.startsWith(IdentitiesGridColumnConstants.ATTR_ROOT_COL_PREFIX);
+		String attributeName = columnId.substring(isRoot
+				? IdentitiesGridColumnConstants.ATTR_ROOT_COL_PREFIX.length()
+				: IdentitiesGridColumnConstants.ATTR_CURRENT_COL_PREFIX.length());
+		Map<String, AttributeExt> attributes = isRoot ? getRootAttributes(entityId) : getCurrentAttributes(entityId);
+		Attribute attribute = attributes.get(attributeName);
+		return attribute == null ? msg.getMessage("Identities.attributeUndefined")
+				: attributeHandlers.getSimplifiedAttributeValuesRepresentation(attribute);
+	}
+
+	private Map<String, AttributeExt> getRootAttributes(long entityId)
+	{
+		return rootAttributesCache.computeIfAbsent(entityId,
+				id -> effectiveAttributesCacheService.getAttributesFast(id, "/").attributes());
+	}
+
+	private Map<String, AttributeExt> getCurrentAttributes(long entityId)
+	{
+		String groupPath = group.getPathEncoded();
+		if ("/".equals(groupPath))
+			return getRootAttributes(entityId);
+		return currentAttributesCache.computeIfAbsent(entityId,
+				id -> effectiveAttributesCacheService.getAttributesFast(id, groupPath).attributes());
+	}
+
+	/**
+	 * Whether the effective attributes of the given entity in the currently browsed group may be stale
+	 * (a background recalculation is pending) - used to show a small indicator next to the entity name
+	 * (UY-1483 follow-up). Cheap: reads only the pending flag, not the attributes themselves.
+	 */
+	private boolean isPending(long entityId)
+	{
+		return pendingCache.computeIfAbsent(entityId,
+				id -> effectiveAttributesCacheService.isUpdatePending(id, group.getPathEncoded()));
 	}
 
 	private void updateCredentialStatusColumns()
@@ -491,7 +555,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 			return;
 		}
 
-		Column<IdentityEntry> entryColumn = addColumn(ie -> ie.getAttribute(key))
+		Column<IdentityEntry> entryColumn = addColumn(ie -> resolveAttributeColumnValue(ie, key))
 				.setHeader(attribute + (group == null ? "@" + this.group : "@/"))
 				.setWidth(IdentitiesGridColumnConstants.ATTR_COL_RATIO + "px")
 				.setResizable(true)
@@ -501,13 +565,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		refreshActionColumn();
 
 		savePreferences();
-		try
-		{
-			showGroup(this.group);
-		} catch (EngineException e)
-		{
-			notificationPresenter.showError(msg.getMessage("Identities.internalError", e.getMessage()), e.getMessage());
-		}
+		dataProvider.refreshAll();
 	}
 
 	void removeAttributeColumn(String group, String attribute)
@@ -554,22 +612,6 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 						IdentitiesGridColumnConstants.ATTR_CURRENT_COL_PREFIX.length());
 				column.setHeader(attrName + "@" + this.group);
 			}
-		}
-	}
-
-	private Attribute getAttributeForColumnProperty(String propId, Map<String, ? extends Attribute> rootAttributes,
-			Map<String, ? extends Attribute> curAttributes)
-	{
-		if (propId.startsWith(IdentitiesGridColumnConstants.ATTR_CURRENT_COL_PREFIX))
-		{
-			String attributeName = propId
-					.substring(IdentitiesGridColumnConstants.ATTR_CURRENT_COL_PREFIX.length());
-			return curAttributes.get(attributeName);
-		} else
-		{
-			String attributeName = propId
-					.substring(IdentitiesGridColumnConstants.ATTR_ROOT_COL_PREFIX.length());
-			return rootAttributes.get(attributeName);
 		}
 	}
 

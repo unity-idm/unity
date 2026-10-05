@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.store.api.AttributeSearchableValueExtractor;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeRDBMSStore;
 import pl.edu.icm.unity.store.impl.groups.GroupRDBMSStore;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
@@ -30,6 +31,8 @@ public class AttributesCacheRDBMSSerializer implements RDBMSObjectSerializer<Sto
 	private GroupRDBMSStore groupDAO;
 	@Autowired
 	private ObjectMapper jsonMapper;
+	@Autowired
+	private AttributeSearchableValueExtractor searchableValueExtractor;
 
 	@Override
 	public AttributesCacheBean toDB(StoredAttribute object)
@@ -40,6 +43,8 @@ public class AttributesCacheRDBMSSerializer implements RDBMSObjectSerializer<Sto
 		bean.setGroupId(groupId);
 		long typeId = atDAO.getKeyForName(object.getAttribute().getName());
 		bean.setTypeId(typeId);
+		bean.setSearchableValue(searchableValueExtractor.getSearchableValue(
+				object.getAttribute().getValueSyntax(), object.getAttribute().getValues()));
 		try
 		{
 			bean.setValues(jsonMapper.writeValueAsBytes(AttributeExtBaseMapper.map(object.getAttribute())));

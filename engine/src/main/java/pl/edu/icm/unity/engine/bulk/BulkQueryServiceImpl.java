@@ -29,15 +29,12 @@ import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.authn.CredentialInfo;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.tx.Transactional;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.IllegalCredentialException;
-import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.EntityGroupAttributes;
 import pl.edu.icm.unity.engine.api.bulk.EntityInGroupData;
@@ -48,8 +45,6 @@ import pl.edu.icm.unity.engine.api.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.engine.attribute.AttributeStatementProcessor;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
-import pl.edu.icm.unity.engine.credential.CredentialRequirementsHolder;
-import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.forms.enquiry.EnquiryTargetCondEvaluator;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 
@@ -60,24 +55,21 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 	private static final Logger log = Log.getLogger(Log.U_SERVER_BULK_OPS, BulkQueryServiceImpl.class);
 	
 	private final AttributeStatementProcessor statementsHelper;
-	private final EntityCredentialsHelper credentialsHelper;
-	private final LocalCredentialsRegistry localCredReg;
+	private final EntityAssembler entityAssembler;
 	private final CompositeEntitiesInfoProvider dataProvider;
 	private final InternalAuthorizationManager authz;
 	private final TransactionalRunner tx;
 	private final ForkJoinPool pool = ForkJoinPool.commonPool();
-	
+
 	@Autowired
 	public BulkQueryServiceImpl(AttributeStatementProcessor statementsHelper,
-			EntityCredentialsHelper credentialsHelper,
-			LocalCredentialsRegistry localCredReg,
+			EntityAssembler entityAssembler,
 			CompositeEntitiesInfoProvider dataProvider,
 			InternalAuthorizationManager authz,
 			TransactionalRunner tx)
 	{
 		this.statementsHelper = statementsHelper;
-		this.credentialsHelper = credentialsHelper;
-		this.localCredReg = localCredReg;
+		this.entityAssembler = entityAssembler;
 		this.dataProvider = dataProvider;
 		this.authz = authz;
 		this.tx = tx;
@@ -114,7 +106,7 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 
 	private GroupsWithMembers assembleGroupsWithAttributes(MultiGroupMembershipData data)
 	{
-		Map<Long, Entity> entities = getGroupEntitiesNoContext(false, data.entitiesData, data.globalSystemData);
+		Map<Long, Entity> entities = entityAssembler.getGroupEntitiesNoContext(false, data.entitiesData, data.globalSystemData);
 		
 		List<TaskWithGroup> tasks = new ArrayList<>(data.groups.size());
 		for (String group: data.groups)
@@ -238,8 +230,8 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 
 		for (Long e : memberships.keySet())
 		{
-			CredentialInfo credentialInfo = getCredentialInfo(e, data.entitiesData, data.globalSystemData);
-			Entity entity = assembleEntity(e, false, data.entitiesData, data.globalSystemData);
+			CredentialInfo credentialInfo = entityAssembler.getCredentialInfo(e, data.entitiesData, data.globalSystemData);
+			Entity entity = entityAssembler.assembleEntity(e, false, data.entitiesData, data.globalSystemData);
 			Map<String, AttributeExt> groupAttributesAsMap = getAllAttributesAsMap(e, data.group, 
 					data.entitiesData, data.globalSystemData);
 			Map<String, AttributeExt> rootAttributesAsMap = data.group.equals("/") ? 
@@ -286,16 +278,16 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 	public Map<Long, Entity> getGroupEntitiesNoContextWithTargeted(GroupMembershipData dataO)
 	{
 		GroupMembershipDataImpl data = (GroupMembershipDataImpl) dataO;
-		return getGroupEntitiesNoContext(true, data.entitiesData, data.globalSystemData);
+		return entityAssembler.getGroupEntitiesNoContext(true, data.entitiesData, data.globalSystemData);
 	}
 
 	@Override
 	public Map<Long, Entity> getGroupEntitiesNoContextWithoutTargeted(GroupMembershipData dataO)
 	{
 		GroupMembershipDataImpl data = (GroupMembershipDataImpl) dataO;
-		return getGroupEntitiesNoContext(false, data.entitiesData, data.globalSystemData);
+		return entityAssembler.getGroupEntitiesNoContext(false, data.entitiesData, data.globalSystemData);
 	}
-	
+
 
 	@Override
 	public Map<String, GroupContents> getGroupAndSubgroups(GroupStructuralData dataO)
@@ -343,33 +335,7 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		return ret;
 	}
 	
-	private Map<Long, Entity> getGroupEntitiesNoContext(boolean includeTargeted, 
-			EntitiesData entitiesData, GlobalSystemData globalSystemData)
-	{
-		Stopwatch watch = Stopwatch.createStarted();
-		Map<Long, Entity> ret = new HashMap<>();
-		for (Long entityId: entitiesData.getEntityInfo().keySet())
-			ret.put(entityId, assembleEntity(entityId, includeTargeted, entitiesData, globalSystemData));
-		log.debug("Bulk entities assembly: {}", watch.toString());
-		return ret;
-	}
-	
-	private Entity assembleEntity(long entityId, boolean includeTargeted, EntitiesData entitiesData, 
-			GlobalSystemData globalSystemData)
-	{
-		CredentialInfo credInfo = getCredentialInfo(entityId, entitiesData, globalSystemData);
-		List<Identity> identitites = entitiesData.getIdentities().get(entityId);
-		if (!includeTargeted)
-			identitites = filterTargetedIdentitites(identitites);
-		return new Entity(identitites, entitiesData.getEntityInfo().get(entityId), credInfo);
-	}
-	
-	private List<Identity> filterTargetedIdentitites(List<Identity> all)
-	{
-		return all.stream().filter(id -> id.getTarget() == null).collect(Collectors.toList());
-	}
-	
-	private Map<String, AttributeExt> getAllAttributesAsMap(long entityId, String group, 
+	private Map<String, AttributeExt> getAllAttributesAsMap(long entityId, String group,
 			EntitiesData entitiesData, GlobalSystemData globalSystemData) 
 	{
 		Map<String, Map<String, AttributeExt>> directAttributesByGroup = entitiesData.getDirectAttributes().get(entityId);
@@ -384,24 +350,6 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 				g -> globalSystemData.getGroups().get(g),
 				globalSystemData.getAttributeTypes()::get,
 				g -> globalSystemData.getCachingMVELGroupProvider().get(g));
-	}
-	
-	private CredentialInfo getCredentialInfo(long entityId, EntitiesData entitiesData, GlobalSystemData globalSystemData)
-	{
-		Map<String, AttributeExt> attributes = entitiesData.getDirectAttributes().get(entityId).get("/");
-		String credentialRequirementId = credentialsHelper.getCredentialReqFromAttribute(attributes);
-		
-		CredentialRequirementsHolder credReq;
-		try
-		{
-			credReq = new CredentialRequirementsHolder(localCredReg, 
-					globalSystemData.getCredentialRequirements().get(credentialRequirementId), 
-					globalSystemData.getCredentials());
-		} catch (IllegalCredentialException e)
-		{
-			throw new InternalException("Unknown credential assigned to entity", e);
-		}
-		return credentialsHelper.getCredentialInfoNoQuery(entityId, attributes, credReq, credentialRequirementId);
 	}
 	
 	static class GroupNode

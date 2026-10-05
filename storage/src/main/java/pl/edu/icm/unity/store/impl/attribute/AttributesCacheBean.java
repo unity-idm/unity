@@ -17,6 +17,7 @@ public class AttributesCacheBean implements GenericDBBean
 	private Long entityId;
 	private String group;
 	private byte[] values;
+	private String searchableValue;
 
 	private String name;
 	private String valueSyntaxId;
@@ -84,6 +85,14 @@ public class AttributesCacheBean implements GenericDBBean
 	public void setGroup(String group)
 	{
 		this.group = group;
+	}
+	public String getSearchableValue()
+	{
+		return searchableValue;
+	}
+	public void setSearchableValue(String searchableValue)
+	{
+		this.searchableValue = searchableValue;
 	}
 
 	@Override

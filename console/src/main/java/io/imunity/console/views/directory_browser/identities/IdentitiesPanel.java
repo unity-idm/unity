@@ -38,6 +38,7 @@ import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSearchService;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -62,6 +63,7 @@ public class IdentitiesPanel extends VerticalLayout
 	private final Toolbar<InvitationEntry> toolbar;
 	private final HorizontalLayout filtersBar;
 	private final EventsBus bus;
+	private final AttributeSearchService attributeSearchService;
 
 	private EntityFilter fastSearchFilter;
 	private String entityNameAttribute = null;
@@ -72,12 +74,14 @@ public class IdentitiesPanel extends VerticalLayout
 			EntityCreationHandler entityCreationDialogHandler, DeleteEntityHandler deleteEntityHandler,
 			IdentityConfirmationResendHandler confirmationResendHandler,
 			IdentityConfirmHandler confirmHandler, EntityMergeHandler entityMergeHandler,
-			IdentitiesTreeGrid identitiesTable, AttributeSupport attributeSupport, NotificationPresenter notificationPresenter)
+			IdentitiesTreeGrid identitiesTable, AttributeSupport attributeSupport, NotificationPresenter notificationPresenter,
+			AttributeSearchService attributeSearchService)
 	{
 		this.msg = msg;
 		this.identitiesTable = identitiesTable;
 		this.attrsMan = attrsMan;
 		this.notificationPresenter = notificationPresenter;
+		this.attributeSearchService = attributeSearchService;
 
 		try
 		{
@@ -182,11 +186,27 @@ public class IdentitiesPanel extends VerticalLayout
 				identitiesTable.removeFilter(fastSearchFilter);
 			if (event.isEmpty())
 				return;
-			fastSearchFilter = e -> e.anyFieldContains(event, identitiesTable.getVisibleColumnIds());
+			Set<Long> dbAttributeMatches = searchAttributeValuesInDb(event);
+			fastSearchFilter = e -> e.anyFieldContains(event, identitiesTable.getVisibleColumnIds())
+					|| dbAttributeMatches.contains(e.getSourceEntity().getEntity().getId());
 			identitiesTable.addFilter(fastSearchFilter);
 		});
 
 		return searchText;
+	}
+
+	/**
+	 * Attribute values are no longer bulk pre-loaded (UY-1483), so a text search additionally needs to
+	 * hit the DB for matches among attribute values that are not currently held in memory (i.e. not yet
+	 * rendered in the grid) - unioned with the in-memory matches from {@code anyFieldContains}.
+	 */
+	private Set<Long> searchAttributeValuesInDb(String term)
+	{
+		Set<Long> rootMatches = attributeSearchService.searchEntities("/", term);
+		String group = identitiesTable.getGroupPath();
+		if ("/".equals(group))
+			return rootMatches;
+		return Sets.union(rootMatches, attributeSearchService.searchEntities(group, term));
 	}
 
 	private ActionMenuWithHandlerSupport<IdentityEntry> getHamburgerMenu(RemoveFromGroupHandler removeFromGroupHandler,
@@ -227,7 +247,7 @@ public class IdentitiesPanel extends VerticalLayout
 
 		hamburgerMenu.addItem(new MenuButton(msg.getMessage("Identities.addFilter"), VaadinIcon.FUNNEL), c -> {
 			List<String> columnIds = identitiesTable.getColumnIds();
-			new AddFilterDialog(msg, columnIds, this::addFilterInfo)
+			new AddFilterDialog(msg, columnIds, identitiesTable, attributeSearchService, this::addFilterInfo)
 					.open();
 		});
 

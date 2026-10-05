@@ -26,59 +26,65 @@ public class IdentityEntry
 	private final Map<BaseColumn, String> columnsToValues = new HashMap<>();
 	private final EntityWithLabel sourceEntity;
 	private final Identity sourceIdentity;
-	private Map<String, String> attributes;
+	private final Map<String, String> attributes = new HashMap<>();
 
-	IdentityEntry(EntityWithLabel entityWithLabel, Map<String, String> attributes, MessageSource msg)
+	IdentityEntry(EntityWithLabel entityWithLabel, MessageSource msg)
 	{
 		this.sourceEntity = entityWithLabel;
 		this.sourceIdentity = null;
 		for (BaseColumn base: BaseColumn.values())
 			columnsToValues.put(base, "");
-		setShared(entityWithLabel, attributes, msg);
+		setShared(entityWithLabel, msg);
 	}
 
-	IdentityEntry(EntityWithLabel entityWithLabel, Map<String, String> attributes, Identity id,
-			IdentityTypeDefinition typeDefinition, MessageSource msg)
+	IdentityEntry(EntityWithLabel entityWithLabel, Identity id, IdentityTypeDefinition typeDefinition,
+			MessageSource msg)
 	{
 		this.sourceEntity = entityWithLabel;
 		this.sourceIdentity = id;
-		setShared(entityWithLabel, attributes, msg);
+		setShared(entityWithLabel, msg);
 		columnsToValues.put(BaseColumn.type, id.getTypeId());
 		columnsToValues.put(BaseColumn.identity, typeDefinition.toPrettyStringNoPrefix(id));
 		columnsToValues.put(BaseColumn.local, String.valueOf(id.isLocal()));
 		columnsToValues.put(BaseColumn.dynamic, String.valueOf(typeDefinition.isDynamic()));
 		columnsToValues.put(BaseColumn.target, id.getTarget() == null ? "" : id.getTarget());
 		columnsToValues.put(BaseColumn.realm, id.getRealm() == null ? "" : id.getRealm());
-		columnsToValues.put(BaseColumn.remoteIdP, 
+		columnsToValues.put(BaseColumn.remoteIdP,
 				id.getRemoteIdp() == null ? "" : id.getRemoteIdp());
-		columnsToValues.put(BaseColumn.profile, 
+		columnsToValues.put(BaseColumn.profile,
 				id.getTranslationProfile() == null ? "" : id.getTranslationProfile());
 	}
 
-	private void setShared(EntityWithLabel entityWithLabel, Map<String, String> attributes, 
-			MessageSource msg)
+	private void setShared(EntityWithLabel entityWithLabel, MessageSource msg)
 	{
-		columnsToValues.put(BaseColumn.entity, entityWithLabel.toString());
-		columnsToValues.put(BaseColumn.credReq, 
+		columnsToValues.put(BaseColumn.credReq,
 				entityWithLabel.getEntity().getCredentialInfo().getCredentialRequirementId());
-		columnsToValues.put(BaseColumn.status, 
+		columnsToValues.put(BaseColumn.status,
 				msg.getMessage("EntityState."+entityWithLabel.getEntity().getState().name()));
 		EntityInformation entInfo = entityWithLabel.getEntity().getEntityInformation();
-		String scheduledOperation = entInfo.getScheduledOperation() == null ? "" : 
+		String scheduledOperation = entInfo.getScheduledOperation() == null ? "" :
 			msg.getMessage("EntityScheduledOperationWithDateShort."+
 				entInfo.getScheduledOperation().name(),
 				entInfo.getScheduledOperationTime());
 		columnsToValues.put(BaseColumn.scheduledOperation, scheduledOperation);
-		this.attributes = new HashMap<>(attributes);
 	}
-	
+
 	String getAttribute(String key)
 	{
 		return attributes.get(key);
 	}
 
+	void putAttributeValue(String key, String value)
+	{
+		attributes.put(key, value);
+	}
+
 	String getBaseValue(BaseColumn key)
 	{
+		// entity's displayed label is resolved lazily and mutated in place on sourceEntity - see
+		// IdentitiesTreeGrid.resolveEntityLabel (UY-1483)
+		if (key == BaseColumn.entity)
+			return sourceEntity.toString();
 		return columnsToValues.get(key);
 	}
 
@@ -121,26 +127,35 @@ public class IdentityEntry
 	boolean anyFieldContains(String text, Set<String> testedColumns)
 	{
 		String textLower = text.toLowerCase();
-		for (Map.Entry<BaseColumn, String> value: columnsToValues.entrySet())
-			if (testedColumns.contains(value.getKey().name()) &&
-					value.getValue() != null && 
-					value.getValue().toLowerCase().contains(textLower))
+		for (BaseColumn column : BaseColumn.values())
+		{
+			String value = getBaseValue(column);
+			if (testedColumns.contains(column.name()) &&
+					value != null &&
+					value.toLowerCase().contains(textLower))
 				return true;
+		}
 		for (Map.Entry<String, String> value: attributes.entrySet())
-			if (testedColumns.contains(value.getKey()) && 
-					value.getValue() != null && 
+			if (testedColumns.contains(value.getKey()) &&
+					value.getValue() != null &&
 					value.getValue().toLowerCase().contains(textLower))
 				return true;
 		return false;
 	}
 
+	/*
+	 * Deliberately based on the stable sourceEntity/sourceIdentity references rather than on
+	 * columnsToValues/attributes - the latter are mutated in place (attributes especially, as columns
+	 * are lazily resolved on render, see IdentitiesTreeGrid - UY-1483) after this entry may already be
+	 * held in TreeData/selection sets, and a changing hashCode there would corrupt those collections.
+	 */
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
-		result = prime * result + columnsToValues.hashCode();
+		result = prime * result + sourceEntity.hashCode();
+		result = prime * result + ((sourceIdentity == null) ? 0 : sourceIdentity.hashCode());
 		return result;
 	}
 
@@ -154,12 +169,8 @@ public class IdentityEntry
 		if (getClass() != obj.getClass())
 			return false;
 		IdentityEntry other = (IdentityEntry) obj;
-		if (attributes == null)
-		{
-			if (other.attributes != null)
-				return false;
-		} else if (!attributes.equals(other.attributes))
+		if (!sourceEntity.equals(other.sourceEntity))
 			return false;
-		return columnsToValues.equals(other.columnsToValues);
+		return sourceIdentity == null ? other.sourceIdentity == null : sourceIdentity.equals(other.sourceIdentity);
 	}
 }

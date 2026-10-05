@@ -290,11 +290,16 @@ CREATE TABLE ATTRIBUTES_CACHE(
 		ENTITY_ID INTEGER NOT NULL,
 		GROUP_ID INTEGER NOT NULL,
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.contentsColumnBlob"/>,
+		SEARCHABLE_VALUE VARCHAR(2000),
 		UNIQUE (ENTITY_ID, GROUP_ID, TYPE_ID),
 		FOREIGN KEY (ENTITY_ID) REFERENCES ENTITIES(ID) ON DELETE CASCADE,
 		FOREIGN KEY (TYPE_ID) REFERENCES ATTRIBUTE_TYPES(ID) ON DELETE CASCADE,
 		FOREIGN KEY (GROUP_ID) REFERENCES <include refid="io.imunity.sql.groups"/>(ID) ON DELETE CASCADE
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
+	</sql>
+
+	<sql id="sql-attributesCacheSearchableValueIdx">
+		CREATE INDEX ATTRIBUTES_CACHE_SEARCHABLE_VALUE_IDX ON ATTRIBUTES_CACHE(SEARCHABLE_VALUE)
 	</sql>
 
 	<update id="initdb-27">
@@ -322,6 +327,10 @@ CREATE TABLE ATTRIBUTES_CACHE_PENDING(
 
 	<update id="initdb-29">
 		<include refid="sql-attributesCachePendingGroupIdx"/>
+	</update>
+
+	<update id="initdb-30">
+		<include refid="sql-attributesCacheSearchableValueIdx"/>
 	</update>
 
 	<update id="initdb-99">

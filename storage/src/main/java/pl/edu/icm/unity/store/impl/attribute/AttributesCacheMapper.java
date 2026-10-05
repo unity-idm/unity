@@ -6,6 +6,8 @@ package pl.edu.icm.unity.store.impl.attribute;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
 
 /**
@@ -18,4 +20,7 @@ public interface AttributesCacheMapper extends BasicCRUDMapper<AttributesCacheBe
 	List<AttributesCacheBean> getEntityGroupAttributes(AttributesCacheBean param);
 
 	List<AttributesCacheBean> getGroupAttributes(String group);
+
+	List<Long> findEntitiesWithSearchableValueContaining(@Param("group") String group,
+			@Param("likePattern") String likePattern);
 }

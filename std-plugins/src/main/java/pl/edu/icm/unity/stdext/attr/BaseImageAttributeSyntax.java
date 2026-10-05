@@ -46,7 +46,13 @@ public abstract class BaseImageAttributeSyntax<T> implements AttributeValueSynta
 	{
 		return false;
 	}
-	
+
+	@Override
+	public boolean isSearchable()
+	{
+		return false;
+	}
+
 	@Override
 	public int getMaxSize()
 	{

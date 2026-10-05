@@ -168,4 +168,13 @@ public interface AttributeValueSyntax<T>
 	{
 		return Optional.empty();
 	}
+
+	/**
+	 * @return true if values of this syntax are meaningful for a plain text search (e.g. in the directory
+	 * browser's quick search). Binary syntaxes (images) should return false.
+	 */
+	default boolean isSearchable()
+	{
+		return true;
+	}
 }

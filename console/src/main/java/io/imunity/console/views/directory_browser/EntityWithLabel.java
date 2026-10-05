@@ -10,18 +10,16 @@ import pl.edu.icm.unity.base.entity.Entity;
 public class EntityWithLabel
 {
 	private final Entity entity;
-	private final String label;
-	private final String txtRepresentation;
-	private final String shortTxtRepresentation;
-	
+	private String label;
+	private String txtRepresentation;
+	private String shortTxtRepresentation;
+
 	public EntityWithLabel(Entity entity, String label)
 	{
 		this.entity = entity;
-		this.label = label;
-		txtRepresentation = label == null ? "["+entity.getId()+"]" : label + " [" + entity.getId() + "]";
-		shortTxtRepresentation = label == null ? "["+entity.getId()+"]" : label;
+		updateLabel(label);
 	}
-	
+
 	public Entity getEntity()
 	{
 		return entity;
@@ -30,6 +28,17 @@ public class EntityWithLabel
 	public String getLabel()
 	{
 		return label;
+	}
+
+	/**
+	 * Updates the label after construction - used when it is resolved lazily (e.g. only once the
+	 * corresponding grid row is actually rendered), rather than known upfront.
+	 */
+	public void updateLabel(String label)
+	{
+		this.label = label;
+		txtRepresentation = label == null ? "["+entity.getId()+"]" : label + " [" + entity.getId() + "]";
+		shortTxtRepresentation = label == null ? "["+entity.getId()+"]" : label;
 	}
 
 	public String toShortString()

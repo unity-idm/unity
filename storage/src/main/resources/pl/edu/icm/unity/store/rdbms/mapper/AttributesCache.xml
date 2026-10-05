@@ -9,30 +9,31 @@
 		<result property="entityId" column="ENTITY_ID"/>
 		<result property="groupId" column="GROUP_ID"/>
 		<result property="values" column="CONTENTS"/>
+		<result property="searchableValue" column="SEARCHABLE_VALUE"/>
 		<result property="name" column="NAME"/>
 		<result property="valueSyntaxId" column="VALUE_SYNTAX_ID"/>
 		<result property="group" column="GROUP_PATH"/>
 	</resultMap>
 
 	<insert id="create" parameterType="AttributesCacheB" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-		INSERT INTO ATTRIBUTES_CACHE (TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS)
-			VALUES (#{typeId}, #{entityId}, #{groupId}, #{values})
+		INSERT INTO ATTRIBUTES_CACHE (TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS, SEARCHABLE_VALUE)
+			VALUES (#{typeId}, #{entityId}, #{groupId}, #{values}, #{searchableValue})
 	</insert>
 
 	<insert id="createWithKey" parameterType="AttributesCacheB">
-		INSERT INTO ATTRIBUTES_CACHE (ID, TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS)
-			VALUES (#{id}, #{typeId}, #{entityId}, #{groupId}, #{values})
+		INSERT INTO ATTRIBUTES_CACHE (ID, TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS, SEARCHABLE_VALUE)
+			VALUES (#{id}, #{typeId}, #{entityId}, #{groupId}, #{values}, #{searchableValue})
 	</insert>
 
 	<insert id="createList" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO ATTRIBUTES_CACHE (TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS) VALUES
+		INSERT INTO ATTRIBUTES_CACHE (TYPE_ID, ENTITY_ID, GROUP_ID, CONTENTS, SEARCHABLE_VALUE) VALUES
 		<foreach open="(" separator="),(" close=")" collection="list" index="index" item="element">
-			#{element.typeId}, #{element.entityId}, #{element.groupId}, #{element.values}
+			#{element.typeId}, #{element.entityId}, #{element.groupId}, #{element.values}, #{element.searchableValue}
 		</foreach>
 	</insert>
 
 	<update id="updateByKey" parameterType="AttributesCacheB">
-		UPDATE ATTRIBUTES_CACHE SET CONTENTS = #{values}
+		UPDATE ATTRIBUTES_CACHE SET CONTENTS = #{values}, SEARCHABLE_VALUE = #{searchableValue}
 			WHERE ID = #{id}
 	</update>
 
@@ -77,6 +78,14 @@
 		from ATTRIBUTES_CACHE A, ATTRIBUTE_TYPES AT, <include refid="io.imunity.sql.groups"/> G
 		WHERE G.NAME = #{value}
 			AND A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
+	</select>
+
+	<select id="findEntitiesWithSearchableValueContaining" resultType="long">
+		SELECT DISTINCT A.ENTITY_ID
+		FROM ATTRIBUTES_CACHE A, <include refid="io.imunity.sql.groups"/> G
+		WHERE G.NAME = #{group} AND G.ID = A.GROUP_ID
+			AND A.SEARCHABLE_VALUE IS NOT NULL
+			AND LOWER(A.SEARCHABLE_VALUE) LIKE #{likePattern} ESCAPE '\'
 	</select>
 
 </mapper>

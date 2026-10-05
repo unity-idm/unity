@@ -31,4 +31,11 @@ public interface AttributesCacheDAO extends BasicCRUDDAO<StoredAttribute>
 	 * @return cached attributes of all entities in the given group.
 	 */
 	List<StoredAttribute> getGroupAttributes(String group);
+
+	/**
+	 * @return ids of entities in the given group having a searchable (see
+	 * {@code AttributeValueSyntax#isSearchable()}) attribute value containing the given search term
+	 * (case insensitive). Binary attribute values (e.g. images) are never matched.
+	 */
+	List<Long> findEntitiesWithValueContaining(String group, String searchTerm);
 }

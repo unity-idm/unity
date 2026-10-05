@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.attribute.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -23,9 +24,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.engine.api.attributes.CachedAttributes;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationExceptionRT;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
+import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.AttributesCacheDAO;
 import pl.edu.icm.unity.store.api.AttributesCachePendingDAO;
@@ -46,13 +50,15 @@ public class EffectiveAttributesCacheServiceImplTest
 	private BulkGroupQueryService bulkGroupQueryService;
 	@Mock
 	private AttributesHelper attributesHelper;
+	@Mock
+	private InternalAuthorizationManager authz;
 
 	private EffectiveAttributesCacheServiceImpl service;
 
 	private EffectiveAttributesCacheServiceImpl create()
 	{
 		return new EffectiveAttributesCacheServiceImpl(attributesCacheDAO, attributesCachePendingDAO,
-				membershipDAO, bulkGroupQueryService, attributesHelper);
+				membershipDAO, bulkGroupQueryService, attributesHelper, authz);
 	}
 
 	private StoredAttribute attribute(long entityId, String group, String name, String value)
@@ -157,5 +163,39 @@ public class EffectiveAttributesCacheServiceImplTest
 		assertThat(result.get(2L).updatePending()).isTrue();
 		assertThat(result.get(3L).attributes()).isEmpty();
 		assertThat(result.get(3L).updatePending()).isFalse();
+	}
+
+	@Test
+	public void isUpdatePendingReadsOnlyThePendingFlag()
+	{
+		service = create();
+		when(attributesCachePendingDAO.isPending(1L, "/test")).thenReturn(true);
+
+		boolean result = service.isUpdatePending(1L, "/test");
+
+		assertThat(result).isTrue();
+		verify(attributesCacheDAO, never()).getEntityAttributes(1L, "/test");
+	}
+
+	@Test
+	public void isUpdatePendingChecksAuthorizationForTheGivenGroup()
+	{
+		service = create();
+
+		service.isUpdatePending(1L, "/test");
+
+		verify(authz).checkAuthorizationRT("/test", AuthzCapability.readHidden, AuthzCapability.read);
+	}
+
+	@Test
+	public void isUpdatePendingPropagatesAuthorizationFailureWithoutQueryingDao()
+	{
+		service = create();
+		doThrow(new AuthorizationExceptionRT("denied")).when(authz)
+				.checkAuthorizationRT("/test", AuthzCapability.readHidden, AuthzCapability.read);
+
+		org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.isUpdatePending(1L, "/test"))
+				.isInstanceOf(AuthorizationExceptionRT.class);
+		verify(attributesCachePendingDAO, never()).isPending(1L, "/test");
 	}
 }

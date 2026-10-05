@@ -20,6 +20,7 @@ import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.attribute.AttributesClass;
 import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.message.MessageSource;
@@ -31,7 +32,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
+import pl.edu.icm.unity.engine.api.attributes.EffectiveAttributesCacheService;
 
 import java.util.*;
 
@@ -46,6 +47,7 @@ class AttributesController
 	private final GroupsManagement groupsManagement;
 	private final MessageSource msg;
 	private final AttributesManagement attrMan;
+	private final EffectiveAttributesCacheService effectiveAttributesCacheService;
 
 	private final AttributeHandlerRegistry registry;
 	private final AttributeTypeSupport atSupport;
@@ -55,7 +57,8 @@ class AttributesController
 	AttributesController(AttributesManagement attrMan, AttributeClassManagement acMan,
 	        AttributeTypeManagement aTypeManagement, GroupsManagement groupsManagement,
 			AttributeHandlerRegistry registry, AttributeTypeSupport atSupport, MessageSource msg,
-			NotificationPresenter notificationPresenter)
+			NotificationPresenter notificationPresenter,
+			EffectiveAttributesCacheService effectiveAttributesCacheService)
 	{
 		this.attrMan = attrMan;
 		this.acMan = acMan;
@@ -65,18 +68,20 @@ class AttributesController
 		this.atSupport = atSupport;
 		this.msg = msg;
 		this.notificationPresenter = notificationPresenter;
+		this.effectiveAttributesCacheService = effectiveAttributesCacheService;
 	}
 
+	/**
+	 * Fetches fresh (not fast/potentially-stale) effective attributes via the materialized attributes
+	 * cache (UY-1842) - consistent with, but computed independently of, whatever is currently rendered
+	 * in the identities grid's lazily-loaded columns (UY-1483).
+	 */
 	Collection<AttributeExt> getAttributes(EntityWithLabel owner, String groupPath)
 	{
 		try
 		{
-			EntityParam entParam = new EntityParam(owner.getEntity().getId());
-			return attrMan.getAllAttributes(entParam, true, groupPath, null, true);
-		} catch (AuthorizationException e)
-		{
-			notificationPresenter.showError(msg.getMessage("Attribute.noReadAuthz", groupPath, owner), e.getMessage());
-		} catch (Exception e)
+			return new ArrayList<>(effectiveAttributesCacheService.getAttributes(owner.getEntity().getId(), groupPath).values());
+		} catch (EngineException e)
 		{
 			notificationPresenter.showError(msg.getMessage("Attribute.internalError", groupPath, owner), e.getMessage());
 			log.fatal("Problem retrieving attributes in the group " + groupPath + " for " + owner, e);

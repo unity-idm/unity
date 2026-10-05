@@ -25,6 +25,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.authn.CredentialDefinition;
 import pl.edu.icm.unity.base.authn.CredentialRequirements;
 import pl.edu.icm.unity.base.entity.EntityInformation;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
+import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.store.api.AttributeDAO;
@@ -105,6 +107,67 @@ class CompositeEntitiesInfoProvider
 				.build();
 	}
 	
+	/**
+	 * Lean counterpart of {@link #getCompositeGroupContents(String, Optional)}, dedicated to entity listing
+	 * (e.g. directory browser): loads identities and entity info, and only the fixed set of system
+	 * attributes needed to resolve credential status - no custom/dynamic attributes, attribute
+	 * types/classes, enquiry forms, groups or cross-group memberships.
+	 */
+	public GroupMembershipData getCompositeGroupContentsForListing(String group) throws EngineException
+	{
+		Stopwatch watch = Stopwatch.createStarted();
+		GlobalSystemData globalData = loadGlobalDataForListing();
+		EntitiesData entitiesData = getEntitiesDataForListing(group);
+		GroupMembershipDataImpl ret = new GroupMembershipDataImpl(group, globalData, entitiesData);
+		log.debug("Bulk group listing data retrieval: {}", watch.toString());
+		return ret;
+	}
+
+	private GlobalSystemData loadGlobalDataForListing() throws EngineException
+	{
+		return GlobalSystemData.builder()
+				.withGroups(Map.of())
+				.withAttributeTypes(Map.of())
+				.withAttributeClasses(Map.of())
+				.withEnquiryForms(Map.of())
+				.withCredentials(credentialRepository.getCredentialDefinitions())
+				.withCredentialRequirements(getCredentialRequirements())
+				.build();
+	}
+
+	private EntitiesData getEntitiesDataForListing(String group) throws EngineException
+	{
+		Map<Long, EntityInformation> entityInfo = getGroupEntitiesInfo(group);
+		return EntitiesData.builder()
+				.withMemberships(Map.of())
+				.withEntityInfo(entityInfo)
+				.withIdentities(getIdentities(group))
+				.withDirectAttributes(getCredentialAttributes(entityInfo.keySet()))
+				.build();
+	}
+
+	private Map<Long, Map<String, Map<String, AttributeExt>>> getCredentialAttributes(Set<Long> groupMemberIds)
+			throws EngineException
+	{
+		Stopwatch w = Stopwatch.createStarted();
+		List<String> credentialAttributeNames = getCredentialAttributeNames();
+		List<StoredAttribute> all = attributeDAO.getAttributesOfGroupMembers(credentialAttributeNames, List.of("/"))
+				.stream()
+				.filter(sa -> groupMemberIds.contains(sa.getEntityId()))
+				.collect(Collectors.toList());
+		log.debug("getCredentialAttrs {}", w.toString());
+		return mapAttributesByEntities(all.stream());
+	}
+
+	private List<String> getCredentialAttributeNames() throws EngineException
+	{
+		List<String> names = new ArrayList<>();
+		names.add(CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS);
+		for (CredentialDefinition credentialDefinition : credentialRepository.getCredentialDefinitions())
+			names.add(CredentialAttributeTypeProvider.CREDENTIAL_PREFIX + credentialDefinition.getName());
+		return names;
+	}
+
 	public MultiGroupMembershipData getCompositeMultiGroupContents(String rootGroup, Set<String> groupFilter) throws EngineException
 	{
 		Stopwatch watch = Stopwatch.createStarted();
