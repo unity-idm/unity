@@ -1,4 +1,0 @@
-interface:
-  display_name: "Unity CR"
-  short_description: "Alias for the cr code review skill"
-  default_prompt: "Use $unity-cr to review branch feature/example against dev with task description: describe the required behavior here."
