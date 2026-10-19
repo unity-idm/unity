@@ -1,0 +1,4 @@
+interface:
+  display_name: "CR"
+  short_description: "Review Unity changes with specialist agents"
+  default_prompt: "Use $cr to review branch feature/example against dev with task description: describe the required behavior here."
