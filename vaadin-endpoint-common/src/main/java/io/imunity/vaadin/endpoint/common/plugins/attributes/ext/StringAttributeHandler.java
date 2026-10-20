@@ -78,6 +78,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			fl.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 
 			IntegerField min = new IntegerFieldWithDefaultOutOfRangeError(msg);
+			min.getElement().setAttribute("data-testid", "StringSyntaxEditor.minimumLength");
 			min.setMin(0);
 			min.setStepButtonsVisible(true);
 			fl.addFormItem(min, msg.getMessage("StringAttributeHandler.minLenE"));
@@ -90,10 +91,12 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			fl.addFormItem(max, msg.getMessage("NumericAttributeHandler.maxE"));
 
 			TextField regexp = new TextField();
+			regexp.getElement().setAttribute("data-testid", "StringSyntaxEditor.regexp");
 			fl.addFormItem(regexp, msg.getMessage("StringAttributeHandler.regexpE"));
 			regexp.setWidth(CSSVars.FIELD_MEDIUM.value());
 
 			Checkbox editWithTextArea = new Checkbox(msg.getMessage("StringAttributeHandler.editWithTextAreaE"));
+			editWithTextArea.getElement().setAttribute("data-testid", "StringSyntaxEditor.multiline");
 			fl.addFormItem(editWithTextArea, "");
 			
 			binder.forField(min)

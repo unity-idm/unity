@@ -57,6 +57,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	GroupsTreeGrid(MessageSource msg, GroupBrowserController controller)
 	{
+		getElement().setAttribute("data-testid", "GroupsTreeGrid");
 		this.msg = msg;
 		this.controller = controller;
 		this.authzError = false;
@@ -121,6 +122,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			text.getStyle().set("white-space", "unset");
 			text.getStyle().set("padding-left", "0.2em");
 			Div div = new Div(getIcon(n), text);
+			div.getElement().setAttribute("data-group-path", n.getGroup().getPathEncoded());
 			div.getStyle().set("display", "flex");
 			div.getElement().setAttribute("onclick", "event.stopPropagation();");
 			div.addSingleClickListener(event -> select(n));

@@ -74,12 +74,14 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 
 	private void initUI(AttributeType toEdit)
 	{
+		getElement().setAttribute("data-testid", "RegularAttributeTypeEditor");
 		setWidthFull();
 		setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		
 		
 		name = new TextField();
+		name.getElement().setAttribute("data-testid", "RegularAttributeTypeEditor.name");
 		if (toEdit != null)
 			name.setReadOnly(true);
 		name.setWidth(TEXT_FIELD_MEDIUM.value());
@@ -116,6 +118,7 @@ class RegularAttributeTypeEditor extends FormLayout implements AttributeTypeEdit
 		addFormItem(global, "");
 
 		syntax = new ComboBox<>();
+		syntax.getElement().setAttribute("data-testid", "RegularAttributeTypeEditor.syntax");
 		syntax.setWidth(CSSVars.FIELD_MEDIUM.value());
 		SortedSet<String> syntaxes = new TreeSet<>(registry.getSupportedSyntaxes());
 		syntax.setItems(syntaxes);

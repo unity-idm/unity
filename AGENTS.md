@@ -86,8 +86,8 @@
 - Use Junit 5 as general framework for tests.
 - Use Mockito for mocking
 - Use AssertJ for assertions 
-- Selenium for UI/integration in `integration-tests/`
-- Locations: unit tests beside code in each module; browser‑level tests only in `integration-tests/`
+- Selenium for UI/integration in `integration-tests/` and the opt-in `ui-tests/` module
+- Locations: unit tests beside code in each module; browser‑level tests only in `integration-tests/` or the opt-in `ui-tests/` module
 - Coverage: JaCoCo configured; add tests for new logic and regressions
 - Name unit tests `*Test`. This is required for both unit and integrations tests.
 - Examples: run a single class `mvn -Dtest=MyServiceTest test`

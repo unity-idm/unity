@@ -75,6 +75,7 @@ public class IdentitiesPanel extends VerticalLayout
 			IdentitiesTreeGrid identitiesTable, AttributeSupport attributeSupport, NotificationPresenter notificationPresenter)
 	{
 		this.msg = msg;
+		getElement().setAttribute("data-testid", "IdentitiesPanel");
 		this.identitiesTable = identitiesTable;
 		this.attrsMan = attrsMan;
 		this.notificationPresenter = notificationPresenter;
@@ -199,7 +200,8 @@ public class IdentitiesPanel extends VerticalLayout
 		identitiesTable.addSelectionListenerBeforeDeselectionListener(hamburgerMenu.getSelectionListener());
 		SingleActionHandler<IdentityEntry> entityCreationAction = entityCreationDialogHandler
 				.getAction(identitiesTable::getGroup, added -> refresh());
-		hamburgerMenu.addActionHandler(entityCreationAction);
+		hamburgerMenu.addActionHandler(entityCreationAction)
+				.getElement().setAttribute("data-testid", "IdentitiesPanel.createEntity");
 		hamburgerMenu.addComponent(new Hr());
 
 		SingleActionHandler<IdentityEntry> addToGroupAction = addToGroupHandler.getAction();

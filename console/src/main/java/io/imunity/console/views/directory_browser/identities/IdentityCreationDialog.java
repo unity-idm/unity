@@ -110,6 +110,7 @@ class IdentityCreationDialog extends DialogWithActionFooter
 	{
 		FormLayout typeSelectionLayout = new FormLayout();
 		identityTypeSelector = new ComboBox<>();
+		identityTypeSelector.getElement().setAttribute("data-testid", "IdentityCreationDialog.identityType");
 		List<String> supportedTypes = new ArrayList<>(identityEditorReg.getSupportedTypes());
 		supportedTypes.sort(String::compareTo);
 		identityTypeSelector.setItems(supportedTypes);

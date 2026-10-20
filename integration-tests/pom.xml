@@ -20,7 +20,15 @@
 		<developerConnection>${scm.base}/${m.name}</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
+	<!-- Application dependencies need compile scope so Vaadin scans endpoint views and plugin components. -->
 	<dependencies>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-ui-test-support</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-core</artifactId>
@@ -56,7 +64,6 @@
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
@@ -69,7 +76,6 @@
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents.client5</groupId>
@@ -80,37 +86,31 @@
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-storage</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-user-home</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-saml</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-std-plugins</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-ldap</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-oauth</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
@@ -123,73 +123,61 @@
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest-admin</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-pam</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-composite-password</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-console</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-upman</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-vaadin-public-shared-endpoint</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-vaadin-secured-shared-endpoint</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-otp</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-otp-ldap</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-fido</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-web-attr-introspection</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-scim</artifactId>
 			<version>${project.version}</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -202,6 +190,11 @@
 				<configuration>
 					<forkCount>1</forkCount>
 					<reuseForks>false</reuseForks>
+					<forkedProcessTimeoutInSeconds>300</forkedProcessTimeoutInSeconds>
+					<forkedProcessExitTimeoutInSeconds>30</forkedProcessExitTimeoutInSeconds>
+					<properties>
+						<configurationParameters>junit.jupiter.execution.parallel.enabled=false</configurationParameters>
+					</properties>
 				</configuration>
 			</plugin>
 			 <plugin>
@@ -212,12 +205,19 @@
 						<goals>
 							<goal>clean-frontend</goal>
 							<goal>prepare-frontend</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>build-test-frontend</id>
+						<phase>process-test-classes</phase>
+						<goals>
 							<goal>build-frontend</goal>
 						</goals>
 					</execution>
 				</executions>
 				<configuration>
 					<optimizeBundle>false</optimizeBundle>
+				<forceProductionBuild>true</forceProductionBuild>
 				</configuration>
 			</plugin>
 		</plugins>
