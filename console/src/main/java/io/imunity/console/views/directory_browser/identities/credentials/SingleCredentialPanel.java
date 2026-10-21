@@ -90,6 +90,8 @@ public class SingleCredentialPanel extends VerticalLayout
 		this.credEditorReg = credEditorReg;
 		this.enableAdminOptions = enableAdminActions;
 		this.toEdit = toEdit;
+		getElement().setAttribute("data-testid", "SingleCredentialPanel");
+		getElement().setAttribute("data-credential", toEdit.getName());
 		this.notificationPresenter = notificationPresenter;
 		loadEntity(new EntityParam(entityId));
 		init();
@@ -174,6 +176,7 @@ public class SingleCredentialPanel extends VerticalLayout
 				ne -> changeCredentialStatusWithConfirm(LocalCredentialState.outdated));
 
 		edit = new LinkButton(msg.getMessage("CredentialChangeDialog.setup"), e -> switchEditorVisibility(true));
+		edit.getElement().setAttribute("data-testid", "SingleCredentialPanel.edit");
 
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 		buttonsBar.setSpacing(true);

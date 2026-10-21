@@ -81,9 +81,11 @@ public class AutomationEditView extends ConsoleViewComponent
 	protected void initUI(ScheduledProcessingRuleParam translationRule)
 	{
 		FormLayout main = new FormLayout();
+		main.getElement().setAttribute("data-testid", "AutomationEditView");
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		CronExpressionField cronExpression = new CronExpressionField(msg, "");
+		cronExpression.getElement().setAttribute("data-testid", "AutomationEditView.schedule");
 		cronExpression.setWidth(TEXT_FIELD_MEDIUM.value());
 		Component tooltip = TooltipFactory.getWithHtmlContent(msg.getMessage("CronExpressionField.cronExpressionDescription")).component();
 
@@ -92,6 +94,7 @@ public class AutomationEditView extends ConsoleViewComponent
 				MVELExpressionContext.builder().withTitleKey("RuleEditor.conditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(EntityMVELContextKey.toMap())
 						.build(), new TooltipFactory());
+		condition.getElement().setAttribute("data-testid", "AutomationEditView.condition");
 		actionEditor = controller.getActionEditor(translationRule);
 		binder = new Binder<>(ScheduledProcessingRuleParam.class);
 		condition.configureBinding(binder, "condition", true);

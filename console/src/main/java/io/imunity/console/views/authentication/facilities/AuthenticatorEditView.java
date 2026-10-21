@@ -106,6 +106,7 @@ public class AuthenticatorEditView extends ConsoleViewComponent
 		Map<AuthenticatorTypeDescription, String> authnTypesSorted = getAuthenticatorTypes();
 		
 		authenticatorTypeCombo = new NotEmptyComboBox<>();
+		authenticatorTypeCombo.getElement().setAttribute("data-testid", "AuthenticatorEditView.type");
 		authenticatorTypeCombo.addValueChangeListener(e -> reloadEditor(entry, authnTypesSorted));
 		authenticatorTypeCombo.setItemLabelGenerator(authnTypesSorted::get);
 		authenticatorTypeCombo.setWidth(TEXT_FIELD_BIG.value());

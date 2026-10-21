@@ -43,6 +43,7 @@ public class CredentialsChangeDialog extends DialogWithActionFooter
 			NotificationPresenter notificationPresenter)
 	{
 		super(msg::getMessage);
+		getElement().setAttribute("data-testid", "CredentialsChangeDialog");
 		this.msg = msg;
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.ecredMan = ecredMan;

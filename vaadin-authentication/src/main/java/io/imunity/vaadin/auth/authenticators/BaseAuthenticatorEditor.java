@@ -26,6 +26,7 @@ public class BaseAuthenticatorEditor
 	{
 		this.msg = msg;
 		name = new TextField();
+		name.getElement().setAttribute("data-testid", "BaseAuthenticatorEditor.name");
 		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		nameBinder = new Binder<>(StringBindingValue.class);
 		nameBinder.forField(name)

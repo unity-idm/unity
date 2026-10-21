@@ -58,8 +58,10 @@ public class AutomationView extends ConsoleViewComponent
 	public void initView()
 	{
 		automationGrid = new GridWithActionColumn<ScheduledProcessingRule>(msg::getMessage, getActionsHandlers());
+		automationGrid.getElement().setAttribute("data-testid", "AutomationView.rules");
 		automationGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		automationGrid.addHamburgerActions(getHamburgerActionsHandlers());
+		automationGrid.setPartNameGenerator(rule -> "rule-" + rule.getId());
 		automationGrid.addColumn(ScheduledProcessingRuleParam::getCronExpression)
 				.setHeader(msg.getMessage("AutomationView.cronExpressionCaption"))
 				.setAutoWidth(true);
@@ -144,9 +146,11 @@ public class AutomationView extends ConsoleViewComponent
 		headerLayout.setSpacing(false);
 		Button addButton = new Button(msg.getMessage("addNew"), e -> UI.getCurrent()
 				.navigate(AutomationEditView.class));
+		addButton.getElement().setAttribute("data-testid", "AutomationView.add");
 		addButton.setIcon(PLUS_CIRCLE_O.create());
 		Button runButton = new Button(msg.getMessage("AutomationView.runAdhoc"), e -> UI.getCurrent()
 				.navigate(AutomationRunView.class));
+		runButton.getElement().setAttribute("data-testid", "AutomationView.runAdhoc");
 		runButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		runButton.setIcon(PLAY.create());
 		headerLayout.setAlignItems(FlexComponent.Alignment.END);

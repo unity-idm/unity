@@ -84,6 +84,7 @@ class FidoAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Au
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		retrievalName.getElement().setAttribute("data-testid", "FidoAuthenticatorEditor.retrievalName");
 		retrievalName.setWidth(TEXT_FIELD_MEDIUM.value());
 		configBinder.forField(retrievalName).bind(configuration -> configuration.getRetrievalName().getLocalizedMap(),
 				(configuration, value) -> configuration.setRetrievalName(new I18nString(value)));

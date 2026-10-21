@@ -63,21 +63,26 @@ public class CredentialsInfoView extends ConsoleViewComponent
 	private void initUI(CredentialDefinition credential)
 	{
 		FormLayout formLayout = new FormLayout();
+		formLayout.getElement().setAttribute("data-testid", "CredentialsInfoView");
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		Span name = new Span(credential.getName());
+		name.getElement().setAttribute("data-testid", "CredentialsInfoView.name");
 		formLayout.addFormItem(name, msg.getMessage("CredentialDefinition.name"));
 
 		LocalizedSpan displayedName = new LocalizedSpan(credential.getDisplayedName().getLocalizedMap());
 		formLayout.addFormItem(displayedName, msg.getMessage("displayedNameF"));
 
 		LocalizedSpan description = new LocalizedSpan(credential.getDescription().getLocalizedMap());
+		description.getElement().setAttribute("data-testid", "CredentialsInfoView.description");
 		formLayout.addFormItem(description, msg.getMessage("descriptionF"));
 
 		Span type = new Span(credential.getTypeId());
+		type.getElement().setAttribute("data-testid", "CredentialsInfoView.type");
 		formLayout.addFormItem(type, msg.getMessage("CredentialDefinition.type"));
 
 		Panel typeSpecific = new Panel(msg.getMessage("CredentialDefinition.typeSettings"));
+		typeSpecific.getElement().setAttribute("data-testid", "CredentialsInfoView.configuration");
 		CredentialDefinitionViewer viewer =
 				credentialEditorReg.getFactory(credential.getTypeId()).creteCredentialDefinitionViewer();
 		typeSpecific.add(viewer.getViewer(credential.getConfiguration()));

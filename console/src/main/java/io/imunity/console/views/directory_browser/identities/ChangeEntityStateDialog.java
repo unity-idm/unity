@@ -51,6 +51,7 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 			Callback callback)
 	{
 		super(msg::getMessage);
+		getElement().setAttribute("data-testid", "ChangeEntityStateDialog");
 		this.msg = msg;
 		this.htmlTooltipFactory = htmlTooltipFactory;
 		this.entity = entity;
@@ -64,6 +65,7 @@ class ChangeEntityStateDialog extends DialogWithActionFooter
 	private FormLayout getContents()
 	{
 		entityState = new Select<>();
+		entityState.getElement().setAttribute("data-testid", "ChangeEntityStateDialog.state");
 		entityState.setLabel(msg.getMessage("ChangeEntityStateDialog.info", entity));
 		entityState.setItems(EntityState.values());
 		entityState.setItemLabelGenerator(item -> msg.getMessage("EntityState." + item));

@@ -285,6 +285,9 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 		ActionMenuWithHandlerSupport<IdentityEntry> menu = new ActionMenuWithHandlerSupport<>();
 		menu.setTarget(target);
+		menu.getTarget().getElement().setAttribute("data-testid", "IdentitiesTreeGrid.entityActions");
+		menu.getTarget().getElement().setAttribute("data-entity-id",
+				target.iterator().next().getSourceEntity().getEntity().getId().toString());
 		menu.addActionHandlers(Arrays.asList(entityDetailsHandler.getShowEntityAction(),
 				addToGroupHandler.getAction(),
 				removeFromGroupHandler.getAction(this::getGroupPath, this::refresh),

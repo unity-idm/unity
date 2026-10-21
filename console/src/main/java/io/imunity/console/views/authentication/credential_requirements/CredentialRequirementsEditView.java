@@ -83,14 +83,17 @@ public class CredentialRequirementsEditView extends ConsoleViewComponent
 	{
 		Collection<CredentialDefinition> allCredentials = controller.getCredentialRequirementDefinitions();
 		TextField name = new TextField();
+		name.getElement().setAttribute("data-testid", "CredentialRequirementsEditView.name");
 		name.setReadOnly(edit);
 		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		name.setPlaceholder(msg.getMessage("CredentialRequirements.defaultName"));
 
 		TextField description = new TextField();
+		description.getElement().setAttribute("data-testid", "CredentialRequirementsEditView.description");
 		description.setWidth(TEXT_FIELD_BIG.value());
 
 		MultiSelectComboBox<String> requiredCredentials = new MultiSelectComboBox<>();
+		requiredCredentials.getElement().setAttribute("data-testid", "CredentialRequirementsEditView.credentials");
 		requiredCredentials.setItems(allCredentials.stream().map(CredentialDefinition::getName).collect(Collectors.toList()));
 		requiredCredentials.setWidth(TEXT_FIELD_BIG.value());
 		requiredCredentials.setAllowCustomValue(false);

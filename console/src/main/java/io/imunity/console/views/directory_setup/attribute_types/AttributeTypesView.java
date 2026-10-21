@@ -73,6 +73,8 @@ public class AttributeTypesView extends ConsoleViewComponent
 	private void init()
 	{
 		attrTypesGrid = new GridWithActionColumn<AttributeTypeEntry>(msg::getMessage, getActionsHandlers());
+		attrTypesGrid.getElement().setAttribute("data-testid", "AttributeTypesView.types");
+		attrTypesGrid.setPartNameGenerator(entry -> "attribute-" + entry.attributeType.getName());
 		attrTypesGrid.addShowDetailsColumn(new ComponentRenderer<>(this::getDetailsComponent));
 		attrTypesGrid.setMultiSelect(true);
 
@@ -106,6 +108,7 @@ public class AttributeTypesView extends ConsoleViewComponent
 		attrTypesGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		SearchField search = GridSearchFieldFactory.generateSearchField(attrTypesGrid, msg::getMessage);
+		search.getElement().setAttribute("data-testid", "AttributeTypesView.search");
 
 		Toolbar<AttributeTypeEntry> toolbar = new Toolbar<>();
 		toolbar.addHamburger(hamburgerMenu);
@@ -236,6 +239,7 @@ public class AttributeTypesView extends ConsoleViewComponent
 		confirmDialog.setText(new VerticalLayout(
 			new NativeLabel(msg.getMessage("AttributeTypesView.confirmDelete", confirmText)), checkbox)
 		);
+		confirmDialog.getElement().setAttribute("data-testid", "AttributeTypesView.remove");
 		confirmDialog.open();
 
 	}

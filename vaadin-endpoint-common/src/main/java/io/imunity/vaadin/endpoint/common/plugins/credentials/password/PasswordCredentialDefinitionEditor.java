@@ -84,7 +84,9 @@ class PasswordCredentialDefinitionEditor implements CredentialDefinitionEditor, 
 		form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		form.addClassName(BIG_VAADIN_FORM_ITEM_LABEL.getName());
 		form.addFormItem(new Span(String.valueOf(helper.getMinScore())), msg.getMessage("PasswordDefinitionEditor.minScore"));
-		form.addFormItem(new Span(String.valueOf(helper.getMinLength())), msg.getMessage("PasswordDefinitionEditor.minLength"));
+		form.addFormItem(new Span(String.valueOf(helper.getMinLength())),
+				msg.getMessage("PasswordDefinitionEditor.minLength")).getElement()
+				.setAttribute("data-testid", "PasswordCredentialDefinitionViewer.minimumLength");
 		form.addFormItem(new Span(String.valueOf(helper.getMinClassesNum())), msg.getMessage("PasswordDefinitionEditor.minClasses"));
 		form.addFormItem(new Span(msg.getYesNo(helper.isDenySequences())), msg.getMessage("PasswordDefinitionEditor.denySequencesRo"));
 		form.addFormItem(new Span(String.valueOf(helper.getHistorySize())), msg.getMessage("PasswordDefinitionEditor.historySize"));
@@ -113,6 +115,7 @@ class PasswordCredentialDefinitionEditor implements CredentialDefinitionEditor, 
 		Span scoreNote = new Span(msg.getMessage("PasswordDefinitionEditor.minScoreNote"));
 		scoreNote.setWidth(100, Unit.PERCENTAGE);
 		IntegerField minLength = new IntegerField();
+		minLength.getElement().setAttribute("data-testid", "PasswordCredentialDefinitionEditor.minimumLength");
 		minLength.setMin(1);
 		minLength.setMax(30);
 		minLength.setStepButtonsVisible(true);

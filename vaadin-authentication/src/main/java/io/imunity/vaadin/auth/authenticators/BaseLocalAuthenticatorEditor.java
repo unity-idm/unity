@@ -26,6 +26,7 @@ public class BaseLocalAuthenticatorEditor extends BaseAuthenticatorEditor
 		super(msg);
 		this.allCredentials = allCredentials;
 		localCredential = new ComboBox<>();
+		localCredential.getElement().setAttribute("data-testid", "BaseLocalAuthenticatorEditor.credential");
 		localCredential.setItems(allCredentials);
 		localCredentialBinder = new Binder<>(StringBindingValue.class);
 		localCredentialBinder.forField(localCredential)

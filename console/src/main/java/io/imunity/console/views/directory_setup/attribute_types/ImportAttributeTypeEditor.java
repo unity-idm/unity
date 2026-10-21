@@ -121,6 +121,7 @@ class ImportAttributeTypeEditor extends VerticalLayout
 			reloadTableFromFile();
 		}));
 		upload.setMaxFileSize(MAX_FILE_SIZE_IN_BYTES);
+		upload.getElement().setAttribute("data-testid", "ImportAttributeTypeEditor.upload");
 		upload.setAcceptedMimeTypes("application/json");
 		upload.getElement()
 				.addEventListener("file-remove", e -> clear());
@@ -132,6 +133,7 @@ class ImportAttributeTypeEditor extends VerticalLayout
 
 		selectionTable = new GenericElementsTable<>(msg.getMessage("ImportAttributeTypeEditor.typesToImport"),
 				element -> element.getName());
+		selectionTable.getElement().setAttribute("data-testid", "ImportAttributeTypeEditor.types");
 
 		selectionTable.setMultiSelect(true);
 		selectionTable.setMaxHeight(30, Unit.EM);

@@ -80,21 +80,28 @@ public class RealmEditView extends ConsoleViewComponent
 	void initUI(AuthenticationRealmEntry toEdit)
 	{
 		TextField name = new TextField();
+		name.getElement().setAttribute("data-testid", "RealmEditView.name");
 		name.setWidth(TEXT_FIELD_BIG.value());
 		name.setPlaceholder(msg.getMessage("AuthenticationRealm.defaultName"));
 		name.setReadOnly(edit);
 		TextField description = new TextField();
+		description.getElement().setAttribute("data-testid", "RealmEditView.description");
 		description.setWidth(TEXT_FIELD_BIG.value());
 
 		IntegerField blockAfterUnsuccessfulLogins = getIntegerField();
+		blockAfterUnsuccessfulLogins.getElement().setAttribute("data-testid", "RealmEditView.blockAfterUnsuccessfulLogins");
 		IntegerField blockFor = getIntegerField();
+		blockFor.getElement().setAttribute("data-testid", "RealmEditView.blockFor");
 
 		ComboBox<RememberMePolicy> rememberMePolicy = new ComboBox<>();
+		rememberMePolicy.getElement().setAttribute("data-testid", "RealmEditView.rememberMePolicy");
 		rememberMePolicy.setItems(RememberMePolicy.values());
 		rememberMePolicy.setWidth(TEXT_FIELD_BIG.value());
 
 		IntegerField allowForRememberMeDays = getIntegerField();
+		allowForRememberMeDays.getElement().setAttribute("data-testid", "RealmEditView.allowForRememberMeDays");
 		IntegerField maxInactivity = getIntegerField();
+		maxInactivity.getElement().setAttribute("data-testid", "RealmEditView.maxInactivity");
 		maxInactivity.setMax(99999);
 
 		configBinder(toEdit, name, description, blockAfterUnsuccessfulLogins, blockFor, rememberMePolicy,
@@ -141,6 +148,7 @@ public class RealmEditView extends ConsoleViewComponent
 		{
 			VerticalLayout field = new VerticalLayout(
 					toEdit.endpoints.stream().map(Span::new).toArray(Component[]::new));
+			field.getElement().setAttribute("data-testid", "RealmEditView.endpoints");
 			field.setPadding(false);
 			mainLayout.addFormItem(field, msg.getMessage("AuthenticationRealm.endpoints"));
 		}

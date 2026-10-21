@@ -30,6 +30,7 @@ class SingleCredentialEditComponent extends VerticalLayout
 		addClassName(SMALL_GAP.getName());
 		add(editorComponents.getComponents());
 		Button update = new Button(msg.getMessage("CredentialChangeDialog.update"));
+		update.getElement().setAttribute("data-testid", "SingleCredentialEditComponent.update");
 		update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		update.addClickListener(e -> onUpdate.run());
 		update.setWidthFull();

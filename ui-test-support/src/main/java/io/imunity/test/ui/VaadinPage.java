@@ -53,7 +53,7 @@ public final class VaadinPage
 	{
 		wait.ignoring(StaleElementReferenceException.class).until(ignored ->
 		{
-			input(locator).sendKeys(Keys.chord(Keys.CONTROL, "a"), value, Keys.TAB);
+			input(locator).sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE, value, Keys.TAB);
 			return true;
 		});
 	}

@@ -30,6 +30,7 @@ class OTPCredentialDefinitionViewer implements CredentialDefinitionViewer
 				OTPCredentialDefinition.class);
 		
 		Span issuer = new Span(credentialDef.issuerName);
+		issuer.getElement().setAttribute("data-testid", "OTPCredentialDefinitionViewer.issuer");
 
 		Span hashAlgorithm = new Span(msg.getMessage("OTPCredentialDefinitionEditor.hashAlgorithm."
 				+ credentialDef.otpParams.hashFunction.name()));

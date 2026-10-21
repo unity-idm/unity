@@ -54,12 +54,12 @@ class VaadinPageTest
 		when(replacement.isDisplayed()).thenReturn(true);
 		when(replacement.isEnabled()).thenReturn(true);
 		doThrow(new StaleElementReferenceException("The view replaced its input"))
-				.when(original).sendKeys(Keys.chord(Keys.CONTROL, "a"), "username", Keys.TAB);
+				.when(original).sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE, "username", Keys.TAB);
 		VaadinPage page = new VaadinPage(browser);
 
 		page.fill(locator, "username");
 
-		verify(original).sendKeys(Keys.chord(Keys.CONTROL, "a"), "username", Keys.TAB);
-		verify(replacement).sendKeys(Keys.chord(Keys.CONTROL, "a"), "username", Keys.TAB);
+		verify(original).sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE, "username", Keys.TAB);
+		verify(replacement).sendKeys(Keys.chord(Keys.CONTROL, "a"), Keys.BACK_SPACE, "username", Keys.TAB);
 	}
 }

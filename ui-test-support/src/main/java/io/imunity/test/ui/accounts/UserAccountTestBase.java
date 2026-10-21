@@ -54,6 +54,11 @@ public abstract class UserAccountTestBase extends SeleniumTestBase
 		createdUsers.add(entity);
 	}
 
+	protected final void forgetUser(EntityParam entity)
+	{
+		createdUsers.remove(entity);
+	}
+
 	@AfterEach
 	void removeUsers() throws EngineException
 	{

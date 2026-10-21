@@ -74,6 +74,7 @@ public class OTPCredentialDefinitionEditor implements CredentialDefinitionEditor
 		binder.forField(logo).bind("logo");
 
 		TextField issuer = new TextField();
+		issuer.getElement().setAttribute("data-testid", "OTPCredentialDefinitionEditor.issuer");
 		formLayout.addFormItem(issuer, msg.getMessage("OTPCredentialDefinitionEditor.issuer"))
 				.add(htmlTooltipFactory.get(msg.getMessage("OTPCredentialDefinitionEditor.issuer.tip")));
 		issuer.setWidth(TEXT_FIELD_MEDIUM.value());

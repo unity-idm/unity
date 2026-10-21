@@ -86,6 +86,7 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(),
 				msg.getLocale());
+		retrievalName.getElement().setAttribute("data-testid", "CertificateAuthenticatorEditor.retrievalName");
 		retrievalName.setWidth(TEXT_FIELD_MEDIUM.value());
 		configBinder.forField(retrievalName)
 				.bind(configuration -> configuration.getRetrievalName().getLocalizedMap(),
