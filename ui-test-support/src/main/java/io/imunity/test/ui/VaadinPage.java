@@ -51,8 +51,11 @@ public final class VaadinPage
 
 	public void fill(By locator, String value)
 	{
-		WebElement input = input(locator);
-		input.sendKeys(Keys.chord(Keys.CONTROL, "a"), value, Keys.TAB);
+		wait.ignoring(StaleElementReferenceException.class).until(ignored ->
+		{
+			input(locator).sendKeys(Keys.chord(Keys.CONTROL, "a"), value, Keys.TAB);
+			return true;
+		});
 	}
 
 	public void select(By locator, String value)
@@ -65,6 +68,20 @@ public final class VaadinPage
 		input.sendKeys(Keys.TAB);
 		wait.until(ignored -> value.equals(value(locator))
 				&& !Boolean.parseBoolean(visible(locator).getDomProperty("opened")));
+	}
+
+	public void selectMultiple(By locator, String value)
+	{
+		WebElement input = input(locator);
+		input.sendKeys(Keys.chord(Keys.CONTROL, "a"), value);
+		WebElement option = wait.until(ignored -> visible(locator)
+				.findElements(By.cssSelector("vaadin-multi-select-combo-box-item")).stream()
+				.filter(item -> item.isDisplayed() && value.equals(item.getText())).findFirst().orElse(null));
+		option.click();
+		input.sendKeys(Keys.TAB);
+		wait.until(ignored -> !Boolean.parseBoolean(visible(locator).getDomProperty("opened"))
+				&& visible(locator).findElements(By.cssSelector("vaadin-multi-select-combo-box-chip")).stream()
+						.anyMatch(chip -> chip.isDisplayed() && value.equals(chip.getText())));
 	}
 
 	public void check(By locator, boolean checked)

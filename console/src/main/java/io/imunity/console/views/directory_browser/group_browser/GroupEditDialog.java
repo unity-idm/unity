@@ -58,6 +58,7 @@ class GroupEditDialog extends DialogWithActionFooter
 	GroupEditDialog(MessageSource msg, Group group, Callback callback)
 	{
 		super(msg::getMessage);
+		getElement().setAttribute("data-testid", "GroupEditDialog");
 		this.msg = msg;
 		this.originalGroup = group;
 		this.callback = callback;
@@ -78,6 +79,7 @@ class GroupEditDialog extends DialogWithActionFooter
 		path.setWidth(TEXT_FIELD_MEDIUM.value());
 
 		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale());
+		displayedName.getElement().setAttribute("data-testid", "GroupEditDialog.displayedName");
 		displayedName.setWidthFull();
 		description = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale());
 		description.setWidthFull();

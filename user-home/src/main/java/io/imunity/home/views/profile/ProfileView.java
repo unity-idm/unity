@@ -147,12 +147,14 @@ public class ProfileView extends HomeViewComponent
 		buttonsLayout.setMargin(true);
 
 		save = new Button(msg.getMessage("save"));
+		save.getElement().setAttribute("data-testid", "ProfileView.save");
 		save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		save.setIcon(VaadinIcon.DISC.create());
 		save.addClickListener(event -> saveChanges());
 		save.setVisible(false);
 
 		reset = new Button(msg.getMessage("ProfileView.reset"));
+		reset.getElement().setAttribute("data-testid", "ProfileView.reset");
 		reset.setIcon(VaadinIcon.REFRESH.create());
 		reset.addClickListener(event -> init());
 		reset.setVisible(false);
@@ -209,6 +211,11 @@ public class ProfileView extends HomeViewComponent
 				continue;
 			VerticalLayout innerLayout = new VerticalLayout();
 			innerLayout.setSizeFull();
+			innerLayout.getElement().setAttribute("data-testid", "ProfileView.attribute");
+			innerLayout.getElement().setAttribute("data-attribute-name",
+					config.getValue(aKey + HomeEndpointProperties.GWA_ATTRIBUTE));
+			innerLayout.getElement().setAttribute("data-group-path",
+					config.getValue(aKey + HomeEndpointProperties.GWA_GROUP));
 			new CompositeLayoutAdapter(innerLayout, attributes);
 			innerLayout.setPadding(false);
 			innerLayout.setSpacing(false);

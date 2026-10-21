@@ -39,8 +39,12 @@ public class AboutView extends ConsoleViewComponent
 		}
 
 		FormLayout main = new FormLayout();
-		main.addFormItem(new BoldLabel(versionInformation.version), new FormLayoutLabel(msg.getMessage("AboutView.version")));
-		main.addFormItem(new BoldLabel(TimeUtil.formatStandardInstant(versionInformation.buildTime)), new FormLayoutLabel(msg.getMessage("AboutView.buildTime")));
+		BoldLabel version = new BoldLabel(versionInformation.version);
+		version.getElement().setAttribute("data-testid", "AboutView.version");
+		BoldLabel buildTime = new BoldLabel(TimeUtil.formatStandardInstant(versionInformation.buildTime));
+		buildTime.getElement().setAttribute("data-testid", "AboutView.buildTime");
+		main.addFormItem(version, new FormLayoutLabel(msg.getMessage("AboutView.version")));
+		main.addFormItem(buildTime, new FormLayoutLabel(msg.getMessage("AboutView.buildTime")));
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		getContent().add(new VerticalLayout(main));
 	}

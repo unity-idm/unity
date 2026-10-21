@@ -10,7 +10,7 @@ mvn -Pnightly-ui -pl ui-tests -am verify \
   -Dgpg.skip=true -Dhttp.proxyHost= -Dhttps.proxyHost= > nightly-ui-build.log 2>&1
 ```
 
-After installing upstream artifacts from the same revision, run the pilot alone with:
+After installing upstream artifacts from the same revision, run an individual class with:
 
 ```sh
 mvn -Pnightly-ui -pl ui-tests test -Dtest=AttributeTypeEditorTest \
@@ -18,9 +18,18 @@ mvn -Pnightly-ui -pl ui-tests test -Dtest=AttributeTypeEditorTest \
   -Dgpg.skip=true -Dhttp.proxyHost= -Dhttps.proxyHost= > nightly-ui-build.log 2>&1
 ```
 
-`-Dgroups=admin-directory` selects the pilot's feature group. The runner fails when no tests
-are found. The pilot verifies persisted string attribute-type syntax settings with one
-parameterized specification and two executions.
+Use `-Dgroups=<tag>` to select `admin-directory`, `admin-settings`, `home`, `upman`, or
+`public-policies`. The runner fails when no tests are found. Current coverage includes:
+
+- Admin directory: string syntax settings, mandatory attribute classes, and nested group lifecycle.
+- Admin settings: identity self-service limits and running build information.
+- Home: profile save/reload/reset with read-only authorization roles.
+- UpMan: subgroup creation, displayed-name changes, visibility, and deletion with an unrelated project control.
+- Public policies: English and Polish content without authentication, and unknown-document handling.
+
+Each execution gets independent fixture data. Stored outcomes are checked through engine APIs;
+workflow actions use the browser. The public-policy locale is seeded with the supported language
+cookie. This checks localized content; interactive language switching has separate coverage needs.
 
 Both executable runners build a production frontend before tests. Their application dependencies
 use compile scope so Vaadin can discover endpoint views and plugin resources. The support jar
@@ -33,8 +42,8 @@ These attributes can repeat across component instances. Scope reusable controls 
 owning dialog or editor, and use `data-group-path`, `data-attribute-name`, or `data-credential`
 to identify repeated business objects. Request and member controls use `data-request-id` and
 `data-member-id`. The shared page helper selects visible controls when hidden menu instances
-are also present. Reserve HTML IDs for elements requiring document-wide
-uniqueness. `VaadinPage.testId(...)` accepts an owner followed by descendant hooks for scoped
+are also present, and re-resolves inputs if Vaadin replaces them while typing. Reserve HTML IDs
+for elements requiring document-wide uniqueness. `VaadinPage.testId(...)` accepts an owner followed by descendant hooks for scoped
 selectors.
 
 The shared fixture uses an in-memory database, a fresh Spring context per execution, and only

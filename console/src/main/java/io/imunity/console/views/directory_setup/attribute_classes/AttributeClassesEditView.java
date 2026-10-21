@@ -85,11 +85,13 @@ public class AttributeClassesEditView extends ConsoleViewComponent
 	private void initUI(AttributesClass attributesClass)
 	{
 		TextField name = new TextField();
+		name.getElement().setAttribute("data-testid", "AttributeClassesEditView.name");
 		name.setPlaceholder(msg.getMessage("AttributesClass.defaultName"));
 		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		name.setReadOnly(edit);
 
 		TextField typeDescription = new TextField();
+		typeDescription.getElement().setAttribute("data-testid", "AttributeClassesEditView.description");
 		typeDescription.setWidth(TEXT_FIELD_BIG.value());
 
 		MultiSelectComboBox<String> parents = new MultiSelectComboBox<>();
@@ -99,8 +101,10 @@ public class AttributeClassesEditView extends ConsoleViewComponent
 		allowed.setWidth(TEXT_FIELD_BIG.value());
 
 		Checkbox allowArbitrary = new Checkbox(msg.getMessage("AttributesClass.allowArbitrary"));
+		allowArbitrary.getElement().setAttribute("data-testid", "AttributeClassesEditView.allowArbitrary");
 
 		MultiSelectComboBox<String> mandatory = new MultiSelectComboBox<>();
+		mandatory.getElement().setAttribute("data-testid", "AttributeClassesEditView.mandatory");
 		mandatory.setWidth(TEXT_FIELD_BIG.value());
 
 		effectiveViewer = new EffectiveAttrClassViewer(msg);

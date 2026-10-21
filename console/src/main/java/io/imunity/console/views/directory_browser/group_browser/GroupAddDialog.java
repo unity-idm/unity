@@ -38,6 +38,7 @@ class GroupAddDialog extends DialogWithActionFooter
 	GroupAddDialog(MessageSource msg, Group group, Callback callback)
 	{
 		super(msg::getMessage);
+		getElement().setAttribute("data-testid", "GroupAddDialog");
 		this.msg = msg;
 		this.parent = group.toString();
 		this.callback = callback;
@@ -54,11 +55,13 @@ class GroupAddDialog extends DialogWithActionFooter
 		fl.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		name = new TextField();
+		name.getElement().setAttribute("data-testid", "GroupAddDialog.name");
 		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		nameFormItem = fl.addFormItem(name, msg.getMessage("GroupEditDialog.groupName"));
 		name.setRequiredIndicatorVisible(true);
 		
 		displayedName = new LocalizedTextFieldDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale());
+		displayedName.getElement().setAttribute("data-testid", "GroupAddDialog.displayedName");
 		displayedName.setWidth(TEXT_FIELD_MEDIUM.value());
 		description = new LocalizedTextAreaDetails(new HashSet<>(msg.getEnabledLocales().values()), msg.getLocale());
 		description.setWidth(TEXT_FIELD_MEDIUM.value());

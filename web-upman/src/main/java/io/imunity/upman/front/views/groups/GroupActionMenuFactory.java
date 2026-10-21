@@ -56,7 +56,10 @@ class GroupActionMenuFactory
 			}
 		});
 
-		return menu.getTarget();
+		Component target = menu.getTarget();
+		target.getElement().setAttribute("data-testid", "UpManGroups.actions");
+		target.getElement().setAttribute("data-group-path", groupNode.getPath());
+		return target;
 	}
 
 	private void crateDelegateItem(GroupTreeNode groupNode, ActionMenu menu)
