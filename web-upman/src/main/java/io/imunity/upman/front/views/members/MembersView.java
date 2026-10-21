@@ -104,6 +104,7 @@ public class MembersView extends UpmanViewComponent
 	private GroupComboBox createGroupComboBox()
 	{
 		GroupComboBox groupComboBox = new GroupComboBox(msg);
+		groupComboBox.getElement().setAttribute("data-testid", "UpManMembers.group");
 		groupComboBox.getStyle().set("width", "50%");
 		groupComboBox.addValueChangeListener(event ->
 		{
@@ -123,9 +124,12 @@ public class MembersView extends UpmanViewComponent
 
 	private Component createGridRowContextMenu(MemberModel model)
 	{
-		return createContextMenu(() -> Set.of(model))
+		Component menu = createContextMenu(() -> Set.of(model))
 				.switchMode(mode, currentUserRole)
 				.getTarget();
+		menu.getElement().setAttribute("data-testid", "UpManMembers.memberActions");
+		menu.getElement().setAttribute("data-member-id", Long.toString(model.entityId));
+		return menu;
 	}
 
 	private MemberActionMenu createContextMenu(Supplier<Set<MemberModel>> selectedMembersGetter)

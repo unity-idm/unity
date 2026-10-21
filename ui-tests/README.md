@@ -31,7 +31,9 @@ New Selenium hooks use component-qualified `data-testid` values, such as
 `EntityCreationDialog.credentialRequirement` and `DialogWithActionFooter.confirm`.
 These attributes can repeat across component instances. Scope reusable controls through the
 owning dialog or editor, and use `data-group-path`, `data-attribute-name`, or `data-credential`
-to identify repeated business objects. Reserve HTML IDs for elements requiring document-wide
+to identify repeated business objects. Request and member controls use `data-request-id` and
+`data-member-id`. The shared page helper selects visible controls when hidden menu instances
+are also present. Reserve HTML IDs for elements requiring document-wide
 uniqueness. `VaadinPage.testId(...)` accepts an owner followed by descendant hooks for scoped
 selectors.
 

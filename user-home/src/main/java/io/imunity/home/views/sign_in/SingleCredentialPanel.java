@@ -71,6 +71,8 @@ class SingleCredentialPanel extends VerticalLayout
 			CredentialDefinition toEdit, boolean enableAdminActions,
 			NotificationPresenter notificationPresenter, Runnable refresh)
 	{
+		getElement().setAttribute("data-testid", "HomeSignIn.credential");
+		getElement().setAttribute("data-credential", toEdit.getName());
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.msg = msg;
 		this.ecredMan = ecredMan;
@@ -134,6 +136,7 @@ class SingleCredentialPanel extends VerticalLayout
 		invalidate = new LinkButton(msg.getMessage("CredentialChangeDialog.invalidate"),
 				ne -> changeCredentialStatusWithConfirm(LocalCredentialState.outdated));
 		edit = new LinkButton(msg.getMessage("CredentialChangeDialog.setup"), e -> switchEditorVisibility(true));
+		edit.getElement().setAttribute("data-testid", "HomeSignIn.editCredential");
 		
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 		if (credEditor.isUserConfigurable())

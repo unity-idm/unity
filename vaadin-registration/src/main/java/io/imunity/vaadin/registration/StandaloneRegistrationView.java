@@ -277,6 +277,7 @@ class StandaloneRegistrationView extends UnityViewComponent implements BeforeEnt
 		Button button = new Button(
 				msg.getMessage("RegistrationRequestEditorDialog.submitRequest"),
 				event -> onSubmit(editor, mode));
+		button.getElement().setAttribute("data-testid", "StandaloneRegistration.submit");
 		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		if(form.getLayoutSettings().isCompactInputs())
 			button.getStyle().set("margin-top", "-1.5em");

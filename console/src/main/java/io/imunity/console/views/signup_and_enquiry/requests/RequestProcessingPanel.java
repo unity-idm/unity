@@ -78,6 +78,7 @@ class RequestProcessingPanel extends VerticalLayout
 		requestForm = new NativeLabel();
 		requestId = new NativeLabel();
 		requestStatus = new NativeLabel();
+		requestStatus.getElement().setAttribute("data-testid", "RequestProcessingPanel.status");
 		requestDate = new NativeLabel();
 
 		FormLayout topInfo = new FormLayout();
@@ -100,6 +101,7 @@ class RequestProcessingPanel extends VerticalLayout
 				.addClassName(CssClassNames.TABSHEET_FULL.getName());
 
 		accept = new Button(msg.getMessage("RequestProcessingPanel.accept"));
+		accept.getElement().setAttribute("data-testid", "RequestProcessingPanel.accept");
 		accept.addClickListener(e -> process(RegistrationRequestAction.accept));
 		reject = new Button(msg.getMessage("RequestProcessingPanel.reject"));
 		reject.addClickListener(e -> process(RegistrationRequestAction.reject));

@@ -10,7 +10,6 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public final class VaadinPage
@@ -32,7 +31,8 @@ public final class VaadinPage
 
 	public WebElement visible(By locator)
 	{
-		return wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
+		return wait.ignoring(StaleElementReferenceException.class).until(ignored -> driver.findElements(locator)
+				.stream().filter(WebElement::isDisplayed).findFirst().orElse(null));
 	}
 
 	public void click(By locator)
@@ -40,7 +40,8 @@ public final class VaadinPage
 		wait.ignoring(ElementClickInterceptedException.class).ignoring(StaleElementReferenceException.class)
 				.until(ignored ->
 				{
-					WebElement element = ExpectedConditions.elementToBeClickable(locator).apply(driver);
+					WebElement element = driver.findElements(locator).stream()
+							.filter(candidate -> candidate.isDisplayed() && candidate.isEnabled()).findFirst().orElse(null);
 					if (element == null)
 						return false;
 					element.click();
@@ -81,10 +82,15 @@ public final class VaadinPage
 	public void login(String baseUrl, String path, String username, String password)
 	{
 		driver.get(baseUrl + path);
+		signIn(username, password);
+		visible(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']"));
+	}
+
+	public void signIn(String username, String password)
+	{
 		fill(By.className("u-passwordUsernameField"), username);
 		fill(By.className("u-passwordField"), password);
 		click(By.className("u-passwordSignInButton"));
-		visible(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']"));
 	}
 
 	private WebElement input(By locator)

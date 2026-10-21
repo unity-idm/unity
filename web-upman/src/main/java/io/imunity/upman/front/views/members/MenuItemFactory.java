@@ -77,6 +77,7 @@ class MenuItemFactory
 	MenuItem createAddToGroupItem(Supplier<ProjectGroup> projectGetter, Supplier<List<GroupTreeNode>> groupGetter, Supplier<Set<MemberModel>> modelsGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.addToGroupAction"), PLUS_CIRCLE_O);
+		menuButton.getElement().setAttribute("data-testid", "UpManMembers.addToGroup");
 		return new MenuItem(menuButton, event -> createAddToGroupDialog(projectGetter.get(), modelsGetter.get(), groupGetter.get()).open());
 	}
 
@@ -175,8 +176,10 @@ class MenuItemFactory
 	private Dialog createAddToGroupDialog(ProjectGroup projectGroup, Set<MemberModel> members, List<GroupTreeNode> groups)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("AddToGroupDialog.caption"));
+		dialog.getElement().setAttribute("data-testid", "UpManMembers.addToGroupDialog");
 
 		ComboBox<GroupTreeNode> groupComboBox = new GroupComboBox(msg);
+		groupComboBox.getElement().setAttribute("data-testid", "UpManMembers.targetGroup");
 		groupComboBox.focus();
 		groupComboBox.setLabel(msg.getMessage("AddToGroupDialog.info"));
 		groupComboBox.setItems(groups);
@@ -190,6 +193,7 @@ class MenuItemFactory
 		dialog.add(dialogLayout);
 
 		Button saveButton = createAddToGroupButton(projectGroup, dialog, groupComboBox, members);
+		saveButton.getElement().setAttribute("data-testid", "UpManMembers.confirmAdd");
 		dialog.getFooter().add(saveButton);
 
 		return dialog;
