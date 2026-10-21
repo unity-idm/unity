@@ -53,6 +53,8 @@ class PublicLinkableImageValueComponent extends Component implements HasComponen
 			imageValueComponent.setVisible(false);
 		
 		selector = new RadioButtonGroup<>(null, Option.values());
+		selector.getElement().setAttribute("data-testid", "PublicLinkableImageValueComponent.source");
+		urlValueComponent.getElement().setAttribute("data-testid", "PublicLinkableImageValueComponent.url");
 		imageValueComponent.addChangeListener(() -> selector.setInvalid(false));
 		selector.setValue(activeOption);
 		selector.setItemLabelGenerator(item -> msg.getMessage("PublicLinkableImage.option." + item.name()));

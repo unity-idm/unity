@@ -58,6 +58,7 @@ class IdentityCreationDialog extends DialogWithActionFooter
 			NotificationPresenter notificationPresenter)
 	{
 		super(msg::getMessage);
+		getElement().setAttribute("data-testid", "IdentityCreationDialog");
 		this.msg = msg;
 		this.identityEditorReg = identityEditorReg;
 		this.identitiesMan = identitiesMan;
@@ -130,6 +131,7 @@ class IdentityCreationDialog extends DialogWithActionFooter
 					.withAdminMode(true).build());
 			Arrays.stream(container.getComponents()).forEach(item ->
 			{
+				item.getElement().setAttribute("data-testid", "IdentityCreationDialog.value");
 				if (item instanceof CustomField<?> field)
 				{
 					idLayout.addFormItem(field, field.getLabel());

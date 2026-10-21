@@ -80,8 +80,10 @@ public class AttributesGrid extends VerticalLayout
 		this.registry = registry;
 		this.notificationPresenter = notificationPresenter;
 		this.bus = WebSession.getCurrent().getEventBus();
+		getElement().setAttribute("data-testid", "AttributesGrid");
 
 		attributesGrid = new GridWithActionColumn<>(msg::getMessage, Collections.emptyList());
+		attributesGrid.getElement().setAttribute("data-testid", "AttributesGrid.attributes");
 
 		attributesGrid.addShowDetailsColumn(new ComponentRenderer<>(controller::getDetailsComponent));
 
@@ -127,7 +129,7 @@ public class AttributesGrid extends VerticalLayout
 
 		attributesGrid.setPartNameGenerator(a ->
 		{
-			StringBuilder style = new StringBuilder();
+			StringBuilder style = new StringBuilder("attribute-" + a.getName());
 			if (checkAttributeImmutable(a) || !a.isDirect())
 				style.append(" ").append(IMMUTABLE_ATTRIBUTE.getName());
 			if (acHelper.isMandatory(a.getName()))
@@ -152,6 +154,7 @@ public class AttributesGrid extends VerticalLayout
 		toolbar.setWidthFull();
 		toolbar.addCompactHamburger(hamburgerMenu, Alignment.END);
 		Button button = new Button(msg.getMessage("add"), VaadinIcon.PLUS_CIRCLE_O.create());
+		button.getElement().setAttribute("data-testid", "AttributesGrid.add");
 		button.addClickListener(e -> showAddDialog());
 		button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		toolbar.add(button);
@@ -357,6 +360,7 @@ public class AttributesGrid extends VerticalLayout
 
 	public void setInput(EntityWithLabel owner, String groupPath)
 	{
+		getElement().setAttribute("data-entity-id", owner.getEntity().getId().toString());
 		this.owner = owner;
 		this.groupPath = groupPath;
 		refresh();

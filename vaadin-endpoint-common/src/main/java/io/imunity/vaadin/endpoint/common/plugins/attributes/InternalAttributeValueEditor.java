@@ -4,6 +4,8 @@
  */
 package io.imunity.vaadin.endpoint.common.plugins.attributes;
 
+import com.vaadin.flow.component.Component;
+
 import io.imunity.vaadin.endpoint.common.plugins.ComponentsContainer;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeValueException;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -37,6 +39,11 @@ class InternalAttributeValueEditor implements ListOfEmbeddedElementsStub.Editor<
 		editor = handler.getEditorComponent(value.getValue(), value.getLabel());
 		editedValue = value;
 		ComponentsContainer ret = editor.getEditor(editContext);
+		for (Component component : ret.getComponents())
+		{
+			component.getElement().setAttribute("data-testid", "InternalAttributeValueEditor.value");
+			component.getElement().setAttribute("data-attribute-name", editContext.getAttributeType().getName());
+		}
 		return ret;
 	}
 

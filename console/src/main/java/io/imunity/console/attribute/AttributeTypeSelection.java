@@ -63,6 +63,7 @@ class AttributeTypeSelection extends VerticalLayout
 	private void createAttributeSelectionWidget(Collection<AttributeType> attributeTypes)
 	{
 		attributeTypesCombo = new AttributeSelectionComboBox(null, attributeTypes, msg);
+		attributeTypesCombo.getElement().setAttribute("data-testid", "AttributeTypeSelection.type");
 		attributeTypesCombo.setWidth(TEXT_FIELD_MEDIUM.value());
 		if (attributeTypes.size() == 1)
 		{
