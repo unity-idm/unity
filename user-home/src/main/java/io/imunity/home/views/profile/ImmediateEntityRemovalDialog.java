@@ -42,6 +42,7 @@ class ImmediateEntityRemovalDialog extends DialogWithActionFooter
 								 RemovalModes removalMode, NotificationPresenter notificationPresenter)
 	{
 		super(msg::getMessage);
+		getElement().setAttribute("data-testid", "ImmediateEntityRemovalDialog");
 		this.msg = msg;
 		this.entity = entityId;
 		this.identitiesMan = identitiesManagement;

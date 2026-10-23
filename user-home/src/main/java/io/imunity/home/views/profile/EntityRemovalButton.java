@@ -24,6 +24,7 @@ class EntityRemovalButton extends Button
 	{
 		super(msg.getMessage("EntityRemovalButton.removeAccount"));
 		setIcon(VaadinIcon.TRASH.create());
+		getElement().setAttribute("data-testid", "EntityRemovalButton.remove");
 		addClickListener((event) ->
 		{
 			if (config.getBooleanValue(HomeEndpointProperties.DISABLE_REMOVAL_SCHEDULE))

@@ -71,6 +71,7 @@ public class MembersView extends UpmanViewComponent
 		HorizontalLayout groupComboBoxLayout = createGroupComboBoxLayout(msg);
 
 		searchField = createSearchField();
+		searchField.getElement().setAttribute("data-testid", "UpManMembers.search");
 
 		mainContextMenu = createContextMenu(() -> grid.getSelectedItems());
 

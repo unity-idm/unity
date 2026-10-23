@@ -16,6 +16,7 @@ public class BaseDialog extends Dialog
 		setHeaderTitle(headerTxt);
 		setResizable(true);
 		Button cancelButton = new Button(cancelTxt, e -> close());
+		cancelButton.getElement().setAttribute("data-testid", "BaseDialog.cancel");
 		getFooter().add(cancelButton);
 		dialogHolder.add(this);
 	}

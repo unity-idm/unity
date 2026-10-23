@@ -55,6 +55,7 @@ class ScheduledEntityRemovalDialog extends Dialog
 	ScheduledEntityRemovalDialog(MessageSource msg, long entityId,
 			EntityManagement identitiesManagement, VaadinWebLogoutHandler authnProcessor, NotificationPresenter notificationPresenter)
 	{
+		getElement().setAttribute("data-testid", "ScheduledEntityRemovalDialog");
 		this.msg = msg;
 		this.entity = entityId;
 		this.identitiesMan = identitiesManagement;
@@ -64,12 +65,14 @@ class ScheduledEntityRemovalDialog extends Dialog
 		add(getContents());
 		Button okButton = new Button(msg.getMessage("ok"), e -> onConfirm());
 		okButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		okButton.getElement().setAttribute("data-testid", "ScheduledEntityRemovalDialog.submit");
 		getFooter().add(new Button(msg.getMessage("cancel"), e -> close()), okButton);
 	}
 
 	protected Component getContents()
 	{
 		nowOrLater = new RadioButtonGroup<>();
+		nowOrLater.getElement().setAttribute("data-testid", "ScheduledEntityRemovalDialog.mode");
 		Map<String, String> captions = Map.of(NOW,
 				msg.getMessage("RemoveEntityDialog.removeNow"), SCHEDULE,
 				msg.getMessage("RemoveEntityDialog.scheduleRemoval"));
@@ -78,6 +81,7 @@ class ScheduledEntityRemovalDialog extends Dialog
 		nowOrLater.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 
 		TextField daysField = new TextField();
+		daysField.getElement().setAttribute("data-testid", "ScheduledEntityRemovalDialog.days");
 		daysBinder = new Binder<>();
 		daysBinder.forField(daysField).withConverter(new StringToIntegerConverter(msg.getMessage("RemoveEntityDialog.notANumber")))
 		.withValidator(new IntegerRangeValidator(msg.getMessage("RemoveEntityDialog.notANumber",
@@ -128,6 +132,7 @@ class ScheduledEntityRemovalDialog extends Dialog
 		}
 		
 		ConfirmDialog confirm = new ConfirmDialog();
+		confirm.getElement().setAttribute("data-testid", "ScheduledEntityRemovalDialog.confirmation");
 		confirm.setText(confirmQuestion);
 		confirm.setHeader(msg.getMessage("ConfirmDialog.confirm"));
 		confirm.addConfirmListener(e -> scheduleChange(time));

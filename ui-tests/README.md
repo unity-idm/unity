@@ -30,8 +30,10 @@ Use `-Dgroups=<tag>` to select `admin-directory`, `admin-authentication`, `admin
 - Admin settings: identity self-service limits and running build information.
 - Admin automation: scheduled rule creation/editing, invalid schedules, and saved/ad-hoc execution
   with account-state and fresh-login checks for target and control users.
-- Home: profile save/reload/reset with read-only authorization roles.
-- UpMan: subgroup creation, displayed-name changes, visibility, and deletion with an unrelated project control.
+- Home: profile save/reload/reset and image upload/replacement, read-only authorization roles, scheduled
+  removal with login cancellation, invalid grace periods, and immediate removal/disable/block modes.
+- UpMan: project switching and member filtering, subgroup lifecycle/visibility, subproject delegation,
+  project/subproject roles, member removal with self-removal cancellation, and scope checks across all four tabs.
 - Public policies: English and Polish content without authentication, and unknown-document handling.
 
 The credential-definition matrix covers `password`, `certificate`, `sms`, `otp`, `fido`, and
@@ -76,12 +78,19 @@ are also present, and re-resolves inputs if Vaadin replaces them while typing. R
 for elements requiring document-wide uniqueness. `VaadinPage.testId(...)` accepts an owner followed by descendant hooks for scoped
 selectors.
 
+Home removal cases inspect account state and removal deadlines, then use fresh browsers to verify
+login cancellation or rejection. UpMan cases preserve unrelated project/member snapshots and check
+new-session management access after granting or revoking roles. Ordinary members, unrelated users,
+and managers of another project exercise direct navigation to every UpMan tab.
+
 The shared fixture uses an in-memory database, a fresh Spring context per execution, and only
 explicit default content plus scenario-specific API setup. It enables AdminUI, Home, and UpMan.
 The old integration scenarios retain their existing loopback fixture. Each browser has its own
 profile, and different actors use separate browsers. Execution is sequential, with a five-minute
-fork timeout and bounded browser waits. Port 2443 remains fixed: run simultaneous workers in
-separate containers or network namespaces.
+fork timeout and bounded browser waits. The initial nightly target is one sequential worker completing
+within 60 minutes, using JUnit reports and existing failure artifacts. Port 2443 remains fixed;
+run the regular and nightly browser suites separately. If parallel workers become useful later,
+isolate them in separate containers or network namespaces.
 
 On failure, `target/selenium-failures/<test-class>-<unique-id>/` contains the test and fixture
 identifier, screenshots, DOM, current URLs, browser console, capabilities (including browser and

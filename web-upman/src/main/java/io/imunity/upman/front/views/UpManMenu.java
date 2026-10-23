@@ -185,6 +185,7 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 		{
 			ComboBox<ProjectGroup> comboBox = new ComboBox<>();
 			comboBox.setClassName("project-combo-box");
+			comboBox.getElement().setAttribute("data-testid", "UpManMenu.project");
 			comboBox.setLabel(msg.getMessage("UpManMenu.projectNameCaption"));
 
 			comboBox.addValueChangeListener(event ->

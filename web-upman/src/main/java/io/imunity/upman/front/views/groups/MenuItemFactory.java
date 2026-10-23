@@ -102,17 +102,20 @@ class MenuItemFactory
 	MenuItem createDelegateGroupItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.delegateGroupAction"), WORKPLACE);
+		menuButton.getElement().setAttribute("data-testid", "UpManGroups.delegate");
 		return new MenuItem(menuButton, event -> createDelegateDialog(projectGroup, group).open());
 	}
 
 	private Dialog createDelegateDialog(ProjectGroup projectGroup, Group group)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("SubprojectDialog.caption"));
+		dialog.getElement().setAttribute("data-testid", "UpManGroups.delegationDialog");
 
 		SubProjectConfigurationLayout subProjectConfigurationLayout = new SubProjectConfigurationLayout(msg, content, group);
 		dialog.add(subProjectConfigurationLayout);
 
 		Button saveButton = new SubmitButton(msg::getMessage);
+		saveButton.getElement().setAttribute("data-testid", "UpManGroups.confirm");
 		saveButton.addClickListener(event ->
 		{
 			groupService.setGroupDelegationConfiguration(
