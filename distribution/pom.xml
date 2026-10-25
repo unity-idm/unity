@@ -23,15 +23,6 @@
 	<dependencies>
 		<!-- compile -->
 		
-		<!-- enable for java 11 -->
-		<!-- 
-		<dependency>
-			<groupId>com.sun.xml.ws</groupId>
-			<artifactId>jaxws-ri</artifactId>
-			<type>pom</type>
-		</dependency>
-		 -->
-		 
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
