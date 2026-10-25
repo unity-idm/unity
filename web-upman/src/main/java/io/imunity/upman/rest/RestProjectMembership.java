@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 @JsonDeserialize(builder = RestProjectMembership.RestProjectMembershipBuilder.class)
-class RestProjectMembership
+class RestProjectMembership implements RestMember
 {
 	final String email;
 	final String role;

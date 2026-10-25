@@ -43,6 +43,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.GenericEntity;
 import jakarta.ws.rs.core.Response;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
@@ -138,43 +139,57 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members")
 	@GET
-	public String getProjectMembers(@PathParam("project-id") String projectId,
+	@Operation(operationId = "getProjectMembers")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(anyOf = {RestProjectMembership[].class, RestGroupMember[].class})))
+	public List<? extends RestMember> getProjectMembers(@PathParam("project-id") String projectId,
 			@QueryParam("groupPath") String groupPath)
-			throws EngineException, JsonProcessingException
+			throws EngineException
 	{
 		log.debug("getProjectMember {}", projectId);
-		return mapper.writeValueAsString(groupPath == null ? restProjectService.getProjectMembers(projectId)
-				: workflows.members(projectId, groupPath));
+		return groupPath == null ? restProjectService.getProjectMembers(projectId)
+				: workflows.members(projectId, groupPath);
 	}
 
 	@Path("/projects/{project-id}/invitations")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response sendInvitations(@PathParam("project-id") String projectId, String json)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "sendInvitations")
+	@ApiResponse(responseCode = "201", description = "Success",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestInvitationOutcome.class))))
+	public Response sendInvitations(@PathParam("project-id") String projectId, RestInvitationRequest input)
+			throws EngineException
 	{
-		return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(
-				workflows.sendInvitations(projectId, parse(json, RestInvitationRequest.class)))).build();
+		return Response.status(Response.Status.CREATED).entity(
+				new GenericEntity<List<RestInvitationOutcome>>(workflows.sendInvitations(projectId, input)) {}).build();
 	}
 
 	@Path("/projects/{project-id}/invitations")
 	@GET
-	public String getInvitations(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getInvitations")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestInvitation.class))))
+	public List<RestInvitation> getInvitations(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.invitations(projectId));
+		return workflows.invitations(projectId);
 	}
 
 	@Path("/projects/{project-id}/invitations/{code}")
 	@GET
-	public String getInvitation(@PathParam("project-id") String projectId, @PathParam("code") String code)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getInvitation")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestInvitation.class)))
+	public RestInvitation getInvitation(@PathParam("project-id") String projectId, @PathParam("code") String code)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.invitation(projectId, code));
+		return workflows.invitation(projectId, code);
 	}
 
 	@Path("/projects/{project-id}/invitations/{code}")
 	@DELETE
+	@Operation(operationId = "removeInvitation")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeInvitation(@PathParam("project-id") String projectId, @PathParam("code") String code)
 			throws EngineException
 	{
@@ -183,6 +198,8 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/invitations/{code}/resend")
 	@POST
+	@Operation(operationId = "resendInvitation")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void resendInvitation(@PathParam("project-id") String projectId, @PathParam("code") String code)
 			throws EngineException
 	{
@@ -191,6 +208,8 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/invitations/{code}/reinvite")
 	@POST
+	@Operation(operationId = "reinvite")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void reinvite(@PathParam("project-id") String projectId, @PathParam("code") String code)
 			throws EngineException
 	{
@@ -199,31 +218,41 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/groups")
 	@GET
-	public String getGroups(@PathParam("project-id") String projectId) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getGroups")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestGroup.class))))
+	public List<RestGroup> getGroups(@PathParam("project-id") String projectId) throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.groups(projectId));
+		return workflows.groups(projectId);
 	}
 
 	@Path("/projects/{project-id}/groups")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response addGroup(@PathParam("project-id") String projectId, String json)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "addGroup")
+	@ApiResponse(responseCode = "201", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestGroupPath.class)))
+	public Response addGroup(@PathParam("project-id") String projectId, RestGroupCreateRequest input)
+			throws EngineException
 	{
-		return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(
-				workflows.addGroup(projectId, parse(json, RestGroupCreateRequest.class)))).build();
+		return Response.status(Response.Status.CREATED).entity(workflows.addGroup(projectId, input)).build();
 	}
 
 	@Path("/projects/{project-id}/groups/by-path")
 	@GET
-	public String getGroup(@PathParam("project-id") String projectId, @QueryParam("path") String path)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getGroup")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestGroup.class)))
+	public RestGroup getGroup(@PathParam("project-id") String projectId, @QueryParam("path") String path)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.group(projectId, path));
+		return workflows.group(projectId, path);
 	}
 
 	@Path("/projects/{project-id}/groups/by-path")
 	@DELETE
+	@Operation(operationId = "removeGroup")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeGroup(@PathParam("project-id") String projectId, @QueryParam("path") String path)
 			throws EngineException
 	{
@@ -233,23 +262,29 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/groups")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateGroup(@PathParam("project-id") String projectId, String json)
+	@Operation(operationId = "updateGroup")
+	@ApiResponse(responseCode = "204", description = "Success")
+	public void updateGroup(@PathParam("project-id") String projectId, RestGroupUpdateRequest input)
 			throws EngineException
 	{
-		workflows.updateGroup(projectId, parse(json, RestGroupUpdateRequest.class));
+		workflows.updateGroup(projectId, input);
 	}
 
 	@Path("/projects/{project-id}/groups/by-path/delegation")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "setGroupDelegation")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void setGroupDelegation(@PathParam("project-id") String projectId, @QueryParam("path") String path,
-			String json) throws EngineException
+			RestGroupDelegationRequest input) throws EngineException
 	{
-		workflows.setDelegation(projectId, path, parse(json, RestGroupDelegationRequest.class));
+		workflows.setDelegation(projectId, path, input);
 	}
 
 	@Path("/projects/{project-id}/members/by-id/{entityId}")
 	@PUT
+	@Operation(operationId = "addGroupMember")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addGroupMember(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
 			@QueryParam("groupPath") String groupPath) throws EngineException
 	{
@@ -258,14 +293,19 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members/by-id/{entityId}")
 	@GET
-	public String getGroupMember(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
-			@QueryParam("groupPath") String groupPath) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getGroupMember")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestGroupMember.class)))
+	public RestGroupMember getGroupMember(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
+			@QueryParam("groupPath") String groupPath) throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.member(projectId, groupPath, entityId));
+		return workflows.member(projectId, groupPath, entityId);
 	}
 
 	@Path("/projects/{project-id}/members/by-id/{entityId}")
 	@DELETE
+	@Operation(operationId = "removeGroupMember")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeGroupMember(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
 			@QueryParam("groupPath") String groupPath) throws EngineException
 	{
@@ -274,38 +314,52 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members/by-id/{entityId}/role")
 	@GET
-	public String getGroupMemberRole(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
-			@QueryParam("groupPath") String groupPath) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getGroupMemberRole")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestAuthorizationRole.class)))
+	public RestAuthorizationRole getGroupMemberRole(@PathParam("project-id") String projectId,
+			@PathParam("entityId") long entityId,
+			@QueryParam("groupPath") String groupPath) throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.role(projectId, groupPath, entityId));
+		return workflows.role(projectId, groupPath, entityId);
 	}
 
 	@Path("/projects/{project-id}/members/by-id/{entityId}/role")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "setGroupMemberRole")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void setGroupMemberRole(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
-			@QueryParam("groupPath") String groupPath, String json) throws EngineException
+			@QueryParam("groupPath") String groupPath, RestAuthorizationRole role) throws EngineException
 	{
-		workflows.setRole(projectId, groupPath, entityId, parse(json, RestAuthorizationRole.class));
+		workflows.setRole(projectId, groupPath, entityId, role);
 	}
 
 	@Path("/projects/{project-id}/requests")
 	@GET
-	public String getRequests(@PathParam("project-id") String projectId) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getRequests")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestRequest.class))))
+	public List<RestRequest> getRequests(@PathParam("project-id") String projectId) throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.requests(projectId));
+		return workflows.requests(projectId);
 	}
 
 	@Path("/projects/{project-id}/requests/{requestId}")
 	@GET
-	public String getRequest(@PathParam("project-id") String projectId, @PathParam("requestId") String requestId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getRequest")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestRequest.class)))
+	public RestRequest getRequest(@PathParam("project-id") String projectId, @PathParam("requestId") String requestId)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.request(projectId, requestId));
+		return workflows.request(projectId, requestId);
 	}
 
 	@Path("/projects/{project-id}/requests/{requestId}/state")
 	@POST
+	@Operation(operationId = "decideRequest")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void decideRequest(@PathParam("project-id") String projectId, @PathParam("requestId") String requestId,
 			@QueryParam("decision") String decision)
 			throws EngineException
@@ -315,16 +369,21 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members/{userId}")
 	@GET
-	public String getProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String email)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getProjectMember")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestProjectMembership.class)))
+	public RestProjectMembership getProjectMember(@PathParam("project-id") String projectId,
+			@PathParam("userId") String email)
+			throws EngineException
 	{
 		log.debug("getProjectMember {}, {}", projectId, email);
-		RestProjectMembership member = restProjectService.getProjectMember(projectId, email);
-		return mapper.writeValueAsString(member);
+		return restProjectService.getProjectMember(projectId, email);
 	}
 
 	@Path("/projects/{project-id}/members/{userId}")
 	@DELETE
+	@Operation(operationId = "removeProjectMember")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String userId)
 			throws EngineException
 	{
@@ -334,6 +393,8 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members/{userId}")
 	@POST
+	@Operation(operationId = "addProjectMember")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String userId)
 			throws EngineException
 	{
@@ -343,21 +404,24 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members/{userId}/role")
 	@GET
-	public String getProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
-			@PathParam("userId") String userId) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getProjectMemberAuthorizationRole")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestAuthorizationRole.class)))
+	public RestAuthorizationRole getProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
+			@PathParam("userId") String userId) throws EngineException
 	{
 		log.debug("getProjectMemberAuthorizationRole {}, {}", projectId, userId);
-		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole(projectId, userId);
-		return mapper.writeValueAsString(role);
+		return restProjectService.getProjectAuthorizationRole(projectId, userId);
 	}
 
 	@Path("/projects/{project-id}/members/{userId}/role")
 	@PUT
+	@Operation(operationId = "addProjectMemberAuthorizationRole")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
-			@PathParam("userId") String userId, String roleJson) throws EngineException
+			@PathParam("userId") String userId, RestAuthorizationRole role) throws EngineException
 	{
 		log.info("addProjectMemberAuthorizationRole {}, {}", projectId, userId);
-		RestAuthorizationRole role = parse(roleJson, RestAuthorizationRole.class);
 		restProjectService.setProjectAuthorizationRole(projectId, userId, role);
 	}
 
@@ -378,7 +442,8 @@ public class RESTUpmanController
 	@Operation(operationId = "getPolicyDocument", summary = "Read a project policy document")
 	@ApiResponse(responseCode = "200", description = "Read a project policy document",
 			content = @Content(schema = @Schema(implementation = RestPolicyDocument.class)))
-	public RestPolicyDocument getPolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
+	public RestPolicyDocument getPolicyDocument(@PathParam("project-id") String projectId,
+			@PathParam("policy-id") Long policyId)
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("getPolicyDocument {}, {}", projectId, policyId);
@@ -416,7 +481,8 @@ public class RESTUpmanController
 	@Operation(operationId = "updatePolicyDocument", summary = "Update a project policy document")
 	@ApiResponse(responseCode = "204", description = "Update a project policy document")
 	public void updatePolicyDocument(@PathParam("project-id") String projectId,
-			@QueryParam("incrementRevision") Boolean incrementRevision, RestPolicyDocumentUpdateRequest policy) throws EngineException
+			@QueryParam("incrementRevision") Boolean incrementRevision, RestPolicyDocumentUpdateRequest policy)
+			throws EngineException
 	{
 		log.debug("updatePolicyDocument {}, {}", projectId, policy.id);
 		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy,

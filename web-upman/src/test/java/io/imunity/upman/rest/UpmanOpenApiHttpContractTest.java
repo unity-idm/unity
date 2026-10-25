@@ -28,6 +28,17 @@ class UpmanOpenApiHttpContractTest extends UpmanHttpContractTestBase
 		assertThat(schemas.at("/RestProjectCreateRequest/properties/public/type").asText()).isEqualTo("boolean");
 		assertThat(schemas.at("/RestProjectUpdateRequest/properties/displayedName/additionalProperties/type").asText())
 				.isEqualTo("string");
+		assertThat(schemas.at("/RestPolicyDocument/properties").propertyStream().map(java.util.Map.Entry::getKey))
+				.containsExactlyInAnyOrder("id", "name", "displayedName", "mandatory", "contentType", "revision", "content");
+		assertThat(schemas.at("/RestInvitation/properties/expiration/type").asText()).isEqualTo("number");
+		assertThat(schemas.at("/RestInvitation/properties/lastSentTime/type").asText()).isEqualTo("number");
+		assertThat(schemas.at("/RestRequest/properties/requestedTime/type").asText()).isEqualTo("number");
+		assertThat(schemas.at("/RestInvitationRequest/properties/expiration/anyOf").size()).isEqualTo(2);
+		JsonNode memberVariants = paths.path("/v1/projects/{project-id}/members")
+				.at("/get/responses/200/content/application~1json/schema/anyOf");
+		assertThat(memberVariants.size()).isEqualTo(2);
+		assertThat(memberVariants.get(0).path("type").asText()).isEqualTo("array");
+		assertThat(memberVariants.get(1).path("type").asText()).isEqualTo("array");
 		JsonNode collection = paths.path("/v1/projects");
 		assertThat(collection.at("/get/responses/200/content/application~1json/schema/type").asText())
 				.isEqualTo("array");

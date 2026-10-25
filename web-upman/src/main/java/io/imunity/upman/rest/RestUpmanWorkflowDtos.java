@@ -41,7 +41,7 @@ record RestGroup(String path, Map<String, String> displayedName, @JsonProperty("
 {
 }
 
-record RestGroupMember(long entityId, String name, String email, String role, List<RestAttribute> attributes)
+record RestGroupMember(long entityId, String name, String email, String role, List<RestAttribute> attributes) implements RestMember
 {
 }
 
