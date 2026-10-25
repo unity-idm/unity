@@ -28,6 +28,8 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.servers.Server;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 
 public final class UpmanOpenApi extends OpenApiCustomizer
 {
@@ -50,7 +52,19 @@ public final class UpmanOpenApi extends OpenApiCustomizer
 
 	private static Info info()
 	{
-		return new Info().title("Unity Project Management API").version("1");
+		return new Info().title("Unity Project Management API").version("1").description("""
+				Manage projects beneath the endpoint's configured root group. API version 1 is independent
+				of the Unity product release.
+
+				Direct authentication requires the `sys:ProjectManagementRESTAPIRole` manager role in the
+				configured authorization group. OAuth bearer tokens require `sys:upman-api` for all projects
+				or `sys:upman-api:PROJECT-ID` for one project. Nested scopes use the path relative to the
+				endpoint root, for example `sys:upman-api:parent/child`. A project-scoped token sees only
+				covered projects and cannot create projects.
+
+				Authenticators and OAuth authorization server URLs are deployment configuration.
+				Live documentation uses the endpoint's existing authentication.
+				""");
 	}
 
 	@Override
@@ -76,6 +90,18 @@ public final class UpmanOpenApi extends OpenApiCustomizer
 				new io.swagger.v3.oas.models.media.Schema<>().anyOf(List.of(
 						new NumberSchema().description("Seconds since the Unix epoch, including fractional seconds"),
 						new StringSchema().format("date-time"))));
+		api.getComponents().getSchemas().remove("RestMember");
+		UpmanOpenApiDescriptions.apply(api);
+		UpmanOpenApiExamples.apply(api);
+		api.getComponents().addSecuritySchemes("directAuth", new SecurityScheme()
+				.type(SecurityScheme.Type.HTTP).scheme("basic")
+				.description("Direct authentication using an endpoint-configured password authenticator."));
+		api.getComponents().addSecuritySchemes("oauthBearer", new SecurityScheme()
+				.type(SecurityScheme.Type.HTTP).scheme("bearer")
+				.description("OAuth token with sys:upman-api or a project-specific sys:upman-api:PROJECT-ID scope. "
+						+ "Configure the issuer and token endpoint for the deployed OAuth authenticator."));
+		api.setSecurity(List.of(new SecurityRequirement().addList("directAuth"),
+				new SecurityRequirement().addList("oauthBearer")));
 		api.setInfo(info());
 		api.setServers(List.of(new Server().url(".")));
 	}

@@ -21,6 +21,41 @@
 	</scm>
 	<dependencies>
 		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-web-upman</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.parser.v3</groupId>
+			<artifactId>swagger-parser-v3</artifactId>
+			<version>2.1.48</version>
+			<exclusions>
+				<exclusion><groupId>io.swagger.core.v3</groupId><artifactId>swagger-core</artifactId></exclusion>
+				<exclusion><groupId>io.swagger.core.v3</groupId><artifactId>swagger-models</artifactId></exclusion>
+				<exclusion><groupId>io.swagger.core.v3</groupId><artifactId>swagger-annotations</artifactId></exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.networknt</groupId>
+			<artifactId>json-schema-validator</artifactId>
+			<version>2.0.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
 			<version>${project.version}</version>
@@ -54,6 +89,26 @@
 			<artifactId>swagger-ui</artifactId>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-validated-upman-reference</id>
+						<phase>prepare-package</phase>
+						<goals><goal>java</goal></goals>
+						<configuration>
+							<mainClass>io.imunity.rest.doc.OpenApiExporter</mainClass>
+							<arguments><argument>${project.build.directory}/openapi</argument></arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 	<profiles>
 		<profile>

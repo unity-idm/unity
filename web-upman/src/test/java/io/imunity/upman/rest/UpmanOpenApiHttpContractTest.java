@@ -2,9 +2,9 @@ package io.imunity.upman.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.Test;
-
 import com.fasterxml.jackson.databind.JsonNode;
+
+import org.junit.jupiter.api.Test;
 
 class UpmanOpenApiHttpContractTest extends UpmanHttpContractTestBase
 {
@@ -15,7 +15,7 @@ class UpmanOpenApiHttpContractTest extends UpmanHttpContractTestBase
 
 		assertThat(result.status()).isEqualTo(200);
 		JsonNode api = m.readTree(result.body());
-		assertThat(api).isEqualTo(io.swagger.v3.core.util.Json.mapper().valueToTree(UpmanOpenApi.export()));
+		assertThat(api).isEqualTo(m.readTree(io.swagger.v3.core.util.Json.pretty(UpmanOpenApi.export())));
 		JsonNode paths = api.path("paths");
 		assertThat(paths.properties()).hasSize(25);
 		assertThat(api.at("/info/title").asText()).isEqualTo("Unity Project Management API");
@@ -51,4 +51,22 @@ class UpmanOpenApiHttpContractTest extends UpmanHttpContractTestBase
 		assertThat(project.at("/put/responses").has("204")).isTrue();
 		assertThat(project.at("/delete/responses").has("204")).isTrue();
 	}
+	@Test
+	void shouldRequireAuthenticationForLiveDocumentation() throws Exception
+	{
+		for (String format : new String[] {"json", "yaml"})
+		{
+			var request = new org.apache.hc.client5.http.classic.methods.HttpGet("/restupm/openapi." + format);
+			try (var response = client.executeOpen(host, request,
+					org.apache.hc.client5.http.protocol.HttpClientContext.create()))
+			{
+				assertThat(response.getCode()).isEqualTo(400);
+				assertThat(m.readTree(org.apache.hc.core5.http.io.entity.EntityUtils.toString(response.getEntity())))
+						.isEqualTo(m.readTree("""
+								{"message":"Authentication failed","error":"Exception"}
+								"""));
+			}
+		}
+	}
+
 }

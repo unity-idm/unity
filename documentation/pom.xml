@@ -29,6 +29,11 @@
 	</distributionManagement>
 
 	<dependencies>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-rest-api-docs</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<!-- dependencies are used to generate documentation from the code -->
 		<dependency>
 			<groupId>io.imunity</groupId>
@@ -147,7 +152,7 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>target/workspace</outputDirectory>
+							<outputDirectory>${project.build.directory}/workspace</outputDirectory>
 							<resources>
 								<resource>
 									<directory>src/main/doc</directory>
@@ -182,7 +187,7 @@
 							<outputDirectory>${project.reporting.outputDirectory}/figures</outputDirectory>
 							<resources>
 								<resource>
-									<directory>target/workspace/figures</directory>
+									<directory>${project.build.directory}/workspace/figures</directory>
 									<filtering>true</filtering>
 								</resource>
 							</resources>
@@ -197,13 +202,22 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<executions>
 					<execution>
+						<id>generate-openapi-references</id>
+						<phase>pre-site</phase>
+						<goals><goal>java</goal></goals>
+						<configuration>
+							<mainClass>io.imunity.rest.doc.OpenApiExporter</mainClass>
+							<arguments><argument>${project.reporting.outputDirectory}</argument></arguments>
+						</configuration>
+					</execution>
+					<execution>
 						<id>generate-conf-references</id>
 						<phase>pre-site</phase>
 						<configuration>
 							<mainClass>pl.edu.icm.unity.doc.utils.AsciidoctorFormatter</mainClass>
 							<cleanupDaemonThreads>false</cleanupDaemonThreads>
 							<arguments>
-								<argument>target/workspace</argument>
+								<argument>${project.build.directory}/workspace</argument>
 								<argument>eu.unicore.security.canl.TruststoreProperties|sec-ref-trustProperties.txt|.</argument>
 								<argument>eu.unicore.security.canl.CredentialProperties|sec-ref-credProperties.txt|.</argument>
 								<argument>pl.edu.icm.unity.engine.api.config.UnityPKIConfiguration|ref-pkiProperties.txt|</argument>
@@ -248,7 +262,7 @@
 							<arguments>
 								<argument>-D</argument>
 								<argument>${project.reporting.outputDirectory}</argument>
-								<argument>target/workspace/update-howto-v2.txt</argument>
+								<argument>${project.build.directory}/workspace/update-howto-v2.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>
@@ -265,7 +279,7 @@
 								<argument>${project.reporting.outputDirectory}</argument>
 								<argument>-a</argument>
 								<argument>revnumber=${project.version}@</argument>
-								<argument>target/workspace/manual.txt</argument>
+								<argument>${project.build.directory}/workspace/manual.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>
@@ -280,7 +294,7 @@
 							<arguments>
 								<argument>-D</argument>
 								<argument>${project.reporting.outputDirectory}</argument>
-								<argument>target/workspace/saml-howto.txt</argument>
+								<argument>${project.build.directory}/workspace/saml-howto.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>
@@ -295,7 +309,7 @@
 							<arguments>
 								<argument>-D</argument>
 								<argument>${project.reporting.outputDirectory}</argument>
-								<argument>target/workspace/rest-api-v1.txt</argument>
+								<argument>${project.build.directory}/workspace/rest-api-v1.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>
@@ -310,7 +324,7 @@
 							<arguments>
 								<argument>-D</argument>
 								<argument>${project.reporting.outputDirectory}</argument>
-								<argument>target/workspace/upman-rest-api-v1.txt</argument>
+								<argument>${project.build.directory}/workspace/upman-rest-api-v1.txt</argument>
 							</arguments>
 						</configuration>
 						<goals>
