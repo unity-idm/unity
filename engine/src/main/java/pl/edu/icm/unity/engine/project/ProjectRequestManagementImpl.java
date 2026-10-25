@@ -108,7 +108,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	public void accept(ProjectRequestParam request) throws EngineException
 	{
 		authz.assertManagerAuthorization(request.project);
-		proccessRequest(request, RegistrationRequestAction.accept);
+		processRequest(request, RegistrationRequestAction.accept);
 	}
 
 	@Transactional
@@ -116,7 +116,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	public void decline(ProjectRequestParam request) throws EngineException
 	{
 		authz.assertManagerAuthorization(request.project);
-		proccessRequest(request, RegistrationRequestAction.reject);
+		processRequest(request, RegistrationRequestAction.reject);
 	}
 
 	@Transactional
@@ -186,7 +186,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	}
 	
 
-	private void proccessRequest(ProjectRequestParam request, RegistrationRequestAction action)
+	private void processRequest(ProjectRequestParam request, RegistrationRequestAction action)
 			throws EngineException
 	{
 		validateRequestParam(request);
@@ -196,17 +196,17 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 		{
 			if (request.type.equals(RequestType.Registration))
 			{
-				proccessRegistationRequest(config.registrationForm, request.id, action);
+				processRegistationRequest(config.registrationForm, request.id, action);
 			} else
 			{
-				proccessEnquiryResponse(config.signupEnquiryForm, request.id, action);
+				processEnquiryResponse(config.signupEnquiryForm, request.id, action);
 			}
 		}
 		else if (request.operation.equals(RequestOperation.Update))
 		{
 			if (!request.type.equals(RequestType.Enquiry))
 				throw new IllegalArgumentException("Invalid request type for membership update");
-			proccessEnquiryResponse(config.membershipUpdateEnquiryForm, request.id, action);
+			processEnquiryResponse(config.membershipUpdateEnquiryForm, request.id, action);
 		}
 	}
 
@@ -220,7 +220,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 			throw new IllegalArgumentException("Can not process request of unknown id");
 	}
 
-	private void proccessRegistationRequest(String formId, String id, RegistrationRequestAction action)
+	private void processRegistationRequest(String formId, String id, RegistrationRequestAction action)
 			throws EngineException
 	{
 		RegistrationRequestState registrationRequest = registrationMan.getRegistrationRequest(id);
@@ -235,7 +235,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 		}
 	}
 
-	private void proccessEnquiryResponse(String formId, String id, RegistrationRequestAction action)
+	private void processEnquiryResponse(String formId, String id, RegistrationRequestAction action)
 			throws EngineException
 	{
 		EnquiryResponseState enquiryResponse = enquiryMan.getEnquiryResponse(id);
