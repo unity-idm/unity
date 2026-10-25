@@ -9,6 +9,8 @@ import java.util.Set;
 
 import jakarta.ws.rs.core.Application;
 
+import io.imunity.rest.openapi.OpenApiFeatureConfiguration;
+
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
 import org.apache.cxf.endpoint.Endpoint;
@@ -56,6 +58,8 @@ public class RestEndpointHelper
 		OpenApiFeature feature = new OpenApiFeature();
 		feature.setScan(false);
 		feature.setUseContextBasedConfig(true);
+		if (application instanceof OpenApiFeatureConfiguration configuration)
+			configuration.configureOpenApi(feature);
 		
 		JAXRSServerFactoryBean sf = ResourceUtils.createApplication(application, false, false, false, bus);
 		sf.getFeatures().add(feature);

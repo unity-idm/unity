@@ -17,6 +17,12 @@ import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
@@ -70,43 +76,60 @@ public class RESTUpmanController
 
 	@Path("/projects")
 	@GET
-	public String getProjects() throws EngineException, JsonProcessingException
+	@Operation(operationId = "getProjects", summary = "List managed projects")
+	@ApiResponse(responseCode = "200", description = "Projects visible to the caller",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestProject.class))))
+	public List<RestProject> getProjects() throws EngineException
 	{
 		log.debug("getProjects query for " + rootGroup);
-		List<RestProject> projects = restProjectService.getProjects();
-		return mapper.writeValueAsString(projects);
+		return restProjectService.getProjects();
 	}
 
 	@Path("/projects/{project-id}")
 	@GET
-	public String getProject(@PathParam("project-id") String projectId) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getProject", summary = "Read a project")
+	@ApiResponse(responseCode = "200", description = "Project configuration",
+			content = @Content(schema = @Schema(implementation = RestProject.class)))
+	public RestProject getProject(@PathParam("project-id") String projectId) throws EngineException
 	{
 		log.debug("getProject query for " + projectId);
-		RestProject project = restProjectService.getProject(projectId);
-		return mapper.writeValueAsString(project);
+		return restProjectService.getProject(projectId);
 	}
 
 	@Path("/projects")
 	@POST
-	public String addProject(String projectJson) throws EngineException, JsonProcessingException
+	@Operation(operationId = "addProject", summary = "Create a project")
+	@ApiResponse(responseCode = "200", description = "Created project identifier",
+			content = @Content(schema = @Schema(implementation = RestProjectId.class)))
+	@RequestBody(required = true, content = {
+			@Content(mediaType = "application/json", schema = @Schema(implementation = RestProjectCreateRequest.class)),
+			@Content(mediaType = "text/plain", schema = @Schema(implementation = RestProjectCreateRequest.class)),
+			@Content(mediaType = "application/octet-stream", schema = @Schema(implementation = RestProjectCreateRequest.class))})
+	public RestProjectId addProject(RestProjectCreateRequest project) throws EngineException
 	{
-		log.info("addProject {}", projectJson);
-		RestProjectCreateRequest project = parse(projectJson, RestProjectCreateRequest.class);
-		RestProjectId restProjectId = restProjectService.addProject(project);
-		return mapper.writeValueAsString(restProjectId);
+		log.info("addProject {}", project);
+		return restProjectService.addProject(project);
 	}
 
 	@Path("/projects/{project-id}")
 	@PUT
-	public void updateProject(@PathParam("project-id") String projectId, String projectJson) throws EngineException
+	@Operation(operationId = "updateProject", summary = "Update a project")
+	@ApiResponse(responseCode = "204", description = "Project updated")
+	@RequestBody(required = true, content = {
+			@Content(mediaType = "application/json", schema = @Schema(implementation = RestProjectUpdateRequest.class)),
+			@Content(mediaType = "text/plain", schema = @Schema(implementation = RestProjectUpdateRequest.class)),
+			@Content(mediaType = "application/octet-stream", schema = @Schema(implementation = RestProjectUpdateRequest.class))})
+	public void updateProject(@PathParam("project-id") String projectId, RestProjectUpdateRequest project)
+			throws EngineException
 	{
-		log.info("updateProject {}", projectJson);
-		RestProjectUpdateRequest project = parse(projectJson, RestProjectUpdateRequest.class);
+		log.info("updateProject {}", project);
 		restProjectService.updateProject(projectId, project);
 	}
 
 	@Path("/projects/{project-id}")
 	@DELETE
+	@Operation(operationId = "removeProject", summary = "Delete a project")
+	@ApiResponse(responseCode = "204", description = "Project deleted")
 	public void removeProject(@PathParam("project-id") String projectId) throws EngineException
 	{
 		log.info("removeProject {}", projectId);
