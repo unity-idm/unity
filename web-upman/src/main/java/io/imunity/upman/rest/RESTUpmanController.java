@@ -363,26 +363,32 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/policyDocuments")
 	@GET
-	public String getPolicyDocuments(@PathParam("project-id") String projectId)
+	@Operation(operationId = "getPolicyDocuments", summary = "List project policy documents")
+	@ApiResponse(responseCode = "200", description = "List project policy documents",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestPolicyDocument.class))))
+	public List<RestPolicyDocument> getPolicyDocuments(@PathParam("project-id") String projectId)
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("getPolicyDocuments query for {}", projectId);
-		List<RestPolicyDocument> policies = restProjectPolicyDocumentService.getPolicyDocuments(projectId);
-		return mapper.writeValueAsString(policies);
+		return restProjectPolicyDocumentService.getPolicyDocuments(projectId);
 	}
 
 	@Path("/projects/{project-id}/policyDocuments/{policy-id}")
 	@GET
-	public String getPolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
+	@Operation(operationId = "getPolicyDocument", summary = "Read a project policy document")
+	@ApiResponse(responseCode = "200", description = "Read a project policy document",
+			content = @Content(schema = @Schema(implementation = RestPolicyDocument.class)))
+	public RestPolicyDocument getPolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("getPolicyDocument {}, {}", projectId, policyId);
-		RestPolicyDocument policy = restProjectPolicyDocumentService.getPolicyDocument(projectId, policyId);
-		return mapper.writeValueAsString(policy);
+		return restProjectPolicyDocumentService.getPolicyDocument(projectId, policyId);
 	}
 
 	@Path("/projects/{project-id}/policyDocuments/{policy-id}")
 	@DELETE
+	@Operation(operationId = "removePolicyDocument", summary = "Remove a project policy document")
+	@ApiResponse(responseCode = "204", description = "Remove a project policy document")
 	public void removePolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
 			throws EngineException
 	{
@@ -393,22 +399,25 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/policyDocuments")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String addPolicyDocument(@PathParam("project-id") String projectId, String json)
+	@Operation(operationId = "addPolicyDocument", summary = "Create a project policy document")
+	@ApiResponse(responseCode = "200", description = "Create a project policy document",
+			content = @Content(schema = @Schema(implementation = RestPolicyDocumentId.class)))
+	public RestPolicyDocumentId addPolicyDocument(@PathParam("project-id") String projectId,
+			RestPolicyDocumentRequest policy)
 			throws EngineException, IOException
 	{
-		RestPolicyDocumentRequest policy = parse(json, RestPolicyDocumentRequest.class);
 		log.debug("addPolicyDocument {}, {}", projectId, policy.name);
-		RestPolicyDocumentId addPolicyDocument = restProjectPolicyDocumentService.addPolicyDocument(projectId, policy);
-		return mapper.writeValueAsString(addPolicyDocument);
+		return restProjectPolicyDocumentService.addPolicyDocument(projectId, policy);
 	}
 
 	@Path("/projects/{project-id}/policyDocuments")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updatePolicyDocument", summary = "Update a project policy document")
+	@ApiResponse(responseCode = "204", description = "Update a project policy document")
 	public void updatePolicyDocument(@PathParam("project-id") String projectId,
-			@QueryParam("incrementRevision") Boolean incrementRevision, String json) throws EngineException
+			@QueryParam("incrementRevision") Boolean incrementRevision, RestPolicyDocumentUpdateRequest policy) throws EngineException
 	{
-		RestPolicyDocumentUpdateRequest policy = parse(json, RestPolicyDocumentUpdateRequest.class);
 		log.debug("updatePolicyDocument {}, {}", projectId, policy.id);
 		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy,
 				incrementRevision != null && incrementRevision);

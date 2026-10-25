@@ -8,6 +8,9 @@ import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 
+import io.imunity.rest.api.types.policy.RestPolicyDocument;
+import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
+import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
 import io.swagger.v3.core.converter.AnnotatedType;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
@@ -35,7 +38,8 @@ final class UpmanOpenApi extends OpenApiCustomizer
 		List.copyOf(converters.getConverters()).forEach(converters::removeConverter);
 		converters.addConverter(new TransportModelResolver());
 		for (Class<?> type : List.of(RestProject.class, RestProjectCreateRequest.class,
-				RestProjectUpdateRequest.class, RestProjectId.class))
+				RestProjectUpdateRequest.class, RestProjectId.class, RestPolicyDocument.class,
+				RestPolicyDocumentRequest.class, RestPolicyDocumentUpdateRequest.class, RestPolicyDocumentId.class))
 		{
 			var resolved = converters.resolveAsResolvedSchema(new AnnotatedType(type).resolveAsRef(true));
 			resolved.referencedSchemas.forEach(api.getComponents()::addSchemas);
