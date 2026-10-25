@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Html;
 import com.vaadin.flow.component.Unit;
@@ -118,6 +119,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		updateCredentialStatus();
 	}
 
+	@VisibleForTesting
 	static Html createCredentialName()
 	{
 		Html credentialName = new Html("<div></div>");
@@ -129,6 +131,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		return credentialName;
 	}
 
+	@VisibleForTesting
 	static FormLayout createCredentialFormLayout()
 	{
 		FormLayout form = new FormLayout();

@@ -21,6 +21,8 @@ import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorContext;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.util.StringUtils;
+
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
@@ -202,7 +204,7 @@ public class SMSCredentialEditor implements CredentialEditor
 				formatter.getSimpleConfirmationStatusString(confirmationInfo),
 				confirmationInfo.isConfirmed());
 		editor.setVerifyButtonVisible(
-				!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
+				!confirmationInfo.isConfirmed() && StringUtils.hasLength(editor.getValue()));
 		skipUpdate = true;
 		editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());
 		skipUpdate = false;

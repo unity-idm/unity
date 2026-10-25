@@ -4,6 +4,7 @@
  */
 package io.imunity.console.views.directory_browser.group_browser;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import io.imunity.console.views.directory_browser.EntityWithLabel;
 import io.imunity.console.views.directory_setup.attribute_classes.RequiredAttributesDialog;
@@ -135,6 +136,7 @@ public class GroupManagementHelper
 		}
 	}
 
+	@VisibleForTesting
 	static ConfirmDialog createConfirmationDialog(String confirmationMessage)
 	{
 		ConfirmDialog confirm = new ConfirmDialog();
