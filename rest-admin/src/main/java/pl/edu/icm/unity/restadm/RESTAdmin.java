@@ -5,6 +5,11 @@
 package pl.edu.icm.unity.restadm;
 
 import java.io.IOException;
+import io.imunity.rest.admin.AdminJsonBody;
+import io.imunity.rest.admin.AdminJsonProvider;
+import io.imunity.rest.api.types.registration.RestRegistrationRequestState;
+import io.imunity.rest.api.types.registration.RestEnquiryResponseState;
+import io.imunity.rest.api.types.registration.invite.RestInvitationWithCode;
 import io.imunity.rest.admin.RestEntityId;
 import io.imunity.rest.api.types.basic.RestEntity;
 import io.imunity.rest.api.types.basic.RestGroupContents;
@@ -937,12 +942,12 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/registrationForms")
 	@GET
-	public String getRegistrationForms() throws EngineException, JsonProcessingException
+	public List<RestRegistrationForm> getRegistrationForms() throws EngineException, JsonProcessingException
 	{
 		List<RegistrationForm> forms = registrationManagement.getForms();
-		return mapper.writeValueAsString(forms.stream()
+		return forms.stream()
 				.map(RegistrationFormMapper::map)
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList());
 	}
 	
 	@Path("/registrationForm/{formId}")
@@ -958,9 +963,8 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/registrationForm")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void addForm(String json) throws EngineException, IOException
+	public void addForm(@AdminJsonBody(AdminJsonBody.Failure.FORM) RestRegistrationForm form) throws EngineException, IOException
 	{
-		RestRegistrationForm form = parse(json, RestRegistrationForm.class);
 		registrationManagement.addForm(RegistrationFormMapper.map(form));
 	}
 	
@@ -968,28 +972,27 @@ public class RESTAdmin implements RESTAdminHandler
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void updateForm(@QueryParam("ignoreRequestsAndInvitations") Boolean ignoreRequestsAndInvitations,
-			@QueryParam("ignoreInvitations") Boolean ignoreInvitations, String json)
+			@QueryParam("ignoreInvitations") Boolean ignoreInvitations, @AdminJsonBody(AdminJsonBody.Failure.FORM) RestRegistrationForm form)
 			throws EngineException, IOException
 	{
 		if (ignoreRequestsAndInvitations == null)
 			ignoreRequestsAndInvitations = false;
-		RestRegistrationForm form = parse(json, RestRegistrationForm.class);
 		registrationManagement.updateForm(RegistrationFormMapper.map(form), ignoreRequestsAndInvitations);
 	}
 	
 	@Path("/registrationRequests")
 	@GET
-	public String getRegistrationRequests() throws EngineException, JsonProcessingException
+	public List<RestRegistrationRequestState> getRegistrationRequests() throws EngineException, JsonProcessingException
 	{
 		List<RegistrationRequestState> requests = registrationManagement.getRegistrationRequests();
-		return mapper.writeValueAsString(requests.stream()
+		return requests.stream()
 				.map(RegistrationRequestStateMapper::map)
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList());
 	}
 	
 	@Path("/registrationRequest/{requestId}")
 	@GET
-	public String getRegistrationRequest(@PathParam("requestId") String requestId) 
+	public RestRegistrationRequestState getRegistrationRequest(@PathParam("requestId") String requestId)
 			throws EngineException, JsonProcessingException
 	{
 		List<RegistrationRequestState> requests = registrationManagement.getRegistrationRequests();
@@ -998,17 +1001,17 @@ public class RESTAdmin implements RESTAdminHandler
 				findAny();
 		if (!request.isPresent())
 			throw new WrongArgumentException("There is no request with id " + requestId);
-		return mapper.writeValueAsString(RegistrationRequestStateMapper.map(request.get()));
+		return RegistrationRequestStateMapper.map(request.get());
 	}
 	
 	@Path("/enquiryForms")
 	@GET
-	public String getEnquiryForms() throws EngineException, JsonProcessingException
+	public List<RestEnquiryForm> getEnquiryForms() throws EngineException, JsonProcessingException
 	{
 		List<EnquiryForm> forms = enquiryManagement.getEnquires();
-		return mapper.writeValueAsString(forms.stream()
+		return forms.stream()
 				.map(EnquiryFormMapper::map)
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList());
 	}
 	
 	@Path("/enquiryForm/{formId}")
@@ -1024,9 +1027,8 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/enquiryForm")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void addEnquiryForm(String json) throws EngineException, IOException
+	public void addEnquiryForm(@AdminJsonBody(AdminJsonBody.Failure.FORM) RestEnquiryForm form) throws EngineException, IOException
 	{
-		RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 		enquiryManagement.addEnquiry(EnquiryFormMapper.map(form));
 	}
 	
@@ -1034,28 +1036,27 @@ public class RESTAdmin implements RESTAdminHandler
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void updateEnquiryForm(@QueryParam("ignoreRequestsAndInvitations") Boolean ignoreRequestsAndInvitations,
-			@QueryParam("ignoreInvitations") Boolean ignoreInvitations, String json)
+			@QueryParam("ignoreInvitations") Boolean ignoreInvitations, @AdminJsonBody(AdminJsonBody.Failure.FORM) RestEnquiryForm form)
 			throws EngineException, IOException
 	{
 		if (ignoreRequestsAndInvitations == null)
 			ignoreRequestsAndInvitations = false;
-		RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 		enquiryManagement.updateEnquiry(EnquiryFormMapper.map(form), ignoreRequestsAndInvitations);
 	}
 	
 	@Path("/enquiryResponses")
 	@GET
-	public String getEnquiryResponses() throws EngineException, JsonProcessingException
+	public List<RestEnquiryResponseState> getEnquiryResponses() throws EngineException, JsonProcessingException
 	{
 		List<EnquiryResponseState> requests = enquiryManagement.getEnquiryResponses();
-		return mapper.writeValueAsString(requests.stream()
+		return requests.stream()
 				.map(EnquiryResponseStateMapper::map)
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList());
 	}
 	
 	@Path("/enquiryResponse/{responseId}")
 	@GET
-	public String getEnquiryResponse(@PathParam("responseId") String requestId) 
+	public RestEnquiryResponseState getEnquiryResponse(@PathParam("responseId") String requestId)
 			throws EngineException, JsonProcessingException
 	{
 		List<EnquiryResponseState> requests = enquiryManagement.getEnquiryResponses();
@@ -1064,23 +1065,23 @@ public class RESTAdmin implements RESTAdminHandler
 				findAny();
 		if (!request.isPresent())
 			throw new WrongArgumentException("There is no enquiry response with id " + requestId);
-		return mapper.writeValueAsString(EnquiryResponseStateMapper.map(request.get()));
+		return EnquiryResponseStateMapper.map(request.get());
 	}
 
 	@Path("/invitations")
 	@GET
-	public String getInvitations() throws EngineException, JsonProcessingException
+	public List<RestInvitationWithCode> getInvitations() throws EngineException, JsonProcessingException
 	{
 		List<InvitationWithCode> invitations = invitationMan.getInvitations();
-		return mapper.writeValueAsString(invitations.stream().map(InvitationWithCodeMapper::map).collect(Collectors.toList()));
+		return invitations.stream().map(InvitationWithCodeMapper::map).collect(Collectors.toList());
 	}
 
 	@Path("/invitation/{code}")
 	@GET
-	public String getInvitation(@PathParam("code") String code) throws EngineException, JsonProcessingException
+	public RestInvitationWithCode getInvitation(@PathParam("code") String code) throws EngineException, JsonProcessingException
 	{
 		InvitationWithCode invitation = invitationMan.getInvitation(code);
-		return mapper.writeValueAsString(InvitationWithCodeMapper.map(invitation));
+		return InvitationWithCodeMapper.map(invitation);
 	}
 	
 	@Path("/invitation/{code}")
@@ -1291,17 +1292,6 @@ public class RESTAdmin implements RESTAdminHandler
 		}
 	}
 	
-	private <T> T parse(String contents, Class<T> clazz)
-	{
-		try
-		{
-			return JsonUtil.parse(contents, clazz);
-		} catch (Exception e)
-		{
-			log.error("Can't perform JSON deserialization", e.getCause());
-			throw new IllegalArgumentException("Can't perform JSON argument deserialization");
-		}
-	}
 }
 
 
