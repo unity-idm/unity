@@ -1,0 +1,9 @@
+{
+  "public": false,
+  "displayedName": {"en": "Updated project"},
+  "description": {"en": "Updated description"},
+  "enableDelegation": true,
+  "logoUrl": "/logo.png",
+  "enableSubprojects": false,
+  "readOnlyAttributes": []
+}

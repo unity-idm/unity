@@ -1,0 +1,6 @@
+{
+  "emails": ["invitee@example.com", "email@email.com", "invitee@example.com"],
+  "groups": [],
+  "allowModifyGroups": false,
+  "expiration": "2035-01-01T00:00:00.125Z"
+}

@@ -1,0 +1,7 @@
+{
+  "name": "contract-policy",
+  "displayedName": {"en": "Policy ☃"},
+  "mandatory": true,
+  "contentType": "EMBEDDED",
+  "content": {"en": "<p>Terms 日本語</p>"}
+}
