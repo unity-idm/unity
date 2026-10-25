@@ -44,13 +44,18 @@ final class UpmanJsonProvider implements MessageBodyReader<Object>, MessageBodyW
 	public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, String> headers, InputStream input) throws IOException
 	{
+		return read(input, genericType, mediaType);
+	}
+
+	Object read(InputStream input, Type type, MediaType mediaType) throws IOException
+	{
 		String charset = mediaType.getParameters().get("charset");
 		String json = new String(input.readAllBytes(),
 				charset == null ? StandardCharsets.UTF_8 : Charset.forName(charset));
-		return parse(json, genericType);
+		return parse(json, type);
 	}
 
-	Object parse(String json, Type type)
+	private Object parse(String json, Type type)
 	{
 		try
 		{
@@ -66,7 +71,7 @@ final class UpmanJsonProvider implements MessageBodyReader<Object>, MessageBodyW
 	@Override
 	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType)
 	{
-		// Unity's exception mappers and the unmigrated operations already supply JSON strings.
+		// Unity's exception mappers already supply serialized JSON strings.
 		return type != String.class && type != byte[].class && !InputStream.class.isAssignableFrom(type)
 				&& mediaType.isCompatible(MediaType.APPLICATION_JSON_TYPE);
 	}

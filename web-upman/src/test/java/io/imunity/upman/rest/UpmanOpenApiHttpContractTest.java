@@ -15,6 +15,7 @@ class UpmanOpenApiHttpContractTest extends UpmanHttpContractTestBase
 
 		assertThat(result.status()).isEqualTo(200);
 		JsonNode api = m.readTree(result.body());
+		assertThat(api).isEqualTo(io.swagger.v3.core.util.Json.mapper().valueToTree(UpmanOpenApi.export()));
 		JsonNode paths = api.path("paths");
 		assertThat(paths.properties()).hasSize(25);
 		assertThat(api.at("/info/title").asText()).isEqualTo("Unity Project Management API");

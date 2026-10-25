@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
+import io.imunity.rest.api.types.registration.RestRegistrationForm;
+import io.imunity.rest.api.types.registration.RestEnquiryForm;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
 import io.swagger.v3.core.converter.AnnotatedType;
@@ -20,11 +22,14 @@ import io.swagger.v3.core.converter.ModelConverterContext;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.jaxrs2.Reader;
+import io.swagger.v3.oas.integration.SwaggerConfiguration;
+import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.servers.Server;
 
-final class UpmanOpenApi extends OpenApiCustomizer
+public final class UpmanOpenApi extends OpenApiCustomizer
 {
 	static void configure(OpenApiFeature feature)
 	{
@@ -33,6 +38,19 @@ final class UpmanOpenApi extends OpenApiCustomizer
 		feature.setScanKnownConfigLocations(false);
 		feature.setScannerClass(UpmanOpenApiScanner.class.getName());
 		feature.setCustomizer(new UpmanOpenApi());
+	}
+
+	public static OpenAPI export()
+	{
+		var configuration = new SwaggerConfiguration().readAllResources(true).openAPI(new OpenAPI().info(info()));
+		OpenAPI api = new Reader(configuration).read(new UpmanOpenApiScanner().classes());
+		new UpmanOpenApi().customize(api);
+		return api;
+	}
+
+	private static Info info()
+	{
+		return new Info().title("Unity Project Management API").version("1");
 	}
 
 	@Override
@@ -49,7 +67,7 @@ final class UpmanOpenApi extends OpenApiCustomizer
 				RestProjectMembership.class, RestGroupMember.class, RestAuthorizationRole.class,
 				RestInvitationRequest.class, RestInvitation.class, RestInvitationOutcome.class, RestGroup.class,
 				RestGroupCreateRequest.class, RestGroupUpdateRequest.class, RestGroupDelegationRequest.class,
-				RestGroupPath.class, RestRequest.class))
+				RestGroupPath.class, RestRequest.class, RestFormLink.class, RestRegistrationForm.class, RestEnquiryForm.class))
 		{
 			var resolved = converters.resolveAsResolvedSchema(new AnnotatedType(type).resolveAsRef(true));
 			resolved.referencedSchemas.forEach(api.getComponents()::addSchemas);
@@ -58,6 +76,7 @@ final class UpmanOpenApi extends OpenApiCustomizer
 				new io.swagger.v3.oas.models.media.Schema<>().anyOf(List.of(
 						new NumberSchema().description("Seconds since the Unix epoch, including fractional seconds"),
 						new StringSchema().format("date-time"))));
+		api.setInfo(info());
 		api.setServers(List.of(new Server().url(".")));
 	}
 

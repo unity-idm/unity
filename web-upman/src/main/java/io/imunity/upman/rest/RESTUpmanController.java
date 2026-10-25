@@ -5,6 +5,7 @@
 package io.imunity.upman.rest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -12,10 +13,6 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -32,7 +29,6 @@ import io.imunity.upman.rest.RestProjectFormService.RestProjectFormServiceFactor
 import io.imunity.upman.rest.RestProjectPolicyDocumentService.RestProjectPolicyDocumentServiceFactory;
 import io.imunity.upman.rest.RestProjectService.RestProjectServiceFactory;
 import io.imunity.upman.rest.RestUpmanWorkflowService.Factory;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -43,6 +39,8 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.GenericEntity;
 import jakarta.ws.rs.core.Response;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -55,7 +53,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 public class RESTUpmanController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTUpmanController.class);
-	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+	private final UpmanJsonProvider jsonProvider = new UpmanJsonProvider();
 	private RestProjectService restProjectService;
 	private RestProjectPolicyDocumentService restProjectPolicyDocumentService;
 	private RestProjectFormService restProjectFormService;
@@ -72,7 +70,6 @@ public class RESTUpmanController
 		this.restProjectFormService = restProjectFormService;
 		this.workflows = workflows;
 		this.rootGroup = rootGroup;
-		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.NON_PRIVATE);
 	}
 
 	@Path("/projects")
@@ -431,7 +428,7 @@ public class RESTUpmanController
 	@ApiResponse(responseCode = "200", description = "List project policy documents",
 			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestPolicyDocument.class))))
 	public List<RestPolicyDocument> getPolicyDocuments(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+			throws EngineException
 	{
 		log.debug("getPolicyDocuments query for {}", projectId);
 		return restProjectPolicyDocumentService.getPolicyDocuments(projectId);
@@ -444,7 +441,7 @@ public class RESTUpmanController
 			content = @Content(schema = @Schema(implementation = RestPolicyDocument.class)))
 	public RestPolicyDocument getPolicyDocument(@PathParam("project-id") String projectId,
 			@PathParam("policy-id") Long policyId)
-			throws EngineException, JsonProcessingException
+			throws EngineException
 	{
 		log.debug("getPolicyDocument {}, {}", projectId, policyId);
 		return restProjectPolicyDocumentService.getPolicyDocument(projectId, policyId);
@@ -469,7 +466,7 @@ public class RESTUpmanController
 			content = @Content(schema = @Schema(implementation = RestPolicyDocumentId.class)))
 	public RestPolicyDocumentId addPolicyDocument(@PathParam("project-id") String projectId,
 			RestPolicyDocumentRequest policy)
-			throws EngineException, IOException
+			throws EngineException
 	{
 		log.debug("addPolicyDocument {}, {}", projectId, policy.name);
 		return restProjectPolicyDocumentService.addPolicyDocument(projectId, policy);
@@ -491,24 +488,31 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/registrationForm")
 	@GET
-	public String getRegistrationForm(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getRegistrationForm")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestRegistrationForm.class)))
+	public RestRegistrationForm getRegistrationForm(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
 		log.debug("getRegistrationForm {}", projectId);
-		RestRegistrationForm form = restProjectFormService.getRegistrationForm(projectId);
-		return mapper.writeValueAsString(form);
+		return restProjectFormService.getRegistrationForm(projectId);
 	}
 
 	@Path("/projects/{project-id}/registrationForm/link")
 	@GET
-	public String getRegistrationFormLink(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getRegistrationFormLink")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestFormLink.class)))
+	public RestFormLink getRegistrationFormLink(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.registrationFormLink(projectId));
+		return workflows.registrationFormLink(projectId);
 	}
 
 	@Path("/projects/{project-id}/registrationForm")
 	@DELETE
+	@Operation(operationId = "removeRegistrationForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeRegistrationForm(@PathParam("project-id") String projectId,
 			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
@@ -519,10 +523,15 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/registrationForm")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "addRegistrationForm")
+	@ApiResponse(responseCode = "204", description = "Success")
+	@RequestBody(required = false, description = "Required unless autogenerate=true; ignored when generating",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = RestRegistrationForm.class)))
 	public void addRegistrationForm(@PathParam("project-id") String projectId,
-			@QueryParam("autogenerate") Boolean autogenerate, String json) throws EngineException
+			@QueryParam("autogenerate") Boolean autogenerate, InputStream body, @Context HttpHeaders headers)
+			throws EngineException, IOException
 	{
-
 		log.debug("addRegistrationForm {}, autogenerate={}", projectId, autogenerate);
 
 		if (autogenerate != null && autogenerate)
@@ -530,7 +539,7 @@ public class RESTUpmanController
 			restProjectFormService.generateRegistrationForm(projectId);
 		} else
 		{
-			RestRegistrationForm form = parse(json, RestRegistrationForm.class);
+			RestRegistrationForm form = readForm(body, headers, RestRegistrationForm.class);
 			restProjectFormService.addRegistrationForm(projectId, form);
 		}
 	}
@@ -538,34 +547,42 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/registrationForm")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateRegistrationForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateRegistrationForm(@PathParam("project-id") String projectId,
-			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException
+			@QueryParam("ignoreRequests") Boolean ignoreRequests, RestRegistrationForm form) throws EngineException
 	{
-		RestRegistrationForm form = parse(json, RestRegistrationForm.class);
 		log.debug("updateRegistrationForm {}, {}", projectId, form.name);
 		restProjectFormService.updateRegistrationForm(projectId, form, ignoreRequests != null && ignoreRequests);
 	}
 
 	@Path("/projects/{project-id}/signUpEnquiry")
 	@GET
-	public String getSignupEnquiryForm(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getSignupEnquiryForm")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestEnquiryForm.class)))
+	public RestEnquiryForm getSignupEnquiryForm(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
 		log.debug("getSignUpEnquiryForm {}", projectId);
-		RestEnquiryForm form = restProjectFormService.getSignupEnquiryForm(projectId);
-		return mapper.writeValueAsString(form);
+		return restProjectFormService.getSignupEnquiryForm(projectId);
 	}
 
 	@Path("/projects/{project-id}/signUpEnquiry/link")
 	@GET
-	public String getSignupEnquiryLink(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getSignupEnquiryLink")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestFormLink.class)))
+	public RestFormLink getSignupEnquiryLink(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.signUpEnquiryLink(projectId));
+		return workflows.signUpEnquiryLink(projectId);
 	}
 
 	@Path("/projects/{project-id}/signUpEnquiry")
 	@DELETE
+	@Operation(operationId = "removeSignupEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeSignupEnquiryForm(@PathParam("project-id") String projectId,
 			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
@@ -576,8 +593,14 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/signUpEnquiry")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "addSignupEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
+	@RequestBody(required = false, description = "Required unless autogenerate=true; ignored when generating",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = RestEnquiryForm.class)))
 	public void addSignupEnquiryForm(@PathParam("project-id") String projectId,
-			@QueryParam("autogenerate") Boolean autogenerate, String json) throws EngineException
+			@QueryParam("autogenerate") Boolean autogenerate, InputStream body, @Context HttpHeaders headers)
+			throws EngineException, IOException
 	{
 		log.debug("addSignupEnquiryForm {}, autogenerate={}", projectId, autogenerate);
 
@@ -586,7 +609,7 @@ public class RESTUpmanController
 			restProjectFormService.generateSignupEnquiryForm(projectId);
 		} else
 		{
-			RestEnquiryForm form = parse(json, RestEnquiryForm.class);
+			RestEnquiryForm form = readForm(body, headers, RestEnquiryForm.class);
 			restProjectFormService.addSignupEnquiryForm(projectId, form);
 		}
 
@@ -595,34 +618,42 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/signUpEnquiry")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateSignupEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateSignupEnquiryForm(@PathParam("project-id") String projectId,
-			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException
+			@QueryParam("ignoreRequests") Boolean ignoreRequests, RestEnquiryForm form) throws EngineException
 	{
-		RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 		log.debug("updateSignupEnquiryForm {}, {}", projectId, form.name);
 		restProjectFormService.updateSignupEnquiryForm(projectId, form, ignoreRequests != null && ignoreRequests);
 	}
 
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
 	@GET
-	public String getMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getMembershipUpdateEnquiryForm")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestEnquiryForm.class)))
+	public RestEnquiryForm getMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
 		log.debug("getMembershipUpdateEnquiryForm {}", projectId);
-		RestEnquiryForm form = restProjectFormService.getMembershipUpdateEnquiryForm(projectId);
-		return mapper.writeValueAsString(form);
+		return restProjectFormService.getMembershipUpdateEnquiryForm(projectId);
 	}
 
 	@Path("/projects/{project-id}/membershipUpdateEnquiry/link")
 	@GET
-	public String getMembershipUpdateEnquiryLink(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getMembershipUpdateEnquiryLink")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestFormLink.class)))
+	public RestFormLink getMembershipUpdateEnquiryLink(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.membershipUpdateEnquiryLink(projectId));
+		return workflows.membershipUpdateEnquiryLink(projectId);
 	}
 
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
 	@DELETE
+	@Operation(operationId = "removeMembershipUpdateEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId,
 			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
@@ -633,8 +664,14 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "addMembershipUpdateEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
+	@RequestBody(required = false, description = "Required unless autogenerate=true; ignored when generating",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = RestEnquiryForm.class)))
 	public void addMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId,
-			@QueryParam("autogenerate") Boolean autogenerate, String json) throws EngineException
+			@QueryParam("autogenerate") Boolean autogenerate, InputStream body, @Context HttpHeaders headers)
+			throws EngineException, IOException
 	{
 		log.debug("addMembershipUpdateEnquiryForm {}, autogenerate={}", projectId, autogenerate);
 
@@ -643,7 +680,7 @@ public class RESTUpmanController
 			restProjectFormService.generateMembershipUpdateEnquiryForm(projectId);
 		} else
 		{
-			RestEnquiryForm form = parse(json, RestEnquiryForm.class);
+			RestEnquiryForm form = readForm(body, headers, RestEnquiryForm.class);
 			restProjectFormService.addMembershipUpdateEnquiryForm(projectId, form);
 		}
 	}
@@ -651,26 +688,19 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateMembershipUpdateEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId,
-			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException
+			@QueryParam("ignoreRequests") Boolean ignoreRequests, RestEnquiryForm form) throws EngineException
 	{
-		RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 		log.debug("updateMembershipUpdateEnquiryForm {}, {}", projectId, form.name);
 		restProjectFormService.updateMembershipUpdateEnquiryForm(projectId, form,
 				ignoreRequests != null && ignoreRequests);
 	}
 
-	public <T> T parse(String contents, Class<T> clazz)
+	private <T> T readForm(InputStream body, HttpHeaders headers, Class<T> type) throws IOException
 	{
-		try
-		{
-			return mapper.readValue(contents, clazz);
-		} catch (Exception e)
-		{
-			if (e.getCause() instanceof BadRequestException)
-				throw (BadRequestException) e.getCause();
-			throw new BadRequestException("Can't perform JSON deserialization", e);
-		}
+		return type.cast(jsonProvider.read(body, type, headers.getMediaType()));
 	}
 
 	@Component
