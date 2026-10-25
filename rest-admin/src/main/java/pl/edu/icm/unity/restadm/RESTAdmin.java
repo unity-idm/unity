@@ -5,6 +5,9 @@
 package pl.edu.icm.unity.restadm;
 
 import java.io.IOException;
+import io.imunity.rest.admin.RestEntityId;
+import io.imunity.rest.api.types.basic.RestEntity;
+import io.imunity.rest.api.types.basic.RestGroupContents;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -215,24 +218,24 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/resolve/{identityType}/{identityValue}")
 	@GET
-	public String getEntityObsolete(@PathParam("identityType") String identityType, 
+	public RestEntity getEntityObsolete(@PathParam("identityType") String identityType,
 			@PathParam("identityValue") String identityValue) 
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("resolve query for " + identityType + ":" + identityValue);
 		Entity entity = identitiesMan.getEntity(new EntityParam(new IdentityTaV(identityType, identityValue)));
-		return mapper.writeValueAsString(EntityMapper.map(entity));
+		return EntityMapper.map(entity);
 	}
 
 	
 	@Path("/entity/{entityId}")
 	@GET
-	public String getEntity(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
+	public RestEntity getEntity(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType)
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("getEntity query for " + entityId);
 		Entity entity = identitiesMan.getEntity(getEP(entityId, idType));
-		return mapper.writeValueAsString(EntityMapper.map(entity));
+		return EntityMapper.map(entity);
 	}
 	
 	@Path("/entity/{entityId}")
@@ -314,16 +317,14 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/entity/identity/{type}/{value}")
 	@POST
-	public String addEntity(@PathParam("type") String type, @PathParam("value") String value, 
+	public RestEntityId addEntity(@PathParam("type") String type, @PathParam("value") String value,
 			@QueryParam("credentialRequirement") String credReqIdId) 
 			throws EngineException, JsonProcessingException
 	{
 		log.info("addEntity " + value + " type: " + type);
 		Identity identity = identitiesMan.addEntity(dataParser.parseAsIdentity(type, value), 
 				credReqIdId, EntityState.valid);
-		ObjectNode ret = mapper.createObjectNode();
-		ret.put("entityId", identity.getEntityId());
-		return mapper.writeValueAsString(ret);
+		return new RestEntityId(identity.getEntityId());
 	}
 
 	
@@ -349,17 +350,17 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/entity/{entityId}/groups")
 	@GET
-	public String getGroups(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
+	public Set<String> getGroups(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType)
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("getGroups query for " + entityId);
 		Map<String, GroupMembership> groups = identitiesMan.getGroups(getEP(entityId, idType));
-		return mapper.writeValueAsString(groups.keySet());
+		return groups.keySet();
 	}
 
 	@Path("/entity/{entityId}/attributes")
 	@GET
-	public String getAttributes(@PathParam("entityId") String entityId,
+	public List<RestExternalizedAttribute> getAttributes(@PathParam("entityId") String entityId,
 			@QueryParam("group") String group,
 			@QueryParam("effective") Boolean effective,
 			@QueryParam("identityType") String idType,
@@ -374,23 +375,23 @@ public class RESTAdmin implements RESTAdminHandler
 		
 		List<RestExternalizedAttribute> attributes = attributesService.getAttributes(
 				getEP(entityId, idType), group, effective, idType, includeSimpleValues);
-		return mapper.writeValueAsString(attributes);
+		return attributes;
 	}
 
 	@Path("/entity/{entityId}/groups/direct/attributes")
 	@GET
-	public String getAttributesInAllGroups(@PathParam("entityId") String entityId,
+	public Map<String, List<RestExternalizedAttribute>> getAttributesInAllGroups(@PathParam("entityId") String entityId,
 			@QueryParam("identityType") String idType)
 			throws EngineException, JsonProcessingException
 	{
 		Map<String, List<RestExternalizedAttribute>> attributesInGroups = attributesService.getAllDirectAttributes(
 				getEP(entityId, idType));
-		return mapper.writeValueAsString(attributesInGroups);
+		return attributesInGroups;
 	}
 
 	@Path("/group-members-attributes/{groupPath}")
 	@GET
-	public String getGroupMembersWithSelectedAttributes(@PathParam("groupPath") String group,
+	public List<RestGroupMemberWithAttributes> getGroupMembersWithSelectedAttributes(@PathParam("groupPath") String group,
 			@QueryParam("attributes") List<String> attributes)
 			throws JsonProcessingException
 	{
@@ -403,20 +404,22 @@ public class RESTAdmin implements RESTAdminHandler
 				.stream()
 				.map(GroupMemberWithAttributesMapper::map)
 				.collect(Collectors.toList());
-		String s = mapper.writeValueAsString(groupMembers);
+
 		log.debug("Request completed: {}", stopwatch.toString());
-		return s;
+		return groupMembers;
 	}
 
 	@Path("/multi-group-members-attributes")
 	@GET
-	public String getMultiGroupsMembersInGroupsWithSelectedAttributes(@QueryParam("attributes") List<String> attributes,
+	public RestMultiGroupMembersWithAttributes getMultiGroupsMembersInGroupsWithSelectedAttributes(
+			@QueryParam("attributes") List<String> attributes,
 	                                                @QueryParam("groups") List<String> groups)
 			throws JsonProcessingException
 	{
 		log.debug("getMultiGroupsMembersInGroupsWithSelectedAttributes query for " + groups);
-		if(groups.isEmpty()){
-			return mapper.writeValueAsString(Map.of());
+		if (groups.isEmpty())
+		{
+			return RestMultiGroupMembersWithAttributes.builder().build();
 		}
 
 		List<String> allGroups = groups.stream()
@@ -434,12 +437,12 @@ public class RESTAdmin implements RESTAdminHandler
 								.map(GroupMemberWithAttributesMapper::map)
 								.collect(Collectors.toList())
 				));
-		return mapper.writeValueAsString(RestMultiGroupMembersWithAttributes.builder().withMembers(groupMembers).build());
+		return RestMultiGroupMembersWithAttributes.builder().withMembers(groupMembers).build();
 	}
 
 	@Path("/entity/{entityId}/record")
 	@GET
-	public String getEntityWithAttributes(@PathParam("entityId") String entityId,
+	public RestEntityWithAttributes getEntityWithAttributes(@PathParam("entityId") String entityId,
 			@QueryParam("groupsPatterns") List<String> groupsPatterns,
 			@QueryParam("effective") Boolean effective, @QueryParam("identityType") String idType)
 			throws EngineException, JsonProcessingException
@@ -454,15 +457,15 @@ public class RESTAdmin implements RESTAdminHandler
 		Map<String, List<RestExternalizedAttribute>> attributesInGroups = attributesService
 				.getAttributesInGroups(getEP(entityId, idType), effective, groupsPatterns);
 		Map<String, GroupMembership> groups = identitiesMan.getGroups(getEP(entityId, idType));
-		return mapper.writeValueAsString(new RestEntityWithAttributes(EntityMapper.map(entity), groups.entrySet()
+		return new RestEntityWithAttributes(EntityMapper.map(entity), groups.entrySet()
 				.stream()
 				.collect(Collectors.toMap(e -> e.getKey(), e -> GroupMembershipMapper.map(e.getValue()))),
-				attributesInGroups));
+				attributesInGroups);
 	}
 	
 	@Path("/entity/{entityId}/groups/attributes")
 	@GET
-	public String getAttributesInGroups(@PathParam("entityId") String entityId,
+	public Map<String, List<RestExternalizedAttribute>> getAttributesInGroups(@PathParam("entityId") String entityId,
 			@QueryParam("groupsPatterns") List<String> groupsPatterns,
 			@QueryParam("effective") Boolean effective,
 			@QueryParam("identityType") String idType)
@@ -472,7 +475,7 @@ public class RESTAdmin implements RESTAdminHandler
 			effective = true;
 		Map<String, List<RestExternalizedAttribute>> attributesInGroups = attributesService.getAttributesInGroups(
 			getEP(entityId, idType), effective, groupsPatterns);
-		return mapper.writeValueAsString(attributesInGroups);
+		return attributesInGroups;
 	}
 
 	@Path("/entity/{entityId}/attribute/{attributeName}")
@@ -610,38 +613,38 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/{entityId}/2f-optin")
 	@GET
-	public String get2ndFactorOptIn(@PathParam("entityId") String entityId, 
+	public boolean get2ndFactorOptIn(@PathParam("entityId") String entityId,
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("get2ndFactorOptIn for {}", entityId);
 		boolean userMFAOptIn = entityCredMan.getUserMFAOptIn(getEP(entityId, idType));
-		return String.valueOf(userMFAOptIn);
+		return userMFAOptIn;
 	}	
 
 
 	@Path("/group/{groupPath}/meta")
 	@GET
-	public String getGroupMeta(@PathParam("groupPath") String group) 
+	public RestGroup getGroupMeta(@PathParam("groupPath") String group)
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("getGroupMeta query for {}", group);
 		if (!group.startsWith("/"))
 			group = "/" + group;
 		GroupContents contents = groupsMan.getContents(group, GroupContents.METADATA);
-		return mapper.writeValueAsString(GroupMapper.map(contents.getGroup()));
+		return GroupMapper.map(contents.getGroup());
 	}
 	
 	@Path("/group/{groupPath}")
 	@GET
-	public String getGroupContents(@PathParam("groupPath") String group) 
+	public RestGroupContents getGroupContents(@PathParam("groupPath") String group)
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("getGroupContents query for " + group);
 		if (!group.startsWith("/"))
 			group = "/" + group;
 		GroupContents contents = groupsMan.getContents(group, GroupContents.GROUPS | GroupContents.MEMBERS);
-		return mapper.writeValueAsString(GroupContentsMapper.map(contents));
+		return GroupContentsMapper.map(contents);
 	}
 	
 	@Path("/group/{groupPath}")
@@ -659,19 +662,17 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/group")
 	@POST
-	public void addInitializedGroup(String groupJson) throws EngineException, JsonProcessingException
+	public void addInitializedGroup(RestGroup parsedGroup) throws EngineException, JsonProcessingException
 	{
-		log.info("addInitializedGroup {}", groupJson);
-		RestGroup parsedGroup = JsonUtil.parse(groupJson, RestGroup.class);
+		log.info("addInitializedGroup {}", parsedGroup);
 		groupsMan.addGroup(GroupMapper.map(parsedGroup));
 	}
 
 	@Path("/group")
 	@PUT
-	public void updateGroup(String groupJson) throws EngineException, JsonProcessingException
+	public void updateGroup(RestGroup parsedGroup) throws EngineException, JsonProcessingException
 	{
-		log.info("updateGroup {}", groupJson);
-		RestGroup parsedGroup = JsonUtil.parse(groupJson, RestGroup.class);
+		log.info("updateGroup {}", parsedGroup);
 		groupsMan.updateGroup(parsedGroup.path,GroupMapper.map(parsedGroup));
 	}
 	
@@ -707,18 +708,18 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/group/{groupPath}/statements")
 	@GET
-	public String getGroupStatements(@PathParam("groupPath") String group) 
+	public RestAttributeStatement[] getGroupStatements(@PathParam("groupPath") String group)
 			throws EngineException, JsonProcessingException
 	{
 		if (!group.startsWith("/"))
 			group = "/" + group;
 		log.debug("getGroupStatements query for " + group);
 		GroupContents contents = groupsMan.getContents(group, GroupContents.METADATA);
-		return mapper.writeValueAsString(Stream.of(contents.getGroup()
+		return Stream.of(contents.getGroup()
 				.getAttributeStatements())
 				.map(as -> Optional.ofNullable(as).map(AttributeStatementMapper::map).orElse(null))
 				.collect(Collectors.toList()).toArray(new RestAttributeStatement[contents.getGroup()
-				                                             				.getAttributeStatements().length]));
+													.getAttributeStatements().length]);
 	}
 
 	@Path("/group/{groupPath}/statements")
@@ -792,21 +793,20 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/attributeTypes")
 	@GET
-	public String getAttributeTypes() throws EngineException, JsonProcessingException
+	public List<RestAttributeType> getAttributeTypes() throws EngineException, JsonProcessingException
 	{
 		Collection<AttributeType> attributeTypes = attributeTypeMan.getAttributeTypes();
-		return mapper.writeValueAsString(attributeTypes.stream()
+		return attributeTypes.stream()
 				.map(AttributeTypeMapper::map)
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList());
 	}
 	
 	@Path("/attributeType")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void addAttributeType(String jsonRaw) throws EngineException
+	public void addAttributeType(RestAttributeType at) throws EngineException
 	{
-		log.debug("addAttributeType " + jsonRaw);
-		RestAttributeType at = JsonUtil.parse(jsonRaw, RestAttributeType.class);
+		log.debug("addAttributeType " + at);
 		log.info("addAttributeType " + at.name);
 		attributeTypeMan.addAttributeType(AttributeTypeMapper.map(at));
 	}
@@ -814,10 +814,9 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/attributeType")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateAttributeType(String jsonRaw) throws EngineException
+	public void updateAttributeType(RestAttributeType at) throws EngineException
 	{
-		log.debug("updateAttributeType " + jsonRaw);
-		RestAttributeType at = JsonUtil.parse(jsonRaw, RestAttributeType.class);
+		log.debug("updateAttributeType " + at);
 		log.info("updateAttributeType " + at.name);
 		attributeTypeMan.updateAttributeType(AttributeTypeMapper.map(at));
 	}
