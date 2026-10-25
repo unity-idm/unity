@@ -4,6 +4,11 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import io.imunity.rest.admin.AdminJsonProvider;
+import io.imunity.rest.admin.AdminOpenApi;
+import io.imunity.rest.openapi.OpenApiFeatureConfiguration;
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -68,13 +73,20 @@ public class RESTAdminEndpoint extends RESTEndpoint
 	}
 
 	@ApplicationPath("/")
-	public class RESTAdminJAXRSApp extends Application
+	public class RESTAdminJAXRSApp extends Application implements OpenApiFeatureConfiguration
 	{
+		@Override
+		public void configureOpenApi(OpenApiFeature feature)
+		{
+			AdminOpenApi.configure(feature);
+		}
+
 		@Override 
 		public Set<Object> getSingletons() 
 		{
 			Set<Object> ret = Sets.newHashSet(factories.getObject());
 			RestEndpointHelper.installExceptionHandlers(ret);
+			ret.add(new AdminJsonProvider());
 			return ret;
 		}
 	}
