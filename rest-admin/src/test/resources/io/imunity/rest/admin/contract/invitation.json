@@ -1,0 +1,5 @@
+{"registrationCode":"code","lastSentTime":123250,"creationTime":100000,"numberOfSends":2,
+"type":"REGISTRATION","expiration":2051222400125,
+"contactAddress":"żółć@example.com","inviter":null,"expectedIdentity":null,
+"formId":"form","allowedGroups":{},"attributes":{},"identities":{},"groupSelections":{},
+"messageParams":{}}

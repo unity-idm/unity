@@ -1,0 +1,26 @@
+{
+  "endpoint": {
+    "name": "example",
+    "typeId": "RESTAdmin",
+    "contextAddress": "/example",
+    "revision": 7,
+    "status": "DEPLOYED",
+    "configuration": {
+      "displayedName": {"DefaultValue": "Zażółć ☃", "Map": {}},
+      "description": "Example endpoint",
+      "configuration": "example=true",
+      "realm": "realm",
+      "tag": "DmXBgEmgWe6cA6muLd0oR/ASXSd1pilL/ws4qx7uqaM=",
+      "authenticationOptions": ["password"]
+    }
+  },
+  "realm": {
+    "name": "realm", "description": "Example realm",
+    "blockAfterUnsuccessfulLogins": 10, "blockFor": 100,
+    "allowForRememberMeDays": 1, "rememberMePolicy": "disallow", "maxInactivity": 600
+  },
+  "type": {
+    "name": "RESTAdmin", "description": "Admin REST", "supportedBinding": "REST",
+    "paths": {"v1": "/v1"}, "features": {}
+  }
+}
