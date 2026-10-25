@@ -4,34 +4,6 @@
  */
 package pl.edu.icm.unity.restadm;
 
-import java.io.IOException;
-import io.imunity.rest.admin.AdminJsonBody;
-import io.imunity.rest.admin.AdminJsonProvider;
-import io.imunity.rest.api.types.registration.RestRegistrationRequestState;
-import io.imunity.rest.api.types.registration.RestEnquiryResponseState;
-import io.imunity.rest.api.types.registration.invite.RestInvitationWithCode;
-import io.imunity.rest.admin.RestEntityId;
-import io.imunity.rest.api.types.basic.RestEntity;
-import io.imunity.rest.api.types.basic.RestGroupContents;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Deque;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -43,22 +15,34 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import io.imunity.rest.admin.AdminJsonBody;
+import io.imunity.rest.admin.AdminJsonProvider;
+import io.imunity.rest.admin.RestEntityId;
+import io.imunity.rest.admin.RestFormattedToken;
 import io.imunity.rest.api.RestGroupMemberWithAttributes;
 import io.imunity.rest.api.RestMultiGroupMembersWithAttributes;
 import io.imunity.rest.api.types.basic.RestAttribute;
 import io.imunity.rest.api.types.basic.RestAttributeStatement;
 import io.imunity.rest.api.types.basic.RestAttributeType;
+import io.imunity.rest.api.types.basic.RestEntity;
 import io.imunity.rest.api.types.basic.RestEntityWithAttributes;
 import io.imunity.rest.api.types.basic.RestExternalizedAttribute;
 import io.imunity.rest.api.types.basic.RestGroup;
+import io.imunity.rest.api.types.basic.RestGroupContents;
 import io.imunity.rest.api.types.basic.RestToken;
 import io.imunity.rest.api.types.endpoint.RestEndpointConfiguration;
+import io.imunity.rest.api.types.endpoint.RestResolvedEndpoint;
+import io.imunity.rest.api.types.idp.statistic.RestGroupedIdpStatistic;
 import io.imunity.rest.api.types.registration.RestEnquiryForm;
+import io.imunity.rest.api.types.registration.RestEnquiryResponseState;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
+import io.imunity.rest.api.types.registration.RestRegistrationRequestState;
 import io.imunity.rest.api.types.registration.invite.RestEnquiryInvitationParam;
 import io.imunity.rest.api.types.registration.invite.RestInvitationParam;
+import io.imunity.rest.api.types.registration.invite.RestInvitationWithCode;
 import io.imunity.rest.api.types.registration.invite.RestRegistrationInvitationParam;
 import io.imunity.rest.api.types.translation.RestTranslationRule;
+import io.imunity.rest.api.types.userimport.RestImportResult;
 import io.imunity.rest.mappers.AttributeMapper;
 import io.imunity.rest.mappers.AttributeStatementMapper;
 import io.imunity.rest.mappers.AttributeTypeMapper;
@@ -79,6 +63,13 @@ import io.imunity.rest.mappers.registration.invite.InvitationParamMapper;
 import io.imunity.rest.mappers.registration.invite.InvitationWithCodeMapper;
 import io.imunity.rest.mappers.translation.TranslationRuleMapper;
 import io.imunity.rest.mappers.userimport.ImportResultMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -89,8 +80,31 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Deque;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
@@ -127,8 +141,8 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.IdpStatisticManagement;
 import pl.edu.icm.unity.engine.api.IdpStatisticManagement.GroupBy;
+import pl.edu.icm.unity.engine.api.IdpStatisticManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
@@ -153,6 +167,9 @@ import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 @PrototypeComponent
 public class RESTAdmin implements RESTAdminHandler
 {
+	@Context
+	private HttpHeaders httpHeaders;
+
 	private static final int UUID_LENGTH = 36;
 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTAdmin.class);
@@ -223,6 +240,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/resolve/{identityType}/{identityValue}")
 	@GET
+	@Operation(operationId = "getEntityObsolete")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public RestEntity getEntityObsolete(@PathParam("identityType") String identityType,
 			@PathParam("identityValue") String identityValue) 
 			throws EngineException, JsonProcessingException
@@ -235,6 +254,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/entity/{entityId}")
 	@GET
+	@Operation(operationId = "getEntity")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public RestEntity getEntity(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType)
 			throws EngineException, JsonProcessingException
 	{
@@ -245,6 +266,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/entity/{entityId}")
 	@DELETE
+	@Operation(operationId = "removeEntity")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeEntity(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
@@ -254,6 +277,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/{entityId}/removal-schedule")
 	@PUT
+	@Operation(operationId = "scheduleRemoval")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void scheduleRemoval(@PathParam("entityId") String entityId, @QueryParam("when") long when, 
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
@@ -265,6 +290,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/{entityId}/admin-schedule")
 	@PUT
+	@Operation(operationId = "scheduleOperation")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void scheduleOperation(@PathParam("entityId") String entityId, @QueryParam("when") long when,
 			@QueryParam("operation") String operationStr, @QueryParam("identityType") String idType) 
 			throws EngineException
@@ -286,6 +313,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/entity/{entityId}/admin-schedule")
 	@DELETE
+	@Operation(operationId = "clearScheduledOperation")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void clearScheduledOperation(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
 			throws EngineException
 	{
@@ -303,6 +332,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/entity/{entityId}/status/{status}")
 	@PUT
+	@Operation(operationId = "changeEntityStatus")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void changeEntityStatus(@PathParam("entityId") String entityId, @PathParam("status") String status, 
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
@@ -322,6 +353,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/entity/identity/{type}/{value}")
 	@POST
+	@Operation(operationId = "addEntity")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public RestEntityId addEntity(@PathParam("type") String type, @PathParam("value") String value,
 			@QueryParam("credentialRequirement") String credReqIdId) 
 			throws EngineException, JsonProcessingException
@@ -335,6 +368,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/entity/{entityId}/identity/{type}/{value}")
 	@POST
+	@Operation(operationId = "addIdentity")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addIdentity(@PathParam("type") String type, @PathParam("value") String value, 
 			@PathParam("entityId") String entityId, @QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
@@ -345,6 +380,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/identity/{type}/{value}")
 	@DELETE
+	@Operation(operationId = "removeIdentity")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeIdentity(@PathParam("type") String type, @PathParam("value") String value,
 			@QueryParam("target") String target, @QueryParam("realm") String realm) 
 			throws EngineException, JsonProcessingException
@@ -355,6 +392,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/entity/{entityId}/groups")
 	@GET
+	@Operation(operationId = "getGroups")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public Set<String> getGroups(@PathParam("entityId") String entityId, @QueryParam("identityType") String idType)
 			throws EngineException, JsonProcessingException
 	{
@@ -365,6 +404,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/{entityId}/attributes")
 	@GET
+	@Operation(operationId = "getAttributes")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public List<RestExternalizedAttribute> getAttributes(@PathParam("entityId") String entityId,
 			@QueryParam("group") String group,
 			@QueryParam("effective") Boolean effective,
@@ -385,6 +426,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/{entityId}/groups/direct/attributes")
 	@GET
+	@Operation(operationId = "getAttributesInAllGroups")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public Map<String, List<RestExternalizedAttribute>> getAttributesInAllGroups(@PathParam("entityId") String entityId,
 			@QueryParam("identityType") String idType)
 			throws EngineException, JsonProcessingException
@@ -396,6 +439,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/group-members-attributes/{groupPath}")
 	@GET
+	@Operation(operationId = "getGroupMembersWithSelectedAttributes")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public List<RestGroupMemberWithAttributes> getGroupMembersWithSelectedAttributes(@PathParam("groupPath") String group,
 			@QueryParam("attributes") List<String> attributes)
 			throws JsonProcessingException
@@ -416,6 +461,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/multi-group-members-attributes")
 	@GET
+	@Operation(operationId = "getMultiGroupsMembersInGroupsWithSelectedAttributes")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public RestMultiGroupMembersWithAttributes getMultiGroupsMembersInGroupsWithSelectedAttributes(
 			@QueryParam("attributes") List<String> attributes,
 	                                                @QueryParam("groups") List<String> groups)
@@ -434,7 +481,8 @@ public class RESTAdmin implements RESTAdminHandler
 						return "/" + grp;
 					return grp;
 				}).collect(Collectors.toList());
-		Map<String, List<RestGroupMemberWithAttributes>> groupMembers = groupMembersService.getGroupsMembersInGroupsWithSelectedAttributes(allGroups, attributes)
+		Map<String, List<RestGroupMemberWithAttributes>> groupMembers = groupMembersService
+				.getGroupsMembersInGroupsWithSelectedAttributes(allGroups, attributes)
 				.entrySet().stream()
 				.collect(Collectors.toMap(
 						Map.Entry::getKey,
@@ -447,6 +495,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/{entityId}/record")
 	@GET
+	@Operation(operationId = "getEntityWithAttributes")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public RestEntityWithAttributes getEntityWithAttributes(@PathParam("entityId") String entityId,
 			@QueryParam("groupsPatterns") List<String> groupsPatterns,
 			@QueryParam("effective") Boolean effective, @QueryParam("identityType") String idType)
@@ -470,6 +520,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/entity/{entityId}/groups/attributes")
 	@GET
+	@Operation(operationId = "getAttributesInGroups")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public Map<String, List<RestExternalizedAttribute>> getAttributesInGroups(@PathParam("entityId") String entityId,
 			@QueryParam("groupsPatterns") List<String> groupsPatterns,
 			@QueryParam("effective") Boolean effective,
@@ -485,6 +537,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/{entityId}/attribute/{attributeName}")
 	@DELETE
+	@Operation(operationId = "removeAttribute")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeAttribute(@PathParam("entityId") String entityId, 
 			@PathParam("attributeName") String attribute,
 			@QueryParam("group") String group, 
@@ -499,10 +553,15 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/entity/{entityId}/attribute")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void setAttribute(@PathParam("entityId") String entityId, String attribute, 
+	@Operation(operationId = "setAttribute")
+	@ApiResponse(responseCode = "204", description = "Success")
+	public void setAttribute(@PathParam("entityId") String entityId,
+			@RequestBody(required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON,
+				schema = @Schema(implementation = RestAttribute.class))) InputStream attributeInput,
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
+		String attribute = readBody(attributeInput);
 		log.info("setAttribute for " + entityId);
 		RestAttribute attributeParam;
 		try
@@ -518,10 +577,15 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/entity/{entityId}/attributes")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void setAttributes(@PathParam("entityId") String entityId, String attributes, 
+	@Operation(operationId = "setAttributes")
+	@ApiResponse(responseCode = "204", description = "Success")
+	public void setAttributes(@PathParam("entityId") String entityId,
+			@RequestBody(required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON,
+				array = @ArraySchema(schema = @Schema(implementation = RestAttribute.class)))) InputStream attributesInput,
 			@QueryParam("identityType") String idType) 
 			throws EngineException, IOException
 	{
+		String attributes = readBody(attributesInput);
 		log.info("Bulk setAttributes for " + entityId);
 		
 		JsonNode root = mapper.readTree(attributes);
@@ -550,10 +614,14 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/entity/{entityId}/credential-adm/{credential}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "setCredentialByAdmin")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void setCredentialByAdmin(@PathParam("entityId") String entityId, 
 			@PathParam("credential") String credential, 
 			@QueryParam("identityType") String idType,
-			String secrets) 
+			@RequestBody(required = true, description = "Raw payload interpreted by the configured plugin",
+				content = @Content(mediaType = MediaType.APPLICATION_JSON,
+						schema = @Schema(type = "string", format = "binary"))) String secrets)
 			throws EngineException, JsonProcessingException
 	{
 		log.info("setCredentialByAdmin for " + entityId);
@@ -563,10 +631,14 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/entity/{entityId}/credential/{credential}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "setCredentialByUser")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void setCredentialByUser(@PathParam("entityId") String entityId, 
 			@PathParam("credential") String credential, 
 			@QueryParam("identityType") String idType,
-			String secretsArray) 
+			@RequestBody(required = true, description = "Array whose first value contains the new credential secret",
+				content = @Content(mediaType = MediaType.APPLICATION_JSON,
+						array = @ArraySchema(minItems = 1, schema = @Schema(type = "string")))) String secretsArray)
 			throws EngineException, JsonProcessingException
 	{
 		log.info("setCredentialByUser for " + entityId);
@@ -594,6 +666,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/{entityId}/credential/{credential}/status/{status}")
 	@PUT
+	@Operation(operationId = "setCredentialStatus")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void setCredentialStatus(@PathParam("entityId") String entityId, 
 			@PathParam("credential") String credential, 
 			@QueryParam("identityType") String idType,
@@ -607,6 +681,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/{entityId}/2f-optin/{status}")
 	@PUT
+	@Operation(operationId = "set2ndFactorOptIn")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void set2ndFactorOptIn(@PathParam("entityId") String entityId, 
 			@PathParam("status") boolean status, 
 			@QueryParam("identityType") String idType) 
@@ -618,6 +694,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/entity/{entityId}/2f-optin")
 	@GET
+	@Operation(operationId = "get2ndFactorOptIn")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public boolean get2ndFactorOptIn(@PathParam("entityId") String entityId,
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
@@ -630,6 +708,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/group/{groupPath}/meta")
 	@GET
+	@Operation(operationId = "getGroupMeta")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public RestGroup getGroupMeta(@PathParam("groupPath") String group)
 			throws EngineException, JsonProcessingException
 	{
@@ -642,6 +722,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/group/{groupPath}")
 	@GET
+	@Operation(operationId = "getGroupContents")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public RestGroupContents getGroupContents(@PathParam("groupPath") String group)
 			throws EngineException, JsonProcessingException
 	{
@@ -654,6 +736,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/group/{groupPath}")
 	@DELETE
+	@Operation(operationId = "removeGroup")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeGroup(@PathParam("groupPath") String group, 
 			@QueryParam("recursive") Boolean recursive) throws EngineException, JsonProcessingException
 	{
@@ -667,6 +751,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/group")
 	@POST
+	@Operation(operationId = "addInitializedGroup")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addInitializedGroup(RestGroup parsedGroup) throws EngineException, JsonProcessingException
 	{
 		log.info("addInitializedGroup {}", parsedGroup);
@@ -675,6 +761,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/group")
 	@PUT
+	@Operation(operationId = "updateGroup")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateGroup(RestGroup parsedGroup) throws EngineException, JsonProcessingException
 	{
 		log.info("updateGroup {}", parsedGroup);
@@ -683,6 +771,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/group/{groupPath}")
 	@POST
+	@Operation(operationId = "addGroup")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addGroup(@PathParam("groupPath") String group,
 			@QueryParam("withParents") Boolean withParents) throws EngineException, JsonProcessingException
 	{
@@ -696,8 +786,13 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/groups")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void addGroups(String groups) throws EngineException, JsonProcessingException
+	@Operation(operationId = "addGroups")
+	@ApiResponse(responseCode = "204", description = "Success")
+	public void addGroups(@RequestBody(required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON,
+				array = @ArraySchema(schema = @Schema(implementation = RestGroup.class)))) InputStream groupsInput)
+			throws EngineException, JsonProcessingException
 	{
+		String groups = readBody(groupsInput);
 		Set<RestGroup> groupsToAdd;
 		try
 		{
@@ -713,6 +808,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/group/{groupPath}/statements")
 	@GET
+	@Operation(operationId = "getGroupStatements")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public RestAttributeStatement[] getGroupStatements(@PathParam("groupPath") String group)
 			throws EngineException, JsonProcessingException
 	{
@@ -730,9 +827,14 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/group/{groupPath}/statements")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateGroupStatements")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateGroupStatements(@PathParam("groupPath") String group,
-			String statementsJson) throws EngineException, JsonProcessingException
+			@RequestBody(required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON,
+				array = @ArraySchema(schema = @Schema(implementation = RestAttributeStatement.class)))) InputStream statementsJsonInput)
+			throws EngineException, JsonProcessingException
 	{
+		String statementsJson = readBody(statementsJsonInput);
 		if (!group.startsWith("/"))
 			group = "/" + group;
 		log.info("updateGroup statements " + group);
@@ -761,6 +863,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/group/{groupPath}/entity/{entityId}")
 	@DELETE
+	@Operation(operationId = "removeMember")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeMember(@PathParam("groupPath") String group, 
 			@PathParam("entityId") String entityId, 
 			@QueryParam("identityType") String idType) 
@@ -774,6 +878,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/group/{groupPath}/entity/{entityId}")
 	@POST
+	@Operation(operationId = "addMember")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addMember(@PathParam("groupPath") String group, 
 			@PathParam("entityId") String entityId, 
 			@QueryParam("identityType") String idType) 
@@ -798,6 +904,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/attributeTypes")
 	@GET
+	@Operation(operationId = "getAttributeTypes")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public List<RestAttributeType> getAttributeTypes() throws EngineException, JsonProcessingException
 	{
 		Collection<AttributeType> attributeTypes = attributeTypeMan.getAttributeTypes();
@@ -809,6 +917,8 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/attributeType")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "addAttributeType")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addAttributeType(RestAttributeType at) throws EngineException
 	{
 		log.debug("addAttributeType " + at);
@@ -819,6 +929,8 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/attributeType")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateAttributeType")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateAttributeType(RestAttributeType at) throws EngineException
 	{
 		log.debug("updateAttributeType " + at);
@@ -828,6 +940,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/attributeType/{toRemove}")
 	@DELETE
+	@Operation(operationId = "removeAttributeType")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeAttributeType(@PathParam("toRemove") String toRemove, 
 			@QueryParam("withInstances") String withInstances) throws EngineException
 	{
@@ -840,6 +954,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/confirmation-trigger/entity/{entityId}/attribute/{attributeName}")
 	@POST
+	@Operation(operationId = "resendConfirmationForAttribute")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void resendConfirmationForAttribute(@PathParam("entityId") String entityId, 
 			@PathParam("attributeName") String attribute,
 			@QueryParam("group") String group, 
@@ -859,6 +975,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/userNotification-trigger/entity/{identityValue}/template/{templateId}")
 	@POST
+	@Operation(operationId = "userNotificationTrigger")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void userNotificationTrigger(
 			@PathParam("identityValue") String identityValue, 
 			@PathParam("templateId") String templateId, 
@@ -884,6 +1002,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/confirmation-trigger/identity/{type}/{value}")
 	@POST
+	@Operation(operationId = "resendConfirmationForIdentity")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void resendConfirmationForIdentity(@PathParam("type") String idType, 
 			@PathParam("value") String value) throws EngineException, JsonProcessingException
 	{
@@ -903,14 +1023,18 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/endpoints")
 	@GET
-	public String getEndpoints() throws EngineException, JsonProcessingException
+	@Operation(operationId = "getEndpoints")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
+	public List<RestResolvedEndpoint> getEndpoints() throws EngineException, JsonProcessingException
 	{
 		List<ResolvedEndpoint> endpoints = endpointManagement.getDeployedEndpoints();
-		return mapper.writeValueAsString(endpoints.stream().map(ResolvedEndpointMapper::map).collect(Collectors.toList()));
+		return endpoints.stream().map(ResolvedEndpointMapper::map).collect(Collectors.toList());
 	}
 	
 	@Path("/endpoint/{id}")
 	@DELETE
+	@Operation(operationId = "undeployEndpoint")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void undeployEndpoint(@PathParam("id") String id) throws EngineException
 	{
 		endpointManagement.undeploy(id);
@@ -919,29 +1043,34 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/endpoint/{id}")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String deployEndpoint(@QueryParam("typeId") String typeId, 
+	@Operation(operationId = "deployEndpoint")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
+	public ResolvedEndpoint deployEndpoint(@QueryParam("typeId") String typeId,
 			@PathParam("id") String id, 
 			@QueryParam("address") String address, 
-			String configurationJson) throws EngineException, IOException
+			RestEndpointConfiguration configuration) throws EngineException, IOException
 	{
-		RestEndpointConfiguration configuration = JsonUtil.parse(configurationJson, RestEndpointConfiguration.class);
-		ResolvedEndpoint deployed = endpointManagement.deploy(typeId, id, address, EndpointConfigurationMapper.map(configuration));
-		return mapper.writeValueAsString(deployed);
+		ResolvedEndpoint deployed = endpointManagement.deploy(typeId, id, address,
+				EndpointConfigurationMapper.map(configuration));
+		return deployed;
 	}
 
 	@Path("/endpoint/{id}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateEndpoint")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateEndpoint(@PathParam("id") String id, 
-			String configurationJson) throws EngineException, IOException
+			RestEndpointConfiguration configuration) throws EngineException, IOException
 	{
-		RestEndpointConfiguration configuration = JsonUtil.parse(configurationJson, RestEndpointConfiguration.class);
 		endpointManagement.updateEndpoint(id, EndpointConfigurationMapper.map(configuration));
 	}
 	
 	
 	@Path("/registrationForms")
 	@GET
+	@Operation(operationId = "getRegistrationForms")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public List<RestRegistrationForm> getRegistrationForms() throws EngineException, JsonProcessingException
 	{
 		List<RegistrationForm> forms = registrationManagement.getForms();
@@ -952,6 +1081,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/registrationForm/{formId}")
 	@DELETE
+	@Operation(operationId = "removeRegistrationForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeRegistrationForm(@PathParam("formId") String formId, 
 			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
@@ -963,7 +1094,10 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/registrationForm")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void addForm(@AdminJsonBody(AdminJsonBody.Failure.FORM) RestRegistrationForm form) throws EngineException, IOException
+	@Operation(operationId = "addForm")
+	@ApiResponse(responseCode = "204", description = "Success")
+	public void addForm(@AdminJsonBody(AdminJsonBody.Failure.FORM) RestRegistrationForm form)
+			throws EngineException, IOException
 	{
 		registrationManagement.addForm(RegistrationFormMapper.map(form));
 	}
@@ -971,8 +1105,11 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/registrationForm")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateForm(@QueryParam("ignoreRequestsAndInvitations") Boolean ignoreRequestsAndInvitations,
-			@QueryParam("ignoreInvitations") Boolean ignoreInvitations, @AdminJsonBody(AdminJsonBody.Failure.FORM) RestRegistrationForm form)
+			@QueryParam("ignoreInvitations") Boolean ignoreInvitations,
+			@AdminJsonBody(AdminJsonBody.Failure.FORM) RestRegistrationForm form)
 			throws EngineException, IOException
 	{
 		if (ignoreRequestsAndInvitations == null)
@@ -982,6 +1119,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/registrationRequests")
 	@GET
+	@Operation(operationId = "getRegistrationRequests")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public List<RestRegistrationRequestState> getRegistrationRequests() throws EngineException, JsonProcessingException
 	{
 		List<RegistrationRequestState> requests = registrationManagement.getRegistrationRequests();
@@ -992,6 +1131,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/registrationRequest/{requestId}")
 	@GET
+	@Operation(operationId = "getRegistrationRequest")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public RestRegistrationRequestState getRegistrationRequest(@PathParam("requestId") String requestId)
 			throws EngineException, JsonProcessingException
 	{
@@ -1006,6 +1147,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/enquiryForms")
 	@GET
+	@Operation(operationId = "getEnquiryForms")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public List<RestEnquiryForm> getEnquiryForms() throws EngineException, JsonProcessingException
 	{
 		List<EnquiryForm> forms = enquiryManagement.getEnquires();
@@ -1016,6 +1159,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/enquiryForm/{formId}")
 	@DELETE
+	@Operation(operationId = "removeEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeEnquiryForm(@PathParam("formId") String formId, 
 			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
@@ -1027,7 +1172,10 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/enquiryForm")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void addEnquiryForm(@AdminJsonBody(AdminJsonBody.Failure.FORM) RestEnquiryForm form) throws EngineException, IOException
+	@Operation(operationId = "addEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
+	public void addEnquiryForm(@AdminJsonBody(AdminJsonBody.Failure.FORM) RestEnquiryForm form)
+			throws EngineException, IOException
 	{
 		enquiryManagement.addEnquiry(EnquiryFormMapper.map(form));
 	}
@@ -1035,8 +1183,11 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/enquiryForm")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateEnquiryForm(@QueryParam("ignoreRequestsAndInvitations") Boolean ignoreRequestsAndInvitations,
-			@QueryParam("ignoreInvitations") Boolean ignoreInvitations, @AdminJsonBody(AdminJsonBody.Failure.FORM) RestEnquiryForm form)
+			@QueryParam("ignoreInvitations") Boolean ignoreInvitations,
+			@AdminJsonBody(AdminJsonBody.Failure.FORM) RestEnquiryForm form)
 			throws EngineException, IOException
 	{
 		if (ignoreRequestsAndInvitations == null)
@@ -1046,6 +1197,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/enquiryResponses")
 	@GET
+	@Operation(operationId = "getEnquiryResponses")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public List<RestEnquiryResponseState> getEnquiryResponses() throws EngineException, JsonProcessingException
 	{
 		List<EnquiryResponseState> requests = enquiryManagement.getEnquiryResponses();
@@ -1056,6 +1209,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/enquiryResponse/{responseId}")
 	@GET
+	@Operation(operationId = "getEnquiryResponse")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public RestEnquiryResponseState getEnquiryResponse(@PathParam("responseId") String requestId)
 			throws EngineException, JsonProcessingException
 	{
@@ -1070,6 +1225,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/invitations")
 	@GET
+	@Operation(operationId = "getInvitations")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
 	public List<RestInvitationWithCode> getInvitations() throws EngineException, JsonProcessingException
 	{
 		List<InvitationWithCode> invitations = invitationMan.getInvitations();
@@ -1078,7 +1235,10 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/invitation/{code}")
 	@GET
-	public RestInvitationWithCode getInvitation(@PathParam("code") String code) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getInvitation")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
+	public RestInvitationWithCode getInvitation(@PathParam("code") String code)
+			throws EngineException, JsonProcessingException
 	{
 		InvitationWithCode invitation = invitationMan.getInvitation(code);
 		return InvitationWithCodeMapper.map(invitation);
@@ -1086,6 +1246,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/invitation/{code}")
 	@DELETE
+	@Operation(operationId = "removeInvitation")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeInvitation(@PathParam("code") String code) throws EngineException
 	{
 		invitationMan.removeInvitation(code);
@@ -1093,6 +1255,8 @@ public class RESTAdmin implements RESTAdminHandler
 
 	@Path("/invitation/{code}/send")
 	@POST
+	@Operation(operationId = "sendInvitation")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void sendInvitation(@PathParam("code") String code) throws EngineException, IOException
 	{
 		invitationMan.sendInvitation(code);
@@ -1102,8 +1266,13 @@ public class RESTAdmin implements RESTAdminHandler
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String addInvitation(String jsonInvitation) throws EngineException, IOException
-	{	
+	@Operation(operationId = "addInvitation")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
+	public String addInvitation(@RequestBody(required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON,
+				schema = @Schema(implementation = RestInvitationParam.class))) InputStream jsonInvitationInput)
+			throws EngineException, IOException
+	{
+		String jsonInvitation = readBody(jsonInvitationInput);
 		RestInvitationParam invitationParam = getInvitationFromJson(jsonInvitation);
 		return invitationMan.addInvitation(InvitationParamMapper.map(invitationParam));
 	}
@@ -1111,13 +1280,20 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/invitation/{code}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateInvitation(@PathParam("code") String code, String jsonInvitation) throws EngineException, IOException
+	@Operation(operationId = "updateInvitation")
+	@ApiResponse(responseCode = "204", description = "Success")
+	public void updateInvitation(@PathParam("code") String code,
+			@RequestBody(required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON,
+				schema = @Schema(implementation = RestInvitationParam.class))) InputStream jsonInvitationInput)
+			throws EngineException, IOException
 	{
+		String jsonInvitation = readBody(jsonInvitationInput);
 		RestInvitationParam invitationParam = getInvitationFromJson(jsonInvitation);
 		invitationMan.updateInvitation(code, InvitationParamMapper.map(invitationParam));
 	}	
 	
-	private RestInvitationParam getInvitationFromJson(String jsonInvitation) throws WrongArgumentException, JsonMappingException, JsonProcessingException
+	private RestInvitationParam getInvitationFromJson(String jsonInvitation)
+			throws WrongArgumentException, JsonMappingException, JsonProcessingException
 	{
 		ObjectNode invNode = JsonUtil.parse(jsonInvitation);
 		JsonNode itype = invNode.get("type");
@@ -1144,10 +1320,11 @@ public class RESTAdmin implements RESTAdminHandler
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String applyBulkProcessingRule(@QueryParam("timeout") Long timeout, String jsonProcessingRule) 
+	@Operation(operationId = "applyBulkProcessingRule")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
+	public String applyBulkProcessingRule(@QueryParam("timeout") Long timeout, RestTranslationRule rule)
 			throws EngineException
 	{
-		RestTranslationRule rule = JsonUtil.parse(jsonProcessingRule, RestTranslationRule.class); 
 		
 		if (timeout == null)
 			timeout = -1l;
@@ -1172,7 +1349,9 @@ public class RESTAdmin implements RESTAdminHandler
 	@Path("/import/user/{identity}")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	public String importUser(@PathParam("identity") String identity,
+	@Operation(operationId = "importUser")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
+	public List<RestImportResult> importUser(@PathParam("identity") String identity,
 			@QueryParam("type") String identityType,
 			@QueryParam("importer") String importer) throws EngineException, IOException
 	{
@@ -1181,15 +1360,20 @@ public class RESTAdmin implements RESTAdminHandler
 				new UserImportSpec(importer, identity, identityType);
 		List<ImportResult> importUser = userImportManagement.importUser(
 				Lists.newArrayList(param));
-		return mapper.writeValueAsString(importUser.stream()
+		return importUser.stream()
 				.map(ImportResultMapper::map)
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList());
 	}
 	
 	@Path("/triggerEvent/{eventName}")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void triggerEvent(@PathParam("eventName") String eventName, String eventBody) 
+	@Operation(operationId = "triggerEvent")
+	@ApiResponse(responseCode = "204", description = "Success")
+	public void triggerEvent(@PathParam("eventName") String eventName,
+			@RequestBody(required = true, description = "Raw payload interpreted by the configured plugin",
+				content = @Content(mediaType = MediaType.APPLICATION_JSON,
+						schema = @Schema(type = "string", format = "binary"))) String eventBody)
 			throws EngineException, IOException
 	{
 		PersistableEvent event = new PersistableEvent(eventName, -1l, new Date(), eventBody);
@@ -1198,6 +1382,8 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/token/{type}/{value}")
 	@DELETE
+	@Operation(operationId = "removeToken")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeToken(@PathParam("type") String type, 
 			@PathParam("value") String value) throws EngineException, JsonProcessingException
 	{
@@ -1212,7 +1398,9 @@ public class RESTAdmin implements RESTAdminHandler
 	
 	@Path("/tokens")
 	@GET
-	public String getTokens(@QueryParam("type") String type, @QueryParam("owner") String entity,
+	@Operation(operationId = "getTokens")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
+	public List<RestFormattedToken> getTokens(@QueryParam("type") String type, @QueryParam("owner") String entity,
 			@QueryParam("ownerType") String entityType)
 			throws EngineException, JsonProcessingException
 	{	
@@ -1230,17 +1418,21 @@ public class RESTAdmin implements RESTAdminHandler
 			throw new EngineException("Cannot get tokens - invalid type or owner");
 		}
 		
-		ArrayNode jsonArray = mapper.createArrayNode();
+		List<RestFormattedToken> formatted = new ArrayList<>();
 		for (RestToken t : tokens.stream().map(TokenMapper::map).collect(Collectors.toList()))
-			jsonArray.add(jsonFormatter.toJson(t));
+			formatted.add(new RestFormattedToken(t.type, t.value, t.owner, t.created, t.expires,
+					jsonFormatter.toJson(t).get("contents")));
 		
 		
-		return mapper.writeValueAsString(jsonArray);
+		return formatted;
 	}
 	
 	@Path("/idp-stats")
 	@GET
-	public String getIdpStatistics(@QueryParam("since") long since, @QueryParam("groupBy") String groupBy, 
+	@Operation(operationId = "getIdpStatistics")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
+	public List<RestGroupedIdpStatistic> getIdpStatistics(@QueryParam("since") long since,
+			@QueryParam("groupBy") String groupBy,
 			@QueryParam("skipZeroRecords") Boolean skipZeroRecords)
 			throws EngineException, JsonProcessingException
 	{
@@ -1248,12 +1440,23 @@ public class RESTAdmin implements RESTAdminHandler
 		GroupBy groupByFallbackToTotal = groupBy != null ? GroupBy.valueOf(groupBy) : GroupBy.none;
 		if (skipZeroRecords == null)
 			skipZeroRecords = true;
-		return mapper.writeValueAsString(idpStatisticManagement
+		return idpStatisticManagement
 				.getIdpStatisticsSinceGroupBy(sinceDate, groupByFallbackToTotal,
 						IdpStatisticManagement.DEFAULT_SIG_IN_RECORD_LIMIT, skipZeroRecords)
 				.stream()
 				.map(GroupedIdpStatisticMapper::map)
-				.collect(Collectors.toList()));
+				.collect(Collectors.toList());
+	}
+
+	private String readBody(InputStream input)
+	{
+		try
+		{
+			return AdminJsonProvider.readText(input, httpHeaders.getMediaType());
+		} catch (IOException e)
+		{
+			throw new pl.edu.icm.unity.base.exceptions.InternalException("Can't read request body", e);
+		}
 	}
 
 	/**
