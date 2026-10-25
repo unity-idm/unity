@@ -1,14 +1,5 @@
 package io.imunity.rest.admin;
 
-import java.lang.reflect.Method;
-import java.time.Instant;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-
-import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
-import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
-
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
 
@@ -24,7 +15,18 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.NumberSchema;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+
+import java.lang.reflect.Method;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.cxf.jaxrs.openapi.OpenApiCustomizer;
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 
 public final class AdminOpenApi extends OpenApiCustomizer
 {
@@ -66,17 +68,36 @@ public final class AdminOpenApi extends OpenApiCustomizer
 			{
 				if (method.getAnnotation(jakarta.ws.rs.Path.class) == null)
 					continue;
-				var resolved = converters.resolveAsResolvedSchema(
-						new AnnotatedType(method.getGenericReturnType()).resolveAsRef(true));
-				resolved.referencedSchemas.forEach(api.getComponents()::addSchemas);
+				if (method.getReturnType() != void.class && method.getReturnType() != jakarta.ws.rs.core.Response.class)
+					converters.resolveAsResolvedSchema(new AnnotatedType(method.getGenericReturnType()).resolveAsRef(true))
+							.referencedSchemas.forEach(api.getComponents()::addSchemas);
 				for (var parameter : method.getParameters())
 					if (parameter.getType().getPackageName().startsWith("io.imunity.rest.api"))
 					{
-						resolved = converters.resolveAsResolvedSchema(
+						var resolved = converters.resolveAsResolvedSchema(
 								new AnnotatedType(parameter.getParameterizedType()).resolveAsRef(true));
 						resolved.referencedSchemas.forEach(api.getComponents()::addSchemas);
 					}
 			}
+		for (Class<?> type : List.of(
+				io.imunity.rest.api.types.registration.invite.RestRegistrationInvitationParam.class,
+				io.imunity.rest.api.types.registration.invite.RestEnquiryInvitationParam.class,
+				io.imunity.rest.api.types.registration.invite.RestComboInvitationParam.class))
+			converters.resolveAsResolvedSchema(new AnnotatedType(type).resolveAsRef(true))
+					.referencedSchemas.forEach(api.getComponents()::addSchemas);
+		AdminOpenApiDescriptions.apply(api);
+		AdminOpenApiModels.apply(api);
+		AdminOpenApiExamples.apply(api);
+		api.getComponents().addSecuritySchemes("directAuth", new SecurityScheme()
+				.type(SecurityScheme.Type.HTTP).scheme("basic")
+				.description("Direct authentication using an endpoint-configured password authenticator."));
+		api.getComponents().addSecuritySchemes("bearerAuth", new SecurityScheme()
+				.type(SecurityScheme.Type.HTTP).scheme("bearer")
+				.description("Bearer authentication when enabled by the deployed endpoint's authenticator. "
+						+ "Issuer, token acquisition and access rules depend on deployment configuration; "
+						+ "the caller still needs administrative permissions."));
+		api.setSecurity(List.of(new SecurityRequirement().addList("directAuth"),
+				new SecurityRequirement().addList("bearerAuth")));
 		api.setInfo(info());
 		api.setServers(List.of(new Server().url(".")));
 	}
