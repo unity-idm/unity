@@ -15,4 +15,16 @@ class IdentitiesGridColumnConstants
 	static final int CRED_STATUS_COL_RATIO = 100;
 
 	static final String ACTION_COLUMN_ID = "action";
+
+	static boolean isRootAttributeColumn(String columnId)
+	{
+		return columnId.startsWith(ATTR_ROOT_COL_PREFIX);
+	}
+
+	static String getAttributeName(String attributeColumnId)
+	{
+		return attributeColumnId.substring(isRootAttributeColumn(attributeColumnId)
+				? ATTR_ROOT_COL_PREFIX.length()
+				: ATTR_CURRENT_COL_PREFIX.length());
+	}
 }

@@ -78,4 +78,25 @@ public class AttributeSearchServiceImplTest
 				.isInstanceOf(AuthorizationExceptionRT.class);
 		verify(attributesCacheDAO, never()).findEntitiesWithValueContaining(anyString(), anyString());
 	}
+
+	@Test
+	public void shouldScopeSearchToGivenAttribute()
+	{
+		when(attributesCacheDAO.findEntitiesWithAttributeValueContaining("/A", "email", "john"))
+				.thenReturn(List.of(1L));
+
+		Set<Long> result = create().searchEntities("/A", "email", "john");
+
+		assertThat(result).containsExactly(1L);
+		verify(authz).checkAuthorizationRT("/A", AuthzCapability.readHidden, AuthzCapability.read);
+		verify(attributesCacheDAO, never()).findEntitiesWithValueContaining(anyString(), anyString());
+	}
+
+	@Test
+	public void shouldReturnEmptyForBlankTermInScopedSearchWithoutQueryingDao()
+	{
+		assertThat(create().searchEntities("/A", "email", " ")).isEmpty();
+		verify(attributesCacheDAO, never()).findEntitiesWithAttributeValueContaining(anyString(), anyString(),
+				anyString());
+	}
 }

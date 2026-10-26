@@ -18,8 +18,13 @@ public class SensitiveAttributeMatcher
 {
 	static boolean isSensitive(AttributeExt a)
 	{
+		return isSensitive(a.getName());
+	}
+
+	public static boolean isSensitive(String attributeName)
+	{
 		//this should be done in a better way: attribute type should advertise this as a flag
-		return a.getName().startsWith(CredentialAttributeTypeProvider.CREDENTIAL_PREFIX);
+		return attributeName.startsWith(CredentialAttributeTypeProvider.CREDENTIAL_PREFIX);
 	}
 
 	static boolean isNotSensitive(AttributeExt a)

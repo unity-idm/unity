@@ -6,6 +6,8 @@ package pl.edu.icm.unity.store.impl.attribute;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Param;
+
 import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
 
 
@@ -25,6 +27,9 @@ public interface AttributesMapper extends BasicCRUDMapper<AttributeBean>
 	List<AttributeBean> getGroupsMembersAttributes(List<String> groups);
 
 	List<AttributeBean> getSelectedGroupsMembersAttributes(List<String> groups, List<String> attributes);
+
+	List<AttributeBean> getSelectedGroupAttributesOfGroupMembers(@Param("attributes") List<String> attributes,
+			@Param("attributesGroup") String attributesGroup, @Param("membersOfGroup") String membersOfGroup);
 
 	long getCountWithoutType(List<String> types);
 }

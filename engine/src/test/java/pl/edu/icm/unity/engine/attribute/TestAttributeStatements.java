@@ -11,7 +11,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,6 +37,8 @@ import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.identity.IdentityParam;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.attributes.CachedAttributes;
+import pl.edu.icm.unity.engine.api.attributes.EffectiveAttributesCacheService;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.group.AttributeStatementsCleaner;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -47,9 +51,12 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	protected AttributeClassManagement acMan;
 	@Autowired
 	private AttributeStatementsCleaner statementsCleaner;
+	@Autowired
+	private EffectiveAttributesCacheService effectiveAttributesCache;
 	
 	private final int systemAttributes = 1;
 	private EntityParam entity;
+	private long entityId;
 	private Group groupA;
 	private Group groupAB;
 	private Group groupAD;
@@ -312,6 +319,39 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 	}
 	
 	@Test
+	public void cacheOfDependentGroupIsRefreshedAfterChangeOfStatementsInSubgroup() throws Exception
+	{
+		setupStateForConditions();
+		AttributeStatement statementOfA = new AttributeStatement(
+				"eattr['a2'] != null",
+				"/A/B",
+				ConflictResolution.skip,
+				"a2",
+				"'fromAB'");
+		setStatments(groupA, statementOfA);
+		awaitFreshCache("/A");
+		assertThat(effectiveAttributesCache.getAttributesFast(entityId, "/A").attributes()).doesNotContainKey("a2");
+
+		// only the definition of /A/B changes, while effective attributes in /A depend on it
+		setStatments(groupAB, AttributeStatement.getFixedEverybodyStatement(
+				StringAttribute.of("a2", "/A/B", "inAB")));
+
+		Awaitility.await().pollInSameThread().atMost(10, TimeUnit.SECONDS).untilAsserted(() ->
+		{
+			CachedAttributes cached = effectiveAttributesCache.getAttributesFast(entityId, "/A");
+			assertThat(cached.updatePending()).isFalse();
+			assertThat(cached.attributes()).containsKey("a2");
+			assertThat(cached.attributes().get("a2").getValues()).containsExactly("fromAB");
+		});
+	}
+
+	private void awaitFreshCache(String group)
+	{
+		Awaitility.await().pollInSameThread().atMost(10, TimeUnit.SECONDS).untilAsserted(() ->
+			assertThat(effectiveAttributesCache.getAttributesFast(entityId, group).updatePending()).isFalse());
+	}
+
+	@Test
 	public void testCleanup() throws Exception
 	{
 		setupStateForConditions();
@@ -488,6 +528,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "cn=golbi"), "crMock", 
 				EntityState.disabled);
 		entity = new EntityParam(id);
+		entityId = id.getEntityId();
 		groupsMan.addMemberFromParent("/A", entity);
 		groupsMan.addMemberFromParent("/A/B", entity);
 		groupsMan.addMemberFromParent("/A/Z", entity);

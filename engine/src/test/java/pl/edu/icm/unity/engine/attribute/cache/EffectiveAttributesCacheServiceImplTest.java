@@ -5,11 +5,13 @@
 package pl.edu.icm.unity.engine.attribute.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Date;
@@ -24,6 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.engine.api.attributes.CachedAttributes;
+import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationExceptionRT;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
@@ -90,7 +93,7 @@ public class EffectiveAttributesCacheServiceImplTest
 
 		Map<String, AttributeExt> result = service.getAttributes(1L, "/test");
 
-		assertThat(result).isSameAs(live);
+		assertThat(result).isEqualTo(live);
 		verify(attributesCacheDAO, never()).getEntityAttributes(1L, "/test");
 	}
 
@@ -123,7 +126,7 @@ public class EffectiveAttributesCacheServiceImplTest
 
 		Map<Long, Map<String, AttributeExt>> result = service.getGroupAttributes("/test");
 
-		assertThat(result).isSameAs(live);
+		assertThat(result).isEqualTo(live);
 		verify(attributesCacheDAO, never()).getGroupAttributes("/test");
 	}
 
@@ -197,5 +200,114 @@ public class EffectiveAttributesCacheServiceImplTest
 		org.assertj.core.api.Assertions.assertThatThrownBy(() -> service.isUpdatePending(1L, "/test"))
 				.isInstanceOf(AuthorizationExceptionRT.class);
 		verify(attributesCachePendingDAO, never()).isPending(1L, "/test");
+	}
+
+	@Test
+	public void consistentSingleEntityDeniedAuthorizationPreventsAnyDataAccess() throws Exception
+	{
+		service = create();
+		doThrow(new AuthorizationException("denied")).when(authz)
+				.checkAuthorization("/test", AuthzCapability.readHidden, AuthzCapability.read);
+
+		assertThatThrownBy(() -> service.getAttributes(1L, "/test")).isInstanceOf(AuthorizationException.class);
+		verifyNoDataAccess();
+	}
+
+	@Test
+	public void consistentGroupDeniedAuthorizationPreventsAnyDataAccess() throws Exception
+	{
+		service = create();
+		doThrow(new AuthorizationException("denied")).when(authz)
+				.checkAuthorization("/test", AuthzCapability.readHidden, AuthzCapability.read);
+
+		assertThatThrownBy(() -> service.getGroupAttributes("/test")).isInstanceOf(AuthorizationException.class);
+		verifyNoDataAccess();
+	}
+
+	@Test
+	public void fastSingleEntityDeniedAuthorizationPreventsAnyDataAccess()
+	{
+		service = create();
+		doThrow(new AuthorizationExceptionRT("denied")).when(authz)
+				.checkAuthorizationRT("/test", AuthzCapability.readHidden, AuthzCapability.read);
+
+		assertThatThrownBy(() -> service.getAttributesFast(1L, "/test"))
+				.isInstanceOf(AuthorizationExceptionRT.class);
+		verifyNoDataAccess();
+	}
+
+	@Test
+	public void fastGroupDeniedAuthorizationPreventsAnyDataAccess()
+	{
+		service = create();
+		doThrow(new AuthorizationExceptionRT("denied")).when(authz)
+				.checkAuthorizationRT("/test", AuthzCapability.readHidden, AuthzCapability.read);
+
+		assertThatThrownBy(() -> service.getGroupAttributesFast("/test"))
+				.isInstanceOf(AuthorizationExceptionRT.class);
+		verifyNoDataAccess();
+	}
+
+	@Test
+	public void consistentSingleEntityReturnsCachedValuesWithMetadata() throws Exception
+	{
+		service = create();
+		AttributeExt cachedAttr = new AttributeExt(StringAttribute.of("attr", "/test", List.of("v1", "v2")), false);
+		cachedAttr.setRemoteIdp("idp");
+		when(attributesCacheDAO.getEntityAttributes(1L, "/test"))
+				.thenReturn(List.of(new StoredAttribute(cachedAttr, 1L)));
+
+		Map<String, AttributeExt> result = service.getAttributes(1L, "/test");
+
+		AttributeExt returned = result.get("attr");
+		assertThat(returned.getValues()).containsExactly("v1", "v2");
+		assertThat(returned.getGroupPath()).isEqualTo("/test");
+		assertThat(returned.isDirect()).isFalse();
+		assertThat(returned.getRemoteIdp()).isEqualTo("idp");
+	}
+
+	@Test
+	public void consistentSingleEntityReturnsEmptyForFreshEntityWithoutCachedAttributes() throws Exception
+	{
+		service = create();
+		when(attributesCacheDAO.getEntityAttributes(1L, "/test")).thenReturn(List.of());
+
+		assertThat(service.getAttributes(1L, "/test")).isEmpty();
+		verify(attributesHelper, never()).getAllAttributesAsMapOneGroup(1L, "/test");
+	}
+
+	@Test
+	public void consistentGroupKeepsSameNamedAttributesOfEntitiesSeparate() throws Exception
+	{
+		service = create();
+		when(attributesCacheDAO.getGroupAttributes("/test")).thenReturn(List.of(
+				attribute(1L, "/test", "attr", "of-1"),
+				attribute(2L, "/test", "attr", "of-2")));
+
+		Map<Long, Map<String, AttributeExt>> result = service.getGroupAttributes("/test");
+
+		assertThat(result.get(1L).get("attr").getValues()).containsExactly("of-1");
+		assertThat(result.get(2L).get("attr").getValues()).containsExactly("of-2");
+	}
+
+	@Test
+	public void fastGroupExcludesCachedDataOfDepartedMembers()
+	{
+		service = create();
+		when(attributesCacheDAO.getGroupAttributes("/test")).thenReturn(List.of(
+				attribute(1L, "/test", "attr", "member"),
+				attribute(2L, "/test", "attr", "departed")));
+		when(membershipDAO.getMembers("/test")).thenReturn(List.of(new GroupMembership("/test", 1L, new Date())));
+
+		Map<Long, CachedAttributes> result = service.getGroupAttributesFast("/test");
+
+		assertThat(result).containsOnlyKeys(1L);
+		assertThat(result.get(1L).attributes().get("attr").getValues()).containsExactly("member");
+	}
+
+	private void verifyNoDataAccess()
+	{
+		verifyNoInteractions(attributesCacheDAO, attributesCachePendingDAO, membershipDAO, bulkGroupQueryService,
+				attributesHelper);
 	}
 }

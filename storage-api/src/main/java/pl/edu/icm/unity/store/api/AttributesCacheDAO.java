@@ -38,4 +38,10 @@ public interface AttributesCacheDAO extends BasicCRUDDAO<StoredAttribute>
 	 * (case insensitive). Binary attribute values (e.g. images) are never matched.
 	 */
 	List<Long> findEntitiesWithValueContaining(String group, String searchTerm);
+
+	/**
+	 * As {@link #findEntitiesWithValueContaining(String, String)}, but only values of the given attribute
+	 * are matched.
+	 */
+	List<Long> findEntitiesWithAttributeValueContaining(String group, String attributeName, String searchTerm);
 }

@@ -53,7 +53,6 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
@@ -92,10 +91,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	private final MessageSource msg;
 	private final EntitiesLoader entitiesLoader;
 	private final AttributeHandlerRegistry attrHandlerRegistry;
-	private final EffectiveAttributesCacheService effectiveAttributesCacheService;
-	private final Map<Long, Map<String, AttributeExt>> rootAttributesCache = new HashMap<>();
-	private final Map<Long, Map<String, AttributeExt>> currentAttributesCache = new HashMap<>();
-	private final Map<Long, Boolean> pendingCache = new HashMap<>();
+	private final EntityAttributesLookup attributesLookup;
 	private CachedAttributeHandlers attributeHandlers;
 
 	private final List<ResolvedEntity> cachedEntitites;
@@ -153,7 +149,7 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		this.idTypeSupport = idTypeSupport;
 		this.entitiesLoader = entitiesLoader;
 		this.attrHandlerRegistry = attrHandlerRegistry;
-		this.effectiveAttributesCacheService = effectiveAttributesCacheService;
+		this.attributesLookup = new EntityAttributesLookup(effectiveAttributesCacheService);
 		this.preferencesMan = preferencesMan;
 		this.credentialManagement = credentialManagement;
 
@@ -359,9 +355,9 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 		Set<IdentityEntry> selected = getSelectedItems();
 
-		rootAttributesCache.clear();
-		currentAttributesCache.clear();
-		pendingCache.clear();
+		attributesLookup.reset(group == null ? null : group.getPathEncoded());
+		if (group != null)
+			filters.forEach(filter -> filter.refresh(group.getPathEncoded()));
 		attributeHandlers = new CachedAttributeHandlers(attrHandlerRegistry);
 
 		treeData.clear();
@@ -457,7 +453,8 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 		EntityWithLabel entWithLabel = ie.getSourceEntity();
 		if (entWithLabel.getLabel() == null && entityNameAttribute != null)
 		{
-			Attribute nameAttribute = getRootAttributes(entWithLabel.getEntity().getId()).get(entityNameAttribute);
+			Attribute nameAttribute = attributesLookup.getRootAttributes(entWithLabel.getEntity().getId())
+					.get(entityNameAttribute);
 			if (nameAttribute != null)
 				entWithLabel.updateLabel(nameAttribute.getValues().get(0) + " ");
 		}
@@ -477,46 +474,20 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 	}
 
 	/**
-	 * Resolves (and caches, see getRootAttributes/getCurrentAttributes) the display value of an attribute
-	 * column for an arbitrary entity, regardless of whether its row is currently rendered - used by
-	 * AddFilterDialog to evaluate an exact-match filter (UY-1483) against entities not (yet) shown.
+	 * Resolves (and caches, see EntityAttributesLookup) the display value of an attribute column for an
+	 * arbitrary entity, regardless of whether its row is currently rendered - used by AddFilterDialog to
+	 * evaluate an exact-match filter (UY-1483) against entities not (yet) shown.
 	 */
 	String resolveAttributeValue(long entityId, String columnId)
 	{
-		boolean isRoot = columnId.startsWith(IdentitiesGridColumnConstants.ATTR_ROOT_COL_PREFIX);
-		String attributeName = columnId.substring(isRoot
-				? IdentitiesGridColumnConstants.ATTR_ROOT_COL_PREFIX.length()
-				: IdentitiesGridColumnConstants.ATTR_CURRENT_COL_PREFIX.length());
-		Map<String, AttributeExt> attributes = isRoot ? getRootAttributes(entityId) : getCurrentAttributes(entityId);
-		Attribute attribute = attributes.get(attributeName);
+		Attribute attribute = attributesLookup.getColumnAttribute(entityId, columnId);
 		return attribute == null ? msg.getMessage("Identities.attributeUndefined")
 				: attributeHandlers.getSimplifiedAttributeValuesRepresentation(attribute);
 	}
 
-	private Map<String, AttributeExt> getRootAttributes(long entityId)
-	{
-		return rootAttributesCache.computeIfAbsent(entityId,
-				id -> effectiveAttributesCacheService.getAttributesFast(id, "/").attributes());
-	}
-
-	private Map<String, AttributeExt> getCurrentAttributes(long entityId)
-	{
-		String groupPath = group.getPathEncoded();
-		if ("/".equals(groupPath))
-			return getRootAttributes(entityId);
-		return currentAttributesCache.computeIfAbsent(entityId,
-				id -> effectiveAttributesCacheService.getAttributesFast(id, groupPath).attributes());
-	}
-
-	/**
-	 * Whether the effective attributes of the given entity in the currently browsed group may be stale
-	 * (a background recalculation is pending) - used to show a small indicator next to the entity name
-	 * (UY-1483 follow-up). Cheap: reads only the pending flag, not the attributes themselves.
-	 */
 	private boolean isPending(long entityId)
 	{
-		return pendingCache.computeIfAbsent(entityId,
-				id -> effectiveAttributesCacheService.isUpdatePending(id, group.getPathEncoded()));
+		return attributesLookup.isPending(entityId);
 	}
 
 	/**

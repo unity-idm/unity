@@ -254,6 +254,7 @@ public class EntityManagementImpl implements EntityManagement
 					.name(join(":", toCreate.getTypeId(), toCreate.getName()))
 					.subject(toCreate.getEntityId())
 					.tags(USERS));
+			attributesCacheInvalidation.invalidateEntity(entityId);
 			return new IdentityWithAuthzInfo(toCreate, fullAuthz);
 		});
 		

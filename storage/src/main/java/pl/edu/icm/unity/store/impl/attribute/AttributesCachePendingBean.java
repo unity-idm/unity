@@ -14,6 +14,7 @@ public class AttributesCachePendingBean
 	private Long entityId;
 	private Long groupId;
 	private Timestamp created;
+	private Long version;
 
 	private String group;
 
@@ -27,11 +28,12 @@ public class AttributesCachePendingBean
 		this.groupId = groupId;
 	}
 
-	public AttributesCachePendingBean(long entityId, long groupId, Timestamp created)
+	public AttributesCachePendingBean(long entityId, long groupId, Timestamp created, long version)
 	{
 		this.entityId = entityId;
 		this.groupId = groupId;
 		this.created = created;
+		this.version = version;
 	}
 
 	public Long getEntityId()
@@ -57,6 +59,14 @@ public class AttributesCachePendingBean
 	public void setCreated(Timestamp created)
 	{
 		this.created = created;
+	}
+	public Long getVersion()
+	{
+		return version;
+	}
+	public void setVersion(Long version)
+	{
+		this.version = version;
 	}
 	public String getGroup()
 	{

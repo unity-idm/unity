@@ -65,15 +65,22 @@ public class AttributesCacheRDBMSStore extends GenericRDBMSCRUD<StoredAttribute,
 	public List<Long> findEntitiesWithValueContaining(String group, String searchTerm)
 	{
 		AttributesCacheMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesCacheMapper.class);
-		return mapper.findEntitiesWithSearchableValueContaining(group, toLikePattern(searchTerm));
+		return mapper.findEntitiesWithSearchableValueContaining(group, null, toLikePattern(searchTerm));
+	}
+
+	@Override
+	public List<Long> findEntitiesWithAttributeValueContaining(String group, String attributeName, String searchTerm)
+	{
+		AttributesCacheMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesCacheMapper.class);
+		return mapper.findEntitiesWithSearchableValueContaining(group, attributeName, toLikePattern(searchTerm));
 	}
 
 	private static String toLikePattern(String searchTerm)
 	{
 		String escaped = searchTerm.toLowerCase()
-				.replace("\\", "\\\\")
-				.replace("%", "\\%")
-				.replace("_", "\\_");
+				.replace("!", "!!")
+				.replace("%", "!%")
+				.replace("_", "!_");
 		return "%" + escaped + "%";
 	}
 }

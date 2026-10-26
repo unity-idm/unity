@@ -80,12 +80,17 @@
 			AND A.TYPE_ID = AT.ID AND G.ID = A.GROUP_ID
 	</select>
 
+	<!-- '!' as the escape character: a backslash is not portable (an unterminated literal on MySQL/MariaDB,
+		and not the default LIKE escape there with NO_BACKSLASH_ESCAPES) -->
 	<select id="findEntitiesWithSearchableValueContaining" resultType="long">
 		SELECT DISTINCT A.ENTITY_ID
 		FROM ATTRIBUTES_CACHE A, <include refid="io.imunity.sql.groups"/> G
 		WHERE G.NAME = #{group} AND G.ID = A.GROUP_ID
 			AND A.SEARCHABLE_VALUE IS NOT NULL
-			AND LOWER(A.SEARCHABLE_VALUE) LIKE #{likePattern} ESCAPE '\'
+			AND LOWER(A.SEARCHABLE_VALUE) LIKE #{likePattern} ESCAPE '!'
+			<if test="attributeName != null">
+				AND A.TYPE_ID = (SELECT ID FROM ATTRIBUTE_TYPES WHERE NAME = #{attributeName})
+			</if>
 	</select>
 
 </mapper>

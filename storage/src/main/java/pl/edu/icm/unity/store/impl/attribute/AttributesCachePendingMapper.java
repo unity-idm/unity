@@ -13,9 +13,17 @@ public interface AttributesCachePendingMapper
 {
 	void create(AttributesCachePendingBean obj);
 
-	void createList(List<AttributesCachePendingBean> objs);
+	int incrementVersion(AttributesCachePendingBean param);
 
-	void deleteByKey(AttributesCachePendingBean param);
+	int incrementVersionForGroupMembers(long groupId);
+
+	int createMissingForGroupMembers(AttributesCachePendingBean param);
+
+	int incrementVersionOfAll();
+
+	int createMissingForAllMemberships(AttributesCachePendingBean param);
+
+	int deleteByKeyAndVersion(AttributesCachePendingBean param);
 
 	void deleteByGroup(long groupId);
 

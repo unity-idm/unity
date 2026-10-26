@@ -53,6 +53,7 @@ public class AttributeCacheValidationReportMapper
 				.withAttributeName(mismatch.attributeName())
 				.withCachedValues(mismatch.cachedValues())
 				.withFreshValues(mismatch.freshValues())
+				.withValuesRedacted(mismatch.valuesRedacted())
 				.build();
 	}
 }

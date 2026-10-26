@@ -43,6 +43,13 @@ public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 	List<StoredAttribute> getAttributesOfGroupMembers(List<String> attributes, List<String> groups);
 
 	/**
+	 * @return selected attributes, stored in the attributesGroup, of entities which are members of the
+	 * membersOfGroup. Attributes list must not be empty.
+	 */
+	List<StoredAttribute> getAttributesOfGroupMembers(List<String> attributes, String attributesGroup,
+			String membersOfGroup);
+
+	/**
 	 * @return all attributes (in any group) of members of the given group,
 	 * Attributes can be null or empty, meaning no restriction.
 	 */

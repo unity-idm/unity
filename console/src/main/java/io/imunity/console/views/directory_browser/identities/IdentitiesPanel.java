@@ -65,7 +65,6 @@ public class IdentitiesPanel extends VerticalLayout
 	private final EventsBus bus;
 	private final AttributeSearchService attributeSearchService;
 
-	private EntityFilter fastSearchFilter;
 	private String entityNameAttribute = null;
 	private SearchField searchText;
 	
@@ -181,32 +180,11 @@ public class IdentitiesPanel extends VerticalLayout
 
 	private SearchField getSearchField()
 	{
-		searchText = new SearchField(msg.getMessage("search"), event -> {
-			if (fastSearchFilter != null)
-				identitiesTable.removeFilter(fastSearchFilter);
-			if (event.isEmpty())
-				return;
-			Set<Long> dbAttributeMatches = searchAttributeValuesInDb(event);
-			fastSearchFilter = e -> e.anyFieldContains(event, identitiesTable.getVisibleColumnIds())
-					|| dbAttributeMatches.contains(e.getSourceEntity().getEntity().getId());
-			identitiesTable.addFilter(fastSearchFilter);
-		});
+		QuickSearch quickSearch = new QuickSearch(attributeSearchService, identitiesTable::getGroupPath,
+				identitiesTable::getVisibleColumnIds, identitiesTable::addFilter, identitiesTable::removeFilter);
+		searchText = new SearchField(msg.getMessage("search"), quickSearch::search);
 
 		return searchText;
-	}
-
-	/**
-	 * Attribute values are no longer bulk pre-loaded (UY-1483), so a text search additionally needs to
-	 * hit the DB for matches among attribute values that are not currently held in memory (i.e. not yet
-	 * rendered in the grid) - unioned with the in-memory matches from {@code anyFieldContains}.
-	 */
-	private Set<Long> searchAttributeValuesInDb(String term)
-	{
-		Set<Long> rootMatches = attributeSearchService.searchEntities("/", term);
-		String group = identitiesTable.getGroupPath();
-		if ("/".equals(group))
-			return rootMatches;
-		return Sets.union(rootMatches, attributeSearchService.searchEntities(group, term));
 	}
 
 	private ActionMenuWithHandlerSupport<IdentityEntry> getHamburgerMenu(RemoveFromGroupHandler removeFromGroupHandler,

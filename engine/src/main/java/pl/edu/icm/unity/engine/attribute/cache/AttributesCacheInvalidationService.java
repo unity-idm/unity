@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributesCacheInvalidation;
 import pl.edu.icm.unity.engine.api.attributes.AttributesCacheRefreshTrigger;
@@ -59,8 +58,8 @@ class AttributesCacheInvalidationService implements AttributesCacheInvalidation
 	@Override
 	public void invalidateGroup(String group)
 	{
-		log.debug("Invalidating attributes cache for all members of group {}", group);
-		pendingDAO.markPendingForGroup(group);
+		log.debug("Invalidating attributes cache for all members of group {} in all their groups", group);
+		pendingDAO.markPendingForGroupMembers(group);
 		scheduleWakeup();
 	}
 
@@ -68,13 +67,7 @@ class AttributesCacheInvalidationService implements AttributesCacheInvalidation
 	public void invalidateEverything()
 	{
 		log.debug("Invalidating attributes cache for all entities in all groups (system-wide)");
-		int count = 0;
-		for (GroupMembership membership : membershipDAO.getAll())
-		{
-			pendingDAO.markPending(membership.getEntityId(), membership.getGroup());
-			count++;
-		}
-		log.debug("Marked {} (entity, group) pairs as pending", count);
+		pendingDAO.markPendingForAll();
 		scheduleWakeup();
 	}
 

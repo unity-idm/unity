@@ -45,4 +45,18 @@ class AttributeSearchServiceImpl implements AttributeSearchService
 		log.trace("Attribute search in group {} for '{}': {} matches", group, searchTerm, found.size());
 		return new HashSet<>(found);
 	}
+
+	@Override
+	@Transactional
+	public Set<Long> searchEntities(String group, String attributeName, String searchTerm)
+	{
+		authz.checkAuthorizationRT(group, AuthzCapability.readHidden, AuthzCapability.read);
+		if (searchTerm == null || searchTerm.isBlank())
+			return Set.of();
+		List<Long> found = attributesCacheDAO.findEntitiesWithAttributeValueContaining(group, attributeName,
+				searchTerm);
+		log.trace("Attribute {} search in group {} for '{}': {} matches", attributeName, group, searchTerm,
+				found.size());
+		return new HashSet<>(found);
+	}
 }

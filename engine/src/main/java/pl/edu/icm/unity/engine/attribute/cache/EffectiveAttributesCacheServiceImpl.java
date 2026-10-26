@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.attribute.AttributeExt;
@@ -48,7 +49,9 @@ class EffectiveAttributesCacheServiceImpl implements EffectiveAttributesCacheSer
 	@Autowired
 	EffectiveAttributesCacheServiceImpl(AttributesCacheDAO attributesCacheDAO,
 			AttributesCachePendingDAO attributesCachePendingDAO, MembershipDAO membershipDAO,
-			BulkGroupQueryService bulkGroupQueryService, AttributesHelper attributesHelper,
+			// "insecure" variant: the group level authorization is checked by this service, while the
+			// regular one would additionally require the capabilities globally
+			@Qualifier("insecure") BulkGroupQueryService bulkGroupQueryService, AttributesHelper attributesHelper,
 			InternalAuthorizationManager authz)
 	{
 		this.attributesCacheDAO = attributesCacheDAO;
@@ -68,7 +71,7 @@ class EffectiveAttributesCacheServiceImpl implements EffectiveAttributesCacheSer
 		{
 			log.trace("consistent getAttributes: entity {} in group {} is pending, computing live", entityId,
 					group);
-			return attributesHelper.getAllAttributesAsMapOneGroup(entityId, group);
+			return CacheableAttributes.of(attributesHelper.getAllAttributesAsMapOneGroup(entityId, group));
 		}
 		log.trace("consistent getAttributes: entity {} in group {} is fresh, reading from cache", entityId, group);
 		return toMap(attributesCacheDAO.getEntityAttributes(entityId, group));
@@ -85,7 +88,7 @@ class EffectiveAttributesCacheServiceImpl implements EffectiveAttributesCacheSer
 			log.trace("consistent getGroupAttributes: group {} has {} pending entities, computing live", group,
 					pendingInGroup.size());
 			GroupMembershipData data = bulkGroupQueryService.getBulkMembershipData(group);
-			return bulkGroupQueryService.getGroupUsersAttributes(group, data);
+			return CacheableAttributes.ofEntities(bulkGroupQueryService.getGroupUsersAttributes(group, data));
 		}
 		log.trace("consistent getGroupAttributes: group {} is fully fresh, reading from cache", group);
 		return StoredAttributesGrouping.byEntity(attributesCacheDAO.getGroupAttributes(group));

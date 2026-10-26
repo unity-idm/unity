@@ -15,6 +15,11 @@
 		CONTENTS MEDIUMBLOB
 	</sql>
 
+	<!-- large text, searched with LIKE, so not indexed -->
+	<sql id="searchableTextType">
+		MEDIUMTEXT
+	</sql>
+
 	<sql id="contentsColumn">
 		CONTENTS VARBINARY(60000)
 	</sql>

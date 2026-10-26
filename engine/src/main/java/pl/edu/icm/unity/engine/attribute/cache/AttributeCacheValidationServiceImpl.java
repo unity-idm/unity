@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.attributes.GroupValidationReport;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
+import pl.edu.icm.unity.engine.attribute.SensitiveAttributeMatcher;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.store.api.AttributesCacheDAO;
@@ -86,7 +87,8 @@ class AttributeCacheValidationServiceImpl implements AttributeCacheValidationSer
 	private GroupValidationReport validateGroup(String group) throws EngineException
 	{
 		GroupMembershipData data = bulkGroupQueryService.getBulkMembershipData(group);
-		Map<Long, Map<String, AttributeExt>> fresh = bulkGroupQueryService.getGroupUsersAttributes(group, data);
+		Map<Long, Map<String, AttributeExt>> fresh = CacheableAttributes.ofEntities(
+				bulkGroupQueryService.getGroupUsersAttributes(group, data));
 
 		Set<Long> pending = attributesCachePendingDAO.getPendingForGroup(group).stream()
 				.map(EntityInGroup::entityId)
@@ -107,7 +109,8 @@ class AttributeCacheValidationServiceImpl implements AttributeCacheValidationSer
 			List<AttributeMismatch> mismatches = compare(cached.getOrDefault(entityId, Map.of()), entry.getValue());
 			if (!mismatches.isEmpty())
 			{
-				log.trace("Group {}: mismatch found for entity {}: {}", group, entityId, mismatches);
+				log.trace("Group {}: mismatch found for entity {} in attributes: {}", group, entityId,
+						mismatches.stream().map(AttributeMismatch::attributeName).toList());
 				entitiesWithMismatches.add(new EntityAttributeMismatches(entityId, mismatches));
 			}
 		}
@@ -127,8 +130,11 @@ class AttributeCacheValidationServiceImpl implements AttributeCacheValidationSer
 		{
 			List<String> cachedValues = cached.containsKey(name) ? cached.get(name).getValues() : List.of();
 			List<String> freshValues = fresh.containsKey(name) ? fresh.get(name).getValues() : List.of();
-			if (!cachedValues.equals(freshValues))
-				mismatches.add(new AttributeMismatch(name, cachedValues, freshValues));
+			if (cachedValues.equals(freshValues))
+				continue;
+			mismatches.add(SensitiveAttributeMatcher.isSensitive(name)
+					? AttributeMismatch.redacted(name)
+					: new AttributeMismatch(name, cachedValues, freshValues, false));
 		}
 		return mismatches;
 	}

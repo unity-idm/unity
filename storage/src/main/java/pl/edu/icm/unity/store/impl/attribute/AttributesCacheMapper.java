@@ -22,5 +22,5 @@ public interface AttributesCacheMapper extends BasicCRUDMapper<AttributesCacheBe
 	List<AttributesCacheBean> getGroupAttributes(String group);
 
 	List<Long> findEntitiesWithSearchableValueContaining(@Param("group") String group,
-			@Param("likePattern") String likePattern);
+			@Param("attributeName") String attributeName, @Param("likePattern") String likePattern);
 }

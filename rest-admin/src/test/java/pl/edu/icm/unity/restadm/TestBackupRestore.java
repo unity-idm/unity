@@ -4,6 +4,21 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import org.springframework.beans.factory.annotation.Autowired;
+import pl.edu.icm.unity.base.attribute.AttributeExt;
+import pl.edu.icm.unity.base.attribute.AttributeType;
+import pl.edu.icm.unity.base.entity.EntityParam;
+import pl.edu.icm.unity.base.entity.EntityState;
+import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.identity.IdentityParam;
+import pl.edu.icm.unity.engine.api.attributes.CachedAttributes;
+import pl.edu.icm.unity.engine.api.attributes.EffectiveAttributesCacheService;
+import pl.edu.icm.unity.stdext.attr.StringAttribute;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.IOException;
@@ -21,6 +36,9 @@ import pl.edu.icm.unity.base.utils.Log;
 
 public class TestBackupRestore extends RESTAdminTestBase
 {
+	@Autowired
+	private EffectiveAttributesCacheService cacheService;
+
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST,
 			TestBackupRestore.class);
 
@@ -110,6 +128,56 @@ public class TestBackupRestore extends RESTAdminTestBase
 			// per D-01 -- importDb() calls endpointMan.undeployAll() which destroys the endpoint.
 			// Application errors (4xx, 5xx) are HTTP responses, not IOExceptions.
 			log.info("Import connection reset as expected (endpoint self-destructed): {}", e.getMessage());
+		}
+	}
+
+	@Test
+	public void shouldRegenerateAttributesCacheAfterRestore() throws Exception
+	{
+		// given -- an entity whose cached attribute is changed after the backup
+		aTypeMan.addAttributeType(new AttributeType("a1", StringAttributeSyntax.ID));
+		groupsMan.addGroup(new Group("/A"));
+		long entityId = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "e1"), EntityState.valid)
+				.getEntityId();
+		EntityParam entity = new EntityParam(entityId);
+		groupsMan.addMemberFromParent("/A", entity);
+		attrsMan.createAttribute(entity, StringAttribute.of("a1", "/A", "backed-up"));
+		awaitCachedValue(entityId, "backed-up");
+		String dumpContent;
+		try (ClassicHttpResponse exportResponse = client.executeOpen(host, new HttpGet("/restadm/v1/db-dump"),
+				getClientContext(host)))
+		{
+			dumpContent = new String(exportResponse.getEntity().getContent().readAllBytes());
+		}
+		attrsMan.setAttribute(entity, StringAttribute.of("a1", "/A", "changed-after-backup"));
+		awaitCachedValue(entityId, "changed-after-backup");
+
+		// when
+		HttpPost importRequest = new HttpPost("/restadm/v1/db-dump");
+		importRequest.setEntity(new StringEntity(dumpContent, ContentType.APPLICATION_JSON));
+		try (ClassicHttpResponse importResponse = client.executeOpen(host, importRequest, getClientContext(host)))
+		{
+			assertThat(importResponse.getCode()).isEqualTo(200);
+		} catch (IOException e)
+		{
+			log.info("Import connection reset as expected (endpoint self-destructed): {}", e.getMessage());
+		}
+
+		// then -- the restored value is cached, not the one from before the restore nor an empty set
+		awaitCachedValue(entityId, "backed-up");
+	}
+
+	private void awaitCachedValue(long entityId, String value) throws InterruptedException
+	{
+		long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(20);
+		while (true)
+		{
+			CachedAttributes cached = cacheService.getAttributesFast(entityId, "/A");
+			AttributeExt attribute = cached.attributes().get("a1");
+			if (!cached.updatePending() && attribute != null && attribute.getValues().equals(List.of(value)))
+				return;
+			assertThat(System.currentTimeMillis()).as("cache refreshed to %s in time", value).isLessThan(deadline);
+			Thread.sleep(50);
 		}
 	}
 

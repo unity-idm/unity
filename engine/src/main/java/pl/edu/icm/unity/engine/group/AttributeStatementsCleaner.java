@@ -15,6 +15,7 @@ import pl.edu.icm.unity.base.attribute.AttributeStatement;
 import pl.edu.icm.unity.base.attribute.IllegalAttributeTypeException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.attributes.AttributesCacheInvalidation;
 import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.base.tx.Transactional;
@@ -33,12 +34,15 @@ public class AttributeStatementsCleaner
 			AttributeStatementsCleaner.class);
 	private GroupHelper groupHelper;
 	private GroupDAO groupDAO;
+	private AttributesCacheInvalidation attributesCacheInvalidation;
 	
 	@Autowired
-	public AttributeStatementsCleaner(GroupHelper groupHelper, GroupDAO groupDAO)
+	public AttributeStatementsCleaner(GroupHelper groupHelper, GroupDAO groupDAO,
+			AttributesCacheInvalidation attributesCacheInvalidation)
 	{
 		this.groupHelper = groupHelper;
 		this.groupDAO = groupDAO;
+		this.attributesCacheInvalidation = attributesCacheInvalidation;
 	}
 
 	@Transactional
@@ -81,6 +85,7 @@ public class AttributeStatementsCleaner
 		{
 			group.setAttributeStatements(updated.toArray(new AttributeStatement[updated.size()]));
 			groupDAO.update(group);
+			attributesCacheInvalidation.invalidateGroup(group.getName());
 		}
 	}
 }

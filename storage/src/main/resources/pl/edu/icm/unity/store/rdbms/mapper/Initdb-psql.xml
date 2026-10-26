@@ -15,6 +15,11 @@
 		CONTENTS BYTEA
 	</sql>
 
+	<!-- large text, searched with LIKE, so not indexed -->
+	<sql id="searchableTextType">
+		TEXT
+	</sql>
+
 	<sql id="contentsColumn">
 		CONTENTS BYTEA
 	</sql>

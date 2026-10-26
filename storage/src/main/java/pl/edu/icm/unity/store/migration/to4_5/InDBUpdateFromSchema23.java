@@ -7,10 +7,8 @@ package pl.edu.icm.unity.store.migration.to4_5;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.AttributesCachePendingDAO;
-import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.migration.InDBContentsUpdater;
 
 /**
@@ -22,12 +20,10 @@ class InDBUpdateFromSchema23 implements InDBContentsUpdater
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema23.class);
 
-	private final MembershipDAO membershipDAO;
 	private final AttributesCachePendingDAO pendingDAO;
 
-	InDBUpdateFromSchema23(MembershipDAO membershipDAO, AttributesCachePendingDAO pendingDAO)
+	InDBUpdateFromSchema23(AttributesCachePendingDAO pendingDAO)
 	{
-		this.membershipDAO = membershipDAO;
 		this.pendingDAO = pendingDAO;
 	}
 
@@ -40,8 +36,7 @@ class InDBUpdateFromSchema23 implements InDBContentsUpdater
 	@Override
 	public void update()
 	{
-		for (GroupMembership membership : membershipDAO.getAll())
-			pendingDAO.markPending(membership.getEntityId(), membership.getGroup());
+		pendingDAO.markPendingForAll();
 		log.info("Marked attributes cache as pending for all existing group memberships");
 	}
 }

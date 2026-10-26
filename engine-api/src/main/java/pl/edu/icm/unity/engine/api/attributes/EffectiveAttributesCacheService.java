@@ -11,8 +11,9 @@ import pl.edu.icm.unity.base.exceptions.EngineException;
 
 /**
  * Internal API to access effective (materialized) attributes data. Every method checks the caller's
- * authorization for the given group ({@code readHidden} or {@code read}), same as {@link
- * pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService}.
+ * authorization for the given group (both {@code readHidden} and {@code read} are required), same as {@link
+ * pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService}. Security sensitive attributes (credentials) are never
+ * cached nor returned.
  * <p>
  * Two variants are provided:
  * <ul>

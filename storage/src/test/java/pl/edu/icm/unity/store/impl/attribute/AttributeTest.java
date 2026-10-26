@@ -190,6 +190,39 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	}
 
 	@Test
+	public void selectedAttributesOfMembersOfOtherGroupAreReturned()
+	{
+		tx.runInTransaction(() -> {
+			AttributeDAO dao = getDAO();
+			StoredAttribute memberAttr = getObject("");
+			memberAttr.getAttribute().setGroupPath("/A");
+			dao.create(memberAttr);
+
+			StoredAttribute memberOtherAttr = getObject("");
+			memberOtherAttr.getAttribute().setGroupPath("/A");
+			memberOtherAttr.getAttribute().setName("attr2");
+			dao.create(memberOtherAttr);
+
+			StoredAttribute nonMemberAttr = getObject("");
+			nonMemberAttr.getAttribute().setGroupPath("/A");
+			nonMemberAttr = new StoredAttribute(nonMemberAttr.getAttribute(), entityId2);
+			dao.create(nonMemberAttr);
+
+			StoredAttribute memberAttrInOtherGroup = getObject("");
+			memberAttrInOtherGroup.getAttribute().setGroupPath("/C");
+			dao.create(memberAttrInOtherGroup);
+
+			membershipDao.create(new GroupMembership("/A", entityId, new Date(1)));
+			membershipDao.create(new GroupMembership("/A", entityId2, new Date(1)));
+			membershipDao.create(new GroupMembership("/C", entityId, new Date(1)));
+
+			List<StoredAttribute> attributes = dao.getAttributesOfGroupMembers(List.of("attr"), "/A", "/C");
+
+			assertAllAndOnlyAllInSA(Lists.newArrayList(memberAttr), attributes);
+		});
+	}
+
+	@Test
 	public void allAttributesByNameAndGroupAreReturned()
 	{
 		tx.runInTransaction(() -> {

@@ -17,18 +17,20 @@ public class RestAttributeMismatch
 	public final String attributeName;
 	public final List<String> cachedValues;
 	public final List<String> freshValues;
+	public final boolean valuesRedacted;
 
 	private RestAttributeMismatch(Builder builder)
 	{
 		this.attributeName = builder.attributeName;
 		this.cachedValues = List.copyOf(builder.cachedValues);
 		this.freshValues = List.copyOf(builder.freshValues);
+		this.valuesRedacted = builder.valuesRedacted;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(attributeName, cachedValues, freshValues);
+		return Objects.hash(attributeName, cachedValues, freshValues, valuesRedacted);
 	}
 
 	@Override
@@ -43,7 +45,8 @@ public class RestAttributeMismatch
 		RestAttributeMismatch other = (RestAttributeMismatch) obj;
 		return Objects.equals(attributeName, other.attributeName)
 				&& Objects.equals(cachedValues, other.cachedValues)
-				&& Objects.equals(freshValues, other.freshValues);
+				&& Objects.equals(freshValues, other.freshValues)
+				&& valuesRedacted == other.valuesRedacted;
 	}
 
 	public static Builder builder()
@@ -56,6 +59,7 @@ public class RestAttributeMismatch
 		private String attributeName;
 		private List<String> cachedValues = List.of();
 		private List<String> freshValues = List.of();
+		private boolean valuesRedacted;
 
 		private Builder()
 		{
@@ -76,6 +80,12 @@ public class RestAttributeMismatch
 		public Builder withFreshValues(List<String> freshValues)
 		{
 			this.freshValues = freshValues;
+			return this;
+		}
+
+		public Builder withValuesRedacted(boolean valuesRedacted)
+		{
+			this.valuesRedacted = valuesRedacted;
 			return this;
 		}
 

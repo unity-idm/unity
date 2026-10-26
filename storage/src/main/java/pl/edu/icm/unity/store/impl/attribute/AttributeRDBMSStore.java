@@ -133,6 +133,15 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	}
 
 	@Override
+	public List<StoredAttribute> getAttributesOfGroupMembers(List<String> attributes, String attributesGroup,
+			String membersOfGroup)
+	{
+		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
+		return convertList(mapper.getSelectedGroupAttributesOfGroupMembers(attributes, attributesGroup,
+				membersOfGroup));
+	}
+
+	@Override
 	public List<StoredAttribute> getAttributesOfGroupMembers(List<String> groups)
 	{
 		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);

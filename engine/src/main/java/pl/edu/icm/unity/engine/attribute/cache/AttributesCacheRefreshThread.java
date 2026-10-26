@@ -22,12 +22,16 @@ import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.store.api.AttributesCacheDAO;
 import pl.edu.icm.unity.store.api.AttributesCachePendingDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.store.types.EntityInGroup;
+import pl.edu.icm.unity.store.types.PendingAttributesCacheEntry;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
 /**
  * Background loop regenerating the materialized attributes cache for all (entity, group) pairs
  * currently marked as having a pending update.
+ * <p>
+ * Effective attributes are computed outside of the transaction which stores them, so a state change can
+ * be committed in between. Therefore the pending flag is cleared only if its version is still the one read
+ * before the computation - otherwise it stays set and the entity is refreshed again in the next cycle.
  */
 class AttributesCacheRefreshThread extends Thread
 {
@@ -40,6 +44,7 @@ class AttributesCacheRefreshThread extends Thread
 	private final TransactionalRunner tx;
 	private final ExecutorService executorService;
 	private boolean wakeupRequested = false;
+	private volatile boolean stopRequested = false;
 
 	AttributesCacheRefreshThread(BulkGroupQueryService bulkGroupQueryService,
 			AttributesCacheDAO attributesCacheDAO,
@@ -59,7 +64,7 @@ class AttributesCacheRefreshThread extends Thread
 	@Override
 	public void run()
 	{
-		while (true)
+		while (!stopRequested)
 		{
 			boolean triggeredByWakeup;
 			synchronized (this)
@@ -67,7 +72,7 @@ class AttributesCacheRefreshThread extends Thread
 				// if a wakeUp() arrived while the previous cycle was still running (i.e. missed by
 				// wait() below), do not wait again - process it right away instead of losing it
 				// until the next INTERVAL fallback.
-				if (!wakeupRequested)
+				if (!wakeupRequested && !stopRequested)
 				{
 					log.trace("Refresh thread waiting up to {} ms for a wakeup or the fallback interval", INTERVAL);
 					try
@@ -75,11 +80,16 @@ class AttributesCacheRefreshThread extends Thread
 						wait(INTERVAL);
 					} catch (InterruptedException e)
 					{
+						Thread.currentThread().interrupt();
+						log.debug("Refresh thread interrupted, finishing");
+						return;
 					}
 				}
 				triggeredByWakeup = wakeupRequested;
 				wakeupRequested = false;
 			}
+			if (stopRequested)
+				break;
 			log.trace("Refresh thread starting a cycle (triggered by {})",
 					triggeredByWakeup ? "wakeUp()" : "fallback interval");
 			try
@@ -90,6 +100,18 @@ class AttributesCacheRefreshThread extends Thread
 				log.error("Attributes cache refresh cycle failed", e);
 			}
 		}
+		log.debug("Refresh thread stopped");
+	}
+
+	/**
+	 * Asks the thread to finish. A cycle in progress is cut short after the entity being currently stored;
+	 * entities left unprocessed keep their pending flags. The thread is not interrupted, as interrupting
+	 * a thread during DB I/O may break the DB connection (e.g. H2 closes its file on interrupt).
+	 */
+	public synchronized void requestStop()
+	{
+		stopRequested = true;
+		notify();
 	}
 
 	public synchronized void wakeUp()
@@ -101,20 +123,22 @@ class AttributesCacheRefreshThread extends Thread
 
 	void refreshAllPending()
 	{
-		List<EntityInGroup> pending = tx.runInTransactionRet(attributesCachePendingDAO::getAll);
+		List<PendingAttributesCacheEntry> pending = tx.runInTransactionRet(attributesCachePendingDAO::getAll);
 		if (pending.isEmpty())
 		{
 			log.trace("Refresh cycle: nothing pending");
 			return;
 		}
 
-		Map<String, List<Long>> pendingByGroup = pending.stream()
-				.collect(Collectors.groupingBy(EntityInGroup::group,
-						Collectors.mapping(EntityInGroup::entityId, Collectors.toList())));
-		log.debug("Refresh cycle: {} entities pending, by group: {}", pending.size(), pendingByGroup);
+		Map<String, List<PendingAttributesCacheEntry>> pendingByGroup = pending.stream()
+				.collect(Collectors.groupingBy(PendingAttributesCacheEntry::group));
+		if (log.isDebugEnabled())
+			log.debug("Refresh cycle: {} entities pending, by group: {}", pending.size(),
+					pendingByGroup.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+							e -> e.getValue().stream().map(PendingAttributesCacheEntry::entityId).toList())));
 
 		List<Future<?>> futures = new ArrayList<>();
-		for (Map.Entry<String, List<Long>> entry : pendingByGroup.entrySet())
+		for (Map.Entry<String, List<PendingAttributesCacheEntry>> entry : pendingByGroup.entrySet())
 			futures.add(executorService.submit(() -> refreshGroup(entry.getKey(), entry.getValue())));
 
 		for (Future<?> future : futures)
@@ -130,10 +154,12 @@ class AttributesCacheRefreshThread extends Thread
 		log.debug("Refresh cycle: all {} groups processed", pendingByGroup.size());
 	}
 
-	private void refreshGroup(String group, List<Long> pendingEntityIds)
+	private void refreshGroup(String group, List<PendingAttributesCacheEntry> pendingEntries)
 	{
-		log.trace("Refreshing group {} for {} pending entities: {}", group, pendingEntityIds.size(),
-				pendingEntityIds);
+		if (stopRequested)
+			return;
+		log.trace("Refreshing group {} for {} pending entities: {}", group, pendingEntries.size(),
+				pendingEntries);
 		Map<Long, Map<String, AttributeExt>> attributesByEntity;
 		try
 		{
@@ -147,22 +173,31 @@ class AttributesCacheRefreshThread extends Thread
 			return;
 		}
 
-		for (Long entityId : pendingEntityIds)
-			refreshEntity(group, entityId, attributesByEntity.get(entityId));
+		for (PendingAttributesCacheEntry entry : pendingEntries)
+		{
+			if (stopRequested)
+			{
+				log.debug("Group {} refresh aborted due to stop request", group);
+				return;
+			}
+			refreshEntity(entry, attributesByEntity.get(entry.entityId()));
+		}
 		log.trace("Group {} refresh finished", group);
 	}
 
-	private void refreshEntity(String group, long entityId, Map<String, AttributeExt> effectiveAttributes)
+	private void refreshEntity(PendingAttributesCacheEntry pendingEntry, Map<String, AttributeExt> effectiveAttributes)
 	{
+		long entityId = pendingEntry.entityId();
+		String group = pendingEntry.group();
 		boolean stillMember = effectiveAttributes != null;
 		Map<String, AttributeExt> attributes = effectiveAttributes == null
 				? Collections.emptyMap()
-				: effectiveAttributes;
+				: CacheableAttributes.of(effectiveAttributes);
 		log.trace("Refreshing entity {} in group {}: {} attributes, still a member: {}", entityId, group,
 				attributes.size(), stillMember);
 		try
 		{
-			tx.runInTransaction(() ->
+			boolean cleared = tx.runInTransactionRet(() ->
 			{
 				attributesCacheDAO.deleteCacheInGroup(entityId, group);
 				List<StoredAttribute> toStore = attributes.values().stream()
@@ -174,9 +209,13 @@ class AttributesCacheRefreshThread extends Thread
 						})
 						.collect(Collectors.toList());
 				attributesCacheDAO.createList(toStore);
-				attributesCachePendingDAO.clearPending(entityId, group);
+				return attributesCachePendingDAO.clearPendingIfVersion(entityId, group, pendingEntry.version());
 			});
-			log.trace("Entity {} in group {}: cache updated and pending flag cleared", entityId, group);
+			if (cleared)
+				log.trace("Entity {} in group {}: cache updated and pending flag cleared", entityId, group);
+			else
+				log.debug("Entity {} in group {}: cache updated, but it was invalidated again during the refresh "
+						+ "- pending flag kept for the next cycle", entityId, group);
 		} catch (Exception e)
 		{
 			log.error("Failed to refresh attributes cache for entity {} in group {}", entityId, group, e);

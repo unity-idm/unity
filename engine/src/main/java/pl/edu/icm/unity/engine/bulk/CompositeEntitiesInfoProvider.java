@@ -142,19 +142,16 @@ class CompositeEntitiesInfoProvider
 				.withMemberships(Map.of())
 				.withEntityInfo(entityInfo)
 				.withIdentities(getIdentities(group))
-				.withDirectAttributes(getCredentialAttributes(entityInfo.keySet()))
+				.withDirectAttributes(getCredentialAttributes(group))
 				.build();
 	}
 
-	private Map<Long, Map<String, Map<String, AttributeExt>>> getCredentialAttributes(Set<Long> groupMemberIds)
+	private Map<Long, Map<String, Map<String, AttributeExt>>> getCredentialAttributes(String group)
 			throws EngineException
 	{
 		Stopwatch w = Stopwatch.createStarted();
-		List<String> credentialAttributeNames = getCredentialAttributeNames();
-		List<StoredAttribute> all = attributeDAO.getAttributesOfGroupMembers(credentialAttributeNames, List.of("/"))
-				.stream()
-				.filter(sa -> groupMemberIds.contains(sa.getEntityId()))
-				.collect(Collectors.toList());
+		List<StoredAttribute> all = attributeDAO.getAttributesOfGroupMembers(getCredentialAttributeNames(), "/",
+				group);
 		log.debug("getCredentialAttrs {}", w.toString());
 		return mapAttributesByEntities(all.stream());
 	}

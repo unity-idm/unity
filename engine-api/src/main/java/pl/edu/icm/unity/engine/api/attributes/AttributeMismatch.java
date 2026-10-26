@@ -11,7 +11,14 @@ import java.util.List;
  *
  * @param cachedValues the (incorrect) values currently stored in the materialized attributes cache.
  * @param freshValues the (correct) values as freshly computed.
+ * @param valuesRedacted if true, the attribute is sensitive (e.g. holds credential data) and both value lists
+ * are intentionally left empty.
  */
-public record AttributeMismatch(String attributeName, List<String> cachedValues, List<String> freshValues)
+public record AttributeMismatch(String attributeName, List<String> cachedValues, List<String> freshValues,
+		boolean valuesRedacted)
 {
+	public static AttributeMismatch redacted(String attributeName)
+	{
+		return new AttributeMismatch(attributeName, List.of(), List.of(), true);
+	}
 }

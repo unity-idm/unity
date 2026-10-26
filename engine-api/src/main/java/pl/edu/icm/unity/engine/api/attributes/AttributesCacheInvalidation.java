@@ -9,13 +9,12 @@ package pl.edu.icm.unity.engine.api.attributes;
  * within the caller's transaction, and schedules a background refresh (see
  * {@link AttributesCacheRefreshTrigger}) once that transaction commits.
  * <p>
- * As decided for the initial implementation, precision of invalidation is intentionally conservative:
- * cross-group dependencies introduced by attribute statements (e.g. {@code extraAttributesGroup}, or
- * conditions inspecting an entity's full group/identity set) are not tracked. Instead, any change of an
- * entity's own state (attributes, identities, group memberships) invalidates ALL of that entity's groups,
- * and any change of a group- or system-wide definition (attribute statements, attribute types, attribute
- * classes) invalidates broadly rather than precisely. Gaps are expected to be caught by the self-validation
- * endpoint.
+ * Precision of invalidation is intentionally conservative: cross-group dependencies introduced by attribute
+ * statements (e.g. {@code extraAttributesGroup}, or conditions inspecting an entity's full group/identity set)
+ * are not tracked. Instead, any change of an entity's own state (attributes, identities, group memberships)
+ * invalidates ALL of that entity's groups, and any change of a group- or system-wide definition (group
+ * definition, attribute types, attribute classes) invalidates broadly rather than precisely. Gaps are expected
+ * to be caught by the self-validation endpoint.
  */
 public interface AttributesCacheInvalidation
 {
@@ -30,7 +29,11 @@ public interface AttributesCacheInvalidation
 	void invalidateEntityInGroup(long entityId, String group);
 
 	/**
-	 * Marks all current members of the given group as pending.
+	 * Marks all current members of the given group as pending, in all groups they belong to. To be used when
+	 * the group definition changes: effective attributes of the group's members in other groups may depend on
+	 * it, via {@code extraAttributesGroup} of statements or via group details exposed to statement conditions.
+	 * Entities which are not members of the group are not affected, as statement evaluation considers only
+	 * groups of the entity.
 	 */
 	void invalidateGroup(String group);
 

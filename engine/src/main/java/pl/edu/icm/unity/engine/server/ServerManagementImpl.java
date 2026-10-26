@@ -28,6 +28,7 @@ import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.ServerManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributesCacheInvalidation;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
@@ -58,6 +59,7 @@ class ServerManagementImpl implements ServerManagement
 	private InternalEndpointManagement endpointMan;
 	private TransactionalRunner tx;
 	private BulkProcessingInternal bulkProcessing;
+	private AttributesCacheInvalidation attributesCacheInvalidation;
 	
 	
 	@Autowired
@@ -65,7 +67,8 @@ class ServerManagementImpl implements ServerManagement
 			EngineInitialization engineInit, InternalEndpointManagement endpointMan,
 			InternalAuthorizationManager authz, ExecutorsService executorsService, 
 			UnityServerConfiguration config,
-			BulkProcessingInternal bulkProcessing)
+			BulkProcessingInternal bulkProcessing,
+			AttributesCacheInvalidation attributesCacheInvalidation)
 	{
 		this.tx = tx;
 		this.dbDump = dbDump;
@@ -75,6 +78,7 @@ class ServerManagementImpl implements ServerManagement
 		this.authz = authz;
 		this.config = config;
 		this.bulkProcessing = bulkProcessing;
+		this.attributesCacheInvalidation = attributesCacheInvalidation;
 		executorsService.getScheduledService().scheduleWithFixedDelay(new ClenupDumpsTask(), 20, 60, TimeUnit.SECONDS);
 	}
 
@@ -130,6 +134,8 @@ class ServerManagementImpl implements ServerManagement
 						"Database should not be changed.", e);
 			}
 			initDb.runPostImportCleanup();
+			// dumps don't contain the attributes cache and the import bypasses engine level invalidation
+			attributesCacheInvalidation.invalidateEverything();
 		});
 		endpointMan.undeployAll();
 		engineInit.initializeDatabaseContents();

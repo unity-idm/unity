@@ -7,23 +7,47 @@
 		<result property="entityId" column="ENTITY_ID"/>
 		<result property="groupId" column="GROUP_ID"/>
 		<result property="created" column="CREATED"/>
+		<result property="version" column="VERSION"/>
 		<result property="group" column="NAME"/>
 	</resultMap>
 
 	<insert id="create" parameterType="AttributesCachePendingB">
-		INSERT INTO ATTRIBUTES_CACHE_PENDING (ENTITY_ID, GROUP_ID, CREATED)
-			VALUES (#{entityId}, #{groupId}, #{created})
+		INSERT INTO ATTRIBUTES_CACHE_PENDING (ENTITY_ID, GROUP_ID, CREATED, VERSION)
+			VALUES (#{entityId}, #{groupId}, #{created}, #{version})
 	</insert>
 
-	<insert id="createList" parameterType="java.util.List">
-		INSERT INTO ATTRIBUTES_CACHE_PENDING (ENTITY_ID, GROUP_ID, CREATED) VALUES
-		<foreach open="(" separator="),(" close=")" collection="list" index="index" item="element">
-			#{element.entityId}, #{element.groupId}, #{element.created}
-		</foreach>
+	<update id="incrementVersion" parameterType="AttributesCachePendingB">
+		UPDATE ATTRIBUTES_CACHE_PENDING SET VERSION = VERSION + 1
+			WHERE ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
+	</update>
+
+	<update id="incrementVersionForGroupMembers" parameterType="long">
+		UPDATE ATTRIBUTES_CACHE_PENDING SET VERSION = VERSION + 1
+			WHERE ENTITY_ID IN (SELECT ENTITY_ID FROM GROUP_ENTITIES WHERE GROUP_ID = #{value})
+	</update>
+
+	<insert id="createMissingForGroupMembers" parameterType="AttributesCachePendingB">
+		INSERT INTO ATTRIBUTES_CACHE_PENDING (ENTITY_ID, GROUP_ID, CREATED, VERSION)
+			SELECT M.ENTITY_ID, M.GROUP_ID, #{created}, #{version} FROM GROUP_ENTITIES M
+			WHERE M.ENTITY_ID IN (SELECT ENTITY_ID FROM GROUP_ENTITIES WHERE GROUP_ID = #{groupId})
+				AND NOT EXISTS (SELECT 1 FROM ATTRIBUTES_CACHE_PENDING P
+					WHERE P.ENTITY_ID = M.ENTITY_ID AND P.GROUP_ID = M.GROUP_ID)
 	</insert>
 
-	<delete id="deleteByKey" parameterType="AttributesCachePendingB">
-		DELETE FROM ATTRIBUTES_CACHE_PENDING WHERE ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId}
+	<update id="incrementVersionOfAll">
+		UPDATE ATTRIBUTES_CACHE_PENDING SET VERSION = VERSION + 1
+	</update>
+
+	<insert id="createMissingForAllMemberships" parameterType="AttributesCachePendingB">
+		INSERT INTO ATTRIBUTES_CACHE_PENDING (ENTITY_ID, GROUP_ID, CREATED, VERSION)
+			SELECT M.ENTITY_ID, M.GROUP_ID, #{created}, #{version} FROM GROUP_ENTITIES M
+			WHERE NOT EXISTS (SELECT 1 FROM ATTRIBUTES_CACHE_PENDING P
+				WHERE P.ENTITY_ID = M.ENTITY_ID AND P.GROUP_ID = M.GROUP_ID)
+	</insert>
+
+	<delete id="deleteByKeyAndVersion" parameterType="AttributesCachePendingB">
+		DELETE FROM ATTRIBUTES_CACHE_PENDING
+			WHERE ENTITY_ID = #{entityId} AND GROUP_ID = #{groupId} AND VERSION = #{version}
 	</delete>
 
 	<delete id="deleteByGroup" parameterType="long">
