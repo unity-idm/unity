@@ -61,7 +61,7 @@ public class TestRequestManagement extends TestProjectBase
 		projectRequestMan = new ProjectRequestManagementImpl(mockAuthz, mockRegistrationMan, mockEnquiryMan,
 				mockGroupMan, mockIdMan,
 				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAttrHelper,
-				mockPublicRegistrationURLSupport);
+				mockPublicRegistrationURLSupport, mockValidator);
 	}
 
 	private void configureProject() throws EngineException

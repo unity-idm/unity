@@ -51,7 +51,6 @@ import io.imunity.vaadin.endpoint.common.api.EnquiresDialogLauncher;
 import io.imunity.vaadin.endpoint.common.layout.ExtraPanelsConfigurationProvider;
 import io.imunity.vaadin.endpoint.common.layout.LeftNavbarAppLayout;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 
 @PreserveOnRefresh
 @PermitAll
@@ -86,8 +85,7 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 		imageLayout.getStyle().set("margin-bottom", "1.5em");
 
 
-		List<ProjectGroup> projectGroups = projectService.getProjectForUser(
-				InvocationContext.getCurrent().getLoginSession().getEntityId());
+		List<ProjectGroup> projectGroups = projectService.getProjectsForCurrentUser();
 
 		super.initView();
 
@@ -124,8 +122,7 @@ public class UpManMenu extends LeftNavbarAppLayout implements BeforeEnterObserve
 	{
 		if(beforeEnterEvent.getTrigger().equals(NavigationTrigger.PROGRAMMATIC))
 		{
-			projectsLayout.load(projectService.getProjectForUser(
-					InvocationContext.getCurrent().getLoginSession().getEntityId()));
+			projectsLayout.load(projectService.getProjectsForCurrentUser());
 			ProjectGroup selectedProject = projectsLayout.getSelectedProject();
 			ComponentUtil.setData(UI.getCurrent(), ProjectGroup.class, selectedProject);
 			if(selectedProject != null)

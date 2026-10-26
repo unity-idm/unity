@@ -105,7 +105,7 @@ public class ProjectManagementHelper
 		List<DelegatedGroup> projectsForEntity;
 		try
 		{
-			projectsForEntity = delGroupMan.getProjectsForEntity(entity.getEntityId());
+			projectsForEntity = delGroupMan.getManagedProjectsForCurrentUser();
 		} catch (EngineException e)
 		{
 			log.error("Can not get projects for entity " + entity, e);

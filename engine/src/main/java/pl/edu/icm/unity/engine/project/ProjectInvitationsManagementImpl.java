@@ -20,7 +20,11 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
@@ -54,6 +58,7 @@ import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.entity.EntityWithContactInfo;
 import pl.edu.icm.unity.engine.api.identity.UnknownEmailException;
+import pl.edu.icm.unity.engine.api.project.ProjectAuthorization;
 import pl.edu.icm.unity.engine.api.project.ProjectAddInvitationResult;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
@@ -71,7 +76,8 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	
 	public static final String INVITATION_PROJECT_NAME_PARAM = "upmanProject";
 	
-	private final ProjectAuthorizationManager authz;
+	private final ProjectAuthorization authz;
+	private final ProjectOperationValidator validator;
 	private final InvitationManagement invitationMan;
 	private final GroupsManagement groupMan;
 	private final PublicRegistrationURLSupport publicRegistrationURLSupport;
@@ -86,7 +92,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			@Qualifier("insecure") EnquiryManagement enquiryMan,
 			@Qualifier("insecure") EntityManagement entityMan,
 			PublicRegistrationURLSupport publicRegistrationURLSupport, 
-			ProjectAuthorizationManager authz,
+			ProjectAuthorization authz, ProjectOperationValidator validator,
 			MessageSource msg)
 	{
 		this.invitationMan = invitationMan;
@@ -96,16 +102,22 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
 		this.authz = authz;
+		this.validator = validator;
 		this.msg = msg;
 	}
 
 	@Override
+	@Transactional
 	public ProjectAddInvitationResult addInvitations(Set<ProjectInvitationParam> invitationParams) throws EngineException
 	{
 		for (String project: invitationParams.stream().map(p -> p.project).collect(Collectors.toSet()))
 		{
 			authz.assertManagerAuthorization(project);
+			validator.validateProject(project);
 		}
+		for (ProjectInvitationParam invitation : invitationParams)
+			for (String group : invitation.groups)
+				validator.validateContainment(invitation.project, group);
 		
 		Set<EntityWithContactInfo> entities = null;
 		try
@@ -196,9 +208,11 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	}
 
 	@Override
+	@Transactional
 	public List<ProjectInvitation> getInvitations(String projectPath) throws EngineException
 	{
 		authz.assertManagerAuthorization(projectPath);
+		validator.validateProject(projectPath);
 
 		GroupDelegationConfiguration config = getDelegationConfiguration(projectPath);
 
@@ -304,9 +318,11 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	}
 
 	@Override
+	@Transactional
 	public void removeInvitation(String projectPath, String code) throws EngineException
 	{
 		authz.assertManagerAuthorization(projectPath);
+		validator.validateProject(projectPath);
 		assertIfIsProjectInvitation(projectPath, code);
 		invitationMan.removeInvitation(code);
 	}
@@ -330,9 +346,11 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	}
 
 	@Override
+	@Transactional
 	public void resendInvitation(String projectPath, String code) throws EngineException
 	{
 		authz.assertManagerAuthorization(projectPath);
+		validator.validateProject(projectPath);
 
 		InvitationWithCode invitationWithCode = assertIfIsProjectInvitation(projectPath, code);
 		InvitationParam invitation = invitationWithCode.getInvitation();
@@ -350,6 +368,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	public void reinvite(String projectPath, String code) throws EngineException
 	{
 		authz.assertManagerAuthorization(projectPath);
+		validator.validateProject(projectPath);
 
 		InvitationWithCode originalInvitationWithCode = assertIfIsProjectInvitation(projectPath, code);
 		InvitationParam originalInvitation = originalInvitationWithCode.getInvitation();
@@ -448,5 +467,44 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		}
 
 		return orgInvitationWithCode;
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class Factory
+	{
+		private final InvitationManagement invitationMan;
+		private final GroupsManagement groupMan;
+		private final RegistrationsManagement registrationMan;
+		private final EnquiryManagement enquiryMan;
+		private final EntityManagement entityMan;
+		private final PublicRegistrationURLSupport publicRegistrationURLSupport;
+		private final ProjectOperationValidator validator;
+		private final MessageSource msg;
+
+		Factory(@Qualifier("insecure") InvitationManagement invitationMan,
+				@Qualifier("insecure") GroupsManagement groupMan,
+				@Qualifier("insecure") RegistrationsManagement registrationMan,
+				@Qualifier("insecure") EnquiryManagement enquiryMan,
+				@Qualifier("insecure") EntityManagement entityMan,
+				PublicRegistrationURLSupport publicRegistrationURLSupport,
+				ProjectOperationValidator validator, MessageSource msg)
+		{
+			this.invitationMan = invitationMan;
+			this.groupMan = groupMan;
+			this.registrationMan = registrationMan;
+			this.enquiryMan = enquiryMan;
+			this.entityMan = entityMan;
+			this.publicRegistrationURLSupport = publicRegistrationURLSupport;
+			this.validator = validator;
+			this.msg = msg;
+		}
+
+		@Bean
+		@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+		ProjectInvitationsManagement projectInvitationsWithAuthorization(ProjectAuthorization authorization)
+		{
+			return new ProjectInvitationsManagementImpl(invitationMan, groupMan, registrationMan, enquiryMan,
+					entityMan, publicRegistrationURLSupport, authorization, validator, msg);
+		}
 	}
 }

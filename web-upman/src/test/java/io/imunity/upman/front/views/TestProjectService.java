@@ -57,15 +57,14 @@ public class TestProjectService
 	}
 
 	@Test
-	public void shouldGetProjectForUser() throws EngineException
+	public void shouldGetProjectsForCurrentUser() throws EngineException
 	{
-		long entityId = 1;
 
-		when(delGroupMan.getProjectsForEntity(entityId)).thenReturn(
+		when(delGroupMan.getManagedProjectsForCurrentUser()).thenReturn(
 				List.of(new DelegatedGroup("path", new GroupDelegationConfiguration(true), true, new I18nString("name")))
 		);
 
-		List<ProjectGroup> projectForUser = projectService.getProjectForUser(entityId);
+		List<ProjectGroup> projectForUser = projectService.getProjectsForCurrentUser();
 
 		assertThat(List.of(new ProjectGroup("path", "name", "regForm", "singupForm")))
 				.isEqualTo(projectForUser);
@@ -75,11 +74,10 @@ public class TestProjectService
 	public void shouldReturnEmptyProjectListWhenUserCannotManageAnyProject() throws EngineException
 	{
 		// given
-		long entityId = 1;
-		when(delGroupMan.getProjectsForEntity(entityId)).thenReturn(List.of());
+		when(delGroupMan.getManagedProjectsForCurrentUser()).thenReturn(List.of());
 
 		// when
-		List<ProjectGroup> projectForUser = projectService.getProjectForUser(entityId);
+		List<ProjectGroup> projectForUser = projectService.getProjectsForCurrentUser();
 
 		// then
 		assertThat(projectForUser).isEmpty();

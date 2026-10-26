@@ -11,6 +11,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.entity.Entity;
@@ -35,6 +40,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.project.ProjectAuthorization;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
@@ -54,9 +60,11 @@ import pl.edu.icm.unity.base.tx.Transactional;
  *
  */
 @Component
+@Primary
 class ProjectRequestManagementImpl implements ProjectRequestManagement
 {
-	private final ProjectAuthorizationManager authz;
+	private final ProjectAuthorization authz;
+	private final ProjectOperationValidator validator;
 	private final RegistrationsManagement registrationMan;
 	private final EnquiryManagement enquiryMan;
 	private final GroupsManagement groupMan;
@@ -65,15 +73,16 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	private final ProjectAttributeHelper projectAttrHelper;
 	private final AttributesHelper attributesHelper;
 	
-	ProjectRequestManagementImpl(ProjectAuthorizationManager authz,
+	ProjectRequestManagementImpl(ProjectAuthorization authz,
 			@Qualifier("insecure") RegistrationsManagement registrationMan,
 			@Qualifier("insecure") EnquiryManagement enquiryMan,
 			@Qualifier("insecure") GroupsManagement groupMan, @Qualifier("insecure") EntityManagement idMan,
 			ProjectAttributeHelper projectAttrHelper,
 			AttributesHelper attributesHelper,
-			PublicRegistrationURLSupport publicRegistrationURLSupport)
+			PublicRegistrationURLSupport publicRegistrationURLSupport, ProjectOperationValidator validator)
 	{
 		this.authz = authz;
+		this.validator = validator;
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
 		this.groupMan = groupMan;
@@ -88,6 +97,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	public List<ProjectRequest> getRequests(String projectPath) throws EngineException
 	{
 		authz.assertManagerAuthorization(projectPath);
+		validator.validateProject(projectPath);
 
 		List<ProjectRequest> allRequests = new ArrayList<>();
 
@@ -108,6 +118,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	public void accept(ProjectRequestParam request) throws EngineException
 	{
 		authz.assertManagerAuthorization(request.project);
+		validator.validateProject(request.project);
 		processRequest(request, RegistrationRequestAction.accept);
 	}
 
@@ -116,6 +127,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	public void decline(ProjectRequestParam request) throws EngineException
 	{
 		authz.assertManagerAuthorization(request.project);
+		validator.validateProject(request.project);
 		processRequest(request, RegistrationRequestAction.reject);
 	}
 
@@ -125,6 +137,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	{
 
 		authz.assertManagerAuthorization(projectPath);
+		validator.validateProject(projectPath);
 		String registrationFormId = getProjectDelegationConfig(projectPath).registrationForm;
 
 		if (registrationFormId == null)
@@ -150,6 +163,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	public Optional<String> getProjectSignUpEnquiryFormLink(String projectPath) throws EngineException
 	{
 		authz.assertManagerAuthorization(projectPath);
+		validator.validateProject(projectPath);
 		String enquiryFormId = getProjectDelegationConfig(projectPath).signupEnquiryForm;
 		return getEnquiryLink(enquiryFormId);
 	}
@@ -160,6 +174,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	public Optional<String> getProjectUpdateMembershipEnquiryFormLink(String projectPath) throws EngineException
 	{
 		authz.assertManagerAuthorization(projectPath);
+		validator.validateProject(projectPath);
 		String enquiryFormId = getProjectDelegationConfig(projectPath).membershipUpdateEnquiryForm;
 		return getEnquiryLink(enquiryFormId);
 	}
@@ -373,5 +388,43 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	{
 		GroupContents groupCon = groupMan.getContents(projectPath, GroupContents.METADATA);
 		return groupCon.getGroup().getDelegationConfiguration();
+	}
+
+	@Configuration(proxyBeanMethods = false)
+	static class Factory
+	{
+		private final RegistrationsManagement registrationMan;
+		private final EnquiryManagement enquiryMan;
+		private final GroupsManagement groupMan;
+		private final EntityManagement idMan;
+		private final ProjectAttributeHelper projectAttrHelper;
+		private final AttributesHelper attributesHelper;
+		private final PublicRegistrationURLSupport publicRegistrationURLSupport;
+		private final ProjectOperationValidator validator;
+
+		Factory(@Qualifier("insecure") RegistrationsManagement registrationMan,
+				@Qualifier("insecure") EnquiryManagement enquiryMan,
+				@Qualifier("insecure") GroupsManagement groupMan,
+				@Qualifier("insecure") EntityManagement idMan, ProjectAttributeHelper projectAttrHelper,
+				AttributesHelper attributesHelper, PublicRegistrationURLSupport publicRegistrationURLSupport,
+				ProjectOperationValidator validator)
+		{
+			this.registrationMan = registrationMan;
+			this.enquiryMan = enquiryMan;
+			this.groupMan = groupMan;
+			this.idMan = idMan;
+			this.projectAttrHelper = projectAttrHelper;
+			this.attributesHelper = attributesHelper;
+			this.publicRegistrationURLSupport = publicRegistrationURLSupport;
+			this.validator = validator;
+		}
+
+		@Bean
+		@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+		ProjectRequestManagement projectRequestsWithAuthorization(ProjectAuthorization authorization)
+		{
+			return new ProjectRequestManagementImpl(authorization, registrationMan, enquiryMan, groupMan, idMan,
+					projectAttrHelper, attributesHelper, publicRegistrationURLSupport, validator);
+		}
 	}
 }

@@ -8,21 +8,23 @@ import org.springframework.stereotype.Component;
 import io.imunity.rest.api.types.registration.RestEnquiryForm;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
 import io.imunity.upman.rest.RestProjectFormServiceNoAuthz.RestProjectFormServiceNoAuthzFactory;
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
+import pl.edu.icm.unity.engine.api.project.ProjectAuthorizationFactory;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 
 class RestProjectFormService
 {
-	private final UpmanRestAuthorizationManager authz;
+	private final RestProjectAuthorization authz;
 	private final RestProjectFormServiceNoAuthz service;
-	private final String authorizationGroup;
+	private final String rootGroup;
 
-	RestProjectFormService(UpmanRestAuthorizationManager authz, RestProjectFormServiceNoAuthz service,
-			String authorizationGroup)
+	RestProjectFormService(RestProjectAuthorization authz, RestProjectFormServiceNoAuthz service,
+			String rootGroup)
 	{
 		this.authz = authz;
 		this.service = service;
-		this.authorizationGroup = authorizationGroup;
+		this.rootGroup = rootGroup;
 	}
 
 	void generateRegistrationForm(String projectId) throws EngineException
@@ -121,28 +123,28 @@ class RestProjectFormService
 
 	private void assertAuthorization(String projectId) throws AuthorizationException
 	{
-		authz.assertProjectAuthorization(authorizationGroup, projectId);
+		authz.assertManagerAuthorization(ProjectPathProvider.getProjectPath(projectId, rootGroup));
 	}
 
 
 	@Component
 	public static class RestProjectFormServiceFactory
 	{
-		private final UpmanRestAuthorizationManager authz;
+		private final ProjectAuthorizationFactory authorizations;
 		private final RestProjectFormServiceNoAuthzFactory serviceFactory;
 
 		@Autowired
-		RestProjectFormServiceFactory(UpmanRestAuthorizationManager authz,
+		RestProjectFormServiceFactory(ProjectAuthorizationFactory authorizations,
 				RestProjectFormServiceNoAuthzFactory serviceFactory)
 		{
-			this.authz = authz;
+			this.authorizations = authorizations;
 			this.serviceFactory = serviceFactory;
 		}
 
 		RestProjectFormService newInstance(String rootGroup, String authorizeGroup, List<String> rootGroupAttributes)
 		{
-			return new RestProjectFormService(authz, serviceFactory.newInstance(rootGroup, rootGroupAttributes),
-					authorizeGroup);
+			return new RestProjectFormService(authorizations.createRest(rootGroup, authorizeGroup),
+					serviceFactory.newInstance(rootGroup, rootGroupAttributes), rootGroup);
 		}
 	}
 }
