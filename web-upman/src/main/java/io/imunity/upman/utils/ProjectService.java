@@ -49,15 +49,15 @@ public class ProjectService
 		this.notificationPresenter = notificationPresenter;
 	}
 
-	public List<ProjectGroup> getProjectForUser(long entityId)
+	public List<ProjectGroup> getProjectsForCurrentUser()
 	{
 		List<DelegatedGroup> projects;
 		try
 		{
-			projects = delGroupMan.getProjectsForEntity(entityId);
+			projects = delGroupMan.getManagedProjectsForCurrentUser();
 		} catch (Exception e)
 		{
-			log.warn("Can not get projects for entity " + entityId, e);
+			log.warn("Can not get projects for the current user", e);
 			NotificationPresenter.showCriticalError(logoutHandler::logout, msg.getMessage("ServerFaultExceptionCaption"), msg.getMessage("ContactSupport"));
 			return List.of();
 		}

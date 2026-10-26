@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
@@ -35,7 +36,7 @@ public class RestProjectPolicyDocumentServiceTest
 	@Mock
 	private GroupDelegationConfigGenerator groupDelegationConfigGenerator;
 	@Mock
-	private UpmanRestAuthorizationManager authz;
+	private RestProjectAuthorization authz;
 	@Mock
 	private PolicyDocumentManagement policyDocumentManagement;
 	@Mock
@@ -47,7 +48,7 @@ public class RestProjectPolicyDocumentServiceTest
 	void setUp()
 	{
 		restProjectService = new RestProjectPolicyDocumentService(authz, groupDelegationConfigGenerator,
-				policyDocumentManagement, groupMan, upmanRestPolicyDocumentAuthorizationManager, "/A", "/A/B");
+				policyDocumentManagement, groupMan, upmanRestPolicyDocumentAuthorizationManager, "/A");
 	}
 
 	@Test

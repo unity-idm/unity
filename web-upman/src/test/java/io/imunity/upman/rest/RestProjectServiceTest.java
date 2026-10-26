@@ -11,7 +11,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -30,10 +29,10 @@ import pl.edu.icm.unity.base.attribute.Attribute;
 import pl.edu.icm.unity.base.entity.Entity;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
-import pl.edu.icm.unity.base.group.GroupMembership;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.identity.IdentityTaV;
 import pl.edu.icm.unity.base.verifiable.VerifiableElementBase;
@@ -57,7 +56,7 @@ class RestProjectServiceTest
 	@Mock
 	private GroupsManagement groupMan;
 	@Mock
-	private UpmanRestAuthorizationManager authz;
+	private RestProjectAuthorization authz;
 	@Mock
 	private EntityManagement idsMan;
 	@Mock
@@ -72,7 +71,7 @@ class RestProjectServiceTest
 	void setUp()
 	{
 		restProjectService = new RestProjectService(delGroupMan, groupMan, authz, idsMan,
-				registrationsManagement, enquiryManagement, "/A", "A/B");
+				registrationsManagement, enquiryManagement, "/A");
 	}
 
 	@Test
@@ -181,7 +180,7 @@ class RestProjectServiceTest
 		));
 		when(groupMan.getGroupsByWildcard("/A/**"))
 			.thenReturn(List.of(group));
-		when(authz.canAccessProject("B")).thenReturn(true);
+		when(authz.isProjectVisible("/A/B")).thenReturn(true);
 
 		List<RestProject> projects = restProjectService.getProjects();
 		assertThat(projects.size()).isEqualTo(1);

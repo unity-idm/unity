@@ -32,6 +32,9 @@ import pl.edu.icm.unity.engine.api.identity.UnknownIdentityException;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
+import pl.edu.icm.unity.engine.api.project.ProjectAuthorizationFactory;
+import pl.edu.icm.unity.engine.api.project.ProjectManagementFactory;
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
@@ -49,13 +52,12 @@ class RestProjectService
 {
 	private DelegatedGroupManagement delGroupMan;
 	private GroupsManagement groupMan;
-	private UpmanRestAuthorizationManager authz;
+	private RestProjectAuthorization authz;
 	private EntityManagement idsMan;
 	private ProjectGroupProvider projectGroupProvider;
 	private RegistrationsManagement registrationsManagement;
 	private EnquiryManagement enquiryManagement;
 	private String rootGroup;
-	private String authorizationGroup;
 
 	//for spring
 	@SuppressWarnings("unused")
@@ -63,30 +65,22 @@ class RestProjectService
 	{
 	}
 
-	RestProjectService(DelegatedGroupManagement delGroupMan,
-	                          GroupsManagement groupMan,
-	                          UpmanRestAuthorizationManager authz,
-	                          EntityManagement idsMan,
-	                          RegistrationsManagement registrationsManagement,
-	                          EnquiryManagement enquiryManagement,
-	                          String rootGroup,
-	                          String authorizationGroup)
+	RestProjectService(DelegatedGroupManagement delGroupMan, GroupsManagement groupMan,
+			RestProjectAuthorization authz, EntityManagement idsMan,
+			RegistrationsManagement registrationsManagement, EnquiryManagement enquiryManagement, String rootGroup)
 	{
-		init(delGroupMan, groupMan, authz, idsMan, registrationsManagement, enquiryManagement, rootGroup,
-				authorizationGroup);
+		init(delGroupMan, groupMan, authz, idsMan, registrationsManagement, enquiryManagement, rootGroup);
 	}
 
 	void init(DelegatedGroupManagement delGroupMan, GroupsManagement groupMan,
-			UpmanRestAuthorizationManager authz, EntityManagement idsMan,
-			RegistrationsManagement registrationsManagement, EnquiryManagement enquiryManagement, String rootGroup,
-			String authorizationGroup)
+			RestProjectAuthorization authz, EntityManagement idsMan,
+			RegistrationsManagement registrationsManagement, EnquiryManagement enquiryManagement, String rootGroup)
 	{
 		this.delGroupMan = delGroupMan;
 		this.groupMan = groupMan;
 		this.projectGroupProvider = new ProjectGroupProvider(groupMan);
 		this.authz = authz;
 		this.rootGroup = rootGroup;
-		this.authorizationGroup = authorizationGroup;
 		this.idsMan = idsMan;
 		this.registrationsManagement = registrationsManagement;
 		this.enquiryManagement = enquiryManagement;
@@ -95,7 +89,7 @@ class RestProjectService
 	@Transactional
 	public RestProjectId addProject(RestProjectCreateRequest project) throws EngineException
 	{
-		authz.assertManagerAuthorization(authorizationGroup);
+		authz.assertProjectCreationAuthorization();
 
 		String projectId;
 		if(project.projectId == null)
@@ -232,13 +226,12 @@ class RestProjectService
 	@Transactional
 	public List<RestProject> getProjects() throws EngineException
 	{
-		authz.assertAnyProjectAuthorization(authorizationGroup);
+		authz.assertProjectsDiscoveryAuthorization();
 		List<Group> groups = groupMan.getGroupsByWildcard((rootGroup.equals("/") ? "" : rootGroup) + "/**");
 		return groups.stream()
 			.filter(group -> !group.getName().equals(rootGroup))
 			.filter(group -> group.getDelegationConfiguration().enabled)
-			.filter(group -> authz.canAccessProject(
-					ProjectPathProvider.relativeProjectId(group.getName(), rootGroup)))
+			.filter(group -> authz.isProjectVisible(group.getName()))
 			.map(group -> map(ProjectPathProvider.relativeProjectId(group.getName(), rootGroup), group))
 			.collect(Collectors.toList());
 	}
@@ -347,7 +340,7 @@ class RestProjectService
 
 	private void assertAuthorization(String projectId) throws AuthorizationException
 	{
-		authz.assertProjectAuthorization(authorizationGroup, projectId);
+		authz.assertManagerAuthorization(ProjectPathProvider.getProjectPath(projectId, rootGroup));
 	}
 
 	private static RestProject map(String projectId, Group group)
@@ -382,25 +375,25 @@ class RestProjectService
 	@Component
 	public static class RestProjectServiceFactory
 	{
-		private final DelegatedGroupManagement delGroupMan;
+		private final ProjectManagementFactory projects;
 		private final GroupsManagement groupMan;
-		private final UpmanRestAuthorizationManager authz;
+		private final ProjectAuthorizationFactory authorizations;
 		private final EntityManagement idsMan;
 		private final RegistrationsManagement registrationsManagement;
 		private final EnquiryManagement enquiryManagement;
 		private final ObjectFactory<RestProjectService> factory;
 
 		@Autowired
-		RestProjectServiceFactory(@Qualifier("insecure") DelegatedGroupManagement delGroupMan,
-				@Qualifier("insecure") GroupsManagement groupMan, UpmanRestAuthorizationManager authz,
+		RestProjectServiceFactory(ProjectManagementFactory projects,
+				@Qualifier("insecure") GroupsManagement groupMan, ProjectAuthorizationFactory authorizations,
 				@Qualifier("insecure") EntityManagement idsMan,
 				@Qualifier("insecure") RegistrationsManagement registrationsManagement,
 				@Qualifier("insecure") EnquiryManagement enquiryManagement,
 				ObjectFactory<RestProjectService> factory)
 		{
-			this.delGroupMan = delGroupMan;
+			this.projects = projects;
 			this.groupMan = groupMan;
-			this.authz = authz;
+			this.authorizations = authorizations;
 			this.idsMan = idsMan;
 			this.registrationsManagement = registrationsManagement;
 			this.enquiryManagement = enquiryManagement;
@@ -410,8 +403,10 @@ class RestProjectService
 		RestProjectService newInstance(String rootGroup, String authorizeGroup)
 		{
 			RestProjectService bean = factory.getObject();
-			bean.init(delGroupMan, groupMan, authz, idsMan,
-					registrationsManagement, enquiryManagement, rootGroup, authorizeGroup);
+			var authorization = authorizations.createRest(rootGroup, authorizeGroup);
+			var management = projects.create(authorization);
+			bean.init(management.groups(), groupMan, authorization, idsMan,
+					registrationsManagement, enquiryManagement, rootGroup);
 			return bean;
 		}
 	}

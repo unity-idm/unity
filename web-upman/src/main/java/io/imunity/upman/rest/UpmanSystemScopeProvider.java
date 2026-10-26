@@ -4,14 +4,15 @@ import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
 import pl.edu.icm.unity.oauth.api.Scope;
 import pl.edu.icm.unity.oauth.api.SystemScopeProvider;
 
 @Component
 public class UpmanSystemScopeProvider implements SystemScopeProvider
 {
-	public static final String API_SCOPE = "sys:upman-api";
-	public static final String PROJECT_SCOPE_PREFIX = API_SCOPE + ":";
+	public static final String API_SCOPE = RestProjectAuthorization.API_SCOPE;
+	public static final String PROJECT_SCOPE_PREFIX = RestProjectAuthorization.PROJECT_SCOPE_PREFIX;
 	public static final String PROJECT_SCOPE_PATTERN = PROJECT_SCOPE_PREFIX + ".+";
 
 	@Override

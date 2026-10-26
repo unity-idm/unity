@@ -18,6 +18,7 @@ import io.imunity.rest.api.types.registration.RestRegistrationForm;
 import io.imunity.rest.mappers.registration.EnquiryFormMapper;
 import io.imunity.rest.mappers.registration.RegistrationFormMapper;
 import pl.edu.icm.unity.base.exceptions.EngineException;
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
@@ -40,7 +41,7 @@ public class RestProjectFormServiceTest
 	@Mock
 	private GroupDelegationConfigGenerator groupDelegationConfigGenerator;
 	@Mock
-	private UpmanRestAuthorizationManager authz;
+	private RestProjectAuthorization authz;
 	@Mock
 	private RegistrationsManagement registrationsManagement;
 	@Mock
@@ -54,7 +55,7 @@ public class RestProjectFormServiceTest
 	void setUp()
 	{
 		service = new RestProjectFormService(authz, new RestProjectFormServiceNoAuthz(groupDelegationConfigGenerator,
-				groupMan, registrationsManagement, enquiryManagement, validator, "/A"), "/A/B");
+				groupMan, registrationsManagement, enquiryManagement, validator, "/A"), "/A");
 	}
 
 	@Test
@@ -77,7 +78,7 @@ public class RestProjectFormServiceTest
 	}
 
 	@Test
-	public void shouldNotAddRegistrationFormWhenValidationFailed() throws EngineException, FormValidationException
+	public void shouldNotAddRegistrationFormWhenValidationFailed() throws EngineException
 	{
 		setUpGroupContent(new GroupDelegationConfiguration(true));
 		RestRegistrationForm form = RestRegistrationForm.builder()
@@ -106,7 +107,7 @@ public class RestProjectFormServiceTest
 	}
 
 	@Test
-	public void shouldNotUpdateRegistrationFormWhenValidationFailed() throws EngineException, FormValidationException
+	public void shouldNotUpdateRegistrationFormWhenValidationFailed() throws EngineException
 	{
 		setUpGroupContent(GroupDelegationConfiguration.builder()
 				.withRegistrationForm("form")
