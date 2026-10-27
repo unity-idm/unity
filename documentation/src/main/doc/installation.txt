@@ -55,6 +55,30 @@ unityServer.core.useConfiguredContentsOnFreshStartOnly=false
 If this option is set as above Unity will use the same initialization logic as in older version 2.
 
 
+=== Cross-origin browser access
+
+Global CORS is disabled by default (+unityServer.core.httpServer.enableCORS=false+).
+Keep it disabled if cross-origin browser access is unnecessary. For REST-only access, prefer the
+endpoint's +allowedCorsOrigins.+ and +allowedCorsHeaders.+ settings while leaving global CORS disabled.
+A restrictive endpoint policy does not undo permissions granted by global CORS or a reverse proxy.
+
+If global CORS is required, configure trusted origins explicitly, for example:
+
+----
+unityServer.core.httpServer.enableCORS=true
+unityServer.core.httpServer.cors.allowedOrigins=https://portal.example.org
+unityServer.core.httpServer.cors.allowCredentials=false
+----
+
+Origins include the scheme, host and optional port, without a path. The list is comma separated.
+Entries are literal origins with optional +*+ wildcards, not regular expressions. Prefer exact origins;
+a wildcard such as +https://*.example.org+ trusts every matching subdomain.
+Enable +allowCredentials+ only when the intended browser application requires credentials.
+Enabling global CORS without overriding its defaults trusts every origin and allows credentials.
+
+CORS controls whether browser JavaScript may read a response. It does not replace authentication,
+authorization or CSRF protection, and a rejected origin can still reach the application.
+
 === Notes on redundant installations
 
 It is possible to install Unity in a High Availability (HA) setup. 
