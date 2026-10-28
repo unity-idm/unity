@@ -14,7 +14,9 @@ External SAML authentication module allows for authenticating the Unity's client
 SAML identity provider as Shibboleth IdP or any other SAML 2 compliant service. Attributes of the authenticated
 user can be as well obtained and mapped to the local database. 
 
-Currently the two most popular SAML2 bindings are supported: HTTP Post, HTTP Redirect and PAOS. PAOS 
+Authentication requests support HTTP POST and HTTP Redirect. Browser SSO authentication responses must use HTTP POST;
+HTTP Redirect responses are rejected, as required by the SAML Web Browser SSO profile.
+HTTP Redirect remains supported for Single Logout requests and responses. PAOS
 (used for SAML ECP authentication of non-web browser clients) is configured as an endpoint: <<endp-ecp>>.
 
 The remote SAML callout is configured with a list of trusted SAML identity providers. If more then one
