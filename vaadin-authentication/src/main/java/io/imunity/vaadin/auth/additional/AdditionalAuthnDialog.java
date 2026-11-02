@@ -4,6 +4,7 @@
  */
 package io.imunity.vaadin.auth.additional;
 
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
@@ -29,7 +30,7 @@ class AdditionalAuthnDialog extends Dialog
 
 	private void initGUI(String caption, String info)
 	{
-		setModal(true);
+		setModality(ModalityMode.STRICT);
 
 		Div contentsPanel = new Div();
 		contentsPanel.setSizeFull();
@@ -55,7 +56,11 @@ class AdditionalAuthnDialog extends Dialog
 		setWidth(32, Unit.EM);
 		setHeight(20, Unit.EM);
 		
-		addCloseListener = addDialogCloseActionListener(event -> cancelHandler.run());
+		addCloseListener = addDialogCloseActionListener(event ->
+		{
+			close();
+			cancelHandler.run();
+		});
 	}
 	
 	void show()
