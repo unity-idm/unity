@@ -124,7 +124,6 @@ public interface DelegatedGroupManagement
 	 * 
 	 * @param projectPath project group path
 	 * @param entityId attribute owner
-	 * @param role value to set
 	 * @throws EngineException
 	 */
 	GroupAuthorizationRole getGroupAuthorizationRole(String projectPath, long entityId)
@@ -142,13 +141,12 @@ public interface DelegatedGroupManagement
 			throws EngineException;
 	
 	/**
-	 * Gets projects for entity
-	 * 
-	 * @param entityId project manager
-	 * @return All project group of entity
+	 * Gets the projects managed by the current authenticated user.
+	 *
+	 * @return project groups where the current user has a manager or projectsAdmin role
 	 * @throws EngineException
 	 */
-	List<DelegatedGroup> getProjectsForEntity(long entityId) throws EngineException;
+	List<DelegatedGroup> getManagedProjectsForCurrentUser() throws EngineException;
 
 	/**
 	 * Adds a new member to the group

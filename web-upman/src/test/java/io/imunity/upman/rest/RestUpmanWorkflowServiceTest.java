@@ -32,6 +32,7 @@ import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
 import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
@@ -42,7 +43,6 @@ import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
-import pl.edu.icm.unity.engine.api.project.ProjectRestManagementAdapter;
 import pl.edu.icm.unity.engine.api.registration.RequestType;
 
 @ExtendWith(MockitoExtension.class)
@@ -57,7 +57,7 @@ class RestUpmanWorkflowServiceTest
 	@Mock
 	private GroupsManagement groupManagement;
 	@Mock
-	private UpmanRestAuthorizationManager restAuthorization;
+	private RestProjectAuthorization restAuthorization;
 
 	private RestUpmanWorkflowService service;
 
@@ -70,18 +70,9 @@ class RestUpmanWorkflowServiceTest
 		GroupContents contents = new GroupContents();
 		contents.setGroup(project);
 		when(groupManagement.getContents(eq("/root/project"), anyInt())).thenReturn(contents);
-		ProjectRestManagementAdapter adapter = new ProjectRestManagementAdapter()
-		{
-			@Override
-			public <T> T withRestManagement(String projectPath, Operation<T> operation)
-					throws pl.edu.icm.unity.base.exceptions.EngineException
-			{
-				return operation.run();
-			}
-		};
 		service = new RestUpmanWorkflowService();
-		service.init(groups, invitations, requests, groupManagement, adapter, restAuthorization,
-				"/root", "/auth");
+		service.init(groups, invitations, requests, groupManagement, restAuthorization,
+				"/root");
 	}
 
 	@Test

@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.saml.sp;
 
-import eu.unicore.samly2.messages.RedirectedMessage;
-import eu.unicore.samly2.messages.SAMLVerifiableElement;
 import eu.unicore.samly2.messages.XMLExpandedMessage;
 import io.imunity.vaadin.endpoint.common.RemoteRedirectedAuthnResponseProcessingFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -50,6 +48,14 @@ public class SAMLResponseConsumerServlet extends SamlHttpResponseServlet
 	}
 
 	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException
+	{
+		resp.setHeader("Allow", "POST");
+		resp.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED,
+				"HTTP Redirect binding is not supported for SAML SSO responses");
+	}
+
+	@Override
 	protected void postProcessResponse(boolean isGet, HttpServletRequest req, HttpServletResponse resp,
 			String samlResponse, String relayState) throws IOException
 	{
@@ -65,10 +71,7 @@ public class SAMLResponseConsumerServlet extends SamlHttpResponseServlet
 			return;
 		}
 		
-		Binding binding = isGet ? Binding.HTTP_REDIRECT : Binding.HTTP_POST;
-		SAMLVerifiableElement verifiableMessage = isGet ? 
-				new RedirectedMessage(req.getQueryString()) : getDocumentSignedMessage(samlResponse);
-		context.setResponse(samlResponse, binding, verifiableMessage);
+		context.setResponse(samlResponse, Binding.HTTP_POST, getDocumentSignedMessage(samlResponse));
 		log.debug("SAML response for authenticator {} was stored in context, redirecting to originating endpoint {}", 
 				context.getAuthenticationStepContext().authnOptionId, context.getReturnUrl());
 

@@ -18,6 +18,8 @@ import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditor;
 import io.imunity.vaadin.endpoint.common.plugins.identities.IdentityEditorContext;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.util.StringUtils;
+
 import pl.edu.icm.unity.base.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -161,7 +163,7 @@ public class EmailIdentityEditor implements IdentityEditor
 					confirmationInfo.isConfirmed());
 		}
 		editor.setVerifyButtonVisible(!confirmationInfo.isConfirmed()
-				&& !editor.getValue().isEmpty()
+				&& StringUtils.hasLength(editor.getValue())
 				&& value != null
 				&& editor.getValue().equals(value.getValue()));
 		skipUpdate = true;

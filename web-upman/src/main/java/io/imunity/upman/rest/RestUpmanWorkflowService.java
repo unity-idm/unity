@@ -30,13 +30,15 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
+import pl.edu.icm.unity.engine.api.project.ProjectAuthorizationFactory;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
+import pl.edu.icm.unity.engine.api.project.ProjectManagementFactory;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
-import pl.edu.icm.unity.engine.api.project.ProjectRestManagementAdapter;
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
 import pl.edu.icm.unity.engine.api.project.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
@@ -48,30 +50,26 @@ class RestUpmanWorkflowService
 	private ProjectInvitationsManagement invitations;
 	private ProjectRequestManagement requests;
 	private GroupsManagement groupManagement;
-	private ProjectRestManagementAdapter projectAuthorization;
-	private UpmanRestAuthorizationManager restAuthorization;
+	private RestProjectAuthorization restAuthorization;
 	private String rootGroup;
-	private String authorizationGroup;
 
 	void init(DelegatedGroupManagement groups, ProjectInvitationsManagement invitations,
 			ProjectRequestManagement requests, GroupsManagement groupManagement,
-			ProjectRestManagementAdapter projectAuthorization, UpmanRestAuthorizationManager restAuthorization,
-			String rootGroup, String authorizationGroup)
+			RestProjectAuthorization restAuthorization,
+			String rootGroup)
 	{
 		this.groups = groups;
 		this.invitations = invitations;
 		this.requests = requests;
 		this.groupManagement = groupManagement;
-		this.projectAuthorization = projectAuthorization;
 		this.restAuthorization = restAuthorization;
 		this.rootGroup = rootGroup;
-		this.authorizationGroup = authorizationGroup;
 	}
 
 	private String project(String projectId) throws EngineException
 	{
-		restAuthorization.assertProjectAuthorization(authorizationGroup, projectId);
 		String path = ProjectPathProvider.getProjectPath(projectId, rootGroup);
+		restAuthorization.assertManagerAuthorization(path);
 		new ProjectGroupProvider(groupManagement).getProjectGroup(projectId, path);
 		return path;
 	}
@@ -138,8 +136,7 @@ class RestUpmanWorkflowService
 			{
 				var param = new ProjectInvitationParam(project, email, selectedGroups,
 						input.allowModifyGroups(), input.expiration());
-				var result = projectAuthorization.withRestManagement(project,
-						() -> invitations.addInvitations(Set.of(param)));
+				var result = invitations.addInvitations(Set.of(param));
 				outcomes.add(new RestInvitationOutcome(email,
 						result.projectAlreadyMemberEmails.contains(email) ? "alreadyMember" : "sent", null));
 			} catch (EngineException | RuntimeException e)
@@ -153,7 +150,7 @@ class RestUpmanWorkflowService
 	List<RestInvitation> invitations(String projectId) throws EngineException
 	{
 		String project = project(projectId);
-		return projectAuthorization.withRestManagement(project, () -> invitations.getInvitations(project)).stream()
+		return invitations.getInvitations(project).stream()
 				.map(i -> invitation(project, i)).toList();
 	}
 
@@ -175,7 +172,7 @@ class RestUpmanWorkflowService
 	{
 		invitation(projectId, code);
 		String project = project(projectId);
-		projectAuthorization.withRestManagement(project, () -> { invitations.removeInvitation(project, code); return null; });
+		invitations.removeInvitation(project, code);
 	}
 
 	void resendInvitation(String projectId, String code) throws EngineException
@@ -184,8 +181,7 @@ class RestUpmanWorkflowService
 		String project = project(projectId);
 		try
 		{
-			projectAuthorization.withRestManagement(project,
-					() -> { invitations.resendInvitation(project, code); return null; });
+			invitations.resendInvitation(project, code);
 		} catch (WrongArgumentException e)
 		{
 			throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
@@ -196,14 +192,13 @@ class RestUpmanWorkflowService
 	{
 		invitation(projectId, code);
 		String project = project(projectId);
-		projectAuthorization.withRestManagement(project, () -> { invitations.reinvite(project, code); return null; });
+		invitations.reinvite(project, code);
 	}
 
 	List<RestGroup> groups(String projectId) throws EngineException
 	{
 		String project = project(projectId);
-		Map<String, DelegatedGroupContents> contents = projectAuthorization.withRestManagement(project,
-				() -> groups.getGroupAndSubgroups(project, project));
+		Map<String, DelegatedGroupContents> contents = groups.getGroupAndSubgroups(project, project);
 		return contents.values().stream().map(c -> map(project, c)).sorted(Comparator.comparing(RestGroup::path)).toList();
 	}
 
@@ -211,7 +206,7 @@ class RestUpmanWorkflowService
 	{
 		String project = project(projectId);
 		String path = resolveGroup(project, relativePath);
-		return map(project, projectAuthorization.withRestManagement(project, () -> groups.getContents(project, path)));
+		return map(project, groups.getContents(project, path));
 	}
 
 	private RestGroup map(String project, DelegatedGroupContents content)
@@ -232,8 +227,7 @@ class RestUpmanWorkflowService
 		String path;
 		try
 		{
-			path = projectAuthorization.withRestManagement(project,
-					() -> groups.addGroup(project, parent, name(input.displayedName()), input.isPublic()));
+			path = groups.addGroup(project, parent, name(input.displayedName()), input.isPublic());
 		} catch (InternalException e)
 		{
 			throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
@@ -248,19 +242,16 @@ class RestUpmanWorkflowService
 		String path = resolveGroup(project, relativePath);
 		if (path.equals(project))
 			throw new BadRequestException("Project root cannot be removed as a subgroup");
-		projectAuthorization.withRestManagement(project, () -> {
-			Map<String, DelegatedGroupContents> descendants = groups.getGroupAndSubgroups(project, path);
-			List<String> delegated = descendants.values().stream()
-					.filter(content -> content.group.delegationConfiguration.enabled)
-					.map(content -> content.group.path)
-					.sorted(Comparator.comparingInt(String::length).reversed())
-					.toList();
-			for (String subproject : delegated)
-				groups.removeProject(project, subproject);
-			if (!delegated.contains(path))
-				groups.removeGroup(project, path);
-			return null;
-		});
+		Map<String, DelegatedGroupContents> descendants = groups.getGroupAndSubgroups(project, path);
+		List<String> delegated = descendants.values().stream()
+				.filter(content -> content.group.delegationConfiguration.enabled)
+				.map(content -> content.group.path)
+				.sorted(Comparator.comparingInt(String::length).reversed())
+				.toList();
+		for (String subproject : delegated)
+			groups.removeProject(project, subproject);
+		if (!delegated.contains(path))
+			groups.removeGroup(project, path);
 	}
 
 	@Transactional
@@ -275,11 +266,8 @@ class RestUpmanWorkflowService
 			throw new BadRequestException("Project root is managed by the project route");
 		try
 		{
-			projectAuthorization.withRestManagement(project, () -> {
-				groups.setGroupAccessMode(project, path, input.isPublic());
-				groups.setGroupDisplayedName(project, path, displayedName);
-				return null;
-			});
+			groups.setGroupAccessMode(project, path, input.isPublic());
+			groups.setGroupDisplayedName(project, path, displayedName);
 		} catch (InternalException e)
 		{
 			throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
@@ -295,19 +283,15 @@ class RestUpmanWorkflowService
 		String path = resolveGroup(project, relativePath);
 		if (path.equals(project))
 			throw new BadRequestException("Project root delegation is managed by the project route");
-		projectAuthorization.withRestManagement(project, () -> {
-			groups.setGroupDelegationConfiguration(project, path,
-					new SubprojectGroupDelegationConfiguration(input.enabled(), input.enableSubprojects(), input.logoUrl()));
-			return null;
-		});
+		groups.setGroupDelegationConfiguration(project, path,
+				new SubprojectGroupDelegationConfiguration(input.enabled(), input.enableSubprojects(), input.logoUrl()));
 	}
 
 	List<RestGroupMember> members(String projectId, String relativePath) throws EngineException
 	{
 		String project = project(projectId);
 		String path = resolveGroup(project, relativePath);
-		return projectAuthorization.withRestManagement(project,
-				() -> groups.getDelegatedGroupMembers(project, path)).stream().map(this::member).toList();
+		return groups.getDelegatedGroupMembers(project, path).stream().map(this::member).toList();
 	}
 
 	private RestGroupMember member(DelegatedGroupMember member)
@@ -327,10 +311,7 @@ class RestUpmanWorkflowService
 	{
 		String project = project(projectId);
 		String path = resolveGroup(project, relativePath);
-		projectAuthorization.withRestManagement(project, () -> {
-			groups.addMemberToGroup(project, path, entityId);
-			return null;
-		});
+		groups.addMemberToGroup(project, path, entityId);
 	}
 
 	void removeMember(String projectId, String relativePath, long entityId) throws EngineException
@@ -338,9 +319,7 @@ class RestUpmanWorkflowService
 		member(projectId, relativePath, entityId);
 		String project = project(projectId);
 		String path = resolveGroup(project, relativePath);
-		projectAuthorization.withRestManagement(project, () -> {
-			groups.removeMemberFromGroup(project, path, entityId); return null;
-		});
+		groups.removeMemberFromGroup(project, path, entityId);
 	}
 
 	RestAuthorizationRole role(String projectId, String relativePath, long entityId) throws EngineException
@@ -366,9 +345,7 @@ class RestUpmanWorkflowService
 		String path = resolveGroup(project, relativePath);
 		try
 		{
-			projectAuthorization.withRestManagement(project, () -> {
-				groups.setGroupAuthorizationRole(project, path, entityId, value); return null;
-			});
+			groups.setGroupAuthorizationRole(project, path, entityId, value);
 		} catch (InternalException e)
 		{
 			throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
@@ -378,7 +355,7 @@ class RestUpmanWorkflowService
 	List<RestRequest> requests(String projectId) throws EngineException
 	{
 		String project = project(projectId);
-		return projectAuthorization.withRestManagement(project, () -> requests.getRequests(project)).stream()
+		return requests.getRequests(project).stream()
 				.map(r -> request(project, r)).toList();
 	}
 
@@ -405,13 +382,10 @@ class RestUpmanWorkflowService
 		ProjectRequestParam param = new ProjectRequestParam(project, requestId,
 				pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation.valueOf(request.operation()),
 				pl.edu.icm.unity.engine.api.registration.RequestType.valueOf(request.type()));
-		projectAuthorization.withRestManagement(project, () -> {
-			if ("accept".equals(decision))
-				requests.accept(param);
-			else
-				requests.decline(param);
-			return null;
-		});
+		if ("accept".equals(decision))
+			requests.accept(param);
+		else
+			requests.decline(param);
 	}
 
 	RestFormLink registrationFormLink(String projectId) throws EngineException
@@ -432,7 +406,7 @@ class RestUpmanWorkflowService
 	private RestFormLink formLink(String projectId, FormLinkLookup lookup) throws EngineException
 	{
 		String project = project(projectId);
-		Optional<String> link = projectAuthorization.withRestManagement(project, () -> lookup.find(project));
+		Optional<String> link = lookup.find(project);
 		return new RestFormLink(link.orElseThrow(() -> new NotFoundException("Public form link not found")));
 	}
 
@@ -446,33 +420,28 @@ class RestUpmanWorkflowService
 	static class Factory
 	{
 		private final ObjectFactory<RestUpmanWorkflowService> factory;
-		private final DelegatedGroupManagement groups;
-		private final ProjectInvitationsManagement invitations;
-		private final ProjectRequestManagement requests;
+		private final ProjectManagementFactory projects;
 		private final GroupsManagement groupManagement;
-		private final ProjectRestManagementAdapter projectAuthorization;
-		private final UpmanRestAuthorizationManager restAuthorization;
+		private final ProjectAuthorizationFactory authorizations;
 
 		@Autowired
-		Factory(ObjectFactory<RestUpmanWorkflowService> factory, DelegatedGroupManagement groups,
-				ProjectInvitationsManagement invitations, ProjectRequestManagement requests,
+		Factory(ObjectFactory<RestUpmanWorkflowService> factory, ProjectManagementFactory projects,
 				@Qualifier("insecure") GroupsManagement groupManagement,
-				ProjectRestManagementAdapter projectAuthorization, UpmanRestAuthorizationManager restAuthorization)
+				ProjectAuthorizationFactory authorizations)
 		{
 			this.factory = factory;
-			this.groups = groups;
-			this.invitations = invitations;
-			this.requests = requests;
+			this.projects = projects;
 			this.groupManagement = groupManagement;
-			this.projectAuthorization = projectAuthorization;
-			this.restAuthorization = restAuthorization;
+			this.authorizations = authorizations;
 		}
 
 		RestUpmanWorkflowService newInstance(String rootGroup, String authorizationGroup)
 		{
+			var authorization = authorizations.createRest(rootGroup, authorizationGroup);
+			var management = projects.create(authorization);
 			RestUpmanWorkflowService service = factory.getObject();
-			service.init(groups, invitations, requests, groupManagement, projectAuthorization, restAuthorization,
-					rootGroup, authorizationGroup);
+			service.init(management.groups(), management.invitations(), management.requests(), groupManagement,
+					authorization, rootGroup);
 			return service;
 		}
 	}

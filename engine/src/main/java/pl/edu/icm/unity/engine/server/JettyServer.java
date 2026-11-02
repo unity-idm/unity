@@ -13,12 +13,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -606,9 +609,13 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 
 		CrossOriginHandler cors = new CrossOriginHandler();
 
-		cors.setAllowedOriginPatterns(Set.of(serverSettings
+		cors.setAllowedOriginPatterns(Arrays.stream(serverSettings
 				.getValue(UnityHttpServerConfiguration.CORS_PFX + UnityHttpServerConfiguration.CORS_ALLOWED_ORIGINS)
-				.split("\\s*,\\s*")));
+				.split(","))
+				.map(String::trim)
+				.filter(origin -> !origin.isEmpty())
+				.map(JettyServer::toOriginPattern)
+				.collect(Collectors.toSet()));
 
 		cors.setAllowedMethods(Set.of(serverSettings
 				.getValue(UnityHttpServerConfiguration.CORS_PFX + UnityHttpServerConfiguration.CORS_ALLOWED_METHODS)
@@ -633,6 +640,15 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 
 		cors.setHandler(handler);
 		return cors;
+	}
+
+	private static String toOriginPattern(String origin)
+	{
+		if (origin.equals("*"))
+			return origin;
+		return Arrays.stream(origin.split("\\*", -1))
+				.map(Pattern::quote)
+				.collect(Collectors.joining(".*"));
 	}
 	
 	private ClientIPSettingHandler applyClientIPDiscoveryHandler(Handler baseHandler, String endpointId)

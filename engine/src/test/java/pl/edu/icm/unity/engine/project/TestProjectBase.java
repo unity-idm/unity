@@ -24,6 +24,7 @@ import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
+import pl.edu.icm.unity.engine.api.project.ProjectAuthorization;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 
@@ -35,7 +36,10 @@ import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 public class TestProjectBase
 {
 	@Mock
-	protected ProjectAuthorizationManager mockAuthz;
+	protected ProjectAuthorization mockAuthz;
+
+	@Mock
+	protected ProjectOperationValidator mockValidator;
 
 	@Mock
 	protected InvitationManagement mockInvitationMan;

@@ -19,12 +19,12 @@ import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
  */
 public class LocalSPMetadataManager
 {
-	private ExecutorsService executorsService;
-	private String responseConsumerAddress;
-	private SLOSPManager sloManager;
-	private SLOReplyInstaller sloReplyInstaller;
-	private MultiMetadataServlet metadataServlet;
-	private URIAccessService uriAccessService;
+	private final ExecutorsService executorsService;
+	private final String responseConsumerAddress;
+	private final SLOSPManager sloManager;
+	private final SLOReplyInstaller sloReplyInstaller;
+	private final MultiMetadataServlet metadataServlet;
+	private final URIAccessService uriAccessService;
 	
 	private MetadataProvider provider;
 
@@ -68,12 +68,6 @@ public class LocalSPMetadataManager
 		consumerEndpoint.setLocation(responseConsumerAddress);
 		consumerEndpoint.setIsDefault(true);
 
-		IndexedEndpointType consumerEndpoint2 = IndexedEndpointType.Factory.newInstance();
-		consumerEndpoint2.setIndex(2);
-		consumerEndpoint2.setBinding(SAMLConstants.BINDING_HTTP_REDIRECT);
-		consumerEndpoint2.setLocation(responseConsumerAddress);
-		consumerEndpoint2.setIsDefault(false);
-
 		EndpointType[] sloEndpoints = null;
 		String sloPath = samlConfiguration.sloPath;
 		String sloEndpointURL = sloPath != null ? sloManager.getAsyncServletURL(sloPath) : null;
@@ -97,8 +91,7 @@ public class LocalSPMetadataManager
 			sloEndpoints = new EndpointType[] {sloPost, sloRedirect, sloSoap};
 		}
 		
-		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint,
-				consumerEndpoint2};
+		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint};
 		return MetadataProviderFactory.newSPInstance(samlConfiguration, uriAccessService,
 				executorsService, assertionConsumerEndpoints, sloEndpoints);
 	}

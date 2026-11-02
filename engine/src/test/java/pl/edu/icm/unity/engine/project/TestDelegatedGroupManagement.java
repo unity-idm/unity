@@ -83,14 +83,15 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	public void initDelegatedGroupMan() 
 	{
 
-		ProjectAuthorizationManager mockAuthz2 = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
+		ProjectWebAuthorization mockAuthz2 = new ProjectWebAuthorization(mockAttrDao);
 		dGroupManWithMockAuthz = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, mockBulkQueryService,
 				mockAttrTypeMan, mockIdMan, mockAttrHelper, mockRegistrationMan, mockEnquiryMan, mockConfigGenerator,
-				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAuthz2);
+				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAuthz2,
+				new ProjectOperationValidator(mockGroupDao));
 
 		dGroupManNoAuthz = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, mockBulkQueryService,
 				mockAttrTypeMan, mockIdMan, mockAttrHelper, mockRegistrationMan, mockEnquiryMan, mockConfigGenerator,
-				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAuthz);
+				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAuthz, mockValidator);
 
 	}
 
@@ -155,10 +156,6 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		Attribute baseAttribute = new Attribute(null, null, null, Arrays.asList(GroupAuthorizationRole.manager.toString()));
 		when(mockAttrDao.getAttributes(anyString(), any(), eq("/project"))).thenReturn(
 			Arrays.asList(new StoredAttribute(new AttributeExt(baseAttribute, false), 1L)));
-		Group group = new Group("/project");
-		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(true, true, null, null, null, null, List.of(), List.of()));
-		when(mockGroupDao.get(eq("/project"))).thenReturn(group);
 		Throwable exception = catchThrowable(() -> dGroupManWithMockAuthz.removeProject("/project", "/project/sub"));
 		assertExceptionType(exception, AuthorizationException.class);
 	}
@@ -418,9 +415,9 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	}
 
 	@Test
-	public void shouldGetOneProjectForEntity() throws EngineException
+	public void shouldGetOneProjectForCurrentUser() throws EngineException
 	{
-
+		when(mockAuthz.isProjectVisible("/project")).thenReturn(true);
 		Map<String, GroupMembership> groups = new HashMap<>();
 		groups.put("/project", null);
 		when(mockIdMan.getGroups(any())).thenReturn(groups);
@@ -433,7 +430,8 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 						.thenReturn(Arrays.asList(getAttributeExt(
 								GroupAuthorizationRole.manager.toString())));
 
-		List<DelegatedGroup> projectsForEntity = dGroupManNoAuthz.getProjectsForEntity(1L);
+		setupInvocationContext();
+		List<DelegatedGroup> projectsForEntity = dGroupManNoAuthz.getManagedProjectsForCurrentUser();
 
 		assertThat(projectsForEntity.size()).isEqualTo(1);
 		assertThat(projectsForEntity.iterator().next().path).isEqualTo("/project");

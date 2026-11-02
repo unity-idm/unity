@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.AttributeType;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
 @Component
 class ProjectManagerRestRoleAttributeTypeProvider implements SystemAttributesProvider
 {
-	static final String AUTHORIZATION_ROLE = "sys:ProjectManagementRESTAPIRole";
+	static final String AUTHORIZATION_ROLE = RestProjectAuthorization.AUTHORIZATION_ROLE;
 	private final MessageSource msg;
 
 	@Autowired

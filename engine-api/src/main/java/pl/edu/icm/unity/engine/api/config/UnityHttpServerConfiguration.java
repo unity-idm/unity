@@ -209,12 +209,16 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 						+ "values below 30s are getting quite risky."));
 		
 		defaults.put(ENABLE_CORS, new PropertyMD("false").setCategory(corsCat).
-				setDescription("Control whether Cross-Origin Resource Sharing is enabled. "
-						+ "Enable to allow e.g. accesing REST services from client-side JavaScript."));
+				setDescription("Control whether Cross-Origin Resource Sharing is enabled for all deployed endpoints. "
+						+ "Prefer endpoint-specific CORS settings when only REST access is needed. "
+						+ "When enabling global CORS, configure trusted origins explicitly."));
 		defaults.put(CORS_PFX, new PropertyMD().setCanHaveSubkeys().setCategory(corsCat).
 				setDescription("Common prefix under which CORS is configured"));
 		defaults.put(CORS_PFX + CORS_ALLOWED_ORIGINS, new PropertyMD("*").setCategory(corsCat).
-				setDescription("Allowed script origins."));
+				setDescription("Comma separated list of allowed script origins, including scheme and optional port. "
+						+ "Entries are literal origins with optional '*' wildcards, not regular expressions. "
+						+ "The default '*' trusts every origin; combining it with allowCredentials=true "
+						+ "can expose authenticated responses to untrusted websites."));
 		defaults.put(CORS_PFX + CORS_ALLOWED_METHODS, new PropertyMD("GET,PUT,POST,DELETE,HEAD").setCategory(corsCat).
 				setDescription("Comma separated list of allowed HTTP verbs."));
 		defaults.put(CORS_PFX + CORS_ALLOWED_HEADERS, new PropertyMD("*").setCategory(corsCat).
