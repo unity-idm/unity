@@ -15,7 +15,20 @@
 	
 		<!-- Everything produced by Unity (unless overwritten below) -->
 		<Logger name="unity.server" level="DEBUG"/>
-		
+
+		<!-- UY-1842 persisted dynamic attributes cache: trigger/invalidation, background refresh,
+		     internal read API, self-validation. Uncomment to see full TRACE-level detail when
+		     debugging the cache refresh pipeline; the meaningful milestones already log at DEBUG,
+		     which is visible under the ambient "unity.server" level above. -->
+		<!--
+		<Logger name="unity.server.core.AttributesCacheInvalidationService" level="TRACE"/>
+		<Logger name="unity.server.core.AttributesCacheInvalidationListener" level="TRACE"/>
+		<Logger name="unity.server.core.AttributesCacheRefreshService" level="TRACE"/>
+		<Logger name="unity.server.core.AttributesCacheRefreshThread" level="TRACE"/>
+		<Logger name="unity.server.core.EffectiveAttributesCacheServiceImpl" level="TRACE"/>
+		<Logger name="unity.server.core.AttributeCacheValidationServiceImpl" level="TRACE"/>
+		-->
+
 		<!-- Loading of any configuration -->
 		<Logger name="unity.server.config" level="INFO"/>
 
