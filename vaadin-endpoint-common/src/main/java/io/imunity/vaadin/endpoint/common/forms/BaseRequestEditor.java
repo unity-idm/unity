@@ -716,7 +716,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			return false;
 		if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive && rattr != null)
 			return false;
-		
+		if (readOnlyAttribute == null && !aParam.getRetrievalSettings().isInteractivelyEntered(rattr != null))
+			return false;
+
 		CompositeLayoutAdapter layoutAdapter = new CompositeLayoutAdapter(layout);
 		layoutAdapter.setOffset(layout.getComponentCount());
 		if (readOnlyAttribute != null)
