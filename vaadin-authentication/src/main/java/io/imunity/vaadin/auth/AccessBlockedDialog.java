@@ -4,6 +4,7 @@
  */
 package io.imunity.vaadin.auth;
 
+import com.vaadin.flow.component.ModalityMode;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -39,7 +40,9 @@ public class AccessBlockedDialog extends Dialog
 	
 	public void show()
 	{
-		setModal(true);
+		setModality(ModalityMode.STRICT);
+		setCloseOnEsc(false);
+		setCloseOnOutsideClick(false);
 		setAriaLabel(msg.getMessage("error"));
 		
 		HorizontalLayout main = new HorizontalLayout();
@@ -66,6 +69,7 @@ public class AccessBlockedDialog extends Dialog
 
 		ui.setPollInterval(1000);
 		execService.getScheduledService().submit(new WaiterThread(initial, label, progress, ip, counter, ui));
+		open();
 	}
 	
 	private int getRemainingBlockedTime(UnsuccessfulAccessCounter counter, String ip)
