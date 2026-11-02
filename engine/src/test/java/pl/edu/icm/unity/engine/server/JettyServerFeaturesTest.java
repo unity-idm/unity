@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.server;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
@@ -18,12 +19,18 @@ import org.apache.hc.client5.http.classic.methods.HttpTrace;
 import org.apache.hc.client5.http.protocol.HttpClientContext;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
+import org.eclipse.jetty.ee11.webapp.WebAppContext;
+import org.eclipse.jetty.util.resource.URLResourceFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import io.imunity.tanl.x509.X509CertChainValidatorExt;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import io.imunity.tanl.x509.X509Credential;
 import eu.unicore.security.canl.CredentialProperties;
 import eu.unicore.security.canl.DefaultAuthnAndTrustConfiguration;
@@ -88,6 +95,78 @@ public class JettyServerFeaturesTest
 		assertThat(response.getCode()).isEqualTo(405);
 	}
 	
+	@Test
+	void shouldNotExposeExceptionDetailsOnErrorPage() throws Exception
+	{
+		buildHttpServer();
+
+		ServletContextHandler handler = new ServletContextHandler();
+		handler.setContextPath("/test-error");
+		handler.addServlet(new ServletHolder(new FailingServlet()), "/*");
+		httpServer.start();
+		httpServer.deployHandler(handler, "sys:test");
+
+		ErrorResponse response = makeGetRequestReadingBody(httpServerURL() + "/test-error/1");
+
+		assertThat(response.code()).isEqualTo(500);
+		assertNoInternalDetailsIn(response.body());
+	}
+
+	@Test
+	void shouldNotExposeStackTraceOnErrorPageOfWebAppContext() throws Exception
+	{
+		buildHttpServer();
+
+		WebAppContext handler = new WebAppContext();
+		handler.setBaseResource(new URLResourceFactory().newResource(new File("src/test/resources").toURI().toURL()));
+		handler.setContextPath("/test-webapp-error");
+		handler.addServlet(new ServletHolder(new FailingServlet()), "/*");
+		httpServer.start();
+		httpServer.deployHandler(handler, "sys:test");
+
+		ErrorResponse response = makeGetRequestReadingBody(httpServerURL() + "/test-webapp-error/1");
+
+		assertThat(response.code()).isEqualTo(500);
+		assertNoInternalDetailsIn(response.body());
+	}
+
+	private static void assertNoInternalDetailsIn(String body)
+	{
+		assertThat(body)
+				.doesNotContain(FailingServlet.INTERNAL_DETAIL)
+				.doesNotContain("java.lang.")
+				.doesNotContain("at pl.edu");
+	}
+
+	private String httpServerURL()
+	{
+		return "https://127.0.0.1:" + httpServer.getUrls()[0].getPort();
+	}
+
+	private ErrorResponse makeGetRequestReadingBody(String url) throws Exception
+	{
+		HttpClient client = createClient(url);
+		try (ClassicHttpResponse response = client.executeOpen(null, new HttpGet(url), HttpClientContext.create()))
+		{
+			return new ErrorResponse(response.getCode(), EntityUtils.toString(response.getEntity()));
+		}
+	}
+
+	private record ErrorResponse(int code, String body)
+	{
+	}
+
+	private static class FailingServlet extends HttpServlet
+	{
+		private static final String INTERNAL_DETAIL = "SECRET-INTERNAL-DETAIL";
+
+		@Override
+		protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+		{
+			throw new IllegalStateException(INTERNAL_DETAIL);
+		}
+	}
+
 	private void buildHttpServer() throws IOException
 	{
 		UnityHttpServerConfiguration httpConfig = prepareHttpServerConfig();

@@ -56,26 +56,26 @@ class JettyErrorHandler extends ErrorHandler
 		String message = (String)request.getAttribute(ERROR_MESSAGE);
 		if (message == null)
 			message=HttpStatus.getMessage(code);
-		
+		Throwable th = (Throwable)request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+
 		if (code == HttpStatus.NOT_FOUND_404)
 		{
 			log.info("404 error: {}", message);
 		} else
 		{
-			Throwable th = (Throwable)request.getAttribute(
-					RequestDispatcher.ERROR_EXCEPTION);
 			if (th != null)
 				log.warn("Got HTTP error " + code + ": " + message, th);
 			else
 				log.warn("Got HTTP error {}: {}", code, message);
 		}
+		String clientMessage = th != null ? HttpStatus.getMessage(code) : message;
 		RetainableByteBuffer buffer = request.getComponents().getByteBufferPool().acquire(10240, false);
 		try
 		{
 			buffer.clear();
 			ByteBufferOutputStream out = new ByteBufferOutputStream(buffer.getByteBuffer());
 			PrintWriter writer = new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
-			FreemarkerUtils.processTemplate(cfg, ERROR_TPL, createContext(code, message), writer);
+			FreemarkerUtils.processTemplate(cfg, ERROR_TPL, createContext(code, clientMessage), writer);
 			response.write(true, buffer.getByteBuffer(), new WriteErrorCallback(callback, buffer));
 		} catch (IOException e)
 		{

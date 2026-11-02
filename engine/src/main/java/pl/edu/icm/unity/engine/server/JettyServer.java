@@ -480,6 +480,7 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 					"applications configured at the same context path: " + contextPath);
 		}
 		addDoSFilter(handler);
+		useServerErrorPage(handler);
 		Handler wrappedHandler = addCORSFilter(handler);
 		ClientIPSettingHandler clientIPSettingHandler = applyClientIPDiscoveryHandler(wrappedHandler, endpointId);
 		mainContextHandler.addHandler(clientIPSettingHandler);
@@ -588,6 +589,11 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 									UnityHttpServerConfiguration.DOS_FILTER_PFX.length()),
 					serverSettings.getProperty(key));
 		return holder;
+	}
+
+	private static void useServerErrorPage(ServletContextHandler handler)
+	{
+		handler.setErrorHandler(null);
 	}
 
 	private void addDoSFilter(ServletContextHandler handler)
