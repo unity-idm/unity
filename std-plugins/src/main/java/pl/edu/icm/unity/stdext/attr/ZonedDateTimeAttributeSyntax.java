@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.attributes.NullAttributeValueException;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedD
 	public static final String ID = "zonedDatetime";	
 	public static final List<String> ACCEPTABLE_FORMATS = 
 			pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax.ACCEPTABLE_FORMATS.stream()
-			.map(f -> f + "xxx['['VV']'][X]").collect(Collectors.toList());	
+			.map(f -> f + "XXX['['VV']'][X]").collect(Collectors.toList());	
 
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CORE, ZonedDateTimeAttributeSyntax.class);
 	
@@ -76,6 +77,14 @@ public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedD
 	@Override
 	public ZonedDateTime convertFromString(String stringRepresentation)
 	{
+		try
+		{
+			return ZonedDateTime.parse(stringRepresentation, DateTimeFormatter.ISO_ZONED_DATE_TIME);
+		} catch (DateTimeParseException e)
+		{
+			log.trace("Can not parse zoned datetime " + stringRepresentation + " using ISO format", e);
+		}
+
 		for (String format : ACCEPTABLE_FORMATS)
 		{
 			try
