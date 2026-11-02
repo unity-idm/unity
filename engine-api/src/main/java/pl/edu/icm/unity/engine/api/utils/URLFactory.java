@@ -12,9 +12,9 @@ public class URLFactory
 		try
 		{
 			return new URI(urlString).toURL();
-		} catch (URISyntaxException e)
+		} catch (URISyntaxException | IllegalArgumentException e)
 		{
-			throw new MalformedURLException(e.toString());
+			throw new MalformedURLException(e.getMessage());
 		}
 	}
 }
