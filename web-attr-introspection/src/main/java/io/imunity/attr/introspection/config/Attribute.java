@@ -19,7 +19,7 @@ public class Attribute
 			@JsonProperty("mandatory") Boolean mandatory)
 	{
 		this.name = name;
-		this.mandatory = mandatory;
+		this.mandatory = Boolean.TRUE.equals(mandatory);
 		this.description = description;
 	}
 

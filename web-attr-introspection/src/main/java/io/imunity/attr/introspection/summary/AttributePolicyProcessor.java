@@ -42,7 +42,7 @@ class AttributePolicyProcessor
 		List<ReceivedAttribute> allReceivedAttributes = remotelyAuthenticatedPrincipal.getAuthnInput().getAttributes()
 				.values().stream()
 				.map(a -> new ReceivedAttribute(a.getName(), policy.attributes.stream()
-						.filter(at -> at.name.equals(a.getName())).map(at -> at.description).findFirst(),
+						.filter(at -> at.name.equals(a.getName())).findFirst().map(at -> at.description),
 						a.getValues()))
 				.collect(Collectors.toList());
 		List<String> receivedNames = allReceivedAttributes.stream().map(a -> a.name).toList();

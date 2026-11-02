@@ -90,6 +90,28 @@ public class TestAttributePolicyProcessor
 		assertThat(result.policy.attributes.get(1).name).isEqualTo("defaultAttr2");
 	}
 
+	@Test
+	public void shouldHandlePolicyAttributeWithoutDescription() throws EngineException
+	{
+		AttributePolicyProcessor processor = new AttributePolicyProcessor(getConfig(), idpGroupResolver);
+		PolicyProcessingResult result = processor.applyPolicyForRemoteUser(getRemotelyAuthenticatedInput("idp7"));
+		assertThat(result.allReceivedAttributes)
+				.filteredOn(a -> a.name.equals("attr1"))
+				.singleElement()
+				.satisfies(a -> assertThat(a.description).isEmpty());
+	}
+
+	@Test
+	public void shouldExposeDescriptionOfReceivedAttribute() throws EngineException
+	{
+		AttributePolicyProcessor processor = new AttributePolicyProcessor(getConfig(), idpGroupResolver);
+		PolicyProcessingResult result = processor.applyPolicyForRemoteUser(getRemotelyAuthenticatedInput("idp6"));
+		assertThat(result.allReceivedAttributes)
+				.filteredOn(a -> a.name.equals("attr1"))
+				.singleElement()
+				.satisfies(a -> assertThat(a.description).contains("attr1"));
+	}
+
 	private RemotelyAuthenticatedPrincipal getRemotelyAuthenticatedInput(String idp)
 	{
 		RemotelyAuthenticatedPrincipal input = new RemotelyAuthenticatedPrincipal(idp, "profile");
@@ -116,6 +138,9 @@ public class TestAttributePolicyProcessor
 		customPolicies.add(new AttributePolicy("Policy6",
 				List.of(getAttribute("optAttr1", false), getAttribute("optAttr2", false), getAttribute("attr1", false)),
 				List.of("idp6"), Collections.emptyList()));
+		customPolicies.add(new AttributePolicy("Policy7",
+				List.of(new io.imunity.attr.introspection.config.Attribute("attr1", null, true)),
+				List.of("idp7"), Collections.emptyList()));
 		AttrIntrospectionAttributePoliciesConfiguration config = new AttrIntrospectionAttributePoliciesConfiguration(
 				List.of(getAttribute("defaultAttr1", true), getAttribute("defaultAttr2", true)), customPolicies);
 		return config;
