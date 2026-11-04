@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
@@ -17,19 +18,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
+
+import io.imunity.oauth.as.token.authn.ClientAuthenticationMethodResolver;
 import pl.edu.icm.unity.base.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
-import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
@@ -71,9 +72,9 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	public static final String TOKEN_REVOCATION_PATH = "/revoke";
 	public static final String DEVICE_AUTHORIZATION_PATH = "/device_authorization";
 
-	private PKIManagement pkiManagement;
+	private final PKIManagement pkiManagement;
 	private OAuthASProperties config;
-	private OAuthEndpointsCoordinator coordinator;
+	private final OAuthEndpointsCoordinator coordinator;
 	private final OAuthScopesService scopeService;
 	private final AccessTokenResourceFactory accessTokenResourceFactory;
 	private final OAuthAccessTokenRepository accessTokenRepository;
@@ -88,8 +89,6 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	public OAuthTokenEndpoint(MessageSource msg, SessionManagement sessionMan, NetworkServer server,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator, AuthenticationProcessor authnProcessor,
 			EntityManagement identitiesMan, @Qualifier("insecure")  EntityManagement unsecureIdentitiesMan,
-			@Qualifier("insecure") AttributesManagement attributesMan,
-			@Qualifier("insecure") IdPEngine idPEngine, TokensManagement tokensManagement,
 			OAuthAccessTokenRepository accessTokenRepository, OAuthRefreshTokenRepository refreshTokenRepository,
 			AdvertisedAddressProvider advertisedAddrProvider, OAuthScopesService scopeService,
 			AccessTokenResourceFactory accessTokenResourceFactory,
@@ -141,10 +140,13 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		@Override 
 		public Set<Object> getSingletons() 
 		{
+			List<ClientAuthenticationMethod> clientAuthenticationMethods =
+					ClientAuthenticationMethodResolver.resolve(authenticationFlows, config);
 			HashSet<Object> ret = new HashSet<>();
 			ret.add(accessTokenResourceFactory.getHandler(config, description));
-			ret.add(new DiscoveryResource(config, coordinator, scopeService));
-			ret.add(new OAuthASFederationEntityStatementResource(config, coordinator, scopeService, pkiManagement));
+			ret.add(new DiscoveryResource(config, coordinator, scopeService, clientAuthenticationMethods));
+			ret.add(new OAuthASFederationEntityStatementResource(config, coordinator, scopeService, pkiManagement,
+					clientAuthenticationMethods));
 			ret.add(new DeviceAuthorizationResource(config, coordinator,
 					requestValidatorFactory.getOAuthRequestValidator(config), unsecureIdentitiesMan, deviceCodeRepository));
 			ret.add(new KeysResource(config));

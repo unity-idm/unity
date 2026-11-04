@@ -9,6 +9,9 @@ import java.net.URI;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 
+/**
+ * Verifies client JWT assertions signed with a public-key credential.
+ */
 public interface ClientAssertionExchange extends CredentialExchange
 {
 	String ID = "client assertion exchange";

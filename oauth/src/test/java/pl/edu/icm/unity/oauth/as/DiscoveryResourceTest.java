@@ -6,11 +6,14 @@ package pl.edu.icm.unity.oauth.as;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.util.HashSet;
+import java.util.List;
 
 import jakarta.ws.rs.core.Response;
 
@@ -22,6 +25,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyType;
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import pl.edu.icm.unity.oauth.as.OAuthASProperties.AccessTokenFormat;
@@ -36,7 +40,9 @@ public class DiscoveryResourceTest
 		OAuthEndpointsCoordinator coordinator = new OAuthEndpointsCoordinator();
 		coordinator.registerAuthzEndpoint("https://localhost:233/foo/token", "https://localhost:233/as");
 		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
-		DiscoveryResource tested = new DiscoveryResource(config, coordinator, new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
+		DiscoveryResource tested = new DiscoveryResource(config, coordinator,
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)),
+				List.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC));
 		
 		Response resp = tested.getMetadata();
 		String body = resp.readEntity(String.class);
@@ -48,7 +54,7 @@ public class DiscoveryResourceTest
 		assertEquals("https://localhost:233/foo/token", parsed.getTokenEndpointURI().toString());
 		assertEquals("https://localhost:233/foo/userinfo", parsed.getUserInfoEndpointURI().toString());
 		assertEquals("https://localhost:233/foo/jwk", parsed.getJWKSetURI().toString());
-		assertTrue(Sets.newHashSet("s1", "s2", "openid", "offline_access").equals(new HashSet<>(parsed.getScopes().toStringList())));
+		assertEquals(Sets.newHashSet("s1", "s2", "openid", "offline_access"), new HashSet<>(parsed.getScopes().toStringList()));
 		assertEquals(7, parsed.getResponseTypes().size());
 	}
 	
@@ -60,7 +66,8 @@ public class DiscoveryResourceTest
 		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		config.setProperty(OAuthASProperties.DEVICE_GRANT_ENABLED, "true");
 		DiscoveryResource tested = new DiscoveryResource(config, coordinator,
-				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)),
+				List.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC));
 
 		Response resp = tested.getMetadata();
 		OIDCProviderMetadata parsed = OIDCProviderMetadata.parse(resp.readEntity(String.class));
@@ -77,13 +84,14 @@ public class DiscoveryResourceTest
 		coordinator.registerAuthzEndpoint("https://localhost:233/foo/token", "https://localhost:233/as");
 		OAuthASProperties config = OAuthTestUtils.getOIDCConfig();
 		DiscoveryResource tested = new DiscoveryResource(config, coordinator,
-				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)));
+				new OAuthScopesService(mock(SystemOAuthScopeProvidersRegistry.class)),
+				List.of(ClientAuthenticationMethod.CLIENT_SECRET_BASIC));
 
 		Response resp = tested.getMetadata();
 		OIDCProviderMetadata parsed = OIDCProviderMetadata.parse(resp.readEntity(String.class));
 
-		assertEquals(null, parsed.getDeviceAuthorizationEndpointURI());
-		assertTrue(!parsed.getGrantTypes().contains(GrantType.DEVICE_CODE));
+		assertNull(parsed.getDeviceAuthorizationEndpointURI());
+		assertFalse(parsed.getGrantTypes().contains(GrantType.DEVICE_CODE));
 	}
 
 	@Test
