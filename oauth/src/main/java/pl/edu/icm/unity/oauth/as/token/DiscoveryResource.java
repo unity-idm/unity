@@ -40,16 +40,18 @@ import pl.edu.icm.unity.oauth.as.OAuthScopesService;
 @Path("/.well-known")
 public class DiscoveryResource extends BaseOAuthResource
 {
-	private OAuthASProperties config;
-	private OAuthEndpointsCoordinator coordinator;
-	private OAuthScopesService scopeService;
+	private final OAuthASProperties config;
+	private final OAuthEndpointsCoordinator coordinator;
+	private final OAuthScopesService scopeService;
+	private final List<ClientAuthenticationMethod> clientAuthenticationMethods;
 	
 	public DiscoveryResource(OAuthASProperties config, OAuthEndpointsCoordinator coordinator,
-			OAuthScopesService scopeService)
+			OAuthScopesService scopeService, List<ClientAuthenticationMethod> clientAuthenticationMethods)
 	{
 		this.config = config;
 		this.coordinator = coordinator;
 		this.scopeService = scopeService;
+		this.clientAuthenticationMethods = List.copyOf(clientAuthenticationMethods);
 	}
 
 	@Path("/openid-configuration")
@@ -104,10 +106,7 @@ public class DiscoveryResource extends BaseOAuthResource
 		else
 			meta.setGrantTypes(Lists.newArrayList(GrantType.AUTHORIZATION_CODE, GrantType.IMPLICIT));
 		meta.setIDTokenJWSAlgs(Lists.newArrayList(JWSAlgorithm.RS256, JWSAlgorithm.ES256));
-		meta.setTokenEndpointAuthMethods(Lists.newArrayList(
-				ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
-				ClientAuthenticationMethod.CLIENT_SECRET_POST,
-				ClientAuthenticationMethod.PRIVATE_KEY_JWT));
+		meta.setTokenEndpointAuthMethods(clientAuthenticationMethods);
 
 		return toResponse(Response.ok(meta.toJSONObject().toJSONString()));
 	}
