@@ -50,14 +50,17 @@ public class OAuthASFederationEntityStatementResource extends BaseOAuthResource
 	private final OAuthEndpointsCoordinator coordinator;
 	private final OAuthScopesService scopeService;
 	private final PKIManagement pkiManagement;
+	private final List<ClientAuthenticationMethod> clientAuthenticationMethods;
 
 	public OAuthASFederationEntityStatementResource(OAuthASProperties config, OAuthEndpointsCoordinator coordinator,
-			OAuthScopesService scopeService, PKIManagement pkiManagement)
+			OAuthScopesService scopeService, PKIManagement pkiManagement,
+			List<ClientAuthenticationMethod> clientAuthenticationMethods)
 	{
 		this.config = config;
 		this.coordinator = coordinator;
 		this.scopeService = scopeService;
 		this.pkiManagement = pkiManagement;
+		this.clientAuthenticationMethods = List.copyOf(clientAuthenticationMethods);
 		if (config.getBooleanValue(OAuthASProperties.FEDERATION_MEMBERSHIP_ENABLED))
 			validateEntityIdMatchesBaseAddress();
 	}
@@ -148,10 +151,7 @@ public class OAuthASFederationEntityStatementResource extends BaseOAuthResource
 		meta.setResponseModes(Lists.newArrayList(ResponseMode.QUERY, ResponseMode.FRAGMENT));
 		meta.setGrantTypes(Lists.newArrayList(GrantType.AUTHORIZATION_CODE, GrantType.IMPLICIT));
 		meta.setIDTokenJWSAlgs(Lists.newArrayList(JWSAlgorithm.RS256, JWSAlgorithm.ES256));
-		meta.setTokenEndpointAuthMethods(Lists.newArrayList(
-				ClientAuthenticationMethod.CLIENT_SECRET_BASIC,
-				ClientAuthenticationMethod.CLIENT_SECRET_POST,
-				ClientAuthenticationMethod.PRIVATE_KEY_JWT));
+		meta.setTokenEndpointAuthMethods(clientAuthenticationMethods);
 
 		meta.setClientRegistrationTypes(List.of(ClientRegistrationType.AUTOMATIC));
 

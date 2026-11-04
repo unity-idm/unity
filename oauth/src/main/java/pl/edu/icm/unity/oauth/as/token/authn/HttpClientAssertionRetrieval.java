@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.cxf.jaxrs.utils.FormUtils;
 import org.apache.cxf.message.Message;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.imunity.engine.api.authn.CredentialPresentationId;
+import io.imunity.engine.api.authn.CredentialPresentationProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.ws.rs.core.MultivaluedMap;
 import pl.edu.icm.unity.base.exceptions.InternalException;
@@ -36,10 +39,12 @@ import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
 @PrototypeComponent
 public class HttpClientAssertionRetrieval
 		extends AbstractCredentialRetrieval<ClientAssertionExchange>
-		implements CredentialRetrieval, JAXRSAuthentication
+		implements CredentialRetrieval, JAXRSAuthentication, CredentialPresentationProvider
 {
 	public static final String NAME = "rest-jwt-client-assertion";
 	public static final String DESC = "OAuth2 client JWT assertion retrieval";
+	public static final CredentialPresentationId PRESENTATION =
+			new CredentialPresentationId("urn:unity:credential-presentation:http-form-jwt-assertion");
 	public static final String JWT_BEARER_TYPE =
 			"urn:ietf:params:oauth:client-assertion-type:jwt-bearer";
 
@@ -50,6 +55,12 @@ public class HttpClientAssertionRetrieval
 	public HttpClientAssertionRetrieval()
 	{
 		super(JAXRSAuthentication.NAME);
+	}
+
+	@Override
+	public Set<CredentialPresentationId> getSupportedPresentations()
+	{
+		return Set.of(PRESENTATION);
 	}
 
 	@Override
