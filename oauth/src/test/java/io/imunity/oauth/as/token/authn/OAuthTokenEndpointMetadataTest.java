@@ -29,14 +29,11 @@ import pl.edu.icm.unity.base.authn.AuthenticationRealm;
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.oauth.as.MockPKIMan;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
@@ -126,8 +123,7 @@ class OAuthTokenEndpointMetadataTest
 		URL advertisedAddress = URI.create("https://localhost:233").toURL();
 		return new OAuthTokenEndpoint(mock(MessageSource.class), mock(SessionManagement.class),
 				mock(NetworkServer.class), new MockPKIMan(), coordinator, mock(AuthenticationProcessor.class),
-				mock(EntityManagement.class), mock(EntityManagement.class), mock(AttributesManagement.class),
-				mock(IdPEngine.class), mock(TokensManagement.class), mock(OAuthAccessTokenRepository.class),
+				mock(EntityManagement.class), mock(EntityManagement.class), mock(OAuthAccessTokenRepository.class),
 				mock(OAuthRefreshTokenRepository.class), () -> advertisedAddress,
 				scopeService, accessFactory, introspectionFactory, mock(OAuthRequestValidatorFactory.class),
 				mock(DeviceCodeRepository.class));
