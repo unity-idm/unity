@@ -73,6 +73,32 @@ public class UpdateHelperTo4_3Test
 	}
 
 	@Test
+	void shouldSkipOauthTokenWithNullScopes()
+	{
+		ObjectNode input = Constants.MAPPER.createObjectNode();
+		input.putNull("effectiveScope");
+
+		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(input);
+
+		assertFalse(resultOpt.isPresent());
+		assertTrue(input.get("effectiveScope").isNull());
+	}
+
+	@Test
+	void shouldSkipOauthTokenWithAlreadyConvertedScopes()
+	{
+		ObjectNode input = Constants.MAPPER.createObjectNode();
+		ArrayNode scopes = Constants.MAPPER.createArrayNode();
+		scopes.addObject().put("scope", "read");
+		input.set("effectiveScope", scopes);
+
+		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(input);
+
+		assertFalse(resultOpt.isPresent());
+		assertTrue(input.get("effectiveScope").get(0).isObject());
+	}
+
+	@Test
 	void testFixOauthTokenWithoutEffectiveScope()
 	{
 		ObjectNode input = Constants.MAPPER.createObjectNode();

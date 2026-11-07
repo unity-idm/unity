@@ -4,11 +4,15 @@
  */
 
 package pl.edu.icm.unity.oauth.as.token;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.charset.StandardCharsets;
+
 import org.junit.jupiter.api.Test;
 
+import pl.edu.icm.unity.oauth.as.ActiveOAuthScopeDefinition;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.RequestedOAuthScope;
 
 public class OAuthTokenParsingTest
 {
@@ -34,5 +38,18 @@ public class OAuthTokenParsingTest
 
 		assertThat(token.getAudience().get(0)).isEqualTo("oauth-client");
 		assertThat(token.getAudience().get(1)).isEqualTo("oauth-client2");
+	}
+
+	@Test
+	public void shouldParsePre43EffectiveScopesGivenAsScopeNames()
+	{
+		String refreshToken42 = "{\"refreshToken\":\"r1\",\"effectiveScope\":[\"openid\",\"profile\"],"
+				+ "\"requestedScope\":[\"openid\",\"profile\"],\"clientUsername\":\"oauth-client\",\"clientId\":3}";
+
+		OAuthToken token = OAuthToken.getInstanceFromJson(refreshToken42.getBytes(StandardCharsets.UTF_8));
+
+		assertThat(token.getEffectiveScope()).containsExactly(
+				new RequestedOAuthScope("openid", new ActiveOAuthScopeDefinition("openid", "", null, false), false),
+				new RequestedOAuthScope("profile", new ActiveOAuthScopeDefinition("profile", "", null, false), false));
 	}
 }
