@@ -22,31 +22,38 @@ class UpdateHelperTo4_3
 
 	static Optional<ObjectNode> updateEffectiveScopesInOauthToken(ObjectNode objContent)
 	{
-		if (objContent.has("effectiveScope"))
-		{
-			ArrayNode scopesArray = (ArrayNode) objContent.get("effectiveScope");
-			if (scopesArray.isEmpty())
-				return Optional.empty();
-			ArrayNode newScopes = Constants.MAPPER.createArrayNode();
-			for (JsonNode s : scopesArray)
-			{
+		JsonNode scopes = objContent.get("effectiveScope");
+		if (!isNonEmptyListOfScopeNames(scopes))
+			return Optional.empty();
+		ArrayNode newScopes = Constants.MAPPER.createArrayNode();
+		for (JsonNode s : scopes)
+			newScopes.add(toRequestedScope(s.asText()));
+		objContent.replace("effectiveScope", newScopes);
+		return Optional.of(objContent);
+	}
 
-				ObjectNode scopeDef = Constants.MAPPER.createObjectNode();
-				scopeDef.put("name", s.asText());
-				scopeDef.put("description", "");
-				scopeDef.put("pattern", false);
-				scopeDef.putNull("attributes");
+	private static boolean isNonEmptyListOfScopeNames(JsonNode scopes)
+	{
+		if (scopes == null || !scopes.isArray() || scopes.isEmpty())
+			return false;
+		for (JsonNode s : scopes)
+			if (!s.isTextual())
+				return false;
+		return true;
+	}
 
-				ObjectNode scopeObj = Constants.MAPPER.createObjectNode();
-				scopeObj.put("scope", s.asText());
-				scopeObj.set("scopeDefinition", scopeDef);
-				scopeObj.put("pattern", false);
-				newScopes.add(scopeObj);
-			}
+	private static ObjectNode toRequestedScope(String scope)
+	{
+		ObjectNode scopeDef = Constants.MAPPER.createObjectNode();
+		scopeDef.put("name", scope);
+		scopeDef.put("description", "");
+		scopeDef.put("pattern", false);
+		scopeDef.putNull("attributes");
 
-			objContent.replace("effectiveScope", newScopes);
-			return Optional.of(objContent);
-		}
-		return Optional.empty();
+		ObjectNode scopeObj = Constants.MAPPER.createObjectNode();
+		scopeObj.put("scope", scope);
+		scopeObj.set("scopeDefinition", scopeDef);
+		scopeObj.put("pattern", false);
+		return scopeObj;
 	}
 }

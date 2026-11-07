@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.store.migration.to4_3;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.Constants;
+import pl.edu.icm.unity.base.json.JsonUtil;
 
 public class UpdateHelperTo4_3Test
 {
@@ -70,6 +72,30 @@ public class UpdateHelperTo4_3Test
 		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(input);
 
 		assertFalse(resultOpt.isPresent());
+	}
+
+	@Test
+	void shouldSkipTokenWithNullEffectiveScope()
+	{
+		ObjectNode input = JsonUtil.parse("{\"effectiveScope\":null,\"clientUsername\":\"svc\"}");
+
+		Optional<ObjectNode> result = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(input);
+
+		assertThat(result).isEmpty();
+		assertThat(input.get("effectiveScope").isNull()).isTrue();
+	}
+
+	@Test
+	void shouldSkipTokenWithEffectiveScopeAlreadyInObjectForm()
+	{
+		String converted = "{\"effectiveScope\":[{\"scope\":\"profile\",\"scopeDefinition\":{\"name\":\"profile\","
+				+ "\"description\":\"Profile\",\"pattern\":false,\"attributes\":[\"cn\"]},\"pattern\":false}]}";
+		ObjectNode input = JsonUtil.parse(converted);
+
+		Optional<ObjectNode> result = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(input);
+
+		assertThat(result).isEmpty();
+		assertThat(input).isEqualTo(JsonUtil.parse(converted));
 	}
 
 	@Test

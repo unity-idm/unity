@@ -72,7 +72,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 			applications = controller.getApplications();
 		} catch (ControllerException e)
 		{
-			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			notificationPresenter.showError(e.getCaption(), e.getDetails());
 			return;
 		}
 		
@@ -236,7 +236,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 			refresh();
 		} catch (ControllerException e)
 		{
-			notificationPresenter.showError(msg.getMessage("error"), e.getMessage());
+			notificationPresenter.showError(e.getCaption(), e.getDetails());
 		}
 	}
 
@@ -253,7 +253,7 @@ public class TrustedApplicationsView extends HomeViewComponent
 				refresh();
 			} catch (ControllerException ex)
 			{
-				notificationPresenter.showError(msg.getMessage("error"), ex.getMessage());
+				notificationPresenter.showError(ex.getCaption(), ex.getDetails());
 			}
 		});
 		confirmDialog.open();
