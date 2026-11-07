@@ -18,18 +18,17 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.servlet.http.HttpServletResponse;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.store.exceptions.EntityNotFoundException;
 
 /**
- * Catches the storage layer's unchecked {@link EntityNotFoundException} without depending on {@link HomeUiMenu} as
+ * Catches {@code IllegalArgumentException} (in particular the storage layer's unchecked
+ * {@code EntityNotFoundException}, which extends it) without depending on {@link HomeUiMenu} as
  * parent layout, unlike {@link HomeErrorPage}. This matters when the current session's own entity
  * was concurrently removed (e.g. self-deletion from another tab): HomeUiMenu itself queries data
  * for that entity and would throw the same exception while Vaadin tries to build it as this
- * page's parent, so the friendlier error page could never render. Other {@code IllegalArgumentException}s are
- * left to {@link HomeErrorPage}, so that unrelated failures do not log the user out.
+ * page's parent, so the friendlier error page could never render.
  */
 @PermitAll
-public class EntityGoneErrorPage extends Composite<Div> implements HasErrorParameter<EntityNotFoundException>
+public class EntityGoneErrorPage extends Composite<Div> implements HasErrorParameter<IllegalArgumentException>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EntityGoneErrorPage.class);
 
@@ -43,7 +42,7 @@ public class EntityGoneErrorPage extends Composite<Div> implements HasErrorParam
 	}
 
 	@Override
-	public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<EntityNotFoundException> parameter)
+	public int setErrorParameter(BeforeEnterEvent event, ErrorParameter<IllegalArgumentException> parameter)
 	{
 		log.warn("The account backing the current session no longer exists, logging out", parameter.getCaughtException());
 		getElement().setText(messageSource.getMessage("Error"));

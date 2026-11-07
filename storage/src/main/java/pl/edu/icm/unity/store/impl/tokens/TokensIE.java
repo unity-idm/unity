@@ -14,10 +14,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.api.TokenDAO;
 import pl.edu.icm.unity.store.export.AbstractIEBase;
+import pl.edu.icm.unity.store.migration.to4_3.UpdateHelperTo4_3;
 
 /**
  * Handles import/export of tokens table.
@@ -47,7 +49,11 @@ public class TokensIE extends AbstractIEBase<Token>
 	@Override
 	protected ObjectNode toJsonSingle(Token exportedObj)
 	{
-		return jsonMapper.valueToTree(exportedObj);
+		ObjectNode json = jsonMapper.valueToTree(exportedObj);
+		if (UpdateHelperTo4_3.oauthTokenTypes.contains(exportedObj.getType()))
+			UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(JsonUtil.parse(exportedObj.getContents()))
+					.ifPresent(converted -> json.put("contents", JsonUtil.serialize2Bytes(converted)));
+		return json;
 	}
 
 	@Override
