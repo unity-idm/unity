@@ -9,7 +9,6 @@ import io.imunity.idp.*;
 import io.imunity.idp.IdPClientData.AccessStatus;
 import io.imunity.idp.LastIdPClinetAccessAttributeManagement.LastIdPClientAccessKey;
 import io.imunity.vaadin.auth.services.idp.IdpUsersHelper;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.attribute.Attribute;
@@ -22,8 +21,6 @@ import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.identity.Identity;
 import pl.edu.icm.unity.base.json.JsonUtil;
 import pl.edu.icm.unity.base.message.MessageSource;
-import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
@@ -53,8 +50,6 @@ import java.util.stream.Collectors;
 @Component
 public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagement
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, TrustedOAuthClientsManagement.class);
-
 	private final SecuredTokensManagement tokenMan;
 	private final PreferencesManagement preferencesManagement;
 	private final OAuthAccessTokenRepository accessTokenDAO;
@@ -288,23 +283,18 @@ public class TrustedOAuthClientsManagement implements TrustedIdPClientsManagemen
 	protected List<OAuthTokenWithTime> getTokens() throws EngineException
 	{
 		List<OAuthTokenWithTime> tokens = new ArrayList<>();
-		accessTokenDAO.getOwnedAccessTokens().forEach(t -> parseToken(t).ifPresent(tokens::add));
-		refreshTokenDAO.getOwnedRefreshTokens().forEach(t -> parseToken(t).ifPresent(tokens::add));
-		return tokens;
-	}
+		tokens.addAll(accessTokenDAO.getOwnedAccessTokens().stream()
+				.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(),
+						t.getExpires() != null ? t.getExpires().toInstant() : null,
+						OAuthToken.getInstanceFromJson(t.getContents()), t.getValue()))
+				.collect(Collectors.toList()));
+		tokens.addAll(refreshTokenDAO.getOwnedRefreshTokens().stream()
+				.map(t -> new OAuthTokenWithTime(t.getType(), t.getCreated().toInstant(),
+						t.getExpires() != null ? t.getExpires().toInstant() : null,
+						OAuthToken.getInstanceFromJson(t.getContents()), t.getValue()))
+				.collect(Collectors.toList()));
 
-	private Optional<OAuthTokenWithTime> parseToken(Token token)
-	{
-		try
-		{
-			return Optional.of(new OAuthTokenWithTime(token.getType(), token.getCreated().toInstant(),
-					token.getExpires() != null ? token.getExpires().toInstant() : null,
-					OAuthToken.getInstanceFromJson(token.getContents()), token.getValue()));
-		} catch (IllegalArgumentException e)
-		{
-			log.warn("Skipping unparsable OAuth token of type {} owned by {}", token.getType(), token.getOwner(), e);
-			return Optional.empty();
-		}
+		return tokens;
 	}
 
 	private OAuthPreferences getPreferences() throws EngineException

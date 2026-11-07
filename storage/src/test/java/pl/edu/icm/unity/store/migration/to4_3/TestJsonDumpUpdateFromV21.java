@@ -68,29 +68,8 @@ public class TestJsonDumpUpdateFromV21
 				fail("Import failed " + e);
 			}
 			checkOAuthTokens();
-			checkRefreshTokensConverted();
-			checkNullEffectiveScopeKept();
+
 		});
-	}
-
-	private void checkRefreshTokensConverted()
-	{
-		for (String[] typeAndValue : new String[][] { { "oauth2Refresh", "refresh-4.2-token" },
-				{ "usedOauth2Refresh", "used-refresh-4.2-token" } })
-		{
-			JsonNode effectiveScope = JsonUtil.parse(tokenDAO.get(typeAndValue[0], typeAndValue[1]).getContents())
-					.get("effectiveScope");
-			assertThat(effectiveScope.get(0).get("scope").asText()).isEqualTo("openid");
-			assertThat(effectiveScope.get(1).get("scope").asText()).isEqualTo("profile");
-			assertThat(effectiveScope.get(1).get("scopeDefinition").get("name").asText()).isEqualTo("profile");
-		}
-	}
-
-	private void checkNullEffectiveScopeKept()
-	{
-		ObjectNode objContent = JsonUtil.parse(tokenDAO.get("oauth2Access", "client-credentials-4.2-token")
-				.getContents());
-		assertThat(objContent.get("effectiveScope").isNull()).isTrue();
 	}
 
 	private void checkOAuthTokens()

@@ -116,7 +116,7 @@ class OAuthTokenController
 			log.trace("getOAuthTokens: loaded all tokens [count={}]", allTokens.size());
 
 			List<TokenPair> filtered = allTokens.stream()
-					.flatMap(t -> parseToken(t).map(oauth -> new TokenPair(t, oauth)).stream())
+					.map(t -> new TokenPair(t, OAuthToken.getInstanceFromJson(t.getContents())))
 					.filter(p -> issuerUri.equals(p.oauth().getIssuerUri()))
 					.collect(Collectors.toList());
 			log.trace("getOAuthTokens: filtered by issuerUri [matched={}, issuerUri={}]",
@@ -136,18 +136,6 @@ class OAuthTokenController
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("OAuthTokenController.getTokensError", serviceName), e);
-		}
-	}
-
-	private Optional<OAuthToken> parseToken(Token token)
-	{
-		try
-		{
-			return Optional.of(OAuthToken.getInstanceFromJson(token.getContents()));
-		} catch (IllegalArgumentException e)
-		{
-			log.warn("Skipping unparsable OAuth token of type {} owned by {}", token.getType(), token.getOwner(), e);
-			return Optional.empty();
 		}
 	}
 
