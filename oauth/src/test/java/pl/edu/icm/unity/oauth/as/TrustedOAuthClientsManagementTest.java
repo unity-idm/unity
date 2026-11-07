@@ -12,6 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -131,6 +132,28 @@ public class TrustedOAuthClientsManagementTest
 	}
 
 	@Test
+	public void shouldSkipUnparsableTokenWhenGettingTrustedApplications()
+			throws EngineException, JsonProcessingException
+	{
+		setupInvocationContext();
+		setupPreferences(Instant.now().truncatedTo(ChronoUnit.SECONDS));
+		Token unparsable = new Token(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN, "broken", 1L);
+		unparsable.setContents("{\"effectiveScope\":{\"unexpected\":true}}".getBytes(StandardCharsets.UTF_8));
+		unparsable.setCreated(new Date());
+		when(oauthTokenDAO.getOwnedAccessTokens())
+				.thenReturn(List.of(unparsable, validToken(OAuthAccessTokenRepository.INTERNAL_ACCESS_TOKEN)));
+		setupEndpoints();
+		setupClientGroup();
+		setupAccessTime();
+
+		List<IdPClientData> idpClientsData = appMan.getIdpClientsData();
+
+		assertThat(idpClientsData).hasSize(1);
+		assertThat(idpClientsData.get(0).technicalInformations).hasSize(1);
+		assertThat(idpClientsData.get(0).technicalInformations.get(0).value).contains("ac");
+	}
+
+	@Test
 	public void shouldGetTrustedApplicationWithoutTokens() throws EngineException, JsonProcessingException
 	{
 		setupInvocationContext();
@@ -242,6 +265,11 @@ public class TrustedOAuthClientsManagementTest
 
 	private void setupTokens(String type) throws JsonProcessingException, EngineException
 	{
+		when(oauthTokenDAO.getOwnedAccessTokens()).thenReturn(List.of(validToken(type)));
+	}
+
+	private Token validToken(String type) throws JsonProcessingException
+	{
 		OAuthToken oauthToken = new OAuthToken();
 		oauthToken.setAccessToken("ac");
 		oauthToken.setRefreshToken("ref");
@@ -254,8 +282,7 @@ public class TrustedOAuthClientsManagementTest
 		token.setContents(oauthToken.getSerialized());
 		token.setType(type);
 		token.setCreated(new Date());
-		when(oauthTokenDAO.getOwnedAccessTokens()).thenReturn(List.of(token));
-
+		return token;
 	}
 
 	private Instant setupPreferences(Instant grantTime) throws InternalException, EngineException
