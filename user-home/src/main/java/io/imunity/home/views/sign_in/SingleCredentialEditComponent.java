@@ -37,6 +37,7 @@ class SingleCredentialEditComponent extends VerticalLayout
 		main.add(update);
 		
 		LinkButton cancel = new LinkButton(msg.getMessage("cancel"), e -> onCancel.run());
+		cancel.getElement().setAttribute("data-testid", "HomeSignIn.cancelCredential");
 		main.add(cancel);
 
 		add(main);

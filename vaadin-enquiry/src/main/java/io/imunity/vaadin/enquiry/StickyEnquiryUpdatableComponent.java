@@ -107,6 +107,7 @@ class StickyEnquiryUpdatableComponent extends VerticalLayout
 		}
 		
 		Button ok = new Button(msg.getMessage("SingleStickyEnquiryUpdater.submitRequest"));
+		ok.getElement().setAttribute("data-testid", "StickyEnquiryUpdatableComponent.submit");
 		ok.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		ok.addClickListener(event -> {
 			EnquiryResponse request = editor.getRequestWithStandardErrorHandling(false).orElse(null);

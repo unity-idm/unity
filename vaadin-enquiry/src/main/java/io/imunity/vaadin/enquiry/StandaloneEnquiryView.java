@@ -507,6 +507,7 @@ class StandaloneEnquiryView extends UnityViewComponent implements BeforeEnterObs
 			}
 		);
 		okButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		okButton.getElement().setAttribute("data-testid", "StandaloneEnquiryView.submit");
 		okButton.setWidthFull();
 
 		Button cancelButton = getCancelButton();

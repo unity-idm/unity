@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import io.imunity.test.ui.VaadinPage;
-import io.imunity.test.ui.accounts.UserAccountTestBase;
+import io.imunity.test.ui.flows.EndUserTestBase;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 
-abstract class ProjectWorkflowTestBase extends UserAccountTestBase
+abstract class ProjectWorkflowTestBase extends EndUserTestBase
 {
 	static final String ROLE_ATTRIBUTE = "sys:ProjectManagementRole";
 	static final String NO_PROJECT = "You are not authorized to manage any projects.";

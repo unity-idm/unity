@@ -64,6 +64,8 @@ public class InvitationsView extends UpmanViewComponent
 		invitationButton = createInvitationButton();
 		searchField = createSearchField();
 		grid = createGrid();
+		grid.getElement().setAttribute("data-testid", "InvitationsView.invitations");
+		searchField.getElement().setAttribute("data-testid", "InvitationsView.search");
 
 		getContent().add(
 				createInvitationButtonAndSearchLayout(invitationButton, searchField),
@@ -92,6 +94,7 @@ public class InvitationsView extends UpmanViewComponent
 	private Button createInvitationButton()
 	{
 		Button invitationButton = new Button(msg.getMessage("Invitations.newInvite"));
+		invitationButton.getElement().setAttribute("data-testid", "InvitationsView.invite");
 		invitationButton.addClickListener(event -> createInvitationDialog().open());
 		return invitationButton;
 	}
@@ -104,6 +107,7 @@ public class InvitationsView extends UpmanViewComponent
 		dialog.add(invitationForm);
 
 		SubmitButton saveButton = new SubmitButton(msg::getMessage);
+		saveButton.getElement().setAttribute("data-testid", "InvitationsView.send");
 		saveButton.addClickListener(event ->
 		{
 			if(invitationForm.isValid())
@@ -132,7 +136,10 @@ public class InvitationsView extends UpmanViewComponent
 
 	private Component createGridContextMenu(InvitationModel model)
 	{
-		return createContextMenu(() -> Set.of(model));
+		Component menu = createContextMenu(() -> Set.of(model));
+		menu.getElement().setAttribute("data-testid", "InvitationsView.actions");
+		menu.getElement().setAttribute("data-invitation-code", model.code);
+		return menu;
 	}
 
 	private Component createContextMenu(Supplier<Set<InvitationModel>> invitationsGetter)
@@ -150,6 +157,7 @@ public class InvitationsView extends UpmanViewComponent
 				}
 		);
 		MenuButton reinviteButton = new MenuButton(msg.getMessage("InvitationsComponent.reinviteAction"), REFRESH);
+		resendInvitationButton.getElement().setAttribute("data-testid", "InvitationsView.resend");
 		MenuItem reinviteItem = menu.addItem(
 				reinviteButton,
 				event ->
@@ -168,6 +176,7 @@ public class InvitationsView extends UpmanViewComponent
 					refreshAfterInvitationAction(menu);
 				}
 		);
+		removeInvitationButton.getElement().setAttribute("data-testid", "InvitationsView.revoke");
 
 		menu.addOpenedChangeListener(event ->
 		{

@@ -17,11 +17,6 @@ import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
 
 import nl.captcha.Captcha;
-import nl.captcha.backgrounds.GradiatedBackgroundProducer;
-import nl.captcha.gimpy.FishEyeGimpyRenderer;
-import nl.captcha.text.producer.DefaultTextProducer;
-
-import java.awt.*;
 
 /**
  * Vaadin captcha component. Allows for changing the captcha. Can be added as a standalone component,
@@ -31,12 +26,9 @@ import java.awt.*;
  */
 public class CaptchaComponent 
 {
-	private static final char[] CAPTCHA_CHARS = new char[] { 'q', 'w', 'e', 'r',
-		't', 'y', 'u', 'i', 'p', 'a', 's', 'd', 'f', 'g', 'h',
-		'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm',
-		'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 	private final MessageSource msg;
 	private final boolean showLabelInline;
+	private final CaptchaImageFactory imageFactory;
 	private Captcha engine;
 	
 	private Image challenge;
@@ -47,9 +39,15 @@ public class CaptchaComponent
 
 	public CaptchaComponent(MessageSource msg, int length, boolean showLabelInline)
 	{
+		this(msg, length, showLabelInline, new CaptchaImageFactory());
+	}
+
+	public CaptchaComponent(MessageSource msg, int length, boolean showLabelInline, CaptchaImageFactory imageFactory)
+	{
 		this.msg = msg;
 		this.showLabelInline = showLabelInline;
 		this.length = length;
+		this.imageFactory = imageFactory;
 		initEngine();
 		initUI();
 	}
@@ -57,27 +55,24 @@ public class CaptchaComponent
 	
 	private void initEngine()
 	{
-		engine = new Captcha.Builder(31*length, 50)
-			.addText(new DefaultTextProducer(length, CAPTCHA_CHARS))
-			.addBackground(new GradiatedBackgroundProducer(new Color(0xf5, 0x92, 0x01),
-					new Color(0xE0, 0xE0, 0xE0)))
-			.gimp(new FishEyeGimpyRenderer(Color.gray, Color.gray))
-			.addBorder()
-			.build();
+		engine = imageFactory.create(length);
 	}
 	
 	private void initUI()
 	{
 		challenge = new Image();
+		challenge.getElement().setAttribute("data-testid", "CaptchaComponent.image");
 		SimpleImageSource src = new SimpleImageSource(engine.getImage());
 		challenge.setSrc(src.getSrc());
 		answer = new TextField();
+		answer.getElement().setAttribute("data-testid", "CaptchaComponent.answer");
 		if(showLabelInline)
 			answer.setPlaceholder(msg.getMessage("CaptchaComponent.answer"));
 		else
 			answer.setLabel(msg.getMessage("CaptchaComponent.answer"));
 		answer.setWidthFull();
 		resetChallenge = new Button();
+		resetChallenge.getElement().setAttribute("data-testid", "CaptchaComponent.refresh");
 		resetChallenge.addClassName("u-captcha-reset");
 		resetChallenge.setTooltipText(msg.getMessage("CaptchaComponent.resetDesc"));
 		resetChallenge.setIcon(VaadinIcon.REFRESH.create());

@@ -11,6 +11,7 @@ import io.imunity.vaadin.auth.extensions.credreset.CredentialResetFlowConfig;
 import io.imunity.vaadin.auth.extensions.credreset.CredentialResetScreen;
 import io.imunity.vaadin.auth.extensions.credreset.CredentialResetStateVariable;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.forms.components.CaptchaImageFactory;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import org.apache.logging.log4j.Logger;
 
@@ -47,15 +48,17 @@ public class PasswordCredentialResetController
 	private final CredentialResetFlowConfig credResetUIConfig;
 	private Optional<AuthenticationSubject> presetEntity;
 	private final NotificationPresenter notificationPresenter;
+	private final CaptchaImageFactory captchaImageFactory;
 
 	public PasswordCredentialResetController(MessageSource msg, CredentialReset backend,
-	                                         CredentialEditor credEditor, CredentialResetLauncher.CredentialResetUIConfig credResetConfig,
-	                                         NotificationPresenter notificationPresenter)
+			CredentialEditor credEditor, CredentialResetLauncher.CredentialResetUIConfig credResetConfig,
+			NotificationPresenter notificationPresenter, CaptchaImageFactory captchaImageFactory)
 	{
 		this.msg = msg;
 		this.backend = backend;
 		this.credEditor = credEditor;
 		this.notificationPresenter = notificationPresenter;
+		this.captchaImageFactory = captchaImageFactory;
 		this.finishHandler = credResetConfig.finishCallback;
 		credResetUIConfig = new CredentialResetFlowConfig(credResetConfig.logo, msg, this::onCancel,
 				credResetConfig.infoWidth, credResetConfig.contentsWidth, credResetConfig.compactLayout);
@@ -66,7 +69,8 @@ public class PasswordCredentialResetController
 		this.presetEntity = presetEntity;
 		CredentialResetStateVariable.reset();
 		mainWrapper = new CredentialResetScreen();
-		mainWrapper.setContents(new PasswordResetStep1Captcha(credResetUIConfig, this::onUsernameCollected));
+		mainWrapper.setContents(new PasswordResetStep1Captcha(credResetUIConfig, this::onUsernameCollected,
+				captchaImageFactory));
 		return mainWrapper;
 	}
 	

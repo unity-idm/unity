@@ -53,6 +53,7 @@ public class TrustedDeviceView extends HomeViewComponent
 	private AccordionPanel createPanel(TrustedDeviceModel model)
 	{
 		AccordionPanel accordionPanel = new AccordionPanel();
+		accordionPanel.getElement().setAttribute("data-testid", "TrustedDeviceView.device");
 		H3 title = new H3( msg.getMessage("TrustedDevice.deviceWith", model.getOS(), model.getBrowser()));
 		title.getStyle().set("margin", "0");
 		Button button = new Button(msg.getMessage("TrustedDevice.revoke"), e ->
@@ -61,6 +62,7 @@ public class TrustedDeviceView extends HomeViewComponent
 			refresh();
 		});
 		HorizontalLayout summary = new HorizontalLayout(title, button);
+		button.getElement().setAttribute("data-testid", "TrustedDeviceView.revoke");
 		summary.setJustifyContentMode(FlexComponent.JustifyContentMode.BETWEEN);
 		summary.setAlignItems(FlexComponent.Alignment.CENTER);
 		summary.setPadding(false);

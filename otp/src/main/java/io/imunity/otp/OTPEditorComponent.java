@@ -63,6 +63,7 @@ class OTPEditorComponent extends VerticalLayout
 		Span switchCodeLabel = new Span(msg.getMessage("OTPEditorComponent.switchModeToText"));
 		switchCodeLabel.addClassName(POINTER.getName());
 		switchCodeComponent = new Div(switchCodeLabel);
+		switchCodeComponent.getElement().setAttribute("data-testid", "OTPEditorComponent.showSecret");
 		switchCodeComponent.addClassName(CssClassNames.UNDERLINE.getName());
 		switchCodeComponent.addClickListener(e -> switchCodeComponent());
 		
@@ -190,6 +191,7 @@ class OTPEditorComponent extends VerticalLayout
 		{
 			Span info = new Span(msg.getMessage("OTPEditorComponent.textCodeInfo"));
 			Span code = new Span(formatSecret(secret));
+			code.getElement().setAttribute("data-testid", "OTPEditorComponent.secret");
 			code.addClassName("u-textMonospace");
 			code.setWidthFull();
 

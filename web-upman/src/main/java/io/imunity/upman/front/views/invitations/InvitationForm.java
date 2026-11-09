@@ -49,6 +49,7 @@ class InvitationForm extends FormLayout
 		binder.setBean(new InvitationRequest(projectGroup));
 
 		emailsTextArea = new TextArea();
+		emailsTextArea.getElement().setAttribute("data-testid", "InvitationForm.emails");
 		emailsTextArea.setPlaceholder(msg.getMessage("NewInvitationDialog.emailsPrompt"));
 		emailsTextArea.setWidth("24em");
 		emailsTextArea.focus();

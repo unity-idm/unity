@@ -285,8 +285,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 		tabs.add(msg.getMessage("RegistrationFormViewer.mainTab"), main);
 
 		initNameAndDescFields(msg.getMessage("RegistrationFormEditor.defaultName"));
+		name.getElement().setAttribute("data-testid", "RegistrationFormEditor.name");
+		description.getElement().setAttribute("data-testid", "RegistrationFormEditor.description");
 
 		publiclyAvailable = new Checkbox(msg.getMessage("RegistrationFormEditor.publiclyAvailable"));
+		publiclyAvailable.getElement().setAttribute("data-testid", "RegistrationFormEditor.publiclyAvailable");
 		publiclyAvailable.addValueChangeListener(event -> {
 			boolean isPublic = publiclyAvailable.getValue();
 			if (!isPublic)
@@ -312,6 +315,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 				.add(htmlTooltipFactory.get(msg.getMessage("RegistrationFormEditor.autoLoginAutoAcceptedToRealm.description")));
 
 		captcha = new NotEmptyIntegerField();
+		captcha.getElement().setAttribute("data-testid", "RegistrationFormEditor.captcha");
 		captcha.setMin(0);
 		captcha.setMax(RegistrationForm.MAX_CAPTCHA_LENGTH);
 		captcha.setStepButtonsVisible(true);
@@ -332,6 +336,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		collectComments = new Checkbox(msg.getMessage("RegistrationFormEditor.collectComments"));
+		collectComments.getElement().setAttribute("data-testid", "RegistrationFormEditor.collectComments");
 		registrationCode = new TextField();
 		main.addFormItem(registrationCode, msg.getMessage("RegistrationFormViewer.registrationCode"));
 		main.addFormItem(collectComments, "");
@@ -353,6 +358,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		main.addClassName(MEDIUM_VAADIN_FORM_ITEM_LABEL.getName());
 		initCommonDisplayedFields();
+		pageTitle.getElement().setAttribute("data-testid", "RegistrationFormEditor.pageTitle");
 		title2ndStage = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
 		title2ndStage.setWidth(TEXT_FIELD_MEDIUM.value());
 		formInformation.setWidth(TEXT_FIELD_BIG.value());

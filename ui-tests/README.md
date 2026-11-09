@@ -19,7 +19,9 @@ mvn -Pnightly-ui -pl ui-tests test -Dtest=AttributeTypeEditorTest \
 ```
 
 Use `-Dgroups=<tag>` to select `admin-directory`, `admin-authentication`, `admin-settings`,
-`admin-automation`, `home`, `upman`, or `public-policies`. The runner fails when no tests are found. Current coverage includes:
+`admin-automation`, `home`, `upman`, `authentication`, `registration`, `association`, `saml`,
+`oauth`, `introspection`, `public`, or `public-policies`. The runner fails when no tests are found.
+Current coverage includes:
 
 - Admin directory: constrained string-type lifecycle, valid/malformed attribute-type imports, mandatory
   attribute classes, nested group lifecycle, account disable/reactivate, password replacement, deletion,
@@ -31,9 +33,18 @@ Use `-Dgroups=<tag>` to select `admin-directory`, `admin-authentication`, `admin
 - Admin automation: scheduled rule creation/editing, invalid schedules, and saved/ad-hoc execution
   with account-state and fresh-login checks for target and control users.
 - Home: profile save/reload/reset and image upload/replacement, read-only authorization roles, scheduled
-  removal with login cancellation, invalid grace periods, and immediate removal/disable/block modes.
+  removal with login cancellation, invalid grace periods, immediate removal/disable/block modes,
+  verified email management, OTP/SMS/WebAuthn enrollment, MFA opt-in, trusted devices, trusted applications,
+  sensitive-profile reauthentication, and account association.
 - UpMan: project switching and member filtering, subgroup lifecycle/visibility, subproject delegation,
-  project/subproject roles, member removal with self-removal cancellation, and scope checks across all four tabs.
+  project/subproject roles, member removal with self-removal cancellation, invitations and request review,
+  and scope checks across all four tabs.
+- Authentication and public flows: session expiry/logout, password renewal, email-password and SMS recovery, enquiries,
+  signup validation, confirmation/invitation errors, policy renewal, and workflow completion redirects.
+- Protocol flows: OAuth consent and device authorization, SAML consent and identity selection,
+  remembered allow/deny decisions, redirected MFA retry, and attribute-introspection results/retry.
+- Selected AdminUI follow-up: restricted contents-manager permissions, one public registration-form
+  editor workflow, and one User Home service editor workflow.
 - Public policies: English and Polish content without authentication, and unknown-document handling.
 
 The credential-definition matrix covers `password`, `certificate`, `sms`, `otp`, `fido`, and
@@ -57,8 +68,13 @@ Identifier and distinguished-name cases check identity resolution and preserve p
 login. Both matrices compare their inventories with the live editor registries.
 
 Each execution gets independent fixture data. Stored outcomes are checked through engine APIs;
-workflow actions use the browser. The public-policy locale is seeded with the supported language
-cookie. This checks localized content; interactive language switching has separate coverage needs.
+workflow actions use the browser. Local notification facilities capture rendered email/SMS messages
+while preserving production address resolution. Virtual authenticators provide WebAuthn credentials.
+Password recovery captures the real CAPTCHA answer through a test-only Spring bean; image rendering,
+refresh, and answer verification use the production implementation. The answer stays on the server.
+A recovery-only fixture uses the backend's code-lifetime constructor to exercise expired codes
+without a long wait. Valid-code cases use the production lifetime.
+A small Polish/narrow-viewport pass covers Home, UpMan, signup, and interactive login language switching.
 
 Both executable runners build a production frontend before tests. Their application dependencies
 use compile scope so Vaadin can discover endpoint views and plugin resources. The support jar
@@ -98,5 +114,5 @@ driver versions), and server log. Capture and cleanup errors are attached to the
 JUnit XML and per-execution timings are in `target/surefire-reports/`. Retain the Maven log on
 failure; delete it after a successful run once it is no longer needed.
 
-Scheduling, sharding, notification capture, broader feature coverage, and unattended reliability
-validation remain future work.
+Known product regressions remain enabled and fail until separately fixed. Successful browser
+client-certificate login is outside the selected scope. Missing-certificate fallback is covered.

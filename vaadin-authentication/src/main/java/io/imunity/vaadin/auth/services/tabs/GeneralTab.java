@@ -127,6 +127,7 @@ public class GeneralTab extends VerticalLayout implements EditorTab
 		mainGeneralLayout.addFormItem(displayedName, msg.getMessage("ServiceEditorBase.displayedName"));
 
 		TextField description = new TextField();
+		description.getElement().setAttribute("data-testid", "ServiceGeneralTab.description");
 		binder.forField(description)
 				.bind("description");
 		description.setWidth(TEXT_FIELD_BIG.value());
