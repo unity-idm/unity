@@ -1,0 +1,4 @@
+interface:
+  display_name: "Report a Jira Bug"
+  short_description: "Report concise, reproducible Unity bugs in Jira"
+  default_prompt: "Use $jira-bug to report this bug in Jira with reproduction steps and expected behavior."
