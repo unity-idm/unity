@@ -11,7 +11,7 @@ Unity Team <unity-idm-discuss@lists.sourceforge.net>
 
 
 The Unity UpMan REST API may be exposed (or disabled) as a regular Unity endpoint. See the
-<<manual.txt#endp-rest-upman,main Unity documentation>> for endpoints configuration details.
+link:manual.html#endp-rest-upman[main Unity documentation] for endpoints configuration details.
 
 All paths must be naturally prefixed with the server's base URL, endpoint deployment's path
 (as configured) and API version (currently there is only one). Example query path can be similar to:
@@ -55,9 +55,14 @@ A token without a matching UpMan scope is denied access. The authorization serve
 configuration controls which clients can obtain tokens with these permissions, even when the resource
 owner has no management role in the affected projects.
 
+An already issued bearer token remains usable while the token itself is valid, even if the OAuth client's
+password is subsequently marked outdated.
+
 === Rules for both methods
 
-* Authentication must succeed using the selected method. Requests using outdated credentials are rejected.
+* Authentication must succeed using the selected method. Direct password authentication with an outdated
+password is rejected. With bearer authentication, the selected credential is the access token; the client's
+password being outdated does not by itself reject an otherwise valid token.
 * The REST API manager role or a matching OAuth scope permits granting +projectsAdmin+ to project members,
 deleting subprojects and changing subproject delegation settings. The caller does not need a separate
 +projectsAdmin+ role to perform these operations.
@@ -67,13 +72,33 @@ role and OAuth scopes do not override these project settings.
 
 == Projects
 
+Each project returned by GET has a +projectId+ containing its path relative to the configured projects root
+and a +urlId+ suitable for one URL path segment. Use +urlId+ as +{project-id}+ in every project route.
+A slash is percent-encoded, so +a/b+ has URL ID +a%2Fb+. Names containing a literal percent sign use an
+opaque URL ID, since the server rejects percent-encoded percent signs in URL paths. Always use the returned
++urlId+ instead of constructing it yourself. Project-specific OAuth scopes use +projectId+, not +urlId+.
+
+The create response uses +id+ for the new project's ID. Retrieve the project listing to obtain its +projectId+
+and +urlId+ before constructing subsequent request URLs.
+
+[[group-visibility]]
+=== Visibility prerequisites
+
+A public project or subgroup requires all of its ancestor groups to be public, including groups above the
+endpoint's configured projects root. Make the ancestors public first when public visibility is required.
+The REST manager role and OAuth scopes do not override this constraint.
+
+A request to make a subgroup public under a private parent returns +409+ with an empty body.
+The equivalent project update currently returns +500+ with an empty body instead of +409+; this is a known
+defect tracked in https://unity-idm.atlassian.net/browse/UY-1626[UY-1626]. These responses currently do not
+identify the conflicting parent, so check the ancestor groups' visibility when diagnosing the failure.
 
 === Create project
 
 +@Path("/projects")+ +
 +@POST+ +
 
-Adds a new project.
+Adds a new project. Returns +200+ with the new project's ID.
 
 If +projectId+ is +null+ or skipped, it will be auto generated.
 
@@ -143,7 +168,8 @@ Retrieves the given project.
 Example output:
 ----
 {
-    "project-id": "projectId",
+    "projectId": "my-project-id",
+    "urlId": "my-project-id",
     "public": false,
     "displayedName": {
         "en": "displayedName"
@@ -172,7 +198,8 @@ Example output:
 ----
 [
 	{
-	    "project-id": "projectId",
+	    "projectId": "my-project-id",
+	    "urlId": "my-project-id",
 	    "public": false,
 	    "displayedName": {
 	        "en": "displayedName"
@@ -197,7 +224,7 @@ Example output:
 +@Path("/projects/{project-id}/policyDocuments")+ +
 +@POST+ +
 
-Adds a new project policy document.
+Adds a new project policy document. Returns +200+ with +{"id":1}+ for the created document.
 ContentType can be one of "LINK" or "EMBEDDED"
 
 Example input:
@@ -221,8 +248,9 @@ Example input:
 +@QueryParam("incrementRevision")+ +
 +@PUT+ +
 
-Updates the given policy document. If query parameter "incrementRevision" is set to true, update increment revision, and re-acceptance will be needed.
-ContentType can be one of "LINK" or "EMBEDDED"
+Updates the given policy document. Set +incrementRevision=true+ to increment its revision and require
+re-acceptance. With +incrementRevision=false+, the revision stays unchanged. The +revision+ field is returned
+by GET but is not accepted in the update body. +contentType+ can be +LINK+ or +EMBEDDED+.
 
 Example input:
 ----
@@ -234,7 +262,6 @@ Example input:
     },
     "mandatory": false,
     "contentType": "EMBEDDED",
-    "revision": 1,
     "content": {
         "en": "Policy1"
     }
@@ -316,6 +343,52 @@ Example output:
 Each form's +/link+ route returns its public URL. It returns +404+ when the form is absent,
 invitation-only, or has no public link.
 
+[[form-json]]
+=== Form JSON and editing
+
+These routes reuse Unity's registration and enquiry form JSON, also exposed through the
+link:rest-api-v1.html#_get_registration_forms[Admin REST registration forms] and
+link:rest-api-v1.html#_get_enquiry_forms[Admin REST enquiry forms] routes. See the main manual's
+link:manual.html#registration[registration forms] and link:manual.html#enquiry[enquiry forms] sections for the form
+settings. To obtain a complete JSON definition, generate a project form or configure one in Admin UI, then
+retrieve it through REST.
+
+Form property names are case-sensitive and mix conventions. For example, the form's identifier is +Name+,
+its displayed name uses +"DisplayedName":{"Map":{"en":"Join project"},"DefaultValue":null}+, and enquiry forms
+also have properties such as +type+ and +targetGroups+. Project and subgroup +displayedName+ values instead
+use plain language maps such as +{"en":"Project"}+; do not copy that representation into a form.
+
+Edit and PUT the complete retrieved form, preserving its +Name+ and other settings. For example, after
+creating the registration form, change only its English displayed name using +jq+:
+
+[source,shell]
+----
+UPMAN_URL='https://unity.example.com/rest-upman/v1'
+UPMAN_TOKEN='ACCESS_TOKEN'
+curl --fail-with-body --silent --show-error \
+  -H "Authorization: Bearer $UPMAN_TOKEN" \
+  "$UPMAN_URL/projects/my-project-id/registrationForm" \
+  -o registration-form.json
+jq '.DisplayedName.Map.en = "Join my project"' registration-form.json > registration-form-updated.json
+curl --fail-with-body --silent --show-error -X PUT \
+  -H "Authorization: Bearer $UPMAN_TOKEN" \
+  -H 'Content-Type: application/json' \
+  --data-binary @registration-form-updated.json \
+  "$UPMAN_URL/projects/my-project-id/registrationForm"
+----
+
+Attributes collected in Unity's root group +/+ must be allowed in the UpMan REST endpoint configuration.
+This is separate from the endpoint's projects root. For the +name+ attribute used by autogenerated
+registration forms, configure:
+
+----
+unity.upman.rest.rootGroupAttributes.1=name
+----
+
+Use further numbered entries for other permitted root-group attributes. Without the matching entry, even
+a GET followed by an unchanged PUT can return +400+ with a message such as
++Attribute registration parameter name is not permited in root group+.
+
 === Create registration form
 	
 +@Path("/projects/{project-id}/registrationForm")+ +
@@ -323,12 +396,26 @@ invitation-only, or has no public link.
 +@POST+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
-Creates a new project registration form specified by the JSON object passed as request body.
-The optional boolean +autogenerate+ query parameter can be used then request body can be skipped and form will be autogenerate for project
+Creates a new project registration form from the JSON request body, or generates one when
++autogenerate=true+. Autogeneration accepts an empty body but still requires +Content-Type: application/json+;
+omitting this header returns +415+. Success returns +204+ with no body. For example:
+
+[source,shell]
+----
+UPMAN_URL='https://unity.example.com/rest-upman/v1'
+UPMAN_TOKEN='ACCESS_TOKEN'
+curl --fail-with-body --silent --show-error -i -X POST \
+  -H "Authorization: Bearer $UPMAN_TOKEN" \
+  -H 'Content-Type: application/json' \
+  "$UPMAN_URL/projects/my-project-id/registrationForm?autogenerate=true"
+----
+
+Use the same headers and empty-body request for +signUpEnquiry+ and +membershipUpdateEnquiry+.
+See <<form-json>> for the root-attribute allowlist required when editing generated forms.
 
 === Update registration form
 
-+@Path("/registrationForm")+ +
++@Path("/projects/{project-id}/registrationForm")+ +
 +@QueryParam("ignoreRequests")+ +
 +@PUT+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
@@ -355,8 +442,7 @@ has pending requests (the requests will be removed with the form).
 +@Path("/projects/{project-id}/registrationForm")+ +
 +@GET+ +
 
-Returns a project registration form. The syntax is complex
-and is not provided here.
+Returns the complete project registration form in Unity's form JSON format; see <<form-json>>.
 
 === Get registration form link
 
@@ -372,8 +458,9 @@ Returns the public registration form link, for example +{"link":"https://example
 +@POST+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
-Creates a new signup enquiry form specified by the JSON object passed as request body.
-The optional boolean +autogenerate+ query parameter can be used then request body can be skipped and form will be autogenerate for project
+Creates a new signup enquiry form from the JSON request body, or generates one when +autogenerate=true+.
+Autogeneration requires +Content-Type: application/json+ even with an empty body and returns +204+.
+See the registration form creation example for the headers and <<form-json>> for the shared JSON format.
 
 === Update signup enquiry form
 
@@ -404,8 +491,7 @@ has pending requests (the requests will be removed with the form).
 +@Path("/projects/{project-id}/signUpEnquiry")+ +
 +@GET+ +
 
-Returns a project singup enquiry form. The syntax is complex
-and is not provided here.
+Returns the complete project signup enquiry form in Unity's form JSON format; see <<form-json>>.
 
 === Get signup enquiry form link
 
@@ -421,11 +507,13 @@ Returns the public signup enquiry form link as +{"link":"https://example.org/sig
 +@POST+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
-Creates a new membership update enquiry form specified by the JSON object passed as request body.
-The optional boolean +autogenerate+ query parameter can be used then request body can be skipped and form will be autogenerate for project
+Creates a new membership update enquiry form from the JSON request body, or generates one when
++autogenerate=true+. Autogeneration requires +Content-Type: application/json+ even with an empty body and
+returns +204+. See the registration form creation example for the headers and <<form-json>> for the shared
+JSON format.
 
 
-=== Update signup enquiry form
+=== Update membership update enquiry form
 
 +@Path("/projects/{project-id}/membershipUpdateEnquiry")+ +
 +@QueryParam("ignoreRequests")+ +
@@ -454,8 +542,7 @@ has pending requests (the requests will be removed with the form).
 +@Path("/projects/{project-id}/membershipUpdateEnquiry")+ +
 +@GET+ +
 
-Returns a project membership update enquiry form. The syntax is complex
-and is not provided here.
+Returns the complete project membership update enquiry form in Unity's form JSON format; see <<form-json>>.
 
 === Get membership update enquiry form link
 
@@ -508,7 +595,9 @@ Example output:
 +@Path("/projects/{project-id}/members")+ +
 +@GET+ +
 
-Returns all project users.
+Returns all project users. When +groupPath+ is omitted, this route returns the legacy response below,
+without +entityId+ or +name+. Use an explicit empty query parameter, +?groupPath=+, for the
+<<root-member-json,response with stable entity IDs>> and support for members without email.
 Example output:
 ----
 [
@@ -560,11 +649,7 @@ The routes below require an authenticated user with the +manager+ value of
 +sys:ProjectManagementRESTAPIRole+ in the endpoint's configured authorization group, or an
 OAuth bearer token with a scope covering the selected project.
 The project must exist under the configured root and have delegation enabled.
-Each project listing entry has a +projectId+ containing its path relative to the configured
-root and a +urlId+ that fits in one URL segment. Use +urlId+ as +{project-id}+ for every
-project route. A slash is percent-encoded, so +a/b+ has URL ID +a%2Fb+. Names containing
-a literal percent sign use an opaque URL ID, since the server rejects percent-encoded percent
-signs in URL paths. Always use the listed +urlId+ instead of constructing it yourself.
+Use the project's returned +urlId+ as +{project-id}+, as described under Projects.
 
 Group paths in JSON and query parameters are relative to the selected project. An empty
 path selects the project root. Absolute paths, empty path segments, and traversal segments
@@ -601,6 +686,8 @@ sending. Example output, with one result for each distinct address:
 
 Statuses are +sent+, +alreadyMember+, and +failed+. A failed result includes an error
 message; sending to other addresses continues. A send failure can leave a saved invitation.
+Choose an +expiration+ in the future when reusing the example. The input is an ISO-8601 UTC timestamp;
+the invitation GET responses use numeric timestamps as described below.
 
 ==== Get invitations
 
@@ -609,6 +696,10 @@ message; sending to other addresses continues. A send failure can leave a saved 
 
 Returns invitations with +code+, +email+, relative +groups+, +allowModifyGroups+,
 +expiration+, +lastSentTime+, +numberOfSends+, and +link+.
+
+In responses, +expiration+ and +lastSentTime+ are JSON numbers counting seconds since
++1970-01-01T00:00:00Z+, with optional fractional seconds. They are not milliseconds or ISO-8601 strings.
+For example, an invitation can include +"expiration":1796126400.0+ and +"lastSentTime":1794426027.43+.
 
 ==== Get invitation
 
@@ -697,6 +788,7 @@ be deleted through this route.
 
 Updates the subgroup's displayed name and visibility together. All fields are required.
 Use the relative +path+ returned when the subgroup was created.
+Public visibility requires public ancestors; see <<group-visibility>>.
 The project root is updated through the project route. Example input:
 
 ----
@@ -719,6 +811,7 @@ Use +groupPath=team/Ab123+ to select a nested subgroup. An omitted +groupPath+ s
 the project root. The by-id routes support users without email; the existing email-based
 routes remain available.
 
+[[root-member-json]]
 ==== Get subgroup members
 
 +@Path("/projects/{project-id}/members")+ +
@@ -727,6 +820,31 @@ routes remain available.
 
 Lists members with stable +entityId+, +name+, +email+ (which may be null), +role+,
 and +attributes+. Omitting +groupPath+ preserves the existing project-root response.
+
+For the project root, explicitly request +GET /projects/{project-id}/members?groupPath=+ to select this
+response instead of the legacy listing. Example output:
+
+----
+[
+    {
+        "entityId": 42,
+        "name": "Example User",
+        "email": "person@example.org",
+        "role": "manager",
+        "attributes": [{"name":"name","values":["Example User"]}]
+    },
+    {
+        "entityId": 43,
+        "name": null,
+        "email": null,
+        "role": "regular",
+        "attributes": []
+    }
+]
+----
+
+The default listing without +groupPath+ currently fails with +500+ if a member has no email
+(https://unity-idm.atlassian.net/browse/UY-1624[UY-1624]); use the explicit-root variant in that case.
 
 ==== Get subgroup member by ID
 
@@ -781,12 +899,16 @@ a manager.
 Lists pending registration, signup enquiry, and membership update requests. Each response
 item includes +id+, +operation+ (+SignUp+ or +Update+),
 +type+ (+Registration+ or +Enquiry+), +name+, +email+, +emailVerified+,
-relative +groups+, and +requestedTime+:
+relative +groups+, and +requestedTime+.
+
++requestedTime+ is a JSON number counting seconds since +1970-01-01T00:00:00Z+, with optional fractional
+seconds. This representation applies to registration, signup enquiry, and membership update requests.
+It is not an ISO-8601 string or a count of milliseconds.
 
 ----
 {"id":"request-1","operation":"SignUp","type":"Registration",
  "name":"Example User","email":"person@example.org","emailVerified":true,
- "groups":["team"],"requestedTime":"2026-09-23T12:00:00Z"}
+ "groups":["team"],"requestedTime":1794426125.618}
 ----
 
 ==== Get request
