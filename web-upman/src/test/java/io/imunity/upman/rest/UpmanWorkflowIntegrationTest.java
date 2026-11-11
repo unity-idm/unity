@@ -199,6 +199,34 @@ class UpmanWorkflowIntegrationTest extends UpmanRESTTestBase
 	}
 
 	@Test
+	void shouldListAllRootMembersWhenMemberHasNoEmail() throws Exception
+	{
+		createProject("project");
+		String base = "/restupm/v1/projects/project";
+		Identity withoutEmail = createUsernameUser("no-email-user", null, DEF_PASSWORD, CRED_REQ_PASS);
+		groupsMan.addMemberFromParent("/A", new EntityParam(withoutEmail));
+		for (long memberId : List.of(entityId, withoutEmail.getEntityId()))
+		{
+			HttpPut addMember = new HttpPut(base + "/members/by-id/" + memberId);
+			try (ClassicHttpResponse response = client.executeOpen(host, addMember, getClientContext(host)))
+			{
+				assertThat(response.getCode()).isEqualTo(204);
+			}
+		}
+
+		JsonNode members = getJson(base + "/members");
+
+		assertThat(members).hasSize(2);
+		assertThat(members.findValues("email")).containsExactlyInAnyOrder(
+			m.nullNode(), m.getNodeFactory().textNode(entityEmail));
+		JsonNode explicitRootMembers = getJson(base + "/members?groupPath=");
+		assertThat(explicitRootMembers).hasSize(members.size());
+		assertThat(explicitRootMembers.findValues("email"))
+			.containsExactlyInAnyOrderElementsOf(members.findValues("email"));
+		assertThat(getJson(base + "/members/" + entityEmail).get("email").asText()).isEqualTo(entityEmail);
+	}
+
+	@Test
 	void shouldAddressNestedAndReservedProjectIdsReturnedByListing() throws Exception
 	{
 		createProject("project");

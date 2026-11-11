@@ -843,9 +843,6 @@ response instead of the legacy listing. Example output:
 ]
 ----
 
-The default listing without +groupPath+ currently fails with +500+ if a member has no email
-(https://unity-idm.atlassian.net/browse/UY-1624[UY-1624]); use the explicit-root variant in that case.
-
 ==== Get subgroup member by ID
 
 +@Path("/projects/{project-id}/members/by-id/{entityId}")+ +
