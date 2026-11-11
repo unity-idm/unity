@@ -261,7 +261,8 @@ class RestProjectService
 		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		try
 		{
-			groupMan.removeMember(ProjectPathProvider.getProjectPath(projectId, rootGroup), new EntityParam(new IdentityTaV(EmailIdentity.ID, email)));
+			long entityId = idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, email))).getId();
+			delGroupMan.removeMemberFromGroup(projectPath, projectPath, entityId);
 		}
 		catch (UnknownIdentityException e)
 		{
