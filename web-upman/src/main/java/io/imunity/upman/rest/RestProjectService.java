@@ -287,7 +287,7 @@ class RestProjectService
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		return delGroupMan.getDelegatedGroupMembers(projectPath, projectPath).stream()
-			.filter(member -> member.email.getValue().equals(email))
+			.filter(member -> member.email != null && member.email.getValue().equals(email))
 			.map(RestProjectService::map)
 			.findFirst()
 			.orElseThrow(() -> new NotFoundException("There is no member"));
@@ -362,7 +362,7 @@ class RestProjectService
 	private static RestProjectMembership map(DelegatedGroupMember member)
 	{
 		return RestProjectMembership.builder()
-			.withEmail(member.email.getValue())
+			.withEmail(member.email == null ? null : member.email.getValue())
 			.withRole(member.role.name())
 			.withAttributes(
 				member.attributes.stream()

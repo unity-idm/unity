@@ -6,6 +6,7 @@
 package io.imunity.upman.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -276,6 +277,55 @@ class RestProjectServiceTest
 		assertThat(membership.email).isEqualTo("email@gmail.com");
 		assertThat(membership.role).isEqualTo(GroupAuthorizationRole.manager.name());
 		assertThat(membership.attributes).isEqualTo(List.of(new RestAttribute("attr", List.of("val"))));
+	}
+
+	@Test
+	void shouldListProjectMembersWithoutEmail() throws EngineException
+	{
+		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
+			.thenReturn(List.of(
+				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.regular,
+					null, null, Optional.of(List.of(new Attribute("attr", "string", "/A/B", List.of("val"))))),
+				new DelegatedGroupMember(3, "/A/B", "/B", GroupAuthorizationRole.manager,
+					"name", new VerifiableElementBase("email@gmail.com"), Optional.empty())));
+		setUpGroupContent(new GroupDelegationConfiguration(true));
+
+		List<RestProjectMembership> members = restProjectService.getProjectMembers("B");
+
+		assertThat(members).containsExactly(
+			RestProjectMembership.builder().withEmail(null).withRole("regular")
+				.withAttributes(List.of(new RestAttribute("attr", List.of("val")))).build(),
+			RestProjectMembership.builder().withEmail("email@gmail.com").withRole("manager")
+				.withAttributes(List.of()).build());
+	}
+
+	@Test
+	void shouldFindProjectMemberByEmailWhenAnotherMemberHasNoEmail() throws EngineException
+	{
+		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
+			.thenReturn(List.of(
+				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.regular,
+					null, null, Optional.empty()),
+				new DelegatedGroupMember(3, "/A/B", "/B", GroupAuthorizationRole.manager,
+					"name", new VerifiableElementBase("email@gmail.com"), Optional.empty())));
+		setUpGroupContent(new GroupDelegationConfiguration(true));
+
+		RestProjectMembership member = restProjectService.getProjectMember("B", "email@gmail.com");
+
+		assertThat(member.email).isEqualTo("email@gmail.com");
+		assertThat(member.role).isEqualTo("manager");
+	}
+
+	@Test
+	void shouldReturnNotFoundForEmailWhenProjectMemberHasNoEmail() throws EngineException
+	{
+		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
+			.thenReturn(List.of(new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.regular,
+				null, null, Optional.empty())));
+		setUpGroupContent(new GroupDelegationConfiguration(true));
+
+		assertThatThrownBy(() -> restProjectService.getProjectMember("B", "missing@example.org"))
+			.isInstanceOf(NotFoundException.class);
 	}
 
 	@Test
