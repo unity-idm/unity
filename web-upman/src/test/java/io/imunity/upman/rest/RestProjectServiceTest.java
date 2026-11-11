@@ -233,10 +233,13 @@ class RestProjectServiceTest
 	void shouldRemoveProjectMember() throws EngineException
 	{
 		setUpGroupContent(new GroupDelegationConfiguration(true));
+		Entity entity = mock(Entity.class);
+		when(idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, "email")))).thenReturn(entity);
+		when(entity.getId()).thenReturn(2L);
 
 		restProjectService.removeProjectMember("B", "email");
 
-		verify(groupMan).removeMember("/A/B", new EntityParam(new IdentityTaV(EmailIdentity.ID, "email")));
+		verify(delGroupMan).removeMemberFromGroup("/A/B", "/A/B", 2L);
 	}
 
 	@Test

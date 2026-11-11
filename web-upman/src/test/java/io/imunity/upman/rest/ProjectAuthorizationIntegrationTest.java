@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
+import pl.edu.icm.unity.engine.api.project.OneManagerRemainsException;
 import pl.edu.icm.unity.engine.api.project.ProjectAuthorizationFactory;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
@@ -104,6 +105,27 @@ class ProjectAuthorizationIntegrationTest extends DBIntegrationTestBase
 		assertThatThrownBy(() -> rest.groups().addGroup("/A/other", "/A/other", new I18nString("Denied"), false))
 				.isInstanceOf(AuthorizationException.class);
 		assertWebAccessDenied();
+	}
+
+	@Test
+	void shouldPreserveSoleManagerWhenRemovingMemberWithProjectScopedToken() throws Exception
+	{
+		Identity manager = createUserWithoutProjectRoles("project-manager");
+		EntityParam entity = new EntityParam(manager);
+		groupsMan.addMemberFromParent("/A", entity);
+		groupsMan.addMemberFromParent(PROJECT, entity);
+		rest.groups().setGroupAuthorizationRole(PROJECT, PROJECT, manager.getEntityId(), GroupAuthorizationRole.manager);
+		InvocationContext.getCurrent().setInvocationMaterial(InvocationMaterial.OAUTH_DELEGATION);
+		InvocationContext.getCurrent().setScopes(List.of("sys:upman-api:project"));
+
+		assertThatThrownBy(() -> rest.groups().removeMemberFromGroup(PROJECT, PROJECT, manager.getEntityId()))
+				.isInstanceOf(OneManagerRemainsException.class);
+
+		assertThat(rest.groups().getDelegatedGroupMembers(PROJECT, PROJECT)).singleElement().satisfies(member ->
+		{
+			assertThat(member.entityId).isEqualTo(manager.getEntityId());
+			assertThat(member.role).isEqualTo(GroupAuthorizationRole.manager);
+		});
 	}
 
 	@Test

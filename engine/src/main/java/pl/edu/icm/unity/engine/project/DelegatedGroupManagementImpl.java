@@ -55,6 +55,7 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
+import pl.edu.icm.unity.engine.api.project.OneManagerRemainsException;
 import pl.edu.icm.unity.engine.api.project.ProjectAuthorization;
 import pl.edu.icm.unity.engine.api.project.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
@@ -305,7 +306,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		
 		if (projectPath.equals(subgroupPath) && role.equals(GroupAuthorizationRole.regular))
 		{
-			assertIfOneManagerRemain(projectPath, entityId);
+			assertManagerRemains(projectPath, entityId);
 		}
 
 		attrHelper.addSystemAttribute(entityId, attr, true);
@@ -356,6 +357,8 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	{
 		authz.assertManagerAuthorization(projectPath);
 		validator.validateGroup(projectPath, subgroupPath);
+		if (projectPath.equals(subgroupPath))
+			assertManagerRemains(projectPath, entityId);
 		groupMan.removeMember(subgroupPath, new EntityParam(entityId));
 	}
 	
@@ -473,7 +476,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 	
 
-	private void assertIfOneManagerRemain(String projectPath, long entityId) throws EngineException
+	private void assertManagerRemains(String projectPath, long entityId) throws EngineException
 	{
 
 		List<DelegatedGroupMember> delegatedGroupMemebersInternal = getDelegatedGroupMembersInternal(
@@ -567,14 +570,6 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 			super("Attribute " + attributeName
 					+ " is not definded as read only attribute in project group (" + projectPath
 					+ ") configuration");
-		}
-	}
-
-	public static class OneManagerRemainsException extends InternalException
-	{
-		public OneManagerRemainsException(String group)
-		{
-			super("At least one manager should remains in group " + group);
 		}
 	}
 

@@ -337,13 +337,7 @@ class RestUpmanWorkflowService
 		}
 		String project = project(projectId);
 		String path = resolveGroup(project, relativePath);
-		try
-		{
-			groups.setGroupAuthorizationRole(project, path, entityId, value);
-		} catch (InternalException e)
-		{
-			throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
-		}
+		groups.setGroupAuthorizationRole(project, path, entityId, value);
 	}
 
 	List<RestRequest> requests(String projectId) throws EngineException
