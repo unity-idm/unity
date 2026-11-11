@@ -54,6 +54,10 @@ class ProjectRestAuthorizationTest
 		authorization.assertProjectCreationAuthorization();
 		authorization.assertManagerAuthorization("/root/project-x");
 		authorization.assertManagerAuthorization("/root/project-y");
+		authorization.assertProjectsAdminAuthorization("/root/project-y");
+		authorization.assertRoleManagerAuthorization("/root/project-y", "/root/project-y/sub",
+				GroupAuthorizationRole.projectsAdmin);
+		verifyNoInteractions(attributes);
 	}
 
 	@Test
@@ -109,6 +113,10 @@ class ProjectRestAuthorizationTest
 		authorization.assertProjectsAdminAuthorization("/root/project-x");
 		authorization.assertRoleManagerAuthorization("/root/project-x", "/root/project-x/sub",
 				GroupAuthorizationRole.projectsAdmin);
+		authorization.assertManagerAuthorization("/root/project-y");
+		authorization.assertProjectsAdminAuthorization("/root/project-y");
+		authorization.assertRoleManagerAuthorization("/root/project-y", "/root/project-y",
+				GroupAuthorizationRole.projectsAdmin);
 	}
 
 	@Test
@@ -136,6 +144,10 @@ class ProjectRestAuthorizationTest
 		context.setScopes(List.of(RestProjectAuthorization.API_SCOPE));
 		ProjectRestAuthorization policy = new ProjectRestAuthorization(attributes, "/root", "/A");
 
+		assertThat(policy.isProjectVisible("/")).isFalse();
+		assertThat(policy.isProjectVisible("/roo")).isFalse();
+		assertThat(policy.isProjectVisible("/root")).isFalse();
+		assertThat(policy.isProjectVisible("/root-other/project")).isFalse();
 		assertThatThrownBy(() -> policy.assertManagerAuthorization("/root"))
 				.isInstanceOf(AuthorizationException.class).hasMessageContaining("configured root");
 		assertThatThrownBy(() -> policy.assertManagerAuthorization("/root-other/project"))
@@ -199,9 +211,14 @@ class ProjectRestAuthorizationTest
 	void shouldRejectAttributeLookupFailure() throws Exception
 	{
 		context.setInvocationMaterial(InvocationMaterial.DIRECT);
+		EngineException cause = new EngineException("lookup failed");
 		when(attributes.getAttributes(any(), eq("/A"), eq(RestProjectAuthorization.AUTHORIZATION_ROLE)))
-				.thenThrow(new EngineException("lookup failed"));
+				.thenThrow(cause);
 
+		assertThatThrownBy(() -> authorization.assertManagerAuthorization("/root/project-x"))
+				.isInstanceOf(AuthorizationException.class)
+				.hasMessageContaining("Cannot determine").hasMessageContaining("user [7]")
+				.hasMessageContaining("group /A").hasCause(cause);
 		assertEveryOperationDenied(authorization);
 	}
 

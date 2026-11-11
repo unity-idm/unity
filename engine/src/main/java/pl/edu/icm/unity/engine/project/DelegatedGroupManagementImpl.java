@@ -613,6 +613,8 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	@Configuration(proxyBeanMethods = false)
 	static class Factory
 	{
+		static final String BEAN_NAME = "projectGroupsWithAuthorization";
+
 		private final MessageSource msg;
 		private final GroupsManagement groupMan;
 		private final BulkGroupQueryService bulkQueryService;
@@ -647,7 +649,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 			this.validator = validator;
 		}
 
-		@Bean
+		@Bean(BEAN_NAME)
 		@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 		DelegatedGroupManagement projectGroupsWithAuthorization(ProjectAuthorization authorization)
 		{

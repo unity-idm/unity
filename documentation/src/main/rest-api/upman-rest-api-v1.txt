@@ -13,16 +13,57 @@ Unity Team <unity-idm-discuss@lists.sourceforge.net>
 The Unity UpMan REST API may be exposed (or disabled) as a regular Unity endpoint. See the
 <<manual.txt#endp-rest-upman,main Unity documentation>> for endpoints configuration details.
 
-Direct authentication uses the +sys:ProjectManagementRESTAPIRole+ manager role in the configured
-authorization group. OAuth bearer tokens use +sys:upman-api+ for all projects or a concrete
-+sys:upman-api:PROJECT-ID+ scope for one project. A project-scoped token sees only covered projects
-in the project listing and cannot create projects. Nested project scopes use the project path relative
-to the configured root, for example +sys:upman-api:parent/child+.
-
 All paths must be naturally prefixed with the server's base URL, endpoint deployment's path
 (as configured) and API version (currently there is only one). Example query path can be similar to:
 
    https://unity.example.com/rest-upman/v1/projects/PROJECT-ID
+
+== Authorization
+
+The API supports two authentication methods. All project access is limited to the endpoint's configured
+projects root.
+
+=== Direct authentication
+
+* Required permission: the authenticated Unity entity must have +sys:ProjectManagementRESTAPIRole+
+set to +manager+ in the endpoint's configured authorization group.
+* This role permits creating projects and managing every project under the configured projects root.
+* The authenticated entity does not need membership or a project-local management role in those projects.
+
+=== OAuth bearer token
+
+Send the access token in the +Authorization: Bearer ACCESS_TOKEN+ header. A valid token authenticates
+the API request.
+
+UpMan authorizes API operations using only the token's granted scopes. It does not check the REST API role,
+project membership or project-local management roles of either the client entity or the resource owner entity.
+
+The scopes grant the following permissions:
+
+* +sys:upman-api+: permits creating projects and managing every project under the configured projects root.
+* +sys:upman-api:PROJECT-ID+: permits managing exactly the specified project. Project listings show only
+projects matched by the token's scopes. This scope does not permit creating projects.
+
+Project IDs are paths relative to the configured projects root. For example:
+
+* +sys:upman-api:A+ permits managing project +A+, including removing its subprojects and changing their
+delegation configuration through +A+.
+* To access +A/child+ as a project in its own right, the token needs +sys:upman-api:A/child+ or the global
++sys:upman-api+ scope. The scope for +A+ alone does not grant this access.
+
+A token without a matching UpMan scope is denied access. The authorization server's client and scope
+configuration controls which clients can obtain tokens with these permissions, even when the resource
+owner has no management role in the affected projects.
+
+=== Rules for both methods
+
+* Authentication must succeed using the selected method. Requests using outdated credentials are rejected.
+* The REST API manager role or a matching OAuth scope permits granting +projectsAdmin+ to project members,
+deleting subprojects and changing subproject delegation settings. The caller does not need a separate
++projectsAdmin+ role to perform these operations.
+* These operations require delegation to be enabled on the project. Deleting a subproject or changing its
+delegation settings also requires +enableSubprojects+ to be enabled on the parent project. The REST API
+role and OAuth scopes do not override these project settings.
 
 == Projects
 

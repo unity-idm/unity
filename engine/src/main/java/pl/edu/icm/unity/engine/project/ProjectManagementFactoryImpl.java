@@ -26,8 +26,9 @@ class ProjectManagementFactoryImpl implements ProjectManagementFactory
 	{
 		Objects.requireNonNull(authorization);
 		return new ProjectManagement(
-				(DelegatedGroupManagement) beans.getBean("projectGroupsWithAuthorization", authorization),
-				(ProjectInvitationsManagement) beans.getBean("projectInvitationsWithAuthorization", authorization),
-				(ProjectRequestManagement) beans.getBean("projectRequestsWithAuthorization", authorization));
+				(DelegatedGroupManagement) beans.getBean(DelegatedGroupManagementImpl.Factory.BEAN_NAME, authorization),
+				(ProjectInvitationsManagement) beans.getBean(
+						ProjectInvitationsManagementImpl.Factory.BEAN_NAME, authorization),
+				(ProjectRequestManagement) beans.getBean(ProjectRequestManagementImpl.Factory.BEAN_NAME, authorization));
 	}
 }

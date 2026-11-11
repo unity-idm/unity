@@ -134,7 +134,7 @@ final class ProjectRestAuthorization implements RestProjectAuthorization
 		@Override
 		public boolean isProjectVisible(String projectPath)
 		{
-			return isUnderProjectsRoot(projectPath) && hasScopeForProject(projectPath);
+			return hasScopeForProject(projectPath);
 		}
 
 		@Override
@@ -159,6 +159,8 @@ final class ProjectRestAuthorization implements RestProjectAuthorization
 
 		private boolean hasScopeForProject(String projectPath)
 		{
+			if (!isUnderProjectsRoot(projectPath))
+				return false;
 			String rootRelativeProjectId = projectPath.substring(
 					projectsRootPath.equals("/") ? 1 : projectsRootPath.length() + 1);
 			List<String> tokenScopes = InvocationContext.getCurrent().getScopes();
@@ -243,8 +245,8 @@ final class ProjectRestAuthorization implements RestProjectAuthorization
 								.contains(RestGroupAuthorizationRole.manager.name()));
 			} catch (EngineException e)
 			{
-				throw new AuthorizationException("Access is denied. The operation requires user [" + callerEntityId
-						+ "] to be a member of the " + apiUsersGroupPath + " group");
+				throw new AuthorizationException("Access is denied. Cannot determine project management REST API role "
+						+ "for user [" + callerEntityId + "] in group " + apiUsersGroupPath, e);
 			}
 			if (!hasApiManagerRole)
 				throw new AuthorizationException(
