@@ -1019,6 +1019,7 @@
 						<configuration>
 							<publishingServerId>maven-central</publishingServerId>
 							<autoPublish>true</autoPublish>
+							<checksums>required</checksums>
 						</configuration>
 					</plugin>
 				</plugins>
