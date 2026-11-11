@@ -472,6 +472,8 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	@Configuration(proxyBeanMethods = false)
 	static class Factory
 	{
+		static final String BEAN_NAME = "projectInvitationsWithAuthorization";
+
 		private final InvitationManagement invitationMan;
 		private final GroupsManagement groupMan;
 		private final RegistrationsManagement registrationMan;
@@ -499,7 +501,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			this.msg = msg;
 		}
 
-		@Bean
+		@Bean(BEAN_NAME)
 		@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 		ProjectInvitationsManagement projectInvitationsWithAuthorization(ProjectAuthorization authorization)
 		{

@@ -6,9 +6,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,12 +29,15 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext.InvocationMaterial;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
+import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.engine.api.project.ProjectAuthorizationFactory;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectManagementFactory;
 import pl.edu.icm.unity.engine.api.project.ProjectManagementFactory.ProjectManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
+import pl.edu.icm.unity.engine.api.project.SubprojectGroupDelegationConfiguration;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 
@@ -118,6 +124,36 @@ class ProjectAuthorizationIntegrationTest extends DBIntegrationTestBase
 				.isInstanceOf(AuthorizationException.class).hasMessageContaining("configured root");
 	}
 
+	@ParameterizedTest
+	@MethodSource("privilegedAccessCases")
+	void shouldAllowPrivilegedOperationsWithoutProjectMembershipOrRoles(PrivilegedAccess testCase) throws Exception
+	{
+		Identity caller = createUserWithoutProjectRoles("rest-caller");
+		Identity recipient = createUserWithoutProjectRoles("role-recipient");
+		prepareProjectMembersAndSubprojects(testCase.projects(), recipient);
+
+		configureRestCaller(caller, testCase);
+
+		assertWebAccessDenied();
+		for (String project : testCase.projects())
+		{
+			assertCanAssignProjectsAdmin(project, recipient.getEntityId());
+			assertCanChangeSubprojectDelegation(project);
+			assertCanRemoveSubproject(project);
+		}
+		assertWebAccessDenied();
+	}
+
+	private static Stream<PrivilegedAccess> privilegedAccessCases()
+	{
+		return Stream.of(
+				PrivilegedAccess.builder(InvocationMaterial.OAUTH_DELEGATION)
+						.withScopes("sys:upman-api:project").withProjects(PROJECT).build(),
+				PrivilegedAccess.builder(InvocationMaterial.OAUTH_DELEGATION)
+						.withScopes(RestProjectAuthorization.API_SCOPE).build(),
+				PrivilegedAccess.builder(InvocationMaterial.DIRECT).build());
+	}
+
 	@Test
 	void shouldApplyPolicyToCurrentUserProjectDiscovery() throws Exception
 	{
@@ -190,6 +226,63 @@ class ProjectAuthorizationIntegrationTest extends DBIntegrationTestBase
 				.isInstanceOf(IllegalArgumentException.class).hasMessageContaining("not child");
 	}
 
+	private Identity createUserWithoutProjectRoles(String username) throws Exception
+	{
+		return idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, username),
+				EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, EntityState.valid);
+	}
+
+	private void prepareProjectMembersAndSubprojects(List<String> projectPaths, Identity recipient) throws Exception
+	{
+		EntityParam recipientEntity = new EntityParam(recipient);
+		groupsMan.addMemberFromParent("/A", recipientEntity);
+		for (String project : projectPaths)
+		{
+			addProject(project + "/sub", true, true);
+			groupsMan.addMemberFromParent(project, recipientEntity);
+		}
+	}
+
+	private void configureRestCaller(Identity caller, PrivilegedAccess testCase) throws Exception
+	{
+		if (testCase.material() == InvocationMaterial.DIRECT)
+			attrsMan.createAttribute(new EntityParam(caller), new Attribute(RestProjectAuthorization.AUTHORIZATION_ROLE,
+					"enumeration", "/", List.of("manager")));
+		InvocationContext context = InvocationContext.getCurrent();
+		context.setLoginSession(new LoginSession(null, null, 0, caller.getEntityId(), null, null, null, null));
+		context.setInvocationMaterial(testCase.material());
+		context.setScopes(testCase.scopes());
+	}
+
+	private void assertCanAssignProjectsAdmin(String project, long recipientId) throws Exception
+	{
+		rest.groups().setGroupAuthorizationRole(project, project, recipientId, GroupAuthorizationRole.projectsAdmin);
+
+		assertThat(rest.groups().getGroupAuthorizationRole(project, recipientId))
+				.isEqualTo(GroupAuthorizationRole.projectsAdmin);
+	}
+
+	private void assertCanChangeSubprojectDelegation(String project) throws Exception
+	{
+		String subproject = project + "/sub";
+		rest.groups().setGroupDelegationConfiguration(project, subproject,
+				new SubprojectGroupDelegationConfiguration(true, false, "https://example.org/logo"));
+
+		GroupDelegationConfiguration config = rest.groups().getContents(project, subproject)
+				.group.delegationConfiguration;
+		assertThat(config.enabled).isTrue();
+		assertThat(config.enableSubprojects).isFalse();
+		assertThat(config.logoUrl).isEqualTo("https://example.org/logo");
+	}
+
+	private void assertCanRemoveSubproject(String project) throws Exception
+	{
+		String subproject = project + "/sub";
+		rest.groups().removeProject(project, subproject);
+
+		assertThat(rest.groups().getContents(project, project).subGroups).doesNotContain(subproject);
+	}
+
 	private void assertWebAccessDenied()
 	{
 		assertThatThrownBy(() -> webGroups.getContents(PROJECT, PROJECT))
@@ -206,5 +299,42 @@ class ProjectAuthorizationIntegrationTest extends DBIntegrationTestBase
 		project.setDelegationConfiguration(new GroupDelegationConfiguration(delegation, subprojects,
 				null, null, null, null, List.of(), List.of()));
 		groupsMan.addGroup(project);
+	}
+
+	private record PrivilegedAccess(InvocationMaterial material, List<String> scopes, List<String> projects)
+	{
+		static Builder builder(InvocationMaterial material)
+		{
+			return new Builder(material);
+		}
+
+		private static class Builder
+		{
+			private final InvocationMaterial material;
+			private List<String> scopes = List.of();
+			private List<String> projects = List.of(PROJECT, "/A/other");
+
+			private Builder(InvocationMaterial material)
+			{
+				this.material = material;
+			}
+
+			Builder withScopes(String... scopes)
+			{
+				this.scopes = List.of(scopes);
+				return this;
+			}
+
+			Builder withProjects(String... projects)
+			{
+				this.projects = List.of(projects);
+				return this;
+			}
+
+			PrivilegedAccess build()
+			{
+				return new PrivilegedAccess(material, scopes, projects);
+			}
+		}
 	}
 }
