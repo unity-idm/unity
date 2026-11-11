@@ -117,9 +117,47 @@ class RestProjectServiceTest
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(groupMan).updateGroup(eq("/A/B"), argument.capture());
-		assertThat(argument.getValue().getDelegationConfiguration().registrationForm).isEqualTo(null);
-		assertThat(argument.getValue().getDelegationConfiguration().signupEnquiryForm).isEqualTo(null);
-		assertThat(argument.getValue().getDelegationConfiguration().membershipUpdateEnquiryForm).isEqualTo(null);
+		assertThat(argument.getValue().getDelegationConfiguration()).isEqualTo(new GroupDelegationConfiguration(
+				true, true, "logoUrl", null, null, null, List.of(), null));
+	}
+
+	@Test
+	void shouldPreserveFormsAndPoliciesWhenReplacingProjectSettings() throws EngineException
+	{
+		GroupDelegationConfiguration configuration = GroupDelegationConfiguration.builder()
+				.withEnableSubprojects(true)
+				.withLogoUrl("oldLogoUrl")
+				.withAttributes(List.of("oldAttribute"))
+				.withRegistrationForm("registration")
+				.withSignupEnquiryForm("signup")
+				.withMembershipUpdateEnquiryForm("membershipUpdate")
+				.withPolicyDocumentsIds(List.of(1L, 2L))
+				.build();
+		setUpGroupContent(configuration);
+		RestProjectUpdateRequest request = RestProjectUpdateRequest.builder()
+				.withPublic(false)
+				.withDisplayedName(Map.of("en", "Updated project"))
+				.withDescription(Map.of("en", "Updated description"))
+				.withEnableSubprojects(false)
+				.withLogoUrl(null)
+				.withReadOnlyAttributes(List.of("email", "name"))
+				.build();
+
+		restProjectService.updateProject("B", request);
+
+		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
+		verify(groupMan).updateGroup(eq("/A/B"), argument.capture());
+		Group updated = argument.getValue();
+		assertThat(updated.isPublic()).isFalse();
+		assertThat(updated.getDisplayedName()).isEqualTo(convertToI18nString(request.displayedName));
+		assertThat(updated.getDescription()).isEqualTo(convertToI18nString(request.description));
+		assertThat(updated.getDelegationConfiguration()).isEqualTo(new GroupDelegationConfiguration(
+				true, false, null, "registration", "signup", "membershipUpdate",
+				List.of("email", "name"), List.of(1L, 2L)));
+		RestProject project = restProjectService.getProject("B");
+		assertThat(project.registrationForm).isEqualTo("registration");
+		assertThat(project.signUpEnquiry).isEqualTo("signup");
+		assertThat(project.membershipUpdateEnquiry).isEqualTo("membershipUpdate");
 	}
 
 	@Test
