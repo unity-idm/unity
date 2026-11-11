@@ -138,8 +138,12 @@ class RestProjectService
 
 		try
 		{
-			toUpdate.setDelegationConfiguration(new GroupDelegationConfiguration(true, project.enableSubprojects,
-					project.logoUrl, null, null, null, project.readOnlyAttributes, List.of()));
+			toUpdate.setDelegationConfiguration(GroupDelegationConfiguration.builder()
+					.copy(toUpdate.getDelegationConfiguration())
+					.withEnableSubprojects(project.enableSubprojects)
+					.withLogoUrl(project.logoUrl)
+					.withAttributes(project.readOnlyAttributes)
+					.build());
 			groupMan.updateGroup(projectPath, toUpdate);
 		} catch (GroupNotFoundException e)
 		{
