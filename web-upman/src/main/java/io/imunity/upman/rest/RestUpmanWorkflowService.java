@@ -264,14 +264,8 @@ class RestUpmanWorkflowService
 		String path = resolveGroup(project, input.path());
 		if (path.equals(project))
 			throw new BadRequestException("Project root is managed by the project route");
-		try
-		{
-			groups.setGroupAccessMode(project, path, input.isPublic());
-			groups.setGroupDisplayedName(project, path, displayedName);
-		} catch (InternalException e)
-		{
-			throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
-		}
+		groups.setGroupAccessMode(project, path, input.isPublic());
+		groups.setGroupDisplayedName(project, path, displayedName);
 	}
 
 	@Transactional

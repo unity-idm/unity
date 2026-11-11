@@ -77,6 +77,7 @@ public class RESTUpmanEndpoint extends RESTEndpoint
 				);
 			objects.add(ret);
 			RestEndpointHelper.installExceptionHandlers(objects);
+			objects.add(new GroupVisibilityExceptionMapper());
 			return objects;
 		}
 	}
