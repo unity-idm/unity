@@ -3,9 +3,8 @@ package io.imunity.upman.rest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
@@ -29,9 +28,10 @@ class UpmanRestPolicyDocumentAuthorizationManager
 	private final List<IdpPolicyAgreementContentChecker> idpPolicyAgreementContentCheckers;
 	private final GroupsManagement groupMan;
 
-	UpmanRestPolicyDocumentAuthorizationManager(RegistrationsManagement registrationsManagement,
-			EnquiryManagement enquiryManagement,
-			List<IdpPolicyAgreementContentChecker> idpPolicyAgreementContentCheckers, GroupsManagement groupMan)
+	UpmanRestPolicyDocumentAuthorizationManager(@Qualifier("insecure") RegistrationsManagement registrationsManagement,
+			@Qualifier("insecure") EnquiryManagement enquiryManagement,
+			List<IdpPolicyAgreementContentChecker> idpPolicyAgreementContentCheckers,
+			@Qualifier("insecure") GroupsManagement groupMan)
 	{
 		this.registrationsManagement = registrationsManagement;
 		this.enquiryManagement = enquiryManagement;
@@ -39,27 +39,33 @@ class UpmanRestPolicyDocumentAuthorizationManager
 		this.groupMan = groupMan;
 	}
 
-	 void assertGetProjectPolicyAuthorization(GroupDelegationConfiguration groupDelegationConfiguration,
+	void assertGetProjectPolicyAuthorization(GroupDelegationConfiguration groupDelegationConfiguration,
 			Long policyId) throws AuthorizationException
 	{
-		if (!groupDelegationConfiguration.policyDocumentsIds.contains(policyId))
+		if (groupDelegationConfiguration.policyDocumentsIds == null
+				|| !groupDelegationConfiguration.policyDocumentsIds.contains(policyId))
 		{
 			throw new AuthorizationException(
 					"Access to policy document is denied. The policy document is not in project scope.");
 		}
 	}
-	
-	void assertUpdateOrRemoveProjectPolicyAuthorization(Group group, Long policyId) throws EngineException
+
+	void assertUpdateProjectPolicyAuthorization(Group group, Long policyId) throws EngineException
 	{
-		if (group.getDelegationConfiguration().policyDocumentsIds == null
-				|| !group.getDelegationConfiguration().policyDocumentsIds.contains(policyId))
+		assertGetProjectPolicyAuthorization(group.getDelegationConfiguration(), policyId);
+		if (isPolicyUsedOutsideProject(group, policyId))
 		{
 			throw new AuthorizationException(
-					"Access to policy document is denied. The policy document is not in project scope.");
+					"Access to policy document is denied. The policy document is used in other context.");
 		}
+	}
 
-		assertIdPsContainsPolicyDocument(policyId);
-		assertOtherGroupsContainsPolicyDocument(group, policyId);
+	boolean isPolicyUsedOutsideProject(Group group, Long policyId) throws EngineException
+	{
+		if (isPolicyUsedOnEndpoints(policyId) || isPolicyUsedInOtherGroups(group, policyId))
+		{
+			return true;
+		}
 
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
 		List<RegistrationForm> regForms = new ArrayList<>(registrationsManagement.getForms());
@@ -68,7 +74,10 @@ class UpmanRestPolicyDocumentAuthorizationManager
 			regForms.removeIf(r -> r.getName()
 					.equals(groupDelegationConfiguration.registrationForm));
 		}
-		assertFormsContainsPolicyDocument(regForms, policyId);
+		if (formsContainPolicyDocument(regForms, policyId))
+		{
+			return true;
+		}
 
 		List<EnquiryForm> enqForms = new ArrayList<>(enquiryManagement.getEnquires());
 		if (groupDelegationConfiguration.signupEnquiryForm != null)
@@ -81,58 +90,36 @@ class UpmanRestPolicyDocumentAuthorizationManager
 			enqForms.removeIf(r -> r.getName()
 					.equals(groupDelegationConfiguration.membershipUpdateEnquiryForm));
 		}
-		assertFormsContainsPolicyDocument(enqForms, policyId);
+		return formsContainPolicyDocument(enqForms, policyId);
 	}
 
-	void assertOtherGroupsContainsPolicyDocument(Group group, Long policyId) throws EngineException
+	private boolean isPolicyUsedInOtherGroups(Group group, Long policyId) throws EngineException
 	{
-		Map<String, Group> allGroups = groupMan.getAllGroups();
-		for (Group g : allGroups.values()
-				.stream()
-				.filter(g -> !g.equals(group) && g.getDelegationConfiguration() != null)
-				.collect(Collectors.toList()))
-		{
-			if (g.getDelegationConfiguration().policyDocumentsIds != null
-					&& g.getDelegationConfiguration().policyDocumentsIds.contains(policyId))
-			{
-				throw new PolicyAuthorizationException();
-			}
-		}
+		return groupMan.getAllGroups().values().stream()
+				.filter(other -> !other.getPathEncoded().equals(group.getPathEncoded()))
+				.map(Group::getDelegationConfiguration)
+				.anyMatch(config -> config != null && config.policyDocumentsIds != null
+						&& config.policyDocumentsIds.contains(policyId));
 	}
 
-	void assertIdPsContainsPolicyDocument(Long policyId) throws EngineException
+	private boolean isPolicyUsedOnEndpoints(Long policyId) throws EngineException
 	{
 		for (IdpPolicyAgreementContentChecker idpChecker : idpPolicyAgreementContentCheckers)
 		{
 			if (idpChecker.isPolicyUsedOnEndpoints(policyId))
 			{
-				throw new PolicyAuthorizationException();
+				return true;
 			}
 		}
+		return false;
 	}
 
-	void assertFormsContainsPolicyDocument(List<? extends BaseForm> forms, Long policyId) throws AuthorizationException
+	private boolean formsContainPolicyDocument(List<? extends BaseForm> forms, Long policyId)
 	{
-		for (BaseForm form : forms)
-		{
-			if (form.getPolicyAgreements()
-					.stream()
-					.map(p -> p.documentsIdsToAccept)
-					.flatMap(Collection::stream)
-					.anyMatch(s -> s.equals(policyId)))
-			{
-				throw new AuthorizationException(
-						"Access to policy document is denied. The policy document is used in other context.");
-			}
-		}
-	}
-
-	private class PolicyAuthorizationException extends AuthorizationException
-	{
-		public PolicyAuthorizationException()
-		{
-			super("Access to policy document is denied. The policy document is also used in other than this project context.");
-
-		}
+		return forms.stream()
+				.flatMap(form -> form.getPolicyAgreements().stream())
+				.map(agreement -> agreement.documentsIdsToAccept)
+				.flatMap(Collection::stream)
+				.anyMatch(policyId::equals);
 	}
 }

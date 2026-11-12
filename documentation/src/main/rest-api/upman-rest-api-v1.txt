@@ -251,6 +251,7 @@ Example input:
 Updates the given policy document. Set +incrementRevision=true+ to increment its revision and require
 re-acceptance. With +incrementRevision=false+, the revision stays unchanged. The +revision+ field is returned
 by GET but is not accepted in the update body. +contentType+ can be +LINK+ or +EMBEDDED+.
+The document must belong to the project and must not be used outside the project.
 
 Example input:
 ----
@@ -273,7 +274,9 @@ Example input:
 +@Path("/projects/{project-id}/policyDocuments/{policy-id}")+ +
 +@DELETE+ +
 
-Removes the given project policy document.
+Removes the policy document from the project and synchronizes its registration and signup enquiry forms.
+If the document is also used by another project, an external form, or an identity provider endpoint,
+the document is only unlinked from the project. Otherwise, the document is deleted.
 
 === Get policy document
 
