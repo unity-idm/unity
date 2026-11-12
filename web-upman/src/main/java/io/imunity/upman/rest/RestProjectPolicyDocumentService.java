@@ -103,7 +103,8 @@ class RestProjectPolicyDocumentService
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		GroupDelegationConfiguration groupDelegationConfiguration = group.getDelegationConfiguration();
-		restPolicyDocumentAuthorizationManager.assertUpdateOrRemoveProjectPolicyAuthorization(group, policyId);
+		restPolicyDocumentAuthorizationManager.assertGetProjectPolicyAuthorization(groupDelegationConfiguration, policyId);
+		boolean usedOutsideProject = restPolicyDocumentAuthorizationManager.isPolicyUsedOutsideProject(group, policyId);
 
 		List<Long> updatedPolicies = groupDelegationConfiguration.policyDocumentsIds.stream()
 				.filter(p -> !p.equals(policyId))
@@ -117,7 +118,10 @@ class RestProjectPolicyDocumentService
 				updatedPolicies);
 		group.setDelegationConfiguration(updatedGroupDelegationConfiguration);
 		groupMan.updateGroup(ProjectPathProvider.getProjectPath(projectId, rootGroup), group);
-		policyDocumentManagement.removePolicyDocument(policyId);
+		if (!usedOutsideProject)
+		{
+			policyDocumentManagement.removePolicyDocument(policyId);
+		}
 		synchronizeForms(updatedGroupDelegationConfiguration);
 	}
 
@@ -127,7 +131,7 @@ class RestProjectPolicyDocumentService
 		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
-		restPolicyDocumentAuthorizationManager.assertUpdateOrRemoveProjectPolicyAuthorization(
+		restPolicyDocumentAuthorizationManager.assertUpdateProjectPolicyAuthorization(
 				group,
 				policy.id);
 		if (updateRevision)
