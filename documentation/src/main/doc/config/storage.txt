@@ -73,13 +73,18 @@ https://mariadb.com/kb/en/about-mariadb-connector-j/
 ===== MariaDB setup
 
 MariaDB is a fork of MySQL DB and so the same considerations apply as described in the MySQL setup section above.
-The only difference is that the following URI should be used to connect to MariaDB:
+Use the following URI to connect to MariaDB:
 
 ----
 unityServer.storage.engine.rdbms.jdbcUrl=jdbc:mariadb://localhost/unitydb
 ----
 
 The +dialect+ option shall be set to +mysql+ value.
+
+MariaDB Connector/J 4 uses +sslMode=verify-full+ by default. The database server must support TLS, and its
+certificate must be trusted and match the hostname in the JDBC URI. Configure the JVM trust store or the
+connector's +serverSslCert+ option when using a private certificate authority. An existing +sslMode+ option
+in the JDBC URI overrides the default.
 
 ===== PostgreSQL setup
 
