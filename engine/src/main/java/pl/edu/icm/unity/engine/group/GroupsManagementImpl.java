@@ -17,7 +17,6 @@ import pl.edu.icm.unity.base.audit.AuditEventType;
 import pl.edu.icm.unity.base.capacity_limit.CapacityLimitName;
 import pl.edu.icm.unity.base.entity.EntityParam;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupMembership;
@@ -28,6 +27,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.group.GroupNotFoundException;
+import pl.edu.icm.unity.engine.api.group.GroupVisibilityException;
 import pl.edu.icm.unity.engine.api.group.GroupsChain;
 import pl.edu.icm.unity.engine.api.group.IllegalGroupValueException;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
@@ -552,7 +552,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 	}
 	
-	public static class PublicChildGroupException extends InternalException
+	public static class PublicChildGroupException extends GroupVisibilityException
 	{
 		public PublicChildGroupException(String parent, String child)
 		{
@@ -560,7 +560,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 	}
 
-	public static class ParentIsPrivateGroupException extends InternalException
+	public static class ParentIsPrivateGroupException extends GroupVisibilityException
 	{
 		public ParentIsPrivateGroupException(String parent, String child)
 		{

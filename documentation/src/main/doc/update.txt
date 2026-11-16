@@ -165,4 +165,14 @@ jdbc:mariadb:
 
 In this case MariaDB connector will be used.
 
+==== From 4.6 to 4.7
 
+===== MariaDB connection security
+
+MariaDB Connector/J is updated to version 4, which enables TLS with certificate and hostname verification by
+default (+sslMode=verify-full+). Before upgrading, ensure that the MariaDB server supports TLS and that its
+certificate is trusted and matches the hostname configured in the JDBC URI. See <<mariadb-ssl-mode,MariaDB TLS
+modes>> for all allowed values, their verification behavior, and certificate configuration.
+
+An explicit +sslMode+ in the JDBC URI continues to take precedence. Connections that previously used the
+driver's unencrypted default need a TLS configuration before they can use the new default.

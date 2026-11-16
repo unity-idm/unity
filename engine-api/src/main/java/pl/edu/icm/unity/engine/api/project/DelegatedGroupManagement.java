@@ -161,7 +161,7 @@ public interface DelegatedGroupManagement
 
 	/**
 	 * Removes from the group and all subgroups if the user is in any. 
-	 * Entity can not be removed from the group == '/' 
+	 * Entity can not be removed from the group == '/'. The project's last manager cannot be removed.
 	 *
 	 * @param projectPath is a full path to the project's underlying group
 	 * @param subgroupPath is a full path to a subgroup of the project of which member will be removed

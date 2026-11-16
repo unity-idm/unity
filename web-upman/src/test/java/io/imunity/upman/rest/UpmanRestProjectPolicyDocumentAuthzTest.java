@@ -1,48 +1,48 @@
 package io.imunity.upman.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.group.Group;
-import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
-import pl.edu.icm.unity.base.i18n.I18nString;
 import pl.edu.icm.unity.base.policy_agreement.PolicyAgreementConfiguration;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
+import pl.edu.icm.unity.base.registration.EnquiryFormBuilder;
+import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.base.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthorizationException;
 import pl.edu.icm.unity.engine.api.idp.IdpPolicyAgreementContentChecker;
-import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 
 @ExtendWith(MockitoExtension.class)
-public class UpmanRestProjectPolicyDocumentAuthzTest
+class UpmanRestProjectPolicyDocumentAuthzTest
 {
 	@Mock
 	private GroupsManagement groupMan;
-
 	@Mock
 	private RegistrationsManagement registrationsManagement;
-	
 	@Mock
 	private EnquiryManagement enquiryManagement;
-
 	@Mock
-	private IdpPolicyAgreementContentChecker idpPolicyAgreementContentChecker;
-
-	@Mock
-	private PolicyDocumentManagement policyDocumentManagement;
+	private IdpPolicyAgreementContentChecker idpChecker;
 
 	private UpmanRestPolicyDocumentAuthorizationManager authzService;
 
@@ -50,114 +50,108 @@ public class UpmanRestProjectPolicyDocumentAuthzTest
 	void setUp()
 	{
 		authzService = new UpmanRestPolicyDocumentAuthorizationManager(registrationsManagement, enquiryManagement,
-				List.of(idpPolicyAgreementContentChecker), groupMan);
+				List.of(idpChecker), groupMan);
+	}
+
+	@ParameterizedTest
+	@MethodSource("policyUses")
+	void shouldDetectExternalUsesAndBlockUpdates(PolicyUse testCase) throws EngineException
+	{
+		Group group = project("/A");
+		switch (testCase.context())
+		{
+		case "group" -> when(groupMan.getAllGroups()).thenReturn(Map.of("/B", project("/B")));
+		case "registration" -> when(registrationsManagement.getForms()).thenReturn(List.of(registration("external")));
+		case "enquiry" -> when(enquiryManagement.getEnquires()).thenReturn(List.of(enquiry("external")));
+		case "idp" -> when(idpChecker.isPolicyUsedOnEndpoints(1L)).thenReturn(true);
+		default -> throw new IllegalArgumentException(testCase.context());
+		}
+
+		assertThat(authzService.isPolicyUsedOutsideProject(group, 1L)).isTrue();
+		assertThatThrownBy(() -> authzService.assertUpdateProjectPolicyAuthorization(group, 1L))
+				.isInstanceOf(AuthorizationException.class).hasMessageContaining("other context");
 	}
 
 	@Test
-	void shouldBlockRemoveWhenPolicyDocumentIsConfiguredInAnotherGroup() throws EngineException
+	void shouldAllowUpdatesWhenOnlyProjectAndItsFormsUsePolicy() throws EngineException
 	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
-		content.setGroup(group);
+		Group group = project("/A");
+		when(groupMan.getAllGroups()).thenReturn(Map.of("/A", project("/A")));
+		when(registrationsManagement.getForms()).thenReturn(List.of(registration("registration")));
+		when(enquiryManagement.getEnquires()).thenReturn(List.of(enquiry("signup"), enquiry("membership")));
 
-		Group groupB = new Group("/B");
-		groupB.setDisplayedName(new I18nString());
-		groupB.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
-
-		when(groupMan.getAllGroups()).thenReturn(Map.of("/A", group, "/B", groupB));
-		Assertions.assertThrows(AuthorizationException.class,
-				() -> authzService.assertUpdateOrRemoveProjectPolicyAuthorization(group, 1L));
+		assertThat(authzService.isPolicyUsedOutsideProject(group, 1L)).isFalse();
+		assertThatCode(() -> authzService.assertUpdateProjectPolicyAuthorization(group, 1L)).doesNotThrowAnyException();
 	}
 
 	@Test
-	void shouldBlockRemoveWhenPolicyDocumentIsConfiguredInAnotherForm() throws EngineException
+	void shouldRejectPolicyOutsideProjectBeforeCheckingUsage()
 	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, "regForm", null, null, null, List.of(1L)));
-		content.setGroup(group);
+		Group group = project("/A");
 
-		when(registrationsManagement.getForms()).thenReturn(List.of(new RegistrationFormBuilder().withName("regForm2")
-				.withDefaultCredentialRequirement("cr")
-				.withAddedPolicyAgreement(new PolicyAgreementConfiguration(List.of(1L), null, null))
-				.build()));
-		Assertions.assertThrows(AuthorizationException.class,
-				() -> authzService.assertUpdateOrRemoveProjectPolicyAuthorization(group, 1L));
+		assertThatThrownBy(() -> authzService.assertUpdateProjectPolicyAuthorization(group, 2L))
+				.isInstanceOf(AuthorizationException.class).hasMessageContaining("not in project scope");
+		verifyNoInteractions(groupMan, registrationsManagement, enquiryManagement, idpChecker);
 	}
 
 	@Test
-	void shouldBlockRemoveWhenPolicyDocumentIsConfiguredInIdp() throws EngineException
+	void shouldRejectPolicyWhenProjectHasNoPolicies()
 	{
-		GroupContents content = new GroupContents();
 		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
-		content.setGroup(group);
-		when(idpPolicyAgreementContentChecker.isPolicyUsedOnEndpoints(1L)).thenReturn(true);
+		group.setDelegationConfiguration(new GroupDelegationConfiguration(true));
 
-		Assertions.assertThrows(AuthorizationException.class,
-				() -> authzService.assertUpdateOrRemoveProjectPolicyAuthorization(group, 1L));
+		assertThatThrownBy(() -> authzService.assertGetProjectPolicyAuthorization(group.getDelegationConfiguration(), 1L))
+				.isInstanceOf(AuthorizationException.class).hasMessageContaining("not in project scope");
 	}
 
-	@Test
-	void shouldBlockUpdateWhenPolicyDocumentIsConfiguredInAnotherGroup() throws EngineException
+	private Group project(String path)
 	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
-		content.setGroup(group);
-
-		Group groupB = new Group("/B");
-		groupB.setDisplayedName(new I18nString());
-		groupB.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
-
-		when(groupMan.getAllGroups()).thenReturn(Map.of("/A", group, "/B", groupB));
-
-		Assertions.assertThrows(AuthorizationException.class,
-				() -> authzService.assertUpdateOrRemoveProjectPolicyAuthorization(group, 1L));
+		Group group = new Group(path);
+		group.setDelegationConfiguration(new GroupDelegationConfiguration(true, false, null,
+				"registration", "signup", "membership", List.of(), List.of(1L)));
+		return group;
 	}
 
-	@Test
-	void shouldBlockUpdateWhenPolicyDocumentIsConfiguredInAnotherForm() throws EngineException
+	private RegistrationForm registration(String name)
 	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, "regForm", null, null, null, List.of(1L)));
-		content.setGroup(group);
-
-		when(registrationsManagement.getForms()).thenReturn(List.of(new RegistrationFormBuilder().withName("regForm2")
-				.withDefaultCredentialRequirement("cr")
-				.withAddedPolicyAgreement(new PolicyAgreementConfiguration(List.of(1L), null, null))
-				.build()));
-		Assertions.assertThrows(AuthorizationException.class,
-				() -> authzService.assertUpdateOrRemoveProjectPolicyAuthorization(group, 1L));
+		return new RegistrationFormBuilder().withName(name).withDefaultCredentialRequirement("cr")
+				.withAddedPolicyAgreement(new PolicyAgreementConfiguration(List.of(1L), null, null)).build();
 	}
 
-	@Test
-	void shouldBlockUpdateWhenPolicyDocumentIsConfiguredInIdp() throws EngineException
+	private EnquiryForm enquiry(String name)
 	{
-		GroupContents content = new GroupContents();
-		Group group = new Group("/A");
-		group.setDisplayedName(new I18nString());
-		group.setDelegationConfiguration(
-				new GroupDelegationConfiguration(false, false, null, null, null, null, null, List.of(1L)));
-		content.setGroup(group);
-		when(idpPolicyAgreementContentChecker.isPolicyUsedOnEndpoints(1L)).thenReturn(true);
-
-		Assertions.assertThrows(AuthorizationException.class,
-				() -> authzService.assertUpdateOrRemoveProjectPolicyAuthorization(group, 1L));
+		return new EnquiryFormBuilder().withName(name).withType(EnquiryForm.EnquiryType.STICKY)
+				.withTargetGroups(new String[] {"/"})
+				.withAddedPolicyAgreement(new PolicyAgreementConfiguration(List.of(1L), null, null)).build();
 	}
 
+	private static Stream<PolicyUse> policyUses()
+	{
+		return Stream.of("group", "registration", "enquiry", "idp")
+				.map(context -> PolicyUse.builder().withContext(context).build());
+	}
+
+	private record PolicyUse(String context)
+	{
+		static Builder builder()
+		{
+			return new Builder();
+		}
+
+		private static class Builder
+		{
+			private String context;
+
+			Builder withContext(String context)
+			{
+				this.context = context;
+				return this;
+			}
+
+			PolicyUse build()
+			{
+				return new PolicyUse(context);
+			}
+		}
+	}
 }

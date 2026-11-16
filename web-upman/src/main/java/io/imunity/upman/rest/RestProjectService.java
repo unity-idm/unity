@@ -138,8 +138,12 @@ class RestProjectService
 
 		try
 		{
-			toUpdate.setDelegationConfiguration(new GroupDelegationConfiguration(true, project.enableSubprojects,
-					project.logoUrl, null, null, null, project.readOnlyAttributes, List.of()));
+			toUpdate.setDelegationConfiguration(GroupDelegationConfiguration.builder()
+					.copy(toUpdate.getDelegationConfiguration())
+					.withEnableSubprojects(project.enableSubprojects)
+					.withLogoUrl(project.logoUrl)
+					.withAttributes(project.readOnlyAttributes)
+					.build());
 			groupMan.updateGroup(projectPath, toUpdate);
 		} catch (GroupNotFoundException e)
 		{
@@ -261,7 +265,8 @@ class RestProjectService
 		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		try
 		{
-			groupMan.removeMember(ProjectPathProvider.getProjectPath(projectId, rootGroup), new EntityParam(new IdentityTaV(EmailIdentity.ID, email)));
+			long entityId = idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, email))).getId();
+			delGroupMan.removeMemberFromGroup(projectPath, projectPath, entityId);
 		}
 		catch (UnknownIdentityException e)
 		{
@@ -287,7 +292,7 @@ class RestProjectService
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		projectGroupProvider.getProjectGroup(projectId, projectPath);
 		return delGroupMan.getDelegatedGroupMembers(projectPath, projectPath).stream()
-			.filter(member -> member.email.getValue().equals(email))
+			.filter(member -> member.email != null && member.email.getValue().equals(email))
 			.map(RestProjectService::map)
 			.findFirst()
 			.orElseThrow(() -> new NotFoundException("There is no member"));
@@ -362,7 +367,7 @@ class RestProjectService
 	private static RestProjectMembership map(DelegatedGroupMember member)
 	{
 		return RestProjectMembership.builder()
-			.withEmail(member.email.getValue())
+			.withEmail(member.email == null ? null : member.email.getValue())
 			.withRole(member.role.name())
 			.withAttributes(
 				member.attributes.stream()

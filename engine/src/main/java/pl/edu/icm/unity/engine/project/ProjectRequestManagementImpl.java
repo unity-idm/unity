@@ -393,6 +393,8 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 	@Configuration(proxyBeanMethods = false)
 	static class Factory
 	{
+		static final String BEAN_NAME = "projectRequestsWithAuthorization";
+
 		private final RegistrationsManagement registrationMan;
 		private final EnquiryManagement enquiryMan;
 		private final GroupsManagement groupMan;
@@ -419,7 +421,7 @@ class ProjectRequestManagementImpl implements ProjectRequestManagement
 			this.validator = validator;
 		}
 
-		@Bean
+		@Bean(BEAN_NAME)
 		@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 		ProjectRequestManagement projectRequestsWithAuthorization(ProjectAuthorization authorization)
 		{

@@ -6,6 +6,7 @@
 package io.imunity.upman.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -116,9 +117,47 @@ class RestProjectServiceTest
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(groupMan).updateGroup(eq("/A/B"), argument.capture());
-		assertThat(argument.getValue().getDelegationConfiguration().registrationForm).isEqualTo(null);
-		assertThat(argument.getValue().getDelegationConfiguration().signupEnquiryForm).isEqualTo(null);
-		assertThat(argument.getValue().getDelegationConfiguration().membershipUpdateEnquiryForm).isEqualTo(null);
+		assertThat(argument.getValue().getDelegationConfiguration()).isEqualTo(new GroupDelegationConfiguration(
+				true, true, "logoUrl", null, null, null, List.of(), null));
+	}
+
+	@Test
+	void shouldPreserveFormsAndPoliciesWhenReplacingProjectSettings() throws EngineException
+	{
+		GroupDelegationConfiguration configuration = GroupDelegationConfiguration.builder()
+				.withEnableSubprojects(true)
+				.withLogoUrl("oldLogoUrl")
+				.withAttributes(List.of("oldAttribute"))
+				.withRegistrationForm("registration")
+				.withSignupEnquiryForm("signup")
+				.withMembershipUpdateEnquiryForm("membershipUpdate")
+				.withPolicyDocumentsIds(List.of(1L, 2L))
+				.build();
+		setUpGroupContent(configuration);
+		RestProjectUpdateRequest request = RestProjectUpdateRequest.builder()
+				.withPublic(false)
+				.withDisplayedName(Map.of("en", "Updated project"))
+				.withDescription(Map.of("en", "Updated description"))
+				.withEnableSubprojects(false)
+				.withLogoUrl(null)
+				.withReadOnlyAttributes(List.of("email", "name"))
+				.build();
+
+		restProjectService.updateProject("B", request);
+
+		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
+		verify(groupMan).updateGroup(eq("/A/B"), argument.capture());
+		Group updated = argument.getValue();
+		assertThat(updated.isPublic()).isFalse();
+		assertThat(updated.getDisplayedName()).isEqualTo(convertToI18nString(request.displayedName));
+		assertThat(updated.getDescription()).isEqualTo(convertToI18nString(request.description));
+		assertThat(updated.getDelegationConfiguration()).isEqualTo(new GroupDelegationConfiguration(
+				true, false, null, "registration", "signup", "membershipUpdate",
+				List.of("email", "name"), List.of(1L, 2L)));
+		RestProject project = restProjectService.getProject("B");
+		assertThat(project.registrationForm).isEqualTo("registration");
+		assertThat(project.signUpEnquiry).isEqualTo("signup");
+		assertThat(project.membershipUpdateEnquiry).isEqualTo("membershipUpdate");
 	}
 
 	@Test
@@ -232,10 +271,13 @@ class RestProjectServiceTest
 	void shouldRemoveProjectMember() throws EngineException
 	{
 		setUpGroupContent(new GroupDelegationConfiguration(true));
+		Entity entity = mock(Entity.class);
+		when(idsMan.getEntity(new EntityParam(new IdentityTaV(EmailIdentity.ID, "email")))).thenReturn(entity);
+		when(entity.getId()).thenReturn(2L);
 
 		restProjectService.removeProjectMember("B", "email");
 
-		verify(groupMan).removeMember("/A/B", new EntityParam(new IdentityTaV(EmailIdentity.ID, "email")));
+		verify(delGroupMan).removeMemberFromGroup("/A/B", "/A/B", 2L);
 	}
 
 	@Test
@@ -276,6 +318,55 @@ class RestProjectServiceTest
 		assertThat(membership.email).isEqualTo("email@gmail.com");
 		assertThat(membership.role).isEqualTo(GroupAuthorizationRole.manager.name());
 		assertThat(membership.attributes).isEqualTo(List.of(new RestAttribute("attr", List.of("val"))));
+	}
+
+	@Test
+	void shouldListProjectMembersWithoutEmail() throws EngineException
+	{
+		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
+			.thenReturn(List.of(
+				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.regular,
+					null, null, Optional.of(List.of(new Attribute("attr", "string", "/A/B", List.of("val"))))),
+				new DelegatedGroupMember(3, "/A/B", "/B", GroupAuthorizationRole.manager,
+					"name", new VerifiableElementBase("email@gmail.com"), Optional.empty())));
+		setUpGroupContent(new GroupDelegationConfiguration(true));
+
+		List<RestProjectMembership> members = restProjectService.getProjectMembers("B");
+
+		assertThat(members).containsExactly(
+			RestProjectMembership.builder().withEmail(null).withRole("regular")
+				.withAttributes(List.of(new RestAttribute("attr", List.of("val")))).build(),
+			RestProjectMembership.builder().withEmail("email@gmail.com").withRole("manager")
+				.withAttributes(List.of()).build());
+	}
+
+	@Test
+	void shouldFindProjectMemberByEmailWhenAnotherMemberHasNoEmail() throws EngineException
+	{
+		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
+			.thenReturn(List.of(
+				new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.regular,
+					null, null, Optional.empty()),
+				new DelegatedGroupMember(3, "/A/B", "/B", GroupAuthorizationRole.manager,
+					"name", new VerifiableElementBase("email@gmail.com"), Optional.empty())));
+		setUpGroupContent(new GroupDelegationConfiguration(true));
+
+		RestProjectMembership member = restProjectService.getProjectMember("B", "email@gmail.com");
+
+		assertThat(member.email).isEqualTo("email@gmail.com");
+		assertThat(member.role).isEqualTo("manager");
+	}
+
+	@Test
+	void shouldReturnNotFoundForEmailWhenProjectMemberHasNoEmail() throws EngineException
+	{
+		when(delGroupMan.getDelegatedGroupMembers("/A/B", "/A/B"))
+			.thenReturn(List.of(new DelegatedGroupMember(2, "/A/B", "/B", GroupAuthorizationRole.regular,
+				null, null, Optional.empty())));
+		setUpGroupContent(new GroupDelegationConfiguration(true));
+
+		assertThatThrownBy(() -> restProjectService.getProjectMember("B", "missing@example.org"))
+			.isInstanceOf(NotFoundException.class);
 	}
 
 	@Test
