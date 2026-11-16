@@ -28,63 +28,140 @@ embedded H2 database is used no special setup is required - it works out of the 
 for production use as handling backups and redundancy is very problematic with it.
 
 
-===== MySQL setup
+===== MySQL and MariaDB database preparation
 
-Unity can work with:
+For either database, create a database and a separate user. In the database command-line client, logged in
+with administrative privileges, execute:
 
-. MariaDB: for Unity version 2.0.0 -- 2.4.x, the minimum supported version of MariaDB is 10.2.1. 
-Since the Unity release 2.5.0 version 5.3 version of MariaDB should be fine.
-. Oracle's MySQL, the minimum supported version is 5.6.4. 
+----
+CREATE DATABASE unitydb;
+CREATE USER 'unity'@'localhost' IDENTIFIED BY 'unitypass';
+GRANT ALTER, CREATE, DELETE, DROP, EXECUTE, INDEX, INSERT, LOCK TABLES,
+   SELECT, TRIGGER, UPDATE, REFERENCES, CREATE ROUTINE ON unitydb.* TO 'unity'@'localhost';
+----
 
-The setup of MySQL requires creation of a database with a separate user which is able to connect to the database.
-In mysql console (when logged with admin privileges) execute following commands:
- 
- CREATE DATABASE unitydb;
- CREATE USER 'unity'@'localhost' IDENTIFIED BY 'unitypass';
- GRANT ALTER, CREATE, DELETE, DROP, EXECUTE, INDEX, INSERT, LOCK TABLES, 
-    SELECT, TRIGGER, UPDATE, REFERENCES, CREATE ROUTINE, EXECUTE ON unitydb.* to 'unity'@'localhost';
+Replace the database name, username and password with your values. If Unity runs on another host, replace
++localhost+ in the user account and grant with that host. Test the credentials with:
 
-using the desired database name, username and password. If the database is on a different host then the Unity instance,
-change to localhost to a proper host of Unity installation or use +%+ to allow connections from any host.  
+----
+mysql -p -u unity unitydb
+----
 
-Test if the connection works with:
+For MariaDB, the +mariadb+ command-line client can be used instead. Unity creates its tables on startup.
 
- mysql -p -u unity unitydb
+Both databases use the following Unity settings:
 
-and give the password.
-
-Unity server will setup all tables automatically on startup.
-
-To configure Unity to use the database change the database JDBC URI as well as add the username, password and dialect:
- 
 ----
 unityServer.storage.engine=rdbms
-unityServer.storage.engine.rdbms.jdbcUrl=jdbc:mysql://localhost/unitydb
 unityServer.storage.engine.rdbms.dialect=mysql
 unityServer.storage.engine.rdbms.username=unity
 unityServer.storage.engine.rdbms.password=unitypass
 ----
 
-Note: For certain authentication types it may be necessary to provide server's public key or to use the 
-+?allowPublicKeyRetrieval=true+ connection option (which however should never be used if the server 
-is accessed through public network). Refer to MariadB driver's documentation for all available connection options
-https://mariadb.com/kb/en/about-mariadb-connector-j/
+Add the JDBC URI described in the appropriate section below. The URI scheme selects the driver; connection
+options and their defaults belong to that driver.
 
-===== MariaDB setup
+[[mysql-storage]]
+===== MySQL connection
 
-MariaDB is a fork of MySQL DB and so the same considerations apply as described in the MySQL setup section above.
-Use the following URI to connect to MariaDB:
+Use MySQL Connector/J with a +jdbc:mysql:+ URI:
+
+----
+unityServer.storage.engine.rdbms.jdbcUrl=jdbc:mysql://localhost/unitydb
+----
+
+MySQL Connector/J accepts the following +sslMode+ values:
+
+[cols="1,4",options="header"]
+|===
+|Value |Behavior
+
+|+DISABLED+
+|Connects without TLS. Traffic is unencrypted.
+
+|+PREFERRED+ (default)
+|Uses TLS when the server supports it, without verifying its certificate or hostname. Falls back to an
+unencrypted connection when TLS is unavailable.
+
+|+REQUIRED+
+|Requires TLS, but does not verify the server certificate or hostname.
+
+|+VERIFY_CA+
+|Requires TLS and verifies that the server certificate is trusted, but does not verify the hostname.
+
+|+VERIFY_IDENTITY+
+|Requires TLS and verifies both trust in the server certificate and that it matches the hostname in the JDBC URI.
+|===
+
+For example, append +?sslMode=VERIFY_IDENTITY+ to the JDBC URI to require a verified TLS connection.
+Configure the JVM trust store or MySQL Connector/J's +trustCertificateKeyStoreUrl+ option when using a private
+certificate authority.
+
+Some authentication methods on connections without TLS require the server's public key. Configure
++serverRSAPublicKeyFile+ rather than enabling +allowPublicKeyRetrieval=true+ over an untrusted network, where
+an attacker could substitute the key.
+
+See the https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-security.html[MySQL Connector/J security
+options] for details. These option names and defaults apply to the MySQL driver.
+
+[[mariadb-storage]]
+===== MariaDB connection
+
+Use MariaDB Connector/J with a +jdbc:mariadb:+ URI. Keep Unity's +dialect+ set to +mysql+ as shown in the
+shared setup above:
 
 ----
 unityServer.storage.engine.rdbms.jdbcUrl=jdbc:mariadb://localhost/unitydb
 ----
 
-The +dialect+ option shall be set to +mysql+ value.
+[[mariadb-ssl-mode]]
+====== MariaDB TLS modes
 
-MariaDB Connector/J 4 uses +sslMode=verify-full+ by default. The database server must support TLS, and its
-certificate must be trusted and match the hostname in the JDBC URI. Configure the JVM trust store or the
-connector's +serverSslCert+ option when using a private certificate authority. An existing +sslMode+ option
-in the JDBC URI overrides the default.
+MariaDB Connector/J 4 accepts the following +sslMode+ values:
+
+[cols="1,4",options="header"]
+|===
+|Value |Behavior
+
+|+disable+
+|Connects without TLS. Traffic is unencrypted.
+
+|+trust+
+|Requires TLS, but does not verify the server certificate or hostname. Intended for development only.
+
+|+verify-ca+
+|Requires TLS and verifies that the server certificate is trusted, but does not verify the hostname.
+
+|+verify-full+ (default)
+|Requires TLS and verifies both trust in the server certificate and that it matches the hostname in the JDBC URI.
+
+|+allow+
+|Uses +verify-full+ when the server announces TLS support; otherwise connects without encryption. This is a
+migration mode for a mixture of servers with and without TLS. The server announces its capabilities before
+TLS is established, so an active attacker can force an unencrypted connection. Use +verify-full+ once all
+servers support TLS.
+|===
+
+Values are case-insensitive. The driver also accepts the aliases +DISABLED+, +0+ and +false+ for +disable+;
++REQUIRED+ for +trust+; +VERIFY_CA+ for +verify-ca+; and +VERIFY_FULL+, +VERIFY_IDENTITY+, +1+ and +true+ for
++verify-full+. Prefer the canonical values listed in the table when writing new configuration.
+
+For example, explicitly select the default with:
+
+----
+unityServer.storage.engine.rdbms.jdbcUrl=jdbc:mariadb://localhost/unitydb?sslMode=verify-full
+----
+
+The database server must support TLS, and its certificate must be trusted and match the hostname in the JDBC URI.
+Configure the JVM trust store or MariaDB Connector/J's +serverSslCert+ option when using a private certificate
+authority. An explicit +sslMode+ in the JDBC URI overrides the default.
+
+For authentication without TLS, MariaDB Connector/J provides +serverRsaPublicKeyFile+ and
++allowPublicKeyRetrieval+; the same public-key retrieval risk described above applies. Note the different
+capitalization of MySQL's +serverRSAPublicKeyFile+ option.
+
+See the https://mariadb.com/kb/en/about-mariadb-connector-j/[MariaDB Connector/J documentation] for its
+connection options. MySQL Connector/J's +PREFERRED+ mode is not a MariaDB +sslMode+ value.
 
 ===== PostgreSQL setup
 
