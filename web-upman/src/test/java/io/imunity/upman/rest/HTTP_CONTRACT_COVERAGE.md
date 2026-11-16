@@ -93,6 +93,11 @@ HTTP contracts only; it does not replace the complete module or repository check
   legacy behavior is characterized, not changed as part of the transport migration.
 - Policy creation returns 200 with a numeric `id`. Revisions start at 1; updating
   with absent/false incrementRevision preserves the revision and true increments it.
+- Missing policy inputs retain their existing rejection behavior: name returns 400;
+  missing displayedName, mandatory, contentType or content returns empty 500; missing update
+  id returns 403. Unknown content types return the 400 IllegalArgumentException envelope.
+  Rejected requests leave existing documents unchanged. Schemas describe the required fields
+  and EMBEDDED/LINK enum without changing these legacy validation statuses.
 - A policy outside a project's scope, including a policy removed from that project,
   returns 403 with `AuthorizationException`, rather than 404. Failed foreign-project
   writes preserve the owning project's policy.
@@ -107,14 +112,15 @@ HTTP contracts only; it does not replace the complete module or repository check
 - Absent groupPath selects email/role/attributes member objects. Empty or nonempty
   groupPath selects entityId/name/email/role/attributes member objects. Adding a
   subgroup member also adds the project membership; removing it preserves that parent
-  membership. Demoting the last project manager returns an empty 409 response.
+  membership. Demoting the last project manager returns 409 with the OneManagerRemainsException JSON envelope.
 
 - Group listing includes the project root at path "", followed by descendants sorted
   by relative path. Subgroup creation returns 201 with a path object.
 - Invitation POST returns 201 with one outcome per distinct email, retaining email
   order. Existing members have status alreadyMember. Invitation expiration and
   lastSentTime are numeric epoch seconds, including fractions. Resend increments
-  numberOfSends; reinvite replaces the code and removes the original invitation.
+  numberOfSends; unsent invitations preserve lastSentTime:null and numberOfSends:0.
+  Reinvite replaces the code and removes the original invitation.
 - Registration request reads include numeric requestedTime, nullable name, email,
   emailVerified, and relative group paths. Both accept and decline return 204 and
   remove the request from the pending listing.
@@ -143,8 +149,8 @@ HTTP contracts only; it does not replace the complete module or repository check
   Their ignoreRequests/dropRequests flags match registration behavior, including form
   detachment after a rejected deletion with pending responses.
 - Member fixtures include Unicode names, multivalued project attributes and null email
-  on numeric routes. The email-shaped member list returns an empty 500 if a member has
-  no email; numeric member reads/lists still return the complete object with email:null.
+  on both member representations. The email-shaped member list returns email:null when
+  a member has no email; numeric member reads/lists also include entityId and name.
 - Invitation input accepts integer and fractional numeric epoch seconds as well as
   ISO timestamps. Fractions beyond milliseconds are truncated by persistence. Selected
   subgroup paths and allowModifyGroups survive the round trip. Reading or deleting a

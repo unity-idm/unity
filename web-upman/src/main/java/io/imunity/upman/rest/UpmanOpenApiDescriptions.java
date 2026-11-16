@@ -21,7 +21,8 @@ final class UpmanOpenApiDescriptions
 {
 	private static final Properties OPERATIONS = loadOperations();
 	private static final Map<String, String> PARAMETERS = Map.ofEntries(
-			Map.entry("project-id", "Project path relative to the endpoint root; URL-encode nested path separators."),
+			Map.entry("project-id", "Project identifier from the returned urlId; use it unchanged, "
+					+ "including for nested or percent-sign names."),
 			Map.entry("policy-id", "Numeric identifier of a policy attached to this project."),
 			Map.entry("userId", "Member contact email address."),
 			Map.entry("entityId", "Stable Unity entity identifier; supports users without an email address."),
@@ -63,7 +64,9 @@ final class UpmanOpenApiDescriptions
 			if (Set.of("resendInvitation", "setGroupMemberRole", "addProjectMemberAuthorizationRole",
 					"addGroup", "updateGroup", "setGroupDelegation", "removeGroupMember").contains(id))
 				operation.getResponses().addApiResponse("409", new ApiResponse().description(
-						"The operation conflicts with the current state. The response may have an empty body."));
+						"The operation conflicts with the current state. The response may have an empty body.")
+						.content(new Content().addMediaType("application/json", new MediaType()
+								.schema(new Schema<>().$ref("#/components/schemas/UpmanError")))));
 			if (operation.getRequestBody() != null)
 			{
 				if (!id.startsWith("add") || !id.endsWith("Form"))
@@ -77,6 +80,11 @@ final class UpmanOpenApiDescriptions
 		setRequired(api, "RestProjectCreateRequest", "displayedName");
 		setRequired(api, "RestProjectUpdateRequest", "displayedName");
 		setRequired(api, "RestInvitationRequest", "emails", "expiration");
+		setRequired(api, "RestPolicyDocumentRequest", "name", "displayedName", "mandatory", "contentType", "content");
+		setRequired(api, "RestPolicyDocumentUpdateRequest", "id", "name", "displayedName", "mandatory", "contentType",
+				"content");
+		for (String type : List.of("RestPolicyDocument", "RestPolicyDocumentRequest", "RestPolicyDocumentUpdateRequest"))
+			field(api, type, "contentType").setEnum(List.of("EMBEDDED", "LINK"));
 		setRequired(api, "RestGroupCreateRequest", "displayedName");
 		setRequired(api, "RestGroupUpdateRequest", "path", "displayedName", "public");
 		setRequired(api, "RestAuthorizationRole", "role");
@@ -96,6 +104,10 @@ final class UpmanOpenApiDescriptions
 		for (String type : List.of("RestGroupMember", "RestRequest"))
 			for (String property : List.of("name", "email"))
 				field(api, type, property).setNullable(true);
+		field(api, "RestProjectMembership", "email").setNullable(true);
+		field(api, "RestInvitation", "lastSentTime").setNullable(true);
+		field(api, "RestInvitation", "lastSentTime").setDescription(
+				"Seconds since the Unix epoch, including fractional seconds; null until successfully sent.");
 		field(api, "RestProjectCreateRequest", "projectId").setNullable(true);
 		for (String type : List.of("RestProjectCreateRequest", "RestProjectUpdateRequest"))
 			for (String property : List.of("logoUrl", "description", "readOnlyAttributes"))
@@ -108,7 +120,8 @@ final class UpmanOpenApiDescriptions
 		field(api, "RestGroup", "logoUrl").setNullable(true);
 		field(api, "RestProjectCreateRequest", "projectId").setDescription(
 				"Optional identifier; null or omission generates an identifier.");
-		field(api, "RestProject", "urlId").setDescription("URL-encoded projectId for use in request paths.");
+		field(api, "RestProject", "urlId").setDescription(
+				"Identifier for use unchanged in request paths; may be opaque for names containing percent signs.");
 		field(api, "RestInvitationRequest", "expiration").setDescription(
 				"Future expiration, as numeric Unix seconds or an ISO timestamp. Storage truncates to milliseconds.");
 	}
@@ -153,7 +166,7 @@ final class UpmanOpenApiDescriptions
 				"403", "The caller is not authorized for this project or resource.",
 				"404", "The requested resource is unavailable in this project; the body may be empty.",
 				"406", "The requested response media type is not supported.",
-				"500", "Server error; legacy null-input and null-email errors have an empty body.");
+				"500", "Server error; legacy null-input errors have an empty body.");
 		errors.forEach((status, description) -> {
 			ApiResponse response = new ApiResponse().description(description);
 			if (Set.of("400", "403", "404").contains(status))

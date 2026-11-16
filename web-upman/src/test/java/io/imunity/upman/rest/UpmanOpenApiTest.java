@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.media.Schema;
 
 class UpmanOpenApiTest
 {
@@ -40,6 +41,35 @@ class UpmanOpenApiTest
 		{
 			assertThat(routes).containsExactlyInAnyOrderElementsOf(
 					new String(input.readAllBytes(), StandardCharsets.UTF_8).lines().toList());
+		}
+	}
+
+	@Test
+	void shouldDescribeNullableMemberEmailsAndUnsentInvitationTimestamps()
+	{
+		var schemas = UpmanOpenApi.export().getComponents().getSchemas();
+
+		Schema<?> membership = schemas.get("RestProjectMembership");
+		assertThat(membership.getProperties().get("email").getNullable()).isTrue();
+		Schema<?> invitation = schemas.get("RestInvitation");
+		assertThat(invitation.getRequired()).contains("lastSentTime");
+		assertThat(invitation.getProperties().get("lastSentTime").getNullable()).isTrue();
+		assertThat(invitation.getProperties().get("lastSentTime").getType()).isEqualTo("number");
+	}
+
+	@Test
+	void shouldRequirePolicyInputsAndConstrainContentTypes()
+	{
+		var schemas = UpmanOpenApi.export().getComponents().getSchemas();
+
+		assertThat(schemas.get("RestPolicyDocumentRequest").getRequired()).containsExactlyInAnyOrder(
+				"name", "displayedName", "mandatory", "contentType", "content");
+		assertThat(schemas.get("RestPolicyDocumentUpdateRequest").getRequired()).containsExactlyInAnyOrder(
+				"id", "name", "displayedName", "mandatory", "contentType", "content");
+		for (String type : List.of("RestPolicyDocument", "RestPolicyDocumentRequest", "RestPolicyDocumentUpdateRequest"))
+		{
+			Schema<?> model = schemas.get(type);
+			assertThat(model.getProperties().get("contentType").getEnum()).isEqualTo(List.of("EMBEDDED", "LINK"));
 		}
 	}
 

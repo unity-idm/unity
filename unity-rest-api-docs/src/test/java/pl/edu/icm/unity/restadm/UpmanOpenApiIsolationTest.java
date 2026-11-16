@@ -70,27 +70,39 @@ class UpmanOpenApiIsolationTest
 			server.setHandler(contexts);
 			server.start();
 			int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
-			JsonNode expectedUpman = Json.mapper().readTree(Json.pretty(UpmanOpenApi.export()));
 			try (HttpClient client = HttpClient.newHttpClient())
 			{
+				JsonNode expectedAdmin = readOpenApi(client, port, "admin");
+				assertThat(expectedAdmin.path("paths").has("/v1/entity/{entityId}")).isTrue();
+				assertThat(expectedAdmin.path("paths").has("/v1/policy-documents")).isTrue();
+				assertThat(expectedAdmin.path("paths").has("/v1/projects")).isFalse();
+				assertThat(expectedAdmin.at("/components/schemas").has("RestProject")).isFalse();
+				assertThat(expectedAdmin.at("/paths/~1v1~1entity~1{entityId}/get/responses")
+						.findValuesAsText("type")).contains("string");
+				JsonNode expectedUpman = Json.mapper().readTree(Json.pretty(UpmanOpenApi.export()));
 				for (String name : List.of("first", "admin", "second", "admin", "first"))
 				{
-					var response = client.send(HttpRequest.newBuilder(URI.create(
-							"http://localhost:" + port + "/" + name + "/openapi.json")).build(),
-							HttpResponse.BodyHandlers.ofString());
-					assertThat(response.statusCode()).as(response.body()).isEqualTo(200);
-					if (!name.equals("admin"))
-						assertThat(Json.mapper().readTree(response.body())).isEqualTo(expectedUpman);
+					assertThat(readOpenApi(client, port, name)).as(name + " OpenAPI")
+							.isEqualTo(name.equals("admin") ? expectedAdmin : expectedUpman);
 				}
+				assertThat(expectedUpman.at("/components/schemas/RestGroup/properties").has("logoUrl")).isTrue();
+				assertThat(expectedUpman.at("/components/schemas/RestEntity").isMissingNode()).isTrue();
 			}
-			assertThat(expectedUpman.at("/components/schemas/RestGroup/properties").has("logoUrl")).isTrue();
-			assertThat(expectedUpman.at("/components/schemas/RestEntity").isMissingNode()).isTrue();
 			assertThat(ModelConverters.getInstance().getConverters()).containsExactlyElementsOf(originalConverters);
 		} finally
 		{
 			server.stop();
 			buses.forEach(bus -> bus.shutdown(true));
 		}
+	}
+
+	private JsonNode readOpenApi(HttpClient client, int port, String application) throws Exception
+	{
+		var response = client.send(HttpRequest.newBuilder(URI.create(
+				"http://localhost:" + port + "/" + application + "/openapi.json")).build(),
+				HttpResponse.BodyHandlers.ofString());
+		assertThat(response.statusCode()).as(response.body()).isEqualTo(200);
+		return Json.mapper().readTree(response.body());
 	}
 
 	private ServletContextHandler context(String path, Application application, List<Bus> buses)

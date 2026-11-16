@@ -1,0 +1,10 @@
+{
+  "code": "invitation-code",
+  "email": "invitee@example.com",
+  "groups": [],
+  "allowModifyGroups": false,
+  "expiration": 2051222400.125,
+  "lastSentTime": null,
+  "numberOfSends": 0,
+  "link": "https://example.com/registration?regcode=invitation-code"
+}

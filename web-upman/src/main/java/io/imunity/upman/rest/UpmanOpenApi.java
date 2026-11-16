@@ -57,10 +57,17 @@ public final class UpmanOpenApi extends OpenApiCustomizer
 				of the Unity product release.
 
 				Direct authentication requires the `sys:ProjectManagementRESTAPIRole` manager role in the
-				configured authorization group. OAuth bearer tokens require `sys:upman-api` for all projects
-				or `sys:upman-api:PROJECT-ID` for one project. Nested scopes use the path relative to the
+				configured authorization group; project membership and project-local management roles are not
+				required. OAuth bearer tokens authorize solely through their granted scopes, independently of
+				the client or resource owner's roles or project membership. Tokens require `sys:upman-api` for
+				all projects or `sys:upman-api:PROJECT-ID` for one project. Nested scopes use the path relative to the
 				endpoint root, for example `sys:upman-api:parent/child`. A project-scoped token sees only
-				covered projects and cannot create projects.
+				covered projects and cannot create projects. A parent project's scope does not grant access
+				to a nested project as a project in its own right. Scopes use projectId; request paths use
+				the returned urlId unchanged.
+
+				Authorization does not override delegation, enableSubprojects or group visibility constraints.
+				Public projects and subgroups require public ancestors, including above the endpoint root.
 
 				Authenticators and OAuth authorization server URLs are deployment configuration.
 				Live documentation uses the endpoint's existing authentication.

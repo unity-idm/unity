@@ -74,7 +74,7 @@ public class RESTUpmanController
 
 	@Path("/projects")
 	@GET
-	@Operation(operationId = "getProjects", summary = "List managed projects")
+	@Operation(operationId = "getProjects")
 	@ApiResponse(responseCode = "200", description = "Projects visible to the caller",
 			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestProject.class))))
 	public List<RestProject> getProjects() throws EngineException
@@ -85,7 +85,7 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}")
 	@GET
-	@Operation(operationId = "getProject", summary = "Read a project")
+	@Operation(operationId = "getProject")
 	@ApiResponse(responseCode = "200", description = "Project configuration",
 			content = @Content(schema = @Schema(implementation = RestProject.class)))
 	public RestProject getProject(@PathParam("project-id") String projectId) throws EngineException
@@ -96,7 +96,7 @@ public class RESTUpmanController
 
 	@Path("/projects")
 	@POST
-	@Operation(operationId = "addProject", summary = "Create a project")
+	@Operation(operationId = "addProject")
 	@ApiResponse(responseCode = "200", description = "Created project identifier",
 			content = @Content(schema = @Schema(implementation = RestProjectId.class)))
 	@RequestBody(required = true, content = {
@@ -111,7 +111,7 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}")
 	@PUT
-	@Operation(operationId = "updateProject", summary = "Update a project")
+	@Operation(operationId = "updateProject")
 	@ApiResponse(responseCode = "204", description = "Project updated")
 	@RequestBody(required = true, content = {
 			@Content(mediaType = "application/json", schema = @Schema(implementation = RestProjectUpdateRequest.class)),
@@ -126,7 +126,7 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}")
 	@DELETE
-	@Operation(operationId = "removeProject", summary = "Delete a project")
+	@Operation(operationId = "removeProject")
 	@ApiResponse(responseCode = "204", description = "Project deleted")
 	public void removeProject(@PathParam("project-id") String projectId) throws EngineException
 	{
@@ -424,7 +424,7 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/policyDocuments")
 	@GET
-	@Operation(operationId = "getPolicyDocuments", summary = "List project policy documents")
+	@Operation(operationId = "getPolicyDocuments")
 	@ApiResponse(responseCode = "200", description = "List project policy documents",
 			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestPolicyDocument.class))))
 	public List<RestPolicyDocument> getPolicyDocuments(@PathParam("project-id") String projectId)
@@ -436,7 +436,7 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/policyDocuments/{policy-id}")
 	@GET
-	@Operation(operationId = "getPolicyDocument", summary = "Read a project policy document")
+	@Operation(operationId = "getPolicyDocument")
 	@ApiResponse(responseCode = "200", description = "Read a project policy document",
 			content = @Content(schema = @Schema(implementation = RestPolicyDocument.class)))
 	public RestPolicyDocument getPolicyDocument(@PathParam("project-id") String projectId,
@@ -449,7 +449,7 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/policyDocuments/{policy-id}")
 	@DELETE
-	@Operation(operationId = "removePolicyDocument", summary = "Remove a project policy document")
+	@Operation(operationId = "removePolicyDocument")
 	@ApiResponse(responseCode = "204", description = "Remove a project policy document")
 	public void removePolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
 			throws EngineException
@@ -461,7 +461,7 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/policyDocuments")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Operation(operationId = "addPolicyDocument", summary = "Create a project policy document")
+	@Operation(operationId = "addPolicyDocument")
 	@ApiResponse(responseCode = "200", description = "Create a project policy document",
 			content = @Content(schema = @Schema(implementation = RestPolicyDocumentId.class)))
 	public RestPolicyDocumentId addPolicyDocument(@PathParam("project-id") String projectId,
@@ -475,7 +475,7 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/policyDocuments")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Operation(operationId = "updatePolicyDocument", summary = "Update a project policy document")
+	@Operation(operationId = "updatePolicyDocument")
 	@ApiResponse(responseCode = "204", description = "Update a project policy document")
 	public void updatePolicyDocument(@PathParam("project-id") String projectId,
 			@QueryParam("incrementRevision") Boolean incrementRevision, RestPolicyDocumentUpdateRequest policy)

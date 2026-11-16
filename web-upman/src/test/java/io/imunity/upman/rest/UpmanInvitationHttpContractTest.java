@@ -13,6 +13,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.group.Group;
+import pl.edu.icm.unity.base.group.GroupContents;
+import pl.edu.icm.unity.base.registration.invitation.ComboInvitationParam;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 
@@ -62,6 +64,25 @@ class UpmanInvitationHttpContractTest extends UpmanHttpContractTestBase
 		assertThat(exchange("GET", INVITATIONS + "/" + code).status()).isEqualTo(404);
 		assertEmpty(exchange("DELETE", INVITATIONS + "/" + newCode), 204);
 		assertJson(exchange("GET", INVITATIONS), 200, "[]");
+	}
+
+	@Test
+	void shouldReturnNullLastSentTimeForAnUnsentInvitation() throws Exception
+	{
+		exchange("POST", PROJECTS, fixture("project-create.json"), ContentType.APPLICATION_JSON);
+		assertEmpty(exchange("POST", PROJECT + "/registrationForm?autogenerate=true", "",
+				ContentType.APPLICATION_JSON), 204);
+		assertEmpty(exchange("POST", PROJECT + "/signUpEnquiry?autogenerate=true", "",
+				ContentType.APPLICATION_JSON), 204);
+		var config = groupsMan.getContents("/A/contract", GroupContents.METADATA).getGroup().getDelegationConfiguration();
+		String code = invitations.addInvitation(new ComboInvitationParam(config.registrationForm,
+				config.signupEnquiryForm, EXPIRATION, "invitee@example.com"));
+		var expected = (ObjectNode) m.readTree(fixture("invitation-unsent.json"));
+		expected.put("code", code);
+		expected.put("link", publicUrls.getPublicRegistrationLink(config.registrationForm, code));
+
+		assertJson(exchange("GET", INVITATIONS + "/" + code), 200, expected);
+		assertJson(exchange("GET", INVITATIONS), 200, m.createArrayNode().add(expected));
 	}
 
 	@Test

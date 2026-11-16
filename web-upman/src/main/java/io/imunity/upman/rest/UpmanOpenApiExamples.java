@@ -29,8 +29,6 @@ final class UpmanOpenApiExamples
 		Map<String, JsonNode> outputs = Map.ofEntries(
 				Map.entry("getProject", fixture("project.json")),
 				Map.entry("getProjects", array(fixture("project.json"))),
-				Map.entry("getInvitation", fixture("invitation.json")),
-				Map.entry("getInvitations", array(fixture("invitation.json"))),
 				Map.entry("getRequest", fixture("request.json")),
 				Map.entry("getRequests", array(fixture("request.json"))),
 				Map.entry("getRegistrationForm", registrationForm()),
@@ -48,6 +46,15 @@ final class UpmanOpenApiExamples
 								.value(fixture("members-by-id.json")),
 						"empty", new Example().summary("Either representation with no members")
 								.value(JsonNodeFactory.instance.arrayNode()))));
+			if (id.equals("getInvitation") || id.equals("getInvitations"))
+			{
+				boolean list = id.equals("getInvitations");
+				operation.getResponses().get("200").getContent().values().forEach(media -> media.setExamples(Map.of(
+						"sent", new Example().value(list ? array(fixture("invitation.json")) : fixture("invitation.json")),
+						"unsent", new Example().summary("Saved before a successful send").value(list
+								? array(fixture("invitation-unsent.json")) : fixture("invitation-unsent.json")))));
+			}
+
 			if (outputs.containsKey(id))
 				operation.getResponses().get("200").getContent().values().forEach(media ->
 						media.setExample(outputs.get(id)));

@@ -1,8 +1,9 @@
 # UpMan REST API documentation
 
-This branch contains the UpMan migration only and starts directly from `dev`. Its first commit,
-`ae12c36524`, adds only HTTP contract tests and literal fixtures: all 32 tests pass against the original
-manual JSON handling before the mapping commits. The admin migration is independent.
+This branch contains the UpMan migration only and starts directly from `dev`. Its first commit adds
+only HTTP contract tests and literal fixtures, before the JSON mapping commits. The baseline expectations
+follow current `dev`, including null-email members and authorization/conflict error bodies. Additional
+schema boundary checks accompany the migration. The admin migration is independent.
 
 From the repository root, generate and validate the UpMan reference without starting Unity:
 
