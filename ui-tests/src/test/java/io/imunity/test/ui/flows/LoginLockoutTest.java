@@ -27,6 +27,7 @@ class LoginLockoutTest extends EndUserTestBase
 		page.signIn(user.username(), "Incorrect!69-Password");
 		WebElement blocked = page.visible(By.cssSelector("vaadin-dialog[opened]"));
 		assertThat(blocked.getText()).containsIgnoringCase("blocked");
+		screenshot("Login lockout countdown");
 		assertThat(driver.findElements(By.id("MainHeader.loggedAs"))).isEmpty();
 		waitFor(() -> driver.findElements(By.cssSelector("vaadin-dialog[opened]")).stream()
 				.noneMatch(WebElement::isDisplayed));

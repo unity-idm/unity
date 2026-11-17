@@ -68,6 +68,7 @@ class ProjectScopeTest extends ProjectWorkflowTestBase
 		assertThat(members(child)).isEqualTo(childSnapshot);
 		assertThat(storedGroup(target)).isEqualTo(groupSnapshot);
 		assertRole(owner, target, manager);
+		screenshot("Project permission boundary");
 	}
 
 	private static Stream<AccessCase> accessCases()

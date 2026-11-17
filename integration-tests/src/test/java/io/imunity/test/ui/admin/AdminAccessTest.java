@@ -28,5 +28,6 @@ class AdminAccessTest extends UserAccountTestBase
 		assertThat(driver.findElements(testId("IdentitiesPanel.createEntity")))
 				.noneMatch(element -> element.isDisplayed() && element.isEnabled());
 		assertThat(driver.findElement(By.tagName("body")).getText()).doesNotContain("ui-admin");
+		screenshot("Admin access denied");
 	}
 }

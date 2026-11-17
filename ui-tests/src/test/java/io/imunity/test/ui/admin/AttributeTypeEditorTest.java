@@ -83,6 +83,7 @@ class AttributeTypeEditorTest extends UserAccountTestBase
 		assertThat(page.value(editorControl("StringSyntaxEditor.minimumLength"))).isEqualTo("4");
 		assertThat(attributeTypes.getAttributeTypesAsMap().get(typeName).getValueSyntaxConfiguration()
 				.get("minLength").asInt()).isEqualTo(4);
+		screenshot("Saved attribute type editor");
 		assertThatThrownBy(() -> attributes.setAttribute(user.entity(), StringAttribute.of(typeName, "/", "Ab")))
 				.isInstanceOf(IllegalAttributeValueException.class);
 		attributes.setAttribute(user.entity(), StringAttribute.of(typeName, "/", "Alpha"));

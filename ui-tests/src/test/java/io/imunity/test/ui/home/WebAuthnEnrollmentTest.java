@@ -74,6 +74,7 @@ class WebAuthnEnrollmentTest extends CredentialWorkflowTestBase
 		page.click(EDIT);
 		page.visible(testId("FidoPreviewComponent.description"));
 		assertThat(driver.findElements(testId("FidoPreviewComponent.description"))).hasSize(1);
+		screenshot("Enrolled security key");
 		assertKeyLogin(user, secondCredentials);
 
 		WebDriver revoked = newBrowser();

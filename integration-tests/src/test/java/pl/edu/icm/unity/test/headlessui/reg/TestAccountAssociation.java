@@ -72,6 +72,7 @@ public class TestAccountAssociation extends SeleniumTestBase
 		freshPage.signIn("demo-user2", "the!test2");
 		freshPage.click(By.id("IdpButtonsBar.confirmButton"));
 		assertThat(freshPage.visible(By.id("MainHeader.loggedAs")).getText()).contains(displayName);
+		screenshot(freshBrowser, "Linked account Home");
 	}
 
 	private void associateAccount()

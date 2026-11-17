@@ -32,6 +32,7 @@ class AccountRemovalTest extends HomeWorkflowTestBase
 		VaadinPage page = openProfile(user);
 		page.click(testId("EntityRemovalButton.remove"));
 		page.fill(testId("ScheduledEntityRemovalDialog.days"), "7");
+		screenshot("Scheduled account removal");
 		Instant earliest = Instant.now().plus(7, ChronoUnit.DAYS);
 		page.click(testId("ScheduledEntityRemovalDialog.submit"));
 		confirm(page, true);
@@ -64,6 +65,7 @@ class AccountRemovalTest extends HomeWorkflowTestBase
 				.noneMatch(element -> element.isDisplayed());
 		assertUnscheduled(user);
 
+		screenshot("Invalid removal grace period");
 		page.fill(testId("ScheduledEntityRemovalDialog.days"), "7");
 		page.click(testId("ScheduledEntityRemovalDialog.submit"));
 		confirm(page, false);
@@ -83,6 +85,7 @@ class AccountRemovalTest extends HomeWorkflowTestBase
 		VaadinPage page = openProfile(user);
 		page.click(testId("EntityRemovalButton.remove"));
 		page.visible(testId("ImmediateEntityRemovalDialog"));
+		screenshot("Immediate account removal confirmation");
 		driver.findElement(By.tagName("body")).sendKeys(Keys.ESCAPE);
 		waitForElementNotPresent(testId("ImmediateEntityRemovalDialog"));
 		assertUnscheduled(user);
@@ -109,6 +112,7 @@ class AccountRemovalTest extends HomeWorkflowTestBase
 				.stream().filter(option -> option.getText().equals("Remove immediately"))
 				.findFirst().orElseThrow().click();
 		page.click(testId("ScheduledEntityRemovalDialog.submit"));
+		screenshot("Remove now confirmation");
 		confirm(page, true);
 		assertRemoved(user);
 		assertRejected(user);

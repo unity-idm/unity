@@ -58,5 +58,6 @@ class ProfilePresentationTest extends EndUserTestBase
 		driver.navigate().refresh();
 		assertThat(page.value(field)).isEqualTo("Zażółć gęślą jaźń");
 		assertThat(driver.manage().getCookieNamed(LANGUAGE_COOKIE).getValue()).isEqualTo("pl");
+		screenshot("Polish profile in narrow viewport");
 	}
 }

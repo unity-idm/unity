@@ -90,6 +90,7 @@ class ProfileImageTest extends HomeWorkflowTestBase
 		assertPreview(page, 24);
 		assertStored(24, 0x3355CC);
 		assertThat(attributes.getAttributes(control.entity(), "/", attributeName)).isEmpty();
+		screenshot("Saved profile image");
 	}
 
 	private Path image(String name, int width, int color) throws Exception

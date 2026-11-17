@@ -53,6 +53,7 @@ class OtpEnrollmentTest extends CredentialWorkflowTestBase
 		page.click(By.className("u-otp-verification-button"));
 		page.visible(By.cssSelector(".u-otp-verification-code[invalid]"));
 		assertThat(state(user)).isEqualTo(LocalCredentialState.notSet);
+		screenshot("OTP enrollment validation");
 		page.fill(By.className("u-otp-verification-code"), code(secret));
 		page.click(By.className("u-otp-verification-button"));
 		page.click(testId("HomeSignIn.saveCredential"));
@@ -70,6 +71,7 @@ class OtpEnrollmentTest extends CredentialWorkflowTestBase
 		fresh.get(baseUrl + "/mfa-home");
 		login.signIn(user.username(), user.password());
 		login.visible(By.className("u-otpCodeField"));
+		screenshot(fresh, "OTP authentication challenge");
 		assertThat(fresh.findElements(By.id("MainHeader.loggedAs"))).isEmpty();
 		login.fill(By.className("u-otpCodeField"), "invalid");
 		login.click(By.className("u-otpSignInButton"));

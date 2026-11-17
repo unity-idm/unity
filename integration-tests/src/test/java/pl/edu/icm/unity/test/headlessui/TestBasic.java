@@ -33,6 +33,7 @@ public class TestBasic extends SeleniumTestBase
 		assertThat(driver.findElement(By.id("MainHeader.loggedAs")).getText()).contains("Default Administrator");
 		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");
 		assertThat(sessionAfter.getValue()).isNotEqualTo(sessionBefore.getValue());
+		screenshot("Home after password login");
 		waitForElement(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']")).click();
 		waitForPageLoad(By.className("u-passwordSignInButton"));
 		driver.get(baseUrl + "/home/sign-in");

@@ -29,6 +29,7 @@ class AssociationProtectionTest extends SamlWorkflowTestBase
 		page.click(By.id("Wizard.cancel"));
 		waitFor(() -> driver.getCurrentUrl().contains("/sec/status"));
 		assertThat(page.visible(By.tagName("h3")).getText()).containsIgnoringCase("cancel");
+		screenshot("Cancelled association status");
 		assertThat(entities.getEntity(user.entity()).getIdentities()).containsExactlyElementsOf(original);
 		driver.navigate().refresh();
 		assertThat(entities.getEntity(user.entity()).getIdentities()).containsExactlyElementsOf(original);
@@ -70,6 +71,7 @@ class AssociationProtectionTest extends SamlWorkflowTestBase
 		driver.switchTo().window(source);
 		page.visible(By.cssSelector("vaadin-icon[icon='vaadin:exclamation-circle']"));
 		waitFor(() -> page.visible(By.id("Wizard.finish")).getDomAttribute("disabled") != null);
+		screenshot("Association identity conflict");
 		assertThat(entities.getEntity(user.entity()).getIdentities()).containsExactlyElementsOf(original);
 		page.click(By.id("Wizard.cancel"));
 		driver.navigate().refresh();

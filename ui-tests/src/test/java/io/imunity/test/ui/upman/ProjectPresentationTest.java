@@ -41,5 +41,6 @@ class ProjectPresentationTest extends ProjectWorkflowTestBase
 		waitForElement(ProjectPage.memberActions(member.entity().getEntityId()));
 		assertThat(driver.manage().getCookieNamed(LANGUAGE_COOKIE).getValue()).isEqualTo("pl");
 		assertRole(owner, project, manager);
+		screenshot("Polish project members in narrow viewport");
 	}
 }

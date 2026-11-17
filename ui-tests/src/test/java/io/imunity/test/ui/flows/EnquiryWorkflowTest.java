@@ -63,6 +63,7 @@ class EnquiryWorkflowTest extends EndUserTestBase
 		page.click(CONFIRM);
 		page.visible(By.cssSelector("[data-testid='EnquiryFormFillDialog'] vaadin-text-field[invalid]"));
 		assertThat(attributes.getAttributes(user.entity(), "/", ANSWER)).isEmpty();
+		screenshot("Mandatory enquiry validation");
 		page.fill(By.cssSelector("[data-testid='EnquiryFormFillDialog'] vaadin-text-field"), "Accepted answer");
 		page.click(CONFIRM);
 		waitFor(() -> driver.findElements(DIALOG).stream().noneMatch(element -> element.isDisplayed()));
@@ -82,6 +83,7 @@ class EnquiryWorkflowTest extends EndUserTestBase
 		driver.get(baseUrl + "/home");
 		page.signIn(user.username(), user.password());
 		page.visible(DIALOG);
+		screenshot("Optional enquiry");
 		page.click(By.cssSelector("[data-testid='EnquiryFormFillDialog'] vaadin-button[slot='reject-button']"));
 		page.visible(By.id("MainHeader.loggedAs"));
 		assertThat(enquiries.getEnquiryResponses()).isEmpty();
@@ -109,6 +111,7 @@ class EnquiryWorkflowTest extends EndUserTestBase
 		page.click(testId("StickyEnquiryUpdatableComponent.submit"));
 		page.visible(By.cssSelector("vaadin-notification-card"));
 		assertAnswer(user, "Second account update");
+		screenshot("Saved Home account update");
 	}
 
 	@Test
@@ -121,6 +124,7 @@ class EnquiryWorkflowTest extends EndUserTestBase
 		page.login(baseUrl, "/home", user.username(), user.password());
 		driver.get(baseUrl + "/well-known/sec/enquiry/" + form);
 		page.fill(By.cssSelector(".u-standalone-public-form vaadin-text-field"), "Standalone answer");
+		screenshot("Standalone enquiry");
 		page.click(testId("StandaloneEnquiryView.submit"));
 		page.visible(By.className("u-final-info"));
 		assertAnswer(user, "Standalone answer");

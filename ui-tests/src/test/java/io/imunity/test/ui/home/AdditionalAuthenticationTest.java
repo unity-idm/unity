@@ -97,6 +97,7 @@ class AdditionalAuthenticationTest extends EndUserTestBase
 		page.fill(VALUE, "Protected replacement");
 		page.click(testId("ProfileView.save"));
 		page.visible(DIALOG);
+		screenshot("Additional authentication dialog");
 		return page;
 	}
 

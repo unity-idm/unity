@@ -95,6 +95,7 @@ class AdminProvisioningTest extends SeleniumTestBase
 		assertThat(storedUser.getCredentialInfo().getCredentialsState().get("sys:password").getState())
 				.isEqualTo(LocalCredentialState.correct);
 
+		screenshot("Provisioned account in directory");
 		WebDriver userBrowser = newBrowser();
 		VaadinPage userHome = new VaadinPage(userBrowser);
 		userHome.login(baseUrl, "/home", username, PASSWORD);

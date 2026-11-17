@@ -63,6 +63,7 @@ class WorkflowCompletionTest extends EndUserTestBase
 			assertThat(page.visible(information).getText())
 					.isEqualTo("Your workflow has completed");
 			assertThat(page.visible(By.className("u-final-redirect")).getText()).isEqualTo("Return to account");
+			screenshot("Workflow completion message");
 			page.click(By.className("u-final-redirect"));
 		}
 		if (scenario.automatic())
@@ -77,6 +78,7 @@ class WorkflowCompletionTest extends EndUserTestBase
 		}
 		page.visible(By.className("u-passwordUsernameField"));
 		assertThat(driver.getCurrentUrl()).contains("/home/authentication");
+		screenshot("Workflow return to protected Home");
 		assertThat(driver.findElements(By.id("MainHeader.loggedAs"))).isEmpty();
 		if (cancelled || missingInvitation)
 			assertThat(registrations.getRegistrationRequests()).isEmpty();

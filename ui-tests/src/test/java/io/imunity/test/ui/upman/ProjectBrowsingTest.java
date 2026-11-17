@@ -57,6 +57,7 @@ class ProjectBrowsingTest extends ProjectWorkflowTestBase
 		assertThat(members(second)).isEqualTo(secondSnapshot);
 		assertRole(owner, first, manager);
 		assertRole(owner, second, projectsAdmin);
+		screenshot("Project members");
 	}
 
 	private void assertMembers(TestUser present, TestUser absent)

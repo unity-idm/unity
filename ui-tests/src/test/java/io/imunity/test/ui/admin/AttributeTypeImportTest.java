@@ -77,6 +77,7 @@ class AttributeTypeImportTest extends UserAccountTestBase
 		else
 			assertThat(page.visible(By.cssSelector("vaadin-notification-card[theme~='error']")).getText())
 					.contains("Can not parse attribute types");
+		screenshot("Attribute type import result");
 		page.click(testId("EditViewActionLayoutFactory.save"));
 		waitForPageLoadByURL("/attribute-types");
 

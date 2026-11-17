@@ -74,6 +74,7 @@ class ProfileEditingTest extends UserAccountTestBase
 		assertProtectedRole(page);
 		assertThat(attributes.getAttributes(user.entity(), "/", "sys:AuthorizationRole"))
 				.singleElement().satisfies(role -> assertThat(role.getValues()).containsExactly("Regular User"));
+		screenshot("Saved profile and protected role");
 	}
 
 	private void configureProfile() throws Exception

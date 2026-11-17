@@ -81,6 +81,7 @@ class TrustedSecondFactorTest extends CredentialWorkflowTestBase
 		login.signIn(user.username(), user.password());
 		login.visible(By.className("u-otpCodeField"));
 		assertThat(revoked.findElements(By.id("MainHeader.loggedAs"))).isEmpty();
+		screenshot(revoked, "Second factor after device revocation");
 	}
 
 	private Cookie rememberMeCookie(WebDriver browser)

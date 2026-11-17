@@ -52,6 +52,7 @@ class RedirectedFirstFactorSecondFactorTest extends SeleniumTestBase
 		acceptOAuthConsent();
 
 		assertThat(waitForPageLoad(By.id("MainHeader.loggedAs")).getText()).contains("Demo user");
+		screenshot("Redirected login completed");
 	}
 
 	private void openOAuthLoginFromUserHome()

@@ -114,5 +114,47 @@ driver versions), and server log. Capture and cleanup errors are attached to the
 JUnit XML and per-execution timings are in `target/surefire-reports/`. Retain the Maven log on
 failure; delete it after a successful run once it is no longer needed.
 
-Known product regressions remain enabled and fail until separately fixed. Successful browser
-client-certificate login is outside the selected scope. Missing-certificate fallback is covered.
+## Optional screenshots for visual review
+
+Add `-Dunity.selenium.screenshots=true` to either browser runner's Maven command to capture
+named checkpoints, including successful cases. The default is disabled. Each execution usually
+captures one meaningful screen; selected multi-screen workflows capture two. Parameterized
+executions have separate directories, and captures can select another actor's browser or the
+current popup. Capture waits for Flow requests, fonts, and two rendering frames. It preserves
+the test's viewport and scroll position, including the narrow Polish layouts.
+
+Each runner writes `target/selenium-screenshots/` containing:
+
+- `index.html`: a gallery with the test, scenario, checkpoint, page URL, and browser version.
+- `manifest.jsonl`: one JSON object per PNG, with the JUnit invocation ID, scenario, checkpoint,
+  relative image path, URL, browser/version, and capture time for scripted or model-assisted review.
+- `<test-class>/<invocation-id>/<sequence>-<checkpoint>.png`: viewport screenshots.
+
+Clear this directory before a new capture run (or use Maven `clean`) to avoid mixing runs.
+For example, after installing the same revision's application artifacts:
+
+```sh
+rm -rf ui-tests/target/selenium-screenshots
+mvn -Pnightly-ui -pl ui-tests verify -Dunity.selenium.screenshots=true \
+  '-Dunity.selenium.opts=--headless=new,--disable-dev-shm-usage,--disable-gpu' \
+  -Dgpg.skip=true -Dhttp.proxyHost= -Dhttps.proxyHost= > nightly-ui-build.log 2>&1
+```
+
+Archive the whole directory alongside the matching JUnit reports. The review mode reports capture
+errors as test failures so a broken capture cannot silently produce an incomplete gallery.
+Failure diagnostics continue to be collected independently in `target/selenium-failures/`.
+
+After a major Vaadin update or periodically, a reviewer can use the manifest to group images by UI
+family and inspect them with an image-capable, less expensive model. Look for missing styles/icons,
+overlapping or clipped controls, unreadable text, unexpected blank areas, and broken dialog or narrow
+layouts. Supply the checkpoint and scenario with each image; report suspected oddities with its
+image path and confirm them in the browser. This is a qualitative review, without pixel baselines
+or automatic visual pass/fail decisions.
+
+When extending a test, call `screenshot("Meaningful checkpoint")` after the relevant assertions
+and before saving, closing, or redirecting away from that screen. Use
+`screenshot(otherBrowser, "Meaningful checkpoint")` for another actor. Avoid capturing each click.
+Disabled capture performs no additional waits, browser commands, or file writes.
+
+Successful browser client-certificate login is outside the selected scope. Missing-certificate
+fallback is covered.

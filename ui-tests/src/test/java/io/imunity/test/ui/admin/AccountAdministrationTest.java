@@ -36,6 +36,7 @@ class AccountAdministrationTest extends UserAccountTestBase
 		waitForElementNotPresent(testId("ChangeEntityStateDialog"));
 		assertThat(entities.getEntity(user.entity()).getState()).isEqualTo(EntityState.valid);
 		assertAccepted(user, user.password());
+		screenshot("Reactivated account");
 	}
 
 	@Test
@@ -54,6 +55,7 @@ class AccountAdministrationTest extends UserAccountTestBase
 		page.fill(By.cssSelector(panel + ".u-password-repeat"), updated);
 		page.click(By.cssSelector(panel + "[data-testid='SingleCredentialEditComponent.update']"));
 		page.visible(By.cssSelector("vaadin-notification-card[theme~='success']"));
+		screenshot("Updated account credential");
 		page.click(testId("CredentialsChangeDialog", "DialogWithActionFooter.confirm"));
 		waitForElementNotPresent(testId("CredentialsChangeDialog"));
 		assertRejected(user, user.password());
@@ -73,6 +75,7 @@ class AccountAdministrationTest extends UserAccountTestBase
 		assertAccepted(user, user.password());
 
 		admin.action(user.entity(), "Remove entity");
+		screenshot("Account deletion confirmation");
 		admin.confirmDeletion(true);
 		waitForElementNotPresent(By.cssSelector("[data-testid='IdentitiesTreeGrid.entityActions'][data-entity-id='"
 				+ user.entity().getEntityId() + "']"));

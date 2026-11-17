@@ -98,6 +98,7 @@ class LocalAuthenticatorTest extends SeleniumTestBase
 		editor.openInteractiveSettings();
 		assertThat(page.value(testId(scenario.editor() + ".retrievalName"))).isEqualTo("Updated login label");
 		assertStored(scenario, "Updated login label");
+		screenshot("Reloaded local authenticator settings");
 	}
 
 	private String configuration(String type) throws Exception

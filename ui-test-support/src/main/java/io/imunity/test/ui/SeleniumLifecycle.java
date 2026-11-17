@@ -8,6 +8,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 import org.junit.jupiter.api.extension.AfterEachCallback;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.LifecycleMethodExecutionExceptionHandler;
 import org.junit.jupiter.api.extension.TestExecutionExceptionHandler;
@@ -18,11 +19,19 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.logging.LogType;
 
-public final class SeleniumLifecycle implements AfterEachCallback, TestExecutionExceptionHandler,
+public final class SeleniumLifecycle implements BeforeEachCallback, AfterEachCallback, TestExecutionExceptionHandler,
 		LifecycleMethodExecutionExceptionHandler, TestWatcher
 {
 	private static final ExtensionContext.Namespace NAMESPACE =
 			ExtensionContext.Namespace.create(SeleniumLifecycle.class);
+
+	@Override
+	public void beforeEach(ExtensionContext context)
+	{
+		if (Boolean.getBoolean("unity.selenium.screenshots"))
+			test(context).reviewScreenshots = new ReviewScreenshots(Path.of("target", "selenium-screenshots"),
+					context.getRequiredTestClass().getName(), context.getUniqueId(), context.getDisplayName());
+	}
 
 	@Override
 	public void handleTestExecutionException(ExtensionContext context, Throwable failure) throws Throwable

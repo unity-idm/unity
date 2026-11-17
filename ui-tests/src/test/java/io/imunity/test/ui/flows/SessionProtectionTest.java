@@ -43,6 +43,7 @@ class SessionProtectionTest extends EndUserTestBase
 		assertProtected(page);
 		driver.get(baseUrl + "/home/profile");
 		assertProtected(page);
+		screenshot("Protected profile after logout");
 		page.signIn(user.username(), user.password());
 		assertThat(page.visible(By.id("MainHeader.loggedAs")).getText()).contains(user.displayName());
 	}
@@ -59,6 +60,7 @@ class SessionProtectionTest extends EndUserTestBase
 
 		driver.get(baseUrl + "/home/profile");
 		assertProtected(page);
+		screenshot("Expired session authentication");
 		page.signIn(user.username(), user.password());
 		assertThat(page.visible(By.id("MainHeader.loggedAs")).getText()).contains(user.displayName());
 		assertThat(sessions.getOwnedSession(user.entity(), "ui").getId()).isNotEqualTo(session.getId());

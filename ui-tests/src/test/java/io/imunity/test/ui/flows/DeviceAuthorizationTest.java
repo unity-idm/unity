@@ -49,6 +49,7 @@ class DeviceAuthorizationTest extends OAuthWorkflowTestBase
 				.contains("Local Selenium client");
 		assertThat(page.value(By.xpath("//vaadin-text-field[label[normalize-space(.)='Name']]")))
 				.isEqualTo(user.displayName());
+		screenshot("Device consent and released attributes");
 		page.click(By.className("u-consentConfirmButton"));
 		page.visible(By.className("u-final-info"));
 		clearPollDelay(device);
@@ -76,6 +77,7 @@ class DeviceAuthorizationTest extends OAuthWorkflowTestBase
 		VaadinPage page = signIn(device.path("verification_uri_complete").asText(), user);
 		assertThat(page.visible(By.className("u-consentMainColumn")).getText())
 				.contains(device.path("user_code").asText(), "Local Selenium client");
+		screenshot("Device code confirmation");
 		page.click(testId("DeviceSignInView.confirmCode"));
 		page.click(By.className("u-consentDeclineButton"));
 		page.visible(By.className("u-final-error"));
@@ -99,6 +101,7 @@ class DeviceAuthorizationTest extends OAuthWorkflowTestBase
 		page.visible(By.cssSelector("vaadin-notification-card[theme~='error']"));
 		assertThat(page.value(testId("DeviceSignInView.code"))).isEmpty();
 		assertThat(poll(http, client, device).body().path("error").asText()).isEqualTo("authorization_pending");
+		screenshot("Invalid device code retry");
 		page.fill(testId("DeviceSignInView.code"), device.path("user_code").asText());
 		page.click(testId("DeviceSignInView.submitCode"));
 		page.click(By.className("u-consentDeclineButton"));
@@ -138,6 +141,7 @@ class DeviceAuthorizationTest extends OAuthWorkflowTestBase
 		assertThat(page.visible(By.className("u-final-error")).getText()).containsIgnoringCase(scenario.message());
 		assertThat(driver.findElements(By.className("u-consentConfirmButton"))).isEmpty();
 		assertThat(poll(http, client, device).body().has("access_token")).isFalse();
+		screenshot("Unusable device code");
 	}
 
 	private VaadinPage signIn(String url, TestUser user)

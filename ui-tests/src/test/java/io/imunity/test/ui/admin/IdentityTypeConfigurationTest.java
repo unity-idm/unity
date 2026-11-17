@@ -54,5 +54,6 @@ class IdentityTypeConfigurationTest extends SeleniumTestBase
 		assertThat(stored.getDescription()).isEqualTo("Selenium username policy");
 		assertThat(stored.isSelfModificable()).isTrue();
 		assertThat(stored.getMinInstances()).isEqualTo(1);
+		screenshot("Reloaded identity type settings");
 	}
 }

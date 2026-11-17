@@ -60,6 +60,7 @@ class CredentialRequirementTest extends UserAccountTestBase
 		assertThat(stored.getDescription()).isEqualTo("Updated requirement");
 		assertThat(stored.getRequiredCredentials()).containsExactly("sys:password");
 
+		screenshot("Reloaded credential requirement");
 		driver.get(baseUrl + "/admin/directory-browser");
 		new DirectoryPage(driver).selectGroup("/");
 		new AccountAdministrationPage(driver).changeRequirement(user.entity(), name);
@@ -97,6 +98,7 @@ class CredentialRequirementTest extends UserAccountTestBase
 				.getDomProperty("invalid")));
 		assertThat(driver.getCurrentUrl()).endsWith("/credential-requirements/edit");
 		assertThat(requirements.getCredentialRequirements()).hasSize(initialCount);
+		screenshot("Missing credential requirement name");
 	}
 
 	private void save()

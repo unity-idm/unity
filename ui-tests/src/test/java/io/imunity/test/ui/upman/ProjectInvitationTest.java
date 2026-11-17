@@ -92,6 +92,7 @@ class ProjectInvitationTest extends ProjectInvitationTestBase
 		recipient.switchTo().window(recipient.getWindowHandles().stream()
 				.filter(window -> !window.equals(initialWindow)).findFirst().orElseThrow());
 		VaadinPage enquiry = new VaadinPage(recipient);
+		screenshot(recipient, "Existing user invitation enquiry");
 		enquiry.click(testId("StandaloneEnquiryView.submit"));
 		enquiry.visible(By.className("u-final-info"));
 		assertThat(registrationRequests()).isEmpty();
@@ -127,6 +128,7 @@ class ProjectInvitationTest extends ProjectInvitationTestBase
 				&& !page.visible(testId("InvitationsView.invitations")).getText().contains("unrelated@example.org"));
 		By actions = By.cssSelector("[data-testid='InvitationsView.actions'][data-invitation-code='"
 				+ invitation.getRegistrationCode() + "']");
+		screenshot("Filtered project invitation");
 		int sentBefore = notifications.sentTo(RECIPIENT).size();
 		page.click(actions);
 		page.click(testId("InvitationsView.resend"));

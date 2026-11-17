@@ -88,6 +88,7 @@ class ProjectGroupLifecycleTest extends UserAccountTestBase
 		driver.navigate().refresh();
 		assertGroup(page, child, "Renamed lifecycle team", true);
 
+		screenshot("Renamed public project group");
 		openActions(page, child, "delete");
 		page.click(testId("UpManGroups.deleteConfirmation", "UpManGroups.confirm"));
 		waitForElementNotPresent(testId("UpManGroups.deleteConfirmation"));

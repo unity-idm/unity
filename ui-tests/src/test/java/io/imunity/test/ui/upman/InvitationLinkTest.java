@@ -61,6 +61,7 @@ class InvitationLinkTest extends ProjectInvitationTestBase
 		assertThat(browser.findElements(VaadinPage.testId("StandaloneRegistration.submit"))).isEmpty();
 		assertThat(registrationRequests()).hasSize(requestsBefore);
 		assertThat(members(project)).containsExactlyInAnyOrderElementsOf(before);
+		screenshot(browser, "Unusable project invitation");
 	}
 
 	private static Stream<LinkState> unusableLinks()

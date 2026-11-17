@@ -55,6 +55,7 @@ class TrustedDeviceTest extends EndUserTestBase
 		assertThat(trusted.visible(testId("TrustedDeviceView.device")).getText()).contains("127.0.0.1");
 		Cookie rotatedCookie = rememberMeCookie(restarted);
 		assertThat(rotatedCookie.getValue()).isNotEqualTo(initialCookie.getValue());
+		screenshot(restarted, "Remembered browser device");
 		trusted.click(testId("TrustedDeviceView.revoke"));
 		waitFor(() -> restarted.findElements(testId("TrustedDeviceView.device")).isEmpty());
 		assertThat(tokens.getOwnedTokens(RememberMeProcessor.REMEMBER_ME_TOKEN_TYPE, user.entity())).isEmpty();

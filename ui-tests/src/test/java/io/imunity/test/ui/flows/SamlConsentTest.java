@@ -58,6 +58,7 @@ class SamlConsentTest extends SamlWorkflowTestBase
 		page.visible(By.className("u-consentConfirmButton"));
 		page.select(By.cssSelector("vaadin-combo-box"), alias);
 		page.check(By.className("u-consent-screen-checkbox"), true);
+		screenshot("SAML identity selection");
 		page.click(By.className("u-consentConfirmButton"));
 		assertThat(page.visible(By.id("MainHeader.loggedAs")).getText()).contains(user.displayName());
 		assertThat(attributes.getAttributes(user.entity(), "/", "ui-selected-identity")).singleElement()
@@ -100,6 +101,7 @@ class SamlConsentTest extends SamlWorkflowTestBase
 		page.click(By.cssSelector("vaadin-details-summary"));
 		By selected = By.xpath("//vaadin-vertical-layout[span[.='ui-affiliation']]//vaadin-text-field");
 		assertThat(page.value(selected)).isEqualTo("student");
+		screenshot("SAML consent and selected attribute");
 		page.click(By.className("u-consentConfirmButton"));
 		assertThat(page.visible(By.id("MainHeader.loggedAs")).getText()).contains(user.displayName());
 		assertThat(attributes.getAttributes(user.entity(), "/", "ui-selected-affiliation")).singleElement()
@@ -136,6 +138,7 @@ class SamlConsentTest extends SamlWorkflowTestBase
 			driver.get(baseUrl + "/home/trusted-applications");
 		}
 		page.click(By.cssSelector("vaadin-accordion-heading"));
+		screenshot("Remembered SAML application");
 		if (scenario.accept())
 		{
 			page.click(By.xpath("//span[contains(.,'technical information')]"));

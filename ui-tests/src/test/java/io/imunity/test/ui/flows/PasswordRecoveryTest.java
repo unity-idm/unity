@@ -66,6 +66,7 @@ class PasswordRecoveryTest extends CredentialWorkflowTestBase
 		String code = notificationTo(EMAIL).body().strip();
 		assertThat(code).isNotBlank();
 		page.visible(CODE);
+		screenshot("Email recovery code verification");
 		page.click(PROCEED);
 		waitFor(() -> Boolean.parseBoolean(page.visible(CODE).getDomProperty("invalid")));
 		if (scenario.outcome() == CodeOutcome.INVALID_THEN_VALID)
@@ -107,6 +108,7 @@ class PasswordRecoveryTest extends CredentialWorkflowTestBase
 		waitFor(() -> Integer.parseInt(page.visible(testId("CaptchaComponent.image"))
 				.getDomProperty("naturalWidth")) > 0);
 		assertThat(driver.getPageSource()).doesNotContain(initial.getAnswer());
+		screenshot("Password recovery CAPTCHA");
 
 		// when
 		page.click(PROCEED);
@@ -126,6 +128,7 @@ class PasswordRecoveryTest extends CredentialWorkflowTestBase
 		page.click(PROCEED);
 		waitFor(() -> Boolean.parseBoolean(page.visible(CAPTCHA).getDomProperty("invalid")));
 		assertThat(captchas.latest()).isNotSameAs(refreshed);
+		screenshot("Recovery CAPTCHA validation");
 		assertThat(notifications.sentTo(EMAIL)).isEmpty();
 		assertThat(driver.findElements(CODE)).isEmpty();
 		page.fill(CAPTCHA, captchas.latest().getAnswer());
@@ -150,6 +153,7 @@ class PasswordRecoveryTest extends CredentialWorkflowTestBase
 		page.fill(By.className("u-password-repeat"), "does-not-match");
 		page.click(PROCEED);
 		assertError("Passwords do not match");
+		screenshot("Replacement password validation");
 		page.fill(By.className("u-password-setup"), REPLACEMENT);
 		page.fill(By.className("u-password-repeat"), REPLACEMENT);
 		page.click(PROCEED);

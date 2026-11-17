@@ -43,6 +43,7 @@ class ProjectRoleTest extends ProjectWorkflowTestBase
 		page.setRole(target.entity().getEntityId(), scenario.subproject(), "manager");
 		assertRole(target, scope, manager);
 
+		screenshot("Granted project role");
 		WebDriver granted = newBrowser();
 		openMembers(granted, target);
 		granted.get(baseUrl + "/upman/groups");

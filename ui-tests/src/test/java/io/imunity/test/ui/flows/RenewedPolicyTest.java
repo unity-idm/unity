@@ -56,6 +56,7 @@ class RenewedPolicyTest extends SamlWorkflowTestBase
 		By submit = By.xpath("//vaadin-button[normalize-space(.)='Submit']");
 		waitFor(() -> page.visible(submit).getDomAttribute("disabled") != null);
 		assertThat(driver.findElements(By.id("MainHeader.loggedAs"))).isEmpty();
+		screenshot("Renewed policy agreement");
 		page.click(By.linkText("Selenium terms"));
 		String source = driver.getWindowHandle();
 		waitFor(() -> driver.getWindowHandles().size() == 2);

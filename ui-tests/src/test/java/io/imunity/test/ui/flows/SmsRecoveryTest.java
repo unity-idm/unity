@@ -59,6 +59,7 @@ class SmsRecoveryTest extends CredentialWorkflowTestBase
 		page.fill(testId("CredentialResetCodeVerificationUI.code"), code);
 		page.click(By.className("u-cred-reset-proceed"));
 		assertThat(page.value(testId("SMSCredentialEditor.existingMobile"))).isEqualTo(NEW_MOBILE);
+		screenshot("Mobile credential recovery");
 		page.click(By.className("u-cred-reset-proceed"));
 		waitFor(() -> page.visible(By.className("u-passwordResetTitle")).getText().contains("Update was successful"));
 

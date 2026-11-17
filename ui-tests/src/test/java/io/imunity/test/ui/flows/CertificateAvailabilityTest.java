@@ -35,5 +35,6 @@ class CertificateAvailabilityTest extends CredentialWorkflowTestBase
 		page.visible(certificate);
 		assertThat(driver.findElement(certificate).findElements(
 				By.cssSelector("[data-testid='HomeSignIn.editCredential']"))).isEmpty();
+		screenshot("Certificate credential controls");
 	}
 }

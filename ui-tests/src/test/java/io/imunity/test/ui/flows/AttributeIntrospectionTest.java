@@ -38,6 +38,7 @@ class AttributeIntrospectionTest extends SamlWorkflowTestBase
 		page.click(By.className("u-consentConfirmButton"));
 		page.visible(By.id("PolicyProcessingSummaryComponent.TryAgain"));
 		assertThat(driver.findElement(By.tagName("body")).getText()).contains("All mandatory attributes were provided");
+		screenshot("Introspection without policy description");
 	}
 
 	@Test
@@ -66,6 +67,7 @@ class AttributeIntrospectionTest extends SamlWorkflowTestBase
 				"50% (1/2) mandatory attributes were provided", "0% (0/1) optional attributes were provided",
 				"Missing mandatory attributes", "ui-mandatory", "Missing optional attributes", "ui-optional");
 
+		screenshot("Missing mandatory and optional attributes");
 		attributes.setAttribute(user.entity(), StringAttribute.of("ui-mandatory", "/", "Received after retry"));
 		page.click(By.id("PolicyProcessingSummaryComponent.TryAgain"));
 		page.click(PROVIDER);
@@ -75,5 +77,6 @@ class AttributeIntrospectionTest extends SamlWorkflowTestBase
 				"All mandatory attributes were provided", "0% (0/1) optional attributes were provided")
 				.doesNotContain("Missing mandatory attributes");
 		assertThat(driver.findElement(By.tagName("body")).getText()).contains("Received after retry");
+		screenshot("Introspection after retry");
 	}
 }

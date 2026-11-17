@@ -35,6 +35,7 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 		assertThat(waitForElement(By.xpath("//*[@id='ExposedAttributes.showDetails']"
 				+ "//vaadin-text-field[label[normalize-space(.)='username']]/input")).getDomProperty("value"))
 				.isEqualTo("demo-user");
+		screenshot("OAuth consent with exposed attributes");
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();	
 		
 		waitForPageLoad(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']"));

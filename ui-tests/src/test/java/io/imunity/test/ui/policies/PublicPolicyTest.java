@@ -57,6 +57,7 @@ class PublicPolicyTest extends SeleniumTestBase
 		driver.navigate().refresh();
 		assertPolicy(page, policyCase);
 		assertThat(driver.findElements(By.className("u-passwordUsernameField"))).isEmpty();
+		screenshot("Public policy document");
 	}
 
 	private void assertPolicy(VaadinPage page, PolicyCase policyCase)

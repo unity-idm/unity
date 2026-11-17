@@ -83,5 +83,6 @@ class AttributeClassTest extends UserAccountTestBase
 		classes.setEntityAttributeClasses(member, "/", List.of(className));
 		assertThat(classes.getEntityAttributeClasses(member, "/"))
 				.extracting(AttributesClass::getName).containsExactly(className);
+		screenshot("Attribute class editor");
 	}
 }

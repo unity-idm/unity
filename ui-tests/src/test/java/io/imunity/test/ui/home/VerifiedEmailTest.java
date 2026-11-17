@@ -46,6 +46,7 @@ class VerifiedEmailTest extends EmailWorkflowTestBase
 		page.visible(EMAILS);
 		assertThat(driver.findElements(EMAILS)).extracting(element -> element.getDomProperty("value"))
 				.containsExactly(ORIGINAL_EMAIL, NEW_EMAIL);
+		screenshot("Confirmed email addresses");
 		driver.findElements(removeButtons()).stream().filter(element -> element.isDisplayed())
 				.toList().getLast().click();
 		page.click(testId("ProfileView.save"));

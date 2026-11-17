@@ -36,6 +36,7 @@ class PasswordRenewalTest extends EndUserTestBase
 		assertThat(entities.getEntity(user.entity()).getCredentialInfo().getCredentialsState()
 				.get("sys:password").getState()).isEqualTo(LocalCredentialState.outdated);
 
+		screenshot("Outdated password renewal");
 		String replacement = "Renewed!73-Sailboat";
 		page.fill(By.className("u-password-setup"), replacement);
 		page.fill(By.className("u-password-repeat"), replacement);
@@ -68,5 +69,6 @@ class PasswordRenewalTest extends EndUserTestBase
 		assertThat(driver.getCurrentUrl()).contains("/authentication");
 		assertThat(entities.getEntity(user.entity()).getCredentialInfo().getCredentialsState()
 				.get("sys:password").getState()).isEqualTo(LocalCredentialState.notSet);
+		screenshot("Missing required password");
 	}
 }

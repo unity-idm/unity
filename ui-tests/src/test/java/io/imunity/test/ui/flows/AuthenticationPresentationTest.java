@@ -41,6 +41,7 @@ class AuthenticationPresentationTest extends SamlWorkflowTestBase
 		assertThat(driver.findElement(By.tagName("body")).getText()).contains("Choose your Selenium sign-in");
 		page.select(By.className("u-authn-languageSelector"), "Polski");
 		waitFor(() -> driver.findElement(By.tagName("body")).getText().contains("Wybierz logowanie Selenium"));
+		screenshot("Polish authentication layout");
 		if (scenario.grid())
 		{
 			page.click(By.cssSelector("[class~='u-idpAuthentication-ui-saml.1']"));

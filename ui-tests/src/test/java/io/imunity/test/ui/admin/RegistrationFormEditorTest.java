@@ -56,11 +56,13 @@ class RegistrationFormEditorTest extends EndUserTestBase
 				.isEqualTo("true");
 		page.click(By.xpath("//vaadin-tab[normalize-space(.)='Visual settings']"));
 		assertThat(page.value(testId("RegistrationFormEditor.pageTitle"))).isEqualTo("Edited Selenium signup");
+		screenshot("Reloaded registration form editor");
 		var applicant = newBrowser();
 		VaadinPage signup = new VaadinPage(applicant);
 		applicant.get(baseUrl + "/unitygw/pub/registration/" + FORM);
 		signup.fill(By.cssSelector("vaadin-text-area"), "Submitted through the edited public form");
 		assertThat(applicant.getTitle()).isEqualTo("Edited Selenium signup");
+		screenshot(applicant, "Edited public signup form");
 		signup.click(testId("StandaloneRegistration.submit"));
 		waitFor(() ->
 		{

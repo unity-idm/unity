@@ -59,6 +59,7 @@ class AssociationAtLoginTest extends SamlWorkflowTestBase
 		driver.switchTo().window(source);
 		page.visible(By.id("Wizard.finish"));
 		assertThat(entities.getEntity(user.entity()).getIdentities()).containsExactlyElementsOf(original);
+		screenshot("Association confirmation");
 		if (!scenario.confirm())
 		{
 			page.click(By.id("Wizard.cancel"));

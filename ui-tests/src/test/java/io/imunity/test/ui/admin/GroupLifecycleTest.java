@@ -68,6 +68,7 @@ class GroupLifecycleTest extends SeleniumTestBase
 		openActions(page, child, "edit");
 		assertThat(page.value(testId("GroupEditDialog", "GroupEditDialog.displayedName")))
 				.isEqualTo("Team B");
+		screenshot("Reloaded group editor");
 		assertThat(groups.getContents(child, GroupContents.METADATA).getGroup().getDisplayedName()
 				.getValue("en")).isEqualTo("Team B");
 		page.click(testId("GroupEditDialog", "DialogWithActionFooter.confirm"));

@@ -99,6 +99,7 @@ class CredentialDefinitionTest extends SeleniumTestBase
 			assertThat(page.value(editorField(scenario))).isEqualTo(scenario.updated());
 		assertStored(scenario, scenario.updated(), "Updated credential description");
 
+		screenshot("Reloaded credential definition editor");
 		driver.get(baseUrl + "/admin/credentials/info/" + name);
 		assertThat(page.visible(testId("CredentialsInfoView", "CredentialsInfoView.name")).getText()).isEqualTo(name);
 		assertThat(page.visible(testId("CredentialsInfoView", "CredentialsInfoView.type")).getText())
@@ -131,6 +132,7 @@ class CredentialDefinitionTest extends SeleniumTestBase
 		waitFor(() -> Boolean.parseBoolean(page.visible(editorField(scenario)).getDomProperty("invalid")));
 		assertThat(driver.getCurrentUrl()).endsWith("/credentials/edit");
 		assertThat(credentials.getCredentialDefinitions()).extracting(CredentialDefinition::getName).doesNotContain(name);
+		screenshot("Required credential configuration validation");
 	}
 
 	private VaadinPage openEditor(CredentialCase scenario) throws Exception

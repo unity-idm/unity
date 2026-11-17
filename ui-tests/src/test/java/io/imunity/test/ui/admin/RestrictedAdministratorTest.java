@@ -39,6 +39,7 @@ class RestrictedAdministratorTest extends UserAccountTestBase
 
 		driver.get(baseUrl + "/admin/services/edit/Selenium%20Home");
 		page.visible(By.cssSelector("vaadin-notification-card[theme~='error']"));
+		screenshot("Restricted administrator access denied");
 		assertThat(driver.findElements(testId("EditViewActionLayoutFactory.save")))
 				.noneMatch(element -> element.isDisplayed() && element.isEnabled());
 		assertThat(endpoints.getEndpoint("Selenium Home").getConfiguration()).isEqualTo(configuration);

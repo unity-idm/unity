@@ -29,6 +29,7 @@ class AboutTest extends SeleniumTestBase
 		assertBuild(page, running);
 		driver.navigate().refresh();
 		assertBuild(page, running);
+		screenshot("Running build information");
 	}
 
 	private void assertBuild(VaadinPage page, VersionInformation running)

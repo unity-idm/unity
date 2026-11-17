@@ -60,6 +60,7 @@ class IdentityEditorTest extends UserAccountTestBase
 				.map(Identity::getValue).findFirst().orElseThrow();
 		page.visible(By.cssSelector("[data-testid='IdentitiesTreeGrid.entityActions'][data-entity-id='"
 				+ user.entity().getEntityId() + "'][data-identity-value='" + storedValue + "']"));
+		screenshot("Added identity in directory");
 		directory.removeIdentity(user.entity(), storedValue);
 		assertThat(entities.getEntity(user.entity()).getIdentities()).containsExactlyInAnyOrderElementsOf(original);
 		assertThatThrownBy(() -> entities.getEntity(new EntityParam(new IdentityParam(scenario.type(), value))))
@@ -85,6 +86,7 @@ class IdentityEditorTest extends UserAccountTestBase
 		assertThat(page.visible(testId("IdentityCreationDialog")).isDisplayed()).isTrue();
 		assertThat(entities.getEntity(user.entity()).getIdentities()).containsExactlyElementsOf(original);
 
+		screenshot("Invalid identity validation");
 		String corrected = value(scenario);
 		fill(scenario, corrected);
 		page.click(testId("IdentityCreationDialog", "DialogWithActionFooter.confirm"));

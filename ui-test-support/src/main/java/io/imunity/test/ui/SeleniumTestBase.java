@@ -1,5 +1,7 @@
 package io.imunity.test.ui;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +46,7 @@ public abstract class SeleniumTestBase
 	protected JettyServer httpServer;
 
 	private final List<WebDriver> browsers = new ArrayList<>();
+	ReviewScreenshots reviewScreenshots;
 
 	@BeforeEach
 	public void startBrowser() throws Exception
@@ -123,12 +126,42 @@ public abstract class SeleniumTestBase
 
 	protected final void waitForUi()
 	{
+		waitForUi(driver);
+	}
+
+	private void waitForUi(WebDriver browser)
+	{
 		// Flow exposes request activity outside the DOM; visibility alone can precede a server rerender.
-		waitFor(() -> Boolean.TRUE.equals(((JavascriptExecutor) driver).executeScript("""
+		new WebDriverWait(browser, Duration.ofSeconds(WAIT_TIME_S))
+				.ignoring(StaleElementReferenceException.class)
+				.until(ignored -> Boolean.TRUE.equals(((JavascriptExecutor) browser).executeScript("""
 				return document.readyState === 'complete' &&
 					(!window.Vaadin || !Vaadin.Flow || !Vaadin.Flow.clients ||
 					Object.values(Vaadin.Flow.clients).every(client => !client.isActive || !client.isActive()));
 				""")));
+	}
+
+	protected final void screenshot(String checkpoint)
+	{
+		screenshot(driver, checkpoint);
+	}
+
+	protected final void screenshot(WebDriver browser, String checkpoint)
+	{
+		if (reviewScreenshots == null)
+			return;
+		waitForUi(browser);
+		((JavascriptExecutor) browser).executeAsyncScript("""
+				const done = arguments[arguments.length - 1];
+				document.fonts.ready.then(() => requestAnimationFrame(() => requestAnimationFrame(() => done())));
+				""");
+		try
+		{
+			reviewScreenshots.capture(browser, checkpoint);
+		} catch (IOException e)
+		{
+			throw new UncheckedIOException("Cannot capture review checkpoint: " + checkpoint, e);
+		}
 	}
 
 	List<WebDriver> browsers()

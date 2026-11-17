@@ -43,6 +43,7 @@ class HomeServiceEditorTest extends EndUserTestBase
 		page.click(By.xpath("//vaadin-tab[@orientation='horizontal'][normalize-space(.)='Authentication']"));
 		assertThat(page.value(testId("WebServiceAuthenticationTab.title"))).isEqualTo("Selenium account sign-in");
 
+		screenshot("Reloaded Home authentication settings");
 		var fresh = newBrowser();
 		VaadinPage login = new VaadinPage(fresh);
 		fresh.get(baseUrl + "/edited-home");
@@ -56,5 +57,6 @@ class HomeServiceEditorTest extends EndUserTestBase
 		fresh.navigate().refresh();
 		login.visible(By.cssSelector("[data-testid='HomeSignIn.credential']"));
 		assertThat(fresh.findElements(testId("HomeSignIn.mfaOptIn"))).isEmpty();
+		screenshot(fresh, "Home credential controls");
 	}
 }

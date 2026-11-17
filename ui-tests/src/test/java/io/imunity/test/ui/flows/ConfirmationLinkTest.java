@@ -49,6 +49,7 @@ class ConfirmationLinkTest extends EmailWorkflowTestBase
 			assertThat(email.getValue()).isEqualTo(NEW_EMAIL);
 			assertThat(email.getConfirmationInfo().isConfirmed()).isEqualTo(scenario.state() == State.CONSUMED);
 		});
+		screenshot("Unusable confirmation link");
 	}
 
 	private static Stream<LinkCase> unusableLinks()

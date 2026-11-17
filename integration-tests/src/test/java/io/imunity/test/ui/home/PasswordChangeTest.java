@@ -27,6 +27,7 @@ class PasswordChangeTest extends UserAccountTestBase
 		home.click(By.cssSelector(PASSWORD_PANEL + "[data-testid='HomeSignIn.editCredential']"));
 		home.fill(By.cssSelector(PASSWORD_PANEL + ".u-password-setup"), newPassword);
 		home.fill(By.cssSelector(PASSWORD_PANEL + ".u-password-repeat"), newPassword);
+		screenshot("Home password editor");
 		home.click(By.cssSelector(PASSWORD_PANEL + "[data-testid='HomeSignIn.saveCredential']"));
 		waitForElementNotPresent(By.cssSelector(PASSWORD_PANEL + "[data-testid='HomeSignIn.saveCredential']"));
 

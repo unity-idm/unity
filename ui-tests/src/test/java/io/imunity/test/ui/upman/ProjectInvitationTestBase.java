@@ -136,6 +136,7 @@ abstract class ProjectInvitationTestBase extends ProjectWorkflowTestBase
 				scroller.scrollLeft = scroller.scrollWidth;
 				""", page.visible(actions));
 		page.click(actions);
+		screenshot("Project invitation request actions");
 		page.click(testId(accept ? "UserUpdatesView.accept" : "UserUpdatesView.reject"));
 	}
 

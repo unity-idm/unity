@@ -135,6 +135,7 @@ abstract class AttributeWidgetTestBase extends UserAccountTestBase
 		reload(directory);
 		directory.editAttribute(name);
 		widget.assertValue(scenario, input(scenario, scenario.updated()));
+		screenshot("Reloaded attribute value editor");
 		new VaadinPage(driver).click(testId("AttributeEditDialog", "DialogWithActionFooter.cancel"));
 		assertStoredAndRendered(scenario, scenario.updated());
 	}

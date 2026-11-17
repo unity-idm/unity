@@ -142,6 +142,7 @@ class RegistrationApprovalTest extends UserAccountTestBase
 		assertThat(review.visible(testId("RequestProcessingPanel.status")).getText()).isEqualTo("PENDING");
 		review.click(testId("RequestProcessingPanel.accept"));
 		waitFor(() -> review.visible(testId("RequestProcessingPanel.status")).getText().equals("ACCEPTED"));
+		screenshot(administrator, "Approved registration request");
 
 		return registrations.getRegistrationRequest(requestId);
 	}

@@ -44,6 +44,7 @@ class ProjectDelegationTest extends ProjectWorkflowTestBase
 		assertThat(page.visible(field("delegation")).getDomProperty("checked")).isEqualTo("true");
 		assertThat(page.visible(field("subprojects")).getDomProperty("checked")).isEqualTo("true");
 		assertThat(page.value(field("logoUrl"))).isEqualTo(saved.logoUrl);
+		screenshot("Reloaded delegation settings");
 		page.check(field("delegation"), false);
 		assertThat(page.visible(field("logoUrl")).getDomProperty("disabled")).isEqualTo("true");
 		assertThat(page.visible(field("subprojects")).getDomProperty("disabled")).isEqualTo("true");
@@ -73,6 +74,7 @@ class ProjectDelegationTest extends ProjectWorkflowTestBase
 		page.visible(testId("UpManGroups.rename"));
 		assertThat(driver.findElements(testId("UpManGroups.delegate"))).noneMatch(element -> element.isDisplayed());
 		assertThat(storedGroup(child)).isEqualTo(original);
+		screenshot("Restricted group actions");
 	}
 
 	private By field(String name)

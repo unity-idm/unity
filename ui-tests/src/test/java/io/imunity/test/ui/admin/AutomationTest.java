@@ -103,6 +103,7 @@ class AutomationTest extends UserAccountTestBase
 		assertThat(rules.getScheduledRules().stream()
 				.filter(rule -> !ownedConditions.contains(rule.getCondition())).toList())
 				.containsExactlyInAnyOrderElementsOf(originalRules);
+		screenshot("Saved automation rule editor");
 	}
 
 	@ParameterizedTest(name = "{0}")
@@ -131,6 +132,7 @@ class AutomationTest extends UserAccountTestBase
 		}
 		assertThat(state(target)).isEqualTo(EntityState.valid);
 		assertThat(state(control)).isEqualTo(EntityState.valid);
+		screenshot("Run automation rule");
 		page.click(testId("AutomationRunView.run"));
 		waitForPageLoadByURL("/automation");
 		waitFor(() -> state(target) == EntityState.disabled);

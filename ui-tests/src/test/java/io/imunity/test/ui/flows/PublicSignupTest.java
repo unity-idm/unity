@@ -81,6 +81,7 @@ class PublicSignupTest extends EndUserTestBase
 		assertThat(entities.getEntity(existing.entity()).getIdentities()).anySatisfy(identity ->
 				assertThat(identity.getValue()).isEqualTo(existing.username()));
 
+		screenshot("Public signup validation");
 		String username = "ui-signup-" + UUID.randomUUID();
 		page.fill(USERNAME, username);
 		page.click(SUBMIT);

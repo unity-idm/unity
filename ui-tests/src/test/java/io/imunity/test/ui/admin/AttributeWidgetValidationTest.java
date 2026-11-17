@@ -42,6 +42,7 @@ class AttributeWidgetValidationTest extends AttributeWidgetTestBase
 					.stream().anyMatch(WebElement::isDisplayed));
 		assertThat(new VaadinPage(driver).visible(testId("AttributeEditDialog")).isDisplayed()).isTrue();
 		assertThat(storedValue()).isEqualTo(before);
+		screenshot("Invalid attribute value");
 		fill(widget, scenario, scenario.updated(), false);
 		directory.saveAttribute();
 		assertStoredAndRendered(scenario, scenario.updated());

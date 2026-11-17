@@ -97,6 +97,7 @@ class ProjectMembershipTest extends UserAccountTestBase
 		assertThat(entities.getGroups(member.entity())).containsKeys(project, team, unrelated);
 		assertThat(members(unrelated)).isEqualTo(unrelatedMembers);
 		assertThat(members(unrelatedTeam)).isEqualTo(unrelatedTeamMembers);
+		screenshot("Subgroup members");
 	}
 
 	private String createProject(String displayName) throws EngineException

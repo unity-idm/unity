@@ -90,6 +90,7 @@ class RealmTest extends UserAccountTestBase
 		assertStored(scenario.policy(), 540);
 		assertThat(endpoints.getEndpoint(endpointName).getConfiguration().getRealm()).isEqualTo(name);
 
+		screenshot("Realm settings and associated service");
 		WebDriver browser = newBrowser();
 		VaadinPage home = new VaadinPage(browser);
 		home.login(baseUrl, "/realm-home", user.username(), user.password());

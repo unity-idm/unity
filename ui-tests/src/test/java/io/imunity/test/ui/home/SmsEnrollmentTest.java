@@ -52,6 +52,7 @@ class SmsEnrollmentTest extends CredentialWorkflowTestBase
 		page.click(CONFIRM);
 		page.visible(By.cssSelector("[data-testid='MobileNumberConfirmationDialog.code'][invalid]"));
 		assertThat(state(user)).isEqualTo(LocalCredentialState.notSet);
+		screenshot("Mobile verification dialog");
 		page.fill(testId("MobileNumberConfirmationDialog.code"), confirmationCode);
 		page.click(CONFIRM);
 		waitFor(() -> driver.findElements(testId("MobileNumberConfirmationDialog")).stream()

@@ -70,6 +70,7 @@ class OAuthConsentTest extends OAuthWorkflowTestBase
 		page.click(By.className("u-consentConfirmButton"));
 		page.click(By.cssSelector("[id='ExposedAttributes.showDetails'] vaadin-details-summary"));
 		assertThat(page.value(By.xpath("//vaadin-text-field[label[.='ui-affiliation']]"))).isEqualTo("student");
+		screenshot("OAuth consent and selected attribute");
 		page.click(By.className("u-consentConfirmButton"));
 		Map<String, String> response = callback(driver);
 		assertThat(response).containsEntry("state", STATE).containsKey("code").doesNotContainKey("error");
@@ -96,6 +97,7 @@ class OAuthConsentTest extends OAuthWorkflowTestBase
 		driver.get(authorizationUrl(client, "openid profile"));
 		VaadinPage page = new VaadinPage(driver);
 		page.signIn(user.username(), user.password());
+		screenshot("OAuth consent before denial");
 		page.click(By.className("u-consentDeclineButton"));
 		assertThat(callback(driver)).containsEntry("error", "access_denied").containsEntry("state", STATE)
 				.doesNotContainKey("code");
@@ -132,6 +134,7 @@ class OAuthConsentTest extends OAuthWorkflowTestBase
 		page.login(baseUrl, "/home", user.username(), user.password());
 		home.get(baseUrl + "/home/trusted-applications");
 		page.click(By.cssSelector("vaadin-accordion-heading"));
+		screenshot(home, "Remembered OAuth application");
 		if (scenario.accept())
 		{
 			page.click(By.xpath("//span[contains(.,'technical information')]"));

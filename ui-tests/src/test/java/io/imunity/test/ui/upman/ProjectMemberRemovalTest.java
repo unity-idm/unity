@@ -47,6 +47,7 @@ class ProjectMemberRemovalTest extends ProjectWorkflowTestBase
 		page.action(owner.entity().getEntityId(), action);
 		assertThat(new VaadinPage(driver).visible(testId("UpManMembers.selfRemoveDialog")).getText())
 				.contains(scope.label());
+		screenshot("Self removal confirmation");
 		page.cancel("UpManMembers.selfRemoveDialog");
 		assertThat(members(project)).isEqualTo(rootSnapshot);
 		assertThat(members(child)).isEqualTo(childSnapshot);

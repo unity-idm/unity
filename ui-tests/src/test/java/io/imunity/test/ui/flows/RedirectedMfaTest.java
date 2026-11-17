@@ -58,6 +58,7 @@ class RedirectedMfaTest extends SamlWorkflowTestBase
 		assertThat(page.value(CODE)).isEmpty();
 		assertThat(driver.findElements(By.id("MainHeader.loggedAs"))).isEmpty();
 
+		screenshot("Redirected MFA challenge");
 		page.click(By.className("u-authn-resetMFAButton"));
 		page.visible(PROVIDER);
 		assertThat(driver.findElements(CODE)).noneMatch(element -> element.isDisplayed());
