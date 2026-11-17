@@ -64,6 +64,7 @@ class MenuItemFactory
 	                                     Supplier<Set<MemberModel>> modelsGetter, Supplier<GroupAuthorizationRole> roleGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.removeFromProjectAction"), BAN);
+		menuButton.getElement().setAttribute("data-testid", "UpManMembers.removeFromProject");
 		return new MenuItem(menuButton, event -> removeFromProject(projectGetter.get(), roleGetter.get(), modelsGetter.get()));
 	}
 
@@ -71,12 +72,14 @@ class MenuItemFactory
 	                                   Supplier<Set<MemberModel>> modelsGetter, Supplier<GroupAuthorizationRole> roleGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.removeFromGroupAction"), FILE_REMOVE);
+		menuButton.getElement().setAttribute("data-testid", "UpManMembers.removeFromGroup");
 		return new MenuItem(menuButton, event -> removeFromGroup(projectGetter.get(), groupGetter.get(), roleGetter.get(), modelsGetter.get()));
 	}
 
 	MenuItem createAddToGroupItem(Supplier<ProjectGroup> projectGetter, Supplier<List<GroupTreeNode>> groupGetter, Supplier<Set<MemberModel>> modelsGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.addToGroupAction"), PLUS_CIRCLE_O);
+		menuButton.getElement().setAttribute("data-testid", "UpManMembers.addToGroup");
 		return new MenuItem(menuButton, event -> createAddToGroupDialog(projectGetter.get(), modelsGetter.get(), groupGetter.get()).open());
 	}
 
@@ -84,6 +87,7 @@ class MenuItemFactory
 	                                  Supplier<GroupAuthorizationRole> roleGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.setProjectRoleAction"), STAR_O);
+		menuButton.getElement().setAttribute("data-testid", "UpManMembers.setProjectRole");
 		return new MenuItem(menuButton, event -> createSetProjectRoleDialog(projectGetter.get(), groupGetter.get(), modelsGetter.get(), roleGetter.get()).open());
 	}
 
@@ -91,6 +95,7 @@ class MenuItemFactory
 	                                     Supplier<GroupAuthorizationRole> roleGetter)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupMembersComponent.setSubProjectRoleAction"), STAR_O);
+		menuButton.getElement().setAttribute("data-testid", "UpManMembers.setSubprojectRole");
 		return new MenuItem(menuButton, event -> createSetSubProjectRoleDialog(projectGetter.get(), groupGetter.get(), modelsGetter.get(), roleGetter.get()).open());
 	}
 
@@ -158,10 +163,12 @@ class MenuItemFactory
 	private Dialog createSelfRemoveDialog(String txt, Runnable job)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
+		dialog.getElement().setAttribute("data-testid", "UpManMembers.selfRemoveDialog");
 		dialog.addClassName(CssClassNames.DIALOG_CONFIRM.getName());
 		dialog.add(new VerticalLayout(new Span(txt)));
 
 		Button saveButton = new SubmitButton(msg::getMessage);
+		saveButton.getElement().setAttribute("data-testid", "UpManMembers.confirmRemove");
 		saveButton.addClickListener(e ->
 		{
 			job.run();
@@ -175,8 +182,10 @@ class MenuItemFactory
 	private Dialog createAddToGroupDialog(ProjectGroup projectGroup, Set<MemberModel> members, List<GroupTreeNode> groups)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("AddToGroupDialog.caption"));
+		dialog.getElement().setAttribute("data-testid", "UpManMembers.addToGroupDialog");
 
 		ComboBox<GroupTreeNode> groupComboBox = new GroupComboBox(msg);
+		groupComboBox.getElement().setAttribute("data-testid", "UpManMembers.targetGroup");
 		groupComboBox.focus();
 		groupComboBox.setLabel(msg.getMessage("AddToGroupDialog.info"));
 		groupComboBox.setItems(groups);
@@ -190,6 +199,7 @@ class MenuItemFactory
 		dialog.add(dialogLayout);
 
 		Button saveButton = createAddToGroupButton(projectGroup, dialog, groupComboBox, members);
+		saveButton.getElement().setAttribute("data-testid", "UpManMembers.confirmAdd");
 		dialog.getFooter().add(saveButton);
 
 		return dialog;
@@ -198,6 +208,7 @@ class MenuItemFactory
 	private Dialog createSetProjectRoleDialog(ProjectGroup projectGroup, Group group, Set<MemberModel> items, GroupAuthorizationRole role)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("RoleSelectionDialog.projectCaption"));
+		dialog.getElement().setAttribute("data-testid", "UpManMembers.projectRoleDialog");
 
 		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup(role, items);
 		Span label = new Span(msg.getMessage("RoleSelectionDialog.projectRole"));
@@ -216,6 +227,7 @@ class MenuItemFactory
 	private RadioButtonGroup<GroupAuthorizationRole> createRoleRadioButtonGroup(GroupAuthorizationRole role, Set<MemberModel> items)
 	{
 		RadioButtonGroup<GroupAuthorizationRole> radioGroup = new RadioButtonGroup<>();
+		radioGroup.getElement().setAttribute("data-testid", "UpManMembers.role");
 		radioGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 
 		List<GroupAuthorizationRole> roles;
@@ -234,6 +246,7 @@ class MenuItemFactory
 	private Dialog createSetSubProjectRoleDialog(ProjectGroup projectGroup, Group group, Set<MemberModel> items, GroupAuthorizationRole role)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("RoleSelectionDialog.subprojectCaption"));
+		dialog.getElement().setAttribute("data-testid", "UpManMembers.subprojectRoleDialog");
 
 		RadioButtonGroup<GroupAuthorizationRole> radioGroup = createRoleRadioButtonGroup(role, items);
 		Span label = new Span(msg.getMessage("RoleSelectionDialog.subprojectRole"));
@@ -257,6 +270,7 @@ class MenuItemFactory
 	private Button createSetSubProjectRoleButton(ProjectGroup projectGroup, Group group, Dialog dialog, RadioButtonGroup<GroupAuthorizationRole> radioGroup, Set<MemberModel> items)
 	{
 		Button button = new SubmitButton(msg::getMessage);
+		button.getElement().setAttribute("data-testid", "UpManMembers.confirmRole");
 		button.addClickListener(event ->
 		{
 			groupMembersController.updateRole(projectGroup, group, radioGroup.getValue(), items);
@@ -269,6 +283,7 @@ class MenuItemFactory
 	private Button createSetProjectRoleButton(ProjectGroup projectGroup, Group group, Dialog dialog, RadioButtonGroup<GroupAuthorizationRole> radioGroup, Set<MemberModel> items)
 	{
 		Button button = new SubmitButton(msg::getMessage);
+		button.getElement().setAttribute("data-testid", "UpManMembers.confirmRole");
 		button.addClickListener(event ->
 		{
 			GroupAuthorizationRole role = radioGroup.getValue();

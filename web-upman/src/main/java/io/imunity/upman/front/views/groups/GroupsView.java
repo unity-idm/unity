@@ -69,6 +69,8 @@ public class GroupsView extends UpmanViewComponent
 		grid.addThemeNames("no-border", "no-row-borders");
 		grid.addComponentHierarchyColumn(groupTreeNode -> {
 			Div div = new Div();
+			div.getElement().setAttribute("data-testid", "UpManGroups.group");
+			div.getElement().setAttribute("data-group-path", groupTreeNode.getPath());
 			if(groupTreeNode.isDelegationEnabled())
 				div.add(WORKPLACE.create());
 			if(groupTreeNode.isPublic())

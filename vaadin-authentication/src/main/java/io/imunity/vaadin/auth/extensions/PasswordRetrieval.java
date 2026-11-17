@@ -22,6 +22,7 @@ import io.imunity.vaadin.auth.extensions.credreset.password.PasswordCredentialRe
 import io.imunity.vaadin.elements.CssClassNames;
 import io.imunity.vaadin.elements.LinkButton;
 import io.imunity.vaadin.elements.NotificationPresenter;
+import io.imunity.vaadin.endpoint.common.forms.components.CaptchaImageFactory;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditor;
 import io.imunity.vaadin.endpoint.common.plugins.credentials.CredentialEditorRegistry;
 import org.apache.logging.log4j.Logger;
@@ -63,14 +64,17 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	private final CredentialEditorRegistry credEditorReg;
 	private String configuration;
 	private final NotificationPresenter notificationPresenter;
+	private final CaptchaImageFactory captchaImageFactory;
 
 	@Autowired
-	public PasswordRetrieval(MessageSource msg, CredentialEditorRegistry credEditorReg, NotificationPresenter notificationPresenter)
+	public PasswordRetrieval(MessageSource msg, CredentialEditorRegistry credEditorReg,
+			NotificationPresenter notificationPresenter, CaptchaImageFactory captchaImageFactory)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.credEditorReg = credEditorReg;
 		this.notificationPresenter = notificationPresenter;
+		this.captchaImageFactory = captchaImageFactory;
 	}
 
 	@Override
@@ -262,7 +266,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		{
 			PasswordCredentialResetController passReset = new PasswordCredentialResetController(msg,
 					credentialExchange.getCredentialResetBackend(), credEditor,
-					credResetLauncher.getConfiguration(), notificationPresenter);
+					credResetLauncher.getConfiguration(), notificationPresenter, captchaImageFactory);
 			AuthenticationSubject subject = presetAuthenticatedIdentity == null ?
 					null : AuthenticationSubject.identityBased(presetAuthenticatedIdentity);
 			credResetLauncher.startCredentialReset(passReset.getInitialUI(Optional.ofNullable(subject)));

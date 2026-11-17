@@ -26,6 +26,7 @@ class MembersGrid extends MultiSelectGrid<MemberModel>
 	MembersGrid(Map<String, String> attributes, MessageSource msg, Function<MemberModel, Component> menuGetter, HtmlContainer container)
 	{
 		this.msg = msg;
+		getElement().setAttribute("data-testid", "UpManMembers.grid");
 		roleColumn = addComponentColumn(model ->
 		{
 			Div div = new Div();

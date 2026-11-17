@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.test.headlessui;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
@@ -19,7 +18,7 @@ import org.openqa.selenium.Cookie;
 public class TestBasic extends SeleniumTestBase
 {
 	@Test
-	public void loginTest()
+	public void shouldRotateSessionOnLoginAndDenyProtectedAccessAfterLogout()
 	{
 		driver.get(baseUrl + "/home");
 		waitForPageLoadByURL("/home/authentication");
@@ -31,10 +30,16 @@ public class TestBasic extends SeleniumTestBase
 		driver.findElement(By.className("u-passwordSignInButton")).click();
 
 		waitForPageLoad(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']"));
-		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("Default Administrator"));
-		driver.findElement(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']"));
+		assertThat(driver.findElement(By.id("MainHeader.loggedAs")).getText()).contains("Default Administrator");
 		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");
-		assertNotEquals(sessionBefore.getValue(), sessionAfter.getValue());
+		assertThat(sessionAfter.getValue()).isNotEqualTo(sessionBefore.getValue());
+		screenshot("Home after password login");
 		waitForElement(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']")).click();
+		waitForPageLoad(By.className("u-passwordSignInButton"));
+		driver.get(baseUrl + "/home/sign-in");
+		waitForPageLoadByURL("/home/authentication");
+		waitForPageLoad(By.className("u-passwordUsernameField"));
+		assertThat(driver.findElements(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']"))).isEmpty();
+		assertThat(driver.findElements(By.id("MainHeader.loggedAs"))).isEmpty();
 	}
 }

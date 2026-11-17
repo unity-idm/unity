@@ -64,6 +64,8 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 	public void init()
 	{
 		credList = new GridWithActionColumn<>(msg::getMessage, getActionsHandlers());
+		credList.setPartNameGenerator(requirement -> "requirement-" + requirement.getName());
+		credList.getElement().setAttribute("data-testid", "CredentialRequirementsView.requirements");
 		credList.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		Grid.Column<CredentialRequirements> nameColumn = credList.addComponentColumn(c ->
 				{
@@ -133,12 +135,14 @@ public class CredentialRequirementsView extends ConsoleViewComponent
 
 		String confirmText = MessageUtils.createConfirmFromStrings(msg, removedCr);
 		ComboBox<String> replacementCR = new ComboBox<>(msg.getMessage("CredentialRequirements.replacement"), crs);
+		replacementCR.getElement().setAttribute("data-testid", "CredentialRequirementsView.replacement");
 		replacementCR.setValue(crs.get(0));
 		replacementCR.setWidthFull();
 		VerticalLayout layout = new VerticalLayout();
 		layout.add(new Span(msg.getMessage("CredentialRequirements.removalConfirm", confirmText)), replacementCR);
 
 		ConfirmDialog confirmDialog = new ConfirmDialog();
+		confirmDialog.getElement().setAttribute("data-testid", "CredentialRequirementsView.remove");
 		confirmDialog.setHeader(msg.getMessage("ConfirmDialog.confirm"));
 		confirmDialog.setConfirmButton(msg.getMessage("ok"), e -> remove(item, replacementCR.getValue()));
 		confirmDialog.setCancelButton(msg.getMessage("cancel"), e -> {});

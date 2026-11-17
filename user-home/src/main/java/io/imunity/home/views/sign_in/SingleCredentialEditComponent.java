@@ -30,12 +30,14 @@ class SingleCredentialEditComponent extends VerticalLayout
 		main.setMargin(false);
 		main.add(editorComponents.getComponents());
 		Button update = new Button(msg.getMessage("CredentialChangeDialog.update"));
+		update.getElement().setAttribute("data-testid", "HomeSignIn.saveCredential");
 		update.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		update.addClickListener(e -> onUpdate.run());
 		update.setWidthFull();
 		main.add(update);
 		
 		LinkButton cancel = new LinkButton(msg.getMessage("cancel"), e -> onCancel.run());
+		cancel.getElement().setAttribute("data-testid", "HomeSignIn.cancelCredential");
 		main.add(cancel);
 
 		add(main);

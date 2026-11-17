@@ -36,6 +36,7 @@ class FidoPreviewComponent extends VerticalLayout
 	private void init(Runnable deleteCallback)
 	{
 		TextField textField = new TextField(msg.getMessage("Fido.authenticatorInfo"));
+		textField.getElement().setAttribute("data-testid", "FidoPreviewComponent.description");
 		textField.setValue(Optional.ofNullable(credential.getCredential().getDescription()).orElse(""));
 		textField.addValueChangeListener(event -> credential.setDescription(event.getValue()));
 		textField.setWidthFull();
@@ -51,6 +52,7 @@ class FidoPreviewComponent extends VerticalLayout
 		));
 
 		Button action = new Button(msg.getMessage("Fido.deleteKey"));
+		action.getElement().setAttribute("data-testid", "FidoPreviewComponent.remove");
 		action.addClickListener(event ->
 		{
 			credential.setState(credential.isDeleted() ? FidoCredentialInfoWrapper.CredentialState.NEW : FidoCredentialInfoWrapper.CredentialState.DELETED);

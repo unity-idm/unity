@@ -22,6 +22,7 @@ public class EditViewActionLayoutFactory
 		cancelButton.addClickListener(event -> UI.getCurrent().navigate(closeRedirectClass));
 		cancelButton.setWidthFull();
 		Button updateButton = new Button(editMode ? msg.getMessage("update") : msg.getMessage("create"));
+		updateButton.getElement().setAttribute("data-testid", "EditViewActionLayoutFactory.save");
 		updateButton.addClickListener(event -> onConfirm.run());
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();
@@ -37,6 +38,7 @@ public class EditViewActionLayoutFactory
 		cancelButton.addClickListener(event -> UI.getCurrent().navigate(closeRedirectClass));
 		cancelButton.setWidthFull();
 		Button updateButton = new Button(actionButton);
+		updateButton.getElement().setAttribute("data-testid", "EditViewActionLayoutFactory.save");
 		updateButton.addClickListener(event -> onConfirm.run());
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		updateButton.setWidthFull();

@@ -15,6 +15,7 @@ import java.util.function.Predicate;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.Grid.Column;
 import com.vaadin.flow.component.grid.GridSortOrder;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.data.provider.SortDirection;
@@ -66,8 +67,14 @@ class RequestsGrid extends VerticalLayout
 				.setHeader(msg.getMessage("RegistrationRequest.type"))
 				.setResizable(true)
 				.setSortable(true);
-		requestsGrid.addColumn(r -> r.request.getRequest()
-				.getFormId())
+		requestsGrid.addComponentColumn(r ->
+		{
+			Span form = new Span(r.request.getRequest().getFormId());
+			form.getElement().setAttribute("data-testid", "RequestsGrid.form");
+			form.getElement().setAttribute("data-request-id", r.request.getRequestId());
+			return form;
+		})
+				.setComparator(r -> r.request.getRequest().getFormId())
 				.setHeader(msg.getMessage("RegistrationRequest.form"))
 				.setResizable(true)
 				.setSortable(true);

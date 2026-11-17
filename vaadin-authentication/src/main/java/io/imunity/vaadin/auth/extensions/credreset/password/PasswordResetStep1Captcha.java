@@ -12,6 +12,7 @@ import io.imunity.vaadin.auth.extensions.credreset.CredentialResetFlowConfig;
 import io.imunity.vaadin.auth.extensions.credreset.CredentialResetLayout;
 import io.imunity.vaadin.auth.extensions.credreset.TextFieldWithContextLabel;
 import io.imunity.vaadin.endpoint.common.forms.components.CaptchaComponent;
+import io.imunity.vaadin.endpoint.common.forms.components.CaptchaImageFactory;
 import pl.edu.icm.unity.base.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.base.message.MessageSource;
 
@@ -29,14 +30,17 @@ class PasswordResetStep1Captcha extends CredentialResetLayout
 	private TextFieldWithContextLabel username;
 	private CaptchaComponent captcha;
 	private final boolean compactLayout;
+	private final CaptchaImageFactory captchaImageFactory;
 	
-	PasswordResetStep1Captcha(CredentialResetFlowConfig credResetConfig, Consumer<String> proceedCallback)
+	PasswordResetStep1Captcha(CredentialResetFlowConfig credResetConfig, Consumer<String> proceedCallback,
+			CaptchaImageFactory captchaImageFactory)
 	{
 		super(credResetConfig);
 		this.proceedCallback = proceedCallback;
 		this.cancelCallback = credResetConfig.cancelCallback;
 		this.msg = credResetConfig.msg;
 		compactLayout = credResetConfig.compactLayout;
+		this.captchaImageFactory = captchaImageFactory;
 		initUI(msg.getMessage("CredentialReset.infoPassword"), getContents());
 	}
 
@@ -47,12 +51,13 @@ class PasswordResetStep1Captcha extends CredentialResetLayout
 		narrowCol.setMargin(false);
 		narrowCol.setPadding(false);
 		username = new TextFieldWithContextLabel(compactLayout);
+		username.getElement().setAttribute("data-testid", "PasswordResetStep1Captcha.username");
 		username.setLabel(msg.getMessage("CredentialReset.username"));
 		username.setWidthFull();
 		username.focus();
 		narrowCol.add(username);
 		
-		captcha = new CaptchaComponent(msg, 6, compactLayout);
+		captcha = new CaptchaComponent(msg, 6, compactLayout, captchaImageFactory);
 		VerticalLayout captchaComp = captcha.getAsComponent();
 		captchaComp.addClassName("u-credreset-captcha");
 		narrowCol.add(captchaComp);

@@ -53,6 +53,7 @@ class FidoCredentialDefinitionEditor implements CredentialDefinitionEditor, Cred
 		userVerification.setItemLabelGenerator(Enum::name);
 		loginLessAllowed = new Checkbox(msg.getMessage("Fido.credEditor.loginLess"));
 		hostName = new TextField();
+		hostName.getElement().setAttribute("data-testid", "FidoCredentialDefinitionEditor.hostName");
 		hostName.setWidth(TEXT_FIELD_MEDIUM.value());
 
 		FormLayout ret = new FormLayout();

@@ -33,5 +33,6 @@ public class TestAttributeIntrospectionEndpoint extends SeleniumTestBase
 		waitForElement(By.xpath("//*[contains(text(), 'Good')]"));
 		waitForElement(By.xpath("//*[contains(text(), '50% (1/2) optional attributes were provided')]"));
 		waitForElement(By.xpath("//*[contains(text(), 'All mandatory attributes were provided')]"));
+		screenshot("Attribute introspection summary");
 	}
 }

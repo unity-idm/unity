@@ -70,10 +70,12 @@ class IdentityTypeEditor extends FormLayout
 		addFormItem(name, msg.getMessage("IdentityType.name"));
 
 		TextArea description = new TextArea();
+		description.getElement().setAttribute("data-testid", "IdentityTypeEditor.description");
 		description.setWidthFull();
 		addFormItem(description, msg.getMessage("IdentityType.description"));
 
 		selfModifiable = new Checkbox();
+		selfModifiable.getElement().setAttribute("data-testid", "IdentityTypeEditor.selfModifiable");
 		selfModifiable.addValueChangeListener(e ->
 		{
 			refresh();
@@ -85,6 +87,7 @@ class IdentityTypeEditor extends FormLayout
 		addFormItem(limInfo, "");
 
 		min = new IntegerFieldWithDefaultOutOfRangeError(msg);
+		min.getElement().setAttribute("data-testid", "IdentityTypeEditor.minimum");
 		min.setStepButtonsVisible(true);
 		min.setMin(0);
 		min.setMax(Integer.MAX_VALUE);

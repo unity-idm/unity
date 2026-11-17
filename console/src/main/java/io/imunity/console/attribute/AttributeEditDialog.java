@@ -24,6 +24,7 @@ public class AttributeEditDialog extends DialogWithActionFooter
 			AttributeEditor attributeEditor)
 	{
 		super(msg::getMessage);
+		getElement().setAttribute("data-testid", "AttributeEditDialog");
 		setHeaderTitle(caption);
 		this.editor = attributeEditor;
 		this.callback = callback;

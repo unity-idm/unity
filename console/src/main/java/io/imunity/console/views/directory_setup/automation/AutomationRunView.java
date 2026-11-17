@@ -68,6 +68,7 @@ public class AutomationRunView extends ConsoleViewComponent
 	protected void initUI(TranslationRule translationRule)
 	{
 		FormLayout main = new FormLayout();
+		main.getElement().setAttribute("data-testid", "AutomationRunView");
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		MVELExpressionField condition = new MVELExpressionField(msg, "",
@@ -75,6 +76,7 @@ public class AutomationRunView extends ConsoleViewComponent
 				MVELExpressionContext.builder().withTitleKey("RuleEditor.conditionTitle")
 						.withEvalToKey("MVELExpressionField.evalToBoolean").withVars(EntityMVELContextKey.toMap())
 						.build(), new TooltipFactory());
+		condition.getElement().setAttribute("data-testid", "AutomationRunView.condition");
 		actionEditor = controller.getActionEditor(translationRule);
 		binder = new Binder<>(TranslationRule.class);
 		condition.configureBinding(binder, "condition", true);
@@ -91,6 +93,7 @@ public class AutomationRunView extends ConsoleViewComponent
 		Button cancelButton = new Button(msg.getMessage("cancel"));
 		cancelButton.addClickListener(event -> UI.getCurrent().navigate(AutomationView.class));
 		Button updateButton = new Button(msg.getMessage("RunImmediateView.run"));
+		updateButton.getElement().setAttribute("data-testid", "AutomationRunView.run");
 		updateButton.addClickListener(event -> onConfirm());
 		updateButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		return new HorizontalLayout(cancelButton, updateButton);

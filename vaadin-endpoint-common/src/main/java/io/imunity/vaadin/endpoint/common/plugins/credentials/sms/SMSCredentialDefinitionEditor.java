@@ -58,6 +58,7 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 		formLayout.addFormItem(msgTemplate, msg.getMessage("SMSCredentialDefinitionEditor.msgTemplate"));
 
 		Span codeLength = new Span(String.valueOf(helper.getCodeLength()));
+		codeLength.getElement().setAttribute("data-testid", "SMSCredentialDefinitionViewer.codeLength");
 		formLayout.addFormItem(codeLength, msg.getMessage("SMSCredentialDefinitionEditor.codeLength"));
 
 		Span validityTime = new Span(String.valueOf(helper.getValidityTime()));
@@ -105,11 +106,13 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		CompatibleTemplatesComboBox msgTemplate = new CompatibleTemplatesComboBox(SMSAuthnTemplateDef.NAME, msgTplMan);
+		msgTemplate.getElement().setAttribute("data-testid", "SMSCredentialDefinitionEditor.template");
 		formLayout.addFormItem(msgTemplate, msg.getMessage("SMSCredentialDefinitionEditor.msgTemplate"));
 		msgTemplate.setWidth(TEXT_FIELD_MEDIUM.value());
 		binder.forField(msgTemplate).asRequired().bind("messageTemplate");
 
 		IntegerField codeLength = new IntegerField();
+		codeLength.getElement().setAttribute("data-testid", "SMSCredentialDefinitionEditor.codeLength");
 		codeLength.setMin(3);
 		codeLength.setMax(50);
 		codeLength.setStepButtonsVisible(true);

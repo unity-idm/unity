@@ -35,6 +35,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 		WebElement webElement = waitForElement(By.id("EmailValueEditor.Email"));
 		webElement.findElement(By.tagName("input")).clear();
 		webElement.sendKeys("test@test.com");
+		screenshot("Federated signup form");
 		waitForElement(By.tagName("vaadin-dialog")).findElement(By.cssSelector("vaadin-button[theme='primary']")).click();
 
 		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();

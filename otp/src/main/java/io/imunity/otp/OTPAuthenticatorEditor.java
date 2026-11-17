@@ -82,6 +82,7 @@ class OTPAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 		interactiveLoginSettings.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		
 		LocalizedTextFieldDetails retrievalName = new LocalizedTextFieldDetails(msg.getEnabledLocales().values(), msg.getLocale());
+		retrievalName.getElement().setAttribute("data-testid", "OTPAuthenticatorEditor.retrievalName");
 		retrievalName.setWidth(TEXT_FIELD_MEDIUM.value());
 		interactiveLoginSettings.addFormItem(retrievalName, msg.getMessage("OTPAuthenticatorEditor.formName"));
 		configBinder.forField(retrievalName)

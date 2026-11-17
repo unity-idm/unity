@@ -38,8 +38,11 @@ class SubProjectConfigurationLayout extends FormLayout
 		setResponsiveSteps(new FormLayout.ResponsiveStep("1em", 1, ASIDE));
 
 		enableDelegation = new Checkbox(msg.getMessage("SubprojectDialog.enableDelegationCaption"));
+		enableDelegation.getElement().setAttribute("data-testid", "SubProjectConfigurationLayout.delegation");
 		logoUrl = new TextField();
+		logoUrl.getElement().setAttribute("data-testid", "SubProjectConfigurationLayout.logoUrl");
 		enableSubprojects = new Checkbox(msg.getMessage("SubprojectDialog.enableSubprojects"));
+		enableSubprojects.getElement().setAttribute("data-testid", "SubProjectConfigurationLayout.subprojects");
 
 		enableDelegation.addValueChangeListener(event ->
 		{

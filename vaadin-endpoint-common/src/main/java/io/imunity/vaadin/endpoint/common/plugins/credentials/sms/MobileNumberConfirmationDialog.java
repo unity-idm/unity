@@ -50,6 +50,7 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 	                                      Callback callback, NotificationPresenter notificationPresenter)
 	{
 		setHeader(msg.getMessage("MobileNumberConfirmationDialog.caption"));
+		getElement().setAttribute("data-testid", "MobileNumberConfirmationDialog");
 		this.msg = msg;
 		this.callback = callback;
 		this.mobileConfirmationMan = mobileConfirmationMan;
@@ -87,6 +88,7 @@ public class MobileNumberConfirmationDialog extends ConfirmDialog
 	private Component getConfirmCodeComponent()
 	{
 		field = new TextField();
+		field.getElement().setAttribute("data-testid", "MobileNumberConfirmationDialog.code");
 		field.setLabel(msg.getMessage("MobileNumberConfirmationDialog.code"));
 		field.setRequiredIndicatorVisible(true);
 		Span infoLabel = new Span(msg.getMessage("MobileNumberConfirmationDialog.confirmInfo",

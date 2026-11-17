@@ -62,10 +62,12 @@ class PublicPolicyDocumentView extends UnityViewComponent implements BeforeEnter
 		layout.setAlignItems(FlexComponent.Alignment.CENTER);
 
 		H3 titleLabel = new H3(document.displayedName.getValue(msg));
+		titleLabel.getElement().setAttribute("data-testid", "PublicPolicyDocumentView.title");
 		titleLabel.setWidthFull();
 		contents.add(titleLabel);
 
 		Html content = new Html("<div>" + document.content.getValue(msg) + "</div>");
+		content.getElement().setAttribute("data-testid", "PublicPolicyDocumentView.content");
 		contents.add(content);
 
 		getContent().setSizeFull();
@@ -77,6 +79,7 @@ class PublicPolicyDocumentView extends UnityViewComponent implements BeforeEnter
 		getContent().removeAll();
 		Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
 		Span label = new Span(msg.getMessage("Empty"));
+		label.getElement().setAttribute("data-testid", "PublicPolicyDocumentView.empty");
 		label.getStyle().set("color", "var(--lumo-error-color)");
 		HorizontalLayout horizontalLayout = new HorizontalLayout(icon, label);
 		horizontalLayout.setMargin(true);

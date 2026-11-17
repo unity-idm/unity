@@ -78,6 +78,7 @@ class FidoEditorComponent extends VerticalLayout
 		credentialsLayout.setClassName("u-fido-layout");
 
 		addButton = new Button();
+		addButton.getElement().setAttribute("data-testid", "FidoEditorComponent.register");
 		addButton.setTooltipText(msg.getMessage("Fido.newRegistration"));
 		addButton.setText(msg.getMessage("Fido.register"));
 		addButton.setWidthFull();

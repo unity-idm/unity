@@ -21,7 +21,9 @@ public class DialogWithActionFooter extends Dialog
 		setModal(true);
 		setCloseOnOutsideClick(false);
 		cancelButton = new Button(msg.apply("cancel"), e -> close());
+		cancelButton.getElement().setAttribute("data-testid", "DialogWithActionFooter.cancel");
 		actionButton = new Button(msg.apply("ok"));
+		actionButton.getElement().setAttribute("data-testid", "DialogWithActionFooter.confirm");
 		actionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		getFooter().add(cancelButton, actionButton);

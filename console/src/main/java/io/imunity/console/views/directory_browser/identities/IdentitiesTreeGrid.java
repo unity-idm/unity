@@ -162,6 +162,9 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 		addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_COMPACT);
 		addClassName("u-directory-browser-members-grid");
+		getElement().setAttribute("data-testid", "IdentitiesTreeGrid");
+		setPartNameGenerator(entry -> entry.getSourceIdentity() == null
+				? "entity-" + entry.getSourceEntity().getEntity().getId() : "");
 		createBaseColumns();
 		setSelectionMode(SelectionMode.MULTI);
 		GridSelectionSupport.installClickListener(this);
@@ -285,6 +288,14 @@ public class IdentitiesTreeGrid extends TreeGrid<IdentityEntry>
 
 		ActionMenuWithHandlerSupport<IdentityEntry> menu = new ActionMenuWithHandlerSupport<>();
 		menu.setTarget(target);
+		menu.getTarget().getElement().setAttribute("data-testid", "IdentitiesTreeGrid.entityActions");
+		menu.getTarget().getElement().setAttribute("data-entity-id",
+				target.iterator().next().getSourceEntity().getEntity().getId().toString());
+		if (target.iterator().next().getSourceIdentity() != null)
+		{
+			menu.getTarget().getElement().setAttribute("data-identity-value",
+					target.iterator().next().getSourceIdentity().getValue());
+		}
 		menu.addActionHandlers(Arrays.asList(entityDetailsHandler.getShowEntityAction(),
 				addToGroupHandler.getAction(),
 				removeFromGroupHandler.getAction(this::getGroupPath, this::refresh),

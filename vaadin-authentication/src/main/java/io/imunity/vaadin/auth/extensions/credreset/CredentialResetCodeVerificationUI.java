@@ -51,6 +51,7 @@ public class CredentialResetCodeVerificationUI extends CredentialResetLayout
 	private Component getContents(String answerCaption, String resendDesc)
 	{
 		answer = new TextFieldWithContextLabel(credResetConfig.compactLayout);
+		answer.getElement().setAttribute("data-testid", "CredentialResetCodeVerificationUI.code");
 		answer.setLabel(answerCaption);
 		answer.setWidthFull();
 		answer.focus();

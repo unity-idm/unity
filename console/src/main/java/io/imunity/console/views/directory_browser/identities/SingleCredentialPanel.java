@@ -43,6 +43,7 @@ class SingleCredentialPanel extends VerticalLayout
 			CredentialEditorRegistry credEditorReg,
 			CredentialDefinition toEdit)
 	{
+		getElement().setAttribute("data-credential", toEdit.getName());
 		this.msg = msg;
 		this.credMan = credMan;
 		this.credEditorReg = credEditorReg;
@@ -65,6 +66,7 @@ class SingleCredentialPanel extends VerticalLayout
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 
 		setTheCredential = new Checkbox(msg.getMessage("NewEntityCredentialsPanel.setInitialCredential"));
+		setTheCredential.getElement().setAttribute("data-testid", "SingleCredentialPanel.setInitialCredential");
 		setTheCredential.addValueChangeListener(e -> {
 			credEditorLayout.setEnabled(setTheCredential.getValue());
 			buttonsBar.setEnabled(setTheCredential.getValue());
@@ -74,6 +76,7 @@ class SingleCredentialPanel extends VerticalLayout
 		buttonsBar.setSpacing(true);
 		buttonsBar.setMargin(false);
 		invalidate = new Checkbox(msg.getMessage("NewEntityCredentialsPanel.requireChange"));
+		invalidate.getElement().setAttribute("data-testid", "SingleCredentialPanel.requireChange");
 		if (supportsInvalidation(toEdit.getTypeId()))
 			buttonsBar.add(invalidate);
 

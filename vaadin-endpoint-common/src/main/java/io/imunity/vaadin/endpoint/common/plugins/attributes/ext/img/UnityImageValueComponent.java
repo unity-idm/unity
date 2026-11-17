@@ -62,9 +62,11 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		this.label.setVisible(false);
 
 		error = new ErrorLabel("");
+		error.getElement().setAttribute("data-testid", "UnityImageValueComponent.error");
 		error.setVisible(false);
 
 		image = new Image();
+		image.getElement().setAttribute("data-testid", "UnityImageValueComponent.preview");
 		image.addClickListener(event -> ImagePreviewTabFactory.openTab(value));
 
 		Checkbox scale = new Checkbox();
@@ -87,6 +89,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 			switchView();
 			WebSession.getCurrent().getEventBus().fireEvent(new AttributeModyficationEvent());
 		}));
+		upload.getElement().setAttribute("data-testid", "UnityImageValueComponent.upload");
 		upload.setAcceptedMimeTypes(Arrays.stream(ImageType.values())
 				.map(ImageType::getMimeType)
 				.toArray(String[]::new));
@@ -105,6 +108,7 @@ class UnityImageValueComponent extends VerticalLayout implements HasLabel
 		uploadNewLayout.add(upload, error, scaleLayout, getHints(imgConfig, msg));
 		clearImageLayout = new VerticalLayout();
 		Icon reaupload = new Icon(VaadinIcon.CLOSE_SMALL);
+		reaupload.getElement().setAttribute("data-testid", "UnityImageValueComponent.clear");
 		reaupload.setTooltipText(msg.getMessage("ImageAttributeHandler.removeImage"));
 		clearImageLayout.add(reaupload);
 		clearImageLayout.setPadding(false);

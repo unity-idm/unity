@@ -50,6 +50,7 @@ public class UserUpdatesView extends UpmanViewComponent
 		getContent().add();
 		grid = createGrid();
 		searchField = createSearchField();
+		grid.getElement().setAttribute("data-testid", "UserUpdatesView.requests");
 		linksLayout = createLinksLayout();
 
 		getContent().add(
@@ -88,7 +89,10 @@ public class UserUpdatesView extends UpmanViewComponent
 
 	private Component createGridContextMenu(UpdateRequestModel model)
 	{
-		return createContextMenu(() -> Set.of(model));
+		Component menu = createContextMenu(() -> Set.of(model));
+		menu.getElement().setAttribute("data-testid", "UserUpdatesView.actions");
+		menu.getElement().setAttribute("data-request-id", model.id);
+		return menu;
 	}
 
 	private Component createContextMenu(Supplier<Set<UpdateRequestModel>> updateRequestGetter)
@@ -96,6 +100,7 @@ public class UserUpdatesView extends UpmanViewComponent
 		ActionMenu menu = new ActionMenu();
 
 		MenuButton acceptButton = new MenuButton(msg.getMessage("UpdateRequestsComponent.accept"), CHECK_CIRCLE_O);
+		acceptButton.getElement().setAttribute("data-testid", "UserUpdatesView.accept");
 		menu.addItem(
 				acceptButton,
 				event ->
@@ -105,6 +110,7 @@ public class UserUpdatesView extends UpmanViewComponent
 				}
 		);
 		MenuButton declineButton = new MenuButton(msg.getMessage("UpdateRequestsComponent.declineRequestAction"), BAN);
+		declineButton.getElement().setAttribute("data-testid", "UserUpdatesView.reject");
 		menu.addItem(
 				declineButton,
 				event ->

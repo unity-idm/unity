@@ -80,6 +80,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 			NotificationPresenter notificationPresenter)
 	{
 		super(msg.getMessage("EntityCreation.caption"), msg, identitiesMan, identityEditorReg, callback, notificationPresenter);
+		getElement().setAttribute("data-testid", "EntityCreationDialog");
 		this.attrMan = attrMan;
 		this.initialGroup = initialGroup;
 		this.identitiesMan = identitiesMan;
@@ -116,7 +117,8 @@ class EntityCreationDialog extends IdentityCreationDialog
 		tabs = new TabSheet();
 		tabs.setWidthFull();
 		tabs.add(msg.getMessage("EntityCreation.attributesTab"), buildAttributesTab());
-		tabs.add(msg.getMessage("EntityCreation.credentialsTab"), buildCredentialsTab());
+		tabs.add(msg.getMessage("EntityCreation.credentialsTab"), buildCredentialsTab())
+				.getElement().setAttribute("data-testid", "EntityCreationDialog.credentialsTab");
 		tabs.add(msg.getMessage("EntityCreation.advancedTab"), buildAdvancedTab());
 
 		main.add(tabs);
@@ -139,6 +141,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 		{
 			FormLayout layout = new FormLayout();
 			layout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
+			layout.getElement().setAttribute("data-attribute-name", editor.getAttributeType().getName());
 			editor.placeOnLayout(layout);
 			wrapper.add(layout);
 		}
@@ -188,6 +191,7 @@ class EntityCreationDialog extends IdentityCreationDialog
 		formLayout.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
 		credentialRequirement = new ComboBox<>();
+		credentialRequirement.getElement().setAttribute("data-testid", "EntityCreationDialog.credentialRequirement");
 		Collection<CredentialRequirements> credReqs = null;
 		try
 		{

@@ -54,6 +54,7 @@ public class SMSResetStep1Captcha extends CredentialResetLayout
 		narrowCol.setPadding(false);
 		narrowCol.setWidth(MAIN_WIDTH_EM, Unit.EM);
 		username = new TextFieldWithContextLabel(compactLayout);
+		username.getElement().setAttribute("data-testid", "SMSResetStep1Captcha.username");
 		username.setLabel(msg.getMessage("CredentialReset.username"));
 		username.setWidthFull();
 		captcha = new CaptchaComponent(msg, 6, compactLayout);

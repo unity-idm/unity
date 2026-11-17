@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+	<Appenders>
+		<File name="FILE" fileName="target/unity-server.log">
+			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c %m%n"/>
+		</File>
+	</Appenders>
+	<Loggers>
+		<Root level="INFO">
+			<AppenderRef ref="FILE"/>
+		</Root>
+		<Logger name="unity.server.web" level="DEBUG"/>
+	</Loggers>
+</Configuration>

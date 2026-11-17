@@ -58,6 +58,7 @@ class IdentityCreationDialog extends DialogWithActionFooter
 			NotificationPresenter notificationPresenter)
 	{
 		super(msg::getMessage);
+		getElement().setAttribute("data-testid", "IdentityCreationDialog");
 		this.msg = msg;
 		this.identityEditorReg = identityEditorReg;
 		this.identitiesMan = identitiesMan;
@@ -110,6 +111,7 @@ class IdentityCreationDialog extends DialogWithActionFooter
 	{
 		FormLayout typeSelectionLayout = new FormLayout();
 		identityTypeSelector = new ComboBox<>();
+		identityTypeSelector.getElement().setAttribute("data-testid", "IdentityCreationDialog.identityType");
 		List<String> supportedTypes = new ArrayList<>(identityEditorReg.getSupportedTypes());
 		supportedTypes.sort(String::compareTo);
 		identityTypeSelector.setItems(supportedTypes);
@@ -129,6 +131,7 @@ class IdentityCreationDialog extends DialogWithActionFooter
 					.withAdminMode(true).build());
 			Arrays.stream(container.getComponents()).forEach(item ->
 			{
+				item.getElement().setAttribute("data-testid", "IdentityCreationDialog.value");
 				if (item instanceof CustomField<?> field)
 				{
 					idLayout.addFormItem(field, field.getLabel());

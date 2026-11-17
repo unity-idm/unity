@@ -193,6 +193,7 @@ public class SignInView extends HomeViewComponent
 	private Checkbox create2ndFactorOptInComponent(long entityId)
 	{
 		Checkbox userOptInCheckBox = new Checkbox(msg.getMessage("CredentialChangeDialog.userMFAOptin"));
+		userOptInCheckBox.getElement().setAttribute("data-testid", "HomeSignIn.mfaOptIn");
 		userOptInCheckBox.setTooltipText(msg.getMessage("CredentialChangeDialog.userMFAOptinDesc"));
 		getContent().add(userOptInCheckBox);
 		userOptInCheckBox.addValueChangeListener(e -> setUserMFAOptin(e.getValue(), entityId));

@@ -69,6 +69,7 @@ public class ActionEditor extends FormLayoutEmbeddable
 	private void initUI(TranslationAction toEdit)
 	{
 		actions = new SelectWithDynamicTooltip<>();
+		actions.getElement().setAttribute("data-testid", "ActionEditor.action");
 		actions.setLabel(msg.getMessage("ActionEditor.ruleAction"));
 		ArrayList<String> items = new ArrayList<>();
 		tc.getAll().stream()
@@ -146,6 +147,8 @@ public class ActionEditor extends FormLayoutEmbeddable
 		for (int i = 0; i < params.length; i++)
 		{
 			ActionParameterComponent p = actionComponentProvider.getParameterComponent(params[i], editorContext);
+			((Component) p).getElement().setAttribute("data-testid", "ActionEditor.parameter");
+			((Component) p).getElement().setAttribute("data-parameter-name", params[i].getName());
 			p.addValueChangeCallback(paramCallback);
 			if (values != null && values.length > i)
 			{

@@ -164,6 +164,7 @@ class DeviceSignInView extends UnityViewComponent
 		codePanel.add(codeGroup);
 		Span codeLabel = new Span(msg.getMessage("DeviceSignIn.enterCode"));
 		TextField codeField = new TextField();
+		codeField.getElement().setAttribute("data-testid", "DeviceSignInView.code");
 		codeGroup.add(codeLabel, codeField);
 		this.codeEntryField = codeField;
 
@@ -176,6 +177,7 @@ class DeviceSignInView extends UnityViewComponent
 		Button cancel = new Button(msg.getMessage("cancel"), e -> onCancel());
 		cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		Button submit = new Button(msg.getMessage("DeviceSignIn.submit"), e -> tryResolve(codeField.getValue(), false));
+		submit.getElement().setAttribute("data-testid", "DeviceSignInView.submitCode");
 		submit.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		submit.addClickShortcut(Key.ENTER);
 		HorizontalLayout buttons = new HorizontalLayout(cancel, submit);
@@ -315,6 +317,7 @@ class DeviceSignInView extends UnityViewComponent
 		Button cancel = new Button(msg.getMessage("cancel"), e -> onCancel());
 		cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 		Button confirm = new Button(msg.getMessage("DeviceSignIn.confirmCodeSubmit"), e -> startConsentFlow());
+		confirm.getElement().setAttribute("data-testid", "DeviceSignInView.confirmCode");
 		confirm.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		HorizontalLayout buttons = new HorizontalLayout(cancel, confirm);
 		buttons.setAlignItems(Alignment.CENTER);

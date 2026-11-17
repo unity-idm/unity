@@ -31,6 +31,7 @@ public class EnquiryFormFillDialog extends ConfirmDialog
 	                             EnquiryResponseEditor editor, Callback callback, EnquiryType type)
 	{
 		this.msg = msg;
+		getElement().setAttribute("data-testid", "EnquiryFormFillDialog");
 		this.notificationPresenter = notificationPresenter;
 		this.editor = editor;
 		this.callback = callback;

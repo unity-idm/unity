@@ -258,6 +258,7 @@ public class WebServiceAuthenticationTab extends VerticalLayout implements Edito
 		
 		LocalizedTextFieldDetails title = new LocalizedTextFieldDetails(msg.getEnabledLocales()
 				.values(), msg.getLocale());
+		title.getElement().setAttribute("data-testid", "WebServiceAuthenticationTab.title");
 		webConfigBinder.forField(title)
 				.withConverter(I18nString::new, v -> v != null ? v.getLocalizedMap() : new HashMap<>())
 				.bind("title");

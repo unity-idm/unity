@@ -57,6 +57,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 	GroupsTreeGrid(MessageSource msg, GroupBrowserController controller)
 	{
+		getElement().setAttribute("data-testid", "GroupsTreeGrid");
 		this.msg = msg;
 		this.controller = controller;
 		this.authzError = false;
@@ -121,6 +122,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 			text.getStyle().set("white-space", "unset");
 			text.getStyle().set("padding-left", "0.2em");
 			Div div = new Div(getIcon(n), text);
+			div.getElement().setAttribute("data-group-path", n.getGroup().getPathEncoded());
 			div.getStyle().set("display", "flex");
 			div.getElement().setAttribute("onclick", "event.stopPropagation();");
 			div.addSingleClickListener(event -> select(n));
@@ -171,7 +173,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		menu.setTarget(Sets.newHashSet(node));
 		
 		SingleActionHandler<TreeNode> addAction = getAddAction();
-		menu.addActionHandler(addAction);
+		menu.addActionHandler(addAction).getElement().setAttribute("data-testid", "GroupsTreeGrid.add");
 		SingleActionHandler<TreeNode> editAction = getEditAction();
 		SingleActionHandler<TreeNode> editACAction = getEditACsAction();
 		SingleActionHandler<TreeNode> editDelegationConfigAction = getEditDelegationConfigAction();
@@ -184,9 +186,13 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 
 		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
 		
-		menu.addActionHandlers(Arrays.asList(deleteAction, editAction, editACAction, editDelegationConfigAction));
+		menu.addActionHandler(deleteAction).getElement().setAttribute("data-testid", "GroupsTreeGrid.delete");
+		menu.addActionHandler(editAction).getElement().setAttribute("data-testid", "GroupsTreeGrid.edit");
+		menu.addActionHandlers(Arrays.asList(editACAction, editDelegationConfigAction));
 		
 		Component target = menu.getTarget();
+		target.getElement().setAttribute("data-testid", "GroupsTreeGrid.actions");
+		target.getElement().setAttribute("data-group-path", node.getGroup().getPathEncoded());
 		target.setVisible(node.equals(getSingleSelection()));
 		addSelectionListener(
 				event ->  target.setVisible(menuVisibleOnSelection(event.getAllSelectedItems(), node))
@@ -402,6 +408,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 				e -> {}
 		);
 
+		confirmDialog.getElement().setAttribute("data-testid", "GroupsTreeGrid.deleteConfirmation");
 		confirmDialog.setText(new VerticalLayout(new Span(msg.getMessage("GroupRemovalDialog.confirmDelete",
 				realToRemove.stream().map(TreeNode::toString)
 						.collect(Collectors.joining(", ")))), checkbox));

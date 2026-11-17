@@ -38,6 +38,7 @@ class ChangeCredentialRequirementDialog extends DialogWithActionFooter
 			Callback callback, NotificationPresenter notificationPresenter)
 	{
 		super(msg::getMessage);
+		getElement().setAttribute("data-testid", "ChangeCredentialRequirementDialog");
 		this.msg = msg;
 		this.eCredMan = eCredMan;
 		this.entity = entity;
@@ -56,6 +57,7 @@ class ChangeCredentialRequirementDialog extends DialogWithActionFooter
 	private FormLayout getContents()
 	{
 		credentialRequirement = new Select<>();
+		credentialRequirement.getElement().setAttribute("data-testid", "ChangeCredentialRequirementDialog.requirement");
 		credentialRequirement.setWidthFull();
 		Collection<CredentialRequirements> credReqs;
 		try

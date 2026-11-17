@@ -104,10 +104,12 @@ public class CredentialsEditView extends ConsoleViewComponent
 	private void initUI(CredentialDefinition initial, Set<String> supportedTypes)
 	{
 		FormLayout main = new FormLayout();
+		main.getElement().setAttribute("data-testid", "CredentialsEditView");
 		main.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 		main.setClassName(CssClassNames.BIG_VAADIN_FORM_ITEM_LABEL.getName());
 
 		TextField name = new TextField();
+		name.getElement().setAttribute("data-testid", "CredentialsEditView.name");
 		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		name.setPlaceholder(msg.getMessage("CredentialDefinition.defaultName"));
 		main.addFormItem(name, msg.getMessage("CredentialDefinition.name"));
@@ -120,6 +122,7 @@ public class CredentialsEditView extends ConsoleViewComponent
 
 		LocalizedTextAreaDetails description = new LocalizedTextAreaDetails(
 				msg.getEnabledLocales().values(), msg.getLocale());
+		description.getElement().setAttribute("data-testid", "CredentialsEditView.description");
 		description.setWidth(TEXT_FIELD_BIG.value());
 		main.addFormItem(description, msg.getMessage("descriptionF"));
 
@@ -134,12 +137,14 @@ public class CredentialsEditView extends ConsoleViewComponent
 		}
 
 		credentialType = new ComboBox<>();
+		credentialType.getElement().setAttribute("data-testid", "CredentialsEditView.type");
 		credentialType.setWidth(TEXT_FIELD_MEDIUM.value());
 
 		credentialType.setItems(supportedTypes);
 		main.addFormItem(credentialType, msg.getMessage("CredentialDefinition.type"));
 
 		credentialEditorPanel = new Panel();
+		credentialEditorPanel.getElement().setAttribute("data-testid", "CredentialsEditView.configuration");
 		credentialEditorPanel.setMargin(false);
 		credentialEditorPanel.addClassName(MARGIN_VERTICAL.getName());
 		main.addFormItem(credentialEditorPanel, "");

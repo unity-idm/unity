@@ -115,6 +115,7 @@ public class SMSCredentialEditor implements CredentialEditor
 		ret.add(credentialSource);
 
 		currentMobileAttr = new ComboBox<>();
+		currentMobileAttr.getElement().setAttribute("data-testid", "SMSCredentialEditor.existingMobile");
 		currentMobileAttr.setLabel(msg.getMessage("SMSCredentialEditor.newMobileNumber"));
 		currentMobileAttr.setRequired(true);
 		currentMobileAttr.setRequiredIndicatorVisible(true);
@@ -135,6 +136,7 @@ public class SMSCredentialEditor implements CredentialEditor
 				msg.getMessage("SMSCredentialEditor.confirmedCheckbox"),
 				context.isShowLabelInline());
 		editor.setLabel(msg.getMessage("SMSCredentialEditor.newMobileNumber"));
+		editor.getElement().setAttribute("data-testid", "SMSCredentialEditor.mobile");
 
 		editor.addVerifyButtonClickListener(e -> {
 

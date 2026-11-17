@@ -48,6 +48,7 @@ class MenuItemFactory
 	MenuItem createMakePrivateItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.makePrivateAction"), LOCK);
+		menuButton.getElement().setAttribute("data-testid", "UpManGroups.makePrivate");
 		return new MenuItem(menuButton, event ->
 		{
 			groupService.setGroupAccessMode(projectGroup, group, false);
@@ -58,6 +59,7 @@ class MenuItemFactory
 	MenuItem createMakePublicItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.makePublicAction"), UNLOCK);
+		menuButton.getElement().setAttribute("data-testid", "UpManGroups.makePublic");
 		return new MenuItem(menuButton, event ->
 		{
 			groupService.setGroupAccessMode(projectGroup, group, true);
@@ -68,12 +70,14 @@ class MenuItemFactory
 	MenuItem createAddGroupItem(ProjectGroup projectGroup, Group group, boolean subGroupAvailable)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.addGroupAction"), PLUS_CIRCLE_O);
+		menuButton.getElement().setAttribute("data-testid", "UpManGroups.add");
 		return new MenuItem(menuButton, event -> createAddGroupDialog(projectGroup, group, subGroupAvailable).open());
 	}
 
 	MenuItem createDeleteGroupItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.deleteGroupAction"), BAN);
+		menuButton.getElement().setAttribute("data-testid", "UpManGroups.delete");
 		return new MenuItem(menuButton, event -> createConfirmDialog(
 				msg.getMessage("RemoveGroupDialog.confirmDelete", group.currentDisplayedName),
 				() -> groupService.deleteGroup(projectGroup, group)).open()
@@ -91,23 +95,27 @@ class MenuItemFactory
 	MenuItem createRenameGroupItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.renameGroupAction"), PENCIL);
+		menuButton.getElement().setAttribute("data-testid", "UpManGroups.rename");
 		return new MenuItem(menuButton, event -> createRenameDialog(projectGroup, group).open());
 	}
 
 	MenuItem createDelegateGroupItem(ProjectGroup projectGroup, Group group)
 	{
 		MenuButton menuButton = new MenuButton(msg.getMessage("GroupsComponent.delegateGroupAction"), WORKPLACE);
+		menuButton.getElement().setAttribute("data-testid", "UpManGroups.delegate");
 		return new MenuItem(menuButton, event -> createDelegateDialog(projectGroup, group).open());
 	}
 
 	private Dialog createDelegateDialog(ProjectGroup projectGroup, Group group)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("SubprojectDialog.caption"));
+		dialog.getElement().setAttribute("data-testid", "UpManGroups.delegationDialog");
 
 		SubProjectConfigurationLayout subProjectConfigurationLayout = new SubProjectConfigurationLayout(msg, content, group);
 		dialog.add(subProjectConfigurationLayout);
 
 		Button saveButton = new SubmitButton(msg::getMessage);
+		saveButton.getElement().setAttribute("data-testid", "UpManGroups.confirm");
 		saveButton.addClickListener(event ->
 		{
 			groupService.setGroupDelegationConfiguration(
@@ -129,6 +137,7 @@ class MenuItemFactory
 	private Dialog createAddGroupDialog(ProjectGroup projectGroup, Group group, boolean subGroupAvailable)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("AddGroupDialog.caption"));
+		dialog.getElement().setAttribute("data-testid", "UpManGroups.addDialog");
 
 		FormLayout dialogLayout = new FormLayout();
 		dialogLayout.setWidth("30em");
@@ -136,6 +145,7 @@ class MenuItemFactory
 				msg.getEnabledLocales().values(), msg.getLocale(),
 				msg.getMessage("AddGroupDialog.info", group.currentDisplayedName)
 		);
+		localizedTextFieldDetails.getElement().setAttribute("data-testid", "UpManGroups.displayedName");
 		localizedTextFieldDetails.focus();
 
 		Checkbox isPublic = new Checkbox(msg.getMessage("AddGroupDialog.public"));
@@ -156,6 +166,7 @@ class MenuItemFactory
 		dialog.add(verticalLayout);
 
 		Button saveButton = new SubmitButton(msg::getMessage);
+		saveButton.getElement().setAttribute("data-testid", "UpManGroups.confirm");
 		saveButton.addClickListener(event ->
 		{
 			Map<Locale, String> localeToTxt = localizedTextFieldDetails.getSlottedFields().stream()
@@ -179,6 +190,7 @@ class MenuItemFactory
 	private Dialog createConfirmDialog(String txt, Runnable runnable)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("Confirmation"));
+		dialog.getElement().setAttribute("data-testid", "UpManGroups.deleteConfirmation");
 		dialog.addClassName(CssClassNames.DIALOG_CONFIRM.getName());
 
 		Span label = new Span(txt);
@@ -189,6 +201,7 @@ class MenuItemFactory
 		dialog.add(dialogLayout);
 
 		Button saveButton = new SubmitButton(msg::getMessage);
+		saveButton.getElement().setAttribute("data-testid", "UpManGroups.confirm");
 		saveButton.addClickListener(event ->
 		{
 			runnable.run();
@@ -203,12 +216,14 @@ class MenuItemFactory
 	private Dialog createRenameDialog(ProjectGroup projectGroup, Group group)
 	{
 		Dialog dialog = createBaseDialog(msg.getMessage("GroupsComponent.renameGroupAction"));
+		dialog.getElement().setAttribute("data-testid", "UpManGroups.renameDialog");
 
 		LocalizedTextFieldDetails details = new LocalizedTextFieldDetails(
 				msg.getEnabledLocales().values(),
 				msg.getLocale()
 		);
 		details.setValue(group.displayedName.getLocalizedMap());
+		details.getElement().setAttribute("data-testid", "UpManGroups.displayedName");
 		details.focus();
 
 		HorizontalLayout dialogLayout = new HorizontalLayout();
@@ -230,6 +245,7 @@ class MenuItemFactory
 	private Button createRenameButton(ProjectGroup projectGroup, Group group, Dialog dialog, Collection<LocalizedTextField> fields)
 	{
 		Button button = new SubmitButton(msg::getMessage);
+		button.getElement().setAttribute("data-testid", "UpManGroups.confirm");
 		button.addClassName(SUBMIT_BUTTON.getName());
 		button.addClickListener(event ->
 		{

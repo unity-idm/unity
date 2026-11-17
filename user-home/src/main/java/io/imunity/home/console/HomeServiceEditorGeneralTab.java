@@ -165,6 +165,7 @@ public class HomeServiceEditorGeneralTab extends GeneralTab
 				.addValueChangeListener(e -> removalMode.setEnabled(isAccountRemovalEnabled() && e.getValue()));
 
 		Checkbox allow2ndFactorOptIn = new Checkbox();
+		allow2ndFactorOptIn.getElement().setAttribute("data-testid", "HomeServiceEditorGeneralTab.mfaOptIn");
 		allow2ndFactorOptIn.setLabel(msg.getMessage("HomeServiceEditorComponent.allow2ndFactorOptIn"));
 		homeBinder.forField(allow2ndFactorOptIn)
 				.bind("allow2ndFactorOptIn");
