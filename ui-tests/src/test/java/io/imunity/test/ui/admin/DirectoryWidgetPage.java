@@ -72,9 +72,14 @@ final class DirectoryWidgetPage
 	{
 		By menu = By.cssSelector("[data-testid='IdentitiesTreeGrid.entityActions'][data-entity-id='"
 				+ entity.getEntityId() + "'][data-identity-value='" + value + "']");
-		WebElement target = page.visible(menu);
-		scroll(target, true);
-		page.click(menu);
+		wait.ignoring(StaleElementReferenceException.class).ignoring(ElementClickInterceptedException.class)
+				.until(ignored ->
+		{
+			WebElement target = page.visible(menu);
+			scroll(target, true);
+			target.click();
+			return true;
+		});
 		new AdminPage(driver).chooseMenuItem("Remove identity");
 		page.click(By.cssSelector("vaadin-confirm-dialog [slot='confirm-button']"));
 		wait.until(ignored -> driver.findElements(menu).isEmpty());
@@ -112,6 +117,9 @@ final class DirectoryWidgetPage
 		((JavascriptExecutor) driver).executeScript("""
 				const scroller = arguments[0].closest('vaadin-grid').shadowRoot.querySelector('#table');
 				scroller.scrollLeft = arguments[1] ? scroller.scrollWidth : 0;
+				const target = arguments[0].getBoundingClientRect();
+				const viewport = scroller.getBoundingClientRect();
+				scroller.scrollTop += target.top + target.height / 2 - viewport.top - viewport.height / 2;
 				""", element, right);
 	}
 }
