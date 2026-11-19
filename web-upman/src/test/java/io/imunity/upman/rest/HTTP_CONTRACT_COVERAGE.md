@@ -161,7 +161,7 @@ HTTP contracts only; it does not replace the complete module or repository check
   returned in the same batch, and no invitation is stored for failed creation.
 - Reading or deciding a registration request through a sibling project returns an empty
   404 and leaves the owning request pending and unchanged.
-- Live JSON and YAML documentation require authentication. With the direct password
+- Live JSON/YAML documentation and Scalar HTML/JavaScript require authentication. With the direct password
   authenticator, missing credentials return 400 with the Authentication failed envelope.
 
 ## Verification gates

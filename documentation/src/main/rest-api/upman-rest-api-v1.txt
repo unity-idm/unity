@@ -25,8 +25,9 @@ parameters, request/response schemas and examples. The
 link:upman-openapi-v1.yaml[OpenAPI YAML] can be imported into API clients.
 The API version is independent of the Unity product release version.
 
-The live +openapi.yaml+ and +openapi.json+ documents are enabled by default below the deployed
-endpoint path and use the endpoint's existing authentication. Set +unity.endpoint.rest.enableOpenApi=false+
+The live +api-docs+ page provides the Scalar interactive API client below the deployed endpoint path.
+That page and the +openapi.yaml+ and +openapi.json+ documents are enabled by default and use the
+endpoint's existing authentication. Set +unity.endpoint.rest.enableOpenApi=false+
 in that endpoint's configuration to suppress live documents and API reference UI resources. The same
 property applies independently to Admin and UpMan endpoint instances. API operations and build-time YAML
 and HTML generation remain available when runtime publication is disabled. The published reference
