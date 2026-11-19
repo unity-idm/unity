@@ -28,7 +28,8 @@
 
 ## General Guidelines
 - Language: Java 21
-- New packages: use `io.imunity`
+- The root package for all new Java source and test packages is `io.imunity`.
+  Do not introduce new packages under the legacy `pl.edu.icm.unity` root.
 - Imports: organize and avoid wildcards; keep visibility minimal
 - Remove unused imports
 - Extract larger blocks of code into well-named focused methods to enhance readability, maintainability, and testability of your code base

@@ -1,4 +1,4 @@
-package pl.edu.icm.unity.restadm;
+package io.imunity.rest.doc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -7,17 +7,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-
-import com.fasterxml.jackson.databind.JsonNode;
-
-import io.imunity.rest.doc.OpenApiExporter;
-import io.imunity.upman.rest.RESTUpmanController;
-import io.imunity.upman.rest.RESTUpmanEndpoint;
-import io.imunity.upman.rest.UpmanOpenApi;
-import io.swagger.v3.core.converter.ModelConverters;
-import io.swagger.v3.core.util.Json;
-
-import jakarta.ws.rs.core.Application;
 
 import java.io.StringReader;
 import java.net.URI;
@@ -28,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -41,26 +31,58 @@ import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import io.imunity.upman.rest.RESTUpmanController;
+import io.imunity.upman.rest.RESTUpmanEndpoint;
+import io.imunity.upman.rest.UpmanOpenApi;
+import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.core.util.Json;
+
+import jakarta.ws.rs.core.Application;
 
 import pl.edu.icm.unity.base.endpoint.Endpoint;
 import pl.edu.icm.unity.base.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.base.message.MessageSource;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.ServerManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
+import pl.edu.icm.unity.engine.api.server.AdvertisedAddressProvider;
+import pl.edu.icm.unity.engine.api.server.NetworkServer;
+import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
 import pl.edu.icm.unity.rest.RestEndpointHelper;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
 import pl.edu.icm.unity.rest.web.console.JWTServiceConfiguration;
+import pl.edu.icm.unity.restadm.BackupRestoreRESTAdmin;
+import pl.edu.icm.unity.restadm.BulkQueryHandler;
+import pl.edu.icm.unity.restadm.PolicyDocumentsRESTAdmin;
+import pl.edu.icm.unity.restadm.RESTAdmin;
+import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
 import pl.edu.icm.unity.restadm.web.console.RestAdminServiceConfiguration;
 
 class UpmanOpenApiIsolationTest
 {
+	private AnnotationConfigApplicationContext adminContext;
+
+	@AfterEach
+	void closeAdminContext()
+	{
+		if (adminContext != null)
+			adminContext.close();
+	}
+
 	@Test
 	void shouldKeepUpmanIsolatedBesideTheExistingAdminApplication() throws Exception
 	{
@@ -73,12 +95,7 @@ class UpmanOpenApiIsolationTest
 		var second = new RESTUpmanEndpoint(null, null, null, null, factory, null, null);
 		second.initialize(null, List.of(),
 				"unity.upman.rest.rootGroup=/second\nunity.upman.rest.authorizationGroup=/second-auth\n");
-		var admin = new RESTAdminEndpoint(null, null, null, null, () -> List.of(
-				new RESTAdmin(null, null, null, null, null, null, null, null, null, null,
-						null, null, null, null, null, null, null, null, null),
-				new PolicyDocumentsRESTAdmin(mock(PolicyDocumentManagement.class)),
-				new BulkQueryHandler(mock(BulkGroupQueryService.class)),
-				new BackupRestoreRESTAdmin(mock(ServerManagement.class), mock(UnityServerConfiguration.class))), null, null);
+		var admin = adminEndpoint();
 		List<Bus> buses = new ArrayList<>();
 		Server server = new Server(0);
 		try
@@ -127,10 +144,10 @@ class UpmanOpenApiIsolationTest
 		{
 			var contexts = new ContextHandlerCollection();
 			contexts.addHandler(configuredContext("/upman", new UpmanEndpoint(), scenario.setting()));
-			contexts.addHandler(configuredContext("/admin", new AdminEndpoint(), scenario.setting()));
+			contexts.addHandler(configuredContext("/admin", new AdminEndpoint(adminEndpoint()), scenario.setting()));
 			String opposite = Boolean.toString(!scenario.enabled());
 			contexts.addHandler(configuredContext("/other-upman", new UpmanEndpoint(), opposite));
-			contexts.addHandler(configuredContext("/other-admin", new AdminEndpoint(), opposite));
+			contexts.addHandler(configuredContext("/other-admin", new AdminEndpoint(adminEndpoint()), opposite));
 			server.setHandler(contexts);
 			server.start();
 			for (var handler : contexts.getHandlers())
@@ -290,12 +307,20 @@ class UpmanOpenApiIsolationTest
 		}
 	}
 
-	private static class AdminEndpoint extends RESTAdminEndpoint
+	private static class AdminEndpoint extends RESTEndpoint
 	{
-		AdminEndpoint()
+		private final RESTAdminEndpoint admin;
+
+		AdminEndpoint(RESTAdminEndpoint admin)
 		{
-			super(null, null, null, null,
-					() -> List.of(new PolicyDocumentsRESTAdmin(mock(PolicyDocumentManagement.class))), null, null);
+			super(null, null, null, null, null, "", null);
+			this.admin = admin;
+		}
+
+		@Override
+		protected Application getApplication()
+		{
+			return admin.new RESTAdminJAXRSApp();
 		}
 
 		@Override
@@ -303,6 +328,32 @@ class UpmanOpenApiIsolationTest
 				List<Interceptor<? extends Message>> out)
 		{
 		}
+	}
+
+	private RESTAdminEndpoint adminEndpoint()
+	{
+		if (adminContext == null)
+		{
+			adminContext = new AnnotationConfigApplicationContext();
+			Map<Class<?>, Object> dependencies = Map.of(
+					MessageSource.class, mock(MessageSource.class),
+					SessionManagement.class, mock(SessionManagement.class),
+					NetworkServer.class, mock(NetworkServer.class),
+					AuthenticationProcessor.class, mock(AuthenticationProcessor.class),
+					AdvertisedAddressProvider.class, mock(AdvertisedAddressProvider.class),
+					EntityManagement.class, mock(EntityManagement.class),
+					PolicyDocumentManagement.class, mock(PolicyDocumentManagement.class),
+					BulkGroupQueryService.class, mock(BulkGroupQueryService.class),
+					ServerManagement.class, mock(ServerManagement.class),
+					UnityServerConfiguration.class, mock(UnityServerConfiguration.class));
+			dependencies.forEach((type, bean) -> adminContext.getBeanFactory().registerSingleton(type.getName(), bean));
+			adminContext.registerBean(RESTAdmin.class, () -> new RESTAdmin(null, null, null, null, null, null, null,
+					null, null, null, null, null, null, null, null, null, null, null, null));
+			adminContext.register(PolicyDocumentsRESTAdmin.class, BulkQueryHandler.class, BackupRestoreRESTAdmin.class,
+					RESTAdminEndpoint.class);
+			adminContext.refresh();
+		}
+		return adminContext.getBean(RESTAdminEndpoint.class);
 	}
 
 	private JsonNode readOpenApi(HttpClient client, int port, String application) throws Exception

@@ -294,6 +294,36 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
+				<groupId>io.imunity</groupId>
+				<artifactId>unity-server-engine</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.imunity</groupId>
+				<artifactId>unity-server-rest</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.imunity</groupId>
+				<artifactId>unity-server-rest-admin</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.imunity</groupId>
+				<artifactId>unity-server-storage</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.imunity</groupId>
+				<artifactId>unity-server-vaadin-public-shared-endpoint</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.imunity</groupId>
+				<artifactId>unity-server-web-upman</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.junit</groupId>
 				<artifactId>junit-bom</artifactId>
 				<version>${junit.version}</version>
@@ -876,6 +906,16 @@
 				<groupId>jakarta.xml.ws</groupId>	
 				<artifactId>jakarta.xml.ws-api</artifactId>
 				<version>4.0.3</version>
+			</dependency>
+			<dependency>
+				<groupId>io.swagger.parser.v3</groupId>
+				<artifactId>swagger-parser-v3</artifactId>
+				<version>2.1.48</version>
+			</dependency>
+			<dependency>
+				<groupId>com.networknt</groupId>
+				<artifactId>json-schema-validator</artifactId>
+				<version>2.0.8</version>
 			</dependency>
 			<dependency>
 				<groupId>org.webjars.npm</groupId>
