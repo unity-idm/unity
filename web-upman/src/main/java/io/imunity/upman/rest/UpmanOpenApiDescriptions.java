@@ -77,52 +77,52 @@ final class UpmanOpenApiDescriptions
 							"Content-Type must be application/json, including for bodyless form generation."));
 			}
 		}));
-		setRequired(api, "RestProjectCreateRequest", "displayedName");
-		setRequired(api, "RestProjectUpdateRequest", "displayedName");
-		setRequired(api, "RestInvitationRequest", "emails", "expiration");
+		setRequired(api, "ProjectCreateRequest", "displayedName");
+		setRequired(api, "ProjectUpdateRequest", "displayedName");
+		setRequired(api, "InvitationRequest", "emails", "expiration");
 		setRequired(api, "RestPolicyDocumentRequest", "name", "displayedName", "mandatory", "contentType", "content");
 		setRequired(api, "RestPolicyDocumentUpdateRequest", "id", "name", "displayedName", "mandatory", "contentType",
 				"content");
 		for (String type : List.of("RestPolicyDocument", "RestPolicyDocumentRequest", "RestPolicyDocumentUpdateRequest"))
 			field(api, type, "contentType").setEnum(List.of("EMBEDDED", "LINK"));
-		setRequired(api, "RestGroupCreateRequest", "displayedName");
-		setRequired(api, "RestGroupUpdateRequest", "path", "displayedName", "public");
-		setRequired(api, "RestAuthorizationRole", "role");
-		for (String type : List.of("RestProject", "RestProjectId", "RestGroup", "RestGroupPath", "RestGroupMember",
-				"RestProjectMembership", "RestInvitation", "RestInvitationOutcome", "RestRequest", "RestFormLink",
-				"RestPolicyDocument", "RestPolicyDocumentId"))
+		setRequired(api, "GroupCreateRequest", "displayedName");
+		setRequired(api, "GroupUpdateRequest", "path", "displayedName", "public");
+		setRequired(api, "AuthorizationRole", "role");
+		for (String type : List.of("Project", "ProjectId", "ProjectGroup", "GroupPath", "GroupMember",
+				"ProjectMembership", "Invitation", "InvitationOutcome", "Request", "FormLink",
+				"RestPolicyDocument", "PolicyDocumentId"))
 		{
 			Schema<?> model = api.getComponents().getSchemas().get(type);
 			model.setRequired(List.copyOf(model.getProperties().keySet()));
 		}
-		field(api, "RestAuthorizationRole", "role").setEnum(List.of("regular", "manager", "projectsAdmin"));
-		field(api, "RestInvitationOutcome", "status").setEnum(List.of("sent", "alreadyMember", "failed"));
-		field(api, "RestRequest", "operation").setEnum(List.of("SignUp", "Update"));
-		field(api, "RestRequest", "type").setEnum(List.of("Registration", "Enquiry"));
+		field(api, "AuthorizationRole", "role").setEnum(List.of("regular", "manager", "projectsAdmin"));
+		field(api, "InvitationOutcome", "status").setEnum(List.of("sent", "alreadyMember", "failed"));
+		field(api, "Request", "operation").setEnum(List.of("SignUp", "Update"));
+		field(api, "Request", "type").setEnum(List.of("Registration", "Enquiry"));
 		for (String property : List.of("logoUrl", "registrationForm", "signUpEnquiry", "membershipUpdateEnquiry"))
-			field(api, "RestProject", property).setNullable(true);
-		for (String type : List.of("RestGroupMember", "RestRequest"))
+			field(api, "Project", property).setNullable(true);
+		for (String type : List.of("GroupMember", "Request"))
 			for (String property : List.of("name", "email"))
 				field(api, type, property).setNullable(true);
-		field(api, "RestProjectMembership", "email").setNullable(true);
-		field(api, "RestInvitation", "lastSentTime").setNullable(true);
-		field(api, "RestInvitation", "lastSentTime").setDescription(
+		field(api, "ProjectMembership", "email").setNullable(true);
+		field(api, "Invitation", "lastSentTime").setNullable(true);
+		field(api, "Invitation", "lastSentTime").setDescription(
 				"Seconds since the Unix epoch, including fractional seconds; null until successfully sent.");
-		field(api, "RestProjectCreateRequest", "projectId").setNullable(true);
-		for (String type : List.of("RestProjectCreateRequest", "RestProjectUpdateRequest"))
+		field(api, "ProjectCreateRequest", "projectId").setNullable(true);
+		for (String type : List.of("ProjectCreateRequest", "ProjectUpdateRequest"))
 			for (String property : List.of("logoUrl", "description", "readOnlyAttributes"))
 				field(api, type, property).setNullable(true);
-		field(api, "RestProject", "readOnlyAttributes").setNullable(true);
-		field(api, "RestGroupDelegationRequest", "logoUrl").setNullable(true);
-		field(api, "RestInvitationRequest", "groups").setNullable(true);
-		field(api, "RestRequest", "emailVerified").setNullable(true);
-		field(api, "RestInvitationOutcome", "message").setNullable(true);
-		field(api, "RestGroup", "logoUrl").setNullable(true);
-		field(api, "RestProjectCreateRequest", "projectId").setDescription(
+		field(api, "Project", "readOnlyAttributes").setNullable(true);
+		field(api, "GroupDelegationRequest", "logoUrl").setNullable(true);
+		field(api, "InvitationRequest", "groups").setNullable(true);
+		field(api, "Request", "emailVerified").setNullable(true);
+		field(api, "InvitationOutcome", "message").setNullable(true);
+		field(api, "ProjectGroup", "logoUrl").setNullable(true);
+		field(api, "ProjectCreateRequest", "projectId").setDescription(
 				"Optional identifier; null or omission generates an identifier.");
-		field(api, "RestProject", "urlId").setDescription(
+		field(api, "Project", "urlId").setDescription(
 				"Identifier for use unchanged in request paths; may be opaque for names containing percent signs.");
-		field(api, "RestInvitationRequest", "expiration").setDescription(
+		field(api, "InvitationRequest", "expiration").setDescription(
 				"Future expiration, as numeric Unix seconds or an ISO timestamp. Storage truncates to milliseconds.");
 	}
 

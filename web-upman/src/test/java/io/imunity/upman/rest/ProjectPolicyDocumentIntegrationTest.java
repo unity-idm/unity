@@ -168,7 +168,7 @@ class ProjectPolicyDocumentIntegrationTest extends DBIntegrationTestBase
 	{
 		return rest.addPolicyDocument("alpha", RestPolicyDocumentRequest.builder().withName("policy").withMandatory(false)
 				.withContentType(PolicyDocumentContentType.EMBEDDED.name()).withDisplayedName(Map.of("en", "Policy"))
-				.withContent(Map.of("en", "original")).build()).id;
+				.withContent(Map.of("en", "original")).build()).id();
 	}
 
 	private RestPolicyDocumentUpdateRequest update(long id, String content)

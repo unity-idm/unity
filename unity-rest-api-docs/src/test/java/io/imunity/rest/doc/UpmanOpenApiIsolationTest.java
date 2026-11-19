@@ -113,7 +113,7 @@ class UpmanOpenApiIsolationTest
 				assertThat(expectedAdmin.path("paths").has("/v1/entity/{entityId}")).isTrue();
 				assertThat(expectedAdmin.path("paths").has("/v1/policy-documents")).isTrue();
 				assertThat(expectedAdmin.path("paths").has("/v1/projects")).isFalse();
-				assertThat(expectedAdmin.at("/components/schemas").has("RestProject")).isFalse();
+				assertThat(expectedAdmin.at("/components/schemas").has("Project")).isFalse();
 				assertThat(expectedAdmin.at("/paths/~1v1~1entity~1{entityId}/get/responses")
 						.findValuesAsText("type")).contains("string");
 				JsonNode expectedUpman = Json.mapper().readTree(Json.pretty(UpmanOpenApi.export()));
@@ -122,7 +122,7 @@ class UpmanOpenApiIsolationTest
 					assertThat(readOpenApi(client, port, name)).as(name + " OpenAPI")
 							.isEqualTo(name.equals("admin") ? expectedAdmin : expectedUpman);
 				}
-				assertThat(expectedUpman.at("/components/schemas/RestGroup/properties").has("logoUrl")).isTrue();
+				assertThat(expectedUpman.at("/components/schemas/ProjectGroup/properties").has("logoUrl")).isTrue();
 				assertThat(expectedUpman.at("/components/schemas/RestEntity").isMissingNode()).isTrue();
 			}
 			assertThat(ModelConverters.getInstance().getConverters()).containsExactlyElementsOf(originalConverters);

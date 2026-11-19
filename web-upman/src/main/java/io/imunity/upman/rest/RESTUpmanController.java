@@ -76,8 +76,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getProjects")
 	@ApiResponse(responseCode = "200", description = "Projects visible to the caller",
-			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestProject.class))))
-	public List<RestProject> getProjects() throws EngineException
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = Project.class))))
+	public List<Project> getProjects() throws EngineException
 	{
 		log.debug("getProjects query for " + rootGroup);
 		return restProjectService.getProjects();
@@ -87,8 +87,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getProject")
 	@ApiResponse(responseCode = "200", description = "Project configuration",
-			content = @Content(schema = @Schema(implementation = RestProject.class)))
-	public RestProject getProject(@PathParam("project-id") String projectId) throws EngineException
+			content = @Content(schema = @Schema(implementation = Project.class)))
+	public Project getProject(@PathParam("project-id") String projectId) throws EngineException
 	{
 		log.debug("getProject query for " + projectId);
 		return restProjectService.getProject(projectId);
@@ -98,12 +98,12 @@ public class RESTUpmanController
 	@POST
 	@Operation(operationId = "addProject")
 	@ApiResponse(responseCode = "200", description = "Created project identifier",
-			content = @Content(schema = @Schema(implementation = RestProjectId.class)))
+			content = @Content(schema = @Schema(implementation = ProjectId.class)))
 	@RequestBody(required = true, content = {
-			@Content(mediaType = "application/json", schema = @Schema(implementation = RestProjectCreateRequest.class)),
-			@Content(mediaType = "text/plain", schema = @Schema(implementation = RestProjectCreateRequest.class)),
-			@Content(mediaType = "application/octet-stream", schema = @Schema(implementation = RestProjectCreateRequest.class))})
-	public RestProjectId addProject(RestProjectCreateRequest project) throws EngineException
+			@Content(mediaType = "application/json", schema = @Schema(implementation = ProjectCreateRequest.class)),
+			@Content(mediaType = "text/plain", schema = @Schema(implementation = ProjectCreateRequest.class)),
+			@Content(mediaType = "application/octet-stream", schema = @Schema(implementation = ProjectCreateRequest.class))})
+	public ProjectId addProject(ProjectCreateRequest project) throws EngineException
 	{
 		log.info("addProject {}", project);
 		return restProjectService.addProject(project);
@@ -114,10 +114,10 @@ public class RESTUpmanController
 	@Operation(operationId = "updateProject")
 	@ApiResponse(responseCode = "204", description = "Project updated")
 	@RequestBody(required = true, content = {
-			@Content(mediaType = "application/json", schema = @Schema(implementation = RestProjectUpdateRequest.class)),
-			@Content(mediaType = "text/plain", schema = @Schema(implementation = RestProjectUpdateRequest.class)),
-			@Content(mediaType = "application/octet-stream", schema = @Schema(implementation = RestProjectUpdateRequest.class))})
-	public void updateProject(@PathParam("project-id") String projectId, RestProjectUpdateRequest project)
+			@Content(mediaType = "application/json", schema = @Schema(implementation = ProjectUpdateRequest.class)),
+			@Content(mediaType = "text/plain", schema = @Schema(implementation = ProjectUpdateRequest.class)),
+			@Content(mediaType = "application/octet-stream", schema = @Schema(implementation = ProjectUpdateRequest.class))})
+	public void updateProject(@PathParam("project-id") String projectId, ProjectUpdateRequest project)
 			throws EngineException
 	{
 		log.info("updateProject {}", project);
@@ -138,8 +138,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getProjectMembers")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(anyOf = {RestProjectMembership[].class, RestGroupMember[].class})))
-	public List<? extends RestMember> getProjectMembers(@PathParam("project-id") String projectId,
+			content = @Content(schema = @Schema(anyOf = {ProjectMembership[].class, GroupMember[].class})))
+	public List<? extends Member> getProjectMembers(@PathParam("project-id") String projectId,
 			@QueryParam("groupPath") String groupPath)
 			throws EngineException
 	{
@@ -153,20 +153,20 @@ public class RESTUpmanController
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Operation(operationId = "sendInvitations")
 	@ApiResponse(responseCode = "201", description = "Success",
-			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestInvitationOutcome.class))))
-	public Response sendInvitations(@PathParam("project-id") String projectId, RestInvitationRequest input)
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = InvitationOutcome.class))))
+	public Response sendInvitations(@PathParam("project-id") String projectId, InvitationRequest input)
 			throws EngineException
 	{
 		return Response.status(Response.Status.CREATED).entity(
-				new GenericEntity<List<RestInvitationOutcome>>(workflows.sendInvitations(projectId, input)) {}).build();
+				new GenericEntity<List<InvitationOutcome>>(workflows.sendInvitations(projectId, input)) {}).build();
 	}
 
 	@Path("/projects/{project-id}/invitations")
 	@GET
 	@Operation(operationId = "getInvitations")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestInvitation.class))))
-	public List<RestInvitation> getInvitations(@PathParam("project-id") String projectId)
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = Invitation.class))))
+	public List<Invitation> getInvitations(@PathParam("project-id") String projectId)
 			throws EngineException
 	{
 		return workflows.invitations(projectId);
@@ -176,8 +176,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getInvitation")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestInvitation.class)))
-	public RestInvitation getInvitation(@PathParam("project-id") String projectId, @PathParam("code") String code)
+			content = @Content(schema = @Schema(implementation = Invitation.class)))
+	public Invitation getInvitation(@PathParam("project-id") String projectId, @PathParam("code") String code)
 			throws EngineException
 	{
 		return workflows.invitation(projectId, code);
@@ -217,8 +217,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getGroups")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestGroup.class))))
-	public List<RestGroup> getGroups(@PathParam("project-id") String projectId) throws EngineException
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProjectGroup.class))))
+	public List<ProjectGroup> getGroups(@PathParam("project-id") String projectId) throws EngineException
 	{
 		return workflows.groups(projectId);
 	}
@@ -228,8 +228,8 @@ public class RESTUpmanController
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Operation(operationId = "addGroup")
 	@ApiResponse(responseCode = "201", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestGroupPath.class)))
-	public Response addGroup(@PathParam("project-id") String projectId, RestGroupCreateRequest input)
+			content = @Content(schema = @Schema(implementation = GroupPath.class)))
+	public Response addGroup(@PathParam("project-id") String projectId, GroupCreateRequest input)
 			throws EngineException
 	{
 		return Response.status(Response.Status.CREATED).entity(workflows.addGroup(projectId, input)).build();
@@ -239,8 +239,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getGroup")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestGroup.class)))
-	public RestGroup getGroup(@PathParam("project-id") String projectId, @QueryParam("path") String path)
+			content = @Content(schema = @Schema(implementation = ProjectGroup.class)))
+	public ProjectGroup getGroup(@PathParam("project-id") String projectId, @QueryParam("path") String path)
 			throws EngineException
 	{
 		return workflows.group(projectId, path);
@@ -261,7 +261,7 @@ public class RESTUpmanController
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Operation(operationId = "updateGroup")
 	@ApiResponse(responseCode = "204", description = "Success")
-	public void updateGroup(@PathParam("project-id") String projectId, RestGroupUpdateRequest input)
+	public void updateGroup(@PathParam("project-id") String projectId, GroupUpdateRequest input)
 			throws EngineException
 	{
 		workflows.updateGroup(projectId, input);
@@ -273,7 +273,7 @@ public class RESTUpmanController
 	@Operation(operationId = "setGroupDelegation")
 	@ApiResponse(responseCode = "204", description = "Success")
 	public void setGroupDelegation(@PathParam("project-id") String projectId, @QueryParam("path") String path,
-			RestGroupDelegationRequest input) throws EngineException
+			GroupDelegationRequest input) throws EngineException
 	{
 		workflows.setDelegation(projectId, path, input);
 	}
@@ -292,8 +292,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getGroupMember")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestGroupMember.class)))
-	public RestGroupMember getGroupMember(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
+			content = @Content(schema = @Schema(implementation = GroupMember.class)))
+	public GroupMember getGroupMember(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
 			@QueryParam("groupPath") String groupPath) throws EngineException
 	{
 		return workflows.member(projectId, groupPath, entityId);
@@ -313,8 +313,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getGroupMemberRole")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestAuthorizationRole.class)))
-	public RestAuthorizationRole getGroupMemberRole(@PathParam("project-id") String projectId,
+			content = @Content(schema = @Schema(implementation = AuthorizationRole.class)))
+	public AuthorizationRole getGroupMemberRole(@PathParam("project-id") String projectId,
 			@PathParam("entityId") long entityId,
 			@QueryParam("groupPath") String groupPath) throws EngineException
 	{
@@ -327,7 +327,7 @@ public class RESTUpmanController
 	@Operation(operationId = "setGroupMemberRole")
 	@ApiResponse(responseCode = "204", description = "Success")
 	public void setGroupMemberRole(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
-			@QueryParam("groupPath") String groupPath, RestAuthorizationRole role) throws EngineException
+			@QueryParam("groupPath") String groupPath, AuthorizationRole role) throws EngineException
 	{
 		workflows.setRole(projectId, groupPath, entityId, role);
 	}
@@ -336,8 +336,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getRequests")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestRequest.class))))
-	public List<RestRequest> getRequests(@PathParam("project-id") String projectId) throws EngineException
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = Request.class))))
+	public List<Request> getRequests(@PathParam("project-id") String projectId) throws EngineException
 	{
 		return workflows.requests(projectId);
 	}
@@ -346,8 +346,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getRequest")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestRequest.class)))
-	public RestRequest getRequest(@PathParam("project-id") String projectId, @PathParam("requestId") String requestId)
+			content = @Content(schema = @Schema(implementation = Request.class)))
+	public Request getRequest(@PathParam("project-id") String projectId, @PathParam("requestId") String requestId)
 			throws EngineException
 	{
 		return workflows.request(projectId, requestId);
@@ -368,8 +368,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getProjectMember")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestProjectMembership.class)))
-	public RestProjectMembership getProjectMember(@PathParam("project-id") String projectId,
+			content = @Content(schema = @Schema(implementation = ProjectMembership.class)))
+	public ProjectMembership getProjectMember(@PathParam("project-id") String projectId,
 			@PathParam("userId") String email)
 			throws EngineException
 	{
@@ -403,8 +403,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getProjectMemberAuthorizationRole")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestAuthorizationRole.class)))
-	public RestAuthorizationRole getProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
+			content = @Content(schema = @Schema(implementation = AuthorizationRole.class)))
+	public AuthorizationRole getProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
 			@PathParam("userId") String userId) throws EngineException
 	{
 		log.debug("getProjectMemberAuthorizationRole {}, {}", projectId, userId);
@@ -416,7 +416,7 @@ public class RESTUpmanController
 	@Operation(operationId = "addProjectMemberAuthorizationRole")
 	@ApiResponse(responseCode = "204", description = "Success")
 	public void addProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
-			@PathParam("userId") String userId, RestAuthorizationRole role) throws EngineException
+			@PathParam("userId") String userId, AuthorizationRole role) throws EngineException
 	{
 		log.info("addProjectMemberAuthorizationRole {}, {}", projectId, userId);
 		restProjectService.setProjectAuthorizationRole(projectId, userId, role);
@@ -463,8 +463,8 @@ public class RESTUpmanController
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Operation(operationId = "addPolicyDocument")
 	@ApiResponse(responseCode = "200", description = "Create a project policy document",
-			content = @Content(schema = @Schema(implementation = RestPolicyDocumentId.class)))
-	public RestPolicyDocumentId addPolicyDocument(@PathParam("project-id") String projectId,
+			content = @Content(schema = @Schema(implementation = PolicyDocumentId.class)))
+	public PolicyDocumentId addPolicyDocument(@PathParam("project-id") String projectId,
 			RestPolicyDocumentRequest policy)
 			throws EngineException
 	{
@@ -502,8 +502,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getRegistrationFormLink")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestFormLink.class)))
-	public RestFormLink getRegistrationFormLink(@PathParam("project-id") String projectId)
+			content = @Content(schema = @Schema(implementation = FormLink.class)))
+	public FormLink getRegistrationFormLink(@PathParam("project-id") String projectId)
 			throws EngineException
 	{
 		return workflows.registrationFormLink(projectId);
@@ -572,8 +572,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getSignupEnquiryLink")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestFormLink.class)))
-	public RestFormLink getSignupEnquiryLink(@PathParam("project-id") String projectId)
+			content = @Content(schema = @Schema(implementation = FormLink.class)))
+	public FormLink getSignupEnquiryLink(@PathParam("project-id") String projectId)
 			throws EngineException
 	{
 		return workflows.signUpEnquiryLink(projectId);
@@ -643,8 +643,8 @@ public class RESTUpmanController
 	@GET
 	@Operation(operationId = "getMembershipUpdateEnquiryLink")
 	@ApiResponse(responseCode = "200", description = "Success",
-			content = @Content(schema = @Schema(implementation = RestFormLink.class)))
-	public RestFormLink getMembershipUpdateEnquiryLink(@PathParam("project-id") String projectId)
+			content = @Content(schema = @Schema(implementation = FormLink.class)))
+	public FormLink getMembershipUpdateEnquiryLink(@PathParam("project-id") String projectId)
 			throws EngineException
 	{
 		return workflows.membershipUpdateEnquiryLink(projectId);

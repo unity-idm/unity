@@ -82,22 +82,22 @@ public final class UpmanOpenApi extends OpenApiCustomizer
 		ModelConverters converters = new ModelConverters();
 		List.copyOf(converters.getConverters()).forEach(converters::removeConverter);
 		converters.addConverter(new TransportModelResolver());
-		for (Class<?> type : List.of(RestProject.class, RestProjectCreateRequest.class,
-				RestProjectUpdateRequest.class, RestProjectId.class, RestPolicyDocument.class,
-				RestPolicyDocumentRequest.class, RestPolicyDocumentUpdateRequest.class, RestPolicyDocumentId.class,
-				RestProjectMembership.class, RestGroupMember.class, RestAuthorizationRole.class,
-				RestInvitationRequest.class, RestInvitation.class, RestInvitationOutcome.class, RestGroup.class,
-				RestGroupCreateRequest.class, RestGroupUpdateRequest.class, RestGroupDelegationRequest.class,
-				RestGroupPath.class, RestRequest.class, RestFormLink.class, RestRegistrationForm.class, RestEnquiryForm.class))
+		for (Class<?> type : List.of(Project.class, ProjectCreateRequest.class,
+				ProjectUpdateRequest.class, ProjectId.class, RestPolicyDocument.class,
+				RestPolicyDocumentRequest.class, RestPolicyDocumentUpdateRequest.class, PolicyDocumentId.class,
+				ProjectMembership.class, GroupMember.class, AuthorizationRole.class,
+				InvitationRequest.class, Invitation.class, InvitationOutcome.class, ProjectGroup.class,
+				GroupCreateRequest.class, GroupUpdateRequest.class, GroupDelegationRequest.class,
+				GroupPath.class, Request.class, FormLink.class, RestRegistrationForm.class, RestEnquiryForm.class))
 		{
 			var resolved = converters.resolveAsResolvedSchema(new AnnotatedType(type).resolveAsRef(true));
 			resolved.referencedSchemas.forEach(api.getComponents()::addSchemas);
 		}
-		api.getComponents().getSchemas().get("RestInvitationRequest").addProperty("expiration",
+		api.getComponents().getSchemas().get("InvitationRequest").addProperty("expiration",
 				new io.swagger.v3.oas.models.media.Schema<>().anyOf(List.of(
 						new NumberSchema().description("Seconds since the Unix epoch, including fractional seconds"),
 						new StringSchema().format("date-time"))));
-		api.getComponents().getSchemas().remove("RestMember");
+		api.getComponents().getSchemas().remove("Member");
 		UpmanOpenApiDescriptions.apply(api);
 		UpmanOpenApiExamples.apply(api);
 		api.getComponents().addSecuritySchemes("directAuth", new SecurityScheme()

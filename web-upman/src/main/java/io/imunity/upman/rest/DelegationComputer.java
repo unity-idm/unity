@@ -48,12 +48,13 @@ class DelegationComputer
 		return new RollbackStateImpl();
 	}
 	
-	String computeMembershipUpdateEnquiryName(RestMembershipEnquiry membershipUpdateEnquiry, RollbackState rollbackState) throws EngineException
+	String computeMembershipUpdateEnquiryName(MembershipEnquiryReference membershipUpdateEnquiry,
+			RollbackState rollbackState) throws EngineException
 	{
 		if(membershipUpdateEnquiry == null)
 			return null;
-		String updateEnquiryName = membershipUpdateEnquiry.name;
-		if (membershipUpdateEnquiry.autogenerate)
+		String updateEnquiryName = membershipUpdateEnquiry.name();
+		if (membershipUpdateEnquiry.autogenerate())
 		{
 			EnquiryForm updateEnquiryForm = groupDelegationConfigGenerator
 				.generateProjectUpdateEnquiryForm(
@@ -62,20 +63,21 @@ class DelegationComputer
 			enquiryManagement.addEnquiry(updateEnquiryForm);
 			updateEnquiryName = updateEnquiryForm.getName();
 			addToRollback(updateEnquiryName, rollbackState);
-		} else if (membershipUpdateEnquiry.name != null)
+		} else if (membershipUpdateEnquiry.name() != null)
 		{
-			if(!enquiryManagement.hasForm(membershipUpdateEnquiry.name))
-				throw new BadRequestException("Form named " + membershipUpdateEnquiry.name + " does not exist");
+			if(!enquiryManagement.hasForm(membershipUpdateEnquiry.name()))
+				throw new BadRequestException("Form named " + membershipUpdateEnquiry.name() + " does not exist");
 		}
 		return updateEnquiryName;
 	}
 
-	String computeSignUpEnquiryName(RestSignUpEnquiry signUpEnquiry, RollbackState rollbackState) throws EngineException
+	String computeSignUpEnquiryName(SignUpEnquiryReference signUpEnquiry, RollbackState rollbackState)
+			throws EngineException
 	{
 		if(signUpEnquiry == null)
 			return null;
-		String joinEnquiryName = signUpEnquiry.name;
-		if (signUpEnquiry.autogenerate)
+		String joinEnquiryName = signUpEnquiry.name();
+		if (signUpEnquiry.autogenerate())
 		{
 			EnquiryForm joinEnquiryForm = groupDelegationConfigGenerator
 				.generateProjectJoinEnquiryForm(
@@ -85,20 +87,21 @@ class DelegationComputer
 			joinEnquiryName = joinEnquiryForm.getName();
 			addToRollback(joinEnquiryName, rollbackState);
 		}
-		else if (signUpEnquiry.name != null)
+		else if (signUpEnquiry.name() != null)
 		{
-			if(!enquiryManagement.hasForm(signUpEnquiry.name))
-				throw new BadRequestException("Form named " + signUpEnquiry.name + " does not exist");
+			if(!enquiryManagement.hasForm(signUpEnquiry.name()))
+				throw new BadRequestException("Form named " + signUpEnquiry.name() + " does not exist");
 		}
 		return joinEnquiryName;
 	}
 
-	String computeRegistrationFormName(RestRegistrationForm registrationForm, RollbackState rollbackState) throws EngineException
+	String computeRegistrationFormName(RegistrationFormReference registrationForm, RollbackState rollbackState)
+			throws EngineException
 	{
 		if(registrationForm == null)
 			return null;
-		String registrationFormName = registrationForm.name;
-		if (registrationForm.autogenerate)
+		String registrationFormName = registrationForm.name();
+		if (registrationForm.autogenerate())
 		{
 			RegistrationForm regForm = groupDelegationConfigGenerator
 				.generateProjectRegistrationForm(
@@ -107,10 +110,10 @@ class DelegationComputer
 			registrationFormName = regForm.getName();
 			addToRollback(registrationFormName, rollbackState);
 		}
-		else if (registrationForm.name != null)
+		else if (registrationForm.name() != null)
 		{
-			if(!registrationsManagement.hasForm(registrationForm.name))
-				throw new BadRequestException("Form named " + registrationForm.name + " does not exist");
+			if(!registrationsManagement.hasForm(registrationForm.name()))
+				throw new BadRequestException("Form named " + registrationForm.name() + " does not exist");
 		}
 		return registrationFormName;
 	}

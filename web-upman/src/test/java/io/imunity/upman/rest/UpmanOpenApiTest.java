@@ -16,6 +16,22 @@ import io.swagger.v3.oas.models.media.Schema;
 class UpmanOpenApiTest
 {
 	@Test
+	void shouldUseDtoNamesWithoutTransportPrefixes()
+	{
+		var schemas = UpmanOpenApi.export().getComponents().getSchemas();
+
+		assertThat(schemas).containsKeys("Project", "ProjectCreateRequest", "ProjectUpdateRequest", "ProjectId",
+				"PolicyDocumentId", "ProjectMembership", "MemberAttribute", "GroupMember", "AuthorizationRole",
+				"InvitationRequest", "Invitation", "InvitationOutcome", "ProjectGroup", "GroupCreateRequest",
+				"GroupUpdateRequest", "GroupDelegationRequest", "GroupPath", "Request", "FormLink");
+		assertThat(schemas).doesNotContainKeys("RestProject", "RestProjectCreateRequest", "RestProjectUpdateRequest",
+				"RestProjectId", "RestPolicyDocumentId", "RestProjectMembership", "RestAttribute", "RestGroupMember",
+				"RestAuthorizationRole", "RestInvitationRequest", "RestInvitation", "RestInvitationOutcome", "RestGroup",
+				"RestGroupCreateRequest", "RestGroupUpdateRequest", "RestGroupDelegationRequest", "RestGroupPath",
+				"RestRequest", "RestFormLink", "RestMember", "Member");
+	}
+
+	@Test
 	void shouldDescribeEveryContractRouteWithUniqueOperationIdsAndExplicitSuccess() throws Exception
 	{
 		OpenAPI api = UpmanOpenApi.export();
@@ -49,9 +65,9 @@ class UpmanOpenApiTest
 	{
 		var schemas = UpmanOpenApi.export().getComponents().getSchemas();
 
-		Schema<?> membership = schemas.get("RestProjectMembership");
+		Schema<?> membership = schemas.get("ProjectMembership");
 		assertThat(membership.getProperties().get("email").getNullable()).isTrue();
-		Schema<?> invitation = schemas.get("RestInvitation");
+		Schema<?> invitation = schemas.get("Invitation");
 		assertThat(invitation.getRequired()).contains("lastSentTime");
 		assertThat(invitation.getProperties().get("lastSentTime").getNullable()).isTrue();
 		assertThat(invitation.getProperties().get("lastSentTime").getType()).isEqualTo("number");

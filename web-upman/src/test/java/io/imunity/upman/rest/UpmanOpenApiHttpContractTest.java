@@ -24,20 +24,20 @@ class UpmanOpenApiHttpContractTest extends UpmanHttpContractTestBase
 		assertThat(api.at("/info/title").asText()).isEqualTo("Unity Project Management API");
 		assertThat(api.at("/servers/0/url").asText()).isEqualTo(".");
 		JsonNode schemas = api.at("/components/schemas");
-		assertThat(schemas.path("RestProject").path("properties").propertyStream().map(java.util.Map.Entry::getKey))
+		assertThat(schemas.path("Project").path("properties").propertyStream().map(java.util.Map.Entry::getKey))
 				.containsExactlyInAnyOrder("projectId", "public", "displayedName", "description", "logoUrl",
 						"enableSubprojects", "readOnlyAttributes", "registrationForm", "signUpEnquiry",
 						"membershipUpdateEnquiry", "urlId");
-		assertThat(schemas.at("/RestProjectId/properties/id/writeOnly").asBoolean()).isFalse();
-		assertThat(schemas.at("/RestProjectCreateRequest/properties/public/type").asText()).isEqualTo("boolean");
-		assertThat(schemas.at("/RestProjectUpdateRequest/properties/displayedName/additionalProperties/type").asText())
+		assertThat(schemas.at("/ProjectId/properties/id/writeOnly").asBoolean()).isFalse();
+		assertThat(schemas.at("/ProjectCreateRequest/properties/public/type").asText()).isEqualTo("boolean");
+		assertThat(schemas.at("/ProjectUpdateRequest/properties/displayedName/additionalProperties/type").asText())
 				.isEqualTo("string");
 		assertThat(schemas.at("/RestPolicyDocument/properties").propertyStream().map(java.util.Map.Entry::getKey))
 				.containsExactlyInAnyOrder("id", "name", "displayedName", "mandatory", "contentType", "revision", "content");
-		assertThat(schemas.at("/RestInvitation/properties/expiration/type").asText()).isEqualTo("number");
-		assertThat(schemas.at("/RestInvitation/properties/lastSentTime/type").asText()).isEqualTo("number");
-		assertThat(schemas.at("/RestRequest/properties/requestedTime/type").asText()).isEqualTo("number");
-		assertThat(schemas.at("/RestInvitationRequest/properties/expiration/anyOf").size()).isEqualTo(2);
+		assertThat(schemas.at("/Invitation/properties/expiration/type").asText()).isEqualTo("number");
+		assertThat(schemas.at("/Invitation/properties/lastSentTime/type").asText()).isEqualTo("number");
+		assertThat(schemas.at("/Request/properties/requestedTime/type").asText()).isEqualTo("number");
+		assertThat(schemas.at("/InvitationRequest/properties/expiration/anyOf").size()).isEqualTo(2);
 		JsonNode memberVariants = paths.path("/v1/projects/{project-id}/members")
 				.at("/get/responses/200/content/application~1json/schema/anyOf");
 		assertThat(memberVariants.size()).isEqualTo(2);
@@ -47,10 +47,10 @@ class UpmanOpenApiHttpContractTest extends UpmanHttpContractTestBase
 		assertThat(collection.at("/get/responses/200/content/application~1json/schema/type").asText())
 				.isEqualTo("array");
 		assertThat(collection.at("/post/responses/200/content/application~1json/schema/$ref").asText())
-				.isEqualTo("#/components/schemas/RestProjectId");
+				.isEqualTo("#/components/schemas/ProjectId");
 		JsonNode project = paths.path("/v1/projects/{project-id}");
 		assertThat(project.at("/get/responses/200/content/application~1json/schema/$ref").asText())
-				.isEqualTo("#/components/schemas/RestProject");
+				.isEqualTo("#/components/schemas/Project");
 		assertThat(project.at("/put/responses").has("204")).isTrue();
 		assertThat(project.at("/delete/responses").has("204")).isTrue();
 	}

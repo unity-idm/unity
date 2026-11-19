@@ -61,7 +61,7 @@ class OpenApiExporterTest
 	{
 		var api = UpmanOpenApi.export();
 		var document = Json.mapper().valueToTree(api);
-		var schema = JsonNodeFactory.instance.objectNode().put("$ref", "#/components/schemas/RestProject");
+		var schema = JsonNodeFactory.instance.objectNode().put("$ref", "#/components/schemas/Project");
 		var input = JsonNodeFactory.instance.objectNode().put("projectId", 123);
 
 		assertThatThrownBy(() -> OpenApiValidation.validateExample(document, schema, input, "project fixture"))
