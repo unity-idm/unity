@@ -24,6 +24,7 @@ public class LastAuthenticationCookie
 		selectedIdp.setMaxAge((int) MAX_AGE.get(ChronoUnit.SECONDS));
 		selectedIdp.setPath(endpointPath);
 		selectedIdp.setHttpOnly(true);
+		selectedIdp.setSecure(true);
 		return Optional.of(selectedIdp);
 	}
 }

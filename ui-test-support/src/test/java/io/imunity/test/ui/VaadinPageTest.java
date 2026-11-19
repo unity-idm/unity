@@ -1,6 +1,7 @@
 package io.imunity.test.ui;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -35,6 +36,46 @@ class VaadinPageTest
 
 		verify(visibleMenuItem).click();
 		verify(hiddenMenuItem, never()).click();
+	}
+
+	@Test
+	void shouldNotUseOriginalInputAfterSelectionReplacesView()
+	{
+		WebDriver browser = mock(WebDriver.class);
+		WebElement originalField = mock(WebElement.class);
+		WebElement replacementField = mock(WebElement.class);
+		WebElement originalInput = mock(WebElement.class);
+		WebElement replacementInput = mock(WebElement.class);
+		WebElement option = mock(WebElement.class);
+		By locator = By.className("u-authn-languageSelector");
+		when(browser.findElements(locator)).thenReturn(List.of(originalField));
+		when(originalField.isDisplayed()).thenReturn(true);
+		when(originalField.getTagName()).thenReturn("vaadin-combo-box");
+		when(originalField.findElement(By.cssSelector("input, textarea"))).thenReturn(originalInput);
+		when(originalInput.isDisplayed()).thenReturn(true);
+		when(originalInput.isEnabled()).thenReturn(true);
+		when(originalField.findElements(By.cssSelector("vaadin-combo-box-item"))).thenReturn(List.of(option));
+		when(option.isDisplayed()).thenReturn(true);
+		when(option.getText()).thenReturn("Polski");
+		doAnswer(ignored ->
+		{
+			when(browser.findElements(locator)).thenReturn(List.of(replacementField));
+			return null;
+		}).when(option).click();
+		when(replacementField.isDisplayed()).thenReturn(true);
+		when(replacementField.getTagName()).thenReturn("vaadin-combo-box");
+		when(replacementField.findElement(By.cssSelector("input, textarea"))).thenReturn(replacementInput);
+		when(replacementInput.isDisplayed()).thenReturn(true);
+		when(replacementInput.isEnabled()).thenReturn(true);
+		when(replacementInput.getDomProperty("value")).thenReturn("Polski");
+		when(replacementField.getDomProperty("opened")).thenReturn("false");
+		VaadinPage page = new VaadinPage(browser);
+
+		page.select(locator, "Polski");
+
+		verify(option).click();
+		verify(originalInput, never()).sendKeys(Keys.TAB);
+		verify(replacementInput).getDomProperty("value");
 	}
 
 	@Test

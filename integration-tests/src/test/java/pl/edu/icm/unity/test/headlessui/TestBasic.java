@@ -25,6 +25,8 @@ public class TestBasic extends SeleniumTestBase
 		waitForPageLoad(By.className("u-passwordSignInButton"));
 		
 		Cookie sessionBefore = driver.manage().getCookieNamed("JSESSIONID");
+		assertThat(sessionBefore).isNotNull();
+		assertThat(sessionBefore.isHttpOnly()).isTrue();
 		driver.findElement(By.className("u-passwordUsernameField")).sendKeys("a");
 		driver.findElement(By.className("u-passwordField")).sendKeys("a");
 		driver.findElement(By.className("u-passwordSignInButton")).click();
@@ -32,7 +34,13 @@ public class TestBasic extends SeleniumTestBase
 		waitForPageLoad(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']"));
 		assertThat(driver.findElement(By.id("MainHeader.loggedAs")).getText()).contains("Default Administrator");
 		Cookie sessionAfter = driver.manage().getCookieNamed("JSESSIONID");
+		assertThat(sessionAfter).isNotNull();
+		assertThat(sessionAfter.isHttpOnly()).isTrue();
 		assertThat(sessionAfter.getValue()).isNotEqualTo(sessionBefore.getValue());
+		Cookie lastAuthentication = driver.manage().getCookieNamed("lastAuthnUsed");
+		assertThat(lastAuthentication).isNotNull();
+		assertThat(lastAuthentication.isSecure()).isTrue();
+		assertThat(lastAuthentication.isHttpOnly()).isTrue();
 		screenshot("Home after password login");
 		waitForElement(By.cssSelector("vaadin-icon[icon='vaadin:sign-out']")).click();
 		waitForPageLoad(By.className("u-passwordSignInButton"));

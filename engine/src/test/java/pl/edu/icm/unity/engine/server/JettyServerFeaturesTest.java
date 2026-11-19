@@ -76,6 +76,34 @@ public class JettyServerFeaturesTest
 	}
 
 	@Test
+	void shouldSetHttpOnlyOnSessionCookie() throws Exception
+	{
+		buildHttpServer();
+		ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		handler.setContextPath("/test-session");
+		handler.addServlet(new ServletHolder(new SessionServlet()), "/*");
+		httpServer.start();
+		httpServer.deployHandler(handler, "sys:test");
+		String url = httpServerURL() + "/test-session/";
+
+		HttpResponse response = makeGetRequest(createClient(url), url);
+
+		assertThat(response.getCode()).isEqualTo(200);
+		assertThat(response.getHeader("Set-Cookie").getValue())
+				.startsWith("JSESSIONID=")
+				.containsIgnoringCase("HttpOnly");
+	}
+
+	private static class SessionServlet extends HttpServlet
+	{
+		@Override
+		protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+		{
+			req.getSession();
+		}
+	}
+
+	@Test
 	void shouldBlockTraceMethod() throws Exception
 	{
 		buildHttpServer();
