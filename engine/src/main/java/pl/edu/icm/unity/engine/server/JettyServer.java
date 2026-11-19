@@ -481,6 +481,8 @@ public class JettyServer implements Lifecycle, NetworkServer, HttpSessionsServic
 		}
 		addDoSFilter(handler);
 		useServerErrorPage(handler);
+		if (handler.getSessionHandler() != null)
+			handler.getSessionHandler().getSessionCookieConfig().setHttpOnly(true);
 		Handler wrappedHandler = addCORSFilter(handler);
 		ClientIPSettingHandler clientIPSettingHandler = applyClientIPDiscoveryHandler(wrappedHandler, endpointId);
 		mainContextHandler.addHandler(clientIPSettingHandler);
