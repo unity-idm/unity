@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import org.apache.hc.core5.http.ContentType;
 import org.junit.jupiter.api.Test;
+
+import pl.edu.icm.unity.base.endpoint.EndpointConfiguration;
 
 class UpmanOpenApiHttpContractTest extends UpmanHttpContractTestBase
 {
@@ -51,12 +54,14 @@ class UpmanOpenApiHttpContractTest extends UpmanHttpContractTestBase
 		assertThat(project.at("/put/responses").has("204")).isTrue();
 		assertThat(project.at("/delete/responses").has("204")).isTrue();
 	}
+
 	@Test
 	void shouldRequireAuthenticationForLiveDocumentation() throws Exception
 	{
-		for (String format : new String[] {"json", "yaml"})
+		for (String resource : new String[] {"openapi.json", "openapi.yaml", "api-docs", "api-docs/",
+				"api-docs/index.html", "api-docs/scalar.js"})
 		{
-			var request = new org.apache.hc.client5.http.classic.methods.HttpGet("/restupm/openapi." + format);
+			var request = new org.apache.hc.client5.http.classic.methods.HttpGet("/restupm/" + resource);
 			try (var response = client.executeOpen(host, request,
 					org.apache.hc.client5.http.protocol.HttpClientContext.create()))
 			{
@@ -69,4 +74,19 @@ class UpmanOpenApiHttpContractTest extends UpmanHttpContractTestBase
 		}
 	}
 
+	@Test
+	void shouldKeepAuthenticatedApiAvailableAfterDisablingRuntimeDocumentation() throws Exception
+	{
+		assertThat(exchange("GET", "/restupm/openapi.json").status()).isEqualTo(200);
+		endpointMan.updateEndpoint("restUpman", new EndpointConfiguration(null, null, null,
+				CONFIGURATION + "unity.endpoint.rest.enableOpenApi=false\n", null));
+
+		for (String resource : new String[] {"openapi.json", "openapi.yaml", "api-docs", "api-docs/",
+				"api-docs/index.html", "api-docs/scalar.js", "api-docs/swagger-ui.css",
+				"swagger-ui.css", "swagger-ui-bundle.js"})
+			assertThat(exchange("GET", "/restupm/" + resource).status()).as(resource).isEqualTo(404);
+		assertJson(exchange("POST", "/restupm/v1/projects", fixture("project-create.json"),
+				ContentType.APPLICATION_JSON), 200, "{\"id\":\"contract\"}");
+		assertJson(exchange("GET", "/restupm/v1/projects/contract"), 200, fixture("project.json"));
+	}
 }

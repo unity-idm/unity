@@ -46,25 +46,32 @@ public final class OpenApiExporter
 				<html lang="en"><head><meta charset="utf-8">
 				<meta name="viewport" content="width=device-width, initial-scale=1">
 				<title>%s</title>
-				<link rel="stylesheet" href="openapi-assets/swagger-ui.css"></head>
-				<body><div id="swagger-ui"></div>
-				<script src="openapi-assets/swagger-ui-bundle.js"></script>
-				<script>SwaggerUIBundle({dom_id:'#swagger-ui',deepLinking:true,validatorUrl:null,supportedSubmitMethods:[],spec:
-				""".formatted(api.getInfo().getTitle()) + safeJson + "});</script></body></html>\n", StandardCharsets.UTF_8);
+				<style>body { margin: 0; padding: 0; }</style></head>
+				<body><div id="redoc"></div>
+				<script src="openapi-assets/redoc.standalone.js"></script>
+				<script>Redoc.init(
+				""".formatted(api.getInfo().getTitle()) + safeJson + """
+				, {disableGoogleFont: true, hideDownloadButton: true,
+				theme: {typography: {fontFamily: 'Arial, sans-serif',
+				headings: {fontFamily: 'Arial, sans-serif'}, code: {fontFamily: 'monospace'}}}},
+				document.getElementById('redoc'));</script></body></html>
+				""", StandardCharsets.UTF_8);
 	}
 
 	private static void copyRenderer(Path output) throws IOException
 	{
 		Properties artifact = new Properties();
 		try (var input = Objects.requireNonNull(OpenApiExporter.class.getResourceAsStream(
-				"/META-INF/maven/org.webjars/swagger-ui/pom.properties")))
+				"/META-INF/maven/org.webjars.npm/redoc/pom.properties")))
 		{
 			artifact.load(input);
 		}
 		Path assets = Files.createDirectories(output.resolve("openapi-assets"));
-		for (String file : new String[] {"swagger-ui.css", "swagger-ui-bundle.js"})
+		Files.deleteIfExists(assets.resolve("swagger-ui-bundle.js"));
+		Files.deleteIfExists(assets.resolve("swagger-ui.css"));
+		for (String file : new String[] {"redoc.standalone.js", "redoc.standalone.js.LICENSE.txt"})
 			try (var input = Objects.requireNonNull(OpenApiExporter.class.getResourceAsStream(
-					"/META-INF/resources/webjars/swagger-ui/" + artifact.getProperty("version") + "/" + file)))
+					"/META-INF/resources/webjars/redoc/" + artifact.getProperty("version") + "/bundles/" + file)))
 			{
 				Files.copy(input, assets.resolve(file), StandardCopyOption.REPLACE_EXISTING);
 			}

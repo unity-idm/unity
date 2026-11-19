@@ -31,11 +31,29 @@ class OpenApiExporterTest
 		for (String file : new String[] {"upman-openapi-v1.yaml", "upman-openapi-v1.html"})
 			assertThat(Files.readString(first.resolve(file))).isEqualTo(Files.readString(second.resolve(file)));
 		assertThat(Files.readString(first.resolve("upman-openapi-v1.html")))
-				.contains("SwaggerUIBundle", "Content-Type: application/json")
-				.doesNotContain("https://cdn", "</script><script");
+				.contains("Redoc.init", "disableGoogleFont: true", "Content-Type: application/json")
+				.doesNotContain("https://cdn", "SwaggerUI", "</script><script");
 		assertThat(Files.exists(first.resolve("admin-openapi-v1.yaml"))).isFalse();
-		assertThat(Files.size(first.resolve("openapi-assets/swagger-ui-bundle.js"))).isGreaterThan(100_000);
-		assertThat(Files.size(first.resolve("openapi-assets/swagger-ui.css"))).isGreaterThan(10_000);
+		assertThat(Files.size(first.resolve("openapi-assets/redoc.standalone.js"))).isGreaterThan(100_000);
+		assertThat(Files.readString(first.resolve("openapi-assets/redoc.standalone.js.LICENSE.txt")))
+				.contains("license");
+	}
+
+	@Test
+	void shouldRemoveObsoleteGeneratedSwaggerAssetsAndPreserveOtherAssets() throws Exception
+	{
+		Path assets = Files.createDirectories(temporary.resolve("openapi-assets"));
+		Files.writeString(assets.resolve("swagger-ui-bundle.js"), "obsolete renderer");
+		Files.writeString(assets.resolve("swagger-ui.css"), "obsolete stylesheet");
+		Files.writeString(assets.resolve("custom.css"), "custom stylesheet");
+
+		OpenApiExporter.generate(temporary);
+
+		assertThat(assets.resolve("swagger-ui-bundle.js")).doesNotExist();
+		assertThat(assets.resolve("swagger-ui.css")).doesNotExist();
+		assertThat(Files.readString(assets.resolve("custom.css"))).isEqualTo("custom stylesheet");
+		assertThat(Files.size(assets.resolve("redoc.standalone.js"))).isGreaterThan(100_000);
+		assertThat(assets.resolve("redoc.standalone.js.LICENSE.txt")).isNotEmptyFile();
 	}
 
 	@Test

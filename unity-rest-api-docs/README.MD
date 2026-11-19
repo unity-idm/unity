@@ -19,11 +19,31 @@ Output in `unity-rest-api-docs/target/openapi`:
 
 - `upman-openapi-v1.yaml`: deterministic OpenAPI v1 specification.
 - `upman-openapi-v1.html`: offline reference with the specification embedded.
-- `openapi-assets/`: Swagger UI JavaScript and CSS from the version pinned in the root POM.
+- `openapi-assets/`: Redoc standalone JavaScript and its license notice from the version pinned in the root POM.
 
-Keep the HTML and assets together; the HTML can be opened directly from disk. The published reference disables
-request execution. Configure the actual deployed endpoint URL in your API client. Live `openapi.yaml` and
-`openapi.json` below the endpoint deployment path retain endpoint authentication.
+Keep the HTML and assets together; the Redoc HTML can be opened directly from disk without a network connection.
+The specification is embedded and fonts use local system fonts. This published reference is for reading;
+configure the actual deployed endpoint URL in your API client.
+
+## Live documentation
+
+Open `api-docs` beneath a deployed REST endpoint, for example `/restupm/api-docs`, to use Scalar.
+The HTML, bundled JavaScript and live `openapi.yaml` / `openapi.json` retain the endpoint's authentication.
+The UI loads the current endpoint's specification and sends requests directly to that same endpoint, including
+when deployed beneath a custom path. No renderer, font or request proxy is loaded from a CDN. Scalar's bundled
+WebJar is a runtime dependency of `rest` and is included in the distribution's `lib` directory.
+
+Authenticate the documentation using an authenticator configured for that endpoint. For request execution,
+select the specification's Basic or Bearer authentication scheme and enter the corresponding credentials.
+UpMan bearer tokens need the documented API scopes. OAuth issuer and token endpoints are deployment configuration;
+the generic Bearer field accepts a token obtained from your configured issuer. Credentials entered in Scalar are
+not persisted across page reloads. An authenticated specification download alone does not verify request execution:
+use **Test Request** on `GET /v1/projects`, submit the request and inspect the returned status and response body.
+
+`unity.endpoint.rest.enableOpenApi=true` is the shared default. Set it to `false` in an individual endpoint's
+configuration to disable its live specification, Scalar HTML and assets. This setting applies independently to
+Admin, UpMan and other REST endpoint instances. API routes and build-time/site YAML and Redoc generation remain
+available. Swagger UI is disabled for live endpoints.
 
 The existing `documentation` module invokes the same exporter during `pre-site` and places the generated
 reference beside the handwritten context/workflow document. After installing reactor dependencies, build

@@ -8,5 +8,9 @@ UNITY
  
  <<{{{./upman-rest-api-v1.html}Upman REST API reference}}>>  
 
+ <<{{{./upman-openapi-v1.html}UpMan OpenAPI reference}}>>
+
+ <<{{{./upman-openapi-v1.yaml}UpMan OpenAPI specification (YAML)}}>>
+
  <<{{{./apidocs/index.html}Java API docs}}>>  
 

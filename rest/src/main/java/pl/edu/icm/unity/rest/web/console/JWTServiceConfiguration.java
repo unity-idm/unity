@@ -24,6 +24,7 @@ import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
  */
 public class JWTServiceConfiguration
 {
+	private boolean enableOpenApi = true;
 	private List<String> allowedCORSheaders;
 	private List<String> allowedCORSorigins;
 	private String credential;
@@ -79,6 +80,8 @@ public class JWTServiceConfiguration
 	public String toProperties()
 	{
 		Properties raw = new Properties();
+		raw.setProperty(RESTEndpointProperties.PREFIX + RESTEndpointProperties.ENABLE_OPEN_API,
+				Boolean.toString(enableOpenApi));
 
 		getAllowedCORSheaders().forEach(a -> {
 
@@ -113,6 +116,7 @@ public class JWTServiceConfiguration
 		}
 
 		RESTEndpointProperties restAdminProp = new RESTEndpointProperties(raw);
+		enableOpenApi = restAdminProp.getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API);
 		allowedCORSheaders = restAdminProp.getListOfValues(RESTEndpointProperties.ENABLED_CORS_HEADERS);
 		allowedCORSorigins = restAdminProp.getListOfValues(RESTEndpointProperties.ENABLED_CORS_ORIGINS);
 

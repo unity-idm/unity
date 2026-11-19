@@ -85,8 +85,11 @@
 			<artifactId>jakarta.xml.bind-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>swagger-ui</artifactId>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>redoc</artifactId>
+			<exclusions>
+				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 

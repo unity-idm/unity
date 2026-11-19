@@ -121,6 +121,12 @@
 		</extensions>
 
 		<plugins>
+			<plugin>
+				<artifactId>maven-site-plugin</artifactId>
+				<configuration>
+					<inputDirectory>${project.reporting.outputDirectory}</inputDirectory>
+				</configuration>
+			</plugin>
 		<!-- the current asciidoctor maven plugin is outdated -->
 		<!-- 
 			<plugin>
