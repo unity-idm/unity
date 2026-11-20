@@ -24,7 +24,8 @@ configure the actual deployed endpoint URL in your API client.
 
 ## Live documentation
 
-Set `unity.endpoint.rest.openApiPublication` in each REST endpoint's configuration.
+In Console, edit the REST Admin or UpMan REST service and choose **Public API documentation** on the
+**General** tab. You can also set `unity.endpoint.rest.openApiPublication` in the endpoint's properties.
 
 | Value | Public routes below the endpoint path |
 | --- | --- |

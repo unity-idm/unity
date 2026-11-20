@@ -38,6 +38,16 @@ public class JWTServiceConfiguration
 		setTtl(JWTAuthenticationProperties.DEFAULT_TOKEN_TTL);
 	}
 
+	OpenApiPublication getOpenApiPublication()
+	{
+		return openApiPublication;
+	}
+
+	void setOpenApiPublication(OpenApiPublication openApiPublication)
+	{
+		this.openApiPublication = openApiPublication;
+	}
+
 	public List<String> getAllowedCORSheaders()
 	{
 		return allowedCORSheaders;

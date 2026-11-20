@@ -35,6 +35,16 @@ public class RestAdminServiceConfiguration
 		allowedCORSorigins = new ArrayList<>();
 	}
 
+	OpenApiPublication getOpenApiPublication()
+	{
+		return openApiPublication;
+	}
+
+	void setOpenApiPublication(OpenApiPublication openApiPublication)
+	{
+		this.openApiPublication = openApiPublication;
+	}
+
 	public List<String> getAllowedCORSheaders()
 	{
 		return allowedCORSheaders;
