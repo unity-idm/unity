@@ -1,6 +1,6 @@
 package io.imunity.rest.openapi;
 
-import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_BIG;
+import static io.imunity.vaadin.elements.CSSVars.TEXT_FIELD_MEDIUM;
 import static io.imunity.vaadin.elements.CssClassNames.MEDIUM_VAADIN_FORM_ITEM_LABEL;
 
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -22,7 +22,7 @@ public final class OpenApiPublicationField extends FormLayout
 
 		ComboBox<OpenApiPublication> publication = new ComboBox<>();
 		publication.getElement().setAttribute("data-testid", "OpenApiPublicationField.publication");
-		publication.setWidth(TEXT_FIELD_BIG.value());
+		publication.setWidth(TEXT_FIELD_MEDIUM.value());
 		publication.setItems(OpenApiPublication.values());
 		publication.setItemLabelGenerator(value -> msg.getMessage("OpenApiPublicationField." + value.name()));
 		publication.setHelperText(msg.getMessage("OpenApiPublicationField.help"));
