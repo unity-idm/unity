@@ -69,6 +69,20 @@ public final class VaadinPage
 				&& !Boolean.parseBoolean(visible(locator).getDomProperty("opened")));
 	}
 
+	public void selectMultiple(By locator, String value)
+	{
+		input(locator).sendKeys(Keys.chord(Keys.CONTROL, "a"), value);
+		WebElement option = wait.until(ignored -> visible(locator)
+				.findElements(By.cssSelector("vaadin-multi-select-combo-box-item"))
+				.stream().filter(item -> item.isDisplayed() && value.equals(item.getText())).findFirst().orElse(null));
+		option.click();
+		wait.ignoring(StaleElementReferenceException.class).until(ignored -> visible(locator)
+				.findElements(By.cssSelector("vaadin-multi-select-combo-box-chip"))
+				.stream().anyMatch(chip -> chip.isDisplayed() && value.equals(chip.getText())));
+		input(locator).sendKeys(Keys.ESCAPE, Keys.TAB);
+		wait.until(ignored -> !Boolean.parseBoolean(visible(locator).getDomProperty("opened")));
+	}
+
 	public void check(By locator, boolean checked)
 	{
 		if (Boolean.parseBoolean(visible(locator).getDomProperty("checked")) != checked)

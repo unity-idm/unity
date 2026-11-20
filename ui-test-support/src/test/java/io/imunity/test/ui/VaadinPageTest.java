@@ -79,6 +79,45 @@ class VaadinPageTest
 	}
 
 	@Test
+	void shouldSelectMatchingMultiSelectOptionAndCloseDropdown()
+	{
+		WebDriver browser = mock(WebDriver.class);
+		WebElement field = mock(WebElement.class);
+		WebElement input = mock(WebElement.class);
+		WebElement hiddenOption = mock(WebElement.class);
+		WebElement otherOption = mock(WebElement.class);
+		WebElement option = mock(WebElement.class);
+		WebElement chip = mock(WebElement.class);
+		By locator = VaadinPage.testId("CredentialRequirementsEditView.credentials");
+		when(browser.findElements(locator)).thenReturn(List.of(field));
+		when(field.isDisplayed()).thenReturn(true);
+		when(field.getTagName()).thenReturn("vaadin-multi-select-combo-box");
+		when(field.findElement(By.cssSelector("input, textarea"))).thenReturn(input);
+		when(input.isDisplayed()).thenReturn(true);
+		when(input.isEnabled()).thenReturn(true);
+		when(field.findElements(By.cssSelector("vaadin-multi-select-combo-box-item")))
+				.thenReturn(List.of(hiddenOption, otherOption, option));
+		when(otherOption.isDisplayed()).thenReturn(true);
+		when(otherOption.getText()).thenReturn("other");
+		when(option.isDisplayed()).thenReturn(true);
+		when(option.getText()).thenReturn("sys:password");
+		when(chip.isDisplayed()).thenReturn(true);
+		when(chip.getText()).thenReturn("sys:password");
+		when(field.findElements(By.cssSelector("vaadin-multi-select-combo-box-chip")))
+				.thenReturn(List.of(), List.of(chip));
+		when(field.getDomProperty("opened")).thenReturn("false");
+		VaadinPage page = new VaadinPage(browser);
+
+		page.selectMultiple(locator, "sys:password");
+
+		verify(input).sendKeys(Keys.chord(Keys.CONTROL, "a"), "sys:password");
+		verify(option).click();
+		verify(hiddenOption, never()).click();
+		verify(otherOption, never()).click();
+		verify(input).sendKeys(Keys.ESCAPE, Keys.TAB);
+	}
+
+	@Test
 	void shouldFillReplacementInputWhenViewRendersAgain()
 	{
 		WebDriver browser = mock(WebDriver.class);
