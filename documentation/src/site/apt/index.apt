@@ -8,6 +8,10 @@ UNITY
  
  <<{{{./upman-rest-api-v1.html}Upman REST API reference}}>>  
 
+ <<{{{./admin-openapi-v1.html}Administration OpenAPI reference}}>>
+
+ <<{{{./admin-openapi-v1.yaml}Administration OpenAPI specification (YAML)}}>>
+
  <<{{{./upman-openapi-v1.html}UpMan OpenAPI reference}}>>
 
  <<{{{./upman-openapi-v1.yaml}UpMan OpenAPI specification (YAML)}}>>

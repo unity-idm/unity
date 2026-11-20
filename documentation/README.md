@@ -6,7 +6,7 @@ After installing the reactor dependencies, generate the site from the repository
 mvn -pl documentation compile site -Dgpg.skip=true
 ```
 
-The `pre-site` executions generate the Asciidoctor pages and the UpMan OpenAPI reference in
+The `pre-site` executions generate the Asciidoctor pages and the Admin and UpMan OpenAPI references in
 `${project.reporting.outputDirectory}` (`documentation/target/site` by default). The site plugin deploys this entire
 directory recursively through the existing SCP Wagon to the versioned directory configured in
 `documentation/pom.xml`: `unity-idm.eu/documentation/unity-${project.version}`. There is no separate HTML-only file
@@ -16,6 +16,8 @@ list or documentation archive. The generated reference therefore travels with th
 manual.html
 rest-api-v1.html
 upman-rest-api-v1.html
+admin-openapi-v1.html
+admin-openapi-v1.yaml
 upman-openapi-v1.html
 upman-openapi-v1.yaml
 openapi-assets/

@@ -67,6 +67,7 @@ public class GeneralTab extends VerticalLayout implements EditorTab
 
 		TextField name = new TextField();
 		name.setReadOnly(editMode);
+		name.setWidth(TEXT_FIELD_MEDIUM.value());
 		binder.forField(name)
 				.asRequired().withValidator((v,c) -> {
 					

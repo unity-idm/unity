@@ -17,6 +17,7 @@ import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.data.binder.Binder;
 
+import io.imunity.rest.openapi.OpenApiPublicationField;
 import io.imunity.vaadin.elements.CustomValuesMultiSelectComboBox;
 import io.imunity.vaadin.auth.services.DefaultServiceDefinition;
 import io.imunity.vaadin.auth.services.idp.MandatoryGroupSelection;
@@ -48,6 +49,8 @@ class UpmanRestServiceEditorGeneralTab extends GeneralTab
 		this.restBinder = restBinder;
 		add(buildGroupSection());
 		add(buildAttributeSection());
+		add(new OpenApiPublicationField(msg, restBinder, UpmanRestServiceConfiguration::getOpenApiPublication,
+				UpmanRestServiceConfiguration::setOpenApiPublication));
 		add(buildCorsSection());
 	}
 

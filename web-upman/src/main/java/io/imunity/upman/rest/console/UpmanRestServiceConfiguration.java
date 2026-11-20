@@ -26,13 +26,14 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
+import pl.edu.icm.unity.rest.RESTEndpointProperties.OpenApiPublication;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 
 public class UpmanRestServiceConfiguration
 {
 	private GroupWithIndentIndicator rootGroup;
 	private GroupWithIndentIndicator authorizationGroup;
-	private boolean enableOpenApi = true;
+	private OpenApiPublication openApiPublication = OpenApiPublication.disabled;
 	private List<String> allowedCORSheaders;
 	private List<String> allowedCORSorigins;
 	private List<String> rootGroupAttributes;
@@ -71,6 +72,16 @@ public class UpmanRestServiceConfiguration
 		this.authorizationGroup = authorizationGroup;
 	}
 
+	OpenApiPublication getOpenApiPublication()
+	{
+		return openApiPublication;
+	}
+
+	void setOpenApiPublication(OpenApiPublication openApiPublication)
+	{
+		this.openApiPublication = openApiPublication;
+	}
+
 	public List<String> getAllowedCORSheaders()
 	{
 		return allowedCORSheaders;
@@ -104,8 +115,8 @@ public class UpmanRestServiceConfiguration
 	public String toProperties()
 	{
 		Properties raw = new Properties();
-		raw.setProperty(RESTEndpointProperties.PREFIX + RESTEndpointProperties.ENABLE_OPEN_API,
-				Boolean.toString(enableOpenApi));
+		raw.setProperty(RESTEndpointProperties.PREFIX + RESTEndpointProperties.OPEN_API_PUBLICATION,
+				openApiPublication.name());
 
 		raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.ROOT_GROUP, rootGroup.group().getPathEncoded());
 		raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.AUTHORIZATION_GROUP, authorizationGroup.group().getPathEncoded());
@@ -146,7 +157,7 @@ public class UpmanRestServiceConfiguration
 			throw new InternalException("Invalid configuration of the rest admin service", e);
 		}
 
-		enableOpenApi = new RESTEndpointProperties(raw).getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API);
+		openApiPublication = new RESTEndpointProperties(raw).getOpenApiPublication();
 		UpmanRestEndpointProperties restAdminProp = new UpmanRestEndpointProperties(raw);
 		String rootGroupPath = restAdminProp.getValue(UpmanRestEndpointProperties.ROOT_GROUP);
 		this.rootGroup = new GroupWithIndentIndicator(new Group(rootGroupPath),

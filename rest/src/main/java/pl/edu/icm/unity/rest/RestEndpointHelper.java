@@ -23,6 +23,7 @@ import org.apache.cxf.jaxrs.impl.WebApplicationExceptionMapper;
 import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
 import org.apache.cxf.jaxrs.utils.ResourceUtils;
 
+import pl.edu.icm.unity.rest.RESTEndpointProperties.OpenApiPublication;
 import pl.edu.icm.unity.rest.exception.BadRequestExceptionMapper;
 import pl.edu.icm.unity.rest.exception.EngineExceptionMapper;
 import pl.edu.icm.unity.rest.exception.IllegalArgumentExceptionMapper;
@@ -55,15 +56,10 @@ public class RestEndpointHelper
 		ret.add(new BadRequestExceptionMapper());
 	}
 
-	public static Endpoint createCxfEndpoint(Application application, Bus bus)
-	{
-		return createCxfEndpoint(application, bus, true);
-	}
-
-	public static Endpoint createCxfEndpoint(Application application, Bus bus, boolean enableOpenApi)
+	public static Endpoint createCxfEndpoint(Application application, Bus bus, OpenApiPublication publication)
 	{
 		JAXRSServerFactoryBean sf = ResourceUtils.createApplication(application, false, false, false, bus);
-		if (enableOpenApi)
+		if (publication != OpenApiPublication.disabled)
 		{
 			OpenApiFeature feature = new OpenApiFeature();
 			feature.setScan(false);
@@ -72,7 +68,8 @@ public class RestEndpointHelper
 			if (application instanceof OpenApiFeatureConfiguration configuration)
 				configuration.configureOpenApi(feature);
 			feature.setSupportSwaggerUi(false);
-			sf.setServiceBean(new OpenApiUiResource());
+			if (publication == OpenApiPublication.specificationAndUI)
+				sf.setServiceBean(new OpenApiUiResource());
 			sf.getFeatures().add(feature);
 		}
 		

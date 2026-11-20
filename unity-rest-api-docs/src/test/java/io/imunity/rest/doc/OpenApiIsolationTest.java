@@ -32,7 +32,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -42,6 +41,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import io.imunity.upman.rest.RESTUpmanController;
 import io.imunity.upman.rest.RESTUpmanEndpoint;
+import io.imunity.rest.admin.AdminOpenApi;
 import io.imunity.upman.rest.UpmanOpenApi;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.util.Json;
@@ -62,6 +62,7 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
+import pl.edu.icm.unity.rest.RESTEndpointProperties.OpenApiPublication;
 import pl.edu.icm.unity.rest.RestEndpointHelper;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
 import pl.edu.icm.unity.rest.web.console.JWTServiceConfiguration;
@@ -72,7 +73,7 @@ import pl.edu.icm.unity.restadm.RESTAdmin;
 import pl.edu.icm.unity.restadm.RESTAdminEndpoint;
 import pl.edu.icm.unity.restadm.web.console.RestAdminServiceConfiguration;
 
-class UpmanOpenApiIsolationTest
+class OpenApiIsolationTest
 {
 	private AnnotationConfigApplicationContext adminContext;
 
@@ -83,8 +84,9 @@ class UpmanOpenApiIsolationTest
 			adminContext.close();
 	}
 
-	@Test
-	void shouldKeepUpmanIsolatedBesideTheExistingAdminApplication() throws Exception
+	@ParameterizedTest(name = "endpoint initialization order: {0}")
+	@MethodSource("applicationOrders")
+	void shouldKeepAdminAndUpmanDocumentsIsolated(ApplicationOrder scenario) throws Exception
 	{
 		var originalConverters = List.copyOf(ModelConverters.getInstance().getConverters());
 		var factory = mock(RESTUpmanController.RESTUpmanControllerFactory.class);
@@ -101,21 +103,23 @@ class UpmanOpenApiIsolationTest
 		try
 		{
 			var contexts = new ContextHandlerCollection();
-			contexts.addHandler(context("/first", first.new UpmanRESTJAXRSApp(), buses));
-			contexts.addHandler(context("/second", second.new UpmanRESTJAXRSApp(), buses));
-			contexts.addHandler(context("/admin", admin.new RESTAdminJAXRSApp(), buses));
+			Map<String, Application> applications = Map.of("first", first.new UpmanRESTJAXRSApp(),
+					"second", second.new UpmanRESTJAXRSApp(), "admin", admin.new RESTAdminJAXRSApp());
+			scenario.applications().forEach(name -> contexts.addHandler(context("/" + name, applications.get(name), buses)));
 			server.setHandler(contexts);
 			server.start();
 			int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
 			try (HttpClient client = HttpClient.newHttpClient())
 			{
-				JsonNode expectedAdmin = readOpenApi(client, port, "admin");
+				JsonNode expectedAdmin = Json.mapper().readTree(Json.pretty(AdminOpenApi.export()));
 				assertThat(expectedAdmin.path("paths").has("/v1/entity/{entityId}")).isTrue();
 				assertThat(expectedAdmin.path("paths").has("/v1/policy-documents")).isTrue();
 				assertThat(expectedAdmin.path("paths").has("/v1/projects")).isFalse();
 				assertThat(expectedAdmin.at("/components/schemas").has("Project")).isFalse();
-				assertThat(expectedAdmin.at("/paths/~1v1~1entity~1{entityId}/get/responses")
-						.findValuesAsText("type")).contains("string");
+				assertThat(expectedAdmin.path("paths").path("/v1/entity/{entityId}")
+						.at("/get/responses/200/content/application~1json/schema/$ref")
+						.asText()).isEqualTo("#/components/schemas/RestEntity");
+				assertThat(expectedAdmin.at("/components/schemas/RestGroup/properties").has("logoUrl")).isFalse();
 				JsonNode expectedUpman = Json.mapper().readTree(Json.pretty(UpmanOpenApi.export()));
 				for (String name : List.of("first", "admin", "second", "admin", "first"))
 				{
@@ -145,7 +149,8 @@ class UpmanOpenApiIsolationTest
 			var contexts = new ContextHandlerCollection();
 			contexts.addHandler(configuredContext("/upman", new UpmanEndpoint(), scenario.setting()));
 			contexts.addHandler(configuredContext("/admin", new AdminEndpoint(adminEndpoint()), scenario.setting()));
-			String opposite = Boolean.toString(!scenario.enabled());
+			OpenApiPublication opposite = scenario.publication() == OpenApiPublication.specificationAndUI
+					? OpenApiPublication.disabled : OpenApiPublication.specificationAndUI;
 			contexts.addHandler(configuredContext("/other-upman", new UpmanEndpoint(), opposite));
 			contexts.addHandler(configuredContext("/other-admin", new AdminEndpoint(adminEndpoint()), opposite));
 			server.setHandler(contexts);
@@ -158,10 +163,10 @@ class UpmanOpenApiIsolationTest
 			int port = ((ServerConnector) server.getConnectors()[0]).getLocalPort();
 			try (HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).build())
 			{
-				assertPublication(client, port, "upman", scenario.enabled());
-				assertPublication(client, port, "admin", scenario.enabled());
-				assertPublication(client, port, "other-upman", !scenario.enabled());
-				assertPublication(client, port, "other-admin", !scenario.enabled());
+				assertPublication(client, port, "upman", scenario.publication());
+				assertPublication(client, port, "admin", scenario.publication());
+				assertPublication(client, port, "other-upman", opposite);
+				assertPublication(client, port, "other-admin", opposite);
 				for (String application : List.of("upman", "other-upman", "admin", "other-admin"))
 				{
 					String route = application.contains("upman") ? "/v1/projects" : "/v1/policy-documents";
@@ -169,14 +174,17 @@ class UpmanOpenApiIsolationTest
 					assertThat(response.statusCode()).as(application + " API: " + response.body()).isEqualTo(200);
 					assertThat(Json.mapper().readTree(response.body()).isArray()).isTrue();
 				}
-				if (!scenario.enabled())
+				if (scenario.publication() == OpenApiPublication.disabled)
 				{
 					OpenApiExporter.main(output.toString());
 					assertThat(Files.readString(output.resolve("upman-openapi-v1.yaml")))
 							.contains("/v1/projects:", "Unity Project Management API");
 					assertThat(Files.readString(output.resolve("upman-openapi-v1.html"))).contains("Redoc.init");
-					assertPublication(client, port, "upman", false);
-					assertPublication(client, port, "admin", false);
+					assertThat(Files.readString(output.resolve("admin-openapi-v1.yaml")))
+							.contains("/v1/policy-documents:", "Unity Administration API");
+					assertThat(Files.readString(output.resolve("admin-openapi-v1.html"))).contains("Redoc.init");
+					assertPublication(client, port, "upman", OpenApiPublication.disabled);
+					assertPublication(client, port, "admin", OpenApiPublication.disabled);
 				}
 			}
 		} finally
@@ -201,12 +209,12 @@ class UpmanOpenApiIsolationTest
 		{
 			Properties raw = new Properties();
 			raw.load(new StringReader(serialized));
-			assertThat(new RESTEndpointProperties(raw).getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API))
-					.isEqualTo(scenario.enabled());
+			assertThat(new RESTEndpointProperties(raw).getOpenApiPublication())
+					.isEqualTo(scenario.publication());
 		}
 	}
 
-	private ServletContextHandler configuredContext(String path, RESTEndpoint endpoint, String setting)
+	private ServletContextHandler configuredContext(String path, RESTEndpoint endpoint, OpenApiPublication setting)
 	{
 		var description = new ResolvedEndpoint(new Endpoint(path, "test", path, null, 0), null, null);
 		endpoint.initialize(description, List.of(), "unity.upman.rest.rootGroup=/projects\n"
@@ -214,21 +222,21 @@ class UpmanOpenApiIsolationTest
 		return endpoint.getServletContextHandler();
 	}
 
-	private static String publicationProperty(String setting)
+	private static String publicationProperty(OpenApiPublication setting)
 	{
-		return setting == null ? "" : RESTEndpointProperties.PREFIX + RESTEndpointProperties.ENABLE_OPEN_API
-				+ "=" + setting + "\n";
+		return setting == null ? "" : RESTEndpointProperties.PREFIX + RESTEndpointProperties.OPEN_API_PUBLICATION
+				+ "=" + setting.name() + "\n";
 	}
 
-	private void assertPublication(HttpClient client, int port, String application, boolean enabled) throws Exception
+	private void assertPublication(HttpClient client, int port, String application, OpenApiPublication publication)
+			throws Exception
 	{
-		for (String resource : List.of("openapi.json", "openapi.yaml", "api-docs", "api-docs/",
-				"api-docs/index.html", "api-docs/scalar.js"))
-		{
-			var response = get(client, port, application + "/" + resource);
-			assertThat(response.statusCode()).as(application + "/" + resource)
-					.isEqualTo(enabled ? 200 : 404);
-		}
+		for (String resource : List.of("openapi.json", "openapi.yaml"))
+			assertThat(get(client, port, application + "/" + resource).statusCode()).as(application + "/" + resource)
+					.isEqualTo(publication == OpenApiPublication.disabled ? 404 : 200);
+		for (String resource : List.of("api-docs", "api-docs/", "api-docs/index.html", "api-docs/scalar.js"))
+			assertThat(get(client, port, application + "/" + resource).statusCode()).as(application + "/" + resource)
+					.isEqualTo(publication == OpenApiPublication.specificationAndUI ? 200 : 404);
 		for (String obsolete : List.of("api-docs/swagger-ui.css", "swagger-ui.css", "swagger-ui-bundle.js"))
 			assertThat(get(client, port, application + "/" + obsolete).statusCode()).as(obsolete).isEqualTo(404);
 	}
@@ -239,47 +247,77 @@ class UpmanOpenApiIsolationTest
 				HttpResponse.BodyHandlers.ofString());
 	}
 
-	private static Stream<PublicationCase> publicationSettings()
+	private static Stream<ApplicationOrder> applicationOrders()
 	{
 		return Stream.of(
-				PublicationCase.builder().enabled(true).build(),
-				PublicationCase.builder().setting("true").enabled(true).build(),
-				PublicationCase.builder().setting("false").enabled(false).build());
+				ApplicationOrder.builder().applications(List.of("first", "second", "admin")).build(),
+				ApplicationOrder.builder().applications(List.of("admin", "first", "second")).build());
 	}
 
-	private record PublicationCase(String setting, boolean enabled)
+	private record ApplicationOrder(List<String> applications)
 	{
 		static Builder builder()
 		{
 			return new Builder();
 		}
 
+		private static class Builder
+		{
+			private List<String> applications;
+
+			Builder applications(List<String> applications)
+			{
+				this.applications = applications;
+				return this;
+			}
+
+			ApplicationOrder build()
+			{
+				return new ApplicationOrder(applications);
+			}
+		}
+	}
+
+	private static Stream<PublicationCase> publicationSettings()
+	{
+		return Stream.of(
+				PublicationCase.builder().build(),
+				PublicationCase.builder().setting(OpenApiPublication.disabled).build(),
+				PublicationCase.builder().setting(OpenApiPublication.specification).build(),
+				PublicationCase.builder().setting(OpenApiPublication.specificationAndUI).build());
+	}
+
+	private record PublicationCase(OpenApiPublication setting)
+	{
+		static Builder builder()
+		{
+			return new Builder();
+		}
+
+		OpenApiPublication publication()
+		{
+			return setting == null ? OpenApiPublication.disabled : setting;
+		}
+
 		@Override
 		public String toString()
 		{
-			return setting == null ? "omitted" : setting;
+			return setting == null ? "omitted" : setting.name();
 		}
 
 		private static class Builder
 		{
-			private String setting;
-			private boolean enabled;
+			private OpenApiPublication setting;
 
-			Builder setting(String setting)
+			Builder setting(OpenApiPublication setting)
 			{
 				this.setting = setting;
 				return this;
 			}
 
-			Builder enabled(boolean enabled)
-			{
-				this.enabled = enabled;
-				return this;
-			}
-
 			PublicationCase build()
 			{
-				return new PublicationCase(setting, enabled);
+				return new PublicationCase(setting);
 			}
 		}
 	}
@@ -374,7 +412,7 @@ class UpmanOpenApiIsolationTest
 		var context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 		context.setContextPath(path);
 		context.addServlet(new ServletHolder(servlet), "/*");
-		RestEndpointHelper.createCxfEndpoint(application, bus);
+		RestEndpointHelper.createCxfEndpoint(application, bus, OpenApiPublication.specification);
 		return context;
 	}
 }

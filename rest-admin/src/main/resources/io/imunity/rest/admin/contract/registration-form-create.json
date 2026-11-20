@@ -1,0 +1,163 @@
+{
+  "Agreements": [
+    {
+      "i18nText": {
+        "DefaultValue": "a",
+        "Map": {}
+      },
+      "manatory": false
+    }
+  ],
+  "AttributeParams": [],
+  "CollectComments": true,
+  "CredentialParams": [],
+  "Description": "Contract ☃",
+  "i18nFormInformation": {
+    "DefaultValue": "formInfo",
+    "Map": {}
+  },
+  "GroupParams": [
+    {
+      "label": null,
+      "description": null,
+      "retrievalSettings": "automatic",
+      "groupPath": "/contract",
+      "multiSelect": false,
+      "includeGroupsMode": "all"
+    }
+  ],
+  "IdentityParams": [],
+  "Name": "contract-form",
+  "DisplayedName": {
+    "DefaultValue": "displayedName",
+    "Map": {}
+  },
+  "TranslationProfile": {
+    "ver": "2",
+    "name": "form",
+    "description": "",
+    "type": "REGISTRATION",
+    "mode": "DEFAULT",
+    "rules": []
+  },
+  "FormLayoutSettings": {
+    "compactInputs": true,
+    "showCancel": true,
+    "columnWidth": 50.0,
+    "columnWidthUnit": "em",
+    "logoURL": "logoUrl"
+  },
+  "PageTitle": {
+    "DefaultValue": "pageTitle",
+    "Map": {}
+  },
+  "WrapUpConfig": [],
+  "ByInvitationOnly": false,
+  "PolicyAgreements": [],
+  "CheckIdentityOnSubmit": true,
+  "DefaultCredentialRequirement": "cr-pass",
+  "NotificationsConfiguration": {
+    "rejectedTemplate": null,
+    "acceptedTemplate": null,
+    "updatedTemplate": null,
+    "invitationTemplate": null,
+    "invitationProcessedTemplate": null,
+    "adminsNotificationGroup": null,
+    "sendUserNotificationCopyToAdmin": false,
+    "submittedTemplate": null
+  },
+  "PubliclyAvailable": true,
+  "RegistrationCode": "123",
+  "CaptchaLength": 0,
+  "ExternalSignupSpec": {
+    "specs": []
+  },
+  "ExternalSignupGridSpec": {
+    "specs": [],
+    "gridSettings": {
+      "searchable": true,
+      "height": 10
+    }
+  },
+  "RegistrationFormLayouts": {
+    "primaryLayout": {
+      "elements": [
+        {
+          "clazz": "pl.edu.icm.unity.types.registration.layout.BasicFormElement",
+          "type": "REG_CODE",
+          "formContentsRelated": true
+        },
+        {
+          "clazz": "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+          "type": "CAPTION",
+          "formContentsRelated": false,
+          "value": {
+            "DefaultValue": "value",
+            "Map": {}
+          }
+        },
+        {
+          "clazz": "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+          "type": "GROUP",
+          "formContentsRelated": true,
+          "index": 0
+        },
+        {
+          "clazz": "pl.edu.icm.unity.types.registration.layout.FormSeparatorElement",
+          "type": "SEPARATOR",
+          "formContentsRelated": false
+        },
+        {
+          "clazz": "pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement",
+          "type": "LOCAL_SIGNUP",
+          "formContentsRelated": true
+        }
+      ]
+    },
+    "secondaryLayout": {
+      "elements": [
+        {
+          "clazz": "pl.edu.icm.unity.types.registration.layout.BasicFormElement",
+          "type": "ATTRIBUTE",
+          "formContentsRelated": true
+        },
+        {
+          "clazz": "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+          "type": "CAPTION",
+          "formContentsRelated": false,
+          "value": {
+            "DefaultValue": "value2",
+            "Map": {}
+          }
+        },
+        {
+          "clazz": "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+          "type": "GROUP",
+          "formContentsRelated": true,
+          "index": 0
+        },
+        {
+          "clazz": "pl.edu.icm.unity.types.registration.layout.FormSeparatorElement",
+          "type": "SEPARATOR",
+          "formContentsRelated": false
+        },
+        {
+          "clazz": "pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement",
+          "type": "LOCAL_SIGNUP",
+          "formContentsRelated": true
+        }
+      ]
+    },
+    "localSignupEmbeddedAsButton": true
+  },
+  "Title2ndStage": {
+    "DefaultValue": "secStage",
+    "Map": {}
+  },
+  "ShowSignInLink": false,
+  "SignInLink": null,
+  "AutoLoginToRealm": null,
+  "SwitchToEnquiryInfo": null,
+  "FormInformation": null,
+  "FormInformation2ndStage": null
+}

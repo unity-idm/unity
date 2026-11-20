@@ -14,6 +14,7 @@ import java.util.Properties;
 import pl.edu.icm.unity.base.exceptions.InternalException;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
+import pl.edu.icm.unity.rest.RESTEndpointProperties.OpenApiPublication;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
 
 /**
@@ -24,7 +25,7 @@ import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
  */
 public class JWTServiceConfiguration
 {
-	private boolean enableOpenApi = true;
+	private OpenApiPublication openApiPublication = OpenApiPublication.disabled;
 	private List<String> allowedCORSheaders;
 	private List<String> allowedCORSorigins;
 	private String credential;
@@ -35,6 +36,16 @@ public class JWTServiceConfiguration
 		allowedCORSheaders = new ArrayList<>();
 		allowedCORSorigins = new ArrayList<>();
 		setTtl(JWTAuthenticationProperties.DEFAULT_TOKEN_TTL);
+	}
+
+	OpenApiPublication getOpenApiPublication()
+	{
+		return openApiPublication;
+	}
+
+	void setOpenApiPublication(OpenApiPublication openApiPublication)
+	{
+		this.openApiPublication = openApiPublication;
 	}
 
 	public List<String> getAllowedCORSheaders()
@@ -80,8 +91,8 @@ public class JWTServiceConfiguration
 	public String toProperties()
 	{
 		Properties raw = new Properties();
-		raw.setProperty(RESTEndpointProperties.PREFIX + RESTEndpointProperties.ENABLE_OPEN_API,
-				Boolean.toString(enableOpenApi));
+		raw.setProperty(RESTEndpointProperties.PREFIX + RESTEndpointProperties.OPEN_API_PUBLICATION,
+				openApiPublication.name());
 
 		getAllowedCORSheaders().forEach(a -> {
 
@@ -116,7 +127,7 @@ public class JWTServiceConfiguration
 		}
 
 		RESTEndpointProperties restAdminProp = new RESTEndpointProperties(raw);
-		enableOpenApi = restAdminProp.getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API);
+		openApiPublication = restAdminProp.getOpenApiPublication();
 		allowedCORSheaders = restAdminProp.getListOfValues(RESTEndpointProperties.ENABLED_CORS_HEADERS);
 		allowedCORSorigins = restAdminProp.getListOfValues(RESTEndpointProperties.ENABLED_CORS_ORIGINS);
 

@@ -4,6 +4,26 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,19 +39,6 @@ import java.util.UUID;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
-import jakarta.ws.rs.WebApplicationException;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
-import jakarta.ws.rs.core.StreamingOutput;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.json.dump.DBDumpContentElements;
 import pl.edu.icm.unity.base.utils.Log;
@@ -62,6 +69,11 @@ public class BackupRestoreRESTAdmin implements RESTAdminHandler
 
 	@GET
 	@Path("/db-dump")
+	@Operation(operationId = "export")
+	@ApiResponse(responseCode = "200", description = "Versioned Unity database dump as a JSON attachment",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(type = "object",
+							additionalProperties = Schema.AdditionalPropertiesValue.TRUE)))
 	public Response export(
 			@QueryParam("systemConfig") @DefaultValue("true") boolean systemConfig,
 			@QueryParam("directorySchema") @DefaultValue("true") boolean directorySchema,
@@ -110,7 +122,16 @@ public class BackupRestoreRESTAdmin implements RESTAdminHandler
 	@POST
 	@Path("/db-dump")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response importBackup(InputStream inputStream,
+	@Operation(operationId = "importBackup")
+	@ApiResponse(responseCode = "200",
+			description = "Import completed; the endpoint may restart before a response arrives")
+	public Response importBackup(
+			@RequestBody(required = true,
+					description = "A versioned Unity database dump produced by the export operation",
+					content = @Content(mediaType = MediaType.APPLICATION_JSON,
+							schema = @Schema(type = "object",
+									additionalProperties = Schema.AdditionalPropertiesValue.TRUE)))
+			InputStream inputStream,
 			@HeaderParam("Content-Length") long contentLength) throws EngineException
 	{
 		long sizeLimit = getFileSizeLimit();

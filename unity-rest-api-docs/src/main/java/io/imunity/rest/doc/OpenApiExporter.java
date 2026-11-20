@@ -2,6 +2,7 @@ package io.imunity.rest.doc;
 
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import io.imunity.rest.admin.AdminOpenApi;
 import io.imunity.upman.rest.UpmanOpenApi;
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.core.util.Yaml;
@@ -28,6 +29,7 @@ public final class OpenApiExporter
 	{
 		Files.createDirectories(output);
 		copyRenderer(output);
+		generate(AdminOpenApi.export(), "admin-openapi-v1", output);
 		generate(UpmanOpenApi.export(), "upman-openapi-v1", output);
 	}
 

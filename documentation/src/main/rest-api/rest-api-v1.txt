@@ -26,6 +26,11 @@ entity's persistentId can be used. Finally any other identity can be used to sel
 a query parameter +identityType+ must be used to provide the intended identity type.
 
 
+The generated link:admin-openapi-v1.html[Administration API reference] provides the current operation,
+request and response schemas, examples and error contracts. Download the
+link:admin-openapi-v1.yaml[OpenAPI specification] for client tooling. Authentication uses the deployed
+endpoint's authenticators, and operations require the caller's administrative permissions.
+
 == API reference
 
 

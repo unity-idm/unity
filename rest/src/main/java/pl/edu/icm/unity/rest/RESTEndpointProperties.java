@@ -33,14 +33,19 @@ public class RESTEndpointProperties extends UnityPropertiesHelper
 	
 	public static final String ENABLED_CORS_ORIGINS = "allowedCorsOrigins.";
 	public static final String ENABLED_CORS_HEADERS = "allowedCorsHeaders.";
-	public static final String ENABLE_OPEN_API = "enableOpenApi";
+	public static final String OPEN_API_PUBLICATION = "openApiPublication";
+
+	public enum OpenApiPublication
+	{
+		disabled, specification, specificationAndUI
+	}
 	
 	static
 	{
-		META.put(ENABLE_OPEN_API, new PropertyMD("true").setDescription(
-				"Publish runtime OpenAPI JSON/YAML documents and API reference resources for this endpoint. "
-				+ "Disabling publication leaves API operations and build-time documentation generation enabled. "
-				+ "This shared setting applies independently to each REST endpoint, including Admin and UpMan."));
+		META.put(OPEN_API_PUBLICATION, new PropertyMD(OpenApiPublication.disabled).setDescription(
+				"Publish documentation for this endpoint without authentication. The specification option serves "
+				+ "OpenAPI JSON and YAML. The specificationAndUI option also serves the interactive Scalar UI. "
+				+ "API requests still require the endpoint's configured authentication."));
 		META.put(ENABLED_CORS_ORIGINS, new PropertyMD().setList(false).setDescription(
 				"List of origins allowed for the CORS requests. "
 				+ "The complete set of HTTP methods is enabled for the enumerated resources. "
@@ -53,5 +58,10 @@ public class RESTEndpointProperties extends UnityPropertiesHelper
 			throws ConfigurationException
 	{
 		super(PREFIX, properties, META, log);
+	}
+
+	public OpenApiPublication getOpenApiPublication()
+	{
+		return getEnumValue(OPEN_API_PUBLICATION, OpenApiPublication.class);
 	}
 }

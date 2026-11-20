@@ -4,13 +4,40 @@
  */
 package pl.edu.icm.unity.restadm;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import io.imunity.rest.admin.AdminJsonProvider;
+import io.imunity.rest.api.types.basic.RestEntityGroupAttributes;
+import io.imunity.rest.api.types.basic.RestGroupMember;
+import io.imunity.rest.api.types.basic.RestMultiGroupMembers;
+import io.imunity.rest.mappers.AttributeExtMapper;
+import io.imunity.rest.mappers.EntityMapper;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,22 +45,6 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.imunity.rest.api.types.basic.RestEntityGroupAttributes;
-import io.imunity.rest.api.types.basic.RestGroupMember;
-import io.imunity.rest.api.types.basic.RestMultiGroupMembers;
-import io.imunity.rest.mappers.AttributeExtMapper;
-import io.imunity.rest.mappers.EntityMapper;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 import pl.edu.icm.unity.base.Constants;
 import pl.edu.icm.unity.base.attribute.AttributeExt;
 import pl.edu.icm.unity.base.entity.Entity;
@@ -53,7 +64,6 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 public class BulkQueryHandler implements RESTAdminHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTAdmin.class);
-	private final ObjectMapper mapper = Constants.MAPPER;
 	private final BulkGroupQueryService bulkQueryService;
 
 	@Autowired
@@ -64,7 +74,9 @@ public class BulkQueryHandler implements RESTAdminHandler
 
 	@Path("/group-members/{groupPath}")
 	@GET
-	public String getGroupMembersResolved(@PathParam("groupPath") String group) 
+	@Operation(operationId = "getGroupMembersResolved")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
+	public List<RestGroupMember> getGroupMembersResolved(@PathParam("groupPath") String group)
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("getGroupMembersResolved query for " + group);
@@ -81,7 +93,7 @@ public class BulkQueryHandler implements RESTAdminHandler
 			Entity entity = entitiesData.get(memberId);
 			ret.add(createGroupMember(group, entity, attributes));
 		}
-		return mapper.writeValueAsString(ret);
+		return ret;
 	}
 
 	private RestGroupMember createGroupMember(String group, Entity entity, Collection<AttributeExt> attributes)
@@ -104,7 +116,12 @@ public class BulkQueryHandler implements RESTAdminHandler
 	@Path("/group-members-multi/{rootGroupPath}")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String getMultiGroupMembersResolved(@PathParam("rootGroupPath") String rootGroup, String groupsFilter) 
+	@Operation(operationId = "getMultiGroupMembersResolved")
+	@ApiResponse(responseCode = "200", description = "Success", useReturnTypeSchema = true)
+	public RestMultiGroupMembers getMultiGroupMembersResolved(@PathParam("rootGroupPath") String rootGroup,
+			@RequestBody(required = true, content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					array = @ArraySchema(schema = @Schema(type = "string")))) InputStream groupsFilter,
+			@Context HttpHeaders headers)
 			throws EngineException, JsonProcessingException
 	{
 		log.debug("getGroupMembersResolved query for contents under " + rootGroup);
@@ -113,7 +130,7 @@ public class BulkQueryHandler implements RESTAdminHandler
 		Set<String> requestedGroups;
 		try
 		{
-			requestedGroups = Constants.MAPPER.readValue(groupsFilter, 
+			requestedGroups = Constants.MAPPER.readValue(AdminJsonProvider.readText(groupsFilter, headers.getMediaType()),
 					new TypeReference<Set<String>>() {});
 		} catch (IOException e)
 		{
@@ -132,7 +149,7 @@ public class BulkQueryHandler implements RESTAdminHandler
 			attributesByGroup.put(groupData.getKey(), perGroupAttributes);
 		}
 		
-		return mapper.writeValueAsString(createMultiGroupMembers(members.entities.values(), attributesByGroup));
+		return createMultiGroupMembers(members.entities.values(), attributesByGroup);
 	}
 	
 	private RestMultiGroupMembers createMultiGroupMembers(Collection<Entity> entities,

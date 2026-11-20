@@ -121,7 +121,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	private void deployResources(Bus bus)
 	{		
 		Endpoint cxfEndpoint = RestEndpointHelper.createCxfEndpoint(getApplication(), bus,
-				genericEndpointProperties.getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API));
+				genericEndpointProperties.getOpenApiPublication());
 		addInterceptors(cxfEndpoint.getInInterceptors(), cxfEndpoint.getOutInterceptors());
 	}
 	
