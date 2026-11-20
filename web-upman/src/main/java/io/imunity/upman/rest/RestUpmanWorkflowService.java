@@ -108,7 +108,7 @@ class RestUpmanWorkflowService
 	}
 
 	@Transactional
-	List<RestInvitationOutcome> sendInvitations(String projectId, RestInvitationRequest input) throws EngineException
+	List<InvitationOutcome> sendInvitations(String projectId, InvitationRequest input) throws EngineException
 	{
 		String project = project(projectId);
 		if (input == null || input.emails() == null || input.emails().isEmpty()
@@ -129,7 +129,7 @@ class RestUpmanWorkflowService
 		List<String> emails = input.emails().stream().distinct().toList();
 		if (emails.stream().anyMatch(email -> email == null || !EMAIL.matcher(email).matches()))
 			throw new BadRequestException("Invalid email address");
-		List<RestInvitationOutcome> outcomes = new ArrayList<>();
+		List<InvitationOutcome> outcomes = new ArrayList<>();
 		for (String email : emails)
 		{
 			try
@@ -137,32 +137,32 @@ class RestUpmanWorkflowService
 				var param = new ProjectInvitationParam(project, email, selectedGroups,
 						input.allowModifyGroups(), input.expiration());
 				var result = invitations.addInvitations(Set.of(param));
-				outcomes.add(new RestInvitationOutcome(email,
+				outcomes.add(new InvitationOutcome(email,
 						result.projectAlreadyMemberEmails.contains(email) ? "alreadyMember" : "sent", null));
 			} catch (EngineException | RuntimeException e)
 			{
-				outcomes.add(new RestInvitationOutcome(email, "failed", e.getMessage()));
+				outcomes.add(new InvitationOutcome(email, "failed", e.getMessage()));
 			}
 		}
 		return outcomes;
 	}
 
-	List<RestInvitation> invitations(String projectId) throws EngineException
+	List<Invitation> invitations(String projectId) throws EngineException
 	{
 		String project = project(projectId);
 		return invitations.getInvitations(project).stream()
 				.map(i -> invitation(project, i)).toList();
 	}
 
-	RestInvitation invitation(String projectId, String code) throws EngineException
+	Invitation invitation(String projectId, String code) throws EngineException
 	{
 		return invitations(projectId).stream().filter(i -> i.code().equals(code)).findFirst()
 				.orElseThrow(() -> new NotFoundException("Invitation not found"));
 	}
 
-	private RestInvitation invitation(String project, ProjectInvitation invitation)
+	private Invitation invitation(String project, ProjectInvitation invitation)
 	{
-		return new RestInvitation(invitation.registrationCode, invitation.contactAddress,
+		return new Invitation(invitation.registrationCode, invitation.contactAddress,
 				invitation.groups.stream().map(path -> relative(project, path)).toList(),
 				invitation.allowModifyGroups, invitation.expiration, invitation.lastSentTime,
 				invitation.numberOfSends, invitation.link);
@@ -195,30 +195,30 @@ class RestUpmanWorkflowService
 		invitations.reinvite(project, code);
 	}
 
-	List<RestGroup> groups(String projectId) throws EngineException
+	List<ProjectGroup> groups(String projectId) throws EngineException
 	{
 		String project = project(projectId);
 		Map<String, DelegatedGroupContents> contents = groups.getGroupAndSubgroups(project, project);
-		return contents.values().stream().map(c -> map(project, c)).sorted(Comparator.comparing(RestGroup::path)).toList();
+		return contents.values().stream().map(c -> map(project, c)).sorted(Comparator.comparing(ProjectGroup::path)).toList();
 	}
 
-	RestGroup group(String projectId, String relativePath) throws EngineException
+	ProjectGroup group(String projectId, String relativePath) throws EngineException
 	{
 		String project = project(projectId);
 		String path = resolveGroup(project, relativePath);
 		return map(project, groups.getContents(project, path));
 	}
 
-	private RestGroup map(String project, DelegatedGroupContents content)
+	private ProjectGroup map(String project, DelegatedGroupContents content)
 	{
 		var group = content.group;
 		var delegation = group.delegationConfiguration;
-		return new RestGroup(relative(project, group.path), group.displayedName.getMap(), group.open,
+		return new ProjectGroup(relative(project, group.path), group.displayedName.getMap(), group.open,
 				delegation.enabled, delegation.enableSubprojects, delegation.logoUrl,
 				content.subGroups.stream().map(path -> relative(project, path)).toList());
 	}
 
-	RestGroupPath addGroup(String projectId, RestGroupCreateRequest input) throws EngineException
+	GroupPath addGroup(String projectId, GroupCreateRequest input) throws EngineException
 	{
 		String project = project(projectId);
 		if (input == null)
@@ -232,7 +232,7 @@ class RestUpmanWorkflowService
 		{
 			throw new WebApplicationException(e.getMessage(), Response.Status.CONFLICT);
 		}
-		return new RestGroupPath(relative(project, path));
+		return new GroupPath(relative(project, path));
 	}
 
 	@Transactional
@@ -255,7 +255,7 @@ class RestUpmanWorkflowService
 	}
 
 	@Transactional
-	void updateGroup(String projectId, RestGroupUpdateRequest input) throws EngineException
+	void updateGroup(String projectId, GroupUpdateRequest input) throws EngineException
 	{
 		String project = project(projectId);
 		if (input == null || input.path() == null || input.path().isBlank() || input.isPublic() == null)
@@ -269,7 +269,7 @@ class RestUpmanWorkflowService
 	}
 
 	@Transactional
-	void setDelegation(String projectId, String relativePath, RestGroupDelegationRequest input) throws EngineException
+	void setDelegation(String projectId, String relativePath, GroupDelegationRequest input) throws EngineException
 	{
 		if (input == null)
 			throw new BadRequestException("Delegation configuration is required");
@@ -281,21 +281,21 @@ class RestUpmanWorkflowService
 				new SubprojectGroupDelegationConfiguration(input.enabled(), input.enableSubprojects(), input.logoUrl()));
 	}
 
-	List<RestGroupMember> members(String projectId, String relativePath) throws EngineException
+	List<GroupMember> members(String projectId, String relativePath) throws EngineException
 	{
 		String project = project(projectId);
 		String path = resolveGroup(project, relativePath);
 		return groups.getDelegatedGroupMembers(project, path).stream().map(this::member).toList();
 	}
 
-	private RestGroupMember member(DelegatedGroupMember member)
+	private GroupMember member(DelegatedGroupMember member)
 	{
-		return new RestGroupMember(member.entityId, member.name,
+		return new GroupMember(member.entityId, member.name,
 				member.email == null ? null : member.email.getValue(), member.role.name(),
-				member.attributes.stream().map(a -> new RestAttribute(a.getName(), List.copyOf(a.getValues()))).toList());
+				member.attributes.stream().map(a -> new MemberAttribute(a.getName(), List.copyOf(a.getValues()))).toList());
 	}
 
-	RestGroupMember member(String projectId, String relativePath, long entityId) throws EngineException
+	GroupMember member(String projectId, String relativePath, long entityId) throws EngineException
 	{
 		return members(projectId, relativePath).stream().filter(m -> m.entityId() == entityId).findFirst()
 				.orElseThrow(() -> new NotFoundException("Member not found"));
@@ -316,21 +316,21 @@ class RestUpmanWorkflowService
 		groups.removeMemberFromGroup(project, path, entityId);
 	}
 
-	RestAuthorizationRole role(String projectId, String relativePath, long entityId) throws EngineException
+	AuthorizationRole role(String projectId, String relativePath, long entityId) throws EngineException
 	{
-		return new RestAuthorizationRole(member(projectId, relativePath, entityId).role());
+		return new AuthorizationRole(member(projectId, relativePath, entityId).role());
 	}
 
-	void setRole(String projectId, String relativePath, long entityId, RestAuthorizationRole role)
+	void setRole(String projectId, String relativePath, long entityId, AuthorizationRole role)
 			throws EngineException
 	{
 		member(projectId, relativePath, entityId);
-		if (role == null || role.role == null)
+		if (role == null || role.role() == null)
 			throw new BadRequestException("Role is required");
 		GroupAuthorizationRole value;
 		try
 		{
-			value = GroupAuthorizationRole.valueOf(role.role);
+			value = GroupAuthorizationRole.valueOf(role.role());
 		} catch (IllegalArgumentException e)
 		{
 			throw new BadRequestException("Invalid role", e);
@@ -340,22 +340,22 @@ class RestUpmanWorkflowService
 		groups.setGroupAuthorizationRole(project, path, entityId, value);
 	}
 
-	List<RestRequest> requests(String projectId) throws EngineException
+	List<Request> requests(String projectId) throws EngineException
 	{
 		String project = project(projectId);
 		return requests.getRequests(project).stream()
 				.map(r -> request(project, r)).toList();
 	}
 
-	RestRequest request(String projectId, String requestId) throws EngineException
+	Request request(String projectId, String requestId) throws EngineException
 	{
 		return requests(projectId).stream().filter(r -> r.id().equals(requestId)).findFirst()
 				.orElseThrow(() -> new NotFoundException("Pending request not found"));
 	}
 
-	private RestRequest request(String project, ProjectRequest request)
+	private Request request(String project, ProjectRequest request)
 	{
-		return new RestRequest(request.id, request.operation.name(), request.type.name(), request.name,
+		return new Request(request.id, request.operation.name(), request.type.name(), request.name,
 				request.email == null ? null : request.email.getValue(),
 				request.email == null ? null : request.email.isConfirmed(),
 				request.groups.stream().map(path -> relative(project, path)).toList(), request.requestedTime);
@@ -366,7 +366,7 @@ class RestUpmanWorkflowService
 		String project = project(projectId);
 		if (!"accept".equals(decision) && !"decline".equals(decision))
 			throw new BadRequestException("Decision must be accept or decline");
-		RestRequest request = request(projectId, requestId);
+		Request request = request(projectId, requestId);
 		ProjectRequestParam param = new ProjectRequestParam(project, requestId,
 				pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation.valueOf(request.operation()),
 				pl.edu.icm.unity.engine.api.registration.RequestType.valueOf(request.type()));
@@ -376,26 +376,26 @@ class RestUpmanWorkflowService
 			requests.decline(param);
 	}
 
-	RestFormLink registrationFormLink(String projectId) throws EngineException
+	FormLink registrationFormLink(String projectId) throws EngineException
 	{
 		return formLink(projectId, requests::getProjectRegistrationFormLink);
 	}
 
-	RestFormLink signUpEnquiryLink(String projectId) throws EngineException
+	FormLink signUpEnquiryLink(String projectId) throws EngineException
 	{
 		return formLink(projectId, requests::getProjectSignUpEnquiryFormLink);
 	}
 
-	RestFormLink membershipUpdateEnquiryLink(String projectId) throws EngineException
+	FormLink membershipUpdateEnquiryLink(String projectId) throws EngineException
 	{
 		return formLink(projectId, requests::getProjectUpdateMembershipEnquiryFormLink);
 	}
 
-	private RestFormLink formLink(String projectId, FormLinkLookup lookup) throws EngineException
+	private FormLink formLink(String projectId, FormLinkLookup lookup) throws EngineException
 	{
 		String project = project(projectId);
 		Optional<String> link = lookup.find(project);
-		return new RestFormLink(link.orElseThrow(() -> new NotFoundException("Public form link not found")));
+		return new FormLink(link.orElseThrow(() -> new NotFoundException("Public form link not found")));
 	}
 
 	@FunctionalInterface

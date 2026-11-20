@@ -1,0 +1,13 @@
+{
+  "projectId": "contract",
+  "urlId": "contract",
+  "public": false,
+  "displayedName": {"en": "Project żółć 日本語"},
+  "description": {"en": "Description ☃"},
+  "logoUrl": null,
+  "enableSubprojects": true,
+  "readOnlyAttributes": [],
+  "registrationForm": null,
+  "signUpEnquiry": null,
+  "membershipUpdateEnquiry": null
+}

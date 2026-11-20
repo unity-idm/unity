@@ -33,3 +33,9 @@ suffix is the project path relative to the configured root, such as +project-x/c
 
 The documentation of the REST API is available on a separate page
 link:upman-rest-api-v1.html[REST API]
+
+The Scalar interactive API reference is available at +api-docs+ below the endpoint path.
+Runtime OpenAPI documentation is enabled by default. Set +unity.endpoint.rest.enableOpenApi=false+ in this
+endpoint's configuration to disable its live +openapi.json+, +openapi.yaml+ and API reference UI resources.
+This shared property uses the same name for Admin and UpMan and applies independently to each endpoint
+instance. API operations remain available, and build-time YAML and HTML documentation generation is unaffected.

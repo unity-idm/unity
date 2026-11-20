@@ -5,6 +5,7 @@
 package io.imunity.upman.rest;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -12,11 +13,13 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.imunity.rest.api.types.policy.RestPolicyDocument;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentRequest;
 import io.imunity.rest.api.types.policy.RestPolicyDocumentUpdateRequest;
@@ -26,7 +29,6 @@ import io.imunity.upman.rest.RestProjectFormService.RestProjectFormServiceFactor
 import io.imunity.upman.rest.RestProjectPolicyDocumentService.RestProjectPolicyDocumentServiceFactory;
 import io.imunity.upman.rest.RestProjectService.RestProjectServiceFactory;
 import io.imunity.upman.rest.RestUpmanWorkflowService.Factory;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -37,6 +39,9 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.GenericEntity;
 import jakarta.ws.rs.core.Response;
 import pl.edu.icm.unity.base.exceptions.EngineException;
 import pl.edu.icm.unity.base.utils.Log;
@@ -48,7 +53,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 public class RESTUpmanController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, RESTUpmanController.class);
-	private final ObjectMapper mapper = new ObjectMapper().findAndRegisterModules();
+	private final UpmanJsonProvider jsonProvider = new UpmanJsonProvider();
 	private RestProjectService restProjectService;
 	private RestProjectPolicyDocumentService restProjectPolicyDocumentService;
 	private RestProjectFormService restProjectFormService;
@@ -65,48 +70,64 @@ public class RESTUpmanController
 		this.restProjectFormService = restProjectFormService;
 		this.workflows = workflows;
 		this.rootGroup = rootGroup;
-		mapper.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.NON_PRIVATE);
 	}
 
 	@Path("/projects")
 	@GET
-	public String getProjects() throws EngineException, JsonProcessingException
+	@Operation(operationId = "getProjects")
+	@ApiResponse(responseCode = "200", description = "Projects visible to the caller",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = Project.class))))
+	public List<Project> getProjects() throws EngineException
 	{
 		log.debug("getProjects query for " + rootGroup);
-		List<RestProject> projects = restProjectService.getProjects();
-		return mapper.writeValueAsString(projects);
+		return restProjectService.getProjects();
 	}
 
 	@Path("/projects/{project-id}")
 	@GET
-	public String getProject(@PathParam("project-id") String projectId) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getProject")
+	@ApiResponse(responseCode = "200", description = "Project configuration",
+			content = @Content(schema = @Schema(implementation = Project.class)))
+	public Project getProject(@PathParam("project-id") String projectId) throws EngineException
 	{
 		log.debug("getProject query for " + projectId);
-		RestProject project = restProjectService.getProject(projectId);
-		return mapper.writeValueAsString(project);
+		return restProjectService.getProject(projectId);
 	}
 
 	@Path("/projects")
 	@POST
-	public String addProject(String projectJson) throws EngineException, JsonProcessingException
+	@Operation(operationId = "addProject")
+	@ApiResponse(responseCode = "200", description = "Created project identifier",
+			content = @Content(schema = @Schema(implementation = ProjectId.class)))
+	@RequestBody(required = true, content = {
+			@Content(mediaType = "application/json", schema = @Schema(implementation = ProjectCreateRequest.class)),
+			@Content(mediaType = "text/plain", schema = @Schema(implementation = ProjectCreateRequest.class)),
+			@Content(mediaType = "application/octet-stream", schema = @Schema(implementation = ProjectCreateRequest.class))})
+	public ProjectId addProject(ProjectCreateRequest project) throws EngineException
 	{
-		log.info("addProject {}", projectJson);
-		RestProjectCreateRequest project = parse(projectJson, RestProjectCreateRequest.class);
-		RestProjectId restProjectId = restProjectService.addProject(project);
-		return mapper.writeValueAsString(restProjectId);
+		log.info("addProject {}", project);
+		return restProjectService.addProject(project);
 	}
 
 	@Path("/projects/{project-id}")
 	@PUT
-	public void updateProject(@PathParam("project-id") String projectId, String projectJson) throws EngineException
+	@Operation(operationId = "updateProject")
+	@ApiResponse(responseCode = "204", description = "Project updated")
+	@RequestBody(required = true, content = {
+			@Content(mediaType = "application/json", schema = @Schema(implementation = ProjectUpdateRequest.class)),
+			@Content(mediaType = "text/plain", schema = @Schema(implementation = ProjectUpdateRequest.class)),
+			@Content(mediaType = "application/octet-stream", schema = @Schema(implementation = ProjectUpdateRequest.class))})
+	public void updateProject(@PathParam("project-id") String projectId, ProjectUpdateRequest project)
+			throws EngineException
 	{
-		log.info("updateProject {}", projectJson);
-		RestProjectUpdateRequest project = parse(projectJson, RestProjectUpdateRequest.class);
+		log.info("updateProject {}", project);
 		restProjectService.updateProject(projectId, project);
 	}
 
 	@Path("/projects/{project-id}")
 	@DELETE
+	@Operation(operationId = "removeProject")
+	@ApiResponse(responseCode = "204", description = "Project deleted")
 	public void removeProject(@PathParam("project-id") String projectId) throws EngineException
 	{
 		log.info("removeProject {}", projectId);
@@ -115,43 +136,57 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members")
 	@GET
-	public String getProjectMembers(@PathParam("project-id") String projectId,
+	@Operation(operationId = "getProjectMembers")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(anyOf = {ProjectMembership[].class, GroupMember[].class})))
+	public List<? extends Member> getProjectMembers(@PathParam("project-id") String projectId,
 			@QueryParam("groupPath") String groupPath)
-			throws EngineException, JsonProcessingException
+			throws EngineException
 	{
 		log.debug("getProjectMember {}", projectId);
-		return mapper.writeValueAsString(groupPath == null ? restProjectService.getProjectMembers(projectId)
-				: workflows.members(projectId, groupPath));
+		return groupPath == null ? restProjectService.getProjectMembers(projectId)
+				: workflows.members(projectId, groupPath);
 	}
 
 	@Path("/projects/{project-id}/invitations")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response sendInvitations(@PathParam("project-id") String projectId, String json)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "sendInvitations")
+	@ApiResponse(responseCode = "201", description = "Success",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = InvitationOutcome.class))))
+	public Response sendInvitations(@PathParam("project-id") String projectId, InvitationRequest input)
+			throws EngineException
 	{
-		return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(
-				workflows.sendInvitations(projectId, parse(json, RestInvitationRequest.class)))).build();
+		return Response.status(Response.Status.CREATED).entity(
+				new GenericEntity<List<InvitationOutcome>>(workflows.sendInvitations(projectId, input)) {}).build();
 	}
 
 	@Path("/projects/{project-id}/invitations")
 	@GET
-	public String getInvitations(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getInvitations")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = Invitation.class))))
+	public List<Invitation> getInvitations(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.invitations(projectId));
+		return workflows.invitations(projectId);
 	}
 
 	@Path("/projects/{project-id}/invitations/{code}")
 	@GET
-	public String getInvitation(@PathParam("project-id") String projectId, @PathParam("code") String code)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getInvitation")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = Invitation.class)))
+	public Invitation getInvitation(@PathParam("project-id") String projectId, @PathParam("code") String code)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.invitation(projectId, code));
+		return workflows.invitation(projectId, code);
 	}
 
 	@Path("/projects/{project-id}/invitations/{code}")
 	@DELETE
+	@Operation(operationId = "removeInvitation")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeInvitation(@PathParam("project-id") String projectId, @PathParam("code") String code)
 			throws EngineException
 	{
@@ -160,6 +195,8 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/invitations/{code}/resend")
 	@POST
+	@Operation(operationId = "resendInvitation")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void resendInvitation(@PathParam("project-id") String projectId, @PathParam("code") String code)
 			throws EngineException
 	{
@@ -168,6 +205,8 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/invitations/{code}/reinvite")
 	@POST
+	@Operation(operationId = "reinvite")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void reinvite(@PathParam("project-id") String projectId, @PathParam("code") String code)
 			throws EngineException
 	{
@@ -176,31 +215,41 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/groups")
 	@GET
-	public String getGroups(@PathParam("project-id") String projectId) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getGroups")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProjectGroup.class))))
+	public List<ProjectGroup> getGroups(@PathParam("project-id") String projectId) throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.groups(projectId));
+		return workflows.groups(projectId);
 	}
 
 	@Path("/projects/{project-id}/groups")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response addGroup(@PathParam("project-id") String projectId, String json)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "addGroup")
+	@ApiResponse(responseCode = "201", description = "Success",
+			content = @Content(schema = @Schema(implementation = GroupPath.class)))
+	public Response addGroup(@PathParam("project-id") String projectId, GroupCreateRequest input)
+			throws EngineException
 	{
-		return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(
-				workflows.addGroup(projectId, parse(json, RestGroupCreateRequest.class)))).build();
+		return Response.status(Response.Status.CREATED).entity(workflows.addGroup(projectId, input)).build();
 	}
 
 	@Path("/projects/{project-id}/groups/by-path")
 	@GET
-	public String getGroup(@PathParam("project-id") String projectId, @QueryParam("path") String path)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getGroup")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = ProjectGroup.class)))
+	public ProjectGroup getGroup(@PathParam("project-id") String projectId, @QueryParam("path") String path)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.group(projectId, path));
+		return workflows.group(projectId, path);
 	}
 
 	@Path("/projects/{project-id}/groups/by-path")
 	@DELETE
+	@Operation(operationId = "removeGroup")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeGroup(@PathParam("project-id") String projectId, @QueryParam("path") String path)
 			throws EngineException
 	{
@@ -210,23 +259,29 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/groups")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateGroup(@PathParam("project-id") String projectId, String json)
+	@Operation(operationId = "updateGroup")
+	@ApiResponse(responseCode = "204", description = "Success")
+	public void updateGroup(@PathParam("project-id") String projectId, GroupUpdateRequest input)
 			throws EngineException
 	{
-		workflows.updateGroup(projectId, parse(json, RestGroupUpdateRequest.class));
+		workflows.updateGroup(projectId, input);
 	}
 
 	@Path("/projects/{project-id}/groups/by-path/delegation")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "setGroupDelegation")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void setGroupDelegation(@PathParam("project-id") String projectId, @QueryParam("path") String path,
-			String json) throws EngineException
+			GroupDelegationRequest input) throws EngineException
 	{
-		workflows.setDelegation(projectId, path, parse(json, RestGroupDelegationRequest.class));
+		workflows.setDelegation(projectId, path, input);
 	}
 
 	@Path("/projects/{project-id}/members/by-id/{entityId}")
 	@PUT
+	@Operation(operationId = "addGroupMember")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addGroupMember(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
 			@QueryParam("groupPath") String groupPath) throws EngineException
 	{
@@ -235,14 +290,19 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members/by-id/{entityId}")
 	@GET
-	public String getGroupMember(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
-			@QueryParam("groupPath") String groupPath) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getGroupMember")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = GroupMember.class)))
+	public GroupMember getGroupMember(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
+			@QueryParam("groupPath") String groupPath) throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.member(projectId, groupPath, entityId));
+		return workflows.member(projectId, groupPath, entityId);
 	}
 
 	@Path("/projects/{project-id}/members/by-id/{entityId}")
 	@DELETE
+	@Operation(operationId = "removeGroupMember")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeGroupMember(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
 			@QueryParam("groupPath") String groupPath) throws EngineException
 	{
@@ -251,38 +311,52 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members/by-id/{entityId}/role")
 	@GET
-	public String getGroupMemberRole(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
-			@QueryParam("groupPath") String groupPath) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getGroupMemberRole")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = AuthorizationRole.class)))
+	public AuthorizationRole getGroupMemberRole(@PathParam("project-id") String projectId,
+			@PathParam("entityId") long entityId,
+			@QueryParam("groupPath") String groupPath) throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.role(projectId, groupPath, entityId));
+		return workflows.role(projectId, groupPath, entityId);
 	}
 
 	@Path("/projects/{project-id}/members/by-id/{entityId}/role")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "setGroupMemberRole")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void setGroupMemberRole(@PathParam("project-id") String projectId, @PathParam("entityId") long entityId,
-			@QueryParam("groupPath") String groupPath, String json) throws EngineException
+			@QueryParam("groupPath") String groupPath, AuthorizationRole role) throws EngineException
 	{
-		workflows.setRole(projectId, groupPath, entityId, parse(json, RestAuthorizationRole.class));
+		workflows.setRole(projectId, groupPath, entityId, role);
 	}
 
 	@Path("/projects/{project-id}/requests")
 	@GET
-	public String getRequests(@PathParam("project-id") String projectId) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getRequests")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = Request.class))))
+	public List<Request> getRequests(@PathParam("project-id") String projectId) throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.requests(projectId));
+		return workflows.requests(projectId);
 	}
 
 	@Path("/projects/{project-id}/requests/{requestId}")
 	@GET
-	public String getRequest(@PathParam("project-id") String projectId, @PathParam("requestId") String requestId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getRequest")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = Request.class)))
+	public Request getRequest(@PathParam("project-id") String projectId, @PathParam("requestId") String requestId)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.request(projectId, requestId));
+		return workflows.request(projectId, requestId);
 	}
 
 	@Path("/projects/{project-id}/requests/{requestId}/state")
 	@POST
+	@Operation(operationId = "decideRequest")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void decideRequest(@PathParam("project-id") String projectId, @PathParam("requestId") String requestId,
 			@QueryParam("decision") String decision)
 			throws EngineException
@@ -292,16 +366,21 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members/{userId}")
 	@GET
-	public String getProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String email)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getProjectMember")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = ProjectMembership.class)))
+	public ProjectMembership getProjectMember(@PathParam("project-id") String projectId,
+			@PathParam("userId") String email)
+			throws EngineException
 	{
 		log.debug("getProjectMember {}, {}", projectId, email);
-		RestProjectMembership member = restProjectService.getProjectMember(projectId, email);
-		return mapper.writeValueAsString(member);
+		return restProjectService.getProjectMember(projectId, email);
 	}
 
 	@Path("/projects/{project-id}/members/{userId}")
 	@DELETE
+	@Operation(operationId = "removeProjectMember")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String userId)
 			throws EngineException
 	{
@@ -311,6 +390,8 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members/{userId}")
 	@POST
+	@Operation(operationId = "addProjectMember")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addProjectMember(@PathParam("project-id") String projectId, @PathParam("userId") String userId)
 			throws EngineException
 	{
@@ -320,46 +401,56 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/members/{userId}/role")
 	@GET
-	public String getProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
-			@PathParam("userId") String userId) throws EngineException, JsonProcessingException
+	@Operation(operationId = "getProjectMemberAuthorizationRole")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = AuthorizationRole.class)))
+	public AuthorizationRole getProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
+			@PathParam("userId") String userId) throws EngineException
 	{
 		log.debug("getProjectMemberAuthorizationRole {}, {}", projectId, userId);
-		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole(projectId, userId);
-		return mapper.writeValueAsString(role);
+		return restProjectService.getProjectAuthorizationRole(projectId, userId);
 	}
 
 	@Path("/projects/{project-id}/members/{userId}/role")
 	@PUT
+	@Operation(operationId = "addProjectMemberAuthorizationRole")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void addProjectMemberAuthorizationRole(@PathParam("project-id") String projectId,
-			@PathParam("userId") String userId, String roleJson) throws EngineException
+			@PathParam("userId") String userId, AuthorizationRole role) throws EngineException
 	{
 		log.info("addProjectMemberAuthorizationRole {}, {}", projectId, userId);
-		RestAuthorizationRole role = parse(roleJson, RestAuthorizationRole.class);
 		restProjectService.setProjectAuthorizationRole(projectId, userId, role);
 	}
 
 	@Path("/projects/{project-id}/policyDocuments")
 	@GET
-	public String getPolicyDocuments(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getPolicyDocuments")
+	@ApiResponse(responseCode = "200", description = "List project policy documents",
+			content = @Content(array = @ArraySchema(schema = @Schema(implementation = RestPolicyDocument.class))))
+	public List<RestPolicyDocument> getPolicyDocuments(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
 		log.debug("getPolicyDocuments query for {}", projectId);
-		List<RestPolicyDocument> policies = restProjectPolicyDocumentService.getPolicyDocuments(projectId);
-		return mapper.writeValueAsString(policies);
+		return restProjectPolicyDocumentService.getPolicyDocuments(projectId);
 	}
 
 	@Path("/projects/{project-id}/policyDocuments/{policy-id}")
 	@GET
-	public String getPolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getPolicyDocument")
+	@ApiResponse(responseCode = "200", description = "Read a project policy document",
+			content = @Content(schema = @Schema(implementation = RestPolicyDocument.class)))
+	public RestPolicyDocument getPolicyDocument(@PathParam("project-id") String projectId,
+			@PathParam("policy-id") Long policyId)
+			throws EngineException
 	{
 		log.debug("getPolicyDocument {}, {}", projectId, policyId);
-		RestPolicyDocument policy = restProjectPolicyDocumentService.getPolicyDocument(projectId, policyId);
-		return mapper.writeValueAsString(policy);
+		return restProjectPolicyDocumentService.getPolicyDocument(projectId, policyId);
 	}
 
 	@Path("/projects/{project-id}/policyDocuments/{policy-id}")
 	@DELETE
+	@Operation(operationId = "removePolicyDocument")
+	@ApiResponse(responseCode = "204", description = "Remove a project policy document")
 	public void removePolicyDocument(@PathParam("project-id") String projectId, @PathParam("policy-id") Long policyId)
 			throws EngineException
 	{
@@ -370,22 +461,26 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/policyDocuments")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String addPolicyDocument(@PathParam("project-id") String projectId, String json)
-			throws EngineException, IOException
+	@Operation(operationId = "addPolicyDocument")
+	@ApiResponse(responseCode = "200", description = "Create a project policy document",
+			content = @Content(schema = @Schema(implementation = PolicyDocumentId.class)))
+	public PolicyDocumentId addPolicyDocument(@PathParam("project-id") String projectId,
+			RestPolicyDocumentRequest policy)
+			throws EngineException
 	{
-		RestPolicyDocumentRequest policy = parse(json, RestPolicyDocumentRequest.class);
 		log.debug("addPolicyDocument {}, {}", projectId, policy.name);
-		RestPolicyDocumentId addPolicyDocument = restProjectPolicyDocumentService.addPolicyDocument(projectId, policy);
-		return mapper.writeValueAsString(addPolicyDocument);
+		return restProjectPolicyDocumentService.addPolicyDocument(projectId, policy);
 	}
 
 	@Path("/projects/{project-id}/policyDocuments")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updatePolicyDocument")
+	@ApiResponse(responseCode = "204", description = "Update a project policy document")
 	public void updatePolicyDocument(@PathParam("project-id") String projectId,
-			@QueryParam("incrementRevision") Boolean incrementRevision, String json) throws EngineException
+			@QueryParam("incrementRevision") Boolean incrementRevision, RestPolicyDocumentUpdateRequest policy)
+			throws EngineException
 	{
-		RestPolicyDocumentUpdateRequest policy = parse(json, RestPolicyDocumentUpdateRequest.class);
 		log.debug("updatePolicyDocument {}, {}", projectId, policy.id);
 		restProjectPolicyDocumentService.updatePolicyDocument(projectId, policy,
 				incrementRevision != null && incrementRevision);
@@ -393,24 +488,31 @@ public class RESTUpmanController
 
 	@Path("/projects/{project-id}/registrationForm")
 	@GET
-	public String getRegistrationForm(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getRegistrationForm")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestRegistrationForm.class)))
+	public RestRegistrationForm getRegistrationForm(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
 		log.debug("getRegistrationForm {}", projectId);
-		RestRegistrationForm form = restProjectFormService.getRegistrationForm(projectId);
-		return mapper.writeValueAsString(form);
+		return restProjectFormService.getRegistrationForm(projectId);
 	}
 
 	@Path("/projects/{project-id}/registrationForm/link")
 	@GET
-	public String getRegistrationFormLink(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getRegistrationFormLink")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = FormLink.class)))
+	public FormLink getRegistrationFormLink(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.registrationFormLink(projectId));
+		return workflows.registrationFormLink(projectId);
 	}
 
 	@Path("/projects/{project-id}/registrationForm")
 	@DELETE
+	@Operation(operationId = "removeRegistrationForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeRegistrationForm(@PathParam("project-id") String projectId,
 			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
@@ -421,10 +523,15 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/registrationForm")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "addRegistrationForm")
+	@ApiResponse(responseCode = "204", description = "Success")
+	@RequestBody(required = false, description = "Required unless autogenerate=true; ignored when generating",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = RestRegistrationForm.class)))
 	public void addRegistrationForm(@PathParam("project-id") String projectId,
-			@QueryParam("autogenerate") Boolean autogenerate, String json) throws EngineException
+			@QueryParam("autogenerate") Boolean autogenerate, InputStream body, @Context HttpHeaders headers)
+			throws EngineException, IOException
 	{
-
 		log.debug("addRegistrationForm {}, autogenerate={}", projectId, autogenerate);
 
 		if (autogenerate != null && autogenerate)
@@ -432,7 +539,7 @@ public class RESTUpmanController
 			restProjectFormService.generateRegistrationForm(projectId);
 		} else
 		{
-			RestRegistrationForm form = parse(json, RestRegistrationForm.class);
+			RestRegistrationForm form = readForm(body, headers, RestRegistrationForm.class);
 			restProjectFormService.addRegistrationForm(projectId, form);
 		}
 	}
@@ -440,34 +547,42 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/registrationForm")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateRegistrationForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateRegistrationForm(@PathParam("project-id") String projectId,
-			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException
+			@QueryParam("ignoreRequests") Boolean ignoreRequests, RestRegistrationForm form) throws EngineException
 	{
-		RestRegistrationForm form = parse(json, RestRegistrationForm.class);
 		log.debug("updateRegistrationForm {}, {}", projectId, form.name);
 		restProjectFormService.updateRegistrationForm(projectId, form, ignoreRequests != null && ignoreRequests);
 	}
 
 	@Path("/projects/{project-id}/signUpEnquiry")
 	@GET
-	public String getSignupEnquiryForm(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getSignupEnquiryForm")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestEnquiryForm.class)))
+	public RestEnquiryForm getSignupEnquiryForm(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
 		log.debug("getSignUpEnquiryForm {}", projectId);
-		RestEnquiryForm form = restProjectFormService.getSignupEnquiryForm(projectId);
-		return mapper.writeValueAsString(form);
+		return restProjectFormService.getSignupEnquiryForm(projectId);
 	}
 
 	@Path("/projects/{project-id}/signUpEnquiry/link")
 	@GET
-	public String getSignupEnquiryLink(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getSignupEnquiryLink")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = FormLink.class)))
+	public FormLink getSignupEnquiryLink(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.signUpEnquiryLink(projectId));
+		return workflows.signUpEnquiryLink(projectId);
 	}
 
 	@Path("/projects/{project-id}/signUpEnquiry")
 	@DELETE
+	@Operation(operationId = "removeSignupEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeSignupEnquiryForm(@PathParam("project-id") String projectId,
 			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
@@ -478,8 +593,14 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/signUpEnquiry")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "addSignupEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
+	@RequestBody(required = false, description = "Required unless autogenerate=true; ignored when generating",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = RestEnquiryForm.class)))
 	public void addSignupEnquiryForm(@PathParam("project-id") String projectId,
-			@QueryParam("autogenerate") Boolean autogenerate, String json) throws EngineException
+			@QueryParam("autogenerate") Boolean autogenerate, InputStream body, @Context HttpHeaders headers)
+			throws EngineException, IOException
 	{
 		log.debug("addSignupEnquiryForm {}, autogenerate={}", projectId, autogenerate);
 
@@ -488,7 +609,7 @@ public class RESTUpmanController
 			restProjectFormService.generateSignupEnquiryForm(projectId);
 		} else
 		{
-			RestEnquiryForm form = parse(json, RestEnquiryForm.class);
+			RestEnquiryForm form = readForm(body, headers, RestEnquiryForm.class);
 			restProjectFormService.addSignupEnquiryForm(projectId, form);
 		}
 
@@ -497,34 +618,42 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/signUpEnquiry")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateSignupEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateSignupEnquiryForm(@PathParam("project-id") String projectId,
-			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException
+			@QueryParam("ignoreRequests") Boolean ignoreRequests, RestEnquiryForm form) throws EngineException
 	{
-		RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 		log.debug("updateSignupEnquiryForm {}, {}", projectId, form.name);
 		restProjectFormService.updateSignupEnquiryForm(projectId, form, ignoreRequests != null && ignoreRequests);
 	}
 
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
 	@GET
-	public String getMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getMembershipUpdateEnquiryForm")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = RestEnquiryForm.class)))
+	public RestEnquiryForm getMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
 		log.debug("getMembershipUpdateEnquiryForm {}", projectId);
-		RestEnquiryForm form = restProjectFormService.getMembershipUpdateEnquiryForm(projectId);
-		return mapper.writeValueAsString(form);
+		return restProjectFormService.getMembershipUpdateEnquiryForm(projectId);
 	}
 
 	@Path("/projects/{project-id}/membershipUpdateEnquiry/link")
 	@GET
-	public String getMembershipUpdateEnquiryLink(@PathParam("project-id") String projectId)
-			throws EngineException, JsonProcessingException
+	@Operation(operationId = "getMembershipUpdateEnquiryLink")
+	@ApiResponse(responseCode = "200", description = "Success",
+			content = @Content(schema = @Schema(implementation = FormLink.class)))
+	public FormLink getMembershipUpdateEnquiryLink(@PathParam("project-id") String projectId)
+			throws EngineException
 	{
-		return mapper.writeValueAsString(workflows.membershipUpdateEnquiryLink(projectId));
+		return workflows.membershipUpdateEnquiryLink(projectId);
 	}
 
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
 	@DELETE
+	@Operation(operationId = "removeMembershipUpdateEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void removeMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId,
 			@QueryParam("dropRequests") Boolean dropRequests) throws EngineException
 	{
@@ -535,8 +664,14 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "addMembershipUpdateEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
+	@RequestBody(required = false, description = "Required unless autogenerate=true; ignored when generating",
+			content = @Content(mediaType = MediaType.APPLICATION_JSON,
+					schema = @Schema(implementation = RestEnquiryForm.class)))
 	public void addMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId,
-			@QueryParam("autogenerate") Boolean autogenerate, String json) throws EngineException
+			@QueryParam("autogenerate") Boolean autogenerate, InputStream body, @Context HttpHeaders headers)
+			throws EngineException, IOException
 	{
 		log.debug("addMembershipUpdateEnquiryForm {}, autogenerate={}", projectId, autogenerate);
 
@@ -545,7 +680,7 @@ public class RESTUpmanController
 			restProjectFormService.generateMembershipUpdateEnquiryForm(projectId);
 		} else
 		{
-			RestEnquiryForm form = parse(json, RestEnquiryForm.class);
+			RestEnquiryForm form = readForm(body, headers, RestEnquiryForm.class);
 			restProjectFormService.addMembershipUpdateEnquiryForm(projectId, form);
 		}
 	}
@@ -553,26 +688,19 @@ public class RESTUpmanController
 	@Path("/projects/{project-id}/membershipUpdateEnquiry")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Operation(operationId = "updateMembershipUpdateEnquiryForm")
+	@ApiResponse(responseCode = "204", description = "Success")
 	public void updateMembershipUpdateEnquiryForm(@PathParam("project-id") String projectId,
-			@QueryParam("ignoreRequests") Boolean ignoreRequests, String json) throws EngineException
+			@QueryParam("ignoreRequests") Boolean ignoreRequests, RestEnquiryForm form) throws EngineException
 	{
-		RestEnquiryForm form = parse(json, RestEnquiryForm.class);
 		log.debug("updateMembershipUpdateEnquiryForm {}, {}", projectId, form.name);
 		restProjectFormService.updateMembershipUpdateEnquiryForm(projectId, form,
 				ignoreRequests != null && ignoreRequests);
 	}
 
-	public <T> T parse(String contents, Class<T> clazz)
+	private <T> T readForm(InputStream body, HttpHeaders headers, Class<T> type) throws IOException
 	{
-		try
-		{
-			return mapper.readValue(contents, clazz);
-		} catch (Exception e)
-		{
-			if (e.getCause() instanceof BadRequestException)
-				throw (BadRequestException) e.getCause();
-			throw new BadRequestException("Can't perform JSON deserialization", e);
-		}
+		return type.cast(jsonProvider.read(body, type, headers.getMediaType()));
 	}
 
 	@Component

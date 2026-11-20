@@ -21,39 +21,93 @@
 	</scm>
 	<dependencies>
 		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.imunity</groupId>
+			<artifactId>unity-server-web-upman</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.parser.v3</groupId>
+			<artifactId>swagger-parser-v3</artifactId>
+			<exclusions>
+				<exclusion><groupId>io.swagger.core.v3</groupId><artifactId>swagger-core</artifactId></exclusion>
+				<exclusion><groupId>io.swagger.core.v3</groupId><artifactId>swagger-models</artifactId></exclusion>
+				<exclusion><groupId>io.swagger.core.v3</groupId><artifactId>swagger-annotations</artifactId></exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.networknt</groupId>
+			<artifactId>json-schema-validator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-engine</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-vaadin-public-shared-endpoint</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-storage</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.imunity</groupId>
 			<artifactId>unity-server-rest-admin</artifactId>
-			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>jakarta.xml.bind</groupId>
 			<artifactId>jakarta.xml.bind-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.webjars</groupId>
-			<artifactId>swagger-ui</artifactId>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>redoc</artifactId>
+			<exclusions>
+				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>generate-validated-upman-reference</id>
+						<phase>prepare-package</phase>
+						<goals><goal>java</goal></goals>
+						<configuration>
+							<mainClass>io.imunity.rest.doc.OpenApiExporter</mainClass>
+							<arguments><argument>${project.build.directory}/openapi</argument></arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 	<profiles>
 		<profile>

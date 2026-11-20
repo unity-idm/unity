@@ -87,62 +87,62 @@ class RestProjectService
 	}
 
 	@Transactional
-	public RestProjectId addProject(RestProjectCreateRequest project) throws EngineException
+	public ProjectId addProject(ProjectCreateRequest project) throws EngineException
 	{
 		authz.assertProjectCreationAuthorization();
 
 		String projectId;
-		if(project.projectId == null)
+		if(project.projectId() == null)
 		{
 			GroupContents groupContent = groupMan.getContents(rootGroup, GroupContents.GROUPS);
 			List<String> subGroups = groupContent.getSubGroups();
 			projectId = generateName(subGroups);
 		}
 		else
-			projectId = project.projectId;
+			projectId = project.projectId();
 
 		String projectPath = ProjectPathProvider.getNewProjectPath(projectId, rootGroup);
-		if (project.displayedName == null || project.displayedName.isEmpty())
+		if (project.displayedName() == null || project.displayedName().isEmpty())
 			throw new IllegalArgumentException();
 
 		Group toAdd = new Group(projectPath);
-		toAdd.setPublic(project.isPublic);
-		toAdd.setDisplayedName(convertToI18nString(project.displayedName));
-		toAdd.setDescription(convertToI18nString(project.description));
+		toAdd.setPublic(project.isPublic());
+		toAdd.setDisplayedName(convertToI18nString(project.displayedName()));
+		toAdd.setDescription(convertToI18nString(project.description()));
 
 		toAdd.setDelegationConfiguration(new GroupDelegationConfiguration(true,
-				project.enableSubprojects,
-				project.logoUrl,
+				project.enableSubprojects(),
+				project.logoUrl(),
 				null, null, null,
-				project.readOnlyAttributes, List.of())
+				project.readOnlyAttributes(), List.of())
 			);
 		
 		groupMan.addGroup(toAdd);
 
-		return new RestProjectId(projectId);
+		return new ProjectId(projectId);
 	}
 
 	@Transactional
-	public void updateProject(String projectId, RestProjectUpdateRequest project) throws EngineException
+	public void updateProject(String projectId, ProjectUpdateRequest project) throws EngineException
 	{
 		assertAuthorization(projectId);
 
-		if (project.displayedName == null || project.displayedName.isEmpty())
+		if (project.displayedName() == null || project.displayedName().isEmpty())
 			throw new IllegalArgumentException("Displayed name have to be set");
 
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
 		Group toUpdate = projectGroupProvider.getProjectGroup(projectId, projectPath);
-		toUpdate.setPublic(project.isPublic);
-		toUpdate.setDisplayedName(convertToI18nString(project.displayedName));
-		toUpdate.setDescription(convertToI18nString(project.description));
+		toUpdate.setPublic(project.isPublic());
+		toUpdate.setDisplayedName(convertToI18nString(project.displayedName()));
+		toUpdate.setDescription(convertToI18nString(project.description()));
 
 		try
 		{
 			toUpdate.setDelegationConfiguration(GroupDelegationConfiguration.builder()
 					.copy(toUpdate.getDelegationConfiguration())
-					.withEnableSubprojects(project.enableSubprojects)
-					.withLogoUrl(project.logoUrl)
-					.withAttributes(project.readOnlyAttributes)
+					.withEnableSubprojects(project.enableSubprojects())
+					.withLogoUrl(project.logoUrl())
+					.withAttributes(project.readOnlyAttributes())
 					.build());
 			groupMan.updateGroup(projectPath, toUpdate);
 		} catch (GroupNotFoundException e)
@@ -219,7 +219,7 @@ class RestProjectService
 	
 	
 	@Transactional
-	public RestProject getProject(String projectId) throws EngineException
+	public Project getProject(String projectId) throws EngineException
 	{
 		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
@@ -228,7 +228,7 @@ class RestProjectService
 	}
 
 	@Transactional
-	public List<RestProject> getProjects() throws EngineException
+	public List<Project> getProjects() throws EngineException
 	{
 		authz.assertProjectsDiscoveryAuthorization();
 		List<Group> groups = groupMan.getGroupsByWildcard((rootGroup.equals("/") ? "" : rootGroup) + "/**");
@@ -250,11 +250,11 @@ class RestProjectService
 		delGroupMan.addMemberToGroup(projectPath, projectPath, id);
 	}
 
-	private void validateRole(RestAuthorizationRole role)
+	private void validateRole(AuthorizationRole role)
 	{
-		if (Arrays.stream(GroupAuthorizationRole.values()).noneMatch(authzRole -> authzRole.name().equals(role.role)))
+		if (Arrays.stream(GroupAuthorizationRole.values()).noneMatch(authzRole -> authzRole.name().equals(role.role())))
 			throw new IllegalArgumentException(String.format("Invalid role: %s, allowed values: manager, " +
-				"projectsAdmin, regular", role.role));
+				"projectsAdmin, regular", role.role()));
 	}
 
 	@Transactional
@@ -275,7 +275,7 @@ class RestProjectService
 	}
 
 	@Transactional
-	public List<RestProjectMembership> getProjectMembers(String projectId) throws EngineException
+	public List<ProjectMembership> getProjectMembers(String projectId) throws EngineException
 	{
 		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
@@ -286,7 +286,7 @@ class RestProjectService
 	}
 
 	@Transactional
-	public RestProjectMembership getProjectMember(String projectId, String email) throws EngineException
+	public ProjectMembership getProjectMember(String projectId, String email) throws EngineException
 	{
 		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
@@ -299,14 +299,14 @@ class RestProjectService
 	}
 
 	@Transactional
-	public RestAuthorizationRole getProjectAuthorizationRole(String projectId, String email) throws EngineException
+	public AuthorizationRole getProjectAuthorizationRole(String projectId, String email) throws EngineException
 	{
-		return new RestAuthorizationRole(getProjectMember(projectId, email).role);
+		return new AuthorizationRole(getProjectMember(projectId, email).role());
 	}
 
 	@Transactional
 	public void setProjectAuthorizationRole(String projectId, String email,
-	                                                         RestAuthorizationRole role) throws EngineException
+	                                                         AuthorizationRole role) throws EngineException
 	{
 		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
@@ -316,7 +316,7 @@ class RestProjectService
 		try
 		{
 			delGroupMan.setGroupAuthorizationRole(projectPath, projectPath, id,
-				GroupAuthorizationRole.valueOf(role.role));
+				GroupAuthorizationRole.valueOf(role.role()));
 		}
 		catch (IllegalGroupValueException e)
 		{
@@ -348,9 +348,9 @@ class RestProjectService
 		authz.assertManagerAuthorization(ProjectPathProvider.getProjectPath(projectId, rootGroup));
 	}
 
-	private static RestProject map(String projectId, Group group)
+	private static Project map(String projectId, Group group)
 	{
-		return RestProject.builder()
+		return Project.builder()
 			.withProjectId(projectId)
 			.withPublic(group.isPublic())
 			.withDisplayedName(group.getDisplayedName().getMap())
@@ -364,14 +364,14 @@ class RestProjectService
 			.build();
 	}
 
-	private static RestProjectMembership map(DelegatedGroupMember member)
+	private static ProjectMembership map(DelegatedGroupMember member)
 	{
-		return RestProjectMembership.builder()
+		return ProjectMembership.builder()
 			.withEmail(member.email == null ? null : member.email.getValue())
 			.withRole(member.role.name())
 			.withAttributes(
 				member.attributes.stream()
-					.map(attr -> new RestAttribute(attr.getName(), List.copyOf(attr.getValues())))
+					.map(attr -> new MemberAttribute(attr.getName(), List.copyOf(attr.getValues())))
 					.collect(Collectors.toList())
 			)
 			.build();

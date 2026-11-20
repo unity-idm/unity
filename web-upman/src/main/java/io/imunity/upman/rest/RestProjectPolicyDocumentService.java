@@ -145,7 +145,7 @@ class RestProjectPolicyDocumentService
 	}
 
 	@Transactional
-	public RestPolicyDocumentId addPolicyDocument(String projectId, RestPolicyDocumentRequest policy) throws EngineException
+	public PolicyDocumentId addPolicyDocument(String projectId, RestPolicyDocumentRequest policy) throws EngineException
 	{
 		assertAuthorization(projectId);
 		String projectPath = ProjectPathProvider.getProjectPath(projectId, rootGroup);
@@ -169,7 +169,7 @@ class RestProjectPolicyDocumentService
 		group.setDelegationConfiguration(updatedGroupDelegationConfiguration);
 		groupMan.updateGroup(ProjectPathProvider.getProjectPath(projectId, rootGroup), group);
 		synchronizeForms(updatedGroupDelegationConfiguration);
-		return new RestPolicyDocumentId(addedPolicyDocument);
+		return new PolicyDocumentId(addedPolicyDocument);
 	}
 
 	private void synchronizeForms(GroupDelegationConfiguration groupDelegationConfiguration) throws EngineException

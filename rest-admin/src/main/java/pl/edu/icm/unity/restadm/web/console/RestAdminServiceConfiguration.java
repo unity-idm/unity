@@ -24,6 +24,7 @@ import pl.edu.icm.unity.rest.RESTEndpointProperties;
 public class RestAdminServiceConfiguration
 
 {
+	private boolean enableOpenApi = true;
 	private List<String> allowedCORSheaders;
 	private List<String> allowedCORSorigins;
 
@@ -56,6 +57,8 @@ public class RestAdminServiceConfiguration
 	public String toProperties()
 	{
 		Properties raw = new Properties();
+		raw.setProperty(RESTEndpointProperties.PREFIX + RESTEndpointProperties.ENABLE_OPEN_API,
+				Boolean.toString(enableOpenApi));
 
 		getAllowedCORSheaders().forEach(a -> {
 
@@ -85,6 +88,7 @@ public class RestAdminServiceConfiguration
 		}
 
 		RESTEndpointProperties restAdminProp = new RESTEndpointProperties(raw);
+		enableOpenApi = restAdminProp.getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API);
 		allowedCORSheaders = restAdminProp.getListOfValues(RESTEndpointProperties.ENABLED_CORS_HEADERS);
 		allowedCORSorigins = restAdminProp.getListOfValues(RESTEndpointProperties.ENABLED_CORS_ORIGINS);
 

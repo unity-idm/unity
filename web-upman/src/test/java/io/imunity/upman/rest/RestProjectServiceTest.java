@@ -78,7 +78,7 @@ class RestProjectServiceTest
 	@Test
 	void shouldAddProjectWithNullForms() throws EngineException
 	{
-		RestProjectCreateRequest request = RestProjectCreateRequest.builder()
+		ProjectCreateRequest request = ProjectCreateRequest.builder()
 			.withProjectId("B")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "CoolGroup"))
@@ -101,7 +101,7 @@ class RestProjectServiceTest
 	@Test
 	void shouldUpdateProjectWithNullForms() throws EngineException
 	{
-		RestProjectUpdateRequest request = RestProjectUpdateRequest.builder()
+		ProjectUpdateRequest request = ProjectUpdateRequest.builder()
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "CoolGroup"))
 			.withDescription(Map.of("en", "description"))
@@ -134,7 +134,7 @@ class RestProjectServiceTest
 				.withPolicyDocumentsIds(List.of(1L, 2L))
 				.build();
 		setUpGroupContent(configuration);
-		RestProjectUpdateRequest request = RestProjectUpdateRequest.builder()
+		ProjectUpdateRequest request = ProjectUpdateRequest.builder()
 				.withPublic(false)
 				.withDisplayedName(Map.of("en", "Updated project"))
 				.withDescription(Map.of("en", "Updated description"))
@@ -149,15 +149,15 @@ class RestProjectServiceTest
 		verify(groupMan).updateGroup(eq("/A/B"), argument.capture());
 		Group updated = argument.getValue();
 		assertThat(updated.isPublic()).isFalse();
-		assertThat(updated.getDisplayedName()).isEqualTo(convertToI18nString(request.displayedName));
-		assertThat(updated.getDescription()).isEqualTo(convertToI18nString(request.description));
+		assertThat(updated.getDisplayedName()).isEqualTo(convertToI18nString(request.displayedName()));
+		assertThat(updated.getDescription()).isEqualTo(convertToI18nString(request.description()));
 		assertThat(updated.getDelegationConfiguration()).isEqualTo(new GroupDelegationConfiguration(
 				true, false, null, "registration", "signup", "membershipUpdate",
 				List.of("email", "name"), List.of(1L, 2L)));
-		RestProject project = restProjectService.getProject("B");
-		assertThat(project.registrationForm).isEqualTo("registration");
-		assertThat(project.signUpEnquiry).isEqualTo("signup");
-		assertThat(project.membershipUpdateEnquiry).isEqualTo("membershipUpdate");
+		Project project = restProjectService.getProject("B");
+		assertThat(project.registrationForm()).isEqualTo("registration");
+		assertThat(project.signUpEnquiry()).isEqualTo("signup");
+		assertThat(project.membershipUpdateEnquiry()).isEqualTo("membershipUpdate");
 	}
 
 	@Test
@@ -194,17 +194,17 @@ class RestProjectServiceTest
 		setUpGroupContent(new GroupDelegationConfiguration(
 				true, true, "logoUrl", "regForm", "sigForm", "memForm", List.of("attr"), List.of()
 				));
-		RestProject project = restProjectService.getProject("B");
-		assertThat(project.projectId).isEqualTo("B");
-		assertThat(project.isPublic).isEqualTo(true);
-		assertThat(project.displayedName).isEqualTo(Map.of("en", "disName"));
-		assertThat(project.description).isEqualTo(Map.of("en", "description"));
-		assertThat(project.logoUrl).isEqualTo("logoUrl");
-		assertThat(project.enableSubprojects).isEqualTo(true);
-		assertThat(project.readOnlyAttributes).isEqualTo(List.of("attr"));
-		assertThat(project.registrationForm).isEqualTo("regForm");
-		assertThat(project.signUpEnquiry).isEqualTo("sigForm");
-		assertThat(project.membershipUpdateEnquiry).isEqualTo("memForm");
+		Project project = restProjectService.getProject("B");
+		assertThat(project.projectId()).isEqualTo("B");
+		assertThat(project.isPublic()).isEqualTo(true);
+		assertThat(project.displayedName()).isEqualTo(Map.of("en", "disName"));
+		assertThat(project.description()).isEqualTo(Map.of("en", "description"));
+		assertThat(project.logoUrl()).isEqualTo("logoUrl");
+		assertThat(project.enableSubprojects()).isEqualTo(true);
+		assertThat(project.readOnlyAttributes()).isEqualTo(List.of("attr"));
+		assertThat(project.registrationForm()).isEqualTo("regForm");
+		assertThat(project.signUpEnquiry()).isEqualTo("sigForm");
+		assertThat(project.membershipUpdateEnquiry()).isEqualTo("memForm");
 	}
 
 	@Test
@@ -221,19 +221,19 @@ class RestProjectServiceTest
 			.thenReturn(List.of(group));
 		when(authz.isProjectVisible("/A/B")).thenReturn(true);
 
-		List<RestProject> projects = restProjectService.getProjects();
+		List<Project> projects = restProjectService.getProjects();
 		assertThat(projects.size()).isEqualTo(1);
-		RestProject project = projects.getFirst();
-		assertThat(project.projectId).isEqualTo("B");
-		assertThat(project.isPublic).isEqualTo(true);
-		assertThat(project.displayedName).isEqualTo(Map.of("en", "disName"));
-		assertThat(project.description).isEqualTo(Map.of("en", "description"));
-		assertThat(project.logoUrl).isEqualTo("logoUrl");
-		assertThat(project.enableSubprojects).isEqualTo(true);
-		assertThat(project.readOnlyAttributes).isEqualTo(List.of("attr"));
-		assertThat(project.registrationForm).isEqualTo("regForm");
-		assertThat(project.signUpEnquiry).isEqualTo("sigForm");
-		assertThat(project.membershipUpdateEnquiry).isEqualTo("memForm");
+		Project project = projects.getFirst();
+		assertThat(project.projectId()).isEqualTo("B");
+		assertThat(project.isPublic()).isEqualTo(true);
+		assertThat(project.displayedName()).isEqualTo(Map.of("en", "disName"));
+		assertThat(project.description()).isEqualTo(Map.of("en", "description"));
+		assertThat(project.logoUrl()).isEqualTo("logoUrl");
+		assertThat(project.enableSubprojects()).isEqualTo(true);
+		assertThat(project.readOnlyAttributes()).isEqualTo(List.of("attr"));
+		assertThat(project.registrationForm()).isEqualTo("regForm");
+		assertThat(project.signUpEnquiry()).isEqualTo("sigForm");
+		assertThat(project.membershipUpdateEnquiry()).isEqualTo("memForm");
 	}
 
 	@Test
@@ -293,11 +293,11 @@ class RestProjectServiceTest
 			);
 		setUpGroupContent(new GroupDelegationConfiguration(true));
 		
-		RestProjectMembership membership = restProjectService.getProjectMember("B", "email@gmail.com");
+		ProjectMembership membership = restProjectService.getProjectMember("B", "email@gmail.com");
 
-		assertThat(membership.email).isEqualTo("email@gmail.com");
-		assertThat(membership.role).isEqualTo(GroupAuthorizationRole.manager.name());
-		assertThat(membership.attributes).isEqualTo(List.of(new RestAttribute("attr", List.of("val"))));
+		assertThat(membership.email()).isEqualTo("email@gmail.com");
+		assertThat(membership.role()).isEqualTo(GroupAuthorizationRole.manager.name());
+		assertThat(membership.attributes()).isEqualTo(List.of(new MemberAttribute("attr", List.of("val"))));
 	}
 
 	@Test
@@ -311,13 +311,13 @@ class RestProjectServiceTest
 			);
 		setUpGroupContent(new GroupDelegationConfiguration(true));
 
-		List<RestProjectMembership> members = restProjectService.getProjectMembers("B");
+		List<ProjectMembership> members = restProjectService.getProjectMembers("B");
 
 		assertThat(members.size()).isEqualTo(1);
-		RestProjectMembership membership = members.getFirst();
-		assertThat(membership.email).isEqualTo("email@gmail.com");
-		assertThat(membership.role).isEqualTo(GroupAuthorizationRole.manager.name());
-		assertThat(membership.attributes).isEqualTo(List.of(new RestAttribute("attr", List.of("val"))));
+		ProjectMembership membership = members.getFirst();
+		assertThat(membership.email()).isEqualTo("email@gmail.com");
+		assertThat(membership.role()).isEqualTo(GroupAuthorizationRole.manager.name());
+		assertThat(membership.attributes()).isEqualTo(List.of(new MemberAttribute("attr", List.of("val"))));
 	}
 
 	@Test
@@ -331,12 +331,12 @@ class RestProjectServiceTest
 					"name", new VerifiableElementBase("email@gmail.com"), Optional.empty())));
 		setUpGroupContent(new GroupDelegationConfiguration(true));
 
-		List<RestProjectMembership> members = restProjectService.getProjectMembers("B");
+		List<ProjectMembership> members = restProjectService.getProjectMembers("B");
 
 		assertThat(members).containsExactly(
-			RestProjectMembership.builder().withEmail(null).withRole("regular")
-				.withAttributes(List.of(new RestAttribute("attr", List.of("val")))).build(),
-			RestProjectMembership.builder().withEmail("email@gmail.com").withRole("manager")
+			ProjectMembership.builder().withEmail(null).withRole("regular")
+				.withAttributes(List.of(new MemberAttribute("attr", List.of("val")))).build(),
+			ProjectMembership.builder().withEmail("email@gmail.com").withRole("manager")
 				.withAttributes(List.of()).build());
 	}
 
@@ -351,10 +351,10 @@ class RestProjectServiceTest
 					"name", new VerifiableElementBase("email@gmail.com"), Optional.empty())));
 		setUpGroupContent(new GroupDelegationConfiguration(true));
 
-		RestProjectMembership member = restProjectService.getProjectMember("B", "email@gmail.com");
+		ProjectMembership member = restProjectService.getProjectMember("B", "email@gmail.com");
 
-		assertThat(member.email).isEqualTo("email@gmail.com");
-		assertThat(member.role).isEqualTo("manager");
+		assertThat(member.email()).isEqualTo("email@gmail.com");
+		assertThat(member.role()).isEqualTo("manager");
 	}
 
 	@Test
@@ -380,9 +380,9 @@ class RestProjectServiceTest
 			);
 		setUpGroupContent(new GroupDelegationConfiguration(true));
 
-		RestAuthorizationRole role = restProjectService.getProjectAuthorizationRole("B", "email@gmail.com");
+		AuthorizationRole role = restProjectService.getProjectAuthorizationRole("B", "email@gmail.com");
 
-		assertThat(role).isEqualTo(new RestAuthorizationRole("manager"));
+		assertThat(role).isEqualTo(new AuthorizationRole("manager"));
 	}
 
 	@Test
@@ -396,7 +396,7 @@ class RestProjectServiceTest
 		setUpGroupContent(new GroupDelegationConfiguration(true));
 
 
-		restProjectService.setProjectAuthorizationRole("B", "email", new RestAuthorizationRole("manager"));
+		restProjectService.setProjectAuthorizationRole("B", "email", new AuthorizationRole("manager"));
 
 		verify(delGroupMan).setGroupAuthorizationRole("/A/B", "/A/B", 2, GroupAuthorizationRole.manager);
 	}

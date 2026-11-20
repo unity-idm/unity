@@ -288,7 +288,7 @@ class UpmanWorkflowIntegrationTest extends UpmanRESTTestBase
 	private void createProject(String id) throws Exception
 	{
 		HttpPost create = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest request = RestProjectCreateRequest.builder()
+		ProjectCreateRequest request = ProjectCreateRequest.builder()
 				.withProjectId(id)
 				.withPublic(false)
 				.withDisplayedName(Map.of("en", "Project"))

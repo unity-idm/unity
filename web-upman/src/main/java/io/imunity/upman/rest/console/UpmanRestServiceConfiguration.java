@@ -32,6 +32,7 @@ public class UpmanRestServiceConfiguration
 {
 	private GroupWithIndentIndicator rootGroup;
 	private GroupWithIndentIndicator authorizationGroup;
+	private boolean enableOpenApi = true;
 	private List<String> allowedCORSheaders;
 	private List<String> allowedCORSorigins;
 	private List<String> rootGroupAttributes;
@@ -103,6 +104,8 @@ public class UpmanRestServiceConfiguration
 	public String toProperties()
 	{
 		Properties raw = new Properties();
+		raw.setProperty(RESTEndpointProperties.PREFIX + RESTEndpointProperties.ENABLE_OPEN_API,
+				Boolean.toString(enableOpenApi));
 
 		raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.ROOT_GROUP, rootGroup.group().getPathEncoded());
 		raw.put(UpmanRestEndpointProperties.PREFIX + UpmanRestEndpointProperties.AUTHORIZATION_GROUP, authorizationGroup.group().getPathEncoded());
@@ -143,6 +146,7 @@ public class UpmanRestServiceConfiguration
 			throw new InternalException("Invalid configuration of the rest admin service", e);
 		}
 
+		enableOpenApi = new RESTEndpointProperties(raw).getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API);
 		UpmanRestEndpointProperties restAdminProp = new UpmanRestEndpointProperties(raw);
 		String rootGroupPath = restAdminProp.getValue(UpmanRestEndpointProperties.ROOT_GROUP);
 		this.rootGroup = new GroupWithIndentIndicator(new Group(rootGroupPath),
