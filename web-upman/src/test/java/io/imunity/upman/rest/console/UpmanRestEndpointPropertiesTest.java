@@ -21,6 +21,7 @@ import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
 import pl.edu.icm.unity.rest.RESTEndpointProperties;
+import pl.edu.icm.unity.rest.RESTEndpointProperties.OpenApiPublication;
 
 public class UpmanRestEndpointPropertiesTest
 {
@@ -54,23 +55,34 @@ public class UpmanRestEndpointPropertiesTest
 	}
 
 	@Test
-	void shouldPreserveDisabledRuntimeDocumentationWhenSaving() throws Exception
+	void shouldPreservePublicationModeWhenSaving() throws Exception
 	{
 		var configuration = new UpmanRestServiceConfiguration();
 		configuration.fromProperties("unity.upman.rest.rootGroup=/projects\n"
 				+ "unity.upman.rest.authorizationGroup=/managers\n"
-				+ "unity.endpoint.rest.enableOpenApi=false\n", msg);
+				+ "unity.endpoint.rest.openApiPublication=specificationAndUI\n", msg);
 
 		Properties raw = new Properties();
 		raw.load(new StringReader(configuration.toProperties()));
 
-		assertThat(new RESTEndpointProperties(raw).getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API)).isFalse();
+		assertThat(new RESTEndpointProperties(raw).getOpenApiPublication()).isEqualTo(OpenApiPublication.specificationAndUI);
 		assertThat(raw.getProperty(PREFIX + "rootGroup")).isEqualTo("/projects");
 		assertThat(raw.getProperty(PREFIX + "authorizationGroup")).isEqualTo("/managers");
 	}
 
 	@Test
-	void shouldEnableRuntimeDocumentationForNewConfigurations() throws Exception
+	void shouldRequireExplicitPublicationWhenLoadingLegacyConfiguration()
+	{
+		Properties raw = new Properties();
+		raw.setProperty(RESTEndpointProperties.PREFIX + "enableOpenApi", "true");
+
+		var publication = new RESTEndpointProperties(raw).getOpenApiPublication();
+
+		assertThat(publication).isEqualTo(OpenApiPublication.disabled);
+	}
+
+	@Test
+	void shouldDisableRuntimeDocumentationForNewConfigurations() throws Exception
 	{
 		var configuration = new UpmanRestServiceConfiguration();
 		configuration.setRootGroup(new GroupWithIndentIndicator(
@@ -81,6 +93,6 @@ public class UpmanRestEndpointPropertiesTest
 		Properties raw = new Properties();
 		raw.load(new StringReader(configuration.toProperties()));
 
-		assertThat(new RESTEndpointProperties(raw).getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API)).isTrue();
+		assertThat(new RESTEndpointProperties(raw).getOpenApiPublication()).isEqualTo(OpenApiPublication.disabled);
 	}
 }

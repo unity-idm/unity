@@ -52,8 +52,8 @@ public final class AdminOpenApi extends OpenApiCustomizer
 		return new Info().title("Unity Administration API").version("1").description("""
 				Administration of Unity identities, groups and configuration. API version 1 is independent
 				of the Unity product release. Authentication and authorization use the deployed admin endpoint's
-				authenticators and the caller's administrative permissions. Live documentation requires the
-				same authentication as API operations.
+				authenticators and the caller's administrative permissions, including when requests are sent
+				from Scalar.
 				""");
 	}
 

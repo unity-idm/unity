@@ -12,8 +12,12 @@ The documentation of the REST API is available on a separate page
 link:rest-api-v1.html[REST API guide] and the generated
 link:admin-openapi-v1.html[Administration API reference].
 
-The Scalar interactive API reference is available at +api-docs+ below the endpoint path.
-Runtime OpenAPI documentation is enabled by default. Set +unity.endpoint.rest.enableOpenApi=false+ in this
-endpoint's configuration to disable its live +openapi.json+, +openapi.yaml+ and API reference UI resources.
-This shared property uses the same name for Admin and UpMan and applies independently to each endpoint
-instance. API operations remain available, and build-time YAML and HTML documentation generation is unaffected.
+The +unity.endpoint.rest.openApiPublication+ setting controls which runtime docs this endpoint publishes.
+
+* +disabled+ (default) serves no runtime API docs.
+* +specification+ publishes +openapi.json+ and +openapi.yaml+.
+* +specificationAndUI+ also publishes the Scalar interface at +api-docs+ below the endpoint path.
+
+Published documentation is accessible without authentication. Requests submitted from Scalar use the REST
+endpoint's configured authentication and authorization. Each endpoint instance has its own publication setting.
+The build-time YAML and HTML references are generated in every mode.

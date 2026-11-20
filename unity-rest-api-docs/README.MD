@@ -24,24 +24,21 @@ configure the actual deployed endpoint URL in your API client.
 
 ## Live documentation
 
-Open `api-docs` beneath a deployed REST endpoint, for example `/restupm/api-docs`, to use Scalar.
-The HTML, bundled JavaScript and live `openapi.yaml` / `openapi.json` retain the endpoint's authentication.
-The UI loads the current endpoint's specification and sends requests directly to that same endpoint, including
-when deployed beneath a custom path. No renderer, font or request proxy is loaded from a CDN. Scalar's bundled
-WebJar is a runtime dependency of `rest` and is included in the distribution's `lib` directory.
+Set `unity.endpoint.rest.openApiPublication` in each REST endpoint's configuration.
 
-Authenticate the documentation using an authenticator configured for that endpoint. For request execution,
-select the specification's Basic or Bearer authentication scheme and enter the corresponding credentials.
-UpMan bearer tokens need the documented API scopes. OAuth issuer and token endpoints are deployment configuration;
-the generic Bearer field accepts a token obtained from your configured issuer. Credentials entered in Scalar are
-not persisted across page reloads. An authenticated specification download alone does not verify request execution:
-use **Test Request** on `GET /v1/projects` (UpMan) or `GET /v1/policy-documents` (Admin), submit the request
-and inspect the returned status and response body.
+| Value | Public routes below the endpoint path |
+| --- | --- |
+| `disabled` (default) | None |
+| `specification` | `openapi.json` and `openapi.yaml` |
+| `specificationAndUI` | Both specifications and the Scalar UI at `api-docs`, including its bundled JavaScript |
 
-`unity.endpoint.rest.enableOpenApi=true` is the shared default. Set it to `false` in an individual endpoint's
-configuration to disable its live specification, Scalar HTML and assets. This setting applies independently to
-Admin, UpMan and other REST endpoint instances. API routes and build-time/site YAML and Redoc generation remain
-available. Swagger UI is disabled for live endpoints.
+For example, enable `specificationAndUI` and open `/restupm/api-docs` in a browser. The page and spec
+load without credentials. To call the API, select the configured Basic or Bearer authentication scheme
+in Scalar and enter the corresponding credentials. UpMan bearer tokens need the documented API scopes.
+Scalar sends requests directly to the endpoint and keeps credentials in memory for the current page.
+The renderer is bundled locally and uses no external request proxy. Each endpoint instance has its own
+publication setting. Build-time generation runs in every mode. If your configuration used `enableOpenApi`,
+set `openApiPublication` explicitly to opt in to public docs.
 
 The `documentation` module invokes the same exporter during `pre-site` and places the generated
 references beside the handwritten guides and workflow documents. After installing reactor dependencies, build
@@ -61,7 +58,7 @@ mvn -pl unity-rest-api-docs -am test \
 Generation rejects invalid OpenAPI, unresolved references, duplicate operation IDs, opaque object bodies,
 and examples that fail their schemas. The checked-in HTTP route inventories cover all 51 UpMan and 80 Admin
 operations;
-production tests compare the authenticated live document to the offline document and preserve literal wire
+production tests compare the live document to the offline document and preserve literal wire
 fixtures. The complete `web-upman` and `rest-admin` suites and repository headless verification remain regression gates.
 The isolation tests compare both live specifications with their exports in both endpoint initialization orders,
 check that global model converters stay unchanged, and exercise per-endpoint publication settings.

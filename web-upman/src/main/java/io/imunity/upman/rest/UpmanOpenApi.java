@@ -70,7 +70,7 @@ public final class UpmanOpenApi extends OpenApiCustomizer
 				Public projects and subgroups require public ancestors, including above the endpoint root.
 
 				Authenticators and OAuth authorization server URLs are deployment configuration.
-				Live documentation uses the endpoint's existing authentication.
+				Requests sent from Scalar use the endpoint's configured authentication.
 				""");
 	}
 

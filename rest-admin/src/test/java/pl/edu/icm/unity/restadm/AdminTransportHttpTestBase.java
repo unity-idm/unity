@@ -42,6 +42,7 @@ import pl.edu.icm.unity.engine.api.groupMember.GroupMembersService;
 import pl.edu.icm.unity.engine.api.policyDocument.PolicyDocumentManagement;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.translation.ExternalDataParser;
+import pl.edu.icm.unity.rest.RESTEndpointProperties.OpenApiPublication;
 import pl.edu.icm.unity.rest.RestEndpointHelper;
 import pl.edu.icm.unity.restadm.token.Token2JsonFormatter;
 
@@ -93,7 +94,7 @@ abstract class AdminTransportHttpTestBase
 		context.setContextPath("/");
 		context.getServletHandler().setDecodeAmbiguousURIs(true);
 		context.addServlet(new ServletHolder(servlet), "/*");
-		RestEndpointHelper.createCxfEndpoint(endpoint.new RESTAdminJAXRSApp(), bus);
+		RestEndpointHelper.createCxfEndpoint(endpoint.new RESTAdminJAXRSApp(), bus, OpenApiPublication.disabled);
 		server = new Server();
 		var configuration = new org.eclipse.jetty.server.HttpConfiguration();
 		configuration.setUriCompliance(new org.eclipse.jetty.http.UriCompliance("allowForEncodedPathSeparators",

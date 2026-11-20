@@ -36,8 +36,8 @@ Important preserved behavior:
   an empty 500. Missing incrementRevision is checked before policy update body parsing.
 - Policy creation returns 200, void mutations return 204, invitation codes and bulk execution
   statuses are text/plain, and database backups retain streaming and attachment behavior.
-- Direct authentication protects live JSON/YAML documentation; missing credentials return the
-  existing 400 Authentication failed envelope.
+- Runtime documentation is public when explicitly enabled. API requests without credentials still
+  return the existing 400 Authentication failed envelope with the direct password authenticator.
 - Credential-admin and event payloads remain raw plugin inputs. Token contents remain dynamic JSON.
 
 Run the complete `rest-admin` suite and the repository headless full build as final regression gates.

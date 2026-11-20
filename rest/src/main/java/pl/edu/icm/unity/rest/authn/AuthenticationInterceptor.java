@@ -17,6 +17,8 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.apache.cxf.interceptor.Fault;
+import org.apache.cxf.jaxrs.model.OperationResourceInfo;
+import org.apache.cxf.jaxrs.openapi.OpenApiCustomizedResource;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
@@ -24,6 +26,9 @@ import org.apache.log4j.MDC;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.ImmutableSet;
+
+import io.imunity.rest.openapi.OpenApiUiResource;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 
 import pl.edu.icm.unity.base.authn.AuthenticationMethod;
 import pl.edu.icm.unity.base.authn.AuthenticationOptionKey;
@@ -104,6 +109,12 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	@Override
 	public void handleMessage(Message message) throws Fault
 	{
+		if (isDocumentationRequest(message))
+		{
+			InvocationContext.setCurrent(new InvocationContext(null, realm, authenticators));
+			return;
+		}
+
 		String ip = getClientIP();
 		if (UnsuccessfulAuthenticationCounterImpl.getRemainingBlockedTime(ip) > 0)
 		{
@@ -161,6 +172,16 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		{
 			authnSuccess(client.get(), ip, ctx);
 		}
+	}
+
+	private static boolean isDocumentationRequest(Message message)
+	{
+		var operation = message.getExchange() == null ? null : message.getExchange().get(OperationResourceInfo.class);
+		if (operation == null || !"GET".equals(operation.getHttpMethod()))
+			return false;
+		Class<?> resource = operation.getClassResourceInfo().getServiceClass();
+		return resource == OpenApiUiResource.class || resource == OpenApiResource.class
+				|| resource == OpenApiCustomizedResource.class;
 	}
 
 	private boolean isToOptionallyAuthenticatedPath(Message message)
