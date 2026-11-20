@@ -46,8 +46,6 @@ public class RESTEndpointProperties extends UnityPropertiesHelper
 				"Publish documentation for this endpoint without authentication. The specification option serves "
 				+ "OpenAPI JSON and YAML. The specificationAndUI option also serves the interactive Scalar UI. "
 				+ "API requests still require the endpoint's configured authentication."));
-		META.put("enableOpenApi", new PropertyMD().setBoolean().setDeprecated().setHidden().setDescription(
-				"Obsolete. Set openApiPublication explicitly to make API documentation public."));
 		META.put(ENABLED_CORS_ORIGINS, new PropertyMD().setList(false).setDescription(
 				"List of origins allowed for the CORS requests. "
 				+ "The complete set of HTTP methods is enabled for the enumerated resources. "

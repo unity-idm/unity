@@ -71,17 +71,6 @@ public class UpmanRestEndpointPropertiesTest
 	}
 
 	@Test
-	void shouldRequireExplicitPublicationWhenLoadingLegacyConfiguration()
-	{
-		Properties raw = new Properties();
-		raw.setProperty(RESTEndpointProperties.PREFIX + "enableOpenApi", "true");
-
-		var publication = new RESTEndpointProperties(raw).getOpenApiPublication();
-
-		assertThat(publication).isEqualTo(OpenApiPublication.disabled);
-	}
-
-	@Test
 	void shouldDisableRuntimeDocumentationForNewConfigurations() throws Exception
 	{
 		var configuration = new UpmanRestServiceConfiguration();

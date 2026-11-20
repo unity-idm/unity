@@ -37,8 +37,7 @@ load without credentials. To call the API, select the configured Basic or Bearer
 in Scalar and enter the corresponding credentials. UpMan bearer tokens need the documented API scopes.
 Scalar sends requests directly to the endpoint and keeps credentials in memory for the current page.
 The renderer is bundled locally and uses no external request proxy. Each endpoint instance has its own
-publication setting. Build-time generation runs in every mode. If your configuration used `enableOpenApi`,
-set `openApiPublication` explicitly to opt in to public docs.
+publication setting. Build-time generation runs in every mode.
 
 The `documentation` module invokes the same exporter during `pre-site` and places the generated
 references beside the handwritten guides and workflow documents. After installing reactor dependencies, build
