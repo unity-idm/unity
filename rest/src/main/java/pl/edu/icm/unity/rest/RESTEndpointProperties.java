@@ -33,9 +33,14 @@ public class RESTEndpointProperties extends UnityPropertiesHelper
 	
 	public static final String ENABLED_CORS_ORIGINS = "allowedCorsOrigins.";
 	public static final String ENABLED_CORS_HEADERS = "allowedCorsHeaders.";
+	public static final String ENABLE_OPEN_API = "enableOpenApi";
 	
 	static
 	{
+		META.put(ENABLE_OPEN_API, new PropertyMD("true").setDescription(
+				"Publish runtime OpenAPI JSON/YAML documents and API reference resources for this endpoint. "
+				+ "Disabling publication leaves API operations and build-time documentation generation enabled. "
+				+ "This shared setting applies independently to each REST endpoint, including Admin and UpMan."));
 		META.put(ENABLED_CORS_ORIGINS, new PropertyMD().setList(false).setDescription(
 				"List of origins allowed for the CORS requests. "
 				+ "The complete set of HTTP methods is enabled for the enumerated resources. "

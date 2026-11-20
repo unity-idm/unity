@@ -1,0 +1,10 @@
+{
+  "id": "request-id",
+  "operation": "SignUp",
+  "type": "Registration",
+  "name": null,
+  "email": "accept@example.com",
+  "emailVerified": false,
+  "groups": [""],
+  "requestedTime": 1792792679.685
+}

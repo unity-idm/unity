@@ -4,6 +4,9 @@
  */
 package io.imunity.upman.rest;
 
+import org.apache.cxf.jaxrs.openapi.OpenApiFeature;
+import io.imunity.rest.openapi.OpenApiFeatureConfiguration;
+
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -62,8 +65,14 @@ public class RESTUpmanEndpoint extends RESTEndpoint
 	}
 
 	@ApplicationPath("/")
-	public class UpmanRESTJAXRSApp extends Application
+	public class UpmanRESTJAXRSApp extends Application implements OpenApiFeatureConfiguration
 	{
+		@Override
+		public void configureOpenApi(OpenApiFeature feature)
+		{
+			UpmanOpenApi.configure(feature);
+		}
+
 		@Override 
 		public Set<Object> getSingletons() 
 		{
@@ -76,6 +85,7 @@ public class RESTUpmanEndpoint extends RESTEndpoint
 					upmanRestEndpointProperties.getListOfValues(UpmanRestEndpointProperties.ROOT_GROUP_ATTRIBUTES)
 				);
 			objects.add(ret);
+			objects.add(new UpmanJsonProvider());
 			RestEndpointHelper.installExceptionHandlers(objects);
 			objects.add(new GroupVisibilityExceptionMapper());
 			objects.add(new OneManagerRemainsExceptionMapper());

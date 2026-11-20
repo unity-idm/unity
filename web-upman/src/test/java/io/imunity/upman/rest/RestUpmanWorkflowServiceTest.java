@@ -137,7 +137,7 @@ class RestUpmanWorkflowServiceTest
 		GroupContents contents = new GroupContents();
 		contents.setGroup(new Group("/root/project/team"));
 		when(groupManagement.getContents(eq("/root/project/team"), anyInt())).thenReturn(contents);
-		RestGroupUpdateRequest input = new RestGroupUpdateRequest("team", Map.of("en", "Renamed"), true);
+		GroupUpdateRequest input = new GroupUpdateRequest("team", Map.of("en", "Renamed"), true);
 
 		service.updateGroup("project", input);
 
@@ -161,13 +161,13 @@ class RestUpmanWorkflowServiceTest
 					.withProjectAlreadyMemberEmails(email.equals("member@example.org") ? Set.of(email) : Set.of())
 					.build();
 		});
-		RestInvitationRequest input = new RestInvitationRequest(
+		InvitationRequest input = new InvitationRequest(
 				List.of("sent@example.org", "member@example.org", "failed@example.org"), List.of(), false,
 				Instant.now().plusSeconds(3600));
 
-		List<RestInvitationOutcome> result = service.sendInvitations("project", input);
+		List<InvitationOutcome> result = service.sendInvitations("project", input);
 
-		assertThat(result).extracting(RestInvitationOutcome::status)
+		assertThat(result).extracting(InvitationOutcome::status)
 				.containsExactly("sent", "alreadyMember", "failed");
 		assertThat(result.get(2).message()).isEqualTo("send failed");
 	}
@@ -200,7 +200,7 @@ class RestUpmanWorkflowServiceTest
 	@Test
 	void shouldValidateAllInvitationAddressesBeforeSending()
 	{
-		RestInvitationRequest input = new RestInvitationRequest(List.of("valid@example.org", "invalid"),
+		InvitationRequest input = new InvitationRequest(List.of("valid@example.org", "invalid"),
 				List.of(), false, Instant.now().plusSeconds(3600));
 
 		assertThatThrownBy(() -> service.sendInvitations("project", input))

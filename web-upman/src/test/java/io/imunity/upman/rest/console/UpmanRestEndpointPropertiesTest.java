@@ -10,13 +10,17 @@ import static io.imunity.upman.rest.UpmanRestEndpointProperties.PREFIX;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
+import java.io.StringReader;
 import java.util.Properties;
 
 import org.junit.jupiter.api.Test;
 
+import io.imunity.vaadin.auth.services.idp.GroupWithIndentIndicator;
+import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.message.MessageSource;
 import pl.edu.icm.unity.configtester.ConfigurationComparator;
 import pl.edu.icm.unity.configtester.ConfigurationGenerator;
+import pl.edu.icm.unity.rest.RESTEndpointProperties;
 
 public class UpmanRestEndpointPropertiesTest
 {
@@ -47,5 +51,36 @@ public class UpmanRestEndpointPropertiesTest
 		assertThat(result.get(PREFIX + "allowedCorsOrigins.2")).isEqualTo("cde");
 		assertThat(result.get(PREFIX + "allowedCorsHeaders.1")).isEqualTo("zzz");
 		assertThat(result.get(PREFIX + "allowedCorsHeaders.2")).isEqualTo("sss");
+	}
+
+	@Test
+	void shouldPreserveDisabledRuntimeDocumentationWhenSaving() throws Exception
+	{
+		var configuration = new UpmanRestServiceConfiguration();
+		configuration.fromProperties("unity.upman.rest.rootGroup=/projects\n"
+				+ "unity.upman.rest.authorizationGroup=/managers\n"
+				+ "unity.endpoint.rest.enableOpenApi=false\n", msg);
+
+		Properties raw = new Properties();
+		raw.load(new StringReader(configuration.toProperties()));
+
+		assertThat(new RESTEndpointProperties(raw).getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API)).isFalse();
+		assertThat(raw.getProperty(PREFIX + "rootGroup")).isEqualTo("/projects");
+		assertThat(raw.getProperty(PREFIX + "authorizationGroup")).isEqualTo("/managers");
+	}
+
+	@Test
+	void shouldEnableRuntimeDocumentationForNewConfigurations() throws Exception
+	{
+		var configuration = new UpmanRestServiceConfiguration();
+		configuration.setRootGroup(new GroupWithIndentIndicator(
+				new Group("/projects"), false));
+		configuration.setAuthorizationGroup(new GroupWithIndentIndicator(
+				new Group("/managers"), false));
+
+		Properties raw = new Properties();
+		raw.load(new StringReader(configuration.toProperties()));
+
+		assertThat(new RESTEndpointProperties(raw).getBooleanValue(RESTEndpointProperties.ENABLE_OPEN_API)).isTrue();
 	}
 }

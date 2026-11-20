@@ -42,7 +42,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 	public void addedProjectIsReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+		ProjectCreateRequest build = ProjectCreateRequest.builder()
 			.withProjectId("A")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup"))
@@ -54,31 +54,31 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
-		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+		ProjectId projectId = JsonUtil.parse(jsonProjectId, ProjectId.class);
 
-		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id);
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id());
 
 		String contents = client.execute(host, getProject, getClientContext(host),
 			new BasicHttpClientResponseHandler());
-		RestProject project = JsonUtil.parse(contents, RestProject.class);
+		Project project = JsonUtil.parse(contents, Project.class);
 
-		assertThat(project.projectId).isEqualTo("A");
-		assertThat(project.isPublic).isEqualTo(false);
-		assertThat(project.displayedName).isEqualTo(Map.of("en", "superGroup"));
-		assertThat(project.description).isEqualTo(Map.of("en", "description"));
-		assertThat(project.logoUrl).isEqualTo("/image.png");
-		assertThat(project.enableSubprojects).isEqualTo(true);
-		assertThat(project.readOnlyAttributes).isEqualTo(List.of());
-		assertThat(project.registrationForm).isEqualTo(null);
-		assertThat(project.signUpEnquiry).isEqualTo(null);
-		assertThat(project.membershipUpdateEnquiry).isEqualTo(null);
+		assertThat(project.projectId()).isEqualTo("A");
+		assertThat(project.isPublic()).isEqualTo(false);
+		assertThat(project.displayedName()).isEqualTo(Map.of("en", "superGroup"));
+		assertThat(project.description()).isEqualTo(Map.of("en", "description"));
+		assertThat(project.logoUrl()).isEqualTo("/image.png");
+		assertThat(project.enableSubprojects()).isEqualTo(true);
+		assertThat(project.readOnlyAttributes()).isEqualTo(List.of());
+		assertThat(project.registrationForm()).isEqualTo(null);
+		assertThat(project.signUpEnquiry()).isEqualTo(null);
+		assertThat(project.membershipUpdateEnquiry()).isEqualTo(null);
 	}
 
 	@Test
 	public void removedProjectIsNotReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+		ProjectCreateRequest build = ProjectCreateRequest.builder()
 			.withProjectId("A")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup"))
@@ -89,15 +89,15 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
-		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+		ProjectId projectId = JsonUtil.parse(jsonProjectId, ProjectId.class);
 
-		HttpDelete removeProject = new HttpDelete("/restupm/v1/projects/" + projectId.id);
+		HttpDelete removeProject = new HttpDelete("/restupm/v1/projects/" + projectId.id());
 		try(ClassicHttpResponse response = client.executeOpen(host, removeProject, getClientContext(host)))
 		{
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id);
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id());
 		try(ClassicHttpResponse response = client.executeOpen(host, getProject, getClientContext(host)))
 		{
 			assertThat(Status.NOT_FOUND.getStatusCode()).isEqualTo(response.getCode());
@@ -128,7 +128,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 	public void addedProjectsAreReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+		ProjectCreateRequest build = ProjectCreateRequest.builder()
 			.withProjectId("A")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup"))
@@ -140,10 +140,10 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
-		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+		ProjectId projectId = JsonUtil.parse(jsonProjectId, ProjectId.class);
 
 		HttpPost add2 = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest build2 = RestProjectCreateRequest.builder()
+		ProjectCreateRequest build2 = ProjectCreateRequest.builder()
 			.withProjectId("B")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup"))
@@ -156,24 +156,24 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 		add2.setEntity(new StringEntity(mapper.writeValueAsString(build2)));
 		String jsonProjectId2 = client.execute(host, add2, getClientContext(host),
 			new BasicHttpClientResponseHandler());
-		RestProjectId projectId2 = JsonUtil.parse(jsonProjectId2, RestProjectId.class);
+		ProjectId projectId2 = JsonUtil.parse(jsonProjectId2, ProjectId.class);
 
 		HttpGet getProject = new HttpGet("/restupm/v1/projects");
 
 		String contents = client.execute(host, getProject, getClientContext(host),
 			new BasicHttpClientResponseHandler());
-		List<RestProject> projects = JsonUtil.parseToList(contents, RestProject.class);
+		List<Project> projects = JsonUtil.parseToList(contents, Project.class);
 
 		assertThat(projects.size()).isEqualTo(2);
-		assertThat(projects.stream().map(p -> p.projectId).collect(Collectors.toSet()))
-			.isEqualTo(Set.of(projectId.id, projectId2.id));
+		assertThat(projects.stream().map(p -> p.projectId()).collect(Collectors.toSet()))
+			.isEqualTo(Set.of(projectId.id(), projectId2.id()));
 	}
 
 	@Test
 	public void notAddedProjectIsNotUpdate() throws Exception
 	{
 		HttpPut update = new HttpPut("/restupm/v1/projects/" + "test");
-		RestProjectUpdateRequest updateBuild = RestProjectUpdateRequest.builder()
+		ProjectUpdateRequest updateBuild = ProjectUpdateRequest.builder()
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup2"))
 			.withDescription(Map.of("en", "description2"))
@@ -195,7 +195,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 	public void updatedProjectIsReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+		ProjectCreateRequest build = ProjectCreateRequest.builder()
 			.withProjectId("A")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup"))
@@ -207,10 +207,10 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
-		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+		ProjectId projectId = JsonUtil.parse(jsonProjectId, ProjectId.class);
 
-		HttpPut update = new HttpPut("/restupm/v1/projects/" + projectId.id);
-		RestProjectUpdateRequest updateBuild = RestProjectUpdateRequest.builder()
+		HttpPut update = new HttpPut("/restupm/v1/projects/" + projectId.id());
+		ProjectUpdateRequest updateBuild = ProjectUpdateRequest.builder()
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup2"))
 			.withDescription(Map.of("en", "description2"))
@@ -226,29 +226,29 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id);
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id());
 
 		String contents = client.execute(host, getProject, getClientContext(host),
 			new BasicHttpClientResponseHandler());
-		RestProject project = JsonUtil.parse(contents, RestProject.class);
+		Project project = JsonUtil.parse(contents, Project.class);
 
-		assertThat(project.projectId).isEqualTo("A");
-		assertThat(project.isPublic).isEqualTo(false);
-		assertThat(project.displayedName).isEqualTo(Map.of("en", "superGroup2"));
-		assertThat(project.description).isEqualTo(Map.of("en", "description2"));
-		assertThat(project.logoUrl).isEqualTo("/image2.png");
-		assertThat(project.enableSubprojects).isEqualTo(true);
-		assertThat(project.readOnlyAttributes).isEqualTo(List.of());
-		assertThat(project.registrationForm).isEqualTo(null);
-		assertThat(project.signUpEnquiry).isEqualTo(null);
-		assertThat(project.membershipUpdateEnquiry).isEqualTo(null);
+		assertThat(project.projectId()).isEqualTo("A");
+		assertThat(project.isPublic()).isEqualTo(false);
+		assertThat(project.displayedName()).isEqualTo(Map.of("en", "superGroup2"));
+		assertThat(project.description()).isEqualTo(Map.of("en", "description2"));
+		assertThat(project.logoUrl()).isEqualTo("/image2.png");
+		assertThat(project.enableSubprojects()).isEqualTo(true);
+		assertThat(project.readOnlyAttributes()).isEqualTo(List.of());
+		assertThat(project.registrationForm()).isEqualTo(null);
+		assertThat(project.signUpEnquiry()).isEqualTo(null);
+		assertThat(project.membershipUpdateEnquiry()).isEqualTo(null);
 	}
 
 	@Test
 	public void addedMembershipIsReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+		ProjectCreateRequest build = ProjectCreateRequest.builder()
 			.withProjectId("A")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup"))
@@ -259,27 +259,27 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
-		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+		ProjectId projectId = JsonUtil.parse(jsonProjectId, ProjectId.class);
 
-		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
 		{
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail);
 		String contents = client.execute(host, getProject, getClientContext(host),
 			new BasicHttpClientResponseHandler());
-		RestProjectMembership member = JsonUtil.parse(contents, RestProjectMembership.class);
+		ProjectMembership member = JsonUtil.parse(contents, ProjectMembership.class);
 
-		assertThat(member.email).isEqualTo(entityEmail);
+		assertThat(member.email()).isEqualTo(entityEmail);
 	}
 
 	@Test
 	public void removedMembershipIsNotReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+		ProjectCreateRequest build = ProjectCreateRequest.builder()
 			.withProjectId("A")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup"))
@@ -290,21 +290,21 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
-		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+		ProjectId projectId = JsonUtil.parse(jsonProjectId, ProjectId.class);
 
-		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
 		{
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpDelete removeMembership = new HttpDelete("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		HttpDelete removeMembership = new HttpDelete("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, removeMembership, getClientContext(host)))
 		{
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, getProject, getClientContext(host)))
 		{
 			assertThat(Status.NOT_FOUND.getStatusCode()).isEqualTo(response.getCode());
@@ -315,7 +315,7 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 	public void addedMembershipRoleIsReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+		ProjectCreateRequest build = ProjectCreateRequest.builder()
 			.withProjectId("A")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup"))
@@ -326,34 +326,35 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
-		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+		ProjectId projectId = JsonUtil.parse(jsonProjectId, ProjectId.class);
 
-		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
 		{
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpPut addMembershipRole = new HttpPut("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
-		addMembershipRole.setEntity(new StringEntity(mapper.writeValueAsString(new RestAuthorizationRole("manager"))));
+		HttpPut addMembershipRole = new HttpPut(
+				"/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail + "/role");
+		addMembershipRole.setEntity(new StringEntity(mapper.writeValueAsString(new AuthorizationRole("manager"))));
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembershipRole, getClientContext(host)))
 		{
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail + "/role");
 		String contents = client.execute(host, getProject, getClientContext(host),
 			new BasicHttpClientResponseHandler());
-		RestAuthorizationRole role = JsonUtil.parse(contents, RestAuthorizationRole.class);
+		AuthorizationRole role = JsonUtil.parse(contents, AuthorizationRole.class);
 
-		assertThat(role.role).isEqualTo("manager");
+		assertThat(role.role()).isEqualTo("manager");
 	}
 
 	@Test
 	public void addedMembershipReturnedDefaultRegularRole() throws Exception
 	{
 		HttpPost add = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+		ProjectCreateRequest build = ProjectCreateRequest.builder()
 			.withProjectId("A")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup"))
@@ -364,27 +365,27 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
-		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+		ProjectId projectId = JsonUtil.parse(jsonProjectId, ProjectId.class);
 
-		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
 		{
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail + "/role");
 		String contents = client.execute(host, getProject, getClientContext(host),
 			new BasicHttpClientResponseHandler());
-		RestAuthorizationRole role = JsonUtil.parse(contents, RestAuthorizationRole.class);
+		AuthorizationRole role = JsonUtil.parse(contents, AuthorizationRole.class);
 
-		assertThat(role.role).isEqualTo("regular");
+		assertThat(role.role()).isEqualTo("regular");
 	}
 
 	@Test
 	public void updatedMembershipRoleIsReturned() throws Exception
 	{
 		HttpPost add = new HttpPost("/restupm/v1/projects");
-		RestProjectCreateRequest build = RestProjectCreateRequest.builder()
+		ProjectCreateRequest build = ProjectCreateRequest.builder()
 			.withProjectId("A")
 			.withPublic(false)
 			.withDisplayedName(Map.of("en", "superGroup"))
@@ -395,34 +396,37 @@ public class UpmanRestManagementIntegrationTest extends UpmanRESTTestBase
 			.build();
 		add.setEntity(new StringEntity(mapper.writeValueAsString(build)));
 		String jsonProjectId = client.execute(host, add, getClientContext(host), new BasicHttpClientResponseHandler());
-		RestProjectId projectId = JsonUtil.parse(jsonProjectId, RestProjectId.class);
+		ProjectId projectId = JsonUtil.parse(jsonProjectId, ProjectId.class);
 
-		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail);
+		HttpPost addMembership = new HttpPost("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail);
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembership, getClientContext(host)))
 		{
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpPut addMembershipRole = new HttpPut("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
-		addMembershipRole.setEntity(new StringEntity(mapper.writeValueAsString(new RestAuthorizationRole("manager"))));
+		HttpPut addMembershipRole = new HttpPut(
+				"/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail + "/role");
+		addMembershipRole.setEntity(new StringEntity(mapper.writeValueAsString(new AuthorizationRole("manager"))));
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembershipRole, getClientContext(host)))
 		{
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpPut addMembershipRoleUpdate = new HttpPut("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
-		addMembershipRoleUpdate.setEntity(new StringEntity(mapper.writeValueAsString(new RestAuthorizationRole("projectsAdmin"))));
+		HttpPut addMembershipRoleUpdate = new HttpPut(
+				"/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail + "/role");
+		addMembershipRoleUpdate.setEntity(
+				new StringEntity(mapper.writeValueAsString(new AuthorizationRole("projectsAdmin"))));
 		try(ClassicHttpResponse response = client.executeOpen(host, addMembershipRoleUpdate, getClientContext(host)))
 		{
 			assertThat(Status.NO_CONTENT.getStatusCode()).isEqualTo(response.getCode());
 		}
 
-		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id + "/members/" + entityEmail + "/role");
+		HttpGet getProject = new HttpGet("/restupm/v1/projects/" + projectId.id() + "/members/" + entityEmail + "/role");
 		String contents = client.execute(host, getProject, getClientContext(host),
 			new BasicHttpClientResponseHandler());
-		RestAuthorizationRole role = JsonUtil.parse(contents, RestAuthorizationRole.class);
+		AuthorizationRole role = JsonUtil.parse(contents, AuthorizationRole.class);
 
-		assertThat(role.role).isEqualTo("projectsAdmin");
+		assertThat(role.role()).isEqualTo("projectsAdmin");
 	}
 
 

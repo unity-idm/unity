@@ -1,0 +1,13 @@
+{
+  "projectId": "contract",
+  "urlId": "contract",
+  "public": false,
+  "displayedName": {"en": "Updated project"},
+  "description": {"en": "Updated description"},
+  "logoUrl": "/logo.png",
+  "enableSubprojects": false,
+  "readOnlyAttributes": [],
+  "registrationForm": null,
+  "signUpEnquiry": null,
+  "membershipUpdateEnquiry": null
+}

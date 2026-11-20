@@ -110,6 +110,13 @@
 			<artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.webjars.npm</groupId>
+			<artifactId>scalar__api-reference</artifactId>
+			<exclusions>
+				<exclusion><groupId>*</groupId><artifactId>*</artifactId></exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
 			<groupId>jakarta.xml.ws</groupId>
 			<artifactId>jakarta.xml.ws-api</artifactId>
 		</dependency>

@@ -26,11 +26,22 @@ class AdminOpenApiHttpContractTest extends AdminHttpContractTestBase
 				.isEqualTo("#/components/schemas/RestPolicyDocumentId");
 	}
 	@Test
+	void shouldServeScalarUnderTheAuthenticatedAdminEndpoint() throws Exception
+	{
+		HttpResult result = exchange("GET", "/restadm/api-docs");
+
+		assertThat(result.status()).as(result.body()).isEqualTo(200);
+		assertThat(result.body()).contains("Scalar.createApiReference", "api-docs/scalar.js", "openapi.json",
+				"<base href=\"/restadm/\">");
+	}
+
+	@Test
 	void shouldRequireAuthenticationForLiveDocumentation() throws Exception
 	{
-		for (String format : new String[] {"json", "yaml"})
+		for (String resource : new String[] {"openapi.json", "openapi.yaml", "api-docs",
+				"api-docs/index.html", "api-docs/scalar.js"})
 		{
-			var request = new org.apache.hc.client5.http.classic.methods.HttpGet("/restadm/openapi." + format);
+			var request = new org.apache.hc.client5.http.classic.methods.HttpGet("/restadm/" + resource);
 			try (var response = client.executeOpen(host, request,
 					org.apache.hc.client5.http.protocol.HttpClientContext.create()))
 			{

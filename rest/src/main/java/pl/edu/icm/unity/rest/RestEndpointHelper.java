@@ -10,6 +10,8 @@ import java.util.Set;
 import jakarta.ws.rs.core.Application;
 
 import io.imunity.rest.openapi.OpenApiFeatureConfiguration;
+import io.imunity.rest.openapi.OpenApiUiResource;
+import io.swagger.v3.jaxrs2.integration.JaxrsApplicationScanner;
 
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.BindingFactoryManager;
@@ -55,14 +57,24 @@ public class RestEndpointHelper
 
 	public static Endpoint createCxfEndpoint(Application application, Bus bus)
 	{
-		OpenApiFeature feature = new OpenApiFeature();
-		feature.setScan(false);
-		feature.setUseContextBasedConfig(true);
-		if (application instanceof OpenApiFeatureConfiguration configuration)
-			configuration.configureOpenApi(feature);
-		
+		return createCxfEndpoint(application, bus, true);
+	}
+
+	public static Endpoint createCxfEndpoint(Application application, Bus bus, boolean enableOpenApi)
+	{
 		JAXRSServerFactoryBean sf = ResourceUtils.createApplication(application, false, false, false, bus);
-		sf.getFeatures().add(feature);
+		if (enableOpenApi)
+		{
+			OpenApiFeature feature = new OpenApiFeature();
+			feature.setScan(false);
+			feature.setScannerClass(JaxrsApplicationScanner.class.getName());
+			feature.setUseContextBasedConfig(true);
+			if (application instanceof OpenApiFeatureConfiguration configuration)
+				configuration.configureOpenApi(feature);
+			feature.setSupportSwaggerUi(false);
+			sf.setServiceBean(new OpenApiUiResource());
+			sf.getFeatures().add(feature);
+		}
 		
 		JAXRSBindingFactory factory = new JAXRSBindingFactory();
 		factory.setBus(bus);

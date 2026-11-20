@@ -62,7 +62,7 @@ class UpmanRestOAuthAuthorizationTest
 				authorization, mock(EntityManagement.class), mock(RegistrationsManagement.class),
 				mock(EnquiryManagement.class), "/A");
 
-		assertThat(service.getProjects()).extracting(project -> project.projectId)
+		assertThat(service.getProjects()).extracting(project -> project.projectId())
 				.containsExactly("project-x");
 	}
 
