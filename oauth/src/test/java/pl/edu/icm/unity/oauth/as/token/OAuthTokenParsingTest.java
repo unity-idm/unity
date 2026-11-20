@@ -35,4 +35,13 @@ public class OAuthTokenParsingTest
 		assertThat(token.getAudience().get(0)).isEqualTo("oauth-client");
 		assertThat(token.getAudience().get(1)).isEqualTo("oauth-client2");
 	}
+
+	@Test
+	public void shouldParseTokenWithLegacyStringEffectiveScopes()
+	{
+		OAuthToken token = OAuthToken.getInstanceFromJson("{\"effectiveScope\":[\"profile\"]}".getBytes());
+
+		assertThat(token.getEffectiveScope()).extracting(scope -> scope.scope()).containsExactly("profile");
+		assertThat(token.getEffectiveScope().get(0).scopeDefinition().attributes()).isNull();
+	}
 }

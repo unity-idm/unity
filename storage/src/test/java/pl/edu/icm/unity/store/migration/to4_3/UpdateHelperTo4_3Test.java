@@ -82,4 +82,28 @@ public class UpdateHelperTo4_3Test
 
 		assertFalse(resultOpt.isPresent());
 	}
+
+	@Test
+	void shouldSkipTokenWithNullEffectiveScopes()
+	{
+		ObjectNode input = Constants.MAPPER.createObjectNode();
+		input.putNull("effectiveScope");
+
+		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(input);
+
+		assertFalse(resultOpt.isPresent());
+	}
+
+	@Test
+	void shouldSkipTokenWithAlreadyMigratedEffectiveScopes()
+	{
+		ObjectNode input = Constants.MAPPER.createObjectNode();
+		ArrayNode scopes = Constants.MAPPER.createArrayNode();
+		scopes.addObject().put("scope", "profile");
+		input.set("effectiveScope", scopes);
+
+		Optional<ObjectNode> resultOpt = UpdateHelperTo4_3.updateEffectiveScopesInOauthToken(input);
+
+		assertFalse(resultOpt.isPresent());
+	}
 }

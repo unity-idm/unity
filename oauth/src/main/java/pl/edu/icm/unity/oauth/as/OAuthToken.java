@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import pl.edu.icm.unity.base.Constants;
@@ -33,6 +34,7 @@ public class OAuthToken
 	private String accessToken;
 	private String refreshToken;
 	private String firstRefreshRollingToken;
+	@JsonDeserialize(contentUsing = LegacyRequestedOAuthScopeDeserializer.class)
 	private List<RequestedOAuthScope> effectiveScope;
 	private String[] requestedScope;
 	private long clientEntityId;
