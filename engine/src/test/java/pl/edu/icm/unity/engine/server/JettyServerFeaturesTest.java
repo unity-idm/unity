@@ -94,6 +94,42 @@ public class JettyServerFeaturesTest
 				.containsIgnoringCase("HttpOnly");
 	}
 
+	@Test
+	void shouldDeploySessionEndpointFromAnotherEndpointRequest() throws Exception
+	{
+		buildHttpServer();
+		ServletContextHandler deployed = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		deployed.setContextPath("/deployed");
+		deployed.addServlet(new ServletHolder(new SessionServlet()), "/*");
+		ServletContextHandler admin = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		admin.setContextPath("/admin");
+		admin.addServlet(new ServletHolder(new HttpServlet()
+		{
+			@Override
+			protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
+			{
+				try
+				{
+					httpServer.deployHandler(deployed, "sys:deployed");
+				} catch (EngineException e)
+				{
+					throw new IOException(e);
+				}
+			}
+		}), "/*");
+		httpServer.start();
+		httpServer.deployHandler(admin, "sys:admin");
+
+		String adminUrl = httpServerURL() + "/admin/";
+		HttpResponse deploymentResponse = makeGetRequest(createClient(adminUrl), adminUrl);
+		String deployedUrl = httpServerURL() + "/deployed/";
+		HttpResponse sessionResponse = makeGetRequest(createClient(deployedUrl), deployedUrl);
+
+		assertThat(deploymentResponse.getCode()).isEqualTo(200);
+		assertThat(sessionResponse.getCode()).isEqualTo(200);
+		assertThat(sessionResponse.getHeader("Set-Cookie").getValue()).containsIgnoringCase("HttpOnly");
+	}
+
 	private static class SessionServlet extends HttpServlet
 	{
 		@Override

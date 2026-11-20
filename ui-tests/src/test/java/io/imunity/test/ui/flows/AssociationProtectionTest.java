@@ -51,11 +51,9 @@ class AssociationProtectionTest extends SamlWorkflowTestBase
 		TestUser user = createUser("Association conflict owner");
 		var original = entities.getEntity(user.entity()).getIdentities();
 		deploySaml("", List.of());
-		driver.get(baseUrl + "/saml-home");
 		VaadinPage page = new VaadinPage(driver);
-		page.click(PROVIDER);
-		page.signIn(user.username(), user.password());
-		page.click(By.className("u-consentConfirmButton"));
+		page.login(baseUrl, "/home", user.username(), user.password());
+		driver.get(baseUrl + "/saml-home");
 		page.visible(By.id("MainHeader.loggedAs"));
 		page.click(By.id("EntityDetailsWithActions.associateAccount"));
 		String source = driver.getWindowHandle();
@@ -67,6 +65,7 @@ class AssociationProtectionTest extends SamlWorkflowTestBase
 		driver.switchTo().window(driver.getWindowHandles().stream().filter(handle -> !handle.equals(source))
 				.findFirst().orElseThrow());
 		page.click(PROVIDER);
+		page.signIn(user.username(), user.password());
 		page.click(By.className("u-consentConfirmButton"));
 		driver.switchTo().window(source);
 		page.visible(By.cssSelector("vaadin-icon[icon='vaadin:exclamation-circle']"));
