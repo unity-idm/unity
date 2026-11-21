@@ -2,10 +2,16 @@ package io.imunity.test.ui.admin;
 
 import static io.imunity.test.ui.VaadinPage.testId;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -22,6 +28,38 @@ class RegistrationFormEditorTest extends EndUserTestBase
 	@Autowired
 	@Qualifier("insecure")
 	private RegistrationsManagement registrations;
+
+	@Test
+	void shouldShowLanguageFlagsInLocalizedTextFieldsAndTextAreas()
+	{
+		VaadinPage page = new VaadinPage(driver);
+		driver.manage().window().setSize(new Dimension(1600, 1024));
+		page.login(baseUrl, "/admin", "ui-admin", "Ui-admin!42");
+		driver.get(baseUrl + "/admin/forms/registration");
+
+		page.click(By.xpath("//vaadin-tab[normalize-space(.)='Visual settings']"));
+		WebElement pageTitle = page.visible(testId("RegistrationFormEditor.pageTitle"));
+		WebElement formInformation = page.visible(By.xpath(
+				"//vaadin-form-item[*[@slot='label' and normalize-space(.)='Form information:']]"));
+		By expand = By.cssSelector("vaadin-icon[icon='vaadin:angle-down']");
+		pageTitle.findElement(expand).click();
+		formInformation.findElement(expand).click();
+		waitFor(() -> pageTitle.findElements(expand).stream().noneMatch(WebElement::isDisplayed)
+				&& formInformation.findElements(expand).stream().noneMatch(WebElement::isDisplayed));
+
+		assertSoftly(softly ->
+		{
+			for (String flagCode : List.of("gb", "pl"))
+			{
+				By flag = By.cssSelector("[slot='suffix'].fi-" + flagCode);
+				softly.assertThat(renderedFlagImage(pageTitle.findElement(flag)))
+						.as("%s flag in the page title field", flagCode).endsWith("/" + flagCode + ".svg");
+				softly.assertThat(renderedFlagImage(formInformation.findElement(flag)))
+						.as("%s flag in the form information area", flagCode).endsWith("/" + flagCode + ".svg");
+			}
+		});
+		screenshot("English and Polish flags in registration form editor");
+	}
 
 	@Test
 	void shouldCreateReopenAndEditPublicFormAndCollectSubmittedComment() throws Exception
@@ -81,5 +119,22 @@ class RegistrationFormEditorTest extends EndUserTestBase
 			assertThat(request.getStatus()).isEqualTo(RegistrationRequestStatus.pending);
 			assertThat(request.getCreatedEntityId()).isNull();
 		});
+	}
+
+	private String renderedFlagImage(WebElement flag)
+	{
+		if (!flag.isDisplayed())
+			return null;
+		return (String) ((JavascriptExecutor) driver).executeAsyncScript("""
+				const [flag, done] = arguments;
+				const background = getComputedStyle(flag).backgroundImage;
+				if (!background.startsWith('url("')) {
+					done(null);
+					return;
+				}
+				const image = new Image();
+				image.src = background.slice(5, -2);
+				image.decode().then(() => done(image.src), () => done(null));
+				""", flag);
 	}
 }
