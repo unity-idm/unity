@@ -81,10 +81,10 @@ class TrustedDeviceTest extends EndUserTestBase
 	private WebDriver browserWithRememberedCookie(Cookie cookie)
 	{
 		WebDriver browser = newBrowser();
-		browser.get(baseUrl + "/trust-home");
-		browser.manage().deleteAllCookies();
+		// Establish the cookie origin before Vaadin can send requests that race to consume the cookie.
+		browser.get(baseUrl);
 		browser.manage().addCookie(cookie);
-		browser.get(baseUrl + "/trust-home");
+		browser.get(baseUrl + "/trust-home/");
 		return browser;
 	}
 }
