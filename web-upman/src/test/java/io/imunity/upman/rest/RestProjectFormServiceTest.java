@@ -12,13 +12,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.imunity.rest.api.types.registration.RestEnquiryForm;
 import io.imunity.rest.api.types.registration.RestRegistrationForm;
 import io.imunity.rest.mappers.registration.EnquiryFormMapper;
 import io.imunity.rest.mappers.registration.RegistrationFormMapper;
 import pl.edu.icm.unity.base.exceptions.EngineException;
-import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
 import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.group.GroupContents;
 import pl.edu.icm.unity.base.group.GroupDelegationConfiguration;
@@ -29,9 +29,8 @@ import pl.edu.icm.unity.base.registration.RegistrationForm;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.project.RestProjectAuthorization;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
-import io.imunity.vaadin.endpoint.common.exceptions.FormValidationException;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 public class RestProjectFormServiceTest
@@ -184,7 +183,7 @@ public class RestProjectFormServiceTest
 				.withTargetGroups(List.of("/"))
 				.build();
 		doThrow(IllegalArgumentException.class).when(validator)
-				.assertCommonPartOfFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
+				.assertEnquiryFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class, () -> service.addSignupEnquiryForm("A", form));
 	}
 
@@ -219,7 +218,7 @@ public class RestProjectFormServiceTest
 				.withTargetGroups(List.of("/"))
 				.build();
 		doThrow(IllegalArgumentException.class).when(validator)
-				.assertCommonPartOfFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
+				.assertEnquiryFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class, () -> service.updateSignupEnquiryForm("A", form, true));
 	}
 
@@ -287,7 +286,7 @@ public class RestProjectFormServiceTest
 				.withTargetGroups(List.of("/"))
 				.build();
 		doThrow(IllegalArgumentException.class).when(validator)
-				.assertCommonPartOfFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
+				.assertEnquiryFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class,
 				() -> service.addMembershipUpdateEnquiryForm("A", form));
 	}
@@ -323,7 +322,7 @@ public class RestProjectFormServiceTest
 				.withTargetGroups(List.of("/"))
 				.build();
 		doThrow(IllegalArgumentException.class).when(validator)
-				.assertCommonPartOfFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
+				.assertEnquiryFormIsRestrictedToProjectGroup(EnquiryFormMapper.map(form), "/A/A");
 		Assertions.assertThrows(IllegalArgumentException.class,
 				() -> service.updateMembershipUpdateEnquiryForm("A", form, true));
 	}

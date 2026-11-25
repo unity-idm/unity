@@ -40,7 +40,7 @@ class JettyErrorHandler extends ErrorHandler
 
 	JettyErrorHandler(String webContentsDirectory)
 	{
-		cfg = new Configuration(Configuration.VERSION_2_3_21);
+		cfg = FreemarkerUtils.createConfiguration(Configuration.VERSION_2_3_21);
 		
 		cfg.setTemplateLoader(FreemarkerUtils.getTemplateLoader(webContentsDirectory, 
 				FreemarkerUtils.TEMPLATES_ROOT, getClass()));

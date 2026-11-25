@@ -2,7 +2,9 @@ package io.imunity.upman.rest;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,21 +15,30 @@ import pl.edu.icm.unity.base.group.Group;
 import pl.edu.icm.unity.base.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.base.registration.BaseForm;
 import pl.edu.icm.unity.base.registration.BaseFormNotifications;
+import pl.edu.icm.unity.base.registration.EnquiryForm;
 import pl.edu.icm.unity.base.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.base.registration.RegistrationForm;
+import pl.edu.icm.unity.base.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.base.translation.TranslationAction;
 import pl.edu.icm.unity.base.translation.TranslationProfile;
 import pl.edu.icm.unity.base.translation.TranslationRule;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.bulkops.EntityMVELContextKey;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.translation.ActionValidationException;
 import pl.edu.icm.unity.engine.api.translation.form.GroupRestrictedFormValidationContext;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationMVELContextKey;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationActionFactory;
 
 class ProjectFormsValidator
 {
+	private static final RestrictedMvelExpressionValidator FORM_AUTOMATION_EXPRESSION_VALIDATOR =
+			new RestrictedMvelExpressionValidator(namesOf(RegistrationMVELContextKey.values()));
+	private static final RestrictedMvelExpressionValidator ENQUIRY_TARGET_CONDITION_VALIDATOR =
+			new RestrictedMvelExpressionValidator(namesOf(EntityMVELContextKey.values()));
+
 	private final RegistrationActionsRegistry registrationActionsRegistry;
 	private final GroupsManagement groupMan;
 	private final List<String> rootGroupAttributes;
@@ -47,7 +58,14 @@ class ProjectFormsValidator
 		assertAutoLoginToRealm(registrationForm.getAutoLoginToRealm());
 	}
 
-	public void assertCommonPartOfFormIsRestrictedToProjectGroup(BaseForm form, String projectPath)
+	public void assertEnquiryFormIsRestrictedToProjectGroup(EnquiryForm enquiryForm, String projectPath)
+			throws ProjectFormValidationException, ActionValidationException, EngineException
+	{
+		assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
+		ENQUIRY_TARGET_CONDITION_VALIDATOR.validate(enquiryForm.getTargetCondition(), "Enquiry target condition");
+	}
+
+	private void assertCommonPartOfFormIsRestrictedToProjectGroup(BaseForm form, String projectPath)
 			throws ProjectFormValidationException, ActionValidationException, EngineException
 	{
 		assertAdminGroup(form.getNotificationsConfiguration(), projectPath);
@@ -61,6 +79,7 @@ class ProjectFormsValidator
 	{
 		for (TranslationRule rule : translationProfile.getRules())
 		{
+			FORM_AUTOMATION_EXPRESSION_VALIDATOR.validate(rule.getCondition(), "Form automation rule condition");
 			validateAction(rule.getAction(), projectPath);
 		}
 	}
@@ -69,11 +88,32 @@ class ProjectFormsValidator
 			throws ActionValidationException, EngineException
 	{
 		RegistrationTranslationActionFactory factory = registrationActionsRegistry.getByName(action.getName());
+		assertExpressionParametersAreRestricted(factory.getActionType().getParameters(), action);
 		RegistrationTranslationAction instance = factory.getInstance(action.getParameters());
 		instance.validateGroupRestrictedForm(GroupRestrictedFormValidationContext.builder()
 				.withParentGroup(projectPath)
 				.withAllowedRootGroupAttributes(rootGroupAttributes)
 				.build());
+	}
+
+	private void assertExpressionParametersAreRestricted(ActionParameterDefinition[] definitions,
+			TranslationAction action)
+	{
+		String[] parameters = action.getParameters();
+		int checkedParameters = Math.min(definitions.length, parameters.length);
+		for (int i = 0; i < checkedParameters; i++)
+		{
+			if (definitions[i].getType() == ActionParameterDefinition.Type.EXPRESSION)
+				FORM_AUTOMATION_EXPRESSION_VALIDATOR.validate(parameters[i],
+						"Expression of form automation action " + action.getName());
+		}
+	}
+
+	private static Set<String> namesOf(Enum<?>[] contextKeys)
+	{
+		return Stream.of(contextKeys)
+				.map(Enum::name)
+				.collect(Collectors.toSet());
 	}
 
 	private void assertAttributes(List<AttributeRegistrationParam> attributeParams, String projectPath)

@@ -7,6 +7,8 @@ package pl.edu.icm.unity.engine.translation.form.action;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
@@ -59,6 +61,7 @@ public class AddToGroupActionFactory extends AbstractRegistrationTranslationActi
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				AddToGroupActionFactory.AddToGroupAction.class);
 		private Serializable expression;
+		private static final Pattern SINGLE_STRING_LITERAL = Pattern.compile("([\"'])([^\"'\\\\]*)\\1");
 		private String rawExpression;
 		
 		public AddToGroupAction(TranslationActionType description, String[] parameters)
@@ -97,12 +100,12 @@ public class AddToGroupActionFactory extends AbstractRegistrationTranslationActi
 		@Override
 		public void validateGroupRestrictedForm(GroupRestrictedFormValidationContext context) throws ActionValidationException
 		{
-			if (!((rawExpression.startsWith("\"") || rawExpression.startsWith("'"))
-					&& (rawExpression.endsWith("\"") || rawExpression.endsWith("'"))))
+			Matcher literal = SINGLE_STRING_LITERAL.matcher(rawExpression);
+			if (!literal.matches())
 			{
 				throw new ActionValidationException("Only literal expression is allowed in form automation addToGroup action");
 			}
-			String group = rawExpression.substring(1, rawExpression.length() -1);	
+			String group = literal.group(2);
 			if (!Group.isChildOrSame(group, context.parentGroup))
 			{
 				throw new ActionValidationException("Group " + group + " is not allowed in form automation addToGroup action");

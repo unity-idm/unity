@@ -34,7 +34,7 @@ public class FreemarkerAppHandler
 	@Autowired
 	public FreemarkerAppHandler(UnityServerConfiguration serverConfig)
 	{
-		cfg = new Configuration(Configuration.VERSION_2_3_21);
+		cfg = FreemarkerUtils.createConfiguration(Configuration.VERSION_2_3_21);
 		String webRoot = serverConfig.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
 		cfg.setTemplateLoader(FreemarkerUtils.getTemplateLoader(webRoot, 
 				FreemarkerUtils.TEMPLATES_ROOT, getClass()));

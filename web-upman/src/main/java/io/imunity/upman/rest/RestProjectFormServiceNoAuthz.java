@@ -159,7 +159,7 @@ class RestProjectFormServiceNoAuthz
 		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		assertSignupEnquiryIsProvided(projectId, group);
 		EnquiryForm enquiryForm = EnquiryFormMapper.map(form);
-		formValidator.assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
+		formValidator.assertEnquiryFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
 		addSignupEnquiryFormAndUpdateGroupConfig(group, enquiryForm);
 	}
 
@@ -233,7 +233,7 @@ class RestProjectFormServiceNoAuthz
 
 		}
 		EnquiryForm enquiryForm = EnquiryFormMapper.map(restEnquiryForm);
-		formValidator.assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
+		formValidator.assertEnquiryFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
 		enquiryManagement.updateEnquiry(enquiryForm, ignoreRequests);
 	}
 
@@ -255,7 +255,7 @@ class RestProjectFormServiceNoAuthz
 		Group group = projectGroupProvider.getProjectGroup(projectId, projectPath);
 		assertMembershipUpdateIsProvided(projectId, group);
 		EnquiryForm enquiryForm = EnquiryFormMapper.map(form);
-		formValidator.assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
+		formValidator.assertEnquiryFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
 		addMembershipUpdateFormAndUpdateGroupConfig(group, enquiryForm);
 	}
 
@@ -334,7 +334,7 @@ class RestProjectFormServiceNoAuthz
 
 		}
 		EnquiryForm enquiryForm = EnquiryFormMapper.map(restEnquiryForm);
-		formValidator.assertCommonPartOfFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
+		formValidator.assertEnquiryFormIsRestrictedToProjectGroup(enquiryForm, projectPath);
 		enquiryManagement.updateEnquiry(enquiryForm, ignoreRequests);
 	}
 
