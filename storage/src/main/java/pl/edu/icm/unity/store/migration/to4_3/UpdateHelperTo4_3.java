@@ -22,11 +22,10 @@ class UpdateHelperTo4_3
 
 	static Optional<ObjectNode> updateEffectiveScopesInOauthToken(ObjectNode objContent)
 	{
-		if (objContent.has("effectiveScope"))
+		JsonNode effectiveScope = objContent.get("effectiveScope");
+		if (effectiveScope instanceof ArrayNode scopesArray && !scopesArray.isEmpty()
+				&& containsOnlyTextualScopes(scopesArray))
 		{
-			ArrayNode scopesArray = (ArrayNode) objContent.get("effectiveScope");
-			if (scopesArray.isEmpty())
-				return Optional.empty();
 			ArrayNode newScopes = Constants.MAPPER.createArrayNode();
 			for (JsonNode s : scopesArray)
 			{
@@ -48,5 +47,15 @@ class UpdateHelperTo4_3
 			return Optional.of(objContent);
 		}
 		return Optional.empty();
+	}
+
+	private static boolean containsOnlyTextualScopes(ArrayNode scopes)
+	{
+		for (JsonNode scope : scopes)
+		{
+			if (!scope.isTextual())
+				return false;
+		}
+		return true;
 	}
 }
